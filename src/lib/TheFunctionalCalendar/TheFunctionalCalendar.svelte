@@ -320,8 +320,8 @@
 
   .floating-button {
     position: absolute; 
-    right: 12px; 
-    bottom: 12px; 
+    right: 1vw; 
+    bottom: 1vw; 
     z-index: 1; 
     border: 1px solid lightgrey;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); 
