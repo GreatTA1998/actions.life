@@ -1,4 +1,3 @@
-<!-- {timeIndicatorOffset} -->
 <div class="current-time-indicator-container" 
   style="top: {timeIndicatorOffset}px"
 > 
@@ -24,12 +23,9 @@
   let timeIndicatorOffset
   let currentTimeString
 
-  // this reacts to the Home icon click which resets us back to today's position
-
-  // pase a function directly into a store to be called
-  // scrollToCurrentDay()
-  // but a boolean is helpful for disabling the intersection observer
-
+  // NOTE: clicking home will us back to today's position
+  // (alternative solution: pass a function directly into a store to be called `scrollToCurrentDay()`
+  // https://svelte.dev/tutorial/update: "Scrolling is hard to achieve with purely a state-driven way"
   $: if (!$hasInitialScrolled && CurrentTimeIndicator) {
     requestAnimationFrame(() => {
       scrollToTimeIndicator()
