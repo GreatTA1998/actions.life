@@ -19,7 +19,7 @@
 </script>
 
 <div class="corner-label" style="
-  height: {exactHeight + 1}px; 
+  height: {exactHeight}px; 
   --timestamps-column-width: {exactWidth}px;"
 >
   <div style="display: flex; justify-content: center;"
@@ -70,7 +70,7 @@
     width: var(--timestamps-column-width);
     background: var(--calendar-bg-color);
 
-    border-bottom: 1px solid lightgrey;
+    box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);
     border-right: 1px solid lightgrey;
   }
 

@@ -1,11 +1,12 @@
 import { writable } from 'svelte/store'
 export { templates, deleteTemplate, updateTemplate } from './templatesStore.js'
+export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes } from './calendarTimestamps.js'
+export { user } from './userStore.js'
 
 export const todoTasks = writable(null)
 export const calendarTasks = writable(null)
 export const loadingTasks = writable(false);
 
-export const user = writable({}) // {} means not logged in, cannot be null
 export const doodleIcons = writable([])
 
 export const hasFetchedUser = writable(false)
@@ -27,12 +28,6 @@ export const userInfoFromAuthProvider = writable({})
 export const whatIsBeingDragged = writable("")
 export const whatIsBeingDraggedID = writable("")
 export const whatIsBeingDraggedFullObj = writable(null)
-
-export const allTasksDueToday = writable([])
-export const allTasksDueThisWeek = writable([])
-export const allTasksDueThisMonth = writable([])
-export const allTasksDueThisYear = writable([])
-export const allTasksDueThisLife = writable([])
 
 export const inclusiveWeekTodo = writable([])
 

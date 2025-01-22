@@ -1,19 +1,18 @@
 <script>
+  import TimestampLabels from './TimestampLabels.svelte'
   import DayColumn from './DayColumn.svelte'
   import DayHeader from './DayHeader.svelte'
-  import CalendarTimestamps from './CalendarTimestamps.svelte'
-  import YearAndMonthTile from './YearAndMonthTile.svelte'
   import MultiPhotoUploader from '../MultiPhotoUploader.svelte'
+  import YearAndMonthTile from './YearAndMonthTile.svelte'
 
   import Tasks from '/src/back-end/Tasks'
   import { buildCalendarDataStructures } from '/src/helpers/maintainState.js'
   import { trackWidth, trackHeight } from '/src/helpers/actions.js'
   import { DateTime } from 'luxon'
   import {
-    tasksScheduledOn,
     user,
-    calendarTasks,
-    hasInitialScrolled
+    calendarTasks, tasksScheduledOn,
+    hasInitialScrolled,
   } from '/src/store'
 
   export let isCompact = false
@@ -204,16 +203,14 @@
     on:scroll={(e) => (scrollX = e.target.scrollLeft)}
   >
     <div class="scroll-content" style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px">
-      <CalendarTimestamps
+      <TimestampLabels
         {isCompact}
         pixelsPerHour={PIXELS_PER_HOUR}
         topMargin={exactHeight}
       />
 
-      <!-- we use absolute positioning instead of `translateX` because iOS safari drag-drop is glitchy with translated elements -->
       {#if dtOfActiveColumns[0] && $tasksScheduledOn}
         <div class="visible-days"
-          style="position: absolute"
           style:left={`${dtOfActiveColumns[0].diff(calOriginDT, 'days').days * COLUMN_WIDTH}px`}
         >
           <div use:trackHeight={newHeight => exactHeight = newHeight}
@@ -233,14 +230,7 @@
 
           <div class="day-columns">
             {#each dtOfActiveColumns as currentDate (currentDate.toMillis())}
-              <DayColumn
-                calendarBeginningDateClassObject={DateTime.fromISO(
-                  currentDate.toFormat('yyyy-MM-dd')
-                ).set({ 
-                  hour: Number('07:15'.split(':')[0]), 
-                  minutes: Number('23:15'.split(':')[1]) 
-                })
-                .toJSDate()}
+              <DayColumn yyyyMMdd={currentDate.toFormat('yyyy-MM-dd')}
                 pixelsPerHour={PIXELS_PER_HOUR}
                 scheduledTasks={$tasksScheduledOn[currentDate.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
                 on:task-update
@@ -298,7 +288,9 @@
   }
 
   .visible-days {
-    position: absolute;
+    /* we use absolute positioning instead of `translateX` because iOS safari drag-drop is glitchy with translated elements */
+    position: absolute; 
+
     left: 60px; /* Timestamp width */
   }
 
@@ -312,10 +304,13 @@
 
   .day-columns {
     display: flex;
+
+    /* timestamp has a height of 14px (despite a font size of 12px) */
+    padding-top: 7px;
   }
 
   .bottom-border {
-    border-bottom: 1px solid lightgrey;
+    box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);
   }
 
   .floating-button {

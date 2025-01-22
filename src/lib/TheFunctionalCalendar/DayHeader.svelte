@@ -99,14 +99,7 @@
   <!-- END OF DOCKING AREA -->
 
   {#if isDirectlyCreatingTask}
-    <div
-      id="calendar-direct-task-div"
-      style="
-        width: 90%; 
-        padding-left: 0px; 
-        padding-right: 0px;
-      "
-    >
+    <div id="calendar-direct-task-div">
       <ReusableCreateTaskDirectly
         newTaskStartTime={''}
         resultantDateClassObject={DateTime.fromISO(ISODate).toJSDate()}
@@ -118,6 +111,12 @@
 </div>
 
 <style>
+  #calendar-direct-task-div {
+    width: 90%; 
+    padding-left: 0px; 
+    padding-right: 0px;
+  }
+
   .flexible-day-task {
     display: flex;
     width: var(--width-calendar-day-section); 
@@ -169,9 +168,5 @@
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-
-  .highlighted-circle {
-    border-radius: 25px;
   }
 </style>

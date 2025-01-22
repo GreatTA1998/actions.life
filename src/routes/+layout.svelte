@@ -6,11 +6,14 @@
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { doc, setDoc, onSnapshot } from 'firebase/firestore'
   import { onMount } from 'svelte'
+  import { translateJSConstantsToCSSVariables } from '/src/helpers/constants.js'
   import posthog from 'posthog-js'
   let unsubUserSnapListener = null
   let doingAuth = true
 
   onMount(() => {
+    translateJSConstantsToCSSVariables()
+
     // fetching user takes around 300 - 500 ms
     onAuthStateChanged(getAuth(), async (resultUser) => {
       if (!resultUser) {

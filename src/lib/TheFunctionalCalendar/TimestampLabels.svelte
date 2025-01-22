@@ -1,7 +1,6 @@
 <script>
-  import { user } from '/src/store'
   import { WIDTHS } from '/src/helpers/constants.js'
-  import { getTimestamps, getMinutesDiff } from '/src/helpers/calendarTimestamps.js'
+  import { timestamps, calEarliestHHMM, totalMinutes } from '/src/store/calendarTimestamps.js'
 
   export let pixelsPerHour
   export let topMargin
@@ -9,17 +8,8 @@
 
   let timestampsColumnWidth = isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
 
-  let timesOfDay = getTimestamps({ calEarliestHHMM: '07:15', calLatestHHMM: '23:15' })
-  const minutesDiff = getMinutesDiff({ calEarliestHHMM: '07:15', calLatestHHMM: '23:15' })
-
-  $: if ($user) {
-    timesOfDay = getTimestamps({ calEarliestHHMM: '07:15', calLatestHHMM: '23:15' })
-  }
-
-  getTimestamps({ calEarliestHHMM: '07:15', calLatestHHMM: '23:15' })
-
   function getTopOffset (timestamp) {
-    return (timeToMinutes(timestamp) - timeToMinutes('07:15')) * (pixelsPerHour / 60)
+    return (timeToMinutes(timestamp) - timeToMinutes($calEarliestHHMM)) * (pixelsPerHour / 60)
   }
 
   function timeToMinutes (time) {
@@ -29,11 +19,12 @@
 </script>
 
 <div class="timestamps" style="
-  height: {minutesDiff * (pixelsPerHour / 60)}px;
+  height: {$totalMinutes * (pixelsPerHour / 60)}px;
   --timestamps-column-width: {timestampsColumnWidth}px; 
-  margin-top: {topMargin}px;"
+  margin-top: {topMargin}px;
+"
 >
-  {#each timesOfDay as timestamp, i (timestamp)}
+  {#each $timestamps as timestamp, i (timestamp)}
     <div class="absolute-timestamp" style="top: {getTopOffset(timestamp)}px;">
       {timestamp.substring(0, 5)}
     </div>

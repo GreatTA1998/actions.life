@@ -17,7 +17,7 @@
   import { hasInitialScrolled } from '/src/store'
 
   export let pixelsPerMinute
-  export let calendarBeginningDateClassObject
+  export let originDT
 
   let CurrentTimeIndicator
   let intervalID = ''
@@ -59,7 +59,7 @@
 
   function computeTimeIndicatorOffset () {
     const i = Interval.fromDateTimes(
-      DateTime.fromJSDate(calendarBeginningDateClassObject),
+      originDT,
       DateTime.now()
     )
     const minutesDifference = i.length() / (1000 * 60)

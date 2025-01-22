@@ -15,14 +15,11 @@
   import NewThisWeekTodo from '$lib/NewThisWeekTodo.svelte'
 
   import { handleInitialTasks } from './handleTasks.js'
-  import { setCalendarTheme } from '/src/helpers/color-utils.js'
-  import { translateJSConstantsToCSSVariables } from '/src/helpers/constants.js'
   import {
     mostRecentlyCompletedTaskID,
     user,
     showSnackbar,
   } from '/src/store'
-  import { themeColors } from '/src/store/colorGradient.js'
 
   import {
     createTaskNode,
@@ -44,9 +41,6 @@
     if (clickedTaskID) clickedTask = findTaskByID(clickedTaskID)
     else clickedTask = {}
   }
-  
-  $: setCalendarTheme($user.calendarTheme)
-  $: updateCSSVars($themeColors)
 
   onMount(async () => {
     if (!dev) {
@@ -59,15 +53,6 @@
     }
     handleInitialTasks($user.uid)
   })
-
-  // TO-DO: unify this function with the one for MobileMode, and with constants.js
-  function updateCSSVars () {
-    document.documentElement.style.setProperty('--todo-list-bg-color', $themeColors.todoList)
-    document.documentElement.style.setProperty('--calendar-bg-color', $themeColors.calendar)
-    document.documentElement.style.setProperty('--navbar-bg-color', $themeColors.navbar)
-
-    translateJSConstantsToCSSVariables()
-  }
   
   function openDetailedCard({ task }) {
     clickedTaskID = task.id

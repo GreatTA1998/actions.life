@@ -136,9 +136,6 @@
   import { createTaskNode, updateTaskNode, deleteTaskNode } from '/src/helpers/crud.js'
   import { fetchMobileTodoTasks, fetchMobileCalTasks } from '$lib/MainPage/handleTasks.js'
 
-  import { themeColors } from '/src/store/colorGradient.js'
-  import { setCalendarTheme } from '/src/helpers/color-utils.js'
-
   let isTesting = false
   let activeTabName = 'CALENDAR_VIEW' // probably the new user default, butthen persists the user's preference e.g. I prefer the to-do
   let unsub
@@ -148,15 +145,6 @@
   
   let isDetailedCardOpen = false
   let clickedTask = {}
-
-  $: setCalendarTheme($user.calendarTheme)
-  $: updateCSSVars($themeColors)
-
-  function updateCSSVars () {
-    document.documentElement.style.setProperty('--todo-list-bg-color', $themeColors.todoList)
-    document.documentElement.style.setProperty('--calendar-bg-color', $themeColors.calendar)
-    document.documentElement.style.setProperty('--navbar-bg-color', $themeColors.navbar)
-  }
 
   onMount(async () => {
     fetchMobileTodoTasks($user.uid)

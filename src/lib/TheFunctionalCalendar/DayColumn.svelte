@@ -5,8 +5,7 @@
     computeMillisecsDifference,
     ensureTwoDigits,
     getHHMM,
-  } from "/src/helpers/everythingElse.js";
-  import { getMinutesDiff } from "/src/helpers/calendarTimestamps.js"
+  } from "/src/helpers/everythingElse.js"
 
   import ReusableTaskElement from "$lib/ReusableTaskElement.svelte"
   import ReusablePhotoTaskElement from "$lib/ReusablePhotoTaskElement.svelte"
@@ -15,19 +14,17 @@
   import {
     user,
     yPosWithinBlock,
-    whatIsBeingDraggedFullObj,
-    whatIsBeingDraggedID,
-    whatIsBeingDragged
+    whatIsBeingDraggedFullObj,whatIsBeingDraggedID, whatIsBeingDragged,
+    timestamps, getMinutesDiff,
+    calEarliestHHMM, totalMinutes
   } from "/src/store"
   import ReusableCreateTaskDirectly from "$lib/ReusableCreateTaskDirectly.svelte"
   import ReusableCalendarColumnTimeIndicator from "$lib/ReusableCalendarColumnTimeIndicator.svelte"
 
+  export let yyyyMMdd
   export let scheduledTasks = []
   export let pixelsPerHour
-  export let calendarBeginningDateClassObject
-  export let numOfDisplayedHours = 24
 
-  const minutesDiff = getMinutesDiff({ calEarliestHHMM: '07:15', calLatestHHMM: '23:15' })
   let OverallContainer
   let isDirectlyCreatingTask = false
   let formFieldTopPadding = 40
@@ -35,6 +32,11 @@
   let reusableTaskTemplates = null
   let pixelsPerMinute = pixelsPerHour / 60
   const dispatch = createEventDispatcher()
+
+  $: originDT = DateTime.fromISO(yyyyMMdd).set({ 
+    hour: Number($calEarliestHHMM.split(':')[0]), 
+    minutes: Number($calEarliestHHMM.split(':')[1]) 
+  })
 
   $: resultantDateClassObject = getResultantDateClassObject(yPosition)
 
@@ -100,9 +102,6 @@
     // `trueY` is the end position of the mouse
     const finalMousePosY = copyGetTrueY(e);
 
-    // origin
-    const calendarStartAsMs = calendarBeginningDateClassObject.getTime();
-
     // account for dragging the block from really low or from really high up
     const trueY = finalMousePosY - $yPosWithinBlock;
     yPosWithinBlock.set(0);
@@ -128,8 +127,8 @@
     whatIsBeingDragged.set('')
   }
 
-  function getResultantDateClassObject(trueY) {
-    const calendarStartAsMs = calendarBeginningDateClassObject.getTime();
+  function getResultantDateClassObject (trueY) {
+    const calendarStartAsMs = originDT.toMillis()
 
     const totalHoursDistance = trueY / pixelsPerHour;
     const totalMsDistance = totalHoursDistance * 60 * 60 * 1000;
@@ -148,12 +147,8 @@
 
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
 <div bind:this={OverallContainer} class="overall-container">
-  <!-- 
-    margin-bottom: 1px; 
-    color: #6D6D6D; 
-  -->
   <div class="calendar-day-container unselectable"
-    style="height: {minutesDiff * pixelsPerMinute}px;"
+    style="height: {$totalMinutes * pixelsPerMinute}px;"
     on:drop={e => drop_handler(e)}
     on:dragover={e => dragover_handler(e)}
     on:click|self={e => {
@@ -161,29 +156,23 @@
       yPosition = copyGetTrueY(e);
     }} on:keydown
   >
-    {#if $whatIsBeingDraggedFullObj}
-      {#each {length: numOfDisplayedHours} as _, i}
+    {#if $whatIsBeingDraggedFullObj || $user.hasGridlines}
+      {#each $timestamps as timestamp}
         <div class="my-helper-gridline" 
-          style="height: 1px; margin-bottom: {pixelsPerMinute * 60 - 1}px;"
+          style="top: {getMinutesDiff({ calEarliestHHMM: $calEarliestHHMM, calLatestHHMM: timestamp }) * pixelsPerMinute}px;"
         >
         </div>
       {/each}
     {/if}
 
     {#each scheduledTasks as task, i (task.id)}
-      <div
+      <div class="task-absolute"
         style="
-          position: absolute; 
           top: {computeOffsetGeneral({
-            d1: calendarBeginningDateClassObject,
+            d1: originDT.toJSDate(),
             d2: getJSDateFromTask(task),
-            pixelsPerMinute,
+            pixelsPerMinute
           })}px;
-          left: 0;
-          right: 0;
-          margin-left: auto;
-          margin-right: auto;
-          width: 94%;
         "
       >
         {#if task.iconURL}
@@ -217,21 +206,14 @@
     {/each}
 
     {#if isDirectlyCreatingTask}
-      <div
-        id="calendar-direct-task-div"
-        style="
-          top: {yPosition - formFieldTopPadding}px;
-          position: absolute;
-          width: 98%; 
-          padding-left: 0px; 
-          padding-right: 0px;
-        "
+      <div id="calendar-direct-task-div"
+        style="top: {yPosition - formFieldTopPadding}px;"
       >
         <ReusableCreateTaskDirectly
           newTaskStartTime={getHHMM(resultantDateClassObject)}
           {resultantDateClassObject}
           on:new-root-task
-          on:reset={() => (isDirectlyCreatingTask = false)}
+          on:reset={() => isDirectlyCreatingTask = false}
         />
       </div>
     {/if}
@@ -240,23 +222,38 @@
       "Scrolling is hard to achieve with purely a state-driven way"
     -->
     <!-- A wood-colored line that indicates the current time -->
-    {#if 
-      DateTime.fromJSDate(calendarBeginningDateClassObject).toFormat('yyyy-MM-dd')
-      === DateTime.now().toFormat('yyyy-MM-dd')
-    }
+    {#if yyyyMMdd === DateTime.now().toFormat('yyyy-MM-dd')}
       <ReusableCalendarColumnTimeIndicator
+        {originDT}
         {pixelsPerMinute}
-        {calendarBeginningDateClassObject}
       />
     {/if}
   </div>
 </div>
 
 <style lang="scss">
+  #calendar-direct-task-div {
+    position: absolute;
+    width: 98%; 
+    padding-left: 0px; 
+    padding-right: 0px;
+  }
+
+  .task-absolute {
+    position: absolute; 
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 94%;
+  }
+
   .my-helper-gridline {
-    // ChatGPT suggested this maximal contrast
-    border-bottom: 1px solid hsl(210, 100%, 40%);
+    position: absolute;
     width: 100%;
+    height: 0px;
+    border-bottom: 1px solid var(--grid-color);
+    // ChatGPT suggested this blue for max contrast: hsl(210, 100%, 40%);
   }
 
   .current-time-indicator-container {
@@ -275,6 +272,7 @@
     overflow-x: hidden;
     width: var(--width-calendar-day-section);
     background-color: var(--calendar-bg-color);
+    outline: 1px solid var(--grid-color);
   }
 
   .highlighted-background {

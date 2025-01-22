@@ -75,11 +75,7 @@
     </div>
 
     <MinimalisticInput
-      pattern="[0-9]*"
-      max="1000"
-      fieldLabel="Duration"
       value={Math.round(taskObject.duration)}
-      willAutofocus={false}
       on:input={e => handleChanges("duration", Number(e.target.value))}
     />
   </div>
