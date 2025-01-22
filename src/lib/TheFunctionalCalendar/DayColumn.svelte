@@ -3,7 +3,7 @@
   import ReusablePhotoTaskElement from "$lib/ReusablePhotoTaskElement.svelte"
   import ReusableIconTaskElement from "$lib/ReusableIconTaskElement.svelte"
   import ReusableCreateTaskDirectly from "$lib/ReusableCreateTaskDirectly.svelte"
-  import ReusableCalendarColumnTimeIndicator from "$lib/ReusableCalendarColumnTimeIndicator.svelte"
+  import TimeIndicator from "./TimeIndicator.svelte"
 
   import Templates from '/src/back-end/Templates'
 
@@ -207,8 +207,7 @@
     {/if}
 
     {#if yyyyMMdd === DateTime.now().toFormat('yyyy-MM-dd')}
-      <ReusableCalendarColumnTimeIndicator
-        {originDT}
+      <TimeIndicator {originDT} 
         {pixelsPerMinute}
       />
     {/if}
