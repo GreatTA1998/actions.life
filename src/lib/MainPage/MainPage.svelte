@@ -1,6 +1,7 @@
 <script>
   import TopNavbar from './TopNavbar.svelte'
   import TheFunctionalCalendar from '$lib/TheFunctionalCalendar/TheFunctionalCalendar.svelte'
+  import HistoryArchive from '$lib/HistoryArchive/index.svelte'
   import Templates from '$lib/Templates/Templates.svelte'
   import AI from '../AI/AI.svelte'
   import TheSnackbar from '$lib/TheSnackbar.svelte'
@@ -143,8 +144,13 @@
         <AI />
       </div>
     </div>
+
     <div style="width: 100%; background: hsl(98, 40%, 96%); display: {currentMode === 'Templates' ? 'block' : 'none'}">
       <Templates />
+    </div>
+
+    <div style="display: {currentMode === 'Archive' ? 'block' : 'none'}; width: 100%; height: 100%;">
+      <HistoryArchive />
     </div>
   </div>
 </NavbarAndContentWrapper>

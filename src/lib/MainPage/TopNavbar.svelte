@@ -56,6 +56,15 @@
         autorenew
       </span>
     </button>
+
+    <button on:click={() => updateMode('Archive')}
+      class="ux-tab-item"
+      class:active-ux-tab={currentMode === 'Archive'}
+    >
+      <span class="material-symbols-outlined" style="font-size: 32px;">
+        history
+      </span>
+    </button>
   </div>
 
   <div style="display: flex; gap: 28px; align-items: center;">
@@ -104,19 +113,18 @@
     font-weight: 300;
   }
 
-  .transparent-inactive-tab {
-    color: black;
-    font-weight: 400;
-  }
-
   .active-ux-tab {
     border-bottom: 1px solid var(--location-indicator-color);
     color: var(--location-indicator-color);
     font-weight: 500;
   }
 
+  /* Transparent over-lay navbar that we might re-introduce later as a theme */
+  .transparent-inactive-tab {
+    color: black;
+    font-weight: 400;
+  }
 
-  /* Transparent over-lay navbar that we might re-introduce later */
   .container-for-float-cards {
     margin: auto;
     height: 70%;
