@@ -1,38 +1,48 @@
 <script>
   import PhotoGrid from './PhotoGrid.svelte'
-  import JournalEntries from './JournalEntries.svelte'
+  import JournalEntries from './JournalEntries.svelte'  
+  import ListenToDoc from './ListenToDoc.svelte'
   import { user } from '/src/store/userStore.js'
-  import { getFirestoreCollection, getFirestoreQuery, createFirestoreQuery } from '/src/helpers/firestoreHelpers.js'
-  import { formatDate } from '/src/helpers/everythingElse.js'
+  import { getFirestoreQuery } from '/src/helpers/firestoreHelpers.js'
   import { onMount } from 'svelte'
-  import { collection, query, where, orderBy } from 'firebase/firestore'
+  import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
   import { db } from "/src/back-end/firestoreConnection"
 
   let sidebarOpen = true
   let routines = null
-  let selectedRoutine =  null
+  let selectedRoutineID = ''
   let routineInstances = null
   let photoTasks = null
   let isViewingPhotos = true
 
-  $: if (selectedRoutine) {
+  $: if (selectedRoutineID) {
     fetchRoutineInstances()
   }
 
   onMount(async () => {
-    fetchRoutines()
+    listenToRoutines()
   })
 
-  async function fetchRoutines () {
-    const temp = await getFirestoreCollection('/users/' + $user.uid + '/templates')
-    routines = temp
+  async function listenToRoutines () {
+    const ref = collection(db, '/users/' + $user.uid + '/templates')
+
+    onSnapshot(ref, (querySnapshot) => {
+      const temp = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+      // Sort by starred first, then alphabetically by name
+      temp.sort((a, b) => {
+        if (a.isStarred && !b.isStarred) return -1
+        if (!a.isStarred && b.isStarred) return 1
+        return (a.name || '').localeCompare(b.name || '')
+      })
+      routines = temp
+    })
   }
 
   async function fetchRoutineInstances () {
     const ref = collection(db, '/users/' + $user.uid + '/tasks')
 
     const q = query(ref, 
-      where('templateID', '==', selectedRoutine.id),
+      where('templateID', '==', selectedRoutineID),
       orderBy('startDateISO', 'desc')
     )
     const temp = await getFirestoreQuery(q)
@@ -42,17 +52,20 @@
 
 <div class="container" class:sidebar-closed={!sidebarOpen}>
   <nav class="sidebar">
-    <!-- <button on:click={() => sidebarOpen = !sidebarOpen}>
-      {sidebarOpen ? '←' : '→'}
-    </button> -->
-
     <div class="nav-items">  
-      <div 
+      <div class="photo-nav-item" style="border: none; opacity: 0.2;">  
+        <span class="material-symbols-outlined">search</span>
+        Search
+      </div>
+    </div>
+    
+    <div class="nav-items">  
+      <div class="photo-nav-item"
         on:click={() => { 
-          isViewingPhotos = true; selectedRoutine = null
+          isViewingPhotos = true; selectedRoutineID = ''
         }}
+        on:keydown
         class:selected-item={isViewingPhotos}
-        style="border-bottom: 1px solid #ddd; margin-top: 24px; margin-bottom: 24px; padding: 4px 8px; display: flex; align-items: center; column-gap: 4px;"
       >  
         <span class="material-symbols-outlined">photo_library</span>
         Photos
@@ -60,18 +73,26 @@
       
       {#if routines}
         {#each routines as routine (routine.id)}
-          <div on:click={() => { 
-            selectedRoutine = routine; isViewingPhotos = false;
-          }}
+          <div 
+            on:click={() => { 
+              selectedRoutineID = routine.id; isViewingPhotos = false;
+            }} 
+            on:keydown
             class="nav-item" 
-            class:selected-item={selectedRoutine?.id === routine.id}
+            class:selected-item={selectedRoutineID === routine.id}
           >
             {#if routine.iconURL}
               <img src={routine.iconURL} alt={routine.name} style="width: 16px; height: 16px;" />
             {:else}
-              <img style="flex-basis: 16px; flex-shrink: 0; height: 16px; visibility: hidden;">
+              <div style="flex-basis: 16px; flex-shrink: 0; height: 16px; visibility: hidden;" alt="empty"></div>
             {/if}
             <span>{routine.name}</span>
+
+            {#if routine.isStarred}
+              <span class="star-icon material-icons">
+                star
+              </span>
+            {/if}
           </div>
         {/each}
       {/if}
@@ -83,15 +104,21 @@
       Historical Archive
     </div>
 
-    {#if isViewingPhotos && !selectedRoutine}
+    {#if isViewingPhotos && !selectedRoutineID}
       <PhotoGrid 
         {photoTasks}
       />
-    {:else if selectedRoutine}
-      <JournalEntries 
-        {selectedRoutine} 
-        {routineInstances}
-      />
+    {:else if selectedRoutineID}
+      <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}
+        let:theDoc={selectedRoutine}
+      >
+        {#if selectedRoutine}
+          <JournalEntries 
+            {selectedRoutine}
+            {routineInstances}
+          />
+        {/if}
+      </ListenToDoc>
     {/if}
   </main>
 </div>
@@ -123,6 +150,10 @@
     height: 100%;
   }
 
+  .photo-nav-item {
+    border-bottom: 1px solid #ddd; margin-top: 24px; margin-bottom: 24px; padding: 4px 8px; display: flex; align-items: center; column-gap: 4px;
+  }
+
   .nav-items {
     display: grid;
     min-width: 0;
@@ -136,6 +167,8 @@
     align-items: center;
     column-gap: 4px;
     min-width: 0;
+    max-height: 40px;
+    position: relative;
   }
 
   .nav-item > span:last-child {
@@ -148,5 +181,12 @@
 
   .selected-item {
     background-color: #e0e0e0;
+  }
+
+  .star-icon {
+    position: absolute;
+    right: 8px;
+    font-size: 14px;
+    color: #ffd700;
   }
 </style>

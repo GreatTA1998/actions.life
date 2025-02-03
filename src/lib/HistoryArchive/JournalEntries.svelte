@@ -1,8 +1,16 @@
 <script>
+  import { user } from '/src/store/userStore.js'
+  import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import { formatDate } from '/src/helpers/everythingElse.js'
 
-  export let selectedRoutine = null
   export let routineInstances = null
+  export let selectedRoutine = null
+
+  function togglePinToFavorite (routine) {
+    updateFirestoreDoc(`/users/${$user.uid}/templates/${routine.id}`, {
+      isStarred: !routine.isStarred
+    })
+  }
   
   function calculateGap(currentDate, nextDate) {
     if (!nextDate) return { type: 'normal', days: 0 }
@@ -81,12 +89,20 @@
   }[dominantGapSize] || 1;
 </script>
 
-<h2 style="margin-top: 4px;">
+<h2 style="margin-top: 4px; display: flex; align-items: top;">
   {#if selectedRoutine.iconURL}
     <img src={selectedRoutine.iconURL} alt={selectedRoutine.name} />
   {:else}
     {selectedRoutine.name}
   {/if}
+
+  <button class:shining={selectedRoutine.isStarred} on:click={() => togglePinToFavorite(selectedRoutine)} 
+    style="margin-left: auto; margin-right: 16px; font-size: 36px;"
+    class:material-symbols-outlined={!selectedRoutine.isStarred}
+    class:material-icons={selectedRoutine.isStarred}
+    >
+    star
+  </button>
 </h2>
 
 <div class="journal-entries">
@@ -95,7 +111,8 @@
       {@const gap = calculateGap(instance.startDateISO, routineInstances[i + 1]?.startDateISO)}
       <div class="entry-wrapper" 
         data-gap={gap.type}
-        style="--gap-size: {calculateGapSize(gap.days)}px">
+        style="--gap-size: {calculateGapSize(gap.days)}px"
+      >
         <div class="journal-entry">
           <div class="journal-entry-header">
             <div class="date-time">
@@ -106,7 +123,7 @@
           </div>
           <div class="journal-entry-notes">
             {#if instance.imageDownloadURL}
-              <img src={instance.imageDownloadURL} alt="Task" />
+              <img src={instance.imageDownloadURL} alt="Task" style="height: 300px; width: auto;" />
             {/if}
 
             {instance.notes || ''}
@@ -126,6 +143,11 @@
 </div>
 
 <style>
+  .shining {
+    animation: shining 1s infinite;
+    color: #ffd700;
+  }
+
   .journal-entries {
     display: flex;
     flex-direction: column;
@@ -236,6 +258,9 @@
     color: rgb(55, 55, 55);
     line-height: 1.5;
     padding-right: 100px;  /* Make space for duration */
+    display: flex; 
+    align-items: top;
+    column-gap: 8px;
   }
 
   /* Time-based gap sizes - more differentiated spacing */
@@ -260,13 +285,5 @@
   .entry-wrapper[data-gap="wider"] .time-gap-container,
   .entry-wrapper[data-gap="widest"] .time-gap-container {
     opacity: 1;
-  }
-
-  /* Show zigzag for wide gaps and above */
-  .entry-wrapper[data-gap="wide"] .time-gap-indicator,
-  .entry-wrapper[data-gap="wider"] .time-gap-indicator,
-  .entry-wrapper[data-gap="widest"] .time-gap-indicator {
-    opacity: 1;
-    margin: 12px 0;
   }
 </style>
