@@ -5,15 +5,25 @@
   export let routineInstances = null
   
   function calculateGap(currentDate, nextDate) {
-    if (!nextDate) return 'normal'
+    if (!nextDate) return { type: 'normal', days: 0 }
     
     const daysDiff = Math.floor((new Date(currentDate) - new Date(nextDate)) / (1000 * 60 * 60 * 24))
     
-    if (daysDiff < 1) return 'tight'      // Same day
-    if (daysDiff < 3) return 'normal'     // Within 3 days
-    if (daysDiff < 14) return 'wide'      // Within 2 weeks
-    if (daysDiff < 45) return 'wider'     // Within 1.5 months
-    return 'widest'                       // More than 1.5 months
+    // Return both the type and the actual number of days
+    if (daysDiff < 1) return { type: 'tight', days: daysDiff }
+    if (daysDiff < 3) return { type: 'normal', days: daysDiff }
+    if (daysDiff < 14) return { type: 'wide', days: daysDiff }
+    if (daysDiff < 45) return { type: 'wider', days: daysDiff }
+    return { type: 'widest', days: daysDiff }
+  }
+
+  function calculateGapSize(days) {
+    // Base size for 1-day gap
+    const baseSize = 16;
+    // Use natural log with an offset to handle 0 and small values
+    const logScale = Math.log(days + 1) * baseSize;
+    // Cap the maximum gap size
+    return Math.min(logScale, 160);
   }
 
   function formatDuration(minutes) {
@@ -45,6 +55,30 @@
     if (daysDiff < 365) return `${Math.floor(daysDiff/30)} months`
     return `${Math.floor(daysDiff/365)} years`
   }
+
+  // Add function to determine the dominant gap size
+  function getDominantGapSize(instances) {
+    if (!instances || instances.length < 2) return 'normal';
+    
+    const gapCounts = {};
+    for (let i = 0; i < instances.length - 1; i++) {
+      const gap = calculateGap(instances[i].startDateISO, instances[i + 1].startDateISO);
+      gapCounts[gap.type] = (gapCounts[gap.type] || 0) + 1;
+    }
+    
+    return Object.entries(gapCounts)
+      .sort(([,a], [,b]) => b - a)[0][0]; // Returns the most frequent gap type
+  }
+
+  // Make this reactive
+  $: dominantGapSize = getDominantGapSize(routineInstances);
+  $: scaleFactor = {
+    'tight': 0.5,    // For timelines with mostly same-day entries
+    'normal': 1,     // Base scale
+    'wide': 1.2,     // For timelines with mostly 2-week gaps
+    'wider': 1.5,    // For timelines with mostly monthly gaps
+    'widest': 2      // For timelines with mostly multi-month gaps
+  }[dominantGapSize] || 1;
 </script>
 
 <h2>
@@ -58,10 +92,10 @@
 <div class="journal-entries">
   {#if routineInstances}
     {#each routineInstances as instance, i (instance.id)}
-      <div class="entry-wrapper" data-gap={calculateGap(
-        instance.startDateISO, 
-        routineInstances[i + 1]?.startDateISO
-      )}>
+      {@const gap = calculateGap(instance.startDateISO, routineInstances[i + 1]?.startDateISO)}
+      <div class="entry-wrapper" 
+        data-gap={gap.type}
+        style="--gap-size: {calculateGapSize(gap.days)}px">
         <div class="journal-entry">
           <div class="journal-entry-header">
             <div class="date-time">
@@ -81,11 +115,9 @@
         
         {#if routineInstances[i + 1]}
           <div class="time-gap-container">
-            <div class="time-gap-indicator"></div>
             <div class="time-gap-label">
               {formatTimeGap(instance.startDateISO, routineInstances[i + 1].startDateISO)}
             </div>
-            <div class="time-gap-indicator"></div>
           </div>
         {/if}
       </div>
@@ -98,80 +130,90 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    position: relative;
+  }
+
+  /* Timeline vertical line */
+  .journal-entries::before {
+    content: '';
+    position: absolute;
+    left: 80px;  /* Reduced from 120px */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #ddd;
   }
 
   .entry-wrapper {
-    margin-bottom: var(--gap-size);
-  }
-
-  /* Time-based gap sizes - reduced spacing */
-  .entry-wrapper[data-gap="tight"] {
-    --gap-size: 12px;
-  }
-  .entry-wrapper[data-gap="normal"] {
-    --gap-size: 16px;
-  }
-  .entry-wrapper[data-gap="wide"] {
-    --gap-size: 32px;
-  }
-  .entry-wrapper[data-gap="wider"] {
-    --gap-size: 48px;
-  }
-  .entry-wrapper[data-gap="widest"] {
-    --gap-size: 64px;
-  }
-
-  /* Show zigzag for wide gaps and above */
-  .entry-wrapper[data-gap="wide"] .time-gap-indicator,
-  .entry-wrapper[data-gap="wider"] .time-gap-indicator,
-  .entry-wrapper[data-gap="widest"] .time-gap-indicator {
-    opacity: 1;
-    margin: 12px 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
   }
 
   .time-gap-container {
     position: relative;
-    height: 20px;
-    width: 100%;
+    left: 80px;
+    width: 2px;
     opacity: 0;
     transition: opacity 0.2s ease;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .time-gap-indicator {
-    height: 1px;
-    width: 100%;
-    background-color: #ddd;
+    height: var(--gap-size);
   }
 
   .time-gap-label {
+    position: absolute;
+    right: calc(100% + 8px);
+    top: 50%;  /* Position at the middle of the gap */
+    transform: translateY(-50%);  /* Center the label vertically */
     font-size: 0.85em;
     color: #666;
     white-space: nowrap;
+    background: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-align: right;
+    line-height: 1;
   }
 
-  /* Show container for wide gaps and above */
-  .entry-wrapper[data-gap="wide"] .time-gap-container,
-  .entry-wrapper[data-gap="wider"] .time-gap-container,
-  .entry-wrapper[data-gap="widest"] .time-gap-container {
-    opacity: 1;
-    margin: 8px 0;
+  .journal-entry {
+    width: 100%;
+    padding-left: 120px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .journal-entry::before {
+    content: '';
+    position: absolute;
+    left: 76px;
+    top: 15px;  /* Adjusted to better align with text */
+    width: 8px;
+    height: 8px;
+    background: white;
+    border: 2px solid #666;
+    border-radius: 50%;
+    transform: translateY(-50%);  /* Add back transform for precise centering */
   }
 
   .journal-entry-header {
+    margin-left: -120px;
+    padding-left: 120px;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
+    position: relative;
+    min-height: 24px;
+    padding-top: 4px;  /* Add slight padding to balance the header */
   }
 
   .date-time {
     display: flex;
     align-items: center;
     gap: 8px;
+    line-height: 1.2;  /* Slightly increased for better text alignment */
   }
 
   .date {
@@ -183,14 +225,48 @@
   }
 
   .duration {
+    position: absolute;
+    right: 0;  /* Align to the right edge */
     font-size: 0.9em;
     color: #666;
-    padding: 2px 8px;
     border-radius: 4px;
   }
 
   .journal-entry-notes {
     color: rgb(55, 55, 55);
     line-height: 1.5;
+    padding-right: 100px;  /* Make space for duration */
+  }
+
+  /* Time-based gap sizes - more differentiated spacing */
+  .entry-wrapper[data-gap="tight"] {
+    --gap-size: 12px;
+  }
+  .entry-wrapper[data-gap="normal"] {
+    --gap-size: 16px;
+  }
+  .entry-wrapper[data-gap="wide"] {
+    --gap-size: 40px;  /* Increased from 32px */
+  }
+  .entry-wrapper[data-gap="wider"] {
+    --gap-size: 96px;  /* Increased from 64px */
+  }
+  .entry-wrapper[data-gap="widest"] {
+    --gap-size: 160px;  /* Increased from 96px */
+  }
+
+  /* More dramatic scaling ratios */
+  .entry-wrapper[data-gap="wide"] .time-gap-container,
+  .entry-wrapper[data-gap="wider"] .time-gap-container,
+  .entry-wrapper[data-gap="widest"] .time-gap-container {
+    opacity: 1;
+  }
+
+  /* Show zigzag for wide gaps and above */
+  .entry-wrapper[data-gap="wide"] .time-gap-indicator,
+  .entry-wrapper[data-gap="wider"] .time-gap-indicator,
+  .entry-wrapper[data-gap="widest"] .time-gap-indicator {
+    opacity: 1;
+    margin: 12px 0;
   }
 </style>
