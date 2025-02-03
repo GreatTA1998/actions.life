@@ -79,8 +79,8 @@
   </nav>
   
   <main class="main-content">
-    <div>
-      History Archive
+    <div style="opacity: 0.5; font-size: 14px;">
+      Historical Archive
     </div>
 
     {#if isViewingPhotos && !selectedRoutine}

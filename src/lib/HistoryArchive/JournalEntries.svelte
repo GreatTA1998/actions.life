@@ -81,7 +81,7 @@
   }[dominantGapSize] || 1;
 </script>
 
-<h2>
+<h2 style="margin-top: 4px;">
   {#if selectedRoutine.iconURL}
     <img src={selectedRoutine.iconURL} alt={selectedRoutine.name} />
   {:else}

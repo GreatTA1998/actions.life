@@ -26,7 +26,7 @@
 </script>
 
 
-<h2>Photos</h2>
+<h2 style="margin-top: 4px;">Photos</h2>
 
 <div class="photo-grid">
   {#if photoTasks}
