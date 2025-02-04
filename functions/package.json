@@ -10,7 +10,7 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "16"
+    "node": "22"
   },
   "main": "index.js",
   "dependencies": {
@@ -25,7 +25,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "firebase-functions-test": "^0.2.0",
-    "prettier": "^3.3.3"
+    "prettier": "^3.4.2"
   },
   "private": true
 }

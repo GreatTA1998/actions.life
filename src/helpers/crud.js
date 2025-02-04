@@ -47,6 +47,36 @@ export function deleteTaskNode({ id, imageFullPath = "" }) {
   affectedTasks.forEach(task => updateLocalState({ id: task.id, keyValueChanges: { parentID: "" } }))
   deleteFromLocalState({ id });
 }
+export async function deleteTaskAndChildren(task) {
+  try {
+    const allTasks = get(todoTasks);
+    const tasksToDelete = [];
+    
+    function findChildren(parentID) {
+      allTasks.forEach(task => {
+        if (task.parentID === parentID) {
+          tasksToDelete.push(task);
+          findChildren(task.id); // Recursively find children
+        }
+      });
+    }
+
+    tasksToDelete.push(task);
+    findChildren(task.id);
+    
+    tasksToDelete.forEach(task => {
+      console.log(task)
+      if(task.imageFullPath) deleteImage({ imageFullPath: task.imageFullPath })
+      deleteFromLocalState({id: task.id});
+      Tasks.remove({ userUID: get(user).uid, taskID: task.id })
+    })
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteTaskAndChildren:', error);
+    throw error;
+  }
+}
 
 
 const nesseseryFields = [

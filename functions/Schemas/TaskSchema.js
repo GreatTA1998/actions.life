@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-export default Joi.object({
+exports.TaskSchema = Joi.object({
     name: Joi.string().required(),
     duration: Joi.number().required(),
     orderValue: Joi.number().required(),
@@ -15,10 +15,11 @@ export default Joi.object({
     isDone: Joi.boolean().required(),
     imageDownloadURL: Joi.string().required().allow(""),
     imageFullPath: Joi.string().required().allow(""),
+    tags: Joi.string().required().allow("").default(''),
     // id: hydrated
     // userID: hydrated
 })
-// useJoi.attempt(object, Schema)
+// use Joi.attempt(object, Schema)
 
 
 

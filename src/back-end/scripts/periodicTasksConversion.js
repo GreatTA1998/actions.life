@@ -50,7 +50,7 @@ function convertToCrontab(taskData) {
             if (index === 6 && x) daysOfWeek.push(0);
             else if (x) daysOfWeek.push(index + 1);
         });
-        return `0 0 * * ${daysOfWeek.join(",")}`;
+        return `0 0 * * ${daysOfWeek.length > 0 ? daysOfWeek.join(",") : "*"}`;
     }
 }
 

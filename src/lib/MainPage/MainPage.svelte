@@ -26,7 +26,8 @@
   import {
     createTaskNode,
     updateTaskNode,
-    deleteTaskNode
+    deleteTaskNode,
+    deleteTaskAndChildren
   } from '/src/helpers/crud.js'
   import { findTaskByID } from '/src/helpers/utils.js'
   import { dev } from '$app/environment'
@@ -90,6 +91,7 @@
     on:task-click={(e) => openDetailedCard(e.detail)}
     on:card-close={() => (clickedTaskID = '')}
     on:task-delete={(e) => deleteTaskNode(e.detail)}
+    on:task-delete-children={(e) => deleteTaskAndChildren(e.detail)}
     on:task-checkbox-change={(e) =>
       updateTaskNode({
         id: e.detail.id,
