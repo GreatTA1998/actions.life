@@ -12,6 +12,9 @@ export default Joi.object({
     notify: Joi.string().required().allow(""),
     duration: Joi.number().required().default(0),
     startTime: Joi.string().required().allow(""),
+
+    // optional properties from experimental features
+    isStarred: Joi.boolean().default(false),
     // id: hydrated
     // userID: hydrated
 })
