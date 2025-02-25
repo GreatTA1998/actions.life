@@ -5,8 +5,6 @@
   import ReusableCreateTaskDirectly from "$lib/ReusableCreateTaskDirectly.svelte"
   import TimeIndicator from "./TimeIndicator.svelte"
 
-  import Templates from '/src/back-end/Templates'
-
   import {
     computeMillisecsDifference,
     ensureTwoDigits,
@@ -22,10 +20,9 @@
   } from "/src/store"
 
   import { onMount, createEventDispatcher, onDestroy } from "svelte"
-
   import { DateTime } from "luxon"
 
-  export let yyyyMMdd
+  export let dt
   export let scheduledTasks = []
   export let pixelsPerHour
 
@@ -33,24 +30,14 @@
   let isDirectlyCreatingTask = false
   let formFieldTopPadding = 40
   let yPosition
-  let reusableTaskTemplates = null
   let pixelsPerMinute = pixelsPerHour / 60
   const dispatch = createEventDispatcher()
 
-  $: originDT = DateTime.fromISO(yyyyMMdd).set({ 
-    hour: Number($calEarliestHHMM.split(':')[0]), 
-    minutes: Number($calEarliestHHMM.split(':')[1]) 
-  })
-
   $: resultantDateClassObject = getResultantDateClassObject(yPosition)
 
-  onMount(async () => {
-    // task template dropdown
-    const temp = await Templates.getAll({ userID: $user.uid, includeStats: false })
-    reusableTaskTemplates = temp
-  });
+  onMount(async () => {})
 
-  onDestroy(() => {});
+  onDestroy(() => {})
 
   function copyGetTrueY(e) {
     return (
@@ -59,6 +46,15 @@
       OverallContainer.getBoundingClientRect().top -
       OverallContainer.style.paddingTop
     )
+  }
+
+  function getDateTimeFromTask(task) {
+    return DateTime.fromISO(`${task.startDateISO}T${task.startTime}`)
+  }
+
+  function getOffset({ dt1, dt2 }) {
+    const minutesDiff = dt2.diff(dt1, 'minutes').minutes
+    return (pixelsPerHour / 60) * minutesDiff 
   }
 
   // computes the physical offset, within origin based on d1
@@ -116,7 +112,7 @@
   }
 
   function getResultantDateClassObject (trueY) {
-    const calendarStartAsMs = originDT.toMillis()
+    const calendarStartAsMs = dt.toMillis()
 
     const totalHoursDistance = trueY / pixelsPerHour;
     const totalMsDistance = totalHoursDistance * 60 * 60 * 1000
@@ -125,11 +121,6 @@
     const resultantTimeInMs = calendarStartAsMs + totalMsDistance
     const resultantDateClassObject = new Date(resultantTimeInMs)
     return resultantDateClassObject
-  }
-
-  function getJSDateFromTask (task) {
-    const dateTimeString = task.startDateISO + 'T' + task.startTime
-    return new Date(dateTimeString)
   }
 </script>
 
@@ -156,34 +147,27 @@
     {#each scheduledTasks as task, i (task.id)}
       <div class="task-absolute"
         style="
-          top: {computeOffsetGeneral({
-            d1: originDT.toJSDate(),
-            d2: getJSDateFromTask(task),
-            pixelsPerMinute
-          })}px;
+          top: {getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px;
         "
       >
         {#if task.iconURL}
           <!-- TO-DO: think about how attaching photos to icon tasks work -->
-          <ReusableIconTaskElement
-            {task}
-            pixelsPerHour={pixelsPerMinute * 60}
+          <ReusableIconTaskElement {task}
+            {pixelsPerHour}
             fontSize={0.8}
             on:task-click
             on:task-update
           />
         {:else if task.imageDownloadURL}
-          <ReusablePhotoTaskElement
-            {task}
-            pixelsPerHour={pixelsPerMinute * 60}
+          <ReusablePhotoTaskElement {task}
+            {pixelsPerHour}
             fontSize={0.8}
             on:task-click
             on:task-update
           />
         {:else}
-          <ReusableTaskElement
-            {task}
-            pixelsPerHour={pixelsPerMinute * 60}
+          <ReusableTaskElement {task}
+            {pixelsPerHour}
             fontSize={0.8}
             hasCheckbox
             on:task-click
@@ -206,8 +190,8 @@
       </div>
     {/if}
 
-    {#if yyyyMMdd === DateTime.now().toFormat('yyyy-MM-dd')}
-      <TimeIndicator {originDT} 
+    {#if dt.hasSame(DateTime.now(), 'day')}
+      <TimeIndicator originDT={dt} 
         {pixelsPerMinute}
       />
     {/if}
@@ -237,14 +221,6 @@
     height: 0px;
     border-bottom: 1px solid var(--grid-color);
     // ChatGPT suggested this blue for max contrast: hsl(210, 100%, 40%);
-  }
-
-  .current-time-indicator-container {
-    display: block;
-    align-items: center;
-    position: absolute;
-    width: var(--width-calendar-day-section);
-    pointer-events: none;
   }
 
   /* DO NOT REMOVE, BREAKS DRAG-AND-DROP AND DURATION ADJUSTMENT */

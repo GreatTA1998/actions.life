@@ -12,7 +12,7 @@
   import {
     user,
     calendarTasks, tasksScheduledOn,
-    hasInitialScrolled,
+    hasInitialScrolled, calEarliestHHMM
   } from '/src/store'
 
   export let isCompact = false
@@ -158,7 +158,12 @@
   function updateActiveColumns() {
     const output = []
     for (let i = leftEdgeIdx - 2 * c; i <= rightEdgeIdx + 2 * c; i++) {
-      output.push(calOriginDT.plus({ days: i }))
+      let dt = calOriginDT.plus({ days: i })
+      dt = dt.set({
+        hour: Number($calEarliestHHMM.split(':')[0]), 
+        minutes: Number($calEarliestHHMM.split(':')[1])
+      })
+      output.push(dt)
     }
     dtOfActiveColumns = output
 
@@ -217,8 +222,8 @@
             class="headers-flexbox"
             class:bottom-border={$tasksScheduledOn}
           >
-            {#each dtOfActiveColumns as currentDate, i (currentDate.toMillis() + `${i}`)}
-              <DayHeader ISODate={currentDate.toFormat('yyyy-MM-dd')}
+            {#each dtOfActiveColumns as dt, i (dt.toMillis() + `${i}`)}
+              <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')}
                 {isCompact}
                 {isShowingDockingArea}
                 on:task-update
@@ -229,10 +234,10 @@
           </div>
 
           <div class="day-columns">
-            {#each dtOfActiveColumns as currentDate (currentDate.toMillis())}
-              <DayColumn yyyyMMdd={currentDate.toFormat('yyyy-MM-dd')}
+            {#each dtOfActiveColumns as dt (dt.toMillis())}
+              <DayColumn {dt}
+                scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
                 pixelsPerHour={PIXELS_PER_HOUR}
-                scheduledTasks={$tasksScheduledOn[currentDate.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
                 on:task-update
                 on:task-click
                 on:new-root-task
