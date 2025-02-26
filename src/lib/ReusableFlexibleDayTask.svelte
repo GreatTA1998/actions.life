@@ -50,34 +50,32 @@
 </div>
 
 <script>
- // Assumes `task` is hydrated
- import { createEventDispatcher } from 'svelte'
- import { yPosWithinBlock, whatIsBeingDragged, whatIsBeingDraggedID, whatIsBeingDraggedFullObj } from '/src/store'
- import ReusableCheckbox from '$lib/ReusableCheckbox.svelte'
+  // Assumes `task` is hydrated
+  import { createEventDispatcher } from 'svelte'
+  import { grabOffset, activeDragItem } from '/src/store'
+  import ReusableCheckbox from '$lib/ReusableCheckbox.svelte'
 
- export let task = null
- export let pixelsPerHour = null
- export let fontSizeInPx = 12
- export let cssWidth = 'var(--width-calendar-day-section)'
+  export let task = null
+  export let pixelsPerHour = null
+  export let fontSizeInPx = 12
+  export let cssWidth = 'var(--width-calendar-day-section)'
 
- $: height = (pixelsPerHour / 60) * task.duration
- $: isBulletPoint = height < 20
+  $: height = (pixelsPerHour / 60) * task.duration
+  $: isBulletPoint = height < 20
 
- const dispatch = createEventDispatcher()
+  const dispatch = createEventDispatcher()
 
- function startDragMove (e, id) {
-   e.dataTransfer.setData("text/plain", id)
+  function startDragMove (e, id) {
+    e.dataTransfer.setData("text/plain", id)
 
-   // record distance from the top of the element
-   const rect = e.target.getBoundingClientRect()
-   const y = e.clientY - rect.top // y position within el ement
+    const rect = e.target.getBoundingClientRect()
+    grabOffset.set(e.clientY - rect.top)
 
-   whatIsBeingDraggedID.set(id)
-   whatIsBeingDragged.set('room')
-   whatIsBeingDraggedFullObj.set(task)
-
-   yPosWithinBlock.set(y)
- }
+    activeDragItem.set({
+      kind: 'room',
+      ...task
+    })
+  }
 </script> 
 
 <style>

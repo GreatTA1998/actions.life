@@ -15,12 +15,7 @@
     maintainValidSubtreeDeadlines,
     correctDeadlineIfNecessary
   } from '/src/helpers/subtreeDragDrop.js'
-  import {
-    user,
-    whatIsBeingDraggedFullObj,
-    whatIsBeingDragged,
-    whatIsBeingDraggedID
-  } from '/src/store/index.js'
+  import { user, activeDragItem } from '/src/store/index.js'
   import { writeBatch, doc, increment } from 'firebase/firestore'
   import { db } from '../back-end/firestoreConnection'
   import { DateTime } from 'luxon'
@@ -113,7 +108,7 @@
 
     // put task to the bottom of to-do list, if it wasn't already on the to-do list
     let newVal
-    if ($whatIsBeingDraggedFullObj.startDate) {
+    if ($activeDragItem.startDate) {
       const initialNumericalDifference = 3
       newVal = $user.maxOrderValue || initialNumericalDifference
       batch.update(doc(db, `/users/${$user.uid}/`), {
@@ -121,13 +116,12 @@
       })
     } else {
       // don't re-position the todo-task if it's already on the list, leave it as it is
-      newVal = $whatIsBeingDraggedFullObj.orderValue
+      newVal = $activeDragItem.orderValue
     }
 
     // 1. ORDER VALUE (and startTime)
     // only applies to the subtree's root
-    const { deadlineDate, deadlineTime, id, subtreeDeadlineInMsElapsed } =
-      $whatIsBeingDraggedFullObj
+    const { deadlineDate, deadlineTime, id, subtreeDeadlineInMsElapsed } = $activeDragItem
 
     let updateObj = {
       orderValue: newVal,
@@ -156,7 +150,7 @@
 
     // 2. HANDLE SUBTREE DEADLINES
     maintainValidSubtreeDeadlines({
-      node: $whatIsBeingDraggedFullObj,
+      node: $activeDragItem,
       todoListUpperBound: dueInHowManyDays,
       parentObj,
       batch,
@@ -164,7 +158,7 @@
     })
 
     batch.update(
-      doc(db, `users/${$user.uid}/tasks/${$whatIsBeingDraggedID}`),
+      doc(db, `users/${$user.uid}/tasks/${$activeDragItem.id}`),
       updateObj
     )
 
@@ -172,26 +166,11 @@
 
     batch = writeBatch(db)
 
-    whatIsBeingDraggedFullObj.set(null)
-    whatIsBeingDraggedID.set('')
-    whatIsBeingDragged.set('')
+    activeDragItem.set(null)
   }
 
   function dragover_handler(e) {
     e.preventDefault()
-  }
-
-  function dispatchNewDeadline({
-    taskID,
-    deadlineDateDDMMYYYY,
-    deadlineTimeHHMM
-  }) {
-    dispatch('task-dragged', {
-      id: taskID,
-      timeOfDay: '',
-      deadlineTime: deadlineTimeHHMM,
-      deadlineDate: deadlineDateDDMMYYYY
-    })
   }
 </script>
 

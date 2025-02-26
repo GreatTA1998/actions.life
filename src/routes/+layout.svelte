@@ -6,6 +6,7 @@
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
   import { translateJSConstantsToCSSVariables } from '/src/helpers/constants.js'
+  import { userInfoFromAuthProvider } from '/src/store/index.js'
 
   let doingAuth = true
 
@@ -24,11 +25,11 @@
           person_profiles: 'always' // or 'always' to create profiles for anonymous users as well
         })
       } else {
-        goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`, {
-          state: { 
-            email: resultUser.email,
-            uid: resultUser.uid 
-          }
+        goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
+
+        userInfoFromAuthProvider.set({
+          email: resultUser.email,
+          uid: resultUser.uid 
         })
       }
       doingAuth = false

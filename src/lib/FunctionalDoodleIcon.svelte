@@ -1,10 +1,5 @@
 <script>
-  import {
-    whatIsBeingDragged,
-    whatIsBeingDraggedID,
-    whatIsBeingDraggedFullObj,
-    yPosWithinBlock
-  } from '/src/store'
+  import { activeDragItem, grabOffset } from '/src/store'
   import { createEventDispatcher } from 'svelte'
 
   export let iconTask
@@ -38,15 +33,10 @@
   function startDragMove(e, id) {
     e.dataTransfer.setData('text/plain', id)
 
-    // record distance from the top of the element
     const rect = e.target.getBoundingClientRect()
-    const y = e.clientY - rect.top // y position within el ement
+    grabOffset.set(e.clientY - rect.top)
 
-    whatIsBeingDraggedID.set(id)
-    whatIsBeingDragged.set('room')
-    whatIsBeingDraggedFullObj.set(iconTask)
-
-    yPosWithinBlock.set(y)
+    activeDragItem.set({ kind: 'room', ...iconTask })
   }
 </script>
 

@@ -97,7 +97,7 @@
  // Assumes `task` is hydrated
  import { createEventDispatcher } from 'svelte'
  import { getTrueY } from '/src/helpers/everythingElse.js'
- import { yPosWithinBlock, whatIsBeingDragged, whatIsBeingDraggedID, whatIsBeingDraggedFullObj } from '/src/store'
+ import { grabOffset, activeDragItem } from '/src/store'
  import { lazyCallable } from '/src/helpers/actions.js'
 
  export let task = null
@@ -119,11 +119,12 @@
    const rect = e.target.getBoundingClientRect()
    const y = e.clientY - rect.top // y position within el ement
 
-   whatIsBeingDraggedID.set(id)
-   whatIsBeingDragged.set('room')
-   whatIsBeingDraggedFullObj.set(task)
+   activeDragItem.set({
+    kind: 'room',
+    ...task
+   })
 
-   yPosWithinBlock.set(y)
+   grabOffset.set(y)
  }
 
  function startAdjustingDuration (e) {

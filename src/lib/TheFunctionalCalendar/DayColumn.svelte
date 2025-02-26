@@ -5,22 +5,16 @@
   import ReusableCreateTaskDirectly from "$lib/ReusableCreateTaskDirectly.svelte"
   import TimeIndicator from "./TimeIndicator.svelte"
 
-  import {
-    computeMillisecsDifference,
-    ensureTwoDigits,
-    getHHMM,
-  } from "/src/helpers/everythingElse.js"
+  import { DateTime } from "luxon"
+  import { getHHMM } from "/src/helpers/everythingElse.js"
 
   import {
     user,
-    yPosWithinBlock,
-    whatIsBeingDraggedFullObj, whatIsBeingDraggedID, whatIsBeingDragged,
-    timestamps, getMinutesDiff,
-    calEarliestHHMM, totalMinutes
+    grabOffset, activeDragItem,
+    timestamps, getMinutesDiff, calEarliestHHMM, totalMinutes, calLastHHMM, calSnapInterval
   } from "/src/store"
 
   import { onMount, createEventDispatcher, onDestroy } from "svelte"
-  import { DateTime } from "luxon"
 
   export let dt
   export let scheduledTasks = []
@@ -33,13 +27,14 @@
   let pixelsPerMinute = pixelsPerHour / 60
   const dispatch = createEventDispatcher()
 
+  // TO-DO: deprecate with luxon, but requires re-working <CreateTaskDirectly> perhaps with portals
   $: resultantDateClassObject = getResultantDateClassObject(yPosition)
 
   onMount(async () => {})
 
   onDestroy(() => {})
 
-  function copyGetTrueY(e) {
+  function getY (e) {
     return (
       e.clientY +
       OverallContainer.scrollTop -
@@ -57,18 +52,6 @@
     return (pixelsPerHour / 60) * minutesDiff 
   }
 
-  // computes the physical offset, within origin based on d1
-  function computeOffsetGeneral({ d1, d2, pixelsPerMinute }) {
-    const millisecsDifference = computeMillisecsDifference(d1, d2)
-
-    // translate time difference to a physical distance
-    const minutesDifference = millisecsDifference / (1000 * 60)
-    const offset = minutesDifference * pixelsPerMinute
-    return offset
-  }
-
-  let highlightedMinute = null;
-
   function dragover_handler(e) {
     e.preventDefault()
     e.stopPropagation()
@@ -81,36 +64,43 @@
 
     e.preventDefault()
     e.stopPropagation()
-    highlightedMinute = null
 
-    // `trueY` is the end position of the mouse
-    const finalMousePosY = copyGetTrueY(e)
-
-    // account for dragging the block from really low or from really high up
-    const trueY = finalMousePosY - $yPosWithinBlock
-    yPosWithinBlock.set(0)
-
-    // resultant time based on difference difference
-    const resultantDateClassObject = getResultantDateClassObject(trueY)
-    const d = resultantDateClassObject
-    const hhmm = ensureTwoDigits(d.getHours()) + ":" + ensureTwoDigits(d.getMinutes())
-    const mmdd = ensureTwoDigits(d.getMonth() + 1) + "/" + ensureTwoDigits(d.getDate())
+    const dropY = getY(e)
+    let resultDT = dt.plus({ 
+      hours: (dropY - $grabOffset) / pixelsPerHour 
+    })
     
-    const [MM, DD] = mmdd.split('/')
+    resultDT = snapToNearestInterval(resultDT, $calSnapInterval)
 
     dispatch('task-update', { 
       id,
       keyValueChanges: {
-        startTime: hhmm,
-        startDateISO: `${d.getFullYear()}-${MM}-${DD}`
+        startTime: resultDT.toFormat('HH:mm'),
+        startDateISO: resultDT.toFormat('yyyy-MM-dd')
       }
     })
 
-    whatIsBeingDraggedFullObj.set(null)
-    whatIsBeingDraggedID.set('')
-    whatIsBeingDragged.set('')
+    grabOffset.set(0)
+    activeDragItem.set(null)
   }
 
+  // Function to snap a DateTime to the nearest interval (in minutes)
+  function snapToNearestInterval (dateTime, interval) {
+    if (interval <= 0) return dateTime; // No snapping if interval is invalid
+    
+    const minutes = dateTime.minute;
+    const remainder = minutes % interval;
+    
+    if (remainder < interval / 2) {
+      // Round down
+      return dateTime.set({ minute: minutes - remainder, second: 0, millisecond: 0 });
+    } else {
+      // Round up
+      return dateTime.set({ minute: minutes + (interval - remainder), second: 0, millisecond: 0 });
+    }
+  }
+
+  // TO-DO: deprecate with luxon
   function getResultantDateClassObject (trueY) {
     const calendarStartAsMs = dt.toMillis()
 
@@ -125,77 +115,73 @@
 </script>
 
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
-<div bind:this={OverallContainer} class="overall-container">
-  <div class="calendar-day-container unselectable"
-    style="height: {$totalMinutes * pixelsPerMinute}px;"
-    on:drop={e => drop_handler(e)}
-    on:dragover={e => dragover_handler(e)}
-    on:click|self={e => {
-      isDirectlyCreatingTask = true
-      yPosition = copyGetTrueY(e)
-    }} on:keydown
-  >
-    {#if $whatIsBeingDraggedFullObj || $user.hasGridlines}
-      {#each $timestamps as timestamp}
+<div bind:this={OverallContainer} class="overall-container unselectable"
+  style="height: {$totalMinutes * pixelsPerMinute}px;"
+  on:drop={e => drop_handler(e)}
+  on:dragover={e => dragover_handler(e)}
+  on:click|self={e => {
+    isDirectlyCreatingTask = true
+    yPosition = getY(e)
+  }} on:keydown
+>
+  {#if $activeDragItem || $user.hasGridlines}
+    {#each $timestamps as timestamp, i}
+      {#if i === $timestamps.length - 1 && timestamp === $calLastHHMM}
+        <!-- Skip rendering the last gridline as it causes a 1px overflow from the container's bottom edge -->
+      {:else}
         <div class="my-helper-gridline" 
-          style="top: {getMinutesDiff({ calEarliestHHMM: $calEarliestHHMM, calLatestHHMM: timestamp }) * pixelsPerMinute}px;"
+          style="top: {getOffset({ dt1: dt, dt2: dt.set({ hour: Number(timestamp.split(':')[0]), minute: Number(timestamp.split(':')[1]) }) })}px;"
         >
         </div>
-      {/each}
-    {/if}
-
-    {#each scheduledTasks as task, i (task.id)}
-      <div class="task-absolute"
-        style="
-          top: {getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px;
-        "
-      >
-        {#if task.iconURL}
-          <!-- TO-DO: think about how attaching photos to icon tasks work -->
-          <ReusableIconTaskElement {task}
-            {pixelsPerHour}
-            fontSize={0.8}
-            on:task-click
-            on:task-update
-          />
-        {:else if task.imageDownloadURL}
-          <ReusablePhotoTaskElement {task}
-            {pixelsPerHour}
-            fontSize={0.8}
-            on:task-click
-            on:task-update
-          />
-        {:else}
-          <ReusableTaskElement {task}
-            {pixelsPerHour}
-            fontSize={0.8}
-            hasCheckbox
-            on:task-click
-            on:task-update
-          />
-        {/if}
-      </div>
+      {/if}
     {/each}
+  {/if}
 
-    {#if isDirectlyCreatingTask}
-      <div id="calendar-direct-task-div"
-        style="top: {yPosition - formFieldTopPadding}px;"
-      >
-        <ReusableCreateTaskDirectly
-          newTaskStartTime={getHHMM(resultantDateClassObject)}
-          {resultantDateClassObject}
-          on:new-root-task
-          on:reset={() => isDirectlyCreatingTask = false}
+  {#each scheduledTasks as task, i (task.id)}
+    <div class="task-absolute" style="top: {getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px;">
+      {#if task.iconURL}
+        <!-- TO-DO: think about how attaching photos to icon tasks work -->
+        <ReusableIconTaskElement {task}
+          {pixelsPerHour}
+          fontSize={0.8}
+          on:task-click
+          on:task-update
         />
-      </div>
-    {/if}
+      {:else if task.imageDownloadURL}
+        <ReusablePhotoTaskElement {task}
+          {pixelsPerHour}
+          fontSize={0.8}
+          on:task-click
+          on:task-update
+        />
+      {:else}
+        <ReusableTaskElement {task}
+          {pixelsPerHour}
+          fontSize={0.8}
+          hasCheckbox
+          on:task-click
+          on:task-update
+        />
+      {/if}
+    </div>
+  {/each}
 
-    {#if dt.hasSame(DateTime.now(), 'day')}
-      <TimeIndicator originDT={dt} 
-        {pixelsPerMinute}
+  {#if isDirectlyCreatingTask}
+    <div id="calendar-direct-task-div" style="top: {yPosition - formFieldTopPadding}px;">
+      <ReusableCreateTaskDirectly
+        newTaskStartTime={getHHMM(resultantDateClassObject)}
+        {resultantDateClassObject}
+        on:new-root-task
+        on:reset={() => isDirectlyCreatingTask = false}
       />
-    {/if}
-  </div>
+    </div>
+  {/if}
+
+  {#if dt.hasSame(DateTime.now(), 'day')}
+    <TimeIndicator originDT={dt} 
+      {pixelsPerMinute}
+    />
+  {/if}
 </div>
 
 <style lang="scss">
@@ -218,43 +204,15 @@
   .my-helper-gridline {
     position: absolute;
     width: 100%;
-    height: 0px;
-    border-bottom: 1px solid var(--grid-color);
-    // ChatGPT suggested this blue for max contrast: hsl(210, 100%, 40%);
+    height: 1px;
+    background-color: var(--grid-color);
   }
 
   /* DO NOT REMOVE, BREAKS DRAG-AND-DROP AND DURATION ADJUSTMENT */
   .overall-container {
     position: relative;
-    height: fit-content;
-    overflow-y: hidden;
     overflow-x: hidden;
     width: var(--width-calendar-day-section);
     background-color: var(--calendar-bg-color);
-    outline: 1px solid var(--grid-color);
-  }
-
-  .highlighted-background {
-    background: rgb(82, 180, 251);
-  }
-
-  .calendar-day-container {
-    width: 100%;
-  }
-
-  .green-text {
-    color: #0085ff;
-  }
-
-  /* VERDICT: absolute works
-  "Independence" is the best word you can ever hear in programming */
-  .timestamp-number {
-    position: absolute;
-    left: 5px;
-    font-size: 0.7rem;
-  }
-
-  .visible-line {
-    border-top: 1px solid rgb(195, 195, 195);
   }
 </style>

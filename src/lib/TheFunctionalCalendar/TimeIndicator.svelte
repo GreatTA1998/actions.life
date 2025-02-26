@@ -1,5 +1,5 @@
 <div class="current-time-indicator-container" 
-  style="top: {timeIndicatorOffset}px"
+  style="top: {timeIndicatorOffset}px;"
 > 
   <hr 
     style="border: 2px solid var(--location-indicator-color); border-radius: 5px; width: 100%; margin-top: 0px; margin-bottom: 0px;"
@@ -65,8 +65,6 @@
 
 <style>
   .current-time-indicator-container {
-    display: block; 
-    align-items: center;
     position: absolute; 
     width: var(--width-calendar-day-section);
     pointer-events: none;

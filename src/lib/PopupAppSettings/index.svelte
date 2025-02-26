@@ -5,6 +5,7 @@
   import TimeRangeSettings from './TimeRangeSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
+  import { getAuth, signOut } from 'firebase/auth'
 
   let isPopupOpen = false
 
@@ -16,6 +17,14 @@
     navigator.clipboard.writeText("martsyalis@gmail.com")
     showSnackbar.set(true)
     setTimeout(() => showSnackbar.set(false), 3000)
+  }
+
+  function handleLogoClick() {
+    if (confirm('Log out and return to home page tutorials?')) {
+      const auth = getAuth()
+      signOut(auth).catch(console.error)
+      goto('/')
+    }
   }
 </script>
 
@@ -75,6 +84,19 @@
           </span>
         </button>
       </div>
+
+      <!-- Log-out -->
+      <button 
+        on:click={handleLogoClick}
+        style="width: 80px; cursor: pointer; display: flex; align-items: center; padding: 6px 8px; font-size: 24px;"
+      >
+        <div style="font-size: 14px; margin-right: 4px; font-weight: 600;">
+          Log out
+        </div>
+        <span class="material-symbols-outlined">
+          logout
+        </span>
+      </button>
     </div>
   </div>
 {/if}

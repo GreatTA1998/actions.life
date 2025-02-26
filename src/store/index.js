@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store'
 export { templates, deleteTemplate, updateTemplate } from './templatesStore.js'
-export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes } from './calendarTimestamps.js'
+export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from './calendarTimestamps.js'
 export { user } from './userStore.js'
 
 export const todoTasks = writable(null)
@@ -23,22 +23,15 @@ export const hasInitialScrolled = writable(false)
 
 export const showSnackbar = writable(false)
 
-export const userInfoFromAuthProvider = writable({})
+export const userInfoFromAuthProvider = writable({}) // test if the page data method works. If not, fallback to this solution for creating a mirror doc
 
-export const whatIsBeingDragged = writable("")
-export const whatIsBeingDraggedID = writable("")
-export const whatIsBeingDraggedFullObj = writable(null)
+export const activeDragItem = writable(null)
+export const grabOffset = writable(0)
 
 export const inclusiveWeekTodo = writable([])
-
-export const longHorizonTasks = writable([])
-
 export const tasksScheduledOn = writable(null)
-
-export const yPosWithinBlock = writable(0)
 
 export const todoMemoryTree = writable(null)
 export const calendarMemoryTree = writable(null)
-export const uniqueEvents = writable(null)
 
-export const daysToRender = writable([])
+export const uniqueEvents = writable(null)

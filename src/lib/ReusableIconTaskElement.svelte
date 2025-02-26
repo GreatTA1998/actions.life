@@ -98,62 +98,63 @@
 </div>
 
 <script>
- // Assumes `task` is hydrated
- import { createEventDispatcher } from 'svelte'
- import { getTrueY } from '/src/helpers/everythingElse.js'
- import { yPosWithinBlock, whatIsBeingDragged, whatIsBeingDraggedID, whatIsBeingDraggedFullObj } from '/src/store'
- import FunctionalDoodleIcon from '$lib/FunctionalDoodleIcon.svelte'
+  // Assumes `task` is hydrated
+  import { createEventDispatcher } from 'svelte'
+  import { getTrueY } from '/src/helpers/everythingElse.js'
+  import { grabOffset, activeDragItem } from '/src/store'
+  import FunctionalDoodleIcon from '$lib/FunctionalDoodleIcon.svelte'
 
- export let task = null
- export let pixelsPerHour = null
+  export let task = null
+  export let pixelsPerHour = null
 
- export let fontSize = 1
+  export let fontSize = 1
 
- const iconMinPixelHeight = 32
+  const iconMinPixelHeight = 32
 
- $: height = (pixelsPerHour / 60) * task.duration
- $: isBulletPoint = height < iconMinPixelHeight
+  $: height = (pixelsPerHour / 60) * task.duration
+  $: isBulletPoint = height < iconMinPixelHeight
 
- const dispatch = createEventDispatcher()
- let startY = 0
+  const dispatch = createEventDispatcher()
+  let startY = 0
 
- function startDragMove (e, id) {
-   e.dataTransfer.setData("text/plain", id)
+  function startDragMove (e, id) {
+    e.dataTransfer.setData("text/plain", id)
 
-   // record distance from the top of the element
-   const rect = e.target.getBoundingClientRect()
-   const y = e.clientY - rect.top // y position within el ement
+    // record distance from the top of the element
+    const rect = e.target.getBoundingClientRect()
+    const y = e.clientY - rect.top // y position within el ement
 
-   whatIsBeingDraggedID.set(id)
-   whatIsBeingDragged.set('room')
-   whatIsBeingDraggedFullObj.set(task)
+    activeDragItem.set({
+      kind: 'room',
+      ...task
+    })
 
-   yPosWithinBlock.set(y)
- }
+    grabOffset.set(y)
+  }
 
- function startAdjustingDuration (e) {
-   startY = getTrueY(e)
- }
+  function startAdjustingDuration (e) {
+    startY = getTrueY(e)
+  }
 
- function adjustDuration (e, task) {
-   // quickfix
-   if (!task.duration) {
-     task.duration = 10
-   }
+  function adjustDuration (e, task) {
+    // quickfix
+    if (!task.duration) {
+      task.duration = 10
+    }
 
-   const hoursPerPixel = 1 / pixelsPerHour
-   const minutesPerPixel = 60 * hoursPerPixel
+    const hoursPerPixel = 1 / pixelsPerHour
+    const minutesPerPixel = 60 * hoursPerPixel
 
-   const newY = getTrueY(e)
-   const durationChange = minutesPerPixel * (newY - startY)
+    const newY = getTrueY(e)
+    const durationChange = minutesPerPixel * (newY - startY)
 
-   dispatch('task-update', {
-     id: task.id,
-     keyValueChanges: {
-       duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event
-     }      
-   })
- }
+    dispatch('task-update', {
+      id: task.id,
+      keyValueChanges: {
+        duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event
+      }      
+    })
+  }
 </script> 
 
 <style>

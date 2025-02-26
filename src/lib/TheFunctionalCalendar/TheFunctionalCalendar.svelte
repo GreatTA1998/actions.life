@@ -38,14 +38,8 @@
   let scrollX = middleIdx * COLUMN_WIDTH
   let initialScrollParentWidth
 
-  let leftEdgeIdx
-  let rightEdgeIdx
-
-  let leftTriggerIdx
-  let rightTriggerIdx
-
-  let prevLeftEdgeIdx
-  let prevRightEdgeIdx
+  let leftEdgeIdx, prevLeftEdgeIdx, leftTriggerIdx
+  let rightEdgeIdx, rightTriggerIdx, prevRightEdgeIdx
 
   let isShowingDockingArea = true
   let exactHeight = CORNER_LABEL_HEIGHT
@@ -58,7 +52,7 @@
   $: if (scrollParentWidth && !leftTriggerIdx && !rightTriggerIdx) {
     setupInitialColumnsAndVariables()
   }
-
+  
   $: if (!$hasInitialScrolled && ScrollParent) {
     scrollToTodayColumn()
   }
@@ -74,8 +68,7 @@
     updateActiveColumns()
   }
 
-  function reactToScroll(leftEdgeIdx, rightEdgeIdx) {
-    // HANDLE DATA
+  function reactToScroll (leftEdgeIdx, rightEdgeIdx) {
     // note: `leftEdgeIdx` jumps non-consecutively sometimes depending on how fast the user is scrolling
     if (leftEdgeIdx <= leftTriggerIdx && leftEdgeIdx !== prevLeftEdgeIdx) {
       fetchMorePastTasks(leftTriggerIdx) // even though jumps can be arbitrarily wide, the function calls will resolve in a weakly decreasing order of their `leftTriggerIdx`
@@ -161,7 +154,7 @@
       let dt = calOriginDT.plus({ days: i })
       dt = dt.set({
         hour: Number($calEarliestHHMM.split(':')[0]), 
-        minutes: Number($calEarliestHHMM.split(':')[1])
+        minute: Number($calEarliestHHMM.split(':')[1])
       })
       output.push(dt)
     }

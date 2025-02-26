@@ -1,4 +1,3 @@
-
 import { writable, derived, get } from 'svelte/store'
 import { user } from './userStore.js'
 
@@ -7,6 +6,7 @@ export const timestamps = writable([])
 export const calEarliestHHMM = writable('00:00')
 export const calLastHHMM = writable('23:59')
 export const totalMinutes = writable(1000)
+export const calSnapInterval = writable(5)
 
 // Set up the subscription after initialization
 user.subscribe($user => {
@@ -16,6 +16,7 @@ user.subscribe($user => {
   }
   calEarliestHHMM.set($user.calEarliestHHMM || '00:00')
   calLastHHMM.set($user.calLastHHMM || '23:59')
+  calSnapInterval.set($user.calSnapInterval || 5)
 
   timestamps.set(
     getTimestamps({ 
@@ -24,7 +25,12 @@ user.subscribe($user => {
     })
   )
 
-  totalMinutes.set(getMinutesDiff({ calEarliestHHMM: get(calEarliestHHMM), calLatestHHMM: get(calLastHHMM) }))
+  totalMinutes.set(
+    getMinutesDiff({ 
+      calEarliestHHMM: get(calEarliestHHMM), 
+      calLatestHHMM: get(calLastHHMM) 
+    })
+  )
 })
 
 /**

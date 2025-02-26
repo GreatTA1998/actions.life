@@ -3,7 +3,7 @@
   import { handleInitialTasks } from '$lib/MainPage/handleTasks'
   import { doc, onSnapshot, setDoc } from 'firebase/firestore'
   import { db } from '/src/back-end/firestoreConnection'
-  import { user } from '/src/store'
+  import { user, userInfoFromAuthProvider } from '/src/store'
   import { page } from '$app/stores'
   import { onMount, onDestroy } from 'svelte'
 
@@ -27,7 +27,7 @@
     unsubUserListener = onSnapshot(ref, async (snap) => {
       if (!snap.exists()) {
         console.log('user does not exist, creating a new mirror doc')
-        initializeNewFirestoreUser(ref, authData)
+        initializeNewFirestoreUser(ref, $userInfoFromAuthProvider)
       } else {
         user.set({ ...snap.data() })
       }

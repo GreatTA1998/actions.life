@@ -3,12 +3,7 @@
   import ReusableFlexibleDayTask from '$lib/ReusableFlexibleDayTask.svelte'
   import FunctionalDoodleIcon from '$lib/FunctionalDoodleIcon.svelte'
   import { createEventDispatcher } from 'svelte'
-  import {
-    tasksScheduledOn,
-    whatIsBeingDraggedFullObj,
-    whatIsBeingDragged,
-    whatIsBeingDraggedID
-  } from '/src/store'
+  import { tasksScheduledOn, activeDragItem } from '/src/store'
   import { DateTime } from 'luxon'
 
   export let ISODate
@@ -41,9 +36,7 @@
       }
     })
 
-    whatIsBeingDraggedFullObj.set(null)
-    whatIsBeingDraggedID.set('')
-    whatIsBeingDragged.set('')
+    activeDragItem.set(null)
   }
 </script>
 

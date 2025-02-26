@@ -19,14 +19,6 @@
   function updateMode (newMode) {
     dispatch('tab-click', newMode)
   }
-
-  function handleLogoClick() {
-    if (confirm('Log out and return to home page tutorials?')) {
-      const auth = getAuth()
-      signOut(auth).catch(console.error)
-      goto('/')
-    }
-  }
 </script>
 
 <div class="top-navbar">

@@ -138,9 +138,7 @@
   import { createEventDispatcher, tick } from 'svelte'
   import { 
     mostRecentlyCompletedTaskID, 
-    whatIsBeingDragged, 
-    whatIsBeingDraggedID,
-    whatIsBeingDraggedFullObj
+    activeDragItem
   } from '/src/store'
 
   export let taskObj
@@ -211,13 +209,14 @@
   }
 
   function dragstart_handler(e, id) {
-    e.dataTransfer.setData("text/plain", id);
+    e.dataTransfer.setData("text/plain", id)
 
-    if (depth === 0) whatIsBeingDragged.set("top-level-task-within-this-todo-list")
-    else whatIsBeingDragged.set("room")
-  
-    whatIsBeingDraggedID.set(id)
-    whatIsBeingDraggedFullObj.set(taskObj)
+    const payload = { ...taskObj }
+
+    if (depth === 0) payload.kind = 'top-level-task-within-this-todo-list'
+    else payload.kind = 'room'
+
+    activeDragItem.set(payload)
   }
 
   function onEnter (e) {

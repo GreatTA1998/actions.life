@@ -44,7 +44,6 @@
     });
     setState({ ...state, tasksJSON });
 
-    console.log(`TheChatINput = ${TheChatInput}`)
     await tick()
   });
 
