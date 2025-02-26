@@ -2,9 +2,8 @@
   import { formatDate } from '/src/helpers/everythingElse.js'
   import { user } from '/src/store/userStore.js'
   import { onMount } from 'svelte'
-  import { getFirestoreQuery } from '/src/helpers/firestoreHelpers.js'
-  import { collection, query, where, orderBy, limit } from 'firebase/firestore'
-  import { db } from "/src/back-end/firestoreConnection"
+  import Tasks from '/src/back-end/Tasks'
+  import { DateTime } from 'luxon'
 
   export let photoTasks = null
 
@@ -13,15 +12,16 @@
   })
 
   async function fetchPhotoTasks () {
-    const ref = collection(db, '/users/' + $user.uid + '/tasks')
-    const q = query(ref, 
-      where('imageDownloadURL', '!=', ''),
-      orderBy('imageDownloadURL'),
-      orderBy('startDateISO', 'desc'),
-      limit(10)
+    const allTasks = await Tasks.getByDateRange(
+      $user.uid, 
+      '2024-01-01', 
+      DateTime.now().toFormat('yyyy-MM-dd')
     )
-    const temp = await getFirestoreQuery(q)
-    photoTasks = temp
+    let temp = allTasks.filter(task => task.imageDownloadURL)
+    temp.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
+
+    // randomly choose 15
+    photoTasks = temp.sort(() => Math.random() - 0.5).slice(0, 9)
   }
 </script>
 

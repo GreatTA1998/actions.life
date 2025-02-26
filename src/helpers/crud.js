@@ -26,15 +26,16 @@ export async function createTaskNode({ id, newTaskObj }) {
 
 export async function updateTaskNode({ id, keyValueChanges }) {
   try {
-    const tasks = get(calendarTasks).concat(get(todoTasks))
-    const task = tasks.find(task => task.id === id);
-    const newTask = removeUnnecessaryFields({ ...task, ...keyValueChanges })
-    Joi.assert(newTask, TaskSchema)
+    // TEMPORARILY COMMENT OUT FOR QUICK PROTOTYPING
+    // const tasks = get(calendarTasks).concat(get(todoTasks))
+    // const task = tasks.find(task => task.id === id);
+    // const newTask = removeUnnecessaryFields({ ...task, ...keyValueChanges })
+    // Joi.assert(newTask, TaskSchema)
     Tasks.update({ userUID: get(user).uid, taskID: id, keyValueChanges })
     updateLocalState({ id, keyValueChanges });
   } catch (error) {
     alert(
-      "there was an error in atempting to save changes to the db, please reload "
+      "error attempting to save changes to the db, please reload "
     );
     console.error("error in updateTaskNode: ", error);
   }

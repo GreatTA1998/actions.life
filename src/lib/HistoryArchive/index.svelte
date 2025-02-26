@@ -3,8 +3,7 @@
   import JournalEntries from './JournalEntries.svelte'  
   import ListenToDoc from './ListenToDoc.svelte'
   import { user } from '/src/store/userStore.js'
-  import { getFirestoreQuery } from '/src/helpers/firestoreHelpers.js'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
   import { db } from "/src/back-end/firestoreConnection"
 
@@ -14,13 +13,18 @@
   let routineInstances = null
   let photoTasks = null
   let isViewingPhotos = true
+  let unsub
 
   $: if (selectedRoutineID) {
-    fetchRoutineInstances()
+    listenToInstances()
   }
 
   onMount(async () => {
     listenToRoutines()
+  })
+
+  onDestroy(() => {
+    if (unsub) unsub()
   })
 
   async function listenToRoutines () {
@@ -38,15 +42,21 @@
     })
   }
 
-  async function fetchRoutineInstances () {
+  async function listenToInstances () {
+    if (unsub) unsub()
+
     const ref = collection(db, '/users/' + $user.uid + '/tasks')
 
     const q = query(ref, 
       where('templateID', '==', selectedRoutineID),
       orderBy('startDateISO', 'desc')
     )
-    const temp = await getFirestoreQuery(q)
-    routineInstances = temp
+
+    unsub = onSnapshot(q, (querySnapshot) => {
+      const temp = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+      temp.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
+      routineInstances = temp
+    })
   }
 </script>
 

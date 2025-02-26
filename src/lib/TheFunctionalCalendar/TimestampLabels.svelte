@@ -26,7 +26,7 @@
 >
   {#each $timestamps as timestamp, i (timestamp)}
     <div class="absolute-timestamp" style="top: {getTopOffset(timestamp)}px;">
-      {timestamp.substring(0, 5)}
+      {timestamp.substring(0, isCompact ? 2 : 5)}
     </div>
   {/each}
 </div>

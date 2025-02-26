@@ -36,16 +36,18 @@
     (missed {taskObject.missedCount || 0} times)
   {/if}
 
-  
-  {#each taskObject.children as child}
-    <div style="margin-left: 12px;">
-      <RecursiveBulletPoint 
-        on:task-click
-        on:task-checkbox-change
-        taskObject={child} {originalPopupTask}
-      />
-    </div>
-  {/each}
+  <!-- quickfix, as this'll be re-worked soon -->
+  {#if taskObject.children}
+    {#each taskObject.children as child}
+      <div style="margin-left: 12px;">
+        <RecursiveBulletPoint 
+          on:task-click
+          on:task-checkbox-change
+          taskObject={child} {originalPopupTask}
+        />
+      </div>
+    {/each}
+  {/if}
 </div>
 
 <script>
