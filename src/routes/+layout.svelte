@@ -1,14 +1,12 @@
 <script>
   import '/src/app.css'
-  import { db } from '../back-end/firestoreConnection'
   import { user, loadingTasks } from '../store/index.js'
+  import posthog from 'posthog-js'
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
-  import { doc, setDoc, onSnapshot } from 'firebase/firestore'
   import { onMount } from 'svelte'
   import { translateJSConstantsToCSSVariables } from '/src/helpers/constants.js'
-  import posthog from 'posthog-js'
-  let unsubUserSnapListener = null
+
   let doingAuth = true
 
   onMount(() => {
@@ -26,18 +24,10 @@
           person_profiles: 'always' // or 'always' to create profiles for anonymous users as well
         })
       } else {
-        goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
-        user.set({
-          phoneNumber: resultUser.phoneNumber || '',
-          uid: resultUser.uid
-        })
-        // handle the snapshot listener
-        const ref = doc(db, '/users/' + resultUser.uid)
-        unsubUserSnapListener = onSnapshot(ref, async (snap) => {
-          if (!snap.exists()) {
-            initializeNewFirestoreUser(ref, resultUser)
-          } else {
-            user.set({ ...snap.data() }) // augment with id, path, etc. when needed in the future
+        goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`, {
+          state: { 
+            email: resultUser.email,
+            uid: resultUser.uid 
           }
         })
       }
@@ -47,19 +37,6 @@
 
   function isMobile () {
     return window.innerWidth <= 768 // You can adjust the width threshold as needed
-  }
-
-  async function initializeNewFirestoreUser (ref, resultUser) {
-    return await setDoc(
-      ref,
-      {
-        uid: resultUser.uid,
-        phoneNumber: resultUser.phoneNumber || '',
-        email: resultUser.email || ''
-        // allTasks: []
-      },
-      { merge: true }
-    ).catch((err) => console.error('error in initializeNewFirestoreUser', err))
   }
 </script>
 
@@ -80,8 +57,9 @@
 </div>
 
 <div>
-  <slot></slot>
-   <!-- <h1>Website out for maintenance</h1> -->
+  <slot>
+
+  </slot>
 </div>
 
 <style>
