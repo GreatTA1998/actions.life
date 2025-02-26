@@ -6,6 +6,7 @@
   import GridlineSettings from './GridlineSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
   import { getAuth, signOut } from 'firebase/auth'
+  import { goto } from '$app/navigation'
 
   let isPopupOpen = false
 
