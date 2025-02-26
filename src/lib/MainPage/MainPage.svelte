@@ -15,7 +15,6 @@
   import { arrayUnion } from 'firebase/firestore'
   import NewThisWeekTodo from '$lib/NewThisWeekTodo.svelte'
 
-  import { handleInitialTasks } from './handleTasks.js'
   import {
     mostRecentlyCompletedTaskID,
     user,
@@ -52,7 +51,6 @@
         console.error('Error with notifications:', error)
       }
     }
-    handleInitialTasks($user.uid)
   })
   
   function openDetailedCard({ task }) {
@@ -74,83 +72,85 @@
   })
 </script>
 
-{#if clickedTaskID}
-  <DetailedCardPopup
-    taskObject={clickedTask}
-    on:task-update={e => updateTaskNode(e.detail)}
-    on:task-click={e => openDetailedCard(e.detail)}
-    on:card-close={() => (clickedTaskID = '')}
-    on:task-delete={e => deleteTaskNode(e.detail)}
-    on:task-checkbox-change={e =>
-      updateTaskNode({
-        id: e.detail.id,
-        keyValueChanges: { isDone: e.detail.isDone }
-      })}
-  />
-{/if}
-
-<!-- UNDO COMPLETED SNACKBAR -->
-{#if $mostRecentlyCompletedTaskID}
-  <TheSnackbar
-    on:undo-task-completion={() => {
-      updateTaskNode({
-        id: $mostRecentlyCompletedTaskID,
-        keyValueChanges: {
-          isDone: false
-        }
-      })
-      mostRecentlyCompletedTaskID.set('')
-    }}
-  ></TheSnackbar>
-{/if}
-
-{#if $showSnackbar}
-  <TheSnackbar>Email copied to clipboard successfully.</TheSnackbar>
-{/if}
-
-<NavbarAndContentWrapper>
-  <div slot="navbar">
-    <TopNavbar {currentMode} 
-      on:tab-click={e => currentMode = e.detail}
-      on:robot-click={() => isShowingAI = !isShowingAI}
+{#if $user.uid}
+  {#if clickedTaskID}
+    <DetailedCardPopup
+      taskObject={clickedTask}
+      on:task-update={e => updateTaskNode(e.detail)}
+      on:task-click={e => openDetailedCard(e.detail)}
+      on:card-close={() => (clickedTaskID = '')}
+      on:task-delete={e => deleteTaskNode(e.detail)}
+      on:task-checkbox-change={e =>
+        updateTaskNode({
+          id: e.detail.id,
+          keyValueChanges: { isDone: e.detail.isDone }
+        })}
     />
-  </div>
+  {/if}
 
-  <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
-    <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
-      <NewThisWeekTodo
-        on:new-root-task={(e) => createTaskNode(e.detail)}
-        on:task-click={(e) => openDetailedCard(e.detail)}
-        on:subtask-create={(e) => createSubtask(e.detail)}
-        on:task-checkbox-change={(e) =>
-          updateTaskNode({
-            id: e.detail.id,
-            keyValueChanges: { isDone: e.detail.isDone }
-          })}
+  <!-- UNDO COMPLETED SNACKBAR -->
+  {#if $mostRecentlyCompletedTaskID}
+    <TheSnackbar
+      on:undo-task-completion={() => {
+        updateTaskNode({
+          id: $mostRecentlyCompletedTaskID,
+          keyValueChanges: {
+            isDone: false
+          }
+        })
+        mostRecentlyCompletedTaskID.set('')
+      }}
+    ></TheSnackbar>
+  {/if}
+
+  {#if $showSnackbar}
+    <TheSnackbar>Email copied to clipboard successfully.</TheSnackbar>
+  {/if}
+
+  <NavbarAndContentWrapper>
+    <div slot="navbar">
+      <TopNavbar {currentMode} 
+        on:tab-click={e => currentMode = e.detail}
+        on:robot-click={() => isShowingAI = !isShowingAI}
       />
+    </div>
 
-      <TheFunctionalCalendar
-        on:new-root-task={(e) => createTaskNode(e.detail)}
-        on:task-click={(e) => openDetailedCard(e.detail)}
-        on:task-update={(e) =>
-          updateTaskNode({
-            id: e.detail.id,
-            keyValueChanges: e.detail.keyValueChanges
-          })
-        }
-      />
+    <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
+      <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
+        <NewThisWeekTodo
+          on:new-root-task={(e) => createTaskNode(e.detail)}
+          on:task-click={(e) => openDetailedCard(e.detail)}
+          on:subtask-create={(e) => createSubtask(e.detail)}
+          on:task-checkbox-change={(e) =>
+            updateTaskNode({
+              id: e.detail.id,
+              keyValueChanges: { isDone: e.detail.isDone }
+            })}
+        />
 
-      <div style="display: {isShowingAI ? 'block' : 'none'}; flex: 0 0 320px;">
-        <AI />
+        <TheFunctionalCalendar
+          on:new-root-task={(e) => createTaskNode(e.detail)}
+          on:task-click={(e) => openDetailedCard(e.detail)}
+          on:task-update={(e) =>
+            updateTaskNode({
+              id: e.detail.id,
+              keyValueChanges: e.detail.keyValueChanges
+            })
+          }
+        />
+
+        <div style="display: {isShowingAI ? 'block' : 'none'}; flex: 0 0 320px;">
+          <AI />
+        </div>
+      </div>
+
+      <div style="width: 100%; background: hsl(98, 40%, 96%); display: {currentMode === 'Templates' ? 'block' : 'none'}">
+        <Templates />
+      </div>
+
+      <div style="display: {currentMode === 'Archive' ? 'block' : 'none'}; width: 100%; height: 100%;">
+        <HistoryArchive />
       </div>
     </div>
-
-    <div style="width: 100%; background: hsl(98, 40%, 96%); display: {currentMode === 'Templates' ? 'block' : 'none'}">
-      <Templates />
-    </div>
-
-    <div style="display: {currentMode === 'Archive' ? 'block' : 'none'}; width: 100%; height: 100%;">
-      <HistoryArchive />
-    </div>
-  </div>
-</NavbarAndContentWrapper>
+  </NavbarAndContentWrapper>
+{/if}
