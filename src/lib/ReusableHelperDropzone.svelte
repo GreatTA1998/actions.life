@@ -20,12 +20,7 @@
     maintainValidSubtreeDeadlines,
     correctDeadlineIfNecessary
   } from '/src/helpers/subtreeDragDrop.js'
-  import { 
-    whatIsBeingDragged, 
-    whatIsBeingDraggedID, 
-    whatIsBeingDraggedFullObj,
-    user 
-  } from '/src/store'
+  import { user, activeDragItem } from '/src/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import {db} from '../back-end/firestoreConnection'
 
@@ -45,7 +40,7 @@
   $: n = roomsInThisLevel.length
 
   function isInvalidReorderDrop () {
-    return !['room', 'top-level-task-within-this-todo-list'].includes($whatIsBeingDragged) || ancestorRoomIDs.includes($whatIsBeingDraggedID)
+    return !['room', 'top-level-task-within-this-todo-list'].includes($activeDragItem.kind) || ancestorRoomIDs.includes($activeDragItem.id)
   }
 
   function dragover_handler (e) {
@@ -119,7 +114,7 @@
 
     // 1. ORDER VALUE (and startTime)
     // only applies to the subtree's root
-    const { deadlineDate, deadlineTime, id, subtreeDeadlineInMsElapsed } = $whatIsBeingDraggedFullObj
+    const { deadlineDate, deadlineTime, id, subtreeDeadlineInMsElapsed } = $activeDragItem
 
     let updateObj = {
       orderValue: newVal,
@@ -157,7 +152,7 @@
     }
 
     // 4. PARENTID
-    if ($whatIsBeingDragged === 'top-level-task-within-this-todo-list' && ancestorRoomIDs.length === 1) {
+    if ($activeDragItem.kind === 'top-level-task-within-this-todo-list' && ancestorRoomIDs.length === 1) {
       // preserve parent relationship
     } else {
       updateObj.parentID = parentID
@@ -167,7 +162,7 @@
     // 2. HANDLE SUBTREE DEADLINES
     // NOTE: this function actually doesn't do anything
     maintainValidSubtreeDeadlines({ 
-      node: $whatIsBeingDraggedFullObj, 
+      node: $activeDragItem, 
       todoListUpperBound: dueInHowManyDays, 
       parentObj,
       batch,
@@ -177,9 +172,9 @@
     // to make it reusable with milestones
     let ref = null
     if (isMilestoneMode) {
-      ref = doc(db, `users/${$user.uid}/milestones/${$whatIsBeingDraggedID}`)
+      ref = doc(db, `users/${$user.uid}/milestones/${$activeDragItem.id}`)
     } else {
-      ref = doc(db, `users/${$user.uid}/tasks/${$whatIsBeingDraggedID}`)
+      ref = doc(db, `users/${$user.uid}/tasks/${$activeDragItem.id}`)
     }
 
     batch.update(ref, betaUpdateObj) // updateObj
@@ -191,9 +186,7 @@
         id, 
         keyValueChanges: betaUpdateObj
       })
-      whatIsBeingDraggedFullObj.set(null)
-      whatIsBeingDraggedID.set('')
-      whatIsBeingDragged.set('')
+      activeDragItem.set(null)
     } catch (error) {
       alert('Error updating, please reload the page')
     }

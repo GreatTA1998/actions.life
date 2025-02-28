@@ -1,28 +1,26 @@
 <script>
+  import TopNavbar from './TopNavbar.svelte'
   import TheFunctionalCalendar from '$lib/TheFunctionalCalendar/TheFunctionalCalendar.svelte'
-  import {
-    mostRecentlyCompletedTaskID,
-    user,
-    showSnackbar,
-    hasInitialScrolled
-  } from '/src/store'
+  import HistoryArchive from '$lib/HistoryArchive/index.svelte'
   import Templates from '$lib/Templates/Templates.svelte'
   import AI from '../AI/AI.svelte'
   import TheSnackbar from '$lib/TheSnackbar.svelte'
-  import PopupCustomerSupport from '$lib/PopupCustomerSupport.svelte'
   import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
   import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
-  import MultiPhotoUploader from '$lib/MultiPhotoUploader.svelte'
   import {
     handleSW,
     handleNotificationPermission
   } from './handleNotifications.js'
   import { onDestroy, onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import { getAuth, signOut } from 'firebase/auth'
   import { arrayUnion } from 'firebase/firestore'
   import NewThisWeekTodo from '$lib/NewThisWeekTodo.svelte'
-  import { handleInitialTasks } from './handleTasks.js'
+
+  import {
+    mostRecentlyCompletedTaskID,
+    user,
+    showSnackbar,
+  } from '/src/store'
+
   import {
     createTaskNode,
     updateTaskNode,
@@ -54,19 +52,10 @@
         console.error('Error with notifications:', error)
       }
     }
-    handleInitialTasks($user.uid)
   })
-
+  
   function openDetailedCard({ task }) {
     clickedTaskID = task.id
-  }
-
-  function handleLogoClick() {
-    if (confirm('Log out and return to home page tutorials?')) {
-      const auth = getAuth()
-      signOut(auth).catch(console.error)
-      goto('/')
-    }
   }
 
   // TO-DO: should probably deprecate
@@ -97,118 +86,74 @@
         id: e.detail.id,
         keyValueChanges: { isDone: e.detail.isDone }
       })}
+    on:photo-layout-change={(e) => updateTaskNode(e.detail)}
   />
 {/if}
 
-<!-- UNDO COMPLETED SNACKBAR -->
-{#if $mostRecentlyCompletedTaskID}
-  <TheSnackbar
-    on:undo-task-completion={() => {
-      updateTaskNode({
-        id: $mostRecentlyCompletedTaskID,
-        keyValueChanges: {
-          isDone: false
-        }
-      })
-      mostRecentlyCompletedTaskID.set('')
-    }}
-  ></TheSnackbar>
-{/if}
-
-{#if $showSnackbar}
-  <TheSnackbar>Email copied to clipboard successfully.</TheSnackbar>
-{/if}
-
-<NavbarAndContentWrapper>
-  <div slot="navbar"
-    class="top-navbar"
-    class:transparent-glow-navbar={currentMode === 'Day'}
-  >
-    <img on:click={() => handleLogoClick()} on:keydown
-      src="/trueoutput-square-nobg.png"
-      style="width: 38px; height: 38px; margin-right: 6px; margin-left: -4px; cursor: pointer;"
-      alt=""
-    />
-
-    <div class="day-week-toggle-segment">
-
-      <!-- pressing home recalibrates you to today's region -->
-      <div 
-        on:click={async () => {
-          if (currentMode === 'Week') {
-            hasInitialScrolled.set(false)
+{#if $user.uid}
+  <!-- UNDO COMPLETED SNACKBAR -->
+  {#if $mostRecentlyCompletedTaskID}
+    <TheSnackbar
+      on:undo-task-completion={() => {
+        updateTaskNode({
+          id: $mostRecentlyCompletedTaskID,
+          keyValueChanges: {
+            isDone: false
           }
-          currentMode = 'Week'
-        }} on:keydown
-        class="ux-tab-item"
-        class:active-ux-tab={currentMode === 'Week'}
-        class:transparent-inactive-tab={currentMode === 'Day'}
-      >
-        <span class="material-symbols-outlined" style="font-size: 32px;">
-          house
-        </span>
-      </div>
+        })
+        mostRecentlyCompletedTaskID.set('')
+      }}
+    ></TheSnackbar>
+  {/if}
 
-      <div on:click={() => (currentMode = 'Templates')} on:keydown
-        class="ux-tab-item"
-        class:active-ux-tab={currentMode === 'Templates'}
-        class:transparent-inactive-tab={currentMode === 'Day'}
-      >
-        <span class:blue-icon={currentMode === 'Dashboard'}
-          class="material-symbols-outlined"
-          style="font-size: 32px;"
-        >
-          autorenew
-        </span>
-      </div>
-    </div>
+  {#if $showSnackbar}
+    <TheSnackbar>Email copied to clipboard successfully.</TheSnackbar>
+  {/if}
 
-    <div style="display: flex; gap: 28px; align-items: center;">
-      <span on:click={() => isShowingAI = !isShowingAI} on:keydown class="material-symbols-outlined" style="font-size: 28px; cursor: pointer;">
-        smart_toy
-      </span>
-      <!-- <PopupCustomerSupport let:setIsPopupOpen>
-        <span on:click={() => setIsPopupOpen({ newVal: true })} on:keydown
-          class="material-symbols-outlined mika-hover responsive-icon-size"
-        >
-          contact_support
-        </span>
-      </PopupCustomerSupport> -->
-    </div>
-  </div>
-
-  <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
-    <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
-      <NewThisWeekTodo
-        on:new-root-task={(e) => createTaskNode(e.detail)}
-        on:task-click={(e) => openDetailedCard(e.detail)}
-        on:subtask-create={(e) => createSubtask(e.detail)}
-        on:task-checkbox-change={(e) =>
-          updateTaskNode({
-            id: e.detail.id,
-            keyValueChanges: { isDone: e.detail.isDone }
-          })}
+  <NavbarAndContentWrapper>
+    <div slot="navbar">
+      <TopNavbar {currentMode} 
+        on:tab-click={e => currentMode = e.detail}
+        on:robot-click={() => isShowingAI = !isShowingAI}
       />
+    </div>
 
-      <TheFunctionalCalendar
-        on:new-root-task={(e) => createTaskNode(e.detail)}
-        on:task-click={(e) => openDetailedCard(e.detail)}
-        on:task-update={(e) =>
-          updateTaskNode({
-            id: e.detail.id,
-            keyValueChanges: e.detail.keyValueChanges
-          })
-        }
-      />
+    <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
+      <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
+        <NewThisWeekTodo
+          on:new-root-task={(e) => createTaskNode(e.detail)}
+          on:task-click={(e) => openDetailedCard(e.detail)}
+          on:subtask-create={(e) => createSubtask(e.detail)}
+          on:task-checkbox-change={(e) =>
+            updateTaskNode({
+              id: e.detail.id,
+              keyValueChanges: { isDone: e.detail.isDone }
+            })}
+        />
 
-      <div style="display: {isShowingAI ? 'block' : 'none'}; flex: 0 0 320px;">
-        <AI />
+        <TheFunctionalCalendar
+          on:new-root-task={(e) => createTaskNode(e.detail)}
+          on:task-click={(e) => openDetailedCard(e.detail)}
+          on:task-update={(e) =>
+            updateTaskNode({
+              id: e.detail.id,
+              keyValueChanges: e.detail.keyValueChanges
+            })
+          }
+        />
+
+        <div style="display: {isShowingAI ? 'block' : 'none'}; flex: 0 0 320px;">
+          <AI />
+        </div>
+      </div>
+
+      <div style="width: 100%; background: hsl(98, 40%, 96%); display: {currentMode === 'Templates' ? 'block' : 'none'}">
+        <Templates />
+      </div>
+
+      <div style="display: {currentMode === 'Archive' ? 'block' : 'none'}; width: 100%; height: 100%;">
+        <HistoryArchive />
       </div>
     </div>
-    <div style="width: 100%; background: hsl(98, 40%, 96%); display: {currentMode === 'Templates' ? 'block' : 'none'}">
-      <Templates />
-    </div>
-  </div>
-</NavbarAndContentWrapper>
-
-<style src="./MainPage.css"></style>
+  </NavbarAndContentWrapper>
+{/if}

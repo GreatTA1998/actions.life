@@ -6,9 +6,9 @@
   class:blue-border={isFocused}
   style="height: fit-content;"
 >
-  <div class="ux-field-label">
+  <!-- <div class="ux-field-label">
     {fieldLabel}
-  </div>
+  </div> -->
 
   <!-- input interface is a quick-fix, 
   
@@ -43,17 +43,18 @@
 
 <style>
   .blue-border {
-    border: 2px solid #2757cf;
+    border: 0px solid #2757cf;
   }
 
   .grey-border {
-    border: 1px solid #DBDBDD;
+    border: 0px solid #DBDBDD;
   }
 
   .ux-form-field {
     height: 100px;
-    padding-left: 9px;
-    padding-right: 9px;
+    padding: 2px;
+    /* padding-left: 9px;
+    padding-right: 9px; */
     border-radius: 4px;
   }
 

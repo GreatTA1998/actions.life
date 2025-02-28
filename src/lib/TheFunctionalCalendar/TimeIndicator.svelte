@@ -1,6 +1,5 @@
-<!-- {timeIndicatorOffset} -->
 <div class="current-time-indicator-container" 
-  style="top: {timeIndicatorOffset}px"
+  style="top: {timeIndicatorOffset}px;"
 > 
   <hr 
     style="border: 2px solid var(--location-indicator-color); border-radius: 5px; width: 100%; margin-top: 0px; margin-bottom: 0px;"
@@ -17,19 +16,16 @@
   import { hasInitialScrolled } from '/src/store'
 
   export let pixelsPerMinute
-  export let calendarBeginningDateClassObject
+  export let originDT
 
   let CurrentTimeIndicator
   let intervalID = ''
   let timeIndicatorOffset
   let currentTimeString
 
-  // this reacts to the Home icon click which resets us back to today's position
-
-  // pase a function directly into a store to be called
-  // scrollToCurrentDay()
-  // but a boolean is helpful for disabling the intersection observer
-
+  // NOTE: clicking home will us back to today's position
+  // (alternative solution: pass a function directly into a store to be called `scrollToCurrentDay()`
+  // https://svelte.dev/tutorial/update: "Scrolling is hard to achieve with purely a state-driven way"
   $: if (!$hasInitialScrolled && CurrentTimeIndicator) {
     requestAnimationFrame(() => {
       scrollToTimeIndicator()
@@ -59,7 +55,7 @@
 
   function computeTimeIndicatorOffset () {
     const i = Interval.fromDateTimes(
-      DateTime.fromJSDate(calendarBeginningDateClassObject),
+      originDT,
       DateTime.now()
     )
     const minutesDifference = i.length() / (1000 * 60)
@@ -69,10 +65,8 @@
 
 <style>
   .current-time-indicator-container {
-    display: block; 
-    align-items: center;
     position: absolute; 
-    width: var(--calendar-day-section-width);
+    width: var(--width-calendar-day-section);
     pointer-events: none;
   }
 </style>

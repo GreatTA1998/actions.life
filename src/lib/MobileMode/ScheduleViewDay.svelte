@@ -14,9 +14,9 @@
   </div>
 
   {#each tasksThisDay.noStartTime.noIcon as flexibleDayTask}
-    <div on:click={() => dispatch('task-click', { task: flexibleDayTask })} 
+    <button on:click={() => dispatch('task-click', { task: flexibleDayTask })} 
       style="
-        width: var(--calendar-day-section-width); 
+        width: var(--width-calendar-day-section); 
         font-size: 12px; 
         display: flex; 
         flex-direction: column;
@@ -29,7 +29,7 @@
         on:task-update
         on:task-checkbox-change
       />
-    </div>
+    </button>
   {/each}
 
   {#each tasksThisDay.hasStartTime as task, i}

@@ -5,6 +5,15 @@ import { setFirestoreDoc, updateFirestoreDoc } from '/src/helpers/firestoreHelpe
 // so it's the e.clientY + initialOffset + scrollOffset 
 // e.clientY := coordinates relative to VIEWPORT, so doesn't matter if root page is scrolled
 
+export function formatDate(dateStr) {
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('en-US', {
+    // year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
 export function pureNumericalHourForm (startTime) {
   const hh = startTime.slice(0, 2)
   const mm = startTime.slice(3, 5)

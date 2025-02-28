@@ -1,22 +1,21 @@
 <script>
+  import TimestampLabels from './TimestampLabels.svelte'
   import DayColumn from './DayColumn.svelte'
   import DayHeader from './DayHeader.svelte'
-  import CalendarTimestamps from './CalendarTimestamps.svelte'
-  import YearAndMonthTile from './YearAndMonthTile.svelte'
   import MultiPhotoUploader from '../MultiPhotoUploader.svelte'
+  import YearAndMonthTile from './YearAndMonthTile.svelte'
 
   import Tasks from '/src/back-end/Tasks'
   import { buildCalendarDataStructures } from '/src/helpers/maintainState.js'
   import { trackWidth, trackHeight } from '/src/helpers/actions.js'
   import { DateTime } from 'luxon'
   import {
-    tasksScheduledOn,
     user,
-    calendarTasks,
-    hasInitialScrolled
+    calendarTasks, tasksScheduledOn,
+    hasInitialScrolled, calEarliestHHMM
   } from '/src/store'
 
-  export let compactTimestamps
+  export let isCompact = false
 
   // Video explanation for this component (refer to related videos in the "Two-way infinite scroll" folder)
   // https://www.explanations.io/uRNISfkw0mE404Zn4GgH/ePfUWAU6CXL7leApJ9GP
@@ -39,14 +38,8 @@
   let scrollX = middleIdx * COLUMN_WIDTH
   let initialScrollParentWidth
 
-  let leftEdgeIdx
-  let rightEdgeIdx
-
-  let leftTriggerIdx
-  let rightTriggerIdx
-
-  let prevLeftEdgeIdx
-  let prevRightEdgeIdx
+  let leftEdgeIdx, prevLeftEdgeIdx, leftTriggerIdx
+  let rightEdgeIdx, rightTriggerIdx, prevRightEdgeIdx
 
   let isShowingDockingArea = true
   let exactHeight = CORNER_LABEL_HEIGHT
@@ -59,7 +52,7 @@
   $: if (scrollParentWidth && !leftTriggerIdx && !rightTriggerIdx) {
     setupInitialColumnsAndVariables()
   }
-
+  
   $: if (!$hasInitialScrolled && ScrollParent) {
     scrollToTodayColumn()
   }
@@ -75,8 +68,7 @@
     updateActiveColumns()
   }
 
-  function reactToScroll(leftEdgeIdx, rightEdgeIdx) {
-    // HANDLE DATA
+  function reactToScroll (leftEdgeIdx, rightEdgeIdx) {
     // note: `leftEdgeIdx` jumps non-consecutively sometimes depending on how fast the user is scrolling
     if (leftEdgeIdx <= leftTriggerIdx && leftEdgeIdx !== prevLeftEdgeIdx) {
       fetchMorePastTasks(leftTriggerIdx) // even though jumps can be arbitrarily wide, the function calls will resolve in a weakly decreasing order of their `leftTriggerIdx`
@@ -159,7 +151,12 @@
   function updateActiveColumns() {
     const output = []
     for (let i = leftEdgeIdx - 2 * c; i <= rightEdgeIdx + 2 * c; i++) {
-      output.push(calOriginDT.plus({ days: i }))
+      let dt = calOriginDT.plus({ days: i })
+      dt = dt.set({
+        hour: Number($calEarliestHHMM.split(':')[0]), 
+        minute: Number($calEarliestHHMM.split(':')[1])
+      })
+      output.push(dt)
     }
     dtOfActiveColumns = output
 
@@ -185,55 +182,42 @@
 </script>
 
 <div class="calendar-wrapper">
-  <div style="position: absolute; right: 2vw; bottom: 2vw; z-index: 1; 
-    border: 1px solid lightgrey;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); 
-    height: 50px;
-    width: 50px;
-    border-radius: 30px;  display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: hsl(98, 40%, {90 + 2}%, 0.4);"
-  >
+  <div class="floating-button" style="background-color: hsl(98, 40%, {90 + 2}%, 0.4);">
     <MultiPhotoUploader />
   </div>  
 
   <YearAndMonthTile
+    {isCompact}
     {leftEdgeIdx}
     {calOriginDT}
     {exactHeight}
     {isShowingDockingArea}
-    on:toggle-docking-area={() =>(isShowingDockingArea = !isShowingDockingArea)}
+    on:toggle-docking-area={() => isShowingDockingArea = !isShowingDockingArea}
   />
 
-  <div
-    id="scroll-parent"
+  <div id="scroll-parent"
     bind:this={ScrollParent}
     use:trackWidth={(newWidth) => (scrollParentWidth = newWidth)}
     on:scroll={(e) => (scrollX = e.target.scrollLeft)}
   >
     <div class="scroll-content" style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px">
-      <CalendarTimestamps
+      <TimestampLabels
+        {isCompact}
         pixelsPerHour={PIXELS_PER_HOUR}
         topMargin={exactHeight}
-        {compactTimestamps}
       />
 
-      <!-- we use absolute positioning instead of `translateX` because iOS safari drag-drop is glitchy with translated elements -->
       {#if dtOfActiveColumns[0] && $tasksScheduledOn}
-        <div
-          class="visible-days"
-          style="position: absolute"
+        <div class="visible-days"
           style:left={`${dtOfActiveColumns[0].diff(calOriginDT, 'days').days * COLUMN_WIDTH}px`}
         >
-          <div
+          <div use:trackHeight={newHeight => exactHeight = newHeight}
             class="headers-flexbox"
-            use:trackHeight={(newHeight) => (exactHeight = newHeight)}
             class:bottom-border={$tasksScheduledOn}
           >
-            {#each dtOfActiveColumns as currentDate, i (currentDate.toMillis() + `${i}`)}
-              <DayHeader
-                ISODate={currentDate.toFormat('yyyy-MM-dd')}
+            {#each dtOfActiveColumns as dt, i (dt.toMillis() + `${i}`)}
+              <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')}
+                {isCompact}
                 {isShowingDockingArea}
                 on:task-update
                 on:task-click
@@ -243,15 +227,10 @@
           </div>
 
           <div class="day-columns">
-            {#each dtOfActiveColumns as currentDate (currentDate.toMillis())}
-              <DayColumn
-                calendarBeginningDateClassObject={DateTime.fromISO(
-                  currentDate.toFormat('yyyy-MM-dd')
-                ).toJSDate()}
+            {#each dtOfActiveColumns as dt (dt.toMillis())}
+              <DayColumn {dt}
+                scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
                 pixelsPerHour={PIXELS_PER_HOUR}
-                scheduledTasks={$tasksScheduledOn[
-                  currentDate.toFormat('yyyy-MM-dd')
-                ]?.hasStartTime ?? []}
                 on:task-update
                 on:task-click
                 on:new-root-task
@@ -287,6 +266,9 @@
     display: grid;
     grid-template-rows: auto 1fr;
     position: relative;
+
+    /* this is key, otherwise it doesn't count as a stacking context  */
+    z-index: 0;
   }
 
   #scroll-parent {
@@ -304,7 +286,9 @@
   }
 
   .visible-days {
-    position: absolute;
+    /* we use absolute positioning instead of `translateX` because iOS safari drag-drop is glitchy with translated elements */
+    position: absolute; 
+
     left: 60px; /* Timestamp width */
   }
 
@@ -318,9 +302,27 @@
 
   .day-columns {
     display: flex;
+
+    /* timestamp has a height of 14px (despite a font size of 12px) */
+    padding-top: 7px;
   }
 
   .bottom-border {
-    border-bottom: 1px solid lightgrey;
+    box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);
+  }
+
+  .floating-button {
+    position: absolute; 
+    right: 1vw; 
+    bottom: 1vw; 
+    z-index: 1; 
+    border: 1px solid lightgrey;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); 
+    height: 50px;
+    width: 50px;
+    border-radius: 30px;  
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>

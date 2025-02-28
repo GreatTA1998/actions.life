@@ -106,7 +106,7 @@
   // Assumes `task` is hydrated
   import { createEventDispatcher } from 'svelte'
   import { getTrueY } from '/src/helpers/everythingElse.js'
-  import { yPosWithinBlock, whatIsBeingDragged, whatIsBeingDraggedID, whatIsBeingDraggedFullObj } from '/src/store'
+  import { grabOffset, activeDragItem } from '/src/store'
   import ReusableCheckbox from '$lib/ReusableCheckbox.svelte'
 
   export let task = null
@@ -128,18 +128,16 @@
     const rect = e.target.getBoundingClientRect()
     const y = e.clientY - rect.top // y position within el ement
 
-    whatIsBeingDraggedID.set(id)
-    whatIsBeingDragged.set('room')
-    whatIsBeingDraggedFullObj.set(task)
+    activeDragItem.set({
+      kind: 'room',
+      ...task
+    })
 
-    yPosWithinBlock.set(y)
+    grabOffset.set(y)
   }
 
   function startAdjustingDuration (e) {
     startY = getTrueY(e)
-    whatIsBeingDraggedFullObj.set({ 
-      isDraggingDuration: true 
-    })
   }
 
   function adjustDuration (e, task) {
@@ -160,7 +158,8 @@
         duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event
       }      
     })
-    whatIsBeingDraggedFullObj.set(null)
+
+    activeDragItem.set(null)
   }
 </script> 
 

@@ -1,127 +1,130 @@
-{#key clickedTask}
-  {#if isDetailedCardOpen}
-    <DetailedCardPopup 
-      taskObject={clickedTask}
-      on:card-close={() => isDetailedCardOpen = false}
-      on:task-delete={(e) => deleteTaskNode(e.detail)}
-      on:task-click={(e) => openDetailedCard(e.detail)}
-      on:task-update={(e) => updateTaskNode(e.detail)}
-      on:task-checkbox-change={(e) => updateTaskNode({ id: e.detail.id, keyValueChanges: { isDone: e.detail.isDone }})} 
-    />
-  {/if}
-{/key}
-
-<!-- Reason for 100dvh: https://stackoverflow.com/a/75648985/7812829 -->
-<!-- style="padding: 6px; background-color: white; display: flex; align-items: center; justify-content: center;" -->
-<div class:iphone-se-size={isTesting} 
-     class:general-mobile-size={!isTesting}
-     class:voice-active-highlight={isUsingVoice}
-     style="height: 100dvh; position: relative; display: flex; flex-direction: column;"
->
-  <div style="overflow-y: auto;">
-    {#if activeTabName === 'TODO_VIEW'}
-      <ListView
+{#if $user.uid}
+  {#key clickedTask}
+    {#if isDetailedCardOpen}
+      <DetailedCardPopup 
+        taskObject={clickedTask}
+        on:card-close={() => isDetailedCardOpen = false}
+        on:task-delete={(e) => deleteTaskNode(e.detail)}
         on:task-click={(e) => openDetailedCard(e.detail)}
-        on:task-checkbox-change={(e) => updateTaskNode({ id: e.detail.id, keyValueChanges: { isDone: e.detail.isDone }})}
-
-        on:new-root-task={(e) => createTaskNode(e.detail)}
-        on:subtask-create={(e) => createTaskNode(e.detail)}
-        let:startTypingNewTask={startTypingNewTask}
-      >
-        <FloatingButtonWrapper on:click={startTypingNewTask} distanceFromBottom={100}>
-          <span id="startButton" class="material-symbols-outlined" style="font-size: 48px; font-weight: 600;">
-            add
-          </span>
-        </FloatingButtonWrapper>
-
-        <FloatingButtonWrapper let:setBackgroundColor={setBackgroundColor}>
-          <VoiceKeywordDetect
-            on:voice-start={() => {
-              isUsingVoice = true; 
-              setBackgroundColor('orange');
-            }}
-            on:voice-end={() => isUsingVoice = false}
-            on:new-mic-result={(e) => speechResult = e.detail}
-            on:new-event-today={(e) => createNewEvent(e.detail)}
-            on:new-todo={(e) => createNewTodo(e.detail)}
-          />
-        </FloatingButtonWrapper>
-      </ListView>
-    {:else if activeTabName === 'FUTURE_VIEW'}
-      <ScheduleView
-        on:task-duration-adjusted
-        on:task-click={(e) => openDetailedCard(e.detail)}
+        on:task-update={(e) => updateTaskNode(e.detail)}
+        on:task-checkbox-change={(e) => updateTaskNode({ id: e.detail.id, keyValueChanges: { isDone: e.detail.isDone }})} 
       />
-    {:else if activeTabName === 'CALENDAR_VIEW'}
-      <TheMobileCalendar
-        on:new-root-task={(e) => createTaskNode(e.detail)}
-        on:task-click={(e) => openDetailedCard(e.detail)}
-        on:task-update={(e) => updateTaskNode({
-            id: e.detail.id,
-            keyValueChanges: e.detail.keyValueChanges
-          })
-        }
-      />
-    {:else if activeTabName === 'AI_VIEW'}
-      <AI />
     {/if}
+  {/key}
+
+  <!-- Reason for 100dvh: https://stackoverflow.com/a/75648985/7812829 -->
+  <!-- style="padding: 6px; background-color: white; display: flex; align-items: center; justify-content: center;" -->
+  <div class:iphone-se-size={isTesting} 
+      class:general-mobile-size={!isTesting}
+      class:voice-active-highlight={isUsingVoice}
+      style="height: 100dvh; position: relative; display: flex; flex-direction: column;"
+  >
+    <div style="overflow-y: auto;">
+      {#if activeTabName === 'TODO_VIEW'}
+        <ListView
+          on:task-click={(e) => openDetailedCard(e.detail)}
+          on:task-checkbox-change={(e) => updateTaskNode({ id: e.detail.id, keyValueChanges: { isDone: e.detail.isDone }})}
+
+          on:new-root-task={(e) => createTaskNode(e.detail)}
+          on:subtask-create={(e) => createTaskNode(e.detail)}
+          let:startTypingNewTask={startTypingNewTask}
+        >
+          <FloatingButtonWrapper on:click={startTypingNewTask} distanceFromBottom={100}>
+            <span id="startButton" class="material-symbols-outlined" style="font-size: 48px; font-weight: 600;">
+              add
+            </span>
+          </FloatingButtonWrapper>
+
+          <FloatingButtonWrapper let:setBackgroundColor={setBackgroundColor}>
+            <VoiceKeywordDetect
+              on:voice-start={() => {
+                isUsingVoice = true; 
+                setBackgroundColor('orange');
+              }}
+              on:voice-end={() => isUsingVoice = false}
+              on:new-mic-result={(e) => speechResult = e.detail}
+              on:new-event-today={(e) => createNewEvent(e.detail)}
+              on:new-todo={(e) => createNewTodo(e.detail)}
+            />
+          </FloatingButtonWrapper>
+        </ListView>
+      {:else if activeTabName === 'FUTURE_VIEW'}
+        <ScheduleView
+          on:task-duration-adjusted
+          on:task-click={(e) => openDetailedCard(e.detail)}
+        />
+      {:else if activeTabName === 'CALENDAR_VIEW'}
+        <TheFunctionalCalendar
+          isCompact
+          on:new-root-task={(e) => createTaskNode(e.detail)}
+          on:task-click={(e) => openDetailedCard(e.detail)}
+          on:task-update={(e) => updateTaskNode({
+              id: e.detail.id,
+              keyValueChanges: e.detail.keyValueChanges
+            })
+          }
+        />    
+      {:else if activeTabName === 'AI_VIEW'}
+        <AI />
+      {/if}
+    </div>
+
+    <div class="bottom-navbar">
+      <button on:click={() => activeTabName = 'TODO_VIEW'} class="bottom-nav-tab" class:active-nav-tab={activeTabName === 'TODO_VIEW'}>
+        <div style="text-align: center;">
+          <span class="material-symbols-outlined nav-tab-icon">
+            summarize
+          </span>
+          <div class="nav-tab-desc">
+            To-do
+          </div>
+        </div>
+      </button>
+
+      <button class="bottom-nav-tab" 
+        on:click={() => {
+          hasInitialScrolled.set(false)
+          activeTabName = 'CALENDAR_VIEW'
+        }}
+        class:active-nav-tab={activeTabName === 'CALENDAR_VIEW'}
+      >
+        <div style="text-align: center;">
+          <span class="material-symbols-outlined nav-tab-icon">
+            house
+          </span>
+          <div class="nav-tab-desc">
+            Calendar
+          </div>
+        </div>
+      </button>
+
+      <button class="bottom-nav-tab" on:click={() => activeTabName = 'FUTURE_VIEW'} class:active-nav-tab={activeTabName === 'FUTURE_VIEW'}>
+        <div style="text-align: center;">
+          <span class=" material-icons nav-tab-icon">
+            upcoming
+          </span>
+          <div class="nav-tab-desc">
+            Events
+          </div>
+        </div>
+      </button>
+
+      <button class="bottom-nav-tab" on:click={() => activeTabName = 'AI_VIEW'} class:active-nav-tab={activeTabName === 'AI_VIEW'}>
+        <div style="text-align: center;">
+          <span class=" material-symbols-outlined nav-tab-icon">
+            smart_toy
+          </span>
+          <div class="nav-tab-desc">
+            Robot
+          </div>
+        </div>
+      </button>
+    </div>
   </div>
-
-  <div class="bottom-navbar">
-    <div on:click={() => activeTabName = 'TODO_VIEW'} class="bottom-nav-tab" class:active-nav-tab={activeTabName === 'TODO_VIEW'}>
-      <div style="text-align: center;">
-        <span class="material-symbols-outlined nav-tab-icon">
-          summarize
-        </span>
-        <div class="nav-tab-desc">
-          To-do
-        </div>
-      </div>
-    </div>
-
-    <div class="bottom-nav-tab" 
-      on:click={() => {
-        hasInitialScrolled.set(false)
-        activeTabName = 'CALENDAR_VIEW'
-      }} on:keydown
-      class:active-nav-tab={activeTabName === 'CALENDAR_VIEW'}
-    >
-      <div style="text-align: center;">
-        <span class="material-symbols-outlined nav-tab-icon">
-          house
-        </span>
-        <div class="nav-tab-desc">
-          Calendar
-        </div>
-      </div>
-    </div>
-
-    <div class="bottom-nav-tab" on:click={() => activeTabName = 'FUTURE_VIEW'} class:active-nav-tab={activeTabName === 'FUTURE_VIEW'}>
-      <div style="text-align: center;">
-        <span class=" material-icons nav-tab-icon">
-          upcoming
-        </span>
-        <div class="nav-tab-desc">
-          Events
-        </div>
-      </div>
-    </div>
-
-    <div class="bottom-nav-tab" on:click={() => activeTabName = 'AI_VIEW'} class:active-nav-tab={activeTabName === 'AI_VIEW'}>
-      <div style="text-align: center;">
-        <span class=" material-symbols-outlined nav-tab-icon">
-          smart_toy
-        </span>
-        <div class="nav-tab-desc">
-          Robot
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+{/if}
 
 <script>
-  import TheMobileCalendar from '$lib/TheFunctionalCalendar/TheMobileCalendar.svelte'
+  import TheFunctionalCalendar from '$lib/TheFunctionalCalendar/TheFunctionalCalendar.svelte'
   import AI from '$lib/AI/AI.svelte'
   import ScheduleView from '$lib/MobileMode/ScheduleView.svelte'
   import ListView from '$lib/MobileMode/ListView.svelte'
@@ -129,11 +132,12 @@
   import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
 
+  import { fetchMobileTodoTasks, fetchMobileCalTasks } from '$lib/MainPage/handleTasks.js'
+  import { createTaskNode, updateTaskNode, deleteTaskNode } from '/src/helpers/crud.js'
   import { getRandomID, getDateInMMDD } from '/src/helpers/everythingElse.js'
   import { user, todoMemoryTree, hasInitialScrolled } from '/src/store'
+  import { page } from '$app/stores'
   import { onDestroy, onMount } from 'svelte'
-  import { createTaskNode, updateTaskNode, deleteTaskNode } from '/src/helpers/crud.js'
-  import { fetchMobileTodoTasks, fetchMobileCalTasks } from '$lib/MainPage/handleTasks.js'
 
   let isTesting = false
   let activeTabName = 'CALENDAR_VIEW' // probably the new user default, butthen persists the user's preference e.g. I prefer the to-do
@@ -145,12 +149,14 @@
   let isDetailedCardOpen = false
   let clickedTask = {}
 
-  onMount(async () => {
-    fetchMobileTodoTasks($user.uid)
-    
-    fetchMobileCalTasks($user.uid)
+  $: userID = $page.params.user
 
-    // note, we fetch future events inside that component as a quicckfix, so
+  onMount(async () => {
+    fetchMobileTodoTasks(userID)
+    
+    fetchMobileCalTasks(userID)
+
+    // note, we fetch future events inside that component as a quickfix, so
     // it'll react to changes in calendar and todo
   })
 

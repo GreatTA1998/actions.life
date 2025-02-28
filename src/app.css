@@ -1,27 +1,15 @@
 :root {
-  --navbar-height: 60px;
   --accent-color: rgb(92, 101, 22);
   --base-color: rgb(0, 89, 125);
   --sub-color: rgb(172, 160, 78);
 
   --logo-twig-color: #b34f1b;
 
-  /* gradation effect */
-  --todo-list-bg-color: hsl(100, 40%, 86%);
-  --calendar-bg-color: hsl(98, 40%, 90%);
-  --future-overview-bg-color: hsl(98, 40%, 94%);
-  --navbar-bg-color: hsla(98, 30%, 94%);
-
   --location-indicator-color: var(--logo-twig-color);
 
   --task-action-subtle-color: rgb(120, 120, 120);
 
-  --main-content-top-margin: min(4vh, 36px);
-
   --calendar-section-left-spacing: 2vw;
-
-  --calendar-day-section-width: 200px;
-  /* max(10vw, 120px);  */
 }
 
 * {
@@ -42,6 +30,23 @@ body {
   height: 100%;
 }
 
+/* Reset button's default styling */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: inherit;
+	text-align: center;
+
+  /* Fix for Safari/iOS */
+	appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
 
 .simple-flex {
   display: flex;
@@ -86,21 +91,6 @@ body {
   user-select: none;
 }
 
-.top-navbar {
-  height: var(--navbar-height);
-  display: flex; 
-  align-items: center; 
-  padding-left: 2vw; 
-  padding-right: 2vw;
-  border-bottom: 1px solid lightgrey;
-  background-color: var(--navbar-bg-color);
-
-  /* background holder has z-index 0 but somehow z-index 1 is not enough to cover it */
-  z-index: 2;
-  position: relative;
-}
-
-
  /*
     A full size invisible container to cover the entire screen for modularity purposes, 
     not accidentally trigger click on other elements e.g. accidentally creating a new task on the calendar when you're just trying to exit
@@ -119,8 +109,8 @@ body {
 
 /* Notion scrollbar styles */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {

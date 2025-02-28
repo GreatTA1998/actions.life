@@ -3,12 +3,7 @@
   import ReusableFlexibleDayTask from '$lib/ReusableFlexibleDayTask.svelte'
   import FunctionalDoodleIcon from '$lib/FunctionalDoodleIcon.svelte'
   import { createEventDispatcher } from 'svelte'
-  import {
-    tasksScheduledOn,
-    whatIsBeingDraggedFullObj,
-    whatIsBeingDragged,
-    whatIsBeingDraggedID
-  } from '/src/store'
+  import { tasksScheduledOn, activeDragItem } from '/src/store'
   import { DateTime } from 'luxon'
 
   export let ISODate
@@ -41,20 +36,17 @@
       }
     })
 
-    whatIsBeingDraggedFullObj.set(null)
-    whatIsBeingDraggedID.set('')
-    whatIsBeingDragged.set('')
+    activeDragItem.set(null)
   }
 </script>
 
-<div
-  class="day-header sticky-day-of-week-abbreviation"
-  style:padding={isCompact ? '0px 0px 0px 0px' : 'var(--main-content-top-margin) 0px 18px 0px'}
+<div class="day-header sticky-day-of-week-abbreviation"
+  style:padding={isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
   on:click|self={() => (isDirectlyCreatingTask = true)} on:keydown
   on:dragover={(e) => dragover_handler(e)}
   on:drop={(e) => drop_handler(e, ISODate)}
 >
-  <div class="unselectable" class:compact-horizontal={isCompact} style:display={isCompact ? 'flex' : 'block'}>
+  <div class="compact-horizontal unselectable">
     <div
       class="center-flex day-name-label"
       class:active-day-name={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
@@ -65,9 +57,8 @@
     <div class="center-flex" style="font-size: 16px; font-weight: 300">
       <div
         class="center-flex"
-        style="padding: 8px 0px; width: 28px; height: 36px;"
+        style="padding: 0px 0px; width: 28px;"
         class:active-date-number={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
-        class:highlighted-circle={false}
       >
         {DateTime.fromISO(ISODate).toFormat('dd')}
       </div>
@@ -84,18 +75,10 @@
             {/each}
           </div>
 
-          <div style="display: flex; flex-direction: column;">
+          <div style="display: flex; flex-direction: column; row-gap: {isCompact ? '4px' : '8px'};">
             {#each $tasksScheduledOn[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
-              <div
-                on:click={() => dispatch('task-click', { task: flexibleDayTask })}
-                style="width: var(--calendar-day-section-width); 
-                font-size: 12px; 
-                display: flex; gap: 4px; 
-                margin-top: 0px; margin-left: 4px; margin-right: 4px; margin-bottom: {isCompact ? '4px' : '8px'};
-              "
-              >
-                <ReusableFlexibleDayTask
-                  task={flexibleDayTask}
+              <div class="flexible-day-task">
+                <ReusableFlexibleDayTask task={flexibleDayTask}
                   on:task-click
                   on:task-update
                 />
@@ -109,14 +92,7 @@
   <!-- END OF DOCKING AREA -->
 
   {#if isDirectlyCreatingTask}
-    <div
-      id="calendar-direct-task-div"
-      style="
-        width: 90%; 
-        padding-left: 0px; 
-        padding-right: 0px;
-      "
-    >
+    <div id="calendar-direct-task-div">
       <ReusableCreateTaskDirectly
         newTaskStartTime={''}
         resultantDateClassObject={DateTime.fromISO(ISODate).toJSDate()}
@@ -128,13 +104,28 @@
 </div>
 
 <style>
+  #calendar-direct-task-div {
+    width: 90%; 
+    padding-left: 0px; 
+    padding-right: 0px;
+  }
+
+  .flexible-day-task {
+    display: flex;
+    width: var(--width-calendar-day-section); 
+    gap: 4px; 
+
+    font-size: 12px; 
+    margin-top: 0px; margin-left: 4px; margin-right: 4px; 
+  }
+
   .compact-horizontal {
     display: flex; 
     justify-content: center;
   }
 
   .day-header {
-    width: var(--calendar-day-section-width);
+    width: var(--width-calendar-day-section);
     padding-top: var(--main-content-top-margin);
     padding-bottom: 18px;
   }
@@ -164,10 +155,6 @@
   .active-date-number {
     font-weight: 300;
     color: rgb(60, 60, 60);
-  }
-
-  .highlighted-circle {
-    border-radius: 25px;
   }
 
   .center-flex {

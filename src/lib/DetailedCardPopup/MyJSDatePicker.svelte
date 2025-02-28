@@ -68,11 +68,18 @@
 
 <style>
   .my-date-field {
-    padding-left: 6px;
+    /* padding-left: 6px; */
     height: 30px;
     border-radius: 4px;
-    border: 1px solid lightgrey;
+    /* border: 1px solid lightgrey; */
+    border: 0px solid transparent;
     width: 64px;
-    font-size: 16px;
+
+    font-size: 14px;
+    color: #808080;
+  } 
+
+  .my-date-field:focus {
+    outline: none;
   }
 </style>

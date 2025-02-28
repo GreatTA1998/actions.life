@@ -4,8 +4,7 @@
   Note, the HTML checkbox tick color literally cannot be changed, but it will be automatically white if it "decides" that our chosen background color is dark enough, 
   or vice versa
  -->
-<div 
-  on:click={() => dispatch('task-click', { task })}
+<div on:click={() => dispatch('task-click', { task })}
   draggable="true" 
   on:dragstart|self={(e) => startDragMove(e, task.id)} 
   use:lazyCallable={() => hasIntersected = true}
@@ -45,7 +44,7 @@
 
    {#if task.iconURL}
      <img src={task.iconURL} style="pointer-events: none; width: 32px; height: 32px;">
-   {:else}
+   {:else if task.name}
       <div style="position: relative; width: 100%; padding-left: 6px; padding-top: 4px;">
         <div 
           class="task-name truncate-to-one-line unselectable" 
@@ -66,13 +65,13 @@
  </div>
  <!-- End of task name flexbox -->
 
- {#if !isBulletPoint}
+ <!-- {#if !isBulletPoint}
    <div style="flex-grow: 1; overflow: hidden; margin-left: var(--left-padding); margin-top: 6px;">
      <div style="font-size: 12px; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
        {task.notes || ''}
      </div>
    </div>
- {/if}
+ {/if} -->
 
    <!-- 
      `1vw`: if it's too wide, it overlaps with the task name for short duration tasks 
@@ -98,7 +97,7 @@
  // Assumes `task` is hydrated
  import { createEventDispatcher } from 'svelte'
  import { getTrueY } from '/src/helpers/everythingElse.js'
- import { yPosWithinBlock, whatIsBeingDragged, whatIsBeingDraggedID, whatIsBeingDraggedFullObj } from '/src/store'
+ import { grabOffset, activeDragItem } from '/src/store'
  import { lazyCallable } from '/src/helpers/actions.js'
 
  export let task = null
@@ -120,11 +119,12 @@
    const rect = e.target.getBoundingClientRect()
    const y = e.clientY - rect.top // y position within el ement
 
-   whatIsBeingDraggedID.set(id)
-   whatIsBeingDragged.set('room')
-   whatIsBeingDraggedFullObj.set(task)
+   activeDragItem.set({
+    kind: 'room',
+    ...task
+   })
 
-   yPosWithinBlock.set(y)
+   grabOffset.set(y)
  }
 
  function startAdjustingDuration (e) {

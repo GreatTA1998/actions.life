@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher, onMount, tick } from 'svelte'
+  import { createEventDispatcher, tick } from 'svelte'
 
   export let value = ''
   export let placeholder;
@@ -45,17 +45,10 @@
     pattern={pattern}
     on:input={(e) => dispatch('input', { typedHHMM: e.target.value })}
     on:click={() => (isMenuDisplayed = !isMenuDisplayed)}
-    style="
-      width: 64px; 
-      font-size: 16px; 
-      text-align: center; 
-      height: 30px; 
-      border-radius: 4px;
-      border: 1px solid lightgrey;
-    "
     on:focusout={() => {
       setTimeout(() => (isMenuDisplayed = false), 500)
     }}
+    class="time-dropdown"
   />
 
   {#if isMenuDisplayed}
@@ -84,6 +77,17 @@
 </div>
 
 <style lang="scss">
+  .time-dropdown {
+    width: 52px; 
+    text-align: center; 
+    height: 30px; 
+    border-radius: 4px;
+    border: 0px solid lightgrey;
+
+    font-size: 14px;
+    color: #808080;
+  }
+
   .my-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

@@ -1,9 +1,15 @@
 <script>
   import MainPage from '$lib/MainPage/MainPage.svelte'
-  import { user } from '/src/store'
+  import { handleInitialTasks } from '$lib/MainPage/handleTasks'
+  import { page } from '$app/stores'
+  import { onMount } from 'svelte'
+
+  $: userID = $page.params.user
+
+  // fetch everything needed in parallel
+  onMount(() => {
+    handleInitialTasks(userID)
+  })
 </script>
 
-<!-- i.e. the user is fully hydrated, with properties like `journal` already initialized -->
-{#if $user.uid}
-  <MainPage />
-{/if}
+<MainPage />
