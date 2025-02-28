@@ -1,6 +1,6 @@
 <script>
-  import { createEventDispatcher, onMount, onDestroy, tick } from 'svelte'
-  import { mostRecentlyCompletedTaskID } from '/src/store'
+  import { createEventDispatcher, onMount, onDestroy } from 'svelte'
+  import { mostRecentlyCompletedTaskID, defaultPhotoLayout, photoLayoutOptions, getIconForLayout } from '/src/store'
   import _ from 'lodash'
   import RecursiveBulletPoint from '$lib/DetailedCardPopup/RecursiveBulletPoint.svelte'
   import UXFormTextArea from '$lib/DetailedCardPopup/UXFormTextArea.svelte'
@@ -14,7 +14,7 @@
   let TaskImageElem
   let PopupElem
 
-  let journalLayout = 'side-by-side'
+  let journalLayout = taskObject.photoLayout || $defaultPhotoLayout
   // don't delete yet, as these might be needed for input element bindings
   let notesAboutTask = taskObject.notes || ''
   let titleOfTask = taskObject.name || ''
@@ -23,6 +23,9 @@
 
   let fullPhotoWidth
   let fullPhotoHeight 
+
+  const debouncedSaveTitle = _.debounce(saveTitle, 800)
+  const debouncedSaveNotes = _.debounce(saveNotes, 1500)
 
   onMount(() => {
     if (taskObject.imageDownloadURL) {
@@ -48,16 +51,6 @@
   function resetPopupCSS () {
     PopupElem.style.width = ''
     PopupElem.style.height = ''
-  }
-
-  function getIconNameFor (layout) {
-    if (layout === 'side-by-side') {
-      return 'splitscreen_left'
-    } else if (layout === 'top-and-below') {
-      return 'splitscreen_top'
-    } else if (layout === 'full-photo') {
-      return 'fullscreen_portrait'
-    }
   }
 
   function computePhotoFullDisplaySize () {
@@ -104,8 +97,12 @@
     dispatch('card-close')
   }
 
-  const debouncedSaveTitle = _.debounce(saveTitle, 800)
-  const debouncedSaveNotes = _.debounce(saveNotes, 1500)
+  function updatePhotoLayout (layout) {
+    // quick-fix as the popup is not reactive to task updates
+    journalLayout = layout
+
+    dispatch('photo-layout-change', { id: taskObject.id, keyValueChanges: { photoLayout: layout }})
+  }
 
   function handleDelete () {
     dispatch("task-delete", { ...taskObject });
@@ -178,9 +175,9 @@
         <div style="display: flex; align-items: center; width: 100%;">
           {#if taskObject.imageDownloadURL}
             <div style="display: flex; column-gap: 6px;">
-              {#each ['side-by-side', 'top-and-below', 'full-photo'] as layout}
-                <button on:click={() => journalLayout = layout} class="material-symbols-outlined">
-                  {getIconNameFor(layout)}
+              {#each photoLayoutOptions as layout}
+                <button on:click={() => updatePhotoLayout(layout)} class="material-symbols-outlined">
+                  {getIconForLayout(layout)}
                 </button>
               {/each}
             </div>

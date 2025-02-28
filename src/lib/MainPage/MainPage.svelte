@@ -86,6 +86,7 @@
         id: e.detail.id,
         keyValueChanges: { isDone: e.detail.isDone }
       })}
+    on:photo-layout-change={(e) => updateTaskNode(e.detail)}
   />
 {/if}
 
