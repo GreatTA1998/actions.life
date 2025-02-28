@@ -68,6 +68,7 @@
   .blurred-image {
     filter: blur(6px) brightness(1.0) contrast(1.0) saturate(1.0);  z-index: -1;
   }
+  
   .clear-image {
     z-index: 1;
   }
@@ -124,4 +125,29 @@ a {
   font-family: sans-serif;
   font-size: 1rem;
   height: 5px;
+}
+
+.delete-button {
+  position: relative;
+}
+
+.tooltip {
+  visibility: hidden;
+  background-color: #555;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 5;
+  bottom: 125%;
+  right: 0;
+  transform: translateY(-5px);
+  white-space: nowrap;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+}
+
+.delete-button:hover .tooltip {
+  visibility: visible;
 }

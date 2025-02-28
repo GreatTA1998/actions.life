@@ -24,7 +24,8 @@
   import {
     createTaskNode,
     updateTaskNode,
-    deleteTaskNode
+    deleteTaskNode,
+    deleteTaskAndChildren
   } from '/src/helpers/crud.js'
   import { findTaskByID } from '/src/helpers/utils.js'
   import { dev } from '$app/environment'
@@ -72,22 +73,23 @@
   })
 </script>
 
-{#if $user.uid}
-  {#if clickedTaskID}
-    <DetailedCardPopup
-      taskObject={clickedTask}
-      on:task-update={e => updateTaskNode(e.detail)}
-      on:task-click={e => openDetailedCard(e.detail)}
-      on:card-close={() => (clickedTaskID = '')}
-      on:task-delete={e => deleteTaskNode(e.detail)}
-      on:task-checkbox-change={e =>
-        updateTaskNode({
-          id: e.detail.id,
-          keyValueChanges: { isDone: e.detail.isDone }
-        })}
-    />
-  {/if}
+{#if clickedTaskID}
+  <DetailedCardPopup
+    taskObject={clickedTask}
+    on:task-update={(e) => updateTaskNode(e.detail)}
+    on:task-click={(e) => openDetailedCard(e.detail)}
+    on:card-close={() => (clickedTaskID = '')}
+    on:task-delete={(e) => deleteTaskNode(e.detail)}
+    on:task-delete-children={(e) => deleteTaskAndChildren(e.detail)}
+    on:task-checkbox-change={(e) =>
+      updateTaskNode({
+        id: e.detail.id,
+        keyValueChanges: { isDone: e.detail.isDone }
+      })}
+  />
+{/if}
 
+{#if $user.uid}
   <!-- UNDO COMPLETED SNACKBAR -->
   {#if $mostRecentlyCompletedTaskID}
     <TheSnackbar
