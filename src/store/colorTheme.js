@@ -11,37 +11,57 @@ export const themeColors = writable({
 
 export const naturalGreen = 'hsl(98, 40%, 90%)'
 export const offWhite = '#f8f9f9'
-export const sunshineOrange = 'oklch(0.92 0.08 72.71)'
+export const sunshineOrange = 'hsl(45, 100%, 92%)'
+
+// Map theme names to CSS class names
+const themeClassMap = {
+  'naturalGreen': 'theme-natural-green',
+  'sunshineOrange': 'theme-sunshine-orange',
+  'offWhite': 'theme-off-white'
+};
 
 if (browser) {
+  // Subscribe to user changes
   user.subscribe($user => {
-    setCalendarTheme($user.calendarTheme)
-  })
-
-  themeColors.subscribe($themeColors => {
-    document.documentElement.style.setProperty('--todo-list-bg-color', $themeColors.todoList)
-    document.documentElement.style.setProperty('--calendar-bg-color', $themeColors.calendar)
-    document.documentElement.style.setProperty('--navbar-bg-color', $themeColors.navbar)
-    document.documentElement.style.setProperty('--grid-color', $themeColors.gridline)
+    if ($user && $user.calendarTheme) {
+      setCalendarTheme($user.calendarTheme)
+    } else {
+      // Default theme if user preferences aren't available
+      setCalendarTheme('naturalGreen')
+    }
   })
 }
 
-export function setCalendarTheme (theme = 'naturalGreen') {
-  if (theme === 'sunshineOrange') setSunshineOrangeTheme()
-  else if (theme === 'naturalGreen') setNaturalGreenTheme()
-  else if (theme === 'offWhite') setOffWhiteTheme()
+export function setCalendarTheme(theme = 'naturalGreen') {
+  if (browser) {
+    // Remove all theme classes first
+    document.documentElement.classList.remove(
+      'theme-natural-green',
+      'theme-sunshine-orange',
+      'theme-off-white'
+    );
+    
+    // Add the appropriate theme class
+    const themeClass = themeClassMap[theme] || 'theme-natural-green';
+    document.documentElement.classList.add(themeClass);
+    
+    // Also update the themeColors store for components that might depend on it
+    if (theme === 'sunshineOrange') setSunshineOrangeTheme()
+    else if (theme === 'naturalGreen') setNaturalGreenTheme()
+    else if (theme === 'offWhite') setOffWhiteTheme()
+  }
 }
 
-function setSunshineOrangeTheme () {
+function setSunshineOrangeTheme() {
   themeColors.set({
-    todoList: 'oklch(0.9 0.1 72.14)',
+    todoList: 'hsl(45, 100%, 90%)',
     calendar: sunshineOrange,
-    navbar: 'oklch(0.93 0.07 72.54)',
-    gridline: 'oklch(0.85 0.09 72.71)'
+    navbar: 'hsl(45, 100%, 93%)',
+    gridline: 'hsl(45, 80%, 85%)'
   })
 }
 
-function setNaturalGreenTheme () {
+function setNaturalGreenTheme() {
   themeColors.set({
     todoList: 'hsl(100, 40%, 86%)', 
     calendar: naturalGreen,
@@ -50,7 +70,7 @@ function setNaturalGreenTheme () {
   })
 }
 
-function setOffWhiteTheme () {
+function setOffWhiteTheme() {
   themeColors.set({
     todoList: offWhite,
     calendar: offWhite,
