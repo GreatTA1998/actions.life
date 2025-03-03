@@ -52,17 +52,18 @@ export async function fetchMobileCalTasks(uid) {
 }
 
 // NOTE: mobile fetches will merge and build upon existing fetched data
-export async function fetchMobileFutureOverviewTasks(uid) {
+export async function fetchMobileFutureOverviewTasks (uid, hideRoutines = false) {
   const today = DateTime.now()
-  const futureTasks = await Tasks.getByDateRange(
+  let futureTasks = await Tasks.getByDateRange(
     uid,
     today.toFormat('yyyy-MM-dd'),
     today.plus({ years: 2 }).toFormat('yyyy-MM-dd')
   )
 
-  // only show unique events, not routines
-  const filteredFutureTasks = futureTasks.filter(task => task.templateID === "")
-  buildEventsDataStructures({ flatArray: filteredFutureTasks })
+  if (hideRoutines) {
+    futureTasks = futureTasks.filter(task => task.templateID === "")
+  }
+  buildEventsDataStructures({ flatArray: futureTasks })
 }
 
 
