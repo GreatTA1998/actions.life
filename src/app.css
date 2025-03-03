@@ -4,43 +4,9 @@
   --sub-color: rgb(172, 160, 78);
 
   --logo-twig-color: #b34f1b;
-
   --location-indicator-color: var(--logo-twig-color);
-
   --task-action-subtle-color: rgb(120, 120, 120);
-
   --calendar-section-left-spacing: 2vw;
-}
-
-/* Theme classes */
-html.theme-sunshine-orange {
-  --todo-list-bg-color: #f9e3b7; /* Fallback */
-  --calendar-bg-color: #faeac7; /* Fallback */
-  --navbar-bg-color: #fcf0d4; /* Fallback */
-  --grid-color: #f0d49b; /* Fallback */
-}
-
-@supports (color: oklch(0 0 0)) {
-  html.theme-sunshine-orange {
-    --todo-list-bg-color: oklch(0.9 0.1 72.14);
-    --calendar-bg-color: oklch(0.92 0.08 72.71);
-    --navbar-bg-color: oklch(0.93 0.07 72.54);
-    --grid-color: oklch(0.85 0.09 72.71);
-  }
-}
-
-html.theme-natural-green {
-  --todo-list-bg-color: hsl(100, 40%, 86%);
-  --calendar-bg-color: hsl(98, 40%, 90%);
-  --navbar-bg-color: hsla(98, 30%, 94%);
-  --grid-color: hsl(98, 30%, 80%);
-}
-
-html.theme-off-white {
-  --todo-list-bg-color: #f8f9f9;
-  --calendar-bg-color: #f8f9f9;
-  --navbar-bg-color: #f8f9f9;
-  --grid-color: rgb(228, 228, 228);
 }
 
 * {
@@ -71,10 +37,10 @@ button {
   color: inherit;
   cursor: pointer;
   outline: inherit;
-	text-align: center;
+  text-align: center;
 
   /* Fix for Safari/iOS */
-	appearance: none;
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
 }
@@ -95,7 +61,6 @@ button {
 
 /* NOTE: must have a explicitly set width */
 .truncate-to-one-line {
-  /*  width: 250px; */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -122,11 +87,11 @@ button {
   user-select: none;
 }
 
- /*
-    A full size invisible container to cover the entire screen for modularity purposes, 
-    not accidentally trigger click on other elements e.g. accidentally creating a new task on the calendar when you're just trying to exit
+/*
+  A full size invisible container to cover the entire screen for modularity purposes, 
+  not accidentally trigger click on other elements e.g. accidentally creating a new task on the calendar when you're just trying to exit
 
-    For some reason 100vh doesn't cover the bottom, so I just make it ridiculously big
+  For some reason 100vh doesn't cover the bottom, so I just make it ridiculously big
 */
 .fullscreen-invisible-modular-popup-layer {
   width: 100vw; 
@@ -153,17 +118,6 @@ button {
 
 /* https://uxmovement.substack.com/p/how-to-use-surface-elevation-to-elevate
   We base low, medium and high elevation on this essay.
-*/
-
-/* 
-.ux-low-elevation {
-  @extend .core-shadow;
-} 
-
-.ux-high-elevation {
-  @extend .core-shadow;
-  @extend .cast-shadow-max; 
-} 
 */
 
 .core-shadow {

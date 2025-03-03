@@ -1,5 +1,5 @@
 <script>
-  import { naturalGreen, sunshineOrange, offWhite, THEMES, setCalendarTheme } from '/src/store/colorTheme.js'
+  import { naturalGreen, sunshineOrange, offWhite, THEMES } from '/src/store/colorTheme.js'
   import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import { user } from '/src/store'
   
