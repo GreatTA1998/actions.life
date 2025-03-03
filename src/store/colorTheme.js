@@ -25,9 +25,9 @@ const themeClassMap = {
 export const currentTheme = writable(THEMES.NATURAL_GREEN)
 
 if (browser) {
-  // Subscribe to user changes
   user.subscribe($user => {
     if ($user && $user.calendarTheme) {
+      alert(`$user.calendarTheme ${$user.calendarTheme}`)
       setCalendarTheme($user.calendarTheme)
     } else {
       // Default theme if user preferences aren't available
@@ -43,25 +43,17 @@ if (browser) {
 export function setCalendarTheme(theme = THEMES.NATURAL_GREEN) {
   if (!browser) return
   
-  // Update the theme store
+  alert(`Setting theme to: ${theme}`)
   currentTheme.set(theme)
+  
+  const html = document.documentElement
   
   // Remove all theme classes first
   Object.values(themeClassMap).forEach(className => {
-    document.documentElement.classList.remove(className)
+    html.classList.remove(className)
   })
   
   // Add the appropriate theme class
   const themeClass = themeClassMap[theme] || themeClassMap[THEMES.NATURAL_GREEN]
-  document.documentElement.classList.add(themeClass)
-  
-  // Force a repaint on mobile devices
-  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-    // This tiny change forces a repaint
-    const originalDisplay = document.body.style.display
-    document.body.style.display = 'none'
-    // Trigger reflow
-    void document.body.offsetHeight
-    document.body.style.display = originalDisplay
-  }
+  html.classList.add(themeClass)
 }

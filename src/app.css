@@ -10,31 +10,33 @@
   --task-action-subtle-color: rgb(120, 120, 120);
 
   --calendar-section-left-spacing: 2vw;
-  
-  /* Default theme (Natural Green) */
-  --todo-list-bg-color: hsl(100, 40%, 86%);
-  --calendar-bg-color: hsl(98, 40%, 90%);
-  --navbar-bg-color: hsla(98, 30%, 94%);
-  --grid-color: hsl(98, 30%, 80%);
 }
 
 /* Theme classes */
-:root.theme-sunshine-orange {
-  /* Using the original OKLCH values */
-  --todo-list-bg-color: oklch(0.9 0.1 72.14);
-  --calendar-bg-color: oklch(0.92 0.08 72.71);
-  --navbar-bg-color: oklch(0.93 0.07 72.54);
-  --grid-color: oklch(0.85 0.09 72.71);
+html.theme-sunshine-orange {
+  --todo-list-bg-color: #f9e3b7; /* Fallback */
+  --calendar-bg-color: #faeac7; /* Fallback */
+  --navbar-bg-color: #fcf0d4; /* Fallback */
+  --grid-color: #f0d49b; /* Fallback */
 }
 
-:root.theme-natural-green {
+@supports (color: oklch(0 0 0)) {
+  html.theme-sunshine-orange {
+    --todo-list-bg-color: oklch(0.9 0.1 72.14);
+    --calendar-bg-color: oklch(0.92 0.08 72.71);
+    --navbar-bg-color: oklch(0.93 0.07 72.54);
+    --grid-color: oklch(0.85 0.09 72.71);
+  }
+}
+
+html.theme-natural-green {
   --todo-list-bg-color: hsl(100, 40%, 86%);
   --calendar-bg-color: hsl(98, 40%, 90%);
   --navbar-bg-color: hsla(98, 30%, 94%);
   --grid-color: hsl(98, 30%, 80%);
 }
 
-:root.theme-off-white {
+html.theme-off-white {
   --todo-list-bg-color: #f8f9f9;
   --calendar-bg-color: #f8f9f9;
   --navbar-bg-color: #f8f9f9;
