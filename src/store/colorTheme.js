@@ -40,7 +40,12 @@ export const { naturalGreen, sunshineOrange, offWhite } = Object.fromEntries(
 
 // Export theme names as enum
 export const THEMES = Object.keys(themes).reduce((acc, key) => {
-  acc[key.toUpperCase()] = key
+  // Convert camelCase to UPPER_SNAKE_CASE
+  const enumKey = key
+    .replace(/([A-Z])/g, '_$1') // Add underscore before capital letters
+    .toUpperCase() // Convert to uppercase
+    .replace(/^_/, '') // Remove leading underscore if present
+  acc[enumKey] = key
   return acc
 }, {})
 

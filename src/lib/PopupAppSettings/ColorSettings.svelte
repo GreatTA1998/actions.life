@@ -2,6 +2,8 @@
   import { naturalGreen, sunshineOrange, offWhite, THEMES } from '/src/store/colorTheme.js'
   import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import { user } from '/src/store'
+
+  console.log('THEMES =', THEMES)
   
   function changeTheme(theme) {
     updateFirestoreDoc(`/users/${$user.uid}`, { calendarTheme: theme })
