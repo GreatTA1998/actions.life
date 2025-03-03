@@ -3,7 +3,7 @@
   import { updateFirestoreDoc } from "/src/helpers/firestoreHelpers";
   import { user, calSnapInterval } from '/src/store'
 
-  const snapIntervals = [5, 10, 15, 30]
+  const snapIntervals = [1, 5, 10, 15, 30]
 
   function updateSettings (interval) {
     updateFirestoreDoc(`users/${$user.uid}`, { calSnapInterval: interval })
