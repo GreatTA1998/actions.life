@@ -54,26 +54,7 @@
         </span>
 
         <div style="font-weight: 500; margin-right: 12px;">
-          eltonlin1998@gmail.com
-        </div>
-
-        <button on:click={copyEmailToClipboard} style="color: #cc7837; border-radius: 24px; border: 2px solid #cc7837; cursor: pointer; display: flex; align-items: center; padding: 6px 8px; font-size: 24px;">
-          <div style="font-size: 14px; margin-right: 4px; color: #cc7837; font-weight: 600;">
-            Copy email
-          </div>
-          <span class="material-symbols-outlined">
-            content_copy
-          </span>
-        </button>
-      </div>
-
-      <div style="display: flex; align-items: center;">
-        <span class="material-symbols-outlined" style="margin-right: 6px;">
-          mail
-        </span>
-
-        <div style="font-weight: 500; margin-right: 12px;">
-          martsyalis@gmail.com
+          elton@explanations.io
         </div>
 
         <button on:click={copyEmailToClipboard} style="color: #cc7837; border-radius: 24px; border: 2px solid #cc7837; cursor: pointer; display: flex; align-items: center; padding: 6px 8px; font-size: 24px;">

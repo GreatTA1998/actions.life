@@ -1,30 +1,28 @@
 <script>
-  import { naturalGreen, sunshineOrange, offWhite, THEMES } from '/src/store/colorTheme.js'
   import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import { user } from '/src/store'
-
-  console.log('THEMES =', THEMES)
+  import { themes } from '/src/store/colorTheme';
   
-  function changeTheme(theme) {
+  function changeTheme (theme) {
     updateFirestoreDoc(`/users/${$user.uid}`, { calendarTheme: theme })
   }
 </script>
 
 <div> 
-  <button on:click={() => changeTheme(THEMES.OFF_WHITE)} 
-    class="color-square" style:background-color={offWhite}
+  <button on:click={() => changeTheme('offWhite')} 
+    class="color-square" style:background-color={themes.offWhite.previewColor}
   >
     Cool White
   </button>
 
-  <button on:click={() => changeTheme(THEMES.NATURAL_GREEN)} 
-    class="color-square" style:background-color={naturalGreen}
+  <button on:click={() => changeTheme('naturalGreen')} 
+    class="color-square" style:background-color={themes.naturalGreen.previewColor}
   >
     Leafy Green
   </button>
 
-  <button on:click={() => changeTheme(THEMES.SUNSHINE_ORANGE)} 
-    class="color-square" style:background-color={sunshineOrange}
+  <button on:click={() => changeTheme('sunshineOrange')} 
+    class="color-square" style:background-color={themes.sunshineOrange.previewColor}
   >
     Distant sunrise
   </button>
