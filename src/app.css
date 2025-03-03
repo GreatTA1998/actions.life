@@ -20,10 +20,11 @@
 
 /* Theme classes */
 :root.theme-sunshine-orange {
-  --todo-list-bg-color: hsl(45, 100%, 90%);
-  --calendar-bg-color: hsl(45, 100%, 92%);
-  --navbar-bg-color: hsl(45, 100%, 93%);
-  --grid-color: hsl(45, 80%, 85%);
+  /* Using the original OKLCH values */
+  --todo-list-bg-color: oklch(0.9 0.1 72.14);
+  --calendar-bg-color: oklch(0.92 0.08 72.71);
+  --navbar-bg-color: oklch(0.93 0.07 72.54);
+  --grid-color: oklch(0.85 0.09 72.71);
 }
 
 :root.theme-natural-green {
