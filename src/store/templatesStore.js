@@ -5,6 +5,7 @@ import { deleteFromLocalState, updateLocalState } from '../helpers/maintainState
 import Joi from 'joi';
 import TemplateSchema from '../back-end/Schemas/TemplateSchema.js';
 import { user, calendarTasks } from './index.js'
+import './themes'
 
 export const templates = writable([])
 
