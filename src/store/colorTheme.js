@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store'
 import { browser } from '$app/environment'
-import { user } from '/src/store'
+import { user } from './userStore.js'
 
 // Theme constants - used for reference and by components that need direct color values
 export const naturalGreen = 'hsl(98, 40%, 90%)'
@@ -14,6 +14,8 @@ export const THEMES = {
   OFF_WHITE: 'offWhite'
 }
 
+export const currentTheme = writable(THEMES.NATURAL_GREEN)
+
 // Map theme names to CSS class names
 const themeClassMap = {
   [THEMES.NATURAL_GREEN]: 'theme-natural-green',
@@ -21,19 +23,22 @@ const themeClassMap = {
   [THEMES.OFF_WHITE]: 'theme-off-white'
 }
 
-// Store for current theme (for components that need to know the current theme)
-export const currentTheme = writable(THEMES.NATURAL_GREEN)
 
-if (browser) {
-  user.subscribe($user => {
-    if ($user && $user.calendarTheme) {
-      alert(`$user.calendarTheme ${$user.calendarTheme}`)
-      setCalendarTheme($user.calendarTheme)
-    } else {
-      // Default theme if user preferences aren't available
-      setCalendarTheme(THEMES.NATURAL_GREEN)
-    }
-  })
+// Initialize theme when this module is imported
+initTheme()
+
+// Initialize theme subscription
+function initTheme() {
+  if (browser) {
+    user.subscribe($user => {
+      if ($user && $user.calendarTheme) {
+        setCalendarTheme($user.calendarTheme)
+      } else {
+        // Default theme if user preferences aren't available
+        setCalendarTheme(THEMES.NATURAL_GREEN)
+      }
+    })
+  }
 }
 
 /**
