@@ -1,7 +1,7 @@
 <script>
   import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import { user } from '/src/store'
-  import { themes } from '/src/store/colorTheme';
+  import { themes } from '/src/store/themes'
   
   function changeTheme (theme) {
     updateFirestoreDoc(`/users/${$user.uid}`, { calendarTheme: theme })
