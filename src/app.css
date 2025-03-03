@@ -10,6 +10,34 @@
   --task-action-subtle-color: rgb(120, 120, 120);
 
   --calendar-section-left-spacing: 2vw;
+  
+  /* Default theme (Natural Green) */
+  --todo-list-bg-color: hsl(100, 40%, 86%);
+  --calendar-bg-color: hsl(98, 40%, 90%);
+  --navbar-bg-color: hsla(98, 30%, 94%);
+  --grid-color: hsl(98, 30%, 80%);
+}
+
+/* Theme classes */
+:root.theme-sunshine-orange {
+  --todo-list-bg-color: hsl(45, 100%, 90%);
+  --calendar-bg-color: hsl(45, 100%, 92%);
+  --navbar-bg-color: hsl(45, 100%, 93%);
+  --grid-color: hsl(45, 80%, 85%);
+}
+
+:root.theme-natural-green {
+  --todo-list-bg-color: hsl(100, 40%, 86%);
+  --calendar-bg-color: hsl(98, 40%, 90%);
+  --navbar-bg-color: hsla(98, 30%, 94%);
+  --grid-color: hsl(98, 30%, 80%);
+}
+
+:root.theme-off-white {
+  --todo-list-bg-color: #f8f9f9;
+  --calendar-bg-color: #f8f9f9;
+  --navbar-bg-color: #f8f9f9;
+  --grid-color: rgb(228, 228, 228);
 }
 
 * {
