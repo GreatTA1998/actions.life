@@ -30,6 +30,7 @@ function setupListener (ref, callback) {
       ...doc.data(), 
       id: doc.id
     }))
+    
     callback(mappedData)
 
     if (persistTasks && nonPersistTasks && get(lists)) {
@@ -39,14 +40,14 @@ function setupListener (ref, callback) {
 }
 
 function buildTreeMap (tasks) {
-  // partition tasks by listID
+  // group tasks by `listID` first
   const d1 = {}
   for (const task of tasks) {
     if (!d1[task.listID]) d1[task.listID] = []
     d1[task.listID].push(task)
   }
 
-  // tasks --> trees
+  // build tasks into trees
   const d2 = {}
   for (const [listID, listTasks] of Object.entries(d1)) {
     d2[listID] = reconstructTreeInMemory(listTasks)

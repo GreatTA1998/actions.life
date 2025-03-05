@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte'
   import { user } from '/src/store'
-  import { listenToListsAndTasks, listTreesMap, lists } from '/src/stores/listAreaDataManager.js'
+  import { listenToListsAndTasks, listTreesMap, lists } from '/src/store/listAreaDataManager.js'
   import GrandTreeTodoReusableList from '$lib/GrandTreeTodoReusableList.svelte'
   import { createTaskNode } from '/src/helpers/crud.js'
 
@@ -16,6 +16,10 @@
     newTaskObj.isArchived = false
     createTaskNode({ id, newTaskObj })
   }
+
+  // TO-DO:
+  // - add sub-tasks
+  // - add quick tasks
 </script>
 
 {#if $lists}
