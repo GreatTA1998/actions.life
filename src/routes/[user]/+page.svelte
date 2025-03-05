@@ -4,11 +4,9 @@
   import { page } from '$app/stores'
   import { onMount } from 'svelte'
 
-  $: userID = $page.params.user
-
   // fetch everything needed in parallel
   onMount(() => {
-    handleInitialTasks(userID)
+    handleInitialTasks($page.params.user)
   })
 </script>
 

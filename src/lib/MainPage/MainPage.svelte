@@ -1,4 +1,5 @@
 <script>
+  import ListArea from '$lib/ListArea.svelte'
   import TopNavbar from './TopNavbar.svelte'
   import TheFunctionalCalendar from '$lib/TheFunctionalCalendar/TheFunctionalCalendar.svelte'
   import HistoryArchive from '$lib/HistoryArchive/index.svelte'
@@ -153,6 +154,10 @@
 
       <div style="display: {currentMode === 'Archive' ? 'block' : 'none'}; width: 100%; height: 100%;">
         <HistoryArchive />
+      </div>
+
+      <div style="display: {currentMode === 'Lists' ? 'block' : 'none'}; width: 100%; height: 100%;">
+        <ListArea />
       </div>
     </div>
   </NavbarAndContentWrapper>

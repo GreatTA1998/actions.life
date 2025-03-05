@@ -57,6 +57,15 @@
         history
       </span>
     </button>
+
+    <button on:click={() => updateMode('Lists')}
+      class="ux-tab-item"
+      class:active-ux-tab={currentMode === 'Lists'}
+    >
+      <span class="material-symbols-outlined" style="font-size: 32px;">
+        list
+      </span>
+    </button>
   </div>
 
   <div style="display: flex; gap: 28px; align-items: center;">

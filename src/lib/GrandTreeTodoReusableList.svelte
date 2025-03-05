@@ -46,7 +46,7 @@
   }
 
   // svelte reactive statements are order sensitive
-  $: if (allTasksDue.length > 0) {
+  $: if (allTasksDue && allTasksDue.length > 0) {
     computeTasksToDisplay()
   }
 
@@ -193,9 +193,7 @@
           {listTitle}
         </div>
 
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <span
-          on:click={startTypingNewTask}
+        <span on:click={startTypingNewTask}
           class="new-task-icon material-icons"
           style="margin-left: 10px; margin-bottom: 10px"
         >

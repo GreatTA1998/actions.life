@@ -13,10 +13,8 @@ import { user, calendarTasks, todoTasks } from '/src/store/index.js'
 
 export async function createTaskNode({ id, newTaskObj }) {
   try {
-    const newTaskObjChecked = await applyTaskSchema(newTaskObj, get(user))
-    Joi.assert(newTaskObjChecked, TaskSchema)
-    Tasks.post({ userUID: get(user).uid, task: newTaskObjChecked, taskID: id })
-    createOnLocalState({ id, createdNode: newTaskObjChecked })
+    Joi.assert(newTaskObj, TaskSchema)
+    Tasks.post({ userUID: get(user).uid, task: newTaskObj, taskID: id })
   } catch (error) {
     console.error('error creating task node: ', error)
     alert("Database update failed, please reload")
