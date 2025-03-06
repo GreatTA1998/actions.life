@@ -56,14 +56,14 @@
     <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
       <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
         <WeeklyTodo
-          on:task-create={e => createTaskNode(e.detail)}
           on:task-click={e => clickedTask = e.detail.task}
+          on:task-create={e => createTaskNode(e.detail)}
           on:task-update={e => updateTaskNode(e.detail)}
         />
 
         <Calendar
-          on:task-create={e => createTaskNode(e.detail)}
           on:task-click={e => clickedTask = e.detail.task}
+          on:task-create={e => createTaskNode(e.detail)}
           on:task-update={e => updateTaskNode(e.detail)}
         />
 
