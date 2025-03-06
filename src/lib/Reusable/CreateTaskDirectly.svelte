@@ -1,5 +1,5 @@
 <script>
-  import UXFormField from '$lib/UXFormField.svelte'
+  import FormField from '$lib/Reusable/FormField.svelte'
   import Templates from '/src/back-end/Templates/index.js'
   import {
     getRandomID,
@@ -79,7 +79,7 @@
   }
 </script>
 
-<UXFormField
+<FormField
   fieldLabel="Task Name"
   value={newTaskName}
   on:input={(e) => {

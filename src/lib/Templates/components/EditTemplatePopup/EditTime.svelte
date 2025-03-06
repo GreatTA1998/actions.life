@@ -1,6 +1,6 @@
 <script>
-  import UXFormField from '$lib/UXFormField.svelte'
-  import UXToggleSwitch from '$lib/UXToggleSwitch.svelte'
+  import FormField from '$lib/Reusable/FormField.svelte'
+  import ToggleSwitch from '$lib/Reusable/ToggleSwitch.svelte'
   import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { updateTemplate } from '/src/store'
   export let template
@@ -64,7 +64,7 @@
     class:half-invisible={!isScheduled(template)}
   >
     <div style="margin-left: 6px; margin-right: 6px; max-width: 80px;">
-      <UXFormField
+      <FormField
         pattern={'^[0-9:]*$'}
         fieldLabel="Duration"
         value={Math.round(template.duration)}
@@ -77,7 +77,7 @@
         >
           min
         </div>
-      </UXFormField>
+      </FormField>
     </div>
 
     {#if template.crontab !== ''}
@@ -86,7 +86,7 @@
         start time
       </div>
       <div>
-        <UXToggleSwitch
+        <ToggleSwitch
           isChecked={displaySpecificTime}
           on:new-checked-state={handleSwitchToggle}
         />
@@ -96,7 +96,7 @@
 
     {#if displaySpecificTime}
       <div style="max-width: 70px; margin-left: 8px;">
-        <UXFormField
+        <FormField
           pattern={'^[0-9:]*$'}
           fieldLabel="hh:mm"
           value={template.startTime}

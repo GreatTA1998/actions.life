@@ -165,7 +165,7 @@
     createTaskNode({ id: getRandomID(), newTaskObj })
   }
 
-  // should be a function exposed by the `GrandTreeTodoReusableList` component
+  // should be a function exposed by the `TodoList` component
   function createNewTodo ({ name }) {
     const dueInHowManyDays = 7
     const d = new Date()

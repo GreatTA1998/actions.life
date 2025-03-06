@@ -2,7 +2,7 @@
   import TimestampLabels from './TimestampLabels.svelte'
   import DayColumn from './DayColumn.svelte'
   import DayHeader from './DayHeader.svelte'
-  import MultiPhotoUploader from '../MultiPhotoUploader.svelte'
+  import MultiPhotoUploader from '$lib/Reusable/MultiPhotoUploader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
 
   import Tasks from '/src/back-end/Tasks'

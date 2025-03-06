@@ -93,7 +93,7 @@
   {/if}
   
   {#if isTypingNewSubtask}
-    <UXFormField
+    <FormField
       fieldLabel="Task Name"
       value={newSubtaskStringValue}
       on:input={(e) => newSubtaskStringValue = e.detail.value}
@@ -108,7 +108,7 @@
 </div>
 
 <script>
-  import UXFormField from '$lib/UXFormField.svelte'
+  import FormField from '$lib/Reusable/FormField.svelte'
   import RecursiveTask from './RecursiveTask.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import Dropzone from './Dropzone.svelte'

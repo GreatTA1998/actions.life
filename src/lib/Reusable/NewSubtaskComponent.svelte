@@ -3,7 +3,7 @@
     +
   </div>
 {:else}
-  <UXFormField
+  <FormField
     fieldLabel="Milestone"
     value={newSubtaskName}
     on:input={(e) => {
@@ -19,7 +19,7 @@
 {/if}
 
 <script>
-  import UXFormField from '$lib/UXFormField.svelte'
+  import FormField from '$lib/Reusable/FormField.svelte'
   import {
     getRandomID,
     getDateInDDMMYYYY,

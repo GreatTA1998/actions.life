@@ -1,7 +1,7 @@
 <script>
   import CreateTaskDirectly from '$lib/Reusable/CreateTaskDirectly.svelte'
   import FlexibleDayTask from '$lib/Reusable/FlexibleDayTask.svelte'
-  import FunctionalDoodleIcon from '$lib/FunctionalDoodleIcon.svelte'
+  import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { createEventDispatcher } from 'svelte'
   import { tasksScheduledOn, activeDragItem } from '/src/store'
   import { DateTime } from 'luxon'
@@ -71,7 +71,7 @@
         {#if $tasksScheduledOn[ISODate]}
           <div style="display: flex; flex-wrap: wrap;">
             {#each $tasksScheduledOn[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
-              <FunctionalDoodleIcon {iconTask} on:task-click on:task-update />
+              <DoodleIcon {iconTask} on:task-click on:task-update />
             {/each}
           </div>
 

@@ -1,5 +1,5 @@
 <script>
-  import GrandTreeTodoReusableList from '$lib/GrandTreeTodoReusableList.svelte'
+  import TodoList from '$lib/TodoArea/TodoList.svelte'
   import { listenToListsAndTasks, listTreesMap, lists } from '/src/store/listAreaDataManager.js'
   import { createTaskNode, updateTaskNode } from '/src/helpers/crud.js'
   import { user } from '/src/store'
@@ -24,7 +24,7 @@
       <div class="lists">
         {#each $lists as list (list.id)}
           <div class="list">
-            <GrandTreeTodoReusableList
+            <TodoList
               listID={list.id}
               listTitle={list.name}
               tasksToDisplay={$listTreesMap[list.id]}

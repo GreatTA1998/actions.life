@@ -1,5 +1,5 @@
 <script>
-  import ListArea from '$lib/ListArea.svelte'
+  import ListArea from '$lib/TodoArea/ListArea.svelte'
   import TopNavbar from './TopNavbar.svelte'
   import Calendar from '$lib/Calendar/Calendar.svelte'
   import HistoryArchive from '$lib/HistoryArchive/index.svelte'
@@ -8,7 +8,7 @@
   import TheSnackbar from '$lib/TheSnackbar.svelte'
   import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
   import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
-  import NewThisWeekTodo from '$lib/NewThisWeekTodo.svelte'
+  import WeeklyTodo from '$lib/TodoArea/WeeklyTodo.svelte'
 
   import { onDestroy, onMount } from 'svelte'
 
@@ -52,7 +52,7 @@
 
     <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
       <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
-        <NewThisWeekTodo
+        <WeeklyTodo
           on:task-create={e => createTaskNode(e.detail)}
           on:task-click={e => clickedTask = e.detail.task}
           on:task-update={e => updateTaskNode(e.detail)}

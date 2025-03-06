@@ -51,7 +51,7 @@
       but retains its own font to differentiate it from the title -->
     </div>
 
-    <FunctionalDoodleIcon
+    <DoodleIcon
       iconTask={task}
       on:task-click
       on:task-update
@@ -102,7 +102,7 @@
   import { createEventDispatcher } from 'svelte'
   import { getTrueY } from '/src/helpers/everythingElse.js'
   import { grabOffset, activeDragItem } from '/src/store'
-  import FunctionalDoodleIcon from '$lib/FunctionalDoodleIcon.svelte'
+  import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
 
   export let task = null
   export let pixelsPerHour = null

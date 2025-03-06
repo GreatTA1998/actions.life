@@ -21,7 +21,7 @@
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
   import { createOnLocalState } from "/src/helpers/maintainState.js"
-  import applyTaskSchema from '../helpers/applyTaskSchema'
+  import applyTaskSchema from '/src/helpers/applyTaskSchema'
 
   const storage = getStorage()
 

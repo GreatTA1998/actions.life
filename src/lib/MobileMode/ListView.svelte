@@ -1,4 +1,4 @@
-<GrandTreeTodoReusableList
+<TodoList
   listTitle=""
   tasksToDisplay={$inclusiveWeekTodo}
   style="
@@ -17,9 +17,9 @@
   <slot {startTypingNewTask}>
   
   </slot>
-</GrandTreeTodoReusableList>
+</TodoList>
 
 <script>
-  import GrandTreeTodoReusableList from '$lib/GrandTreeTodoReusableList.svelte'
+  import TodoList from '$lib/TodoArea/TodoList.svelte'
   import { inclusiveWeekTodo } from '/src/store'
 </script>

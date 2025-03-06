@@ -1,5 +1,5 @@
 <div class="todo-container">
-  <GrandTreeTodoReusableList
+  <TodoList
     listTitle="TO-DO"
     tasksToDisplay={$inclusiveWeekTodo}
     style="padding-top: var(--height-main-content-top-margin); background-color: var(--todo-list-bg-color); border-radius: 16px; outline: 0px solid red; height: 100%;"
@@ -12,7 +12,7 @@
 </div>
 
 <script>
-  import GrandTreeTodoReusableList from '$lib/GrandTreeTodoReusableList.svelte'
+  import TodoList from '$lib/TodoArea/TodoList.svelte'
   import { inclusiveWeekTodo } from '/src/store'
 </script>
 
