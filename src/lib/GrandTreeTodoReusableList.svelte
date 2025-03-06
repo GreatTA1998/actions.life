@@ -1,39 +1,28 @@
 <script>
-  import { getRandomID, sortByUnscheduledThenByOrderValue } from '/src/helpers/everythingElse.js'
-  import { HEIGHTS } from '/src/helpers/constants.js'
   import UXFormField from '$lib/UXFormField.svelte'
   import ReusableHelperDropzone from '$lib/ReusableHelperDropzone.svelte'
   import RecursiveTaskElement from '$lib/RecursiveTaskElement.svelte'
+  import { getRandomID } from '/src/helpers/everythingElse.js'
+  import { HEIGHTS } from '/src/helpers/constants.js'
   import { createEventDispatcher } from 'svelte'
   import { activeDragItem } from '/src/store/index.js'
   import { DateTime } from 'luxon'
 
   export let listID = ''
-  export let allTasksDue = []
+  export let tasksToDisplay = []
   export let listTitle
   export let enableScrolling = false
   export let hasMaxWidth = false // quickfix to prevent complicated flexbox layout ordering issues
   export let willShowCheckbox = true
   export let isLargeFont = false
-  export let isRecursive = true
 
-  let tasksToDisplay = []
   let isTypingNewRootTask = false
   let newRootTaskStringValue = ''
   
   const dispatch = createEventDispatcher()
 
-  $: if (allTasksDue) {
-    computeTasksToDisplay()
-  }
-
   function startTypingNewTask() {
     isTypingNewRootTask = true
-  }
-
-  function computeTasksToDisplay() {
-    const temp = sortByUnscheduledThenByOrderValue(allTasksDue)
-    tasksToDisplay = temp.filter((task) => !task.isDone)
   }
 
   function handleKeyDown(e) {
@@ -89,16 +78,12 @@
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified,
  so it IS confusing 
 -->
-<div
-  class="todo-list-container"
+<div class="todo-list-container"
   style={$$props.style}
   on:drop|stopPropagation={(e) => handleDroppedTask(e)}
   on:dragover={(e) => dragover_handler(e)}
 >
-  <div
-    class="first-column"
-    style="height: 100%; display: flex; flex-direction: column;"
-  >
+  <div class="first-column">
     {#if listTitle}
       <div style="display: flex; align-items: center;">
         <div style="font-weight: 600; font-size: 18px; color: rgb(80, 80, 80)">
@@ -114,8 +99,7 @@
       </div>
     {/if}
 
-    <div
-      style="flex-grow: 1; padding: 0px 6px;"
+    <div style="flex-grow: 1; padding: 0px 6px;"
       class:has-max-width={hasMaxWidth}
       class:enable-scrolling={enableScrolling}
     >
@@ -145,18 +129,14 @@
       />
 
       {#each tasksToDisplay as taskObj, i (taskObj.id)}
-        <RecursiveTaskElement
-          {taskObj}
+        <RecursiveTaskElement {taskObj}
           depth={0}
           ancestorRoomIDs={['']}
-          doNotShowScheduledTasks={true}
-          doNotShowCompletedTasks={true}
           {willShowCheckbox}
           {isLargeFont}
-          {isRecursive}
           on:task-click
           on:task-update
-          on:task-create={e => dispatch('task-create', e.detail)}
+          on:task-create
         />
 
         <ReusableHelperDropzone
@@ -169,15 +149,12 @@
           heightInPx={HEIGHTS.ROOT_DROPZONE}
         />
       {/each}
-
-      <!-- NOTE: BECAUSE WE DON'T DISPLAY TASKS THAT ARE COMPLETED,
-        WE HAVE A DEVIATION BETWEEN STATE AND UI
-        IN THE FUTURE IF THERE ARE UNEXPECTED BUGS, THIS IS THE LIKELY CAUSE
-      -->
     </div>
   </div>
 
-  <slot {startTypingNewTask}></slot>
+  <slot {startTypingNewTask}>
+    
+  </slot>
 </div>
 
 <style>
@@ -203,5 +180,8 @@
 
   .first-column {
     flex-basis: 100%;
+    height: 100%; 
+    display: flex; 
+    flex-direction: column;
   }
 </style>

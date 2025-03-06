@@ -18,7 +18,7 @@
     <div 
       on:click={() => {
         dispatch('task-click', { task: taskObject })
-      }}
+      }} on:keydown
       class:completed-task={taskObject.isDone}
       style="cursor: pointer; margin-left: 4px; margin-right: 4px;" class="truncate-to-one-line"
     >

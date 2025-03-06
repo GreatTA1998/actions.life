@@ -27,7 +27,7 @@
             <GrandTreeTodoReusableList
               listID={list.id}
               listTitle={list.name}
-              allTasksDue={$listTreesMap[list.id]}
+              tasksToDisplay={$listTreesMap[list.id]}
               willShowCheckbox={true}
               on:task-create={e => handleNewTask(e, list.id)}
               on:task-click

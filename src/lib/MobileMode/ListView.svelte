@@ -1,6 +1,6 @@
 <GrandTreeTodoReusableList
   listTitle=""
-  allTasksDue={$inclusiveWeekTodo}
+  tasksToDisplay={$inclusiveWeekTodo}
   style="
     background-color: transparent;
     padding-top: var(--main-content-top-margin); 
@@ -9,11 +9,8 @@
   "
   willShowCheckbox={false}
   isLargeFont={true}
-  isRecursive={false}
-  on:task-create
-  on:task-unscheduled
   on:task-click
-  on:task-dragged
+  on:task-create
   on:task-update
   let:startTypingNewTask={startTypingNewTask}
 >

@@ -172,6 +172,13 @@
 
         <div style="margin-top: 16px;"></div>
 
+        <div>
+          Debug: 
+          persistsOnList: {taskObject.persistsOnList}
+          isArchived: {taskObject.isArchived} 
+          listID: {taskObject.listID}
+        </div>
+
         <div style="display: flex; align-items: center; width: 100%;">
           {#if taskObject.imageDownloadURL}
             <div style="display: flex; column-gap: 6px;">
@@ -202,14 +209,14 @@
           Tree History
         </div>
 
-        <div style="max-height: 500px; overflow-y: auto;">
+        <!-- <div style="max-height: 500px; overflow-y: auto;">
           <RecursiveBulletPoint
             taskObject={taskObject.parentID ? findTaskByID(taskObject.parentID) : taskObject}
             originalPopupTask={taskObject}
             on:task-click
             on:task-update
           />
-        </div>
+        </div> -->
       </div>
       <!-- End of task details container -->
     </div>
