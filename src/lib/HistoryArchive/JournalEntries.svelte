@@ -2,17 +2,12 @@
   import { user } from '/src/store/userStore.js'
   import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import { formatDate } from '/src/helpers/everythingElse.js'
-  import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
-  import {
-    createTaskNode,
-    updateTaskNode,
-    deleteTaskNode
-  } from '/src/helpers/crud.js'
+  import { createEventDispatcher } from 'svelte'
 
   export let routineInstances = null
   export let selectedRoutine = null
 
-  let clickedTask = null
+  const dispatch = createEventDispatcher()
 
   function togglePinToFavorite (routine) {
     updateFirestoreDoc(`/users/${$user.uid}/templates/${routine.id}`, {
@@ -97,21 +92,6 @@
   }[dominantGapSize] || 1;
 </script>
 
-{#if clickedTask}
-  <DetailedCardPopup
-    taskObject={clickedTask}
-    on:task-update={e => updateTaskNode(e.detail)}
-    on:task-click={e => clickedTask = e.detail}
-    on:card-close={() => clickedTask = null}
-    on:task-delete={e => deleteTaskNode(e.detail)}
-    on:task-checkbox-change={e =>
-      updateTaskNode({
-        id: e.detail.id,
-        keyValueChanges: { isDone: e.detail.isDone }
-      })}
-  />
-{/if}
-
 <h2 style="margin-top: 4px; display: flex; align-items: top;">
   {#if selectedRoutine.iconURL}
     <img src={selectedRoutine.iconURL} alt={selectedRoutine.name} />
@@ -132,7 +112,7 @@
   {#if routineInstances}
     {#each routineInstances as instance, i (instance.id)}
       {@const gap = calculateGap(instance.startDateISO, routineInstances[i + 1]?.startDateISO)}
-      <div on:click={() => clickedTask = instance} on:keydown
+      <div on:click={() => dispatch('task-click', { task: instance })} on:keydown
         class="entry-wrapper" 
         data-gap={gap.type}
         style="--gap-size: {calculateGapSize(gap.days)}px"

@@ -3,7 +3,7 @@ import z from 'zod';
 export default z.object({
     name: z.string().default('Untitled'),
     duration: z.number().default(30),
-    orderValue: z.number().default(0),
+    orderValue: z.number().default(0.1),
     parentID: z.string().default(''),
     startTime: z.string().default(''),
     startDateISO: z.string().default(''),

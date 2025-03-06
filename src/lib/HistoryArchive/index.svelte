@@ -126,6 +126,7 @@
           <JournalEntries 
             {selectedRoutine}
             {routineInstances}
+            on:task-click
           />
         {/if}
       </ListenToDoc>

@@ -8,41 +8,18 @@
   import TheSnackbar from '$lib/TheSnackbar.svelte'
   import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
   import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
-  import {
-    handleSW,
-    handleNotificationPermission
-  } from './handleNotifications.js'
+  import { handleSW, handleNotificationPermission } from './handleNotifications.js'
   import { onDestroy, onMount } from 'svelte'
-  import { arrayUnion } from 'firebase/firestore'
   import NewThisWeekTodo from '$lib/NewThisWeekTodo.svelte'
 
-  import {
-    mostRecentlyCompletedTaskID,
-    user,
-    showSnackbar,
-  } from '/src/store'
-
-  import {
-    createTaskNode,
-    updateTaskNode,
-    deleteTaskNode,
-    deleteTaskAndChildren
-  } from '/src/helpers/crud.js'
-  import { findTaskByID } from '/src/helpers/utils.js'
+  import { user, showSnackbar } from '/src/store'
+  import { createTaskNode, updateTaskNode, deleteTaskNode, deleteTaskAndChildren } from '/src/helpers/crud.js'
   import { dev } from '$app/environment'
 
   let currentMode = 'Week'
   let isShowingAI = false
-
-  let clickedTaskID = ''
   let clickedTask = {}
-
   let unsub
-
-  $: if (clickedTaskID) {
-    if (clickedTaskID) clickedTask = findTaskByID(clickedTaskID)
-    else clickedTask = {}
-  }
 
   onMount(async () => {
     if (!dev) {
@@ -54,32 +31,18 @@
       }
     }
   })
-  
-  function openDetailedCard({ task }) {
-    clickedTaskID = task.id
-  }
-
-  // TO-DO: should probably deprecate
-  function createSubtask({ id, parentID, newTaskObj }) {
-    // the parent needs to update its pointers
-    updateTaskNode({
-      id: parentID,
-      keyValueChanges: { children: arrayUnion(id) }
-    })
-    createTaskNode({ id, newTaskObj })
-  }
 
   onDestroy(() => {
     if (unsub) unsub()
   })
 </script>
 
-{#if clickedTaskID}
+{#if clickedTask.id}
   <DetailedCardPopup
     taskObject={clickedTask}
     on:task-update={(e) => updateTaskNode(e.detail)}
-    on:task-click={(e) => openDetailedCard(e.detail)}
-    on:card-close={() => (clickedTaskID = '')}
+    on:task-click={(e) => e => clickedTask = e.detail.task}
+    on:card-close={() => (clickedTask = {})}
     on:task-delete={(e) => deleteTaskNode(e.detail)}
     on:task-delete-children={(e) => deleteTaskAndChildren(e.detail)}
     on:task-checkbox-change={(e) =>
@@ -92,21 +55,6 @@
 {/if}
 
 {#if $user.uid}
-  <!-- UNDO COMPLETED SNACKBAR -->
-  {#if $mostRecentlyCompletedTaskID}
-    <TheSnackbar
-      on:undo-task-completion={() => {
-        updateTaskNode({
-          id: $mostRecentlyCompletedTaskID,
-          keyValueChanges: {
-            isDone: false
-          }
-        })
-        mostRecentlyCompletedTaskID.set('')
-      }}
-    ></TheSnackbar>
-  {/if}
-
   {#if $showSnackbar}
     <TheSnackbar>Email copied to clipboard successfully.</TheSnackbar>
   {/if}
@@ -123,8 +71,8 @@
       <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
         <NewThisWeekTodo
           on:new-root-task={(e) => createTaskNode(e.detail)}
-          on:task-click={(e) => openDetailedCard(e.detail)}
-          on:subtask-create={(e) => createSubtask(e.detail)}
+          on:task-click={e => clickedTask = e.detail.task}
+          on:subtask-create={(e) => createTaskNode(e.detail)}
           on:task-checkbox-change={(e) =>
             updateTaskNode({
               id: e.detail.id,
@@ -134,7 +82,7 @@
 
         <TheFunctionalCalendar
           on:new-root-task={(e) => createTaskNode(e.detail)}
-          on:task-click={(e) => openDetailedCard(e.detail)}
+          on:task-click={e => clickedTask = e.detail.task}
           on:task-update={(e) =>
             updateTaskNode({
               id: e.detail.id,
@@ -153,11 +101,11 @@
       </div>
 
       <div style="display: {currentMode === 'Archive' ? 'block' : 'none'}; width: 100%; height: 100%;">
-        <HistoryArchive />
+        <HistoryArchive on:task-click={e => clickedTask = e.detail.task}/>
       </div>
 
       <div style="display: {currentMode === 'Lists' ? 'block' : 'none'}; width: 100%; height: 100%;">
-        <ListArea />
+        <ListArea on:task-click={e => clickedTask = e.detail.task}/>
       </div>
     </div>
   </NavbarAndContentWrapper>
