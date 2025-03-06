@@ -1,23 +1,15 @@
 <script>
-  import { onMount } from 'svelte'
-  import { user } from '/src/store'
-  import { listenToListsAndTasks, listTreesMap, lists } from '/src/store/listAreaDataManager.js'
   import GrandTreeTodoReusableList from '$lib/GrandTreeTodoReusableList.svelte'
-  import { createTaskNode } from '/src/helpers/crud.js'
+  import { listenToListsAndTasks, listTreesMap, lists } from '/src/store/listAreaDataManager.js'
+  import { createTaskNode, updateTaskNode } from '/src/helpers/crud.js'
+  import { user } from '/src/store'
+  import { onMount } from 'svelte'
 
   onMount(() => {
     listenToListsAndTasks($user.uid)
   })
 
-  function handleNewRootTask (event, listId) {
-    const { id, newTaskObj } = event.detail
-    newTaskObj.listID = listId
-    newTaskObj.persistsOnList = true
-    newTaskObj.isArchived = false
-    createTaskNode({ id, newTaskObj })
-  }
-
-  function handleNewSubtask (event, listId) {
+  function handleNewTask (event, listId) {
     const { id, newTaskObj } = event.detail
     newTaskObj.listID = listId
     newTaskObj.persistsOnList = true
@@ -33,14 +25,14 @@
         {#each $lists as list (list.id)}
           <div class="list">
             <GrandTreeTodoReusableList
+              listID={list.id}
               listTitle={list.name}
               allTasksDue={$listTreesMap[list.id]}
-              dueInHowManyDays={7}
               willShowCheckbox={true}
-              on:new-root-task={(e) => handleNewRootTask(e, list.id)}
-              on:subtask-create={e => handleNewSubtask(e, list.id)}
+              on:task-create={e => handleNewTask(e, list.id)}
               on:task-click
               on:task-checkbox-change
+              on:task-update={e => updateTaskNode(e.detail)}
             />
           </div>
         {/each}

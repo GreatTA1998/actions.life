@@ -96,7 +96,7 @@
       <ReusableCreateTaskDirectly
         newTaskStartTime={''}
         resultantDateClassObject={DateTime.fromISO(ISODate).toJSDate()}
-        on:new-root-task
+        on:task-create
         on:reset={() => (isDirectlyCreatingTask = false)}
       />
     </div>

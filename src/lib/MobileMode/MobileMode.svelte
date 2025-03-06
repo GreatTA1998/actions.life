@@ -24,9 +24,7 @@
         <ListView
           on:task-click={(e) => openDetailedCard(e.detail)}
           on:task-checkbox-change={(e) => updateTaskNode({ id: e.detail.id, keyValueChanges: { isDone: e.detail.isDone }})}
-
-          on:new-root-task={(e) => createTaskNode(e.detail)}
-          on:subtask-create={(e) => createTaskNode(e.detail)}
+          on:task-create={(e) => createTaskNode(e.detail)}
           let:startTypingNewTask={startTypingNewTask}
         >
           <FloatingButtonWrapper on:click={startTypingNewTask} distanceFromBottom={100}>
@@ -54,9 +52,8 @@
           on:task-click={(e) => openDetailedCard(e.detail)}
         />
       {:else if activeTabName === 'CALENDAR_VIEW'}
-        <TheFunctionalCalendar
-          isCompact
-          on:new-root-task={(e) => createTaskNode(e.detail)}
+        <TheFunctionalCalendar isCompact
+          on:task-create={(e) => createTaskNode(e.detail)}
           on:task-click={(e) => openDetailedCard(e.detail)}
           on:task-update={(e) => updateTaskNode({
               id: e.detail.id,

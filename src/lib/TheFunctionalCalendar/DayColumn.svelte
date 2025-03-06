@@ -171,7 +171,7 @@
       <ReusableCreateTaskDirectly
         newTaskStartTime={getHHMM(resultantDateClassObject)}
         {resultantDateClassObject}
-        on:new-root-task
+        on:task-create
         on:reset={() => isDirectlyCreatingTask = false}
       />
     </div>

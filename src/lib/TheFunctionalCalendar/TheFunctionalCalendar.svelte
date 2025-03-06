@@ -221,7 +221,7 @@
                 {isShowingDockingArea}
                 on:task-update
                 on:task-click
-                on:new-root-task
+                on:task-create
               />
             {/each}
           </div>
@@ -233,7 +233,7 @@
                 pixelsPerHour={PIXELS_PER_HOUR}
                 on:task-update
                 on:task-click
-                on:new-root-task
+                on:task-create
               />
             {/each}
           </div>

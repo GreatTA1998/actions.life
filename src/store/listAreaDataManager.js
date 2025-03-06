@@ -49,6 +49,12 @@ function buildTreeMap (tasks) {
 
   // build tasks into trees
   const d2 = {}
+
+  // ensure all lists are present on the map, even if no tasks belong there, 
+  // otherwise the inconsistent data structure will cause reactivity to fail at the component level
+  for (const list of get(lists)) {
+    d2[list.id] = []
+  }
   for (const [listID, listTasks] of Object.entries(d1)) {
     d2[listID] = reconstructTreeInMemory(listTasks)
   }

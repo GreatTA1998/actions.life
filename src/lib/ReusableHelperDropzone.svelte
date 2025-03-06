@@ -16,22 +16,16 @@
 
 <script>
   import { updateLocalState } from '/src/helpers/maintainState.js'
-  import {
-    maintainValidSubtreeDeadlines,
-    correctDeadlineIfNecessary
-  } from '/src/helpers/subtreeDragDrop.js'
   import { user, activeDragItem } from '/src/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
-  import {db} from '../back-end/firestoreConnection'
+  import { db } from '../back-end/firestoreConnection'
 
+  export let listID = ''
   export let ancestorRoomIDs
   export let roomsInThisLevel
   export let idxInThisLevel
   export let parentID = ''
-  export let parentObj
   export let colorForDebugging = "red"
-  export let dueInHowManyDays // tells us which todo-list we're in
-  export let isMilestoneMode = false
   export let heightInPx = 18
 
   let ReorderDropzone
@@ -72,7 +66,6 @@
     const initialNumericalDifference = 3
     let newVal 
 
-
     // TO-DO: need the last drop zone to be manually added
     const dropZoneIdx = idxInThisLevel
     // copy `PopupRearrangeVideos` 
@@ -109,46 +102,25 @@
       newVal = (order1 + order2) / 2
     }
 
-    // First, we ensure the dragged-dropped task is updated correctly.
-    // Then, we recursively ensure the deadlines are valid throughout its subtree.
-
     // 1. ORDER VALUE (and startTime)
     // only applies to the subtree's root
-    const { deadlineDate, deadlineTime, id, subtreeDeadlineInMsElapsed } = $activeDragItem
+    const { id } = $activeDragItem
 
     let updateObj = {
       orderValue: newVal,
-      deadlineDate: deadlineDate || '', // read below
-      deadlineTime: deadlineTime || '', // the '' optionality makes this usable for milestones
-      id,
-      subtreeDeadlineInMsElapsed
+      id
     }
     
     // 2. UNSCHEDULE: when you drag to the to-do list, it always unschedules it from the calendar
     // updateObj.startDateISO = ''
     // updateObj.startTime = ''
 
-    // 3. KEEP CONSISTENT DEADLINE HANDLING API WITH THE ROOT TODO DROPZONE
-    // yes, this is horrific code
-    if (!isMilestoneMode) {
-      updateObj = correctDeadlineIfNecessary({ 
-        node: updateObj, 
-        todoListUpperBound: dueInHowManyDays, 
-        parentObj,
-        batch,
-        userDoc: $user
-      })
-
-
-      // THE BELOW CODE CAUSES BUGS
-      // updateObj = breakParentRelationIfNecessary(updateObj)
-    }
-
     // NOTE `updateObj` will be deprecated and unused
     const betaUpdateObj = {
       orderValue: newVal,
       startDateISO: '',
-      startTime: ''
+      startTime: '',
+      listID
     }
 
     // 4. PARENTID
@@ -159,26 +131,10 @@
       betaUpdateObj.parentID = parentID
     }
 
-    // 2. HANDLE SUBTREE DEADLINES
-    // NOTE: this function actually doesn't do anything
-    maintainValidSubtreeDeadlines({ 
-      node: $activeDragItem, 
-      todoListUpperBound: dueInHowManyDays, 
-      parentObj,
-      batch,
-      userDoc: $user
-    })
-
     // to make it reusable with milestones
     let ref = null
-    if (isMilestoneMode) {
-      ref = doc(db, `users/${$user.uid}/milestones/${$activeDragItem.id}`)
-    } else {
-      ref = doc(db, `users/${$user.uid}/tasks/${$activeDragItem.id}`)
-    }
-
+    ref = doc(db, `users/${$user.uid}/tasks/${id}`)
     batch.update(ref, betaUpdateObj) // updateObj
-
 
     try {
       batch.commit()

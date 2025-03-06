@@ -54,7 +54,7 @@
       'yyyy-MM-dd'
     )
     copy.startTime = newTaskStartTime
-    dispatch('new-root-task', {
+    dispatch('task-create', {
       id: getRandomID(),
       newTaskObj: copy
     })
@@ -64,7 +64,7 @@
   async function createTaskDirectly(e) {
     const newTaskName = e.detail.taskName
     if (newTaskName !== '') {
-      dispatch('new-root-task', {
+      dispatch('task-create', {
         id: getRandomID(),
         newTaskObj: {
           name: newTaskName,

@@ -50,10 +50,8 @@
           roomsInThisLevel={taskObj.children}
           idxInThisLevel={0}
           parentID={taskObj.id}
-          parentObj={taskObj}
           {colorForDebugging}
-          {dueInHowManyDays}
-          {isMilestoneMode}
+          listID={taskObj.listID}
         /> 
       </div>
 
@@ -66,13 +64,10 @@
           {doNotShowCompletedTasks}
           {willShowCheckbox}
           ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
-          subtreeDeadlineInMsElapsed={updateSubtreeDeadlineInMsElapsed(taskObj, subtreeDeadlineInMsElapsed)}
-          {dueInHowManyDays}
-          {isMilestoneMode}
           {isLargeFont}
           {isRecursive}
           on:task-click
-          on:subtask-create
+          on:task-create
           on:task-checkbox-change
         /> 
         <!-- 
@@ -96,10 +91,8 @@
             roomsInThisLevel={taskObj.children}
             idxInThisLevel={i + 1}
             parentID={taskObj.id}
-            parentObj={taskObj}
             {colorForDebugging}
-            {dueInHowManyDays}
-            {isMilestoneMode}
+            listID={taskObj.listID}
           /> 
         </div>
       {/each}
@@ -129,13 +122,10 @@
   import { 
     convertDDMMYYYYToDateClassObject, 
     computeDayDifference, 
-    getDateInDDMMYYYY, 
     getRandomID, 
     getRandomColor,
-    getTimeInHHMM,
   } from '/src/helpers/everythingElse.js'
-  import { updateSubtreeDeadlineInMsElapsed } from '/src/helpers/dataStructures.js'
-  import { createEventDispatcher, tick } from 'svelte'
+  import { createEventDispatcher } from 'svelte'
   import { 
     mostRecentlyCompletedTaskID, 
     activeDragItem
@@ -150,9 +140,6 @@
   // creating an infinite cycle that will not get rendered by Svelte
   export let ancestorRoomIDs
   export let colorForDebugging = getRandomColor()
-  export let subtreeDeadlineInMsElapsed = Infinity
-  export let dueInHowManyDays // very relevant for todo list tasks
-  export let isMilestoneMode = false
   export let isLargeFont = false
   export let isRecursive = true
 
@@ -230,31 +217,12 @@
   }
 
   function createSubtask (name) {
-    const newTaskID = getRandomID()
-    const subtaskObj = {
-      id: newTaskID,
-      parentID: taskObj.id, 
-      name
-    }
-
-    // we're creating a sub-task, so the sub-task's deadline
-    // is bounded by this parent task's deadline
-
-    // QUICKFIX: life's tasks have no deadlines, but consider setting it to `Infinity` 
-    // to simplify computations
-    if (taskObj.deadlineDate && taskObj.deadlineTime) {
-      const d = convertDDMMYYYYToDateClassObject(taskObj.deadlineDate, taskObj.deadlineTime)
-      subtaskObj.deadlineDate = getDateInDDMMYYYY(d)
-      subtaskObj.deadlineTime = getTimeInHHMM({ dateClassObj: d })
-
-      // careful that "NaN/NaN" still counts as having a deadline, which silently makes the tasks disappear
-      // as it is not categorized into a day, week or year todo bucket.
-    }
-    
-    dispatch('subtask-create', {
-      id: newTaskID,
-      parentID: taskObj.id,
-      newTaskObj: subtaskObj
+    dispatch('task-create', {
+      id: getRandomID(),
+      newTaskObj: {
+        name,
+        parentID: taskObj.id, 
+      }
     })
   }
 </script>

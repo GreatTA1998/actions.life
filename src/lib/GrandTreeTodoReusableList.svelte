@@ -1,26 +1,14 @@
 <script>
-  import {
-    getDateInDDMMYYYY,
-    getRandomID,
-    sortByUnscheduledThenByOrderValue,
-    convertDDMMYYYYToDateClassObject
-  } from '/src/helpers/everythingElse.js'
+  import { getRandomID, sortByUnscheduledThenByOrderValue } from '/src/helpers/everythingElse.js'
   import { HEIGHTS } from '/src/helpers/constants.js'
   import UXFormField from '$lib/UXFormField.svelte'
   import ReusableHelperDropzone from '$lib/ReusableHelperDropzone.svelte'
   import RecursiveTaskElement from '$lib/RecursiveTaskElement.svelte'
-  import { createEventDispatcher, tick } from 'svelte'
-  import {
-    breakParentRelationIfNecessary,
-    maintainValidSubtreeDeadlines,
-    correctDeadlineIfNecessary
-  } from '/src/helpers/subtreeDragDrop.js'
-  import { user, activeDragItem } from '/src/store/index.js'
-  import { writeBatch, doc, increment } from 'firebase/firestore'
-  import { db } from '../back-end/firestoreConnection'
+  import { createEventDispatcher } from 'svelte'
+  import { activeDragItem } from '/src/store/index.js'
   import { DateTime } from 'luxon'
 
-  export let dueInHowManyDays = null // AF(null) means it's a life todo, otherwise it should be a number
+  export let listID = ''
   export let allTasksDue = []
   export let listTitle
   export let enableScrolling = false
@@ -29,24 +17,13 @@
   export let isLargeFont = false
   export let isRecursive = true
 
-  let defaultDeadline
   let tasksToDisplay = []
   let isTypingNewRootTask = false
   let newRootTaskStringValue = ''
+  
   const dispatch = createEventDispatcher()
-  let batch = writeBatch(db)
 
-  // COMPUTE DEFAULT DEADLINE
-  $: {
-    const d = new Date()
-    for (let i = 0; i < dueInHowManyDays; i++) {
-      d.setDate(d.getDate() + 1)
-    }
-    defaultDeadline = getDateInDDMMYYYY(d)
-  }
-
-  // svelte reactive statements are order sensitive
-  $: if (allTasksDue && allTasksDue.length > 0) {
+  $: if (allTasksDue) {
     computeTasksToDisplay()
   }
 
@@ -65,106 +42,41 @@
     }
     // nice side-effect of this: double-tap ENTER to be done
     else {
-      createRootTaskWithDeadline(newRootTaskStringValue)
+      createRootTask(newRootTaskStringValue)
       // then reset
       newRootTaskStringValue = ''
     }
   }
 
   // INTERFACE DIFFERENCE #2
-  function createRootTaskWithDeadline(taskName) {
+  function createRootTask (taskName) {
     const newRootTaskObj = {
       name: taskName,
-      startTime: '',
-      notes: '',
-      templateID: '',
       parentID: '',
-      orderValue: 0,
-      duration: 30,
-      isDone: false,
-      imageDownloadURL: '',
-      imageFullPath: '',
-      startDateISO: '',
-      iconURL: '',
       timeZone: DateTime.local().zoneName,
-      notify: ''
     }
 
     if (tasksToDisplay.length > 0) {
       newRootTaskObj.orderValue = (0 + tasksToDisplay[0].orderValue) / 1.1
     } // otherwise the default `orderValue` will be `maxOrder`, handled by `applyTaskSchema`
 
-    dispatch('new-root-task', {
+    dispatch('task-create', {
       id: getRandomID(),
       newTaskObj: newRootTaskObj
     })
   }
 
-  function handleDroppedTask(e) {
+  function handleDroppedTask (e) {
     e.preventDefault()
 
-    // to be consistent with the API of <ReusableHelperDropzone {parentObj}/>
-    const parentObj = { subtreeDeadlineInMsElapsed: Infinity }
-
-    // put task to the bottom of to-do list, if it wasn't already on the to-do list
-    let newVal
-    if ($activeDragItem.startDate) {
-      const initialNumericalDifference = 3
-      newVal = $user.maxOrderValue || initialNumericalDifference
-      batch.update(doc(db, `/users/${$user.uid}/`), {
-        maxOrderValue: increment(initialNumericalDifference)
-      })
-    } else {
-      // don't re-position the todo-task if it's already on the list, leave it as it is
-      newVal = $activeDragItem.orderValue
-    }
-
-    // 1. ORDER VALUE (and startTime)
-    // only applies to the subtree's root
-    const { deadlineDate, deadlineTime, id, subtreeDeadlineInMsElapsed } = $activeDragItem
-
-    let updateObj = {
-      orderValue: newVal,
-      deadlineDate,
-      deadlineTime,
-      id,
-      subtreeDeadlineInMsElapsed
-    }
-
-    // 2. UNSCHEDULE: when you drag to the to-do list, it always unschedules it from the calendar
-    updateObj.startTime = ''
-    updateObj.startDate = ''
-    updateObj.startYYYY = ''
-
-    // 3. DEADLINE
-    updateObj = correctDeadlineIfNecessary({
-      node: updateObj,
-      todoListUpperBound: dueInHowManyDays,
-      parentObj,
-      batch,
-      userDoc: $user
+    dispatch('task-update', { 
+      id: $activeDragItem.id, 
+      keyValueChanges: {
+        listID,
+        orderValue: 0.1 + Math.random() * 9.9,
+        parentID: ''
+      }
     })
-
-    // 4. PARENTID
-    updateObj = breakParentRelationIfNecessary(updateObj)
-
-    // 2. HANDLE SUBTREE DEADLINES
-    maintainValidSubtreeDeadlines({
-      node: $activeDragItem,
-      todoListUpperBound: dueInHowManyDays,
-      parentObj,
-      batch,
-      userDoc: $user
-    })
-
-    batch.update(
-      doc(db, `users/${$user.uid}/tasks/${$activeDragItem.id}`),
-      updateObj
-    )
-
-    batch.commit()
-
-    batch = writeBatch(db)
 
     activeDragItem.set(null)
   }
@@ -193,7 +105,7 @@
           {listTitle}
         </div>
 
-        <span on:click={startTypingNewTask}
+        <span on:click={startTypingNewTask} on:keydown
           class="new-task-icon material-icons"
           style="margin-left: 10px; margin-bottom: 10px"
         >
@@ -223,16 +135,12 @@
       {/if}
 
       <ReusableHelperDropzone
+        listID={listID}
         ancestorRoomIDs={['']}
         roomsInThisLevel={tasksToDisplay}
         idxInThisLevel={0}
         parentID={''}
-        parentObj={{
-          subtreeDeadlineInMsElapsed:
-            convertDDMMYYYYToDateClassObject(defaultDeadline).getTime()
-        }}
         colorForDebugging="purple"
-        {dueInHowManyDays}
         heightInPx={HEIGHTS.ROOT_DROPZONE}
       />
 
@@ -243,27 +151,22 @@
           ancestorRoomIDs={['']}
           doNotShowScheduledTasks={true}
           doNotShowCompletedTasks={true}
-          {dueInHowManyDays}
           {willShowCheckbox}
           {isLargeFont}
           {isRecursive}
           on:task-click
           on:task-checkbox-change
           on:task-node-update
-          on:subtask-create
+          on:task-create={e => dispatch('task-create', e.detail)}
         />
 
         <ReusableHelperDropzone
+          listID={listID}
           ancestorRoomIDs={['']}
           roomsInThisLevel={tasksToDisplay}
           idxInThisLevel={i + 1}
           parentID={''}
-          parentObj={{
-            subtreeDeadlineInMsElapsed:
-              convertDDMMYYYYToDateClassObject(defaultDeadline).getTime()
-          }}
           colorForDebugging="purple"
-          {dueInHowManyDays}
           heightInPx={HEIGHTS.ROOT_DROPZONE}
         />
       {/each}

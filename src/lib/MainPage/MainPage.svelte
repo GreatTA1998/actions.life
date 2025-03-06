@@ -70,9 +70,8 @@
     <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
       <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
         <NewThisWeekTodo
-          on:new-root-task={(e) => createTaskNode(e.detail)}
+          on:task-create={(e) => createTaskNode(e.detail)}
           on:task-click={e => clickedTask = e.detail.task}
-          on:subtask-create={(e) => createTaskNode(e.detail)}
           on:task-checkbox-change={(e) =>
             updateTaskNode({
               id: e.detail.id,
@@ -81,7 +80,7 @@
         />
 
         <TheFunctionalCalendar
-          on:new-root-task={(e) => createTaskNode(e.detail)}
+          on:task-create={(e) => createTaskNode(e.detail)}
           on:task-click={e => clickedTask = e.detail.task}
           on:task-update={(e) =>
             updateTaskNode({
