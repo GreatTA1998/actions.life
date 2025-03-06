@@ -1,5 +1,5 @@
 <script>
-  import ReusableRoundButton from '$lib/ReusableRoundButton.svelte'
+  import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { user } from '/src/store'
   import { onMount } from 'svelte'
   import Icons from '/src/back-end/Icons'
@@ -73,7 +73,7 @@
       </a>
     </div>
 
-    <ReusableRoundButton on:click={unlockFeature}>Unlock</ReusableRoundButton>
+    <RoundButton on:click={unlockFeature}>Unlock</RoundButton>
   </div>
   <div
     style="font-size: 14px; margin-top: 16px; margin-left: 8px; rgb(80, 80, 80)"

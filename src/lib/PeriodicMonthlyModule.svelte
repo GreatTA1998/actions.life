@@ -19,20 +19,20 @@
   </div>
 
   {#if isEditingPeriodicity}
-    <ReusableRoundButton on:click={() => {
+    <RoundButton on:click={() => {
       dispatch('new-monthly-schedule', { repeatOnDayOfMonth, willRepeatOnLastDay })
       isEditingPeriodicity = false
     }}
       backgroundColor="rgb(0, 89, 125)" textColor="white"
     >
       Save changes
-    </ReusableRoundButton>
+    </RoundButton>
   {/if}
 
 </div>
 
 <script>
-  import ReusableRoundButton from '$lib/ReusableRoundButton.svelte'
+  import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { createEventDispatcher } from 'svelte'
 
   export let monthlyTemplate

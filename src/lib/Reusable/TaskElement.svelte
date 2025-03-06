@@ -46,12 +46,8 @@
     {/if}
 
     {#if hasCheckbox}
-      <div>
-        <!-- `checked` hydrates the initial value 
-          `task-update` event will just toggle the checkbox, 
-          but in case we ever need the new value, it's `e.target.checked`
-        -->
-        <ReusableCheckbox
+      <div style="margin-right: 4px;">
+        <Checkbox
           value={task.isDone}
           on:change={(e) => dispatch('task-update', {
             id: task.id,
@@ -107,7 +103,7 @@
   import { createEventDispatcher } from 'svelte'
   import { getTrueY } from '/src/helpers/everythingElse.js'
   import { grabOffset, activeDragItem } from '/src/store'
-  import ReusableCheckbox from '$lib/ReusableCheckbox.svelte'
+  import Checkbox from './Checkbox.svelte'
 
   export let task = null
   export let pixelsPerHour = null

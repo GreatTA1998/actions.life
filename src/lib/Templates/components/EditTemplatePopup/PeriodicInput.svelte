@@ -1,5 +1,5 @@
 <script>
-  import ReusableRoundButton from '$lib/ReusableRoundButton.svelte'
+  import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { updateCrontab } from '../../utils.js'
   export let template
   export let crontabIndex = 3
@@ -45,13 +45,13 @@ function handleSave() {
   </div>
 
   {#if isEditingPeriodicity}
-    <ReusableRoundButton
+    <RoundButton
       on:click={handleSave}
       backgroundColor="rgb(0, 89, 125)"
       textColor="white"
     >
       Save changes
-    </ReusableRoundButton>
+    </RoundButton>
   {/if}
 </div>
 

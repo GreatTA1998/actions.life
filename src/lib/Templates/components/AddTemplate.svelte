@@ -1,6 +1,6 @@
 <script>
   import { user, templates } from '/src/store'
-  import ReusableRoundButton from '$lib/ReusableRoundButton.svelte'
+  import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { DateTime } from 'luxon'
   import Templates from '/src/back-end/Templates'
   import { getRandomID } from '/src/helpers/everythingElse.js'
@@ -84,14 +84,14 @@
           style="display: flex; justify-content: space-between; width: 100%;
         margin-top: 16px;"
         >
-          <ReusableRoundButton
+          <RoundButton
             isDisabled={!newTaskName.trim()}
             on:click={createTemplate}
             backgroundColor="rgb(0, 89, 125)"
             textColor="white"
           >
             Create template
-          </ReusableRoundButton>
+          </RoundButton>
         </div>
       </div>
     </div>

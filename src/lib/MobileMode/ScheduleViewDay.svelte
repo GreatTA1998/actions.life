@@ -23,7 +23,7 @@
         gap: 4px; margin-left: 4px; margin-right: 4px; margin-bottom: 4px;
       "
     >
-      <ReusableFlexibleDayTask task={flexibleDayTask}
+      <FlexibleDayTask task={flexibleDayTask}
         fontSizeInPx={16}
         on:task-click
         on:task-update
@@ -66,7 +66,7 @@
 
 <script>
   import { DateTime } from 'luxon'
-  import ReusableFlexibleDayTask from '$lib/ReusableFlexibleDayTask.svelte'
+  import FlexibleDayTask from '$lib/Reusable/FlexibleDayTask.svelte'
   import FunctionalDoodleIcon from '$lib/FunctionalDoodleIcon.svelte'
   import { createEventDispatcher } from 'svelte'
 

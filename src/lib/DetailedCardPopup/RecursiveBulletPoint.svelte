@@ -5,7 +5,7 @@
     style="display: flex; align-items: center;" 
     class:accented-branch={taskObject.id === originalPopupTask.id}
   >
-    <ReusableCheckbox 
+    <Checkbox 
       value={taskObject.isDone} 
       on:change={(e) => handleCheckboxChange(e)}
       zoom={0.5}
@@ -52,7 +52,7 @@
 
 <script>
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
-  import ReusableCheckbox from '$lib/ReusableCheckbox.svelte'
+  import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import { createEventDispatcher } from 'svelte'
   import { mostRecentlyCompletedTaskID } from '/src/store'
 

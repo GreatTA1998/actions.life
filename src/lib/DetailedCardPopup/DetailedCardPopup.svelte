@@ -4,7 +4,7 @@
   import _ from 'lodash'
   import RecursiveBulletPoint from '$lib/DetailedCardPopup/RecursiveBulletPoint.svelte'
   import UXFormTextArea from '$lib/DetailedCardPopup/UXFormTextArea.svelte'
-  import ReusableCheckbox from '$lib/ReusableCheckbox.svelte'
+  import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import StartTimeDurationNotify from '$lib/DetailedCardPopup/StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
   import { findTaskByID } from '/src/helpers/utils.js'
@@ -145,7 +145,7 @@
       <div class="{journalLayout}-details" style="flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; row-gap: 2px;">
         <div style="display: flex; align-items: center; column-gap: 12px;">
           {#if !taskObject.imageDownloadURL}
-            <ReusableCheckbox value={taskObject.isDone}
+            <Checkbox value={taskObject.isDone}
               on:change={(e) => handleCheckboxChange(e)}
               zoom={1.2}
             />

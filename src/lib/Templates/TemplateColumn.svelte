@@ -1,6 +1,6 @@
 <script>
   import AddTemplate from './components/AddTemplate.svelte'
-  import ReusableSimpleDropzone from '$lib/ReusableSimpleDropzone.svelte'
+  import SimpleDropzone from '$lib/Reusable/SimpleDropzone.svelte'
   import EditTemplatePopup from './components/EditTemplatePopup/EditTemplatePopup.svelte'
   import { updateTemplate } from '/src/store'
   import { getDisplayLength } from './utils.js'
@@ -26,14 +26,14 @@
 
   {#each templates as template, i (template.id)}
     {#if i === 0}
-      <ReusableSimpleDropzone
+      <SimpleDropzone
         on:new-order-value={(e) => handleDrop(e.detail)}
         aboveOrder={0}
         belowOrder={templates[0].orderValue}
       />
       <!-- general case drop-zone: must be between 2 templates-->
     {:else if i > 0 && i < templates.length}
-      <ReusableSimpleDropzone
+      <SimpleDropzone
         on:new-order-value={(e) => handleDrop(e.detail)}
         aboveOrder={templates[i - 1].orderValue}
         belowOrder={templates[i].orderValue}
@@ -102,7 +102,7 @@
     </EditTemplatePopup>
 
     {#if i === templates.length - 1}
-      <ReusableSimpleDropzone
+      <SimpleDropzone
         on:new-order-value={(e) => handleDrop(e.detail)}
         aboveOrder={templates[i].orderValue}
         belowOrder={templates[i].orderValue + 1}

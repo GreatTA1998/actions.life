@@ -6,7 +6,7 @@
     <div class="task-row-container" style="font-size: {depthAdjustedFontSize};">   
       {#if willShowCheckbox}
         <div style="margin-left: 2px; margin-right: 4px;">
-          <ReusableCheckbox 
+          <Checkbox 
             value={taskObj.isDone}
             on:change={(e) => handleCheckboxChange(e)}
           />
@@ -110,7 +110,7 @@
 <script>
   import UXFormField from '$lib/UXFormField.svelte'
   import RecursiveTask from './RecursiveTask.svelte'
-  import ReusableCheckbox from '$lib/ReusableCheckbox.svelte'
+  import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import Dropzone from './Dropzone.svelte'
   import TimelineRenderer from './TimelineRenderer.svelte'
   import { 

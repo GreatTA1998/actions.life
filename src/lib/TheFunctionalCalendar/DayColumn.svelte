@@ -1,8 +1,8 @@
 <script>
-  import ReusableTaskElement from "$lib/ReusableTaskElement.svelte"
-  import ReusablePhotoTaskElement from "$lib/ReusablePhotoTaskElement.svelte"
-  import ReusableIconTaskElement from "$lib/ReusableIconTaskElement.svelte"
-  import ReusableCreateTaskDirectly from "$lib/ReusableCreateTaskDirectly.svelte"
+  import TaskElement from "$lib/Reusable/TaskElement.svelte"
+  import PhotoTaskElement from "$lib/Reusable/PhotoTaskElement.svelte"
+  import IconTaskElement from "$lib/Reusable/IconTaskElement.svelte"
+  import CreateTaskDirectly from "$lib/Reusable/CreateTaskDirectly.svelte"
   import TimeIndicator from "./TimeIndicator.svelte"
 
   import { DateTime } from "luxon"
@@ -141,21 +141,21 @@
     <div class="task-absolute" style="top: {getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px;">
       {#if task.iconURL}
         <!-- TO-DO: think about how attaching photos to icon tasks work -->
-        <ReusableIconTaskElement {task}
+        <IconTaskElement {task}
           {pixelsPerHour}
           fontSize={0.8}
           on:task-click
           on:task-update
         />
       {:else if task.imageDownloadURL}
-        <ReusablePhotoTaskElement {task}
+        <PhotoTaskElement {task}
           {pixelsPerHour}
           fontSize={0.8}
           on:task-click
           on:task-update
         />
       {:else}
-        <ReusableTaskElement {task}
+        <TaskElement {task}
           {pixelsPerHour}
           fontSize={0.8}
           hasCheckbox
@@ -168,7 +168,7 @@
 
   {#if isDirectlyCreatingTask}
     <div id="calendar-direct-task-div" style="top: {yPosition - formFieldTopPadding}px;">
-      <ReusableCreateTaskDirectly
+      <CreateTaskDirectly
         newTaskStartTime={getHHMM(resultantDateClassObject)}
         {resultantDateClassObject}
         on:task-create

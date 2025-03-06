@@ -1,7 +1,7 @@
 <script>
   import UXFormField from '$lib/UXFormField.svelte'
   import UXToggleSwitch from '$lib/UXToggleSwitch.svelte'
-  import ReusableRoundButton from '$lib/ReusableRoundButton.svelte'
+  import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { updateTemplate } from '/src/store'
   export let template
 
@@ -109,22 +109,22 @@
   </div>
 
   {#if isEditingSpecificTime}
-    <ReusableRoundButton
+    <RoundButton
       on:click={saveStartTime}
       backgroundColor="rgb(0, 89, 125)"
       textColor="white"
     >
       Save changes
-    </ReusableRoundButton>
+    </RoundButton>
   {/if}
 
   {#if isEditingDuration}
-    <ReusableRoundButton
+    <RoundButton
       on:click={saveDuration}
       backgroundColor="rgb(0, 89, 125)"
       textColor="white"
     >
       Save changes
-    </ReusableRoundButton>
+    </RoundButton>
   {/if}
 </div>

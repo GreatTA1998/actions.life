@@ -1,6 +1,6 @@
 <script>
-  import ReusableCreateTaskDirectly from '$lib/ReusableCreateTaskDirectly.svelte'
-  import ReusableFlexibleDayTask from '$lib/ReusableFlexibleDayTask.svelte'
+  import CreateTaskDirectly from '$lib/Reusable/CreateTaskDirectly.svelte'
+  import FlexibleDayTask from '$lib/Reusable/FlexibleDayTask.svelte'
   import FunctionalDoodleIcon from '$lib/FunctionalDoodleIcon.svelte'
   import { createEventDispatcher } from 'svelte'
   import { tasksScheduledOn, activeDragItem } from '/src/store'
@@ -78,7 +78,7 @@
           <div style="display: flex; flex-direction: column; row-gap: {isCompact ? '4px' : '8px'};">
             {#each $tasksScheduledOn[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
               <div class="flexible-day-task">
-                <ReusableFlexibleDayTask task={flexibleDayTask}
+                <FlexibleDayTask task={flexibleDayTask}
                   on:task-click
                   on:task-update
                 />
@@ -93,7 +93,7 @@
 
   {#if isDirectlyCreatingTask}
     <div id="calendar-direct-task-div">
-      <ReusableCreateTaskDirectly
+      <CreateTaskDirectly
         newTaskStartTime={''}
         resultantDateClassObject={DateTime.fromISO(ISODate).toJSDate()}
         on:task-create
