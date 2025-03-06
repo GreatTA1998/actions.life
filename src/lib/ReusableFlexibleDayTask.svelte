@@ -27,7 +27,7 @@
  <div style="display: flex; align-items: center; width: {cssWidth};">
     <div>
       <!-- `checked` hydrates the initial value 
-        `task-checkbox-change` event will just toggle the checkbox, 
+        `task-update` event will just toggle the checkbox, 
         but in case we ever need the new value, it's `e.target.checked`
       -->
       <ReusableCheckbox

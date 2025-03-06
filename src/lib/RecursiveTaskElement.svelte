@@ -15,7 +15,7 @@
           </div>
         {/if}
 
-        <div on:click={() => dispatch('task-click', { task: taskObj })}
+        <div on:click={() => dispatch('task-click', { task: taskObj })} on:keydown
           class="truncate-to-one-line" 
           class:cross-out-todo={taskObj.isDone} 
           style="margin-top: -1px; margin-left: 0px; cursor: pointer; min-width: 16px; min-height: 16px;"
@@ -25,7 +25,7 @@
         </div>
       </div>
 
-      <div on:click={() => isTypingNewSubtask = true} class="new-task-icon" style="margin-bottom: 6px;">
+      <div on:click={() => isTypingNewSubtask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
         +
       </div>
     </div>
@@ -68,7 +68,7 @@
           {isRecursive}
           on:task-click
           on:task-create
-          on:task-checkbox-change
+          on:task-update
         /> 
         <!-- 
           Caveat with using calc(100%):
@@ -189,9 +189,9 @@
     if (depth === 0) {
       mostRecentlyCompletedTaskID.set(taskObj.id)
     }
-    dispatch('task-checkbox-change', {
+    dispatch('task-update', {
       id: taskObj.id,
-      isDone: e.target.checked
+      keyValueChanges: { isDone: e.target.checked }
     })
   }
 

@@ -1,13 +1,11 @@
 {#if $user.uid}
   {#key clickedTask}
     {#if isDetailedCardOpen}
-      <DetailedCardPopup 
-        taskObject={clickedTask}
+      <DetailedCardPopup taskObject={clickedTask}
         on:card-close={() => isDetailedCardOpen = false}
         on:task-delete={(e) => deleteTaskNode(e.detail)}
         on:task-click={(e) => openDetailedCard(e.detail)}
         on:task-update={(e) => updateTaskNode(e.detail)}
-        on:task-checkbox-change={(e) => updateTaskNode({ id: e.detail.id, keyValueChanges: { isDone: e.detail.isDone }})} 
       />
     {/if}
   {/key}
@@ -22,9 +20,9 @@
     <div style="overflow-y: auto;">
       {#if activeTabName === 'TODO_VIEW'}
         <ListView
-          on:task-click={(e) => openDetailedCard(e.detail)}
-          on:task-checkbox-change={(e) => updateTaskNode({ id: e.detail.id, keyValueChanges: { isDone: e.detail.isDone }})}
-          on:task-create={(e) => createTaskNode(e.detail)}
+          on:task-click={e => openDetailedCard(e.detail)}
+          on:task-update={e => updateTaskNode(e.detail)}
+          on:task-create={e => createTaskNode(e.detail)}
           let:startTypingNewTask={startTypingNewTask}
         >
           <FloatingButtonWrapper on:click={startTypingNewTask} distanceFromBottom={100}>
@@ -53,13 +51,9 @@
         />
       {:else if activeTabName === 'CALENDAR_VIEW'}
         <TheFunctionalCalendar isCompact
-          on:task-create={(e) => createTaskNode(e.detail)}
-          on:task-click={(e) => openDetailedCard(e.detail)}
-          on:task-update={(e) => updateTaskNode({
-              id: e.detail.id,
-              keyValueChanges: e.detail.keyValueChanges
-            })
-          }
+          on:task-create={e => createTaskNode(e.detail)}
+          on:task-click={e => openDetailedCard(e.detail)}
+          on:task-update={e => updateTaskNode(e.detail)}
         />    
       {:else if activeTabName === 'AI_VIEW'}
         <AI />

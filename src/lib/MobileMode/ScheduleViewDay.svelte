@@ -27,7 +27,6 @@
         fontSizeInPx={16}
         on:task-click
         on:task-update
-        on:task-checkbox-change
       />
     </button>
   {/each}

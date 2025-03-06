@@ -89,9 +89,9 @@
     if (taskObject.parentID === '') {
       mostRecentlyCompletedTaskID.set(taskObject.id)
     }
-    dispatch('task-checkbox-change', {
+    dispatch('task-update', {
       id: taskObject.id,
-      isDone: e.target.checked
+      keyValueChanges: { isDone: e.target.checked }
     })
 
     dispatch('card-close')
@@ -101,7 +101,7 @@
     // quick-fix as the popup is not reactive to task updates
     journalLayout = layout
 
-    dispatch('photo-layout-change', { id: taskObject.id, keyValueChanges: { photoLayout: layout }})
+    dispatch('task-update', { id: taskObject.id, keyValueChanges: { photoLayout: layout }})
   }
 
   function handleDelete () {
@@ -207,7 +207,7 @@
             taskObject={taskObject.parentID ? findTaskByID(taskObject.parentID) : taskObject}
             originalPopupTask={taskObject}
             on:task-click
-            on:task-checkbox-change
+            on:task-update
           />
         </div>
       </div>

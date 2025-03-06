@@ -42,7 +42,7 @@
       <div style="margin-left: 12px;">
         <RecursiveBulletPoint 
           on:task-click
-          on:task-checkbox-change
+          on:task-update
           taskObject={child} {originalPopupTask}
         />
       </div>
@@ -65,9 +65,9 @@
   function handleCheckboxChange (e) {
     // mostRecentlyCompletedTaskID.set(taskObj.id)
 
-    dispatch('task-checkbox-change', {
+    dispatch('task-update', {
       id: taskObject.id,
-      isDone: e.target.checked
+      keyValueChanges: { isDone: e.target.checked }
     })
   }
 </script>

@@ -14,7 +14,7 @@
   on:task-unscheduled
   on:task-click
   on:task-dragged
-  on:task-checkbox-change
+  on:task-update
   let:startTypingNewTask={startTypingNewTask}
 >
   <slot {startTypingNewTask}>

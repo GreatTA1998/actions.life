@@ -31,7 +31,6 @@
               willShowCheckbox={true}
               on:task-create={e => handleNewTask(e, list.id)}
               on:task-click
-              on:task-checkbox-change
               on:task-update={e => updateTaskNode(e.detail)}
             />
           </div>

@@ -155,8 +155,7 @@
           {isLargeFont}
           {isRecursive}
           on:task-click
-          on:task-checkbox-change
-          on:task-node-update
+          on:task-update
           on:task-create={e => dispatch('task-create', e.detail)}
         />
 

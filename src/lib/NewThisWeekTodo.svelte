@@ -6,8 +6,8 @@
     willShowCheckbox={false}
     on:task-create
     on:task-click
+    on:task-update
     on:task-dragged
-    on:task-checkbox-change
   />
 </div>
 
