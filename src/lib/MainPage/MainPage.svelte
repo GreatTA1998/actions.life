@@ -1,7 +1,7 @@
 <script>
   import ListArea from '$lib/ListArea.svelte'
   import TopNavbar from './TopNavbar.svelte'
-  import TheFunctionalCalendar from '$lib/TheFunctionalCalendar/TheFunctionalCalendar.svelte'
+  import Calendar from '$lib/Calendar/Calendar.svelte'
   import HistoryArchive from '$lib/HistoryArchive/index.svelte'
   import Templates from '$lib/Templates/Templates.svelte'
   import AI from '../AI/AI.svelte'
@@ -58,7 +58,7 @@
           on:task-update={e => updateTaskNode(e.detail)}
         />
 
-        <TheFunctionalCalendar
+        <Calendar
           on:task-create={e => createTaskNode(e.detail)}
           on:task-click={e => clickedTask = e.detail.task}
           on:task-update={e => updateTaskNode(e.detail)}

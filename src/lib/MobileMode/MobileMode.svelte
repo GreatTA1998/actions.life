@@ -50,7 +50,7 @@
           on:task-click={(e) => openDetailedCard(e.detail)}
         />
       {:else if activeTabName === 'CALENDAR_VIEW'}
-        <TheFunctionalCalendar isCompact
+        <Calendar isCompact
           on:task-create={e => createTaskNode(e.detail)}
           on:task-click={e => openDetailedCard(e.detail)}
           on:task-update={e => updateTaskNode(e.detail)}
@@ -115,7 +115,7 @@
 {/if}
 
 <script>
-  import TheFunctionalCalendar from '$lib/TheFunctionalCalendar/TheFunctionalCalendar.svelte'
+  import Calendar from '$lib/Calendar/Calendar.svelte'
   import AI from '$lib/AI/AI.svelte'
   import ScheduleView from '$lib/MobileMode/ScheduleView.svelte'
   import ListView from '$lib/MobileMode/ListView.svelte'
