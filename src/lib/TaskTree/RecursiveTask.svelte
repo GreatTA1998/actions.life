@@ -13,7 +13,7 @@
         </div>
       {/if}
 
-      <div on:click={() => dispatch('task-click', { task: taskObj })} on:keydown
+      <div on:click={() => openDetailedCard(taskObj)} on:keydown
         class="task-name truncate-to-one-line" 
         class:cross-out-todo={taskObj.isDone} 
       >
@@ -118,7 +118,7 @@
     getRandomColor,
   } from '/src/helpers/everythingElse.js'
   import { createEventDispatcher } from 'svelte'
-  import { activeDragItem } from '/src/store'
+  import { activeDragItem, openDetailedCard } from '/src/store'
 
   export let taskObj
   export let depth 

@@ -1,11 +1,10 @@
-
 <!-- 
   Note, the HTML checkbox tick color literally cannot be changed, but it will be automatically white if it "decides" that our chosen background color is dark enough, 
   or vice versa
  -->
 
 <div 
-  on:click={() => dispatch('task-click', { task })}
+  on:click={() => openDetailedCard(task)}
   on:dragstart|self={(e) => startDragMove(e, task.id)} 
   draggable="true" 
   class:calendar-block={!isBulletPoint}
@@ -101,7 +100,7 @@
   // Assumes `task` is hydrated
   import { createEventDispatcher } from 'svelte'
   import { getTrueY } from '/src/helpers/everythingElse.js'
-  import { grabOffset, activeDragItem } from '/src/store'
+  import { grabOffset, activeDragItem, openDetailedCard } from '/src/store'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
 
   export let task = null

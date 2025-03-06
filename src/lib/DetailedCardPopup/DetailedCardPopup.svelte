@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher, onMount, onDestroy } from 'svelte'
-  import { mostRecentlyCompletedTaskID, defaultPhotoLayout, photoLayoutOptions, getIconForLayout } from '/src/store'
+  import { mostRecentlyCompletedTaskID, defaultPhotoLayout, photoLayoutOptions, getIconForLayout, closeDetailedCard } from '/src/store'
   import _ from 'lodash'
   import RecursiveBulletPoint from '$lib/DetailedCardPopup/RecursiveBulletPoint.svelte'
   import UXFormTextArea from '$lib/DetailedCardPopup/UXFormTextArea.svelte'
@@ -106,16 +106,16 @@
 
   function handleDelete () {
     dispatch("task-delete", { ...taskObject });
-    dispatch("card-close");
+    closeDetailedCard();
   }
 
   function handleDeleteChildren () {
     dispatch("task-delete-children", { ...taskObject })
-    dispatch("card-close")
+    closeDetailedCard();
   }
 
   function handleClickOutside (e) {
-    dispatch('card-close')
+    closeDetailedCard();
   }
 
   function saveNotes (newVal) {

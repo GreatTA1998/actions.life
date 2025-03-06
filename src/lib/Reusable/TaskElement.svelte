@@ -5,7 +5,7 @@
   or vice versa
  -->
 <div 
-  on:click={() => dispatch('task-click', { task })}
+  on:click={() => openDetailedCard(task)}
   draggable="true" 
   on:dragstart|self={(e) => startDragMove(e, task.id)} 
   class="claude-draggable-item"
@@ -102,7 +102,7 @@
   // Assumes `task` is hydrated
   import { createEventDispatcher } from 'svelte'
   import { getTrueY } from '/src/helpers/everythingElse.js'
-  import { grabOffset, activeDragItem } from '/src/store'
+  import { grabOffset, activeDragItem, openDetailedCard } from '/src/store'
   import Checkbox from './Checkbox.svelte'
 
   export let task = null

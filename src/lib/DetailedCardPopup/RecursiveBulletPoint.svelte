@@ -16,9 +16,7 @@
       DO NOT have `rootAncestor` (see picture in OneNote)
     -->
     <div 
-      on:click={() => {
-        dispatch('task-click', { task: taskObject })
-      }} on:keydown
+      on:click={() => openDetailedCard(taskObject)} on:keydown
       class:completed-task={taskObject.isDone}
       style="cursor: pointer; margin-left: 4px; margin-right: 4px;" class="truncate-to-one-line"
     >
@@ -54,7 +52,7 @@
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import { createEventDispatcher } from 'svelte'
-  import { mostRecentlyCompletedTaskID } from '/src/store'
+  import { mostRecentlyCompletedTaskID, openDetailedCard } from '/src/store'
 
   export let taskObject 
   export let originalPopupTask

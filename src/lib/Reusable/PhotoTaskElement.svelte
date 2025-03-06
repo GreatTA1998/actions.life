@@ -4,7 +4,7 @@
   Note, the HTML checkbox tick color literally cannot be changed, but it will be automatically white if it "decides" that our chosen background color is dark enough, 
   or vice versa
  -->
-<div on:click={() => dispatch('task-click', { task })}
+<div on:click={() => openDetailedCard(task)}
   draggable="true" 
   on:dragstart|self={(e) => startDragMove(e, task.id)} 
   use:lazyCallable={() => hasIntersected = true}
@@ -97,7 +97,7 @@
  // Assumes `task` is hydrated
  import { createEventDispatcher } from 'svelte'
  import { getTrueY } from '/src/helpers/everythingElse.js'
- import { grabOffset, activeDragItem } from '/src/store'
+ import { grabOffset, activeDragItem, openDetailedCard } from '/src/store'
  import { lazyCallable } from '/src/helpers/actions.js'
 
  export let task = null

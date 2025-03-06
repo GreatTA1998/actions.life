@@ -12,13 +12,12 @@
 
   import { onDestroy, onMount } from 'svelte'
   import { page } from '$app/stores'
-  import { user, showSnackbar } from '/src/store'
+  import { user, showSnackbar, clickedTask, isDetailedCardOpen } from '/src/store'
   import { createTaskNode, updateTaskNode, deleteTaskNode, deleteTaskAndChildren } from '/src/helpers/crud.js'
   import { handleInitialTasks } from '$lib/MainPage/handleTasks'
 
   let currentMode = 'Week'
   let isShowingAI = false
-  let clickedTask = {}
   let unsub
 
   onMount(() => {
@@ -30,10 +29,8 @@
   })
 </script>
 
-{#if clickedTask.id}
-  <DetailedCardPopup taskObject={clickedTask}
-    on:task-click={e => clickedTask = e.detail.task}
-    on:card-close={() => (clickedTask = {})}
+{#if $isDetailedCardOpen}
+  <DetailedCardPopup taskObject={$clickedTask}
     on:task-update={e => updateTaskNode(e.detail)}
     on:task-delete={e => deleteTaskNode(e.detail)}
     on:task-delete-children={e => deleteTaskAndChildren(e.detail)}
@@ -56,13 +53,11 @@
     <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
       <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
         <WeeklyTodo
-          on:task-click={e => clickedTask = e.detail.task}
           on:task-create={e => createTaskNode(e.detail)}
           on:task-update={e => updateTaskNode(e.detail)}
         />
 
         <Calendar
-          on:task-click={e => clickedTask = e.detail.task}
           on:task-create={e => createTaskNode(e.detail)}
           on:task-update={e => updateTaskNode(e.detail)}
         />
@@ -77,11 +72,11 @@
       </div>
 
       <div style="display: {currentMode === 'Archive' ? 'block' : 'none'}; width: 100%; height: 100%;">
-        <HistoryArchive on:task-click={e => clickedTask = e.detail.task}/>
+        <HistoryArchive />
       </div>
 
       <div style="display: {currentMode === 'Lists' ? 'block' : 'none'}; width: 100%; height: 100%;">
-        <ListsArea on:task-click={e => clickedTask = e.detail.task}/>
+        <ListsArea />
       </div>
     </div>
   </NavbarAndContentWrapper>

@@ -1,5 +1,5 @@
 <script>
-  import { activeDragItem, grabOffset } from '/src/store'
+  import { activeDragItem, grabOffset, openDetailedCard } from '/src/store'
   import { createEventDispatcher } from 'svelte'
 
   export let iconTask
@@ -23,7 +23,7 @@
     } 
     else {
       timer = setTimeout(() => {
-        dispatch('task-click', { task: iconTask })
+        openDetailedCard(iconTask)
 
         timer = null
       }, delay)

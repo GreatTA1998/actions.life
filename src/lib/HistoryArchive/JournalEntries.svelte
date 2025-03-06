@@ -3,6 +3,7 @@
   import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import { formatDate } from '/src/helpers/everythingElse.js'
   import { createEventDispatcher } from 'svelte'
+  import { openDetailedCard } from '/src/store'
 
   export let routineInstances = null
   export let selectedRoutine = null
@@ -112,7 +113,7 @@
   {#if routineInstances}
     {#each routineInstances as instance, i (instance.id)}
       {@const gap = calculateGap(instance.startDateISO, routineInstances[i + 1]?.startDateISO)}
-      <div on:click={() => dispatch('task-click', { task: instance })} on:keydown
+      <div on:click={() => openDetailedCard(instance)} on:keydown
         class="entry-wrapper" 
         data-gap={gap.type}
         style="--gap-size: {calculateGapSize(gap.days)}px"
