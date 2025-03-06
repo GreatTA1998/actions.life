@@ -1,7 +1,7 @@
 <script>
+  import Dropzone from '$lib/TaskTree/Dropzone.svelte'
+  import RecursiveTask from '$lib/TaskTree/RecursiveTask.svelte'
   import UXFormField from '$lib/UXFormField.svelte'
-  import ReusableHelperDropzone from '$lib/ReusableHelperDropzone.svelte'
-  import RecursiveTaskElement from '$lib/RecursiveTaskElement.svelte'
   import { getRandomID } from '/src/helpers/everythingElse.js'
   import { HEIGHTS } from '/src/helpers/constants.js'
   import { createEventDispatcher } from 'svelte'
@@ -118,7 +118,7 @@
         <div style="margin-bottom: 8px;"></div>
       {/if}
 
-      <ReusableHelperDropzone
+      <Dropzone
         listID={listID}
         ancestorRoomIDs={['']}
         roomsInThisLevel={tasksToDisplay}
@@ -129,7 +129,7 @@
       />
 
       {#each tasksToDisplay as taskObj, i (taskObj.id)}
-        <RecursiveTaskElement {taskObj}
+        <RecursiveTask {taskObj}
           depth={0}
           ancestorRoomIDs={['']}
           {willShowCheckbox}
@@ -139,7 +139,7 @@
           on:task-create
         />
 
-        <ReusableHelperDropzone
+        <Dropzone
           listID={listID}
           ancestorRoomIDs={['']}
           roomsInThisLevel={tasksToDisplay}

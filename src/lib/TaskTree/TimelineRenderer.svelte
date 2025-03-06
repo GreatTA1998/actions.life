@@ -1,6 +1,6 @@
 <script>
-  import RecursiveTaskElement from '$lib/RecursiveTaskElement.svelte';
-  import ReusableHelperDropzone from '$lib/ReusableHelperDropzone.svelte';
+  import RecursiveTask from './RecursiveTask.svelte';
+  import Dropzone from './Dropzone.svelte';
   import { createEventDispatcher } from 'svelte';
   
   export let children = [];
@@ -106,7 +106,7 @@
       {/if}
       
       <div class="task-wrapper">
-        <RecursiveTaskElement
+        <RecursiveTask
           taskObj={child}
           depth={depth+1}
           {willShowCheckbox}
@@ -121,7 +121,7 @@
       
       <!-- Dropzone logic -->
       <div class:absolute-bottom={i === sortedTasks.length - 1}>
-        <ReusableHelperDropzone
+        <Dropzone
           ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
           roomsInThisLevel={children}
           idxInThisLevel={i + 1}

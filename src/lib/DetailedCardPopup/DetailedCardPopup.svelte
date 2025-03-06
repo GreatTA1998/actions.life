@@ -82,7 +82,7 @@
     }
   }
 
-  // the other place to pay attention to is <RecursiveTaskElement/>
+  // the other place to pay attention to is <RecursiveTask/>
   // but the idea is still the same, provide an "undo"
   // for root level tasks because they disappear on completion
   function handleCheckboxChange (e) {

@@ -18,7 +18,7 @@
   import { updateLocalState } from '/src/helpers/maintainState.js'
   import { user, activeDragItem } from '/src/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
-  import { db } from '../back-end/firestoreConnection'
+  import { db } from '../../back-end/firestoreConnection'
 
   export let listID = ''
   export let ancestorRoomIDs
@@ -147,4 +147,4 @@
       alert('Error updating, please reload the page')
     }
   }
-</script>
+</script> 

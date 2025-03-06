@@ -29,7 +29,7 @@
 
   <!-- Children rendering based on task's own childrenLayout property -->
   {#if taskObj.childrenLayout === 'timeline' && taskObj.children.length > 0}
-    <TimelineChildrenRenderer
+    <TimelineRenderer
       children={taskObj.children}
       depth={depth}
       parentID={taskObj.id}
@@ -50,7 +50,7 @@
           z-index: {depth};
         "
       >
-        <ReusableHelperDropzone
+        <Dropzone
           ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
           roomsInThisLevel={taskObj.children}
           idxInThisLevel={0}
@@ -61,7 +61,7 @@
       </div>
 
       {#each taskObj.children as subtaskObj, i (subtaskObj.id)}
-        <RecursiveTaskElement 
+        <RecursiveTask 
           taskObj={subtaskObj}
           depth={depth+1}
           {willShowCheckbox}
@@ -79,7 +79,7 @@
             z-index: {depth};
           "
         >
-          <ReusableHelperDropzone
+          <Dropzone
             ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
             roomsInThisLevel={taskObj.children}
             idxInThisLevel={i + 1}
@@ -109,10 +109,10 @@
 
 <script>
   import UXFormField from '$lib/UXFormField.svelte'
-  import RecursiveTaskElement from '$lib/RecursiveTaskElement.svelte'
+  import RecursiveTask from './RecursiveTask.svelte'
   import ReusableCheckbox from '$lib/ReusableCheckbox.svelte'
-  import ReusableHelperDropzone from '$lib/ReusableHelperDropzone.svelte'
-  import TimelineChildrenRenderer from '$lib/TimelineChildrenRenderer.svelte'
+  import Dropzone from './Dropzone.svelte'
+  import TimelineRenderer from './TimelineRenderer.svelte'
   import { 
     getRandomID, 
     getRandomColor,
@@ -217,4 +217,4 @@
   .cross-out-todo {
     text-decoration: line-through;
   }
-</style>
+</style> 
