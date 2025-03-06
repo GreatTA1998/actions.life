@@ -17,9 +17,13 @@
     createTaskNode({ id, newTaskObj })
   }
 
-  // TO-DO:
-  // - add sub-tasks
-  // - add quick tasks
+  function handleNewSubtask (event, listId) {
+    const { id, newTaskObj } = event.detail
+    newTaskObj.listID = listId
+    newTaskObj.persistsOnList = true
+    newTaskObj.isArchived = false
+    createTaskNode({ id, newTaskObj })
+  }
 </script>
 
 {#if $lists}
@@ -34,7 +38,7 @@
               dueInHowManyDays={7}
               willShowCheckbox={true}
               on:new-root-task={(e) => handleNewRootTask(e, list.id)}
-              on:subtask-create
+              on:subtask-create={e => handleNewSubtask(e, list.id)}
               on:task-click
               on:task-checkbox-change
             />
@@ -55,11 +59,6 @@
     max-width: 100%;
     margin: 0 auto;
     padding: 1rem;
-  }
-  
-  .loading {
-    text-align: center;
-    padding: 2rem;
   }
   
   .lists {

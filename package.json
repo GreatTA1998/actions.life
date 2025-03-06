@@ -33,6 +33,7 @@
     "openai": "^4.56.0",
     "posthog-js": "^1.136.5",
     "prettier-plugin-svelte": "^3.2.7",
-    "svelte-portal": "^2.2.0"
+    "svelte-portal": "^2.2.0",
+    "zod": "^3.24.2"
   }
 }

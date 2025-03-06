@@ -4,33 +4,30 @@ import {
   deleteFromLocalState,
 } from "/src/helpers/maintainState.js"
 import { deleteImage } from '/src/helpers/storage.js'
-import applyTaskSchema from "/src/helpers/applyTaskSchema.js"
-import TaskSchema from "/src/back-end/Schemas/TaskSchema.js"
-import Joi from "joi"
 import Tasks from "/src/back-end/Tasks.js"
 import { get } from 'svelte/store'
 import { user, calendarTasks, todoTasks } from '/src/store/index.js'
+import TaskSchema from '/src/back-end/Schemas/TaskSchema.js'
 
 export async function createTaskNode({ id, newTaskObj }) {
   try {
-    Joi.assert(newTaskObj, TaskSchema)
-    Tasks.post({ userUID: get(user).uid, task: newTaskObj, taskID: id })
+    // strips unknown fields, instantiate missing fields, apply defaults to all fields
+    const validatedTask = TaskSchema.parse(newTaskObj)
+    Tasks.post({ userUID: get(user).uid, task: validatedTask, taskID: id })
+    createOnLocalState({ id, createdNode: validatedTask })
   } catch (error) {
-    console.error('error creating task node: ', error)
-    alert("Database update failed, please reload")
+    console.error('Error creating task:', error)
+    alert('Error creating task: ' + error.message)
     return error;
   }
 }
 
 export async function updateTaskNode({ id, keyValueChanges }) {
   try {
-    // TEMPORARILY COMMENT OUT FOR QUICK PROTOTYPING
-    // const tasks = get(calendarTasks).concat(get(todoTasks))
-    // const task = tasks.find(task => task.id === id);
-    // const newTask = removeUnnecessaryFields({ ...task, ...keyValueChanges })
-    // Joi.assert(newTask, TaskSchema)
-    Tasks.update({ userUID: get(user).uid, taskID: id, keyValueChanges })
-    updateLocalState({ id, keyValueChanges });
+    // discard fields changes that aren't defined in the schema
+    const validatedChanges = TaskSchema.partial().parse(keyValueChanges)
+    Tasks.update({ userUID: get(user).uid, taskID: id, keyValueChanges:validatedChanges })
+    updateLocalState({ id, keyValueChanges:validatedChanges })
   } catch (error) {
     alert(
       "error attempting to save changes to the db, please reload "
@@ -46,6 +43,7 @@ export function deleteTaskNode({ id, imageFullPath = "" }) {
   affectedTasks.forEach(task => updateLocalState({ id: task.id, keyValueChanges: { parentID: "" } }))
   deleteFromLocalState({ id });
 }
+
 export async function deleteTaskAndChildren(task) {
   try {
     const allTasks = get(todoTasks);
@@ -76,31 +74,3 @@ export async function deleteTaskAndChildren(task) {
     throw error;
   }
 }
-
-
-const nesseseryFields = [
-  "duration",
-  "name",
-  "orderValue",
-  "parentID",
-  "startTime",
-  "startDateISO",
-  "iconURL",
-  "timeZone",
-  "notify",
-  "notes",
-  "templateID",
-  "isDone",
-  "imageDownloadURL",
-  "tags",
-  "imageFullPath"];
-
-function removeUnnecessaryFields(task) {
-  const cleanedTask = {};
-  nesseseryFields.forEach(field => {
-    if (task.hasOwnProperty(field)) {
-      cleanedTask[field] = task[field];
-    }
-  });
-  return cleanedTask;
-};

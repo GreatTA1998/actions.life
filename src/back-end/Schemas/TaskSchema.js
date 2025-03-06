@@ -1,27 +1,22 @@
-import Joi from "joi";
+import z from 'zod';
 
-export default Joi.object({
-    name: Joi.string().required(),
-    duration: Joi.number().required(),
-    orderValue: Joi.number().required(),
-    parentID: Joi.string().required().allow(""),
-    startTime: Joi.string().required().allow(""),
-    startDateISO: Joi.string().required().allow(''),
-    iconURL: Joi.string().required().allow(""),
-    timeZone: Joi.string().required(),
-    notify: Joi.string().required().allow(""),
-    notes: Joi.string().required().allow(""),
-    templateID: Joi.string().required().allow(""),
-    isDone: Joi.boolean().required(),
-    imageDownloadURL: Joi.string().required().allow(""),
-    imageFullPath: Joi.string().required().allow(""),
-
-    // non-required fields for prototyping
-    tags: Joi.string().allow('').default(''),
-    // id: hydrated
-    // userID: hydrated
-    isArchived: Joi.boolean().default(false),
-    persistsOnList: Joi.boolean().default(true),
-    listID: Joi.string().allow('').default('')
+export default z.object({
+    name: z.string().default('Untitled'),
+    duration: z.number().default(30),
+    orderValue: z.number().default(0),
+    parentID: z.string().default(''),
+    startTime: z.string().default(''),
+    startDateISO: z.string().default(''),
+    iconURL: z.string().default(''),
+    timeZone: z.string().default(Intl.DateTimeFormat().resolvedOptions().timeZone),
+    notify: z.string().default(''),
+    notes: z.string().default(''),
+    templateID: z.string().default(''),
+    isDone: z.boolean().default(false),
+    imageDownloadURL: z.string().default(''),
+    imageFullPath: z.string().default(''),
+    tags: z.string().default(''),
+    isArchived: z.boolean().default(false),
+    persistsOnList: z.boolean().default(true),
+    listID: z.string().default('')
 })
-// useJoi.attempt(object, Schema)
