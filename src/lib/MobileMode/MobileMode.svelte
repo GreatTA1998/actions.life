@@ -119,7 +119,7 @@
   import AI from '$lib/AI/AI.svelte'
   import ScheduleView from '$lib/MobileMode/ScheduleView.svelte'
   import ListView from '$lib/MobileMode/ListView.svelte'
-  import VoiceKeywordDetect from '$lib/VoiceKeywordDetect.svelte'
+  import VoiceKeywordDetect from './VoiceKeywordDetect.svelte'
   import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
 
