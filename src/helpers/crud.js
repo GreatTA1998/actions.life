@@ -27,7 +27,7 @@ export async function updateTaskNode({ id, keyValueChanges }) {
     // discard fields changes that aren't defined in the schema
     const validatedChanges = TaskSchema.partial().parse(keyValueChanges)
     Tasks.update({ userUID: get(user).uid, taskID: id, keyValueChanges:validatedChanges })
-    updateLocalState({ id, keyValueChanges:validatedChanges })
+    updateLocalState({ id, keyValueChanges: validatedChanges })
   } catch (error) {
     alert(
       "error attempting to save changes to the db, please reload "

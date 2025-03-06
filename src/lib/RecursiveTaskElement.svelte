@@ -27,75 +27,84 @@
     </div>
   </div>
 
-  <!-- DROPZONE BELOW THE TASK
-    
-    We use `235px` instead of `100%` because absolute's 100% is different from
-    RecursiveTaskElement's 100% (which is constantly shrinking). A fixd value we subtract from gives us a consistent base
-  -->
-  <div style="margin-left: {indentationAmount}px;">
-    <div 
-      class:absolute-bottom={n === 0} 
-      style="
-        width: calc(235px - {indentationAmount * (depth)}px);
-        z-index: {depth};
-      "
-    >
-      <ReusableHelperDropzone
-        ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
-        roomsInThisLevel={taskObj.children}
-        idxInThisLevel={0}
-        parentID={taskObj.id}
-        {colorForDebugging}
-        listID={taskObj.listID}
-      /> 
-    </div>
-
-    <!-- CHILDREN DROPZONES -->
-    {#each taskObj.children as subtaskObj, i (subtaskObj.id)}
-      <RecursiveTaskElement taskObj={subtaskObj}
-        depth={depth+1}
-        {willShowCheckbox}
-        ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
-        {isLargeFont}
-        on:task-click
-        on:task-create
-        on:task-update
-      /> 
-      <!-- Caveat with using calc(100%):
-        because absolute element's 100% ignores the margin = `indentationAmount` that
-        all has already scoped other normal divs, so we just add it back 
-      -->
-      <div class:absolute-bottom={i === n - 1} 
+  <!-- Children rendering based on task's own childrenLayout property -->
+  {#if taskObj.childrenLayout === 'timeline' && taskObj.children.length > 0}
+    <TimelineChildrenRenderer
+      children={taskObj.children}
+      depth={depth}
+      parentID={taskObj.id}
+      ancestorRoomIDs={ancestorRoomIDs}
+      {willShowCheckbox}
+      {isLargeFont}
+      {colorForDebugging}
+      on:task-click
+      on:task-create
+      on:task-update
+    />
+  {:else}
+    <!-- First dropzone for normal mode -->
+    <div style="margin-left: {indentationAmount}px;">
+      <div class:absolute-bottom={n === 0} 
         style="
-          width: calc(235px - {indentationAmount * depth}px); 
+          width: calc(235px - {indentationAmount * (depth)}px);
           z-index: {depth};
         "
       >
         <ReusableHelperDropzone
           ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
           roomsInThisLevel={taskObj.children}
-          idxInThisLevel={i + 1}
+          idxInThisLevel={0}
           parentID={taskObj.id}
           {colorForDebugging}
           listID={taskObj.listID}
         /> 
       </div>
-    {/each}
-    
-    {#if isTypingNewSubtask}
-      <UXFormField
-        fieldLabel="Task Name"
-        value={newSubtaskStringValue}
-        on:input={(e) => newSubtaskStringValue = e.detail.value}
-        on:focus-out={() => {
-          if (newSubtaskStringValue === '') {
-            isTypingNewSubtask = false
-          }
-        }}
-        on:task-entered={(e) => onEnter(e)}
-      />
-    {/if}
-  </div>
+
+      {#each taskObj.children as subtaskObj, i (subtaskObj.id)}
+        <RecursiveTaskElement 
+          taskObj={subtaskObj}
+          depth={depth+1}
+          {willShowCheckbox}
+          ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
+          {isLargeFont}
+          {colorForDebugging}
+          on:task-click
+          on:task-create
+          on:task-update
+        /> 
+        <!-- Dropzone after each child -->
+        <div class:absolute-bottom={i === n - 1} 
+          style="
+            width: calc(235px - {indentationAmount * depth}px); 
+            z-index: {depth};
+          "
+        >
+          <ReusableHelperDropzone
+            ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
+            roomsInThisLevel={taskObj.children}
+            idxInThisLevel={i + 1}
+            parentID={taskObj.id}
+            {colorForDebugging}
+            listID={taskObj.listID}
+          /> 
+        </div>
+      {/each}
+    </div>
+  {/if}
+  
+  {#if isTypingNewSubtask}
+    <UXFormField
+      fieldLabel="Task Name"
+      value={newSubtaskStringValue}
+      on:input={(e) => newSubtaskStringValue = e.detail.value}
+      on:focus-out={() => {
+        if (newSubtaskStringValue === '') {
+          isTypingNewSubtask = false
+        }
+      }}
+      on:task-entered={(e) => onEnter(e)}
+    />
+  {/if}
 </div>
 
 <script>
@@ -103,6 +112,7 @@
   import RecursiveTaskElement from '$lib/RecursiveTaskElement.svelte'
   import ReusableCheckbox from '$lib/ReusableCheckbox.svelte'
   import ReusableHelperDropzone from '$lib/ReusableHelperDropzone.svelte'
+  import TimelineChildrenRenderer from '$lib/TimelineChildrenRenderer.svelte'
   import { 
     getRandomID, 
     getRandomColor,
@@ -113,7 +123,7 @@
   export let taskObj
   export let depth 
   export let willShowCheckbox = true
-  export let ancestorRoomIDs // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
+  export let ancestorRoomIDs = [] // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
   export let colorForDebugging = getRandomColor()
   export let isLargeFont = false
 
@@ -171,6 +181,8 @@
       newTaskObj: {
         name,
         parentID: taskObj.id, 
+        // Inherit parent's childrenLayout by default, can be changed later
+        childrenLayout: taskObj.childrenLayout || 'normal'
       }
     })
   }
