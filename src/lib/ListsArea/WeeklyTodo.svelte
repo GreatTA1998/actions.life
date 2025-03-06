@@ -4,15 +4,14 @@
     tasksToDisplay={$inclusiveWeekTodo}
     style="padding-top: var(--height-main-content-top-margin); background-color: var(--todo-list-bg-color); border-radius: 16px; outline: 0px solid red; height: 100%;"
     willShowCheckbox={false}
-    on:task-create
     on:task-click
+    on:task-create
     on:task-update
-    on:task-dragged
   />
 </div>
 
 <script>
-  import TodoList from '$lib/TodoArea/TodoList.svelte'
+  import TodoList from '$lib/ListsArea/TodoList.svelte'
   import { inclusiveWeekTodo } from '/src/store'
 </script>
 

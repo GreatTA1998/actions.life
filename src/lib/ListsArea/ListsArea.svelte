@@ -1,5 +1,5 @@
 <script>
-  import TodoList from '$lib/TodoArea/TodoList.svelte'
+  import TodoList from '$lib/ListsArea/TodoList.svelte'
   import { listenToListsAndTasks, listTreesMap, lists } from '/src/store/listAreaDataManager.js'
   import { createTaskNode, updateTaskNode } from '/src/helpers/crud.js'
   import { user } from '/src/store'
