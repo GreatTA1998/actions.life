@@ -1,5 +1,5 @@
 <script>
-  import LoginGoogle from '$lib/LoginGoogle.svelte'
+  import LoginGoogle from '$lib/Reusable/LoginGoogle.svelte'
   import { hasFetchedUser } from '/src/store'
   import { onMount } from 'svelte'
   import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
