@@ -1,190 +1,130 @@
-import {
-  sortByOrderValue,
-  convertToISO8061,
-  pureNumericalHourForm
-} from "/src/helpers/everythingElse.js";
+import { pureNumericalHourForm } from '/src/helpers/everythingElse.js'
 
-// FOR HANDLING A WEEK WORTH OF NEW TASKS
-// NOTE: by definition of these tasks being located on a different week, this will not
-// affect the existing dates and their task trees
-
-// totalNumber
-export function buildDates({ start, totalDays }) {
-  const dates = [];
-  for (let i = 0; i < totalDays; i++) {
-    dates.push(
-      start.plus({ days: i }).toFormat('yyyy-MM-dd')
-    )
-  }
-  return dates;
-}
-
-// recursively mutate this monolith data structure until its correct
-export function reconstructTreeInMemory (firestoreTaskDocs) {
-  const output = [];
-
-  // first, do an O(n) operation, so we don't perform a O(n^2) operation constantly traversing trees
-  // build a dictionary that maps a task to its children ([] if no children)
-  const memo = { "": [] };
-  for (const taskDoc of firestoreTaskDocs) {
-    if (!memo[taskDoc.parentID]) memo[taskDoc.parentID] = [];
-    memo[taskDoc.parentID].push(taskDoc);
-
-    if (!memo[taskDoc.id]) memo[taskDoc.id] = [];
-  }
-
-  // now construct the recursive tree
-  let rootTasks = memo[""];
-  rootTasks = sortByOrderValue(rootTasks)
-  for (const rootTask of rootTasks) {
-    recursivelyHydrateChildren({
-      node: rootTask,
-      firestoreTaskDocs,
-      memo,
-      subtreeDeadlineInMsElapsed: Infinity,
-    });
-    output.push(rootTask);
-  }
-  return output;
-}
-
-
-export function constructCalendarTrees (firestoreTaskDocs) {
-  const output = [];
-  const uniqueTaskIDs = new Set()
-
-  // first, do an O(n) operation, so we don't perform a O(n^2) operation constantly traversing trees
-  // build a dictionary that maps a task to its children ([] if no children)
-  const memo = { "": [] };
-  for (const taskDoc of firestoreTaskDocs) {
-    uniqueTaskIDs.add(taskDoc)
-
-    if (!memo[taskDoc.parentID]) memo[taskDoc.parentID] = [];
-    memo[taskDoc.parentID].push(taskDoc);
-
-    if (!memo[taskDoc.id]) memo[taskDoc.id] = [];
-  }
-
-  // now construct the recursive tree
-  for (const task of firestoreTaskDocs) {
-    const isRoot = memo[""].includes(task)
-
-    // sometimes the calendar belongs to a todo-parent, but the parent is
-    // not to be found within this calendar tree,
-    // so it's a detached subtree that will act as a root tree
-    const isAbandonedChild = task.parentID && !uniqueTaskIDs.has(task.parentID)
-    
-    if (isRoot || isAbandonedChild) {
-      // For root nodes, ensure rootStartDateISO matches startDateISO
-      if (task.startDateISO && !task.rootStartDateISO) {
-        task.rootStartDateISO = task.startDateISO;
-      }
-      
-      recursivelyHydrateChildren({
-        node: task,
-        firestoreTaskDocs,
-        memo,
-        subtreeDeadlineInMsElapsed: Infinity,
-      });
-      
-      // Propagate rootStartDateISO to all children
-      if (task.startDateISO) {
-        propagateRootStartDateISO(task, task.rootStartDateISO || task.startDateISO);
-      }
-      
-      output.push(task)
-    }
-  }
-  return output;
-}
-
-// Helper function to propagate rootStartDateISO to all descendants
-function propagateRootStartDateISO(node, rootStartDateISO) {
-  node.rootStartDateISO = rootStartDateISO;
+/**
+ * @param {Array} firestoreTaskDocs all necessary ingredient tasks to reconstruct 
+ * not only the scheduled tasks, but also their subtrees (sub-tasks from any arbitrary date)
+ * @returns 
+ */
+export function constructCalendarTrees(firestoreTaskDocs) {
+  const cache = new Map()
   
-  for (const child of node.children) {
-    propagateRootStartDateISO(child, rootStartDateISO);
-  }
+  // Build task map and connect parent-child relationships
+  const taskMap = new Map()
+  firestoreTaskDocs.forEach(task => {
+    taskMap.set(task.id, { ...task, children: [] })
+  })
+  
+  const rootTasks = [];
+  taskMap.forEach(task => {
+    if (!task.parentID || !taskMap.has(task.parentID)) {
+      rootTasks.push(task)
+    } else {
+      const parent = taskMap.get(task.parentID)
+      parent.children.push(task)
+    }
+  })
+  
+  // Every scheduled node is a calendar entry, with its full subtree
+  const output = []
+  firestoreTaskDocs.forEach(task => {
+    if (task.startDateISO) {
+      const taskTree = deepCopyWithSubtree(task, taskMap, cache)
+      output.push(taskTree);
+    }
+  })
+  
+  return output
 }
 
-// rename to `maxDeadlineLimitInMs`: limits how far this node's deadline can be set
-function recursivelyHydrateChildren({
-  node,
-  firestoreTaskDocs,
-  memo,
-  subtreeDeadlineInMsElapsed,
-}) {
-  node.subtreeDeadlineInMsElapsed = subtreeDeadlineInMsElapsed;
-  node.children = sortByOrderValue(memo[node.id]);
-  for (const child of node.children) {
-    recursivelyHydrateChildren({
-      node: child,
-      firestoreTaskDocs,
-      memo,
-      subtreeDeadlineInMsElapsed: updateSubtreeDeadlineInMsElapsed(
-        node,
-        subtreeDeadlineInMsElapsed
-      ),
-    });
+// Deep copy a task with its subtree
+function deepCopyWithSubtree(task, taskMap, cache) {
+  if (cache.has(task.id)) {
+    return cache.get(task.id)
   }
+  
+  const rootNode = { ...task, children: [] }
+  cache.set(task.id, rootNode)
+  
+  const children = []
+  taskMap.forEach(potentialChild => {
+    if (potentialChild.parentID === task.id) {
+      const childTree = deepCopyWithSubtree(potentialChild, taskMap, cache)
+      children.push(childTree)
+    }
+  });
+  
+  rootNode.children = children
+  return rootNode
 }
 
-export function updateSubtreeDeadlineInMsElapsed(node, oldVal) {
-  if (!node.deadlineDate || !node.deadlineTime) {
-    if (oldVal !== Infinity) return oldVal;
-    else return oldVal;
+// Create a date-to-tasks mapping for calendar view
+export function computeDateToTasksDict(taskTrees) {
+  const dateToTasks = {}
+  
+  // All tasks in taskTrees already have startDateISO, so no need to check again
+  taskTrees.forEach(task => {
+    addTaskToDate(task, task.startDateISO, dateToTasks)
+  });
+  
+  // Sort tasks with startTime for predictable drag behavior
+  for (const [key, value] of Object.entries(dateToTasks)) {
+    if (value.hasStartTime && value.hasStartTime.length > 0) {
+      value.hasStartTime = value.hasStartTime.sort((a, b) => {
+        return pureNumericalHourForm(a.startTime) - pureNumericalHourForm(b.startTime)
+      });
+    }
+  }
+  
+  return dateToTasks
+}
+
+// Add a task to the appropriate category in the date dictionary
+function addTaskToDate(task, date, dateToTasks) {
+  if (!dateToTasks[date]) {
+    dateToTasks[date] = { 
+      hasStartTime: [], 
+      noStartTime: { 
+        hasIcon: [], 
+        noIcon: [] 
+      } 
+    };
+  }
+  
+  if (task.startTime) {
+    dateToTasks[date].hasStartTime.push(task)
+  } else if (task.iconName || task.iconURL) {
+    dateToTasks[date].noStartTime.hasIcon.push(task)
   } else {
-    const [dd, MM, yyyy] = node.deadlineDate.split("/");
-    const iso8061 = convertToISO8061({ mmdd: `${MM}/${dd}`, yyyy });
-    const d = new Date(iso8061);
-    const [hh, mm] = node.deadlineTime.split(":");
-    d.setHours(hh, mm);
-
-    if (d.toString() === "Invalid Date") {
-      return oldVal;
-    }
-
-    const result = Math.min(d.getTime(), oldVal);
-    return result;
+    dateToTasks[date].noStartTime.noIcon.push(task)
   }
 }
 
-export function computeDateToTasksDict (taskTrees) {
-  const tasksScheduledOn = {}
-  for (const root of taskTrees) {
-    myHelper({ node: root, rootAncestor: root, tasksScheduledOn });
+// Build a memory tree from flat task documents (legacy function, still used for the legacy todo list)
+export function reconstructTreeInMemory(firestoreTaskDocs) {
+  const output = []
+
+  // Build parent-child mapping
+  const memo = { '': [] }
+  for (const taskDoc of firestoreTaskDocs) {
+    if (!memo[taskDoc.parentID]) memo[taskDoc.parentID] = []
+    memo[taskDoc.parentID].push(taskDoc)
+
+    if (!memo[taskDoc.id]) memo[taskDoc.id] = []
   }
 
-  // Put tasks in ascending order of `startTime`, so newer tasks are above older tasks
-  // this is important because when a big task swallows a small task,
-  // you need to be able to drag the small task out easily (and the small task is BELOW the big task by definition)
-  for (const [key, value] of Object.entries(tasksScheduledOn)) {
-    tasksScheduledOn[key].hasStartTime = tasksScheduledOn[key].hasStartTime.sort((a, b) => {
-      return pureNumericalHourForm(a.startTime) - pureNumericalHourForm(b.startTime)
-    })
+  // Construct tree from root tasks
+  const rootTasks = memo[''] || []
+  for (const rootTask of rootTasks) {
+    recursivelyHydrateChildren(rootTask, memo)
+    output.push(rootTask)
   }
-  return tasksScheduledOn
+  
+  return output
 }
 
-function myHelper ({ node, rootAncestor, tasksScheduledOn }) {
-  const { startDateISO } = node
-  if (startDateISO) {
-    if (!tasksScheduledOn[startDateISO]) {
-      tasksScheduledOn[startDateISO] = {
-        noStartTime: { hasIcon: [], noIcon: [] },
-        hasStartTime: []
-      }
-    }
-    if (!node.startTime) {
-      if (node.iconURL) tasksScheduledOn[startDateISO].noStartTime.hasIcon.push(node)
-      else tasksScheduledOn[startDateISO].noStartTime.noIcon.push(node)
-    } 
-    else {
-      tasksScheduledOn[startDateISO].hasStartTime.push({ rootAncestor, ...node })
-    }
-  }
-
+function recursivelyHydrateChildren(node, memo) {
+  node.children = memo[node.id] || []
   for (const child of node.children) {
-    myHelper({ node: child, rootAncestor, tasksScheduledOn });
+    recursivelyHydrateChildren(child, memo)
   }
 }

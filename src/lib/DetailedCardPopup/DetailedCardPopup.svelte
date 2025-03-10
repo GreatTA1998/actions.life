@@ -173,10 +173,10 @@
         <div style="margin-top: 16px;"></div>
 
         <div>
-          Debug: 
           persistsOnList: {taskObject.persistsOnList}
           isArchived: {taskObject.isArchived} 
           listID: {taskObject.listID}
+          children: {taskObject.children.map(child => child.name)}
         </div>
 
         <span on:click={() => dispatch('task-update', { id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}

@@ -60,6 +60,8 @@ const getByDateRange = (userUID, startDate, endDate) => {
   }
 };
 
+// still used for legacy lists
+// NOTE: probably un-used as this is NOT the criteria for the multi-list tasks
 // Listen to unscheduled tasks
 const listenToUnscheduled = (userUID, callback) => {
   try {

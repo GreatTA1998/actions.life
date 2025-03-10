@@ -6,6 +6,7 @@ import { get } from "svelte/store"
 import { calendarTasks, todoTasks, calendarMemoryTree, todoMemoryTree, tasksScheduledOn, inclusiveWeekTodo, uniqueEvents, loadingTasks, user } from '/src/store'
 import { doc, writeBatch } from "firebase/firestore"
 import { db } from "/src/back-end/firestoreConnection"
+import { updateTasksForDateRange } from '/src/store/calendarStore.js'
 
 // Store active listeners to manage them
 const activeListeners = {
@@ -166,16 +167,28 @@ function setupCalendarListener(uid, leftDate, rightDate) {
   
   // If we already have a listener for this range, don't create another one
   if (activeListeners.calendar[rangeKey]) {
+    console.log(`Listener for range ${rangeKey} already exists, skipping`);
     return;
   }
   
   // Set up listener for tasks in this date range
-  activeListeners.calendar[rangeKey] = Tasks.listenToDateRange(
-    uid,
-    leftDate.toFormat("yyyy-MM-dd"),
-    rightDate.toFormat("yyyy-MM-dd"),
-    updateCalendarWithNewTasks
-  );
+  try {
+    activeListeners.calendar[rangeKey] = Tasks.listenToDateRange(
+      uid,
+      leftDate.toFormat('yyyy-MM-dd'),
+      rightDate.toFormat('yyyy-MM-dd'),
+      (tasks) => {
+        // Use our new function to update tasks for this range
+        updateTasksForDateRange(
+          tasks,
+          leftDate.toFormat('yyyy-MM-dd'),
+          rightDate.toFormat('yyyy-MM-dd')
+        );
+      }
+    );
+  } catch (error) {
+    console.error(`Error setting up listener for range ${rangeKey}:`, error);
+  }
 }
 
 // Set up a listener for todo tasks
@@ -232,60 +245,31 @@ function recursivelyHydrateChildren(node, memo) {
   }
 }
 
-// Helper function to update calendar with new tasks from listeners
-function updateCalendarWithNewTasks(newTasks) {
-  // Get current tasks
-  const currentTasks = get(calendarTasks) || [];
-  
-  // Create a map of current tasks by ID
-  const taskMap = new Map(currentTasks.map(task => [task.id, task]));
-  
-  // Extract unique dates from new tasks
-  const affectedDates = new Set(
-    newTasks
-      .filter(task => task.rootStartDateISO)
-      .map(task => task.rootStartDateISO)
-  );
-  
-  // Remove tasks from affected dates (they'll be replaced)
-  currentTasks.forEach(task => {
-    if (task.rootStartDateISO && affectedDates.has(task.rootStartDateISO)) {
-      taskMap.delete(task.id);
-    }
-  });
-  
-  // Add new tasks
-  newTasks.forEach(task => {
-    taskMap.set(task.id, task);
-  });
-  
-  // Convert map back to array and update stores
-  const mergedTasks = Array.from(taskMap.values());
-  updateCalendarStores(mergedTasks);
-}
-
-// Helper function to update all calendar-related stores
-function updateCalendarStores(tasks) {
-  calendarTasks.set(tasks);
-  const memoryTree = constructCalendarTrees(tasks);
-  calendarMemoryTree.set(memoryTree);
-  const dateToTasks = computeDateToTasksDict(memoryTree);
-  tasksScheduledOn.set(dateToTasks);
-}
-
 // Clean up listeners when they're no longer needed
 export function cleanupListeners() {
+  console.log("Cleaning up all listeners");
+  
   // Clean up calendar listeners
-  Object.values(activeListeners.calendar).forEach(unsubscribe => {
+  Object.entries(activeListeners.calendar).forEach(([key, unsubscribe]) => {
     if (typeof unsubscribe === 'function') {
-      unsubscribe();
+      try {
+        unsubscribe();
+        console.log(`Unsubscribed from calendar listener: ${key}`);
+      } catch (error) {
+        console.error(`Error unsubscribing from calendar listener ${key}:`, error);
+      }
     }
   });
   activeListeners.calendar = {};
   
   // Clean up todo listener
-  if (activeListeners.todo) {
-    activeListeners.todo();
+  if (typeof activeListeners.todo === 'function') {
+    try {
+      activeListeners.todo();
+      console.log("Unsubscribed from todo listener");
+    } catch (error) {
+      console.error("Error unsubscribing from todo listener:", error);
+    }
     activeListeners.todo = null;
   }
 }

@@ -10,9 +10,9 @@
   
   import {
     user,
-    tasksScheduledOn,
     hasInitialScrolled, calEarliestHHMM
   } from '/src/store'
+  import { tasksScheduledOn } from '/src/store/calendarStore.js'
 
   import {
     setupTasksRangeListener,
@@ -180,7 +180,7 @@
             class="headers-flexbox"
             class:bottom-border={$tasksScheduledOn}
           >
-            {#each dtOfActiveColumns as dt, i (dt.toMillis() + `${i}`)}
+            {#each dtOfActiveColumns as dt, i (dt.toFormat('yyyy-MM-dd') + `-${i}`)}
               <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')}
                 {isCompact}
                 {isShowingDockingArea}
@@ -192,7 +192,7 @@
           </div>
 
           <div class="day-columns">
-            {#each dtOfActiveColumns as dt (dt.toMillis())}
+            {#each dtOfActiveColumns as dt, i (dt.toMillis() + `-${i}`)}
               <DayColumn {dt}
                 scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
                 pixelsPerHour={PIXELS_PER_HOUR}
