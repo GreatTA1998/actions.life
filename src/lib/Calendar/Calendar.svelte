@@ -14,10 +14,8 @@
   } from '/src/store'
   import { tasksScheduledOn } from '/src/store/calendarStore.js'
 
-  import {
-    setupTasksRangeListener,
-    cleanupListeners
-  } from '$lib/MainPage/handleTasks.js'
+  import { setupCalListener } from '/src/store/services/CalendarService.js'
+
 
   export let isCompact = false
 
@@ -47,11 +45,6 @@
 
   let isShowingDockingArea = true
   let exactHeight = CORNER_LABEL_HEIGHT
-
-  // Clean up listeners when component is unmounted
-  onDestroy(() => {
-    cleanupListeners();
-  });
 
   $: setLeftEdgeIdx(scrollX)
   $: setRightEdgeIdx(scrollX)
@@ -85,7 +78,7 @@
       const triggerDT = calOriginDT.plus({ days: leftTriggerIdx })
       const rightBound = triggerDT.minus({ days: c + 1 })
       const leftBound = rightBound.minus({ days: 2 * c })
-      setupTasksRangeListener($user.uid, triggerDT, leftBound, rightBound)
+      setupCalListener($user.uid, triggerDT, leftBound, rightBound)
       
       // Move the trigger point further left to prepare for the next scroll event
       leftTriggerIdx -= 2 * c + 1
@@ -98,7 +91,7 @@
       const triggerDT = calOriginDT.plus({ days: rightTriggerIdx })
       const leftBound = triggerDT.plus({ days: c + 1 })
       const rightBound = leftBound.plus({ days: 2 * c })
-      setupTasksRangeListener($user.uid, triggerDT, leftBound, rightBound)
+      setupCalListener($user.uid, triggerDT, leftBound, rightBound)
       
       // Move the trigger point further right to prepare for the next scroll event
       rightTriggerIdx += 2 * c + 1

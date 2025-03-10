@@ -7,7 +7,7 @@ export { clickedTask, openDetailedCard, closeDetailedCard, isDetailedCardOpen } 
 
 export const todoTasks = writable(null)
 export { calendarTasks, tasksScheduledOn } from './calendarStore.js'
-export const loadingTasks = writable(false);
+export const loadingTasks = writable(true);
 
 export const doodleIcons = writable([])
 

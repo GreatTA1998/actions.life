@@ -1,20 +1,14 @@
 import { writable } from 'svelte/store'
-import { constructCalendarTrees, computeDateToTasksDict } from '/src/helpers/dataStructures.js'
 
+/**
+ * Calendar Store
+ * 
+ * This module defines Svelte stores for calendar-related data.
+ * The actual logic for updating these stores is in services/CalendarService.js.
+ */
+
+// Store for flat array of calendar tasks from Firestore
 export const calendarTasks = writable([])
-export const tasksScheduledOn = writable({})
 
-export function updateTasksForDateRange (flatArray, startDate, endDate) {
-  if (!flatArray || !Array.isArray(flatArray) || flatArray.length === 0) {
-    return
-  }
-  const memoryTree = constructCalendarTrees(flatArray)
-  const dateMapping = computeDateToTasksDict(memoryTree)
-  
-  tasksScheduledOn.update($tasksScheduledOn => {
-    for (const [date, tasks] of Object.entries(dateMapping)) {
-      $tasksScheduledOn[date] = tasks
-    }
-    return $tasksScheduledOn
-  })
-} 
+// Store for tasks organized by date
+export const tasksScheduledOn = writable({}) 

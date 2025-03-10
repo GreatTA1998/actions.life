@@ -13,9 +13,10 @@
 
   import { onDestroy, onMount } from 'svelte'
   import { page } from '$app/stores'
-  import { user, showSnackbar, clickedTask, isDetailedCardOpen } from '/src/store'
+  import { user, loadingTasks, showSnackbar, clickedTask, isDetailedCardOpen } from '/src/store'
   import { createTaskNode, updateTaskNode, deleteTaskNode, deleteTaskAndChildren } from '/src/helpers/crud.js'
-  import { handleInitialTasks } from '$lib/MainPage/handleTasks'
+  import CalendarService from '/src/store/services/CalendarService.js'
+  import TodoService from '/src/store/services/TodoService.js'
 
   let currentMode = 'Week'
   let isShowingAI = false
@@ -24,7 +25,11 @@
   let showLegacyTodoInListsMode = false;
 
   onMount(() => {
-    handleInitialTasks($page.params.user)
+    const uid = $page.params.user
+    CalendarService.setupInitialCalendarTasks(uid)
+    TodoService.setupTodoListener(uid)
+
+    loadingTasks.set(false)
   })
 
   onDestroy(() => {
