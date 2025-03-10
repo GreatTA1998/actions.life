@@ -178,12 +178,11 @@ function setupCalendarListener(uid, leftDate, rightDate) {
       leftDate.toFormat('yyyy-MM-dd'),
       rightDate.toFormat('yyyy-MM-dd'),
       (tasks) => {
-        // Use our new function to update tasks for this range
         updateTasksForDateRange(
           tasks,
           leftDate.toFormat('yyyy-MM-dd'),
           rightDate.toFormat('yyyy-MM-dd')
-        );
+        )
       }
     );
   } catch (error) {
