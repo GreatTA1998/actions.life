@@ -1,13 +1,8 @@
-import { writable, derived } from 'svelte/store'
+import { writable } from 'svelte/store'
 import { constructCalendarTrees, computeDateToTasksDict } from '/src/helpers/dataStructures.js'
 
 export const calendarTasks = writable([])
 export const tasksScheduledOn = writable({})
-
-export const calendarMemoryTree = derived(
-  calendarTasks,
-  $calendarTasks => constructCalendarTrees($calendarTasks)
-)
 
 export function updateTasksForDateRange (flatArray, startDate, endDate) {
   if (!flatArray || !Array.isArray(flatArray) || flatArray.length === 0) {

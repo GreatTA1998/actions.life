@@ -3,7 +3,7 @@ import { constructCalendarTrees, computeDateToTasksDict } from "/src/helpers/dat
 import Tasks from "/src/back-end/Tasks"
 import { size, cushion } from '/src/helpers/constants.js'
 import { get } from "svelte/store"
-import { calendarTasks, todoTasks, calendarMemoryTree, todoMemoryTree, tasksScheduledOn, inclusiveWeekTodo, uniqueEvents, loadingTasks, user } from '/src/store'
+import { calendarTasks, todoTasks, todoMemoryTree, inclusiveWeekTodo, uniqueEvents, loadingTasks } from '/src/store'
 import { doc, writeBatch } from "firebase/firestore"
 import { db } from "/src/back-end/firestoreConnection"
 import { updateTasksForDateRange } from '/src/store/calendarStore.js'
