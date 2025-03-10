@@ -75,16 +75,36 @@ export function constructCalendarTrees (firestoreTaskDocs) {
     const isAbandonedChild = task.parentID && !uniqueTaskIDs.has(task.parentID)
     
     if (isRoot || isAbandonedChild) {
+      // For root nodes, ensure rootStartDateISO matches startDateISO
+      if (task.startDateISO && !task.rootStartDateISO) {
+        task.rootStartDateISO = task.startDateISO;
+      }
+      
       recursivelyHydrateChildren({
         node: task,
         firestoreTaskDocs,
         memo,
         subtreeDeadlineInMsElapsed: Infinity,
       });
+      
+      // Propagate rootStartDateISO to all children
+      if (task.startDateISO) {
+        propagateRootStartDateISO(task, task.rootStartDateISO || task.startDateISO);
+      }
+      
       output.push(task)
     }
   }
   return output;
+}
+
+// Helper function to propagate rootStartDateISO to all descendants
+function propagateRootStartDateISO(node, rootStartDateISO) {
+  node.rootStartDateISO = rootStartDateISO;
+  
+  for (const child of node.children) {
+    propagateRootStartDateISO(child, rootStartDateISO);
+  }
 }
 
 // rename to `maxDeadlineLimitInMs`: limits how far this node's deadline can be set

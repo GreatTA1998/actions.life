@@ -4,6 +4,7 @@
   import DayHeader from './DayHeader.svelte'
   import MultiPhotoUploader from '$lib/Reusable/MultiPhotoUploader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
+  import { onDestroy } from 'svelte'
 
   import Tasks from '/src/back-end/Tasks'
   import { buildCalendarDataStructures } from '/src/helpers/maintainState.js'
@@ -14,6 +15,8 @@
     calendarTasks, tasksScheduledOn,
     hasInitialScrolled, calEarliestHHMM
   } from '/src/store'
+
+  import { fetchMorePastTasks, fetchMoreFutureTasks, cleanupListeners } from '/src/lib/MainPage/handleTasks.js'
 
   export let isCompact = false
 
@@ -44,6 +47,11 @@
   let isShowingDockingArea = true
   let exactHeight = CORNER_LABEL_HEIGHT
 
+  // Clean up listeners when component is unmounted
+  onDestroy(() => {
+    cleanupListeners();
+  });
+
   $: setLeftEdgeIdx(scrollX)
   $: setRightEdgeIdx(scrollX)
 
@@ -71,13 +79,13 @@
   function reactToScroll (leftEdgeIdx, rightEdgeIdx) {
     // note: `leftEdgeIdx` jumps non-consecutively sometimes depending on how fast the user is scrolling
     if (leftEdgeIdx <= leftTriggerIdx && leftEdgeIdx !== prevLeftEdgeIdx) {
-      fetchMorePastTasks(leftTriggerIdx) // even though jumps can be arbitrarily wide, the function calls will resolve in a weakly decreasing order of their `leftTriggerIdx`
+      handleFetchMorePastTasks(leftTriggerIdx) // even though jumps can be arbitrarily wide, the function calls will resolve in a weakly decreasing order of their `leftTriggerIdx`
       leftTriggerIdx -= 2 * c + 1
     } else if (
       rightEdgeIdx >= rightTriggerIdx &&
       rightEdgeIdx !== prevRightEdgeIdx
     ) {
-      fetchMoreFutureTasks(rightTriggerIdx)
+      handleFetchMoreFutureTasks(rightTriggerIdx)
       rightTriggerIdx += 2 * c + 1
     }
 
@@ -90,62 +98,30 @@
     }
   }
 
-  async function fetchMorePastTasks(triggerIdx) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const triggerDT = calOriginDT.plus({ days: triggerIdx })
-        const rightBound = triggerDT.minus({ days: c + 1 })
-        const leftBound = rightBound.minus({ days: 2 * c })
+  // Updated to use the listener-based approach
+  function handleFetchMorePastTasks(triggerIdx) {
+    const triggerDT = calOriginDT.plus({ days: triggerIdx })
+    const rightBound = triggerDT.minus({ days: c + 1 })
+    const leftBound = rightBound.minus({ days: 2 * c })
 
-        const newTasks = await Tasks.getByDateRange(
-          $user.uid,
-          leftBound.toISODate(),
-          rightBound.toISODate()
-        )
+    // Use the new listener-based function
+    fetchMorePastTasks($user.uid, triggerDT, rightBound, leftBound)
+  }
 
-        const mergedTasks = removeDuplicateTasks([
-          ...newTasks,
-          ...$calendarTasks
-        ])
-        buildCalendarDataStructures({ flatArray: mergedTasks })
-        resolve('done')
-      } catch (err) {
-        console.error('error in fetchMorePastTasks', err)
-        reject(err)
-      }
-    })
+  // Updated to use the listener-based approach
+  function handleFetchMoreFutureTasks(triggerIdx) {
+    const triggerDT = calOriginDT.plus({ days: triggerIdx })
+    const leftBound = triggerDT.plus({ days: c + 1 })
+    const rightBound = leftBound.plus({ days: 2 * c })
+
+    // Use the new listener-based function
+    fetchMoreFutureTasks($user.uid, triggerDT, leftBound, rightBound)
   }
 
   function removeDuplicateTasks(tasks) {
     return tasks.filter(
       (task, index, self) => index === self.findIndex((t) => t.id === task.id)
     )
-  }
-
-  async function fetchMoreFutureTasks(triggerIdx) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const triggerDT = calOriginDT.plus({ days: triggerIdx })
-        const leftBound = triggerDT.plus({ days: c + 1 })
-        const rightBound = leftBound.plus({ days: 2 * c })
-
-        // note each new loaded intervals should not be overlapping
-        const newTasks = await Tasks.getByDateRange(
-          $user.uid,
-          leftBound.toISODate(),
-          rightBound.toISODate()
-        )
-        const mergedTasks = removeDuplicateTasks([
-          ...newTasks,
-          ...$calendarTasks
-        ])
-        buildCalendarDataStructures({ flatArray: mergedTasks })
-        resolve('done')
-      } catch (err) {
-        console.error('error in fetchMorePastTasks', err)
-        reject(err)
-      }
-    })
   }
 
   function updateActiveColumns() {

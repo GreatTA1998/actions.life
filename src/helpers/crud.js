@@ -8,7 +8,14 @@ import Tasks from "/src/back-end/Tasks.js"
 import { get } from 'svelte/store'
 import { user, calendarTasks, todoTasks } from '/src/store/index.js'
 import TaskSchema from '/src/back-end/Schemas/TaskSchema.js'
+import { updateTask, findTaskById } from '/src/lib/MainPage/handleTasks.js'
 
+/**
+ * Creates a new task node
+ * @param {Object} params - The parameters
+ * @param {string} params.id - The task ID
+ * @param {Object} params.newTaskObj - The new task object
+ */
 export async function createTaskNode({ id, newTaskObj }) {
   try {
     // strips unknown fields, instantiate missing fields, apply defaults to all fields
@@ -22,12 +29,27 @@ export async function createTaskNode({ id, newTaskObj }) {
   }
 }
 
+/**
+ * Updates a task node and its descendants if needed
+ * This is the canonical way to update tasks in the application
+ * @param {Object} params - The parameters
+ * @param {string} params.id - The task ID
+ * @param {Object} params.keyValueChanges - The changes to apply
+ */
 export async function updateTaskNode({ id, keyValueChanges }) {
   try {
     // discard fields changes that aren't defined in the schema
     const validatedChanges = TaskSchema.partial().parse(keyValueChanges)
-    Tasks.update({ userUID: get(user).uid, taskID: id, keyValueChanges:validatedChanges })
-    updateLocalState({ id, keyValueChanges: validatedChanges })
+    
+    // Use the updateTask function that handles descendant updates
+    await updateTask({ 
+      uid: get(user).uid, 
+      taskID: id, 
+      keyValueChanges: validatedChanges 
+    });
+    
+    // No need to call updateLocalState - the snapshot listeners will
+    // automatically update the UI when the database changes
   } catch (error) {
     alert(
       "error attempting to save changes to the db, please reload "
@@ -36,6 +58,12 @@ export async function updateTaskNode({ id, keyValueChanges }) {
   }
 }
 
+/**
+ * Deletes a task node
+ * @param {Object} params - The parameters
+ * @param {string} params.id - The task ID
+ * @param {string} [params.imageFullPath] - The image path to delete
+ */
 export function deleteTaskNode({ id, imageFullPath = "" }) {
   Tasks.remove({ userUID: get(user).uid, taskID: id })
   if (imageFullPath) deleteImage({ imageFullPath })

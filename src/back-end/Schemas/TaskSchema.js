@@ -19,5 +19,6 @@ export default z.object({
     isArchived: z.boolean().default(false),
     persistsOnList: z.boolean().default(true),
     listID: z.string().default(''),
-    childrenLayout: z.string().default('normal') // 'normal' or 'timeline
+    childrenLayout: z.string().default('normal'), // 'normal' or 'timeline'
+    rootStartDateISO: z.string().default('')
 })
