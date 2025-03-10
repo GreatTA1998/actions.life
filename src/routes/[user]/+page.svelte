@@ -5,7 +5,7 @@
   import HistoryArchive from '$lib/HistoryArchive/index.svelte'
   import Templates from '$lib/Templates/Templates.svelte'
   import AI from '$lib/AI/AI.svelte'
-  import TheSnackbar from '$lib/TheSnackbar.svelte'
+  import TheSnackbar from '$lib/MainPage/TheSnackbar.svelte'
   import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
   import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
   import WeeklyTodo from '$lib/ListsArea/WeeklyTodo.svelte'
