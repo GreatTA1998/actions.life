@@ -318,14 +318,16 @@ export async function fetchMobileFutureOverviewTasks(uid, hideRoutines = false) 
   );
 }
 
-// For Calendar.svelte to use when fetching more past tasks
-export function fetchMorePastTasks(uid, triggerDT, rightBound, leftBound) {
-  setupCalendarListener(uid, leftBound, rightBound);
-}
-
-// For Calendar.svelte to use when fetching more future tasks
-export function fetchMoreFutureTasks(uid, triggerDT, leftBound, rightBound) {
-  setupCalendarListener(uid, leftBound, rightBound);
+/**
+ * Sets up a listener for tasks in a specific date range
+ * @param {string} uid - User ID
+ * @param {DateTime} triggerDT - The trigger date (used for determining the range)
+ * @param {DateTime} startDate - The start date of the range
+ * @param {DateTime} endDate - The end date of the range
+ * @returns {Function} Unsubscribe function
+ */
+export function setupTasksRangeListener(uid, triggerDT, startDate, endDate) {
+  return setupCalendarListener(uid, startDate, endDate);
 }
 
 // Console-based migration function that can be called from the browser console

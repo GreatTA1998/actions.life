@@ -5,18 +5,19 @@
   import MultiPhotoUploader from '$lib/Reusable/MultiPhotoUploader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
   import { onDestroy } from 'svelte'
-
-  import Tasks from '/src/back-end/Tasks'
-  import { buildCalendarDataStructures } from '/src/helpers/maintainState.js'
   import { trackWidth, trackHeight } from '/src/helpers/actions.js'
   import { DateTime } from 'luxon'
+  
   import {
     user,
-    calendarTasks, tasksScheduledOn,
+    tasksScheduledOn,
     hasInitialScrolled, calEarliestHHMM
   } from '/src/store'
 
-  import { fetchMorePastTasks, fetchMoreFutureTasks, cleanupListeners } from '/src/lib/MainPage/handleTasks.js'
+  import {
+    setupTasksRangeListener,
+    cleanupListeners
+  } from '$lib/MainPage/handleTasks.js'
 
   export let isCompact = false
 
@@ -79,13 +80,27 @@
   function reactToScroll (leftEdgeIdx, rightEdgeIdx) {
     // note: `leftEdgeIdx` jumps non-consecutively sometimes depending on how fast the user is scrolling
     if (leftEdgeIdx <= leftTriggerIdx && leftEdgeIdx !== prevLeftEdgeIdx) {
-      handleFetchMorePastTasks(leftTriggerIdx) // even though jumps can be arbitrarily wide, the function calls will resolve in a weakly decreasing order of their `leftTriggerIdx`
+      // Set up listener for past tasks
+      // Calculate a date range that's c+1 to 3c+1 days before the trigger point
+      const triggerDT = calOriginDT.plus({ days: leftTriggerIdx })
+      const rightBound = triggerDT.minus({ days: c + 1 })
+      const leftBound = rightBound.minus({ days: 2 * c })
+      setupTasksRangeListener($user.uid, triggerDT, leftBound, rightBound)
+      
+      // Move the trigger point further left to prepare for the next scroll event
       leftTriggerIdx -= 2 * c + 1
     } else if (
       rightEdgeIdx >= rightTriggerIdx &&
       rightEdgeIdx !== prevRightEdgeIdx
     ) {
-      handleFetchMoreFutureTasks(rightTriggerIdx)
+      // Set up listener for future tasks
+      // Calculate a date range that's c+1 to 3c+1 days after the trigger point
+      const triggerDT = calOriginDT.plus({ days: rightTriggerIdx })
+      const leftBound = triggerDT.plus({ days: c + 1 })
+      const rightBound = leftBound.plus({ days: 2 * c })
+      setupTasksRangeListener($user.uid, triggerDT, leftBound, rightBound)
+      
+      // Move the trigger point further right to prepare for the next scroll event
       rightTriggerIdx += 2 * c + 1
     }
 
@@ -96,32 +111,6 @@
     ) {
       updateActiveColumns()
     }
-  }
-
-  // Updated to use the listener-based approach
-  function handleFetchMorePastTasks(triggerIdx) {
-    const triggerDT = calOriginDT.plus({ days: triggerIdx })
-    const rightBound = triggerDT.minus({ days: c + 1 })
-    const leftBound = rightBound.minus({ days: 2 * c })
-
-    // Use the new listener-based function
-    fetchMorePastTasks($user.uid, triggerDT, rightBound, leftBound)
-  }
-
-  // Updated to use the listener-based approach
-  function handleFetchMoreFutureTasks(triggerIdx) {
-    const triggerDT = calOriginDT.plus({ days: triggerIdx })
-    const leftBound = triggerDT.plus({ days: c + 1 })
-    const rightBound = leftBound.plus({ days: 2 * c })
-
-    // Use the new listener-based function
-    fetchMoreFutureTasks($user.uid, triggerDT, leftBound, rightBound)
-  }
-
-  function removeDuplicateTasks(tasks) {
-    return tasks.filter(
-      (task, index, self) => index === self.findIndex((t) => t.id === task.id)
-    )
   }
 
   function updateActiveColumns() {
