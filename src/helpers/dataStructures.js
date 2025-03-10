@@ -5,7 +5,7 @@ import { pureNumericalHourForm } from '/src/helpers/everythingElse.js'
  * not only the scheduled tasks, but also their subtrees (sub-tasks from any arbitrary date)
  * @returns 
  */
-export function constructCalendarTrees(firestoreTaskDocs) {
+export function constructCalendarTrees (firestoreTaskDocs) {
   const cache = new Map()
   
   // Build task map and connect parent-child relationships
@@ -36,8 +36,7 @@ export function constructCalendarTrees(firestoreTaskDocs) {
   return output
 }
 
-// Deep copy a task with its subtree
-function deepCopyWithSubtree(task, taskMap, cache) {
+function deepCopyWithSubtree (task, taskMap, cache) {
   if (cache.has(task.id)) {
     return cache.get(task.id)
   }
@@ -57,8 +56,7 @@ function deepCopyWithSubtree(task, taskMap, cache) {
   return rootNode
 }
 
-// Create a date-to-tasks mapping for calendar view
-export function computeDateToTasksDict(taskTrees) {
+export function computeDateToTasksDict (taskTrees) {
   const dateToTasks = {}
   
   // All tasks in taskTrees already have startDateISO, so no need to check again
@@ -78,8 +76,7 @@ export function computeDateToTasksDict(taskTrees) {
   return dateToTasks
 }
 
-// Add a task to the appropriate category in the date dictionary
-function addTaskToDate(task, date, dateToTasks) {
+function addTaskToDate (task, date, dateToTasks) {
   if (!dateToTasks[date]) {
     dateToTasks[date] = { 
       hasStartTime: [], 
