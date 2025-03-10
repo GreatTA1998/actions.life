@@ -1,8 +1,4 @@
-import {
-  createOnLocalState,
-  updateLocalState,
-  deleteFromLocalState,
-} from "/src/helpers/maintainState.js"
+
 import { deleteImage } from '/src/helpers/storage.js'
 import Tasks from "/src/back-end/Tasks.js"
 import { get } from 'svelte/store'
@@ -18,10 +14,8 @@ import { updateTask, findTaskById } from '/src/lib/MainPage/handleTasks.js'
  */
 export async function createTaskNode({ id, newTaskObj }) {
   try {
-    // strips unknown fields, instantiate missing fields, apply defaults to all fields
-    const validatedTask = TaskSchema.parse(newTaskObj)
+    const validatedTask = TaskSchema.parse(newTaskObj) // strips unknown fields, instantiate missing fields, apply defaults to all fields
     Tasks.post({ userUID: get(user).uid, task: validatedTask, taskID: id })
-    createOnLocalState({ id, createdNode: validatedTask })
   } catch (error) {
     console.error('Error creating task:', error)
     alert('Error creating task: ' + error.message)
@@ -67,9 +61,18 @@ export async function updateTaskNode({ id, keyValueChanges }) {
 export function deleteTaskNode({ id, imageFullPath = "" }) {
   Tasks.remove({ userUID: get(user).uid, taskID: id })
   if (imageFullPath) deleteImage({ imageFullPath })
-  const affectedTasks = [...get(todoTasks).filter(task => task.parentID === id), ...get(calendarTasks).filter(task => task.parentID === id)]
-  affectedTasks.forEach(task => updateLocalState({ id: task.id, keyValueChanges: { parentID: "" } }))
-  deleteFromLocalState({ id });
+  
+  // Get affected tasks that have this task as parent
+  const affectedTasks = [...get(todoTasks).filter(task => task.parentID === id), 
+                         ...get(calendarTasks).filter(task => task.parentID === id)]
+  
+  affectedTasks.forEach(task => {
+    Tasks.updateTaskDoc({ 
+      userUID: get(user).uid, 
+      taskID: task.id, 
+      keyValueChanges: { parentID: "" } 
+    })
+  })
 }
 
 export async function deleteTaskAndChildren(task) {
@@ -90,9 +93,7 @@ export async function deleteTaskAndChildren(task) {
     findChildren(task.id);
     
     tasksToDelete.forEach(task => {
-      console.log(task)
       if(task.imageFullPath) deleteImage({ imageFullPath: task.imageFullPath })
-      deleteFromLocalState({id: task.id});
       Tasks.remove({ userUID: get(user).uid, taskID: task.id })
     })
     

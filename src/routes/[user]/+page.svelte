@@ -9,6 +9,7 @@
   import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
   import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
   import WeeklyTodo from '$lib/ListsArea/WeeklyTodo.svelte'
+  import SideBySideView from '$lib/MainPage/SideBySideView.svelte'
 
   import { onDestroy, onMount } from 'svelte'
   import { page } from '$app/stores'
@@ -19,6 +20,8 @@
   let currentMode = 'Week'
   let isShowingAI = false
   let unsub
+  let showLegacyTodoInWeekMode = true;
+  let showLegacyTodoInListsMode = false;
 
   onMount(() => {
     handleInitialTasks($page.params.user)
@@ -27,6 +30,14 @@
   onDestroy(() => {
     if (unsub) unsub()
   })
+
+  function handleViewToggle(event, mode) {
+    if (mode === 'Week') {
+      showLegacyTodoInWeekMode = event.detail.showLegacyTodo;
+    } else if (mode === 'Lists') {
+      showLegacyTodoInListsMode = event.detail.showLegacyTodo;
+    }
+  }
 </script>
 
 {#if $isDetailedCardOpen}
@@ -52,14 +63,11 @@
 
     <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
       <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
-        <WeeklyTodo
+        <SideBySideView 
+          showLegacyTodo={showLegacyTodoInWeekMode}
           on:task-create={e => createTaskNode(e.detail)}
           on:task-update={e => updateTaskNode(e.detail)}
-        />
-
-        <Calendar
-          on:task-create={e => createTaskNode(e.detail)}
-          on:task-update={e => updateTaskNode(e.detail)}
+          on:viewToggle={e => handleViewToggle(e, 'Week')}
         />
 
         <div style="display: {isShowingAI ? 'block' : 'none'}; flex: 0 0 320px;">
@@ -76,7 +84,12 @@
       </div>
 
       <div style="display: {currentMode === 'Lists' ? 'block' : 'none'}; width: 100%; height: 100%;">
-        <ListsArea />
+        <SideBySideView 
+          showLegacyTodo={showLegacyTodoInListsMode}
+          on:task-create={e => createTaskNode(e.detail)}
+          on:task-update={e => updateTaskNode(e.detail)}
+          on:viewToggle={e => handleViewToggle(e, 'Lists')}
+        />
       </div>
     </div>
   </NavbarAndContentWrapper>

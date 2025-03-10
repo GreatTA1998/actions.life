@@ -15,13 +15,11 @@
 
 <script>
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-  import { setFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import { getRandomID, getTimeInHHMM } from '/src/helpers/everythingElse.js'
   import { user } from '/src/store'
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
-  import { createOnLocalState } from "/src/helpers/maintainState.js"
-  import applyTaskSchema from '/src/helpers/applyTaskSchema'
+  import { createTaskNode } from '/src/helpers/crud.js'
 
   const storage = getStorage()
 
@@ -94,16 +92,8 @@
       isDone: true // so the image isn't blurred
     }
 
-    const formattedTask = await applyTaskSchema(newTaskObj, $user);
-
-    await setFirestoreDoc(
-      `users/${$user.uid}/tasks/${id}`, 
-      formattedTask
-    )
-    // we can't catch errors here because `setFirestoreDoc` already catches its errors and doesn't throw anything
-
-    // ID has to be specifically regenerated
-    createOnLocalState({ id, createdNode: formattedTask })
+    // Use the proper API to create the task
+    await createTaskNode({ id, newTaskObj });
   }
 </script>
 

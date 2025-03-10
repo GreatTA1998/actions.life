@@ -184,9 +184,9 @@
               <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')}
                 {isCompact}
                 {isShowingDockingArea}
-                on:task-update
                 on:task-click
                 on:task-create
+                on:task-update
               />
             {/each}
           </div>
@@ -196,9 +196,9 @@
               <DayColumn {dt}
                 scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
                 pixelsPerHour={PIXELS_PER_HOUR}
-                on:task-update
                 on:task-click
                 on:task-create
+                on:task-update
               />
             {/each}
           </div>

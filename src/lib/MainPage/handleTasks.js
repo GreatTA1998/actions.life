@@ -234,27 +234,43 @@ function recursivelyHydrateChildren(node, memo) {
 
 // Helper function to update calendar with new tasks from listeners
 function updateCalendarWithNewTasks(newTasks) {
-  // Get current tasks and merge with new ones, removing duplicates
+  // Get current tasks
   const currentTasks = get(calendarTasks) || [];
-  const mergedTasks = removeDuplicateTasks([...currentTasks, ...newTasks]);
   
-  // Update the calendar tasks store directly
-  calendarTasks.set(mergedTasks);
+  // Create a map of current tasks by ID
+  const taskMap = new Map(currentTasks.map(task => [task.id, task]));
   
-  // Update the memory tree
-  const memoryTree = constructCalendarTrees(mergedTasks);
-  calendarMemoryTree.set(memoryTree);
+  // Extract unique dates from new tasks
+  const affectedDates = new Set(
+    newTasks
+      .filter(task => task.rootStartDateISO)
+      .map(task => task.rootStartDateISO)
+  );
   
-  // Update the tasks scheduled on dictionary
-  const dateToTasks = computeDateToTasksDict(memoryTree);
-  tasksScheduledOn.set(dateToTasks);
+  // Remove tasks from affected dates (they'll be replaced)
+  currentTasks.forEach(task => {
+    if (task.rootStartDateISO && affectedDates.has(task.rootStartDateISO)) {
+      taskMap.delete(task.id);
+    }
+  });
+  
+  // Add new tasks
+  newTasks.forEach(task => {
+    taskMap.set(task.id, task);
+  });
+  
+  // Convert map back to array and update stores
+  const mergedTasks = Array.from(taskMap.values());
+  updateCalendarStores(mergedTasks);
 }
 
-// Helper function to remove duplicate tasks by ID
-function removeDuplicateTasks(tasks) {
-  return tasks.filter(
-    (task, index, self) => index === self.findIndex((t) => t.id === task.id)
-  );
+// Helper function to update all calendar-related stores
+function updateCalendarStores(tasks) {
+  calendarTasks.set(tasks);
+  const memoryTree = constructCalendarTrees(tasks);
+  calendarMemoryTree.set(memoryTree);
+  const dateToTasks = computeDateToTasksDict(memoryTree);
+  tasksScheduledOn.set(dateToTasks);
 }
 
 // Clean up listeners when they're no longer needed
@@ -328,41 +344,6 @@ export async function fetchMobileFutureOverviewTasks(uid, hideRoutines = false) 
  */
 export function setupTasksRangeListener(uid, triggerDT, startDate, endDate) {
   return setupCalendarListener(uid, startDate, endDate);
-}
-
-// Console-based migration function that can be called from the browser console
-export function initializeConsoleMigration() {
-  // Make the migration function available globally
-  window.migrateToRootStartDateISO = async () => {
-    const currentUser = get(user);
-    if (!currentUser || !currentUser.uid) {
-      console.error('No user logged in. Please log in first.');
-      return;
-    }
-    
-    console.log('Starting migration to rootStartDateISO...');
-    try {
-      const result = await Tasks.migrateToRootStartDateISO(currentUser.uid);
-      if (result.success) {
-        console.log('Migration completed successfully!');
-        console.log(result.message);
-      } else {
-        console.error('Migration failed:', result.error);
-      }
-    } catch (error) {
-      console.error('Error during migration:', error);
-    }
-  };
-  
-  // Add instructions to the console
-  console.log(
-    '%c rootStartDateISO Migration Tool Available',
-    'background: #4CAF50; color: white; padding: 4px; border-radius: 4px;'
-  );
-  console.log(
-    'To migrate your tasks to use rootStartDateISO, run: %cwindow.migrateToRootStartDateISO()',
-    'font-weight: bold; color: #2196F3;'
-  );
 }
 
 

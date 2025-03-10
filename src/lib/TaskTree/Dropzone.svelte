@@ -15,7 +15,6 @@
 </div>
 
 <script>
-  import { updateLocalState } from '/src/helpers/maintainState.js'
   import { user, activeDragItem } from '/src/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '../../back-end/firestoreConnection'
@@ -138,10 +137,6 @@
 
     try {
       batch.commit()
-      updateLocalState({ 
-        id, 
-        keyValueChanges: betaUpdateObj
-      })
       activeDragItem.set(null)
     } catch (error) {
       alert('Error updating, please reload the page')

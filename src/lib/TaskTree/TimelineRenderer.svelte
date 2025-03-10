@@ -137,14 +137,14 @@
 <style>
   .timeline-container {
     position: relative;
-    padding-left: 60px; /* Reduced padding */
+    padding-left: 40px; /* Reduced padding */
     margin-left: 0; /* Removed extra margin */
   }
   
   .timeline-line {
     position: absolute;
     top: 0;
-    left: 20px; /* Moved timeline closer to the left */
+    left: 8px; /* align with center of checkbox */
     width: 2px;
     height: 100%;
     background-color: #ddd;
@@ -170,17 +170,17 @@
   
   .date-indicator {
     position: absolute;
-    left: -60px;
+    left: -50px;
     top: 0;
     bottom: 0;
-    width: 60px; /* Reduced width */
+    width: 40px; /* Reduced width */
     display: flex;
     align-items: center;
   }
   
   .date-marker {
     position: absolute;
-    left: 20px; /* Align with timeline */
+    left: 0; /* Align with timeline */
     width: 10px;
     height: 10px;
     border-radius: 50%;
@@ -191,7 +191,7 @@
   
   .date-label {
     position: absolute;
-    left: 30px; /* Position to the right of the timeline */
+    left: 10px; /* Position to the right of the timeline */
     font-size: 12px;
     color: #666;
     white-space: nowrap;
