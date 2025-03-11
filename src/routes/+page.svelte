@@ -3,7 +3,6 @@
   import { hasFetchedUser } from '/src/store'
   import { onMount } from 'svelte'
   import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
-  import { initializeConsoleMigration } from '/src/lib/MainPage/handleTasks.js'
 
   let isSoundOff = true
   let VideoElem
@@ -11,10 +10,7 @@
   let hasMobilePlayButtonAlready = true
 
   onMount(() => {
-    // Initialize the console migration tool for administrators
-    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-      initializeConsoleMigration();
-    }
+    
   })
 
   // when we switch "src" on <video> playback speed resets, so this is a hack

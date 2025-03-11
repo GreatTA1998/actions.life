@@ -70,6 +70,10 @@
     updateActiveColumns()
   }
 
+  // NOTE: there are some subtle bugs for the date ranges, that sometimes overlap by 1 day etc.
+  // future always works
+  // past can be off by 1 day
+  // also this is probably affected by effective calendar width
   function reactToScroll (leftEdgeIdx, rightEdgeIdx) {
     // note: `leftEdgeIdx` jumps non-consecutively sometimes depending on how fast the user is scrolling
     if (leftEdgeIdx <= leftTriggerIdx && leftEdgeIdx !== prevLeftEdgeIdx) {
@@ -78,7 +82,7 @@
       const triggerDT = calOriginDT.plus({ days: leftTriggerIdx })
       const rightBound = triggerDT.minus({ days: c + 1 })
       const leftBound = rightBound.minus({ days: 2 * c })
-      setupCalListener($user.uid, triggerDT, leftBound, rightBound)
+      setupCalListener($user.uid, leftBound, rightBound)
       
       // Move the trigger point further left to prepare for the next scroll event
       leftTriggerIdx -= 2 * c + 1
@@ -91,7 +95,7 @@
       const triggerDT = calOriginDT.plus({ days: rightTriggerIdx })
       const leftBound = triggerDT.plus({ days: c + 1 })
       const rightBound = leftBound.plus({ days: 2 * c })
-      setupCalListener($user.uid, triggerDT, leftBound, rightBound)
+      setupCalListener($user.uid, leftBound, rightBound)
       
       // Move the trigger point further right to prepare for the next scroll event
       rightTriggerIdx += 2 * c + 1

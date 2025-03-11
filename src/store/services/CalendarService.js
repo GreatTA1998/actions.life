@@ -20,36 +20,25 @@ export function setupInitialCalendarTasks(uid) {
 export function setupCalListener (uid, leftDT, rightDT) {
   const leftISO = leftDT.toFormat('yyyy-MM-dd')
   const rightISO = rightDT.toFormat('yyyy-MM-dd')
-  
-  try {
-    activeListeners[`${leftISO}_${rightISO}`] = listenToDateRange(uid, leftISO, rightISO, (tasks) => {
-      updateTasksForDateRange(tasks, leftISO, rightISO)
-    })
-  } catch (error) {
-    console.error(`Error setting up listener for range ${leftISO}_${rightISO}:`, error)
-  }
+  activeListeners[`${leftISO}_${rightISO}`] = listenToDateRange(uid, leftISO, rightISO)
+  console.log('active listeners', activeListeners)
 }
 
-function listenToDateRange (userUID, startDate, endDate, callback) {
-  try {
-    const q = query(
-      collection(db, 'users', userUID, 'tasks'),
-      where('rootStartDateISO', '>=', startDate),
-      where('rootStartDateISO', '<=', endDate)
-    )
-    
-    // Return the unsubscribe function so it can be called when no longer needed
-    return onSnapshot(q, (snapshot) => {
+function listenToDateRange (userUID, leftISO, rightISO) {
+  return onSnapshot(
+    query(
+      collection(db, `/users/${userUID}/tasks`), 
+      where('rootStartDateISO', '>=', leftISO),
+      where('rootStartDateISO', '<=', rightISO)
+    ),
+    (snapshot) => {
       const tasks = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-      callback(tasks)
-    }, (error) => {
+      updateTasksForDateRange(tasks, leftISO, rightISO)
+    }, 
+    (error) => {
       console.error('Error in listenToDateRange', error)
-      callback([])
-    })
-  } catch (err) {
-    console.error('Error setting up listener in listenToDateRange', err)
-    return () => {} // Return a no-op unsubscribe function
-  }
+    }
+  )
 }
 
 export function updateTasksForDateRange(flatArray, startDate, endDate) {
@@ -57,12 +46,11 @@ export function updateTasksForDateRange(flatArray, startDate, endDate) {
     return
   }
   
-  calendarTasks.set(flatArray)
-  
-  const memoryTree = constructCalendarTrees(flatArray)
+  // INCORRECT
+  calendarTasks.set(flatArray) // this is incorrect, leads to updating the array to only partial tasks
 
+  const memoryTree = constructCalendarTrees(flatArray)
   const dateMapping = computeDateToTasksDict(memoryTree)
-  
   tasksScheduledOn.update($tasksScheduledOn => {
     for (const [date, tasks] of Object.entries(dateMapping)) {
       $tasksScheduledOn[date] = tasks
@@ -105,19 +93,10 @@ function constructCalendarTrees(firestoreTaskDocs) {
       output.push(taskTree)
     }
   })
-  
   return output
 }
 
-/**
- * Creates a deep copy of a task with its entire subtree
- * 
- * @param {Object} task - The task to copy
- * @param {Map} taskMap - Map of all tasks by ID
- * @param {Map} cache - Cache to avoid duplicate processing
- * @returns {Object} - Deep copy of the task with its subtree
- */
-function deepCopyWithSubtree(task, taskMap, cache) {
+function deepCopyWithSubtree (task, taskMap, cache) {
   if (cache.has(task.id)) {
     return cache.get(task.id)
   }
@@ -132,7 +111,7 @@ function deepCopyWithSubtree(task, taskMap, cache) {
       children.push(childTree)
     }
   })
-  
+
   rootNode.children = children
   return rootNode
 }
@@ -269,27 +248,16 @@ export function cleanupCalendarListeners() {
   activeListeners = {}
 }
 
+// should use an independent data structure as future tasks do overlap with the calendar tasks
 export function setupFutureOverviewTasks(uid, hideRoutines = false) {
   const today = DateTime.now().startOf('day')
   const futureDate = today.plus({ days: 30 })
-  
-  listenToDateRange(
-    uid,
-    today.toFormat('yyyy-MM-dd'),
-    futureDate.toFormat('yyyy-MM-dd'),
-    (tasks) => {
-      let filteredTasks = tasks
-      if (hideRoutines) {
-        filteredTasks = tasks.filter(task => task.templateID === '')
-      }
-      
-      updateTasksForDateRange(
-        filteredTasks,
-        today.toFormat('yyyy-MM-dd'),
-        futureDate.toFormat('yyyy-MM-dd')
-      )
-    }
-  )
+  // (tasks) => {
+  //   let filteredTasks = tasks
+  //   if (hideRoutines) {
+  //     filteredTasks = tasks.filter(task => task.templateID === '')
+  //   }
+  // }
 }
 
 export async function setupMobileCalendarTasks(uid) {
