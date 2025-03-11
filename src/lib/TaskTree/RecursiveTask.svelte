@@ -42,9 +42,12 @@
       on:task-update
     />
   {:else}
-    <!-- First dropzone for normal mode -->
     <div style="margin-left: {indentationAmount}px;">
-      <div class:absolute-bottom={n === 0} 
+      <!-- 
+        the way we fill dropzones: define the top dropzone, 
+       then have each sub-task create a dropzone below themselves 
+       -->
+      <div class:ghost-negative={n === 0} 
         style="
           width: calc(235px - {indentationAmount * (depth)}px);
           z-index: {depth};
@@ -72,8 +75,8 @@
           on:task-create
           on:task-update
         /> 
-        <!-- Dropzone after each child -->
-        <div class:absolute-bottom={i === n - 1} 
+
+        <div class:ghost-negative={i === n - 1} 
           style="
             width: calc(235px - {indentationAmount * depth}px); 
             z-index: {depth};
@@ -197,7 +200,7 @@
     min-height: 16px;
   }
 
-  .absolute-bottom {
+  .ghost-negative {
     position: absolute; 
     bottom: -18px;
   }
