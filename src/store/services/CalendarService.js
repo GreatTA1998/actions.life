@@ -51,8 +51,8 @@ export function updateTasksForDateRange (flatArray, startDate, endDate) {
     tasksCache.set(task.id, task)
   }
 
-  const memoryTree = constructTreesForRange(flatArray)
-  const dateMapping = computeDateToTasksDict(memoryTree)
+  const forest = constructForest(flatArray)
+  const dateMapping = computeDateToTasksDict(forest)
   
   tasksScheduledOn.update($tasksScheduledOn => {
     for (const [date, tasks] of Object.entries(dateMapping)) {
@@ -63,34 +63,28 @@ export function updateTasksForDateRange (flatArray, startDate, endDate) {
 }
 
 /**
- * Constructs task trees from flat Firestore task docs for a given date range
- * 
- * @param {Array} firestoreTaskDocs - All necessary tasks to reconstruct 
- *                                    scheduled tasks and their subtrees
- * @returns {Array} - Array of task trees where each root has a startDateISO
+ * Constructs subtrees for every scheduled node in a given date range
+ * Because of aliasing, the forest builds properly despite that the nodes aren't processed in any particular order
+ * @param {Array} firestoreTaskDocs - All necessary tasks to reconstruct scheduled tasks and their subtrees
+ * @returns {Array} - Array of trees, detached subtrees etc. where each subtree's root has a `startDateISO
  */
-function constructTreesForRange (firestoreTaskDocs) {
-  const memoryTree = new Map()
+function constructForest (firestoreTaskDocs) {
+  const forest = new Map()
   for (const task of firestoreTaskDocs) {
-    memoryTree.set(task.id, { ...task, children: [] })
+    forest.set(task.id, { ...task, children: [] })
   }
-  
-  for (const task of memoryTree.values()) {
-    if (task.parentID && memoryTree.has(task.parentID)) {
-      const parent = memoryTree.get(task.parentID)
-      parent.children.push(task)
+  for (const tree of forest.values()) {
+    if (tree.parentID && forest.has(tree.parentID)) { // you can deprecate `forest.has(tree.parentID)` iff `rootStartDateISO` is correctly set for all tasks
+      forest.get(tree.parentID).children.push(tree)
     }
   }
-  
-  return firestoreTaskDocs
-    .filter(task => task.startDateISO)
-    .map(task => memoryTree.get(task.id));
+  return Array.from(forest.values()).filter(tree => tree.startDateISO)
 }
 
-function computeDateToTasksDict (taskTrees) {
+function computeDateToTasksDict (forest) {
   const dateToTasks = {}
-  taskTrees.forEach(task => {
-    addTaskToDate(task, task.startDateISO, dateToTasks)
+  forest.forEach(tree => {
+    addTaskToDate(tree, tree.startDateISO, dateToTasks)
   })
   
   // Sort tasks with startTime for predictable drag behavior
