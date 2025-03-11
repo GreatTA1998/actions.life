@@ -21,29 +21,6 @@ const updateQuickTasks = async ({userID, templateID, updates}) => {
   return Promise.all(updatePromises);
 }
 
-// Listen to tasks in a date range using rootStartDateISO
-const listenToDateRange = (userUID, startDate, endDate, callback) => {
-  try {
-    const q = query(
-      collection(db, "users", userUID, "tasks"),
-      where("rootStartDateISO", ">=", startDate),
-      where("rootStartDateISO", "<=", endDate)
-    );
-    
-    // Return the unsubscribe function so it can be called when no longer needed
-    return onSnapshot(q, (snapshot) => {
-      const tasks = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-      callback(tasks);
-    }, (error) => {
-      console.error("Error in listenToDateRange", error);
-      callback([]);
-    });
-  } catch (err) {
-    console.error("Error setting up listener in listenToDateRange", err);
-    return () => {}; // Return a no-op unsubscribe function
-  }
-};
-
 // One-time query for tasks in a date range
 const getByDateRange = (userUID, startDate, endDate) => {
   try {
@@ -234,7 +211,6 @@ const migrateToRootStartDateISO = async (userUID) => {
 export default {
   updateQuickTasks,
   getByDateRange,
-  listenToDateRange,
   getUnscheduled,
   listenToUnscheduled,
   post,

@@ -3,38 +3,19 @@ import { reconstructTreeInMemory } from "/src/helpers/dataStructures.js";
 import { get } from "svelte/store";
 import { todoTasks, todoMemoryTree, inclusiveWeekTodo } from '/src/store';
 
-/**
- * Todo Service
- * 
- * This service centralizes all todo-related operations, including:
- * - Managing listeners for todo tasks
- * - Updating todo tasks and their memory tree representation
- */
-
-// Store active listeners to manage them
 const activeListeners = {
   todo: null
-};
+}
 
-/**
- * Sets up a listener for unscheduled todo tasks
- * 
- * @param {string} uid - User ID
- */
-export function setupTodoListener(uid) {
-  // If we already have a listener, don't create another one
+export function setupTodoListener (uid) {
   if (activeListeners.todo) {
     console.log("Todo listener already exists, skipping");
     return;
   }
-  
   try {
-    activeListeners.todo = Tasks.listenToUnscheduled(
-      uid,
-      (tasks) => {
-        updateTodoTasks(tasks);
-      }
-    );
+    activeListeners.todo = Tasks.listenToUnscheduled(uid, (tasks) => {
+      updateTodoTasks(tasks)
+    })
   } catch (error) {
     console.error("Error setting up todo listener:", error);
   }
@@ -125,16 +106,12 @@ export async function updateTodoTask({ uid, taskID, keyValueChanges }) {
   }
 }
 
-/**
- * Cleans up the todo listener
- */
 export function cleanupTodoListener() {
   if (typeof activeListeners.todo === 'function') {
     activeListeners.todo();
     console.log("Cleaned up todo listener");
   }
   
-  // Reset the listener
   activeListeners.todo = null;
 }
 
@@ -144,4 +121,4 @@ export default {
   findTodoTaskById,
   updateTodoTask,
   cleanupTodoListener
-}; 
+}

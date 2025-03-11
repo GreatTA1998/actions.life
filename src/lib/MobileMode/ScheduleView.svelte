@@ -5,7 +5,6 @@
       bind:checked={$user.includeRoutinesInEvents}
       onChange={e => {
         updateFirestoreDoc(`users/${$user.uid}`, { includeRoutinesInEvents: e.target.checked });
-        fetchMobileFutureOverviewTasks($user.uid, !e.target.checked);
       }}
     />
 
@@ -27,11 +26,11 @@
 <script>
   import { uniqueEvents, user } from '/src/store'
   import ScheduleViewDay from './ScheduleViewDay.svelte'
-  import { fetchMobileFutureOverviewTasks } from '$lib/MainPage/handleTasks.js'
+  import { setupFutureOverviewTasks} from '/src/store/services/CalendarService.js'
   import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import ToggleSwitch from '$lib/Reusable/ToggleSwitch.svelte'
 
-  fetchMobileFutureOverviewTasks($user.uid, !$user.includeRoutinesInEvents)
+  setupFutureOverviewTasks($user.uid, !$user.includeRoutinesInEvents)
 </script>
 
 <style>
