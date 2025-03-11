@@ -90,6 +90,7 @@
           listTitle={list.name}
           tasksToDisplay={$listTreesMap[list.id]}
           willShowCheckbox={true}
+          hideListTitle={true}
           on:task-create={e => handleNewTask(e, list.id)}
           on:task-click
           on:task-update={e => updateTaskNode(e.detail)}

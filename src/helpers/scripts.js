@@ -2,13 +2,7 @@ import { getFirestoreCollection, setFirestoreDoc, updateFirestoreDoc } from '/sr
 import { 
   createIndividualFirestoreDocForEachTaskInAllTasks, 
   applyFuncToEveryTreeNode, 
-  convertDDMMYYYYToDateClassObject,
-  getDateInDDMMYYYY,
-  getTimeInHHMM,
-  helperFunction
 } from '/src/helpers/everythingElse.js'
-import { reconstructTreeInMemory} from '/src/helpers/dataStructures.js'
-
 
 export async function fixOrderValueZero () {
   const allUsers = await getFirestoreCollection(`/users`)
@@ -97,63 +91,6 @@ export async function fixInvalidSubtaskDeadlinesForAllUsers () {
     await delayTime(10 * 1000)
   }
   console.log('totalUpdated =', totalUpdated)
-}
-
-export async function fixInvalidSubtaskDeadlines (userDoc) {
-  console.log('fixInvalidForOneUser')
-  // construct the memory tree   
-  const allTaskDocs = await getFirestoreCollection(`/users/${userDoc.uid}/tasks`)
-  const allTasks = reconstructTreeInMemory(allTaskDocs)
-
-  function initializeCorrectDefaultDeadline (node) {
-    const d2 = new Date(node.subtreeDeadlineInMsElapsed)
-    updateFirestoreDoc(`/users/${userDoc.uid}/tasks/${node.id}`, {
-      deadlineDate: getDateInDDMMYYYY(d2),
-      deadlineTime: getTimeInHHMM({ dateClassObj: d2 })
-    })
-    console.log('corrected to =', {
-      deadlineDate: getDateInDDMMYYYY(d2),
-      deadlineTime: getTimeInHHMM({ dateClassObj: d2 })
-    })
-    totalUpdated += 1
-  }
-
-  for (const rootTree of allTasks) {
-    helperFunction({ node: rootTree, applyFunc: (node) => {
-      if (!node.deadlineDate) {
-        if (node.subtreeDeadlineInMsElapsed !== Infinity) {
-          console.log('a node with no deadline but corrected =', node)
-          initializeCorrectDefaultDeadline(node)
-        }
-      }
-      else {
-        const d1 = convertDDMMYYYYToDateClassObject(node.deadlineDate, node.deadlineTime)
-        if (node.subtreeDeadlineInMsElapsed === Infinity) {
-          // since subtreeDeadline is not saved on Firestore,  
-          // we just let the local value handle it automatically
-        }
-        if (d1.getTime() > node.subtreeDeadlineInMsElapsed) {
-          console.log('subtask with deadline but wrong')
-          initializeCorrectDefaultDeadline(node)
-        }
-      }
-    }})
-
-    await delayTime(5)
-  }
-}
-
-export async function runGrandScript () {
-  const allUserDocs = await getFirestoreCollection('/users')
-  for (const userDoc of allUserDocs) {
-    if (!userDoc.phoneNumber && !userDoc.email) continue
-    console.log('handling userDoc =', userDoc.email || userDoc.phoneNumber)
-    const allTaskDocs = await getFirestoreCollection(`/users/${userDoc.uid}/tasks`)
-    const allTasks = reconstructTreeInMemory(allTaskDocs)
-    console.log('allTasks =', allTasks)
-    assignOrderValueToEachTask(allTasks, userDoc)
-    await delayTime(15 * 1000)
-  }
 }
 
 export async function assignOrderValueToEachTask (builtMemoryTree, userDoc) {

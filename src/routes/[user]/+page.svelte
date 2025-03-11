@@ -22,7 +22,6 @@
   let isShowingAI = false
   let unsub
   let showLegacyTodoInWeekMode = true;
-  let showLegacyTodoInListsMode = false;
 
   onMount(() => {
     const uid = $page.params.user
@@ -39,8 +38,6 @@
   function handleViewToggle(event, mode) {
     if (mode === 'Week') {
       showLegacyTodoInWeekMode = event.detail.showLegacyTodo;
-    } else if (mode === 'Lists') {
-      showLegacyTodoInListsMode = event.detail.showLegacyTodo;
     }
   }
 </script>
@@ -86,15 +83,6 @@
 
       <div style="display: {currentMode === 'Archive' ? 'block' : 'none'}; width: 100%; height: 100%;">
         <HistoryArchive />
-      </div>
-
-      <div style="display: {currentMode === 'Lists' ? 'block' : 'none'}; width: 100%; height: 100%;">
-        <SideBySideView 
-          showLegacyTodo={showLegacyTodoInListsMode}
-          on:task-create={e => createTaskNode(e.detail)}
-          on:task-update={e => updateTaskNode(e.detail)}
-          on:viewToggle={e => handleViewToggle(e, 'Lists')}
-        />
       </div>
     </div>
   </NavbarAndContentWrapper>

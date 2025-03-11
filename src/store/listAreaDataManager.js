@@ -1,7 +1,7 @@
 import { writable, get } from 'svelte/store'
 import { db } from '../back-end/firestoreConnection'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { reconstructTreeInMemory } from '../helpers/dataStructures.js'
+import { reconstructTreeInMemory } from './services/TodoService.js'
 
 let persistTasks, nonPersistTasks
 

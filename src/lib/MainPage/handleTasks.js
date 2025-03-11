@@ -17,7 +17,7 @@ export function findTaskById(taskID) {
   if (todoTask) return todoTask;
   
   // Then check calendarTasks
-  const calendarTask = CalendarService.findCalendarTaskById(taskID);
+  const calendarTask = CalendarService.tasksCache.get(taskID);
   if (calendarTask) return calendarTask;
   
   // Task not found

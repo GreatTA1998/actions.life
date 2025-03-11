@@ -1,13 +1,13 @@
 import { DateTime } from 'luxon'
 import Tasks from '/src/back-end/Tasks'
 import { pureNumericalHourForm } from '/src/helpers/everythingElse.js'
-import { get } from 'svelte/store'
-import { calendarTasks, tasksScheduledOn } from '../calendarStore.js'
+import { tasksScheduledOn } from '../calendarStore.js'
 import { doc, collection, writeBatch, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
 import { size, cushion } from '/src/helpers/constants.js'
 
 const activeListeners = {}
+const tasksCache = new Map()
 
 export function setupInitialCalendarTasks(uid) {
   const today = DateTime.now()
@@ -21,6 +21,7 @@ export function setupCalListener (uid, leftDT, rightDT) {
   const leftISO = leftDT.toFormat('yyyy-MM-dd')
   const rightISO = rightDT.toFormat('yyyy-MM-dd')
   activeListeners[`${leftISO}_${rightISO}`] = listenToDateRange(uid, leftISO, rightISO)
+
   console.log('active listeners', activeListeners)
 }
 
@@ -41,16 +42,18 @@ function listenToDateRange (userUID, leftISO, rightISO) {
   )
 }
 
-export function updateTasksForDateRange(flatArray, startDate, endDate) {
+export function updateTasksForDateRange (flatArray, startDate, endDate) {
   if (!flatArray || !Array.isArray(flatArray) || flatArray.length === 0) {
     return
   }
-  
-  // INCORRECT
-  calendarTasks.set(flatArray) // this is incorrect, leads to updating the array to only partial tasks
 
-  const memoryTree = constructCalendarTrees(flatArray)
+  for (const task of flatArray) {
+    tasksCache.set(task.id, task)
+  }
+
+  const memoryTree = constructTreesForRange(flatArray)
   const dateMapping = computeDateToTasksDict(memoryTree)
+  
   tasksScheduledOn.update($tasksScheduledOn => {
     for (const [date, tasks] of Object.entries(dateMapping)) {
       $tasksScheduledOn[date] = tasks
@@ -60,60 +63,28 @@ export function updateTasksForDateRange(flatArray, startDate, endDate) {
 }
 
 /**
- * Constructs calendar task trees from flat Firestore task documents
+ * Constructs task trees from flat Firestore task docs for a given date range
  * 
  * @param {Array} firestoreTaskDocs - All necessary tasks to reconstruct 
  *                                    scheduled tasks and their subtrees
  * @returns {Array} - Array of task trees where each root has a startDateISO
  */
-function constructCalendarTrees(firestoreTaskDocs) {
-  const cache = new Map()
-  
-  const taskMap = new Map()
-  firestoreTaskDocs.forEach(task => {
-    taskMap.set(task.id, { ...task, children: [] })
-  })
-  
-  // Identify root tasks (those without parents or with parents not in our dataset)
-  const rootTasks = []
-  taskMap.forEach(task => {
-    if (!task.parentID || !taskMap.has(task.parentID)) {
-      rootTasks.push(task)
-    } else {
-      const parent = taskMap.get(task.parentID)
-      parent.children.push(task)
-    }
-  })
-  
-  // Every scheduled node is a calendar entry, with its full subtree
-  const output = []
-  firestoreTaskDocs.forEach(task => {
-    if (task.startDateISO) {
-      const taskTree = deepCopyWithSubtree(task, taskMap, cache)
-      output.push(taskTree)
-    }
-  })
-  return output
-}
-
-function deepCopyWithSubtree (task, taskMap, cache) {
-  if (cache.has(task.id)) {
-    return cache.get(task.id)
+function constructTreesForRange (firestoreTaskDocs) {
+  const memoryTree = new Map()
+  for (const task of firestoreTaskDocs) {
+    memoryTree.set(task.id, { ...task, children: [] })
   }
   
-  const rootNode = { ...task, children: [] }
-  cache.set(task.id, rootNode)
-  
-  const children = []
-  taskMap.forEach(potentialChild => {
-    if (potentialChild.parentID === task.id) {
-      const childTree = deepCopyWithSubtree(potentialChild, taskMap, cache)
-      children.push(childTree)
+  for (const task of memoryTree.values()) {
+    if (task.parentID && memoryTree.has(task.parentID)) {
+      const parent = memoryTree.get(task.parentID)
+      parent.children.push(task)
     }
-  })
-
-  rootNode.children = children
-  return rootNode
+  }
+  
+  return firestoreTaskDocs
+    .filter(task => task.startDateISO)
+    .map(task => memoryTree.get(task.id));
 }
 
 function computeDateToTasksDict (taskTrees) {
@@ -149,14 +120,10 @@ function addTaskToDate(task, date, dateToTasks) {
   else dateToTasks[date].noStartTime.noIcon.push(task)
 }
 
-export function findCalendarTaskById(taskID) {
-  const allCalendarTasks = get(calendarTasks)
-  return allCalendarTasks.find(task => task.id === taskID)
-}
-
 export async function updateCalendarTask({ uid, taskID, keyValueChanges }) {
   try {
-    const task = findCalendarTaskById(taskID)
+    const task = tasksCache.get(taskID)
+
     const isRescheduling = keyValueChanges.startDateISO !== undefined
     const isReparenting = keyValueChanges.parentID !== undefined
     let updatedChanges = { ...keyValueChanges }
@@ -170,7 +137,7 @@ export async function updateCalendarTask({ uid, taskID, keyValueChanges }) {
       }
       // If this is a node being re-parented, update its rootStartDateISO based on new parent
       else if (isReparenting && keyValueChanges.parentID) {
-        const newParent = findCalendarTaskById(keyValueChanges.parentID)
+        const newParent = tasksCache.get(keyValueChanges.parentID)
         if (newParent && newParent.rootStartDateISO) {
           newRootStartDateISO = newParent.rootStartDateISO
         } else if (keyValueChanges.startDateISO) {
@@ -217,7 +184,8 @@ export async function updateCalendarTask({ uid, taskID, keyValueChanges }) {
 }
 
 async function updateDescendantsRootStartDateISO(uid, taskID, rootStartDateISO) {
-  const children = get(calendarTasks).filter(task => task.parentID === taskID)
+  const calTasks = new Array(...tasksCache.values())
+  const children = calTasks.filter(task => task.parentID === taskID)
   if (children.length === 0) { // base case
     return
   }
@@ -275,7 +243,7 @@ export default {
   setupFutureOverviewTasks,
   setupCalListener,
   updateTasksForDateRange,
-  findCalendarTaskById,
   updateCalendarTask,
-  cleanupCalendarListeners
+  cleanupCalendarListeners,
+  tasksCache
 } 

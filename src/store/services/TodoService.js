@@ -1,5 +1,4 @@
 import Tasks from "/src/back-end/Tasks";
-import { reconstructTreeInMemory } from "/src/helpers/dataStructures.js";
 import { get } from "svelte/store";
 import { todoTasks, todoMemoryTree, inclusiveWeekTodo } from '/src/store';
 
@@ -7,7 +6,45 @@ const activeListeners = {
   todo: null
 }
 
-export function setupTodoListener (uid) {
+/**
+ * Builds a memory tree from flat task documents
+ * 
+ * @param {Array} firestoreTaskDocs - Array of flat task documents
+ * @returns {Array} - Array of root tasks with hydrated children
+ */
+export function reconstructTreeInMemory(firestoreTaskDocs) {
+  const output = [];
+
+  // Build parent-child mapping
+  const memo = { '': [] };
+  for (const taskDoc of firestoreTaskDocs) {
+    if (!memo[taskDoc.parentID]) memo[taskDoc.parentID] = [];
+    memo[taskDoc.parentID].push(taskDoc);
+
+    if (!memo[taskDoc.id]) memo[taskDoc.id] = [];
+  }
+
+  // Construct tree from root tasks
+  const rootTasks = memo[''] || [];
+  for (const rootTask of rootTasks) {
+    recursivelyHydrateChildren(rootTask, memo);
+    output.push(rootTask);
+  }
+  
+  return output;
+}
+
+/**
+ * Helper function to recursively hydrate children in the task tree
+ */
+function recursivelyHydrateChildren(node, memo) {
+  node.children = memo[node.id] || [];
+  for (const child of node.children) {
+    recursivelyHydrateChildren(child, memo);
+  }
+}
+
+export function setupTodoListener(uid) {
   if (activeListeners.todo) {
     console.log("Todo listener already exists, skipping");
     return;
@@ -23,18 +60,14 @@ export function setupTodoListener (uid) {
 
 /**
  * Updates todo tasks and their memory tree representation
- * 
- * @param {Array} tasks - Flat array of todo tasks from Firestore
  */
 export function updateTodoTasks(tasks) {
   if (!tasks || !Array.isArray(tasks)) {
     return;
   }
   
-  // Update todo tasks directly in the store
   todoTasks.set(tasks);
   
-  // Update the memory tree
   const memoryTree = reconstructTreeInMemory(tasks);
   todoMemoryTree.set(memoryTree);
   inclusiveWeekTodo.set(memoryTree);
@@ -42,9 +75,6 @@ export function updateTodoTasks(tasks) {
 
 /**
  * Finds a task by ID from the todo tasks
- * 
- * @param {string} taskID - Task ID to find
- * @returns {Object|null} - The found task or null
  */
 export function findTodoTaskById(taskID) {
   const allTodoTasks = get(todoTasks);
@@ -53,21 +83,13 @@ export function findTodoTaskById(taskID) {
 
 /**
  * Updates a todo task
- * 
- * @param {Object} params - Update parameters
- * @param {string} params.uid - User ID
- * @param {string} params.taskID - Task ID to update
- * @param {Object} params.keyValueChanges - Changes to apply to the task
- * @returns {Promise<Object>} - Information about the update
  */
 export async function updateTodoTask({ uid, taskID, keyValueChanges }) {
   try {
-    // Find the task in the store
     const task = findTodoTaskById(taskID);
     
     if (!task) {
       console.warn(`Task ${taskID} not found in todo store, falling back to direct database update`);
-      // Fall back to direct database update if task not found in store
       await Tasks.updateTaskDoc({ userUID: uid, taskID, keyValueChanges });
       return {
         taskID,
@@ -75,11 +97,10 @@ export async function updateTodoTask({ uid, taskID, keyValueChanges }) {
       };
     }
     
-    // If the task is being scheduled (startDateISO is being set), we need to handle rootStartDateISO
+    // Handle rootStartDateISO for scheduled tasks
     if (keyValueChanges.startDateISO && keyValueChanges.startDateISO !== "") {
       let rootStartDateISO = keyValueChanges.startDateISO;
       
-      // If this is not a root task, we need to find the parent's rootStartDateISO
       if (task.parentID && task.parentID !== "") {
         const parent = findTodoTaskById(task.parentID);
         if (parent && parent.rootStartDateISO) {
@@ -87,14 +108,11 @@ export async function updateTodoTask({ uid, taskID, keyValueChanges }) {
         }
       }
       
-      // Add rootStartDateISO to the changes
       keyValueChanges.rootStartDateISO = rootStartDateISO;
     }
     
-    // Update the task in the database
     await Tasks.updateTaskDoc({ userUID: uid, taskID, keyValueChanges });
     
-    // Return information about what changed
     return {
       taskID,
       changes: keyValueChanges,
@@ -120,5 +138,6 @@ export default {
   updateTodoTasks,
   findTodoTaskById,
   updateTodoTask,
-  cleanupTodoListener
-}
+  cleanupTodoListener,
+  reconstructTreeInMemory
+};

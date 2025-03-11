@@ -15,6 +15,7 @@
   export let hasMaxWidth = false // quickfix to prevent complicated flexbox layout ordering issues
   export let willShowCheckbox = true
   export let isLargeFont = false
+  export let hideListTitle = false // New prop to control list title visibility
 
   let isTypingNewRootTask = false
   let newRootTaskStringValue = ''
@@ -84,20 +85,23 @@
   on:dragover={(e) => dragover_handler(e)}
 >
   <div class="first-column">
-    {#if listTitle}
-      <div style="display: flex; align-items: center;">
-        <div style="font-weight: 600; font-size: 18px; color: rgb(80, 80, 80)">
-          {listTitle}
+    <div class="list-header-area">
+      {#if listTitle && !hideListTitle}
+        <div class="list-title-container">
+          <div style="font-weight: 600; font-size: 18px; color: rgb(80, 80, 80)">
+            {listTitle}
+          </div>
         </div>
-
-        <span on:click={startTypingNewTask} on:keydown
-          class="new-task-icon material-icons"
-          style="margin-left: 10px; margin-bottom: 10px"
-        >
-          +
-        </span>
-      </div>
-    {/if}
+      {/if}
+      
+      <!-- Always show the add task button, regardless of title visibility -->
+      <span on:click={startTypingNewTask} on:keydown
+        class="new-task-icon material-icons"
+        style="margin-left: 10px; margin-bottom: 10px; cursor: pointer;"
+      >
+        +
+      </span>
+    </div>
 
     <div style="flex-grow: 1; padding: 0px 6px;"
       class:has-max-width={hasMaxWidth}
@@ -183,5 +187,25 @@
     height: 100%; 
     display: flex; 
     flex-direction: column;
+  }
+
+  .list-header-area {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+  }
+  
+  .list-title-container {
+    flex-grow: 1;
+  }
+  
+  .new-task-icon {
+    font-size: 24px;
+    color: #666;
+    transition: color 0.2s;
+  }
+  
+  .new-task-icon:hover {
+    color: #333;
   }
 </style>
