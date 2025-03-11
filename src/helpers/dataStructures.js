@@ -1,9 +1,3 @@
-/**
- * Task Tree Utilities
- * 
- * This module contains generic utilities for working with task trees.
- * Calendar-specific functions have been moved to CalendarService.js.
- */
 
 /**
  * Builds a memory tree from flat task documents
@@ -33,12 +27,6 @@ export function reconstructTreeInMemory(firestoreTaskDocs) {
   return output;
 }
 
-/**
- * Recursively hydrates children for a node
- * 
- * @param {Object} node - The node to hydrate children for
- * @param {Object} memo - Mapping of parent IDs to arrays of children
- */
 function recursivelyHydrateChildren(node, memo) {
   node.children = memo[node.id] || [];
   for (const child of node.children) {
@@ -46,13 +34,6 @@ function recursivelyHydrateChildren(node, memo) {
   }
 }
 
-/**
- * Finds a task by ID in a collection of tasks
- * 
- * @param {string} taskID - The ID of the task to find
- * @param {Array} tasks - Array of tasks to search
- * @returns {Object|null} - The found task or null
- */
 export function findTaskById(taskID, tasks) {
   if (!taskID || !tasks || !Array.isArray(tasks)) {
     return null;
@@ -69,6 +50,5 @@ export function findTaskById(taskID, tasks) {
       if (childTask) return childTask;
     }
   }
-  
   return null;
 }

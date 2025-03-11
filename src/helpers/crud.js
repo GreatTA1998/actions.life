@@ -8,7 +8,6 @@ import { updateTask } from '/src/lib/MainPage/handleTasks.js'
 
 /**
  * Creates a new task node
- * @param {Object} params - The parameters
  * @param {string} params.id - The task ID
  * @param {Object} params.newTaskObj - The new task object
  */
@@ -25,8 +24,6 @@ export async function createTaskNode ({ id, newTaskObj }) {
 
 /**
  * Updates a task node and its descendants if needed
- * This is the canonical way to update tasks in the application
- * @param {Object} params - The parameters
  * @param {string} params.id - The task ID
  * @param {Object} params.keyValueChanges - The changes to apply
  */
@@ -51,7 +48,6 @@ export async function updateTaskNode ({ id, keyValueChanges }) {
 
 /**
  * Deletes a task node
- * @param {Object} params - The parameters
  * @param {string} params.id - The task ID
  * @param {string} [params.imageFullPath] - The image path to delete
  */
