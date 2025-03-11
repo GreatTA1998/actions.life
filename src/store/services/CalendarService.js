@@ -37,7 +37,7 @@ function listenToDateRange (userUID, leftISO, rightISO) {
       updateTasksForDateRange(tasks, leftISO, rightISO)
     }, 
     (error) => {
-      console.error('Error in listenToDateRange', error)
+      console.error('Error in listenToDateRange:', error)
     }
   )
 }
@@ -114,36 +114,37 @@ function addTaskToDate(task, date, dateToTasks) {
   else dateToTasks[date].noStartTime.noIcon.push(task)
 }
 
+/** Updates a calendar task and handles cascading updates to descendants */
 export async function updateCalendarTask({ uid, taskID, keyValueChanges }) {
   try {
     const task = tasksCache.get(taskID)
+    if (!task) {
+      throw new Error(`Task ${taskID} not found in cache`)
+    }
 
-    const isRescheduling = keyValueChanges.startDateISO !== undefined
-    const isReparenting = keyValueChanges.parentID !== undefined
-    let updatedChanges = { ...keyValueChanges }
+    const isRescheduling = 'startDateISO' in keyValueChanges
+    const isReparenting = 'parentID' in keyValueChanges
+    const updatedChanges = { ...keyValueChanges }
     
+    // Handle rootStartDateISO updates
     if (isRescheduling || isReparenting) {
       let newRootStartDateISO = task.rootStartDateISO
       
-      // If this is a root node being rescheduled, update its rootStartDateISO
-      if (isRescheduling && (!task.parentID || task.parentID === '')) {
+      if (isRescheduling && !task.parentID) {
+        // Root node being rescheduled
         newRootStartDateISO = keyValueChanges.startDateISO || ''
-      }
-      // If this is a node being re-parented, update its rootStartDateISO based on new parent
-      else if (isReparenting && keyValueChanges.parentID) {
-        const newParent = tasksCache.get(keyValueChanges.parentID)
-        if (newParent && newParent.rootStartDateISO) {
-          newRootStartDateISO = newParent.rootStartDateISO
-        } else if (keyValueChanges.startDateISO) {
-          newRootStartDateISO = keyValueChanges.startDateISO
+      } else if (isReparenting) {
+        if (keyValueChanges.parentID) {
+          // Node being assigned a new parent
+          const newParent = tasksCache.get(keyValueChanges.parentID)
+          newRootStartDateISO = newParent?.rootStartDateISO || keyValueChanges.startDateISO || ''
+        } else {
+          // Node becoming a root
+          newRootStartDateISO = keyValueChanges.startDateISO || task.startDateISO || ''
         }
       }
-
-      // If node is becoming a root node (parentID set to empty), use its own startDateISO
-      else if (isReparenting && (!keyValueChanges.parentID || keyValueChanges.parentID === '')) {
-        newRootStartDateISO = keyValueChanges.startDateISO || task.startDateISO
-      }
       
+      // Update rootStartDateISO if it changed
       if (newRootStartDateISO !== task.rootStartDateISO) {
         updatedChanges.rootStartDateISO = newRootStartDateISO
         
@@ -161,10 +162,9 @@ export async function updateCalendarTask({ uid, taskID, keyValueChanges }) {
       }
     }
     
-    // If we didn't update rootStartDateISO, just update the task
+    // Simple update without rootStartDateISO changes
     await Tasks.updateTaskDoc({ userUID: uid, taskID, keyValueChanges: updatedChanges })
     
-    // Return information about what changed
     return {
       taskID,
       changes: updatedChanges,
@@ -178,26 +178,25 @@ export async function updateCalendarTask({ uid, taskID, keyValueChanges }) {
 }
 
 async function updateDescendantsRootStartDateISO(uid, taskID, rootStartDateISO) {
-  const calTasks = new Array(...tasksCache.values())
-  const children = calTasks.filter(task => task.parentID === taskID)
-  if (children.length === 0) { // base case
-    return
-  }
+  console.log('update descendants rootStartDateISO')
+  const children = Array.from(tasksCache.values()).filter(task => task.parentID === taskID)
+  if (!children.length) return // Base case
+  
   const batch = writeBatch(db)
   
-  // Update each child and recursively update their descendants
-  const updatePromises = children.map(async child => {
+  // Update each child in batch
+  children.forEach(child => {
     const childRef = doc(db, 'users', uid, 'tasks', child.id)
     batch.update(childRef, { rootStartDateISO })
-    
-    // Recursively update this child's descendants
-    await updateDescendantsRootStartDateISO(uid, child.id, rootStartDateISO)
   })
   
-  await Promise.all(updatePromises)
-  
+  // Commit batch update
   await batch.commit()
-  console.log(`Updated rootStartDateISO for ${children.length} direct children of task ${taskID}`)
+  
+  // Recursively update descendants
+  await Promise.all(children.map(child => 
+    updateDescendantsRootStartDateISO(uid, child.id, rootStartDateISO)
+  ))
 }
 
 export function cleanupCalendarListeners() {
@@ -207,19 +206,7 @@ export function cleanupCalendarListeners() {
       console.log(`Cleaned up calendar listener for range ${key}`)
     }
   })
-  activeListeners = {}
-}
-
-// should use an independent data structure as future tasks do overlap with the calendar tasks
-export function setupFutureOverviewTasks(uid, hideRoutines = false) {
-  const today = DateTime.now().startOf('day')
-  const futureDate = today.plus({ days: 30 })
-  // (tasks) => {
-  //   let filteredTasks = tasks
-  //   if (hideRoutines) {
-  //     filteredTasks = tasks.filter(task => task.templateID === '')
-  //   }
-  // }
+  Object.keys(activeListeners).forEach(key => delete activeListeners[key])
 }
 
 export async function setupMobileCalendarTasks(uid) {
@@ -234,7 +221,6 @@ export async function setupMobileCalendarTasks(uid) {
 export default {
   setupInitialCalendarTasks,
   setupMobileCalendarTasks,
-  setupFutureOverviewTasks,
   setupCalListener,
   updateTasksForDateRange,
   updateCalendarTask,

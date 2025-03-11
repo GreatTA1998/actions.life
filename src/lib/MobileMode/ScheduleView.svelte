@@ -26,11 +26,10 @@
 <script>
   import { uniqueEvents, user } from '/src/store'
   import ScheduleViewDay from './ScheduleViewDay.svelte'
-  import { setupFutureOverviewTasks} from '/src/store/services/CalendarService.js'
   import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import ToggleSwitch from '$lib/Reusable/ToggleSwitch.svelte'
 
-  setupFutureOverviewTasks($user.uid, !$user.includeRoutinesInEvents)
+  // setupFutureOverviewTasks($user.uid, !$user.includeRoutinesInEvents)
 </script>
 
 <style>
