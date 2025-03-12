@@ -1,18 +1,15 @@
 <script>
-  /**
-   * Two-way almost-infinite-scroll calendar
-
-   * @see https://explanations.io/uRNISfkw0mE404Zn4GgH/ePfUWAU6CXL7leApJ9GP
-   */
+  /** TWO-WAY "INFINITE" SCROLL CALENDAR
+   * @see https://explanations.io/uRNISfkw0mE404Zn4GgH/ePfUWAU6CXL7leApJ9GP */
   import TimestampLabels from './TimestampLabels.svelte'
   import DayColumn from './DayColumn.svelte'
   import DayHeader from './DayHeader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
   import MultiPhotoUploader from '$lib/Reusable/MultiPhotoUploader.svelte'
 
-  import { trackWidth, trackHeight } from '/src/helpers/actions.js'
+  import { trackHeight } from '/src/helpers/actions.js'
   import { DateTime } from 'luxon'
-  import { hasInitialScrolled, calEarliestHHMM } from '/src/store'
+  import { calEarliestHHMM } from '/src/store'
   import { tasksScheduledOn } from '/src/store/calendarStore.js'
   import { setupCalListener } from '/src/store/services/CalendarService.js'
   import { onMount } from 'svelte'
@@ -23,65 +20,47 @@
   const COLUMN_WIDTH = 200
   const PIXELS_PER_HOUR = 80
   const CORNER_LABEL_HEIGHT = 110
-  const middleIdx = Math.floor(TOTAL_COLUMNS / 2)
-
-  const c = 4 // 2c = 8, total rendered will be visible columns + (8)(2), so 16 additional columns
-
-  let calOriginDT = DateTime.now()
-    .startOf('day')
-    .minus({ days: TOTAL_COLUMNS / 2 })
-  let dtOfActiveColumns = []
-
-  let ScrollParent
-  let scrollParentWidth // width doesn't change during scroll, so bind:clientWidth shouldn't cause performance issues
-  let scrollX = middleIdx * COLUMN_WIDTH
-
-  let initialScrollParentWidth // so width changes don't affect correctness arguments
-
-  let leftEdgeIdx, prevLeftEdgeIdx, leftTriggerIdx
-  let rightEdgeIdx, rightTriggerIdx, prevRightEdgeIdx
 
   let isShowingDockingArea = true
   let exactHeight = CORNER_LABEL_HEIGHT
 
-  $: setLeftEdgeIdx(scrollX)
-  $: setRightEdgeIdx(scrollX)
-  $: if (leftEdgeIdx && rightEdgeIdx) reactToScroll(leftEdgeIdx, rightEdgeIdx)
+  const middleIdx = Math.floor(TOTAL_COLUMNS / 2)
+  const c = 4 // 2c = 8, total rendered will be visible columns + (8)(2), so 16 additional columns
+
+  let calOriginDT = DateTime.now().startOf('day').minus({ days: TOTAL_COLUMNS / 2 })
+  let dtOfActiveColumns = []
+
+  let prevLeftEdgeIdx = Infinity
+  let prevRightEdgeIdx = -Infinity
+
+  let leftTriggerIdx, rightTriggerIdx
+
+  let scrollX = middleIdx * COLUMN_WIDTH
+
+  $: leftEdgeIdx = Math.floor(scrollX / COLUMN_WIDTH)
+  $: rightEdgeIdx = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
+
+  $: manageListeners(leftEdgeIdx, rightEdgeIdx) 
+  $: updateRenderedColumns(leftEdgeIdx, rightEdgeIdx)
 
   onMount(() => {
-    setTimeout(() => {
-      setupInitialColumnsAndVariables()
-    }, 0)
-  })
-
-  function setupInitialColumnsAndVariables() {
-    initialScrollParentWidth = scrollParentWidth
-
-    if (!initialScrollParentWidth) alert('Undefined initialScrollParentWidth')
-
-    setLeftEdgeIdx()
-    setRightEdgeIdx()
-    leftTriggerIdx = leftEdgeIdx - c
-    rightTriggerIdx = rightEdgeIdx + c
-
     setupCalListener(
       calOriginDT.plus({ days: leftEdgeIdx - 2*c }),
       calOriginDT.plus({ days: rightEdgeIdx + 2*c })
     )
+    leftTriggerIdx = leftEdgeIdx - c
+    rightTriggerIdx = rightEdgeIdx + c
+  })
 
-    updateActiveColumns()
-  }
-
-  function reactToScroll (leftEdgeIdx, rightEdgeIdx) {
-    // note: `leftEdgeIdx` can jump non-consecutively depending on how fast the user is scrolling
-    if (leftEdgeIdx <= leftTriggerIdx && leftEdgeIdx !== prevLeftEdgeIdx) {
+  function manageListeners (leftEdgeIdx, rightEdgeIdx) {
+    if (leftEdgeIdx <= leftTriggerIdx) { // leftTriggerIdx is strictly decreasing, preventing duplicate listeners
       const triggerDT = calOriginDT.plus({ days: leftTriggerIdx })
       setupCalListener(
         triggerDT.minus({ days: 1 + 3*c }),
         triggerDT.minus({ days: 1 + c })
       )      
       leftTriggerIdx -= 1 + 2*c
-    } else if (rightEdgeIdx >= rightTriggerIdx && rightEdgeIdx !== prevRightEdgeIdx) {
+    } else if (rightEdgeIdx >= rightTriggerIdx) { // rightTriggerIdx is strictly increasing, preventing duplicate listeners
       const triggerDT = calOriginDT.plus({ days: rightTriggerIdx })
       setupCalListener(
         triggerDT.plus({ days: 1 + c }),
@@ -89,36 +68,24 @@
       )
       rightTriggerIdx += 1 + 2*c
     }
+  }
 
+  function updateRenderedColumns (leftEdgeIdx, rightEdgeIdx) {
     if (leftEdgeIdx <= prevLeftEdgeIdx - c || rightEdgeIdx >= prevRightEdgeIdx + c) {
-      updateActiveColumns()
+      const output = []
+      for (let i = leftEdgeIdx - 2 * c; i <= rightEdgeIdx + 2 * c; i++) {
+        let dt = calOriginDT.plus({ days: i })
+        dt = dt.set({
+          hour: Number($calEarliestHHMM.split(':')[0]), 
+          minute: Number($calEarliestHHMM.split(':')[1])
+        })
+        output.push(dt)
+      }
+      dtOfActiveColumns = output
+
+      prevRightEdgeIdx = rightEdgeIdx
+      prevLeftEdgeIdx = leftEdgeIdx
     }
-  }
-
-  function updateActiveColumns() {
-    const output = []
-    for (let i = leftEdgeIdx - 2 * c; i <= rightEdgeIdx + 2 * c; i++) {
-      let dt = calOriginDT.plus({ days: i })
-      dt = dt.set({
-        hour: Number($calEarliestHHMM.split(':')[0]), 
-        minute: Number($calEarliestHHMM.split(':')[1])
-      })
-      output.push(dt)
-    }
-    dtOfActiveColumns = output
-
-    prevRightEdgeIdx = rightEdgeIdx
-    prevLeftEdgeIdx = leftEdgeIdx
-  }
-
-  function setLeftEdgeIdx() {
-    leftEdgeIdx = Math.floor(scrollX / COLUMN_WIDTH)
-  }
-
-  function setRightEdgeIdx() {
-    rightEdgeIdx = Math.ceil(
-      (scrollX + initialScrollParentWidth) / COLUMN_WIDTH
-    )
   }
 </script>
 
@@ -136,8 +103,6 @@
   />
 
   <div id="scroll-parent"
-    bind:this={ScrollParent}
-    use:trackWidth={newWidth => scrollParentWidth = newWidth}
     on:scroll={e => scrollX = e.target.scrollLeft}
   >
     <div class="scroll-content" style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px">
