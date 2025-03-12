@@ -69,18 +69,18 @@
 
   function updateRenderedColumns (viewportLeft, viewportRight) {
     if (viewportLeft - renderedLeft < c || renderedRight - viewportRight < c) {
-      const output = []
-      for (let i = viewportLeft - 2*c; i <= viewportRight + 2*c; i++) {
-        let dt = originDT.plus({ days: i })
-        dt = dt.set({
-          hour: Number($calEarliestHHMM.split(':')[0]), 
-          minute: Number($calEarliestHHMM.split(':')[1])
-        })
-        output.push(dt)
-      }
-      renderedColumnDTs = output
       renderedLeft = viewportLeft - 2*c
       renderedRight = viewportRight + 2*c
+
+      const output = []
+      const [hour, minute] = $calEarliestHHMM.split(':').map(Number) // map works because `Number` is a built-in JS function
+      
+      for (let i = renderedLeft; i <= renderedRight; i++) {
+        output.push(
+          originDT.plus({ days: i }).set({ hour, minute })
+        )
+      }
+      renderedColumnDTs = output
     }
   }
 </script>
