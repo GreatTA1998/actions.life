@@ -13,18 +13,18 @@
     grabOffset, activeDragItem,
     timestamps, getMinutesDiff, calEarliestHHMM, totalMinutes, calLastHHMM, calSnapInterval
   } from "/src/store"
+  import { pixelsPerHour } from '/src/store/calendarStore.js'
 
   import { onMount, createEventDispatcher, onDestroy } from "svelte"
 
   export let dt
   export let scheduledTasks = []
-  export let pixelsPerHour
 
   let OverallContainer
   let isDirectlyCreatingTask = false
   let formFieldTopPadding = 40
   let yPosition
-  let pixelsPerMinute = pixelsPerHour / 60
+  let pixelsPerMinute = $pixelsPerHour / 60
   const dispatch = createEventDispatcher()
 
   // TO-DO: deprecate with luxon, but requires re-working <CreateTaskDirectly> perhaps with portals
@@ -49,7 +49,7 @@
 
   function getOffset({ dt1, dt2 }) {
     const minutesDiff = dt2.diff(dt1, 'minutes').minutes
-    return (pixelsPerHour / 60) * minutesDiff 
+    return ($pixelsPerHour/60) * minutesDiff 
   }
 
   function dragover_handler(e) {
@@ -67,7 +67,7 @@
 
     const dropY = getY(e)
     let resultDT = dt.plus({ 
-      hours: (dropY - $grabOffset) / pixelsPerHour 
+      hours: (dropY - $grabOffset) / $pixelsPerHour
     })
     
     resultDT = snapToNearestInterval(resultDT, $calSnapInterval)
@@ -104,7 +104,7 @@
   function getResultantDateClassObject (trueY) {
     const calendarStartAsMs = dt.toMillis()
 
-    const totalHoursDistance = trueY / pixelsPerHour;
+    const totalHoursDistance = trueY / $pixelsPerHour;
     const totalMsDistance = totalHoursDistance * 60 * 60 * 1000
 
     // Add them together: https://stackoverflow.com/a/12795802/7812829
@@ -142,21 +142,18 @@
       {#if task.iconURL}
         <!-- TO-DO: think about how attaching photos to icon tasks work -->
         <IconTaskElement {task}
-          {pixelsPerHour}
           fontSize={0.8}
           on:task-click
           on:task-update
         />
       {:else if task.imageDownloadURL}
         <PhotoTaskElement {task}
-          {pixelsPerHour}
           fontSize={0.8}
           on:task-click
           on:task-update
         />
       {:else}
         <TaskElement {task}
-          {pixelsPerHour}
           fontSize={0.8}
           hasCheckbox
           on:task-click

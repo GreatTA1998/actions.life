@@ -18,7 +18,6 @@
 
   const TOTAL_COLUMNS = 365
   const COLUMN_WIDTH = 200
-  const PIXELS_PER_HOUR = 80
   const CORNER_LABEL_HEIGHT = 110
   const c = 4
 
@@ -90,7 +89,6 @@
     <div class="scroll-content" style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px">
       <TimestampLabels
         {isCompact}
-        pixelsPerHour={PIXELS_PER_HOUR}
         topMargin={exactHeight}
       />
       {#if renderedColumnDTs[0] && $tasksScheduledOn}
@@ -112,7 +110,6 @@
             {#each renderedColumnDTs as dt, i (dt.toMillis() + `-${i}`)}
               <DayColumn {dt}
                 scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
-                pixelsPerHour={PIXELS_PER_HOUR}
                 on:task-click
                 on:task-create
                 on:task-update

@@ -1,15 +1,15 @@
 <script>
   import { WIDTHS } from '/src/helpers/constants.js'
   import { timestamps, calEarliestHHMM, totalMinutes } from '/src/store/calendarTimestamps.js'
-
-  export let pixelsPerHour
+  import { pixelsPerHour } from '/src/store/calendarStore.js'
+      
   export let topMargin
   export let isCompact = false
 
   let timestampsColumnWidth = isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
 
   function getTopOffset (timestamp) {
-    return (timeToMinutes(timestamp) - timeToMinutes($calEarliestHHMM)) * (pixelsPerHour / 60)
+    return (timeToMinutes(timestamp) - timeToMinutes($calEarliestHHMM)) * ($pixelsPerHour / 60)
   }
 
   function timeToMinutes (time) {
@@ -19,7 +19,7 @@
 </script>
 
 <div class="timestamps" style="
-  height: {$totalMinutes * (pixelsPerHour / 60)}px;
+  height: {$totalMinutes * ($pixelsPerHour / 60)}px;
   --timestamps-column-width: {timestampsColumnWidth}px; 
   margin-top: {topMargin}px;
 "

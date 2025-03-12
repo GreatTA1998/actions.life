@@ -99,13 +99,13 @@
  import { getTrueY } from '/src/helpers/everythingElse.js'
  import { grabOffset, activeDragItem, openDetailedCard } from '/src/store'
  import { lazyCallable } from '/src/helpers/actions.js'
+ import { pixelsPerHour } from '/src/store/calendarStore.js'
 
  export let task = null
- export let pixelsPerHour = null
 
  export let fontSize = 1
 
- $: height = (pixelsPerHour / 60) * task.duration
+ $: height = ($pixelsPerHour / 60) * task.duration
  $: isBulletPoint = height < 24 // 24px is exactly enough to not crop the checkbox and the task name
 
  const dispatch = createEventDispatcher()
@@ -137,7 +137,7 @@
      task.duration = 10
    }
 
-   const hoursPerPixel = 1 / pixelsPerHour
+   const hoursPerPixel = 1 / $pixelsPerHour
    const minutesPerPixel = 60 * hoursPerPixel
 
    const newY = getTrueY(e)

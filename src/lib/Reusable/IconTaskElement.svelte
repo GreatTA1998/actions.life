@@ -102,15 +102,15 @@
   import { getTrueY } from '/src/helpers/everythingElse.js'
   import { grabOffset, activeDragItem, openDetailedCard } from '/src/store'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
+  import { pixelsPerHour } from '/src/store/calendarStore.js'
 
   export let task = null
-  export let pixelsPerHour = null
 
   export let fontSize = 1
 
   const iconMinPixelHeight = 32
 
-  $: height = (pixelsPerHour / 60) * task.duration
+  $: height = ($pixelsPerHour / 60) * task.duration
   $: isBulletPoint = height < iconMinPixelHeight
 
   const dispatch = createEventDispatcher()
@@ -141,7 +141,7 @@
       task.duration = 10
     }
 
-    const hoursPerPixel = 1 / pixelsPerHour
+    const hoursPerPixel = 1 / $pixelsPerHour
     const minutesPerPixel = 60 * hoursPerPixel
 
     const newY = getTrueY(e)
