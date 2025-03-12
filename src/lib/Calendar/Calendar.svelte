@@ -85,13 +85,13 @@
     <div class="scroll-content" style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px">
       <TimestampLabels/>
 
-      {#if renderedColumnDTs[0] && $tasksScheduledOn}
+      {#if renderedColumnDTs[0]}
         <div
           style:left={`${renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px`}
           class="rendered-days" 
         >
           <div use:trackHeight={h => headerHeight.set(h)} class="headers-flexbox bottom-border">
-            {#each renderedColumnDTs as dt, i (dt.toFormat('yyyy-MM-dd') + `-${i}`)}
+            {#each renderedColumnDTs as dt (dt.toMillis())}
               <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')}
                 on:task-click on:task-create on:task-update
               />
@@ -99,7 +99,7 @@
           </div>
 
           <div class="day-columns">
-            {#each renderedColumnDTs as dt, i (dt.toMillis() + `-${i}`)}
+            {#each renderedColumnDTs as dt (dt.toMillis())}
               <DayColumn {dt}
                 scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
                 on:task-click on:task-create on:task-update
