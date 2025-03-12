@@ -29,7 +29,9 @@
 
   $: viewportLeft = Math.floor(scrollX / COLUMN_WIDTH)
   $: viewportRight = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
+
   $: updateRenderedColumns(viewportLeft, viewportRight)
+  
   $: if (viewportLeft <= triggerLeft) addPastListener()  
   $: if (viewportRight >= triggerRight) addFutureListener()
 
