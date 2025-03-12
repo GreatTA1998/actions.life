@@ -9,7 +9,7 @@ import { size, cushion } from '/src/helpers/constants.js'
 const activeListeners = {}
 const tasksCache = new Map()
 
-export function setupInitialCalendarTasks(uid) {
+export function setupInitialCalendarTasks (uid) {
   const today = DateTime.now()
   const left = today.minus({ days: size + cushion })
   const right = today.plus({ days: size + cushion })
@@ -43,10 +43,9 @@ function listenToDateRange (userUID, leftISO, rightISO) {
 }
 
 export function updateTasksForDateRange (flatArray, startDate, endDate) {
-  if (!flatArray || !Array.isArray(flatArray) || flatArray.length === 0) {
-    return
-  }
-
+  if (!flatArray?.length) return
+  
+  // Update tasks cache
   for (const task of flatArray) {
     tasksCache.set(task.id, task)
   }
@@ -62,43 +61,44 @@ export function updateTasksForDateRange (flatArray, startDate, endDate) {
   })
 }
 
-/**
- * Constructs subtrees for every scheduled node in a given date range
- * Because of aliasing, the forest builds properly despite that the nodes aren't processed in any particular order
- * @param {Array} firestoreTaskDocs - All necessary tasks to reconstruct scheduled tasks and their subtrees
- * @returns {Array} - Array of trees, detached subtrees etc. where each subtree's root has a `startDateISO
- */
 function constructForest (firestoreTaskDocs) {
   const forest = new Map()
+  
+  // First pass: create all nodes
   for (const task of firestoreTaskDocs) {
     forest.set(task.id, { ...task, children: [] })
   }
+  
+  // Second pass: build the forest (note: due to aliasing, we don't need to process nodes in topological order)
   for (const tree of forest.values()) {
-    if (tree.parentID && forest.has(tree.parentID)) { // you can deprecate `forest.has(tree.parentID)` iff `rootStartDateISO` is correctly set for all tasks
+    if (tree.parentID && forest.has(tree.parentID)) { // you can deprecate `forest.has(tree.parentID)` when `rootStartDateISO` is correctly set for all tasks
       forest.get(tree.parentID).children.push(tree)
     }
   }
+  
   return Array.from(forest.values()).filter(tree => tree.startDateISO)
 }
 
 function computeDateToTasksDict (forest) {
   const dateToTasks = {}
+  
   forest.forEach(tree => {
     addTaskToDate(tree, tree.startDateISO, dateToTasks)
   })
   
-  // Sort tasks with startTime for predictable drag behavior
-  for (const [key, value] of Object.entries(dateToTasks)) {
-    if (value.hasStartTime && value.hasStartTime.length > 0) {
-      value.hasStartTime = value.hasStartTime.sort((a, b) => {
-        return pureNumericalHourForm(a.startTime) - pureNumericalHourForm(b.startTime)
-      })
+  // Ensure consistent drag-behavior for overlapping tasks (later elements are "on top" due to HTML stacking order)
+  for (const taskGroups of Object.values(dateToTasks)) {
+    if (taskGroups.hasStartTime?.length > 0) {
+      taskGroups.hasStartTime.sort((a, b) => 
+        pureNumericalHourForm(a.startTime) - pureNumericalHourForm(b.startTime)
+      )
     }
   }
+  
   return dateToTasks
 }
 
-function addTaskToDate(task, date, dateToTasks) {
+function addTaskToDate (task, date, dateToTasks) {
   if (!dateToTasks[date]) {
     dateToTasks[date] = { 
       hasStartTime: [], 
@@ -115,18 +115,15 @@ function addTaskToDate(task, date, dateToTasks) {
 }
 
 /** Updates a calendar task and handles cascading updates to descendants */
-export async function updateCalendarTask({ uid, taskID, keyValueChanges }) {
+export async function updateCalendarTask ({ uid, taskID, keyValueChanges }) {
   try {
     const task = tasksCache.get(taskID)
-    if (!task) {
-      throw new Error(`Task ${taskID} not found in cache`)
-    }
+    if (!task) throw new Error(`Task ${taskID} not found in cache`)
 
     const isRescheduling = 'startDateISO' in keyValueChanges
     const isReparenting = 'parentID' in keyValueChanges
     const updatedChanges = { ...keyValueChanges }
     
-    // Handle rootStartDateISO updates
     if (isRescheduling || isReparenting) {
       let newRootStartDateISO = task.rootStartDateISO
       
@@ -144,7 +141,6 @@ export async function updateCalendarTask({ uid, taskID, keyValueChanges }) {
         }
       }
       
-      // Update rootStartDateISO if it changed
       if (newRootStartDateISO !== task.rootStartDateISO) {
         updatedChanges.rootStartDateISO = newRootStartDateISO
         
@@ -162,7 +158,6 @@ export async function updateCalendarTask({ uid, taskID, keyValueChanges }) {
       }
     }
     
-    // Simple update without rootStartDateISO changes
     await Tasks.updateTaskDoc({ userUID: uid, taskID, keyValueChanges: updatedChanges })
     
     return {
@@ -177,39 +172,36 @@ export async function updateCalendarTask({ uid, taskID, keyValueChanges }) {
   }
 }
 
-async function updateDescendantsRootStartDateISO(uid, taskID, rootStartDateISO) {
-  console.log('update descendants rootStartDateISO')
+async function updateDescendantsRootStartDateISO (uid, taskID, rootStartDateISO) {
   const children = Array.from(tasksCache.values()).filter(task => task.parentID === taskID)
-  if (!children.length) return // Base case
+  if (!children.length) return // base case
   
   const batch = writeBatch(db)
   
-  // Update each child in batch
   children.forEach(child => {
     const childRef = doc(db, 'users', uid, 'tasks', child.id)
     batch.update(childRef, { rootStartDateISO })
   })
   
-  // Commit batch update
   await batch.commit()
   
-  // Recursively update descendants
   await Promise.all(children.map(child => 
     updateDescendantsRootStartDateISO(uid, child.id, rootStartDateISO)
   ))
 }
 
-export function cleanupCalendarListeners() {
+export function cleanupCalendarListeners () {
   Object.entries(activeListeners).forEach(([key, unsubscribe]) => {
     if (typeof unsubscribe === 'function') {
       unsubscribe()
       console.log(`Cleaned up calendar listener for range ${key}`)
     }
   })
+  
   Object.keys(activeListeners).forEach(key => delete activeListeners[key])
 }
 
-export async function setupMobileCalendarTasks(uid) {
+export async function setupMobileCalendarTasks (uid) {
   const today = DateTime.now()
   const leftDate = today.minus({ days: 7 })
   const rightDate = today.plus({ days: 7 })

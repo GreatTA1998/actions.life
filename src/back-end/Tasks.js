@@ -106,17 +106,21 @@ const updateTaskDoc = ({ userUID, taskID, keyValueChanges }) => {
   return updateDoc(doc(db, "users", userUID, 'tasks', taskID), keyValueChanges);
 };
 
-// Delete a task
+// Delete a task and update its children
 const remove = async ({ userUID, taskID }) => {
-  deleteDoc(doc(db, "users", userUID, 'tasks', taskID));
-  const childrenSnapshot = await getDocs(query(collection(db, "users", userUID, "tasks"), where("parentID", "==", taskID)));
+  const batch = writeBatch(db)
+
+  const childrenSnapshot = await getDocs(
+    query(collection(db, "users", userUID, "tasks"), where("parentID", "==", taskID))
+  )
+  batch.delete(doc(db, "users", userUID, 'tasks', taskID))
+  
   if (!childrenSnapshot.empty) {
-    const updatePromises = childrenSnapshot.docs.map(child =>
-      updateDoc(child.ref, { parentID: "" })
-    );
-    await Promise.all(updatePromises);
+    childrenSnapshot.docs.forEach(childDoc => {
+      batch.update(childDoc.ref, { parentID: "" })
+    })
   }
-  return;
+  await batch.commit()
 }
 
 // Get tasks in JSON format for a date range
