@@ -50,7 +50,7 @@
   .desktop-descriptive {
     font-size: 16px;
     margin-top: var(--height-main-content-top-margin); 
-    margin-left: var(--calendar-left-padding);
+    margin-left: var(--width-calendar-left-padding);
     flex-direction: column;
   }
 
@@ -77,12 +77,8 @@
   .collapse-arrow {
     position: absolute;
     bottom: 4px;
-    left: 50%;
-    /* moves the left edge of the arrow to the center */
-
-    transform: translateX(-50%);
-    /* shifts the arrow back by half its own width */
-
+    left: 50%; /* moves the left edge of the arrow to the center */
+    transform: translateX(-50%); /* shifts the arrow back by half its own width */
     right: auto;
     font-size: 26px;
     cursor: pointer;

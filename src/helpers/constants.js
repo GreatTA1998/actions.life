@@ -10,6 +10,7 @@ export const HEIGHTS = Object.freeze({
 
 export const WIDTHS = Object.freeze({
   CALENDAR_DAY_SECTION: 200,
+  CALENDAR_LEFT_PADDING: 16,
   MOBILE_TIME_AXIS: 30,
   DESKTOP_TIME_AXIS: 64
 })

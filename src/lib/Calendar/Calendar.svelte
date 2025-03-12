@@ -20,8 +20,7 @@
   const COLUMN_WIDTH = 200
   const PIXELS_PER_HOUR = 80
   const CORNER_LABEL_HEIGHT = 110
-  const middleIdx = Math.floor(TOTAL_COLUMNS / 2)
-  const c = 4 // 2c = 8, total rendered will be visible columns + (8)(2), so 16 additional columns
+  const c = 4
 
   let isShowingDockingArea = true
   let exactHeight = CORNER_LABEL_HEIGHT
@@ -32,7 +31,7 @@
   let triggerLeft = -Infinity
   let triggerRight = Infinity
 
-  let scrollX = middleIdx * COLUMN_WIDTH
+  let scrollX = Math.floor(TOTAL_COLUMNS / 2) * COLUMN_WIDTH // divergent from UI initially
 
   $: viewportLeft = Math.floor(scrollX / COLUMN_WIDTH)
   $: viewportRight = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
@@ -86,7 +85,8 @@
     <MultiPhotoUploader />
   </div>  
 
-  <YearAndMonthTile {viewportLeft}
+  <YearAndMonthTile 
+    {viewportLeft}
     {isCompact}
     {originDT}
     {exactHeight}
@@ -105,7 +105,7 @@
       />
 
       {#if renderedColumnDTs[0] && $tasksScheduledOn}
-        <div class="visible-days"
+        <div class="rendered-days"
           style:left={`${renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px`}
         >
           <div use:trackHeight={newHeight => exactHeight = newHeight}
@@ -141,30 +141,21 @@
 </div>
 
 <style>
-  :root {
-    /* NOTE: there might be more missing CSS variables, refer to Github if more issues emerge */
-    --calendar-left-padding: 16px;
-  }
-
   #scroll-parent {
     position: relative;
     overflow: auto;
   }
 
-  /* Hide scrollbar in Chrome, Safari and Opera */
-  #scroll-parent::-webkit-scrollbar {
+  #scroll-parent::-webkit-scrollbar { /* Hide scrollbar in Chrome, Safari and Opera */
     display: none;
   }
 
-  /* I vaguely remember I had to use grid so the children naturally take up 100% height */
   .calendar-wrapper {
-    height: 100%;
-    display: grid;
-    grid-template-rows: auto 1fr;
     position: relative;
-
-    /* this is key, otherwise it doesn't count as a stacking context  */
-    z-index: 0;
+    z-index: 0; /* otherwise it doesn't count as a stacking context */
+    display: grid; /* I vaguely remember I had to use grid so the children naturally take up 100% height */
+    grid-template-rows: auto 1fr;
+    height: 100%;
   }
 
   .scroll-content {
@@ -173,9 +164,8 @@
     background-color: var(--calendar-bg-color);
   }
 
-  .visible-days {
-    /* we use absolute positioning instead of `translateX` because iOS safari drag-drop is glitchy with translated elements */
-    position: absolute; 
+  .rendered-days {
+    position: absolute; /* instead of `translateX` because iOS safari drag-drop is glitchy with translated elements */
     left: 60px; /* Timestamp width */
   }
 
@@ -189,9 +179,7 @@
 
   .day-columns {
     display: flex;
-
-    /* timestamp has a height of 14px (despite a font size of 12px) */
-    padding-top: 7px;
+    padding-top: 7px; /* timestamp has a height of 14px (despite a font size of 12px) */
   }
 
   .bottom-border {
