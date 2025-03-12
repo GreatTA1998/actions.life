@@ -16,7 +16,7 @@
 
   const TOTAL_COLUMNS = 365
   const COLUMN_WIDTH = 200
-  const c = 4
+  const c = 4 // stands for "cushion"
 
   let originDT = DateTime.now().startOf('day').minus({ days: TOTAL_COLUMNS / 2 })
   let renderedColumnDTs = []
