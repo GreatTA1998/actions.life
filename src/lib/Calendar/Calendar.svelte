@@ -16,7 +16,7 @@
 
   const TOTAL_COLUMNS = 365
   const COLUMN_WIDTH = 200
-  const c = 4 // stands for "cushion"
+  const c = 4
 
   let originDT = DateTime.now().startOf('day').minus({ days: TOTAL_COLUMNS / 2 })
   let renderedColumnDTs = []
@@ -32,8 +32,8 @@
 
   $: updateRenderedColumns(viewportLeft, viewportRight)
   
-  $: if (viewportLeft <= triggerLeft) addPastListener()  
   $: if (viewportRight >= triggerRight) addFutureListener()
+  $: if (viewportLeft <= triggerLeft) addPastListener()  
 
   onMount(() => {
     setupCalListener(
@@ -44,20 +44,20 @@
     triggerRight = viewportRight + c
   })
 
-  function addPastListener () {
-    setupCalListener(
-      originDT.plus({ days: triggerLeft - (3*c + 1) }),
-      originDT.plus({ days: triggerLeft - (c + 1) })
-    )
-    triggerLeft -= 1 + 2*c
-  }
-
   function addFutureListener () {
     setupCalListener(
-      originDT.plus({ days: triggerRight + (c + 1) }),
-      originDT.plus({ days: triggerRight + (3*c + 1) })
+      originDT.plus({ days: (triggerRight + c) + 1 }),
+      originDT.plus({ days: (triggerRight + c) + 1 + 2*c }) 
     )
-    triggerRight += 1 + 2*c
+    triggerRight += (1 + 2*c)
+  }
+
+  function addPastListener () {
+    setupCalListener(
+      originDT.plus({ days: (triggerLeft - c) - 1 - 2*c }),
+      originDT.plus({ days: (triggerLeft - c) - 1 })
+    )
+    triggerLeft -= (1 + 2*c)
   }
 
   function updateRenderedColumns () {
