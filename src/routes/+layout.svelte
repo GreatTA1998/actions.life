@@ -41,13 +41,15 @@
   }
 </script>
 
+<!-- TO-DO: fix loader -->
+<!-- !(
+    doingAuth || $loadingTasks
+  ) -->
 <div
   id="loading-screen-logo-start"
   style="z-index: 99999; background: white; width: 100vw; height: 100vh"
   class="center"
-  class:invisible={!(
-    doingAuth || $loadingTasks
-  )}
+  class:invisible={true}
 >
   <img
     src="/trueoutput-square-nobg.png"
