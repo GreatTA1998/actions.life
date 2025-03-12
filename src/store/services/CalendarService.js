@@ -1,3 +1,8 @@
+/**
+ * Handles everything data-related for <Calendar/>, from snapshot listeners to tree building.
+ * 
+ * Assumes page.params.user is set
+ */
 import { DateTime } from 'luxon'
 import Tasks from '/src/back-end/Tasks'
 import { pureNumericalHourForm } from '/src/helpers/everythingElse.js'
@@ -5,30 +10,32 @@ import { tasksScheduledOn } from '../calendarStore.js'
 import { doc, collection, writeBatch, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
 import { size, cushion } from '/src/helpers/constants.js'
+import { page } from '$app/stores'
+import { get } from 'svelte/store'
 
 const activeListeners = {}
 const tasksCache = new Map()
 
-export function setupInitialCalendarTasks (uid) {
+export function setupInitialCalendarTasks () {
   const today = DateTime.now()
   const left = today.minus({ days: size + cushion })
   const right = today.plus({ days: size + cushion })
   
-  setupCalListener(uid, left, right)
+  setupCalListener(left, right)
 }
 
-export function setupCalListener (uid, leftDT, rightDT) {
+export function setupCalListener (leftDT, rightDT) {  
   const leftISO = leftDT.toFormat('yyyy-MM-dd')
   const rightISO = rightDT.toFormat('yyyy-MM-dd')
-  activeListeners[`${leftISO}_${rightISO}`] = listenToDateRange(uid, leftISO, rightISO)
+  activeListeners[`${leftISO}_${rightISO}`] = listenToDateRange(leftISO, rightISO)
 
   console.log('active listeners', activeListeners)
 }
 
-function listenToDateRange (userUID, leftISO, rightISO) {
+function listenToDateRange (leftISO, rightISO) {
   return onSnapshot(
     query(
-      collection(db, `/users/${userUID}/tasks`), 
+      collection(db, `/users/${get(page).params.user}/tasks`), 
       where('rootStartDateISO', '>=', leftISO),
       where('rootStartDateISO', '<=', rightISO)
     ),
@@ -45,7 +52,6 @@ function listenToDateRange (userUID, leftISO, rightISO) {
 export function updateTasksForDateRange (flatArray, startDate, endDate) {
   if (!flatArray?.length) return
   
-  // Update tasks cache
   for (const task of flatArray) {
     tasksCache.set(task.id, task)
   }
@@ -201,18 +207,8 @@ export function cleanupCalendarListeners () {
   Object.keys(activeListeners).forEach(key => delete activeListeners[key])
 }
 
-export async function setupMobileCalendarTasks (uid) {
-  const today = DateTime.now()
-  const leftDate = today.minus({ days: 7 })
-  const rightDate = today.plus({ days: 7 })
-  
-  setupCalListener(uid, leftDate, rightDate)
-  return Promise.resolve()
-}
-
 export default {
   setupInitialCalendarTasks,
-  setupMobileCalendarTasks,
   setupCalListener,
   updateTasksForDateRange,
   updateCalendarTask,

@@ -25,7 +25,6 @@
 
   onMount(() => {
     const uid = $page.params.user
-    CalendarService.setupInitialCalendarTasks(uid)
     TodoService.setupTodoListener(uid)
 
     loadingTasks.set(false)

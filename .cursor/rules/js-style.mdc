@@ -7,7 +7,7 @@ alwaysApply: false
 # Your rule content
 No semi-colons
 For function definitions, put a space before the param parenthesis
-Avoid docstrings unless you think it's high impact
+Avoid docstrings & comments unless you think it's high impact
 
 - You can @ files here
 - You can use markdown but dont have to

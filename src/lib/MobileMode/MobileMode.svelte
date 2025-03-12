@@ -145,9 +145,6 @@
 
   onMount(async () => {
     setupTodoListener(userID)
-    
-    setupMobileCalendarTasks(userID)
-
     // note, we fetch future events inside that component as a quickfix, so
     // it'll react to changes in calendar and todo
   })

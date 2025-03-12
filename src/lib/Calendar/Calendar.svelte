@@ -1,26 +1,23 @@
 <script>
+  /**
+   * Two-way almost-infinite-scroll calendar
+
+   * @see https://explanations.io/uRNISfkw0mE404Zn4GgH/ePfUWAU6CXL7leApJ9GP
+   */
   import TimestampLabels from './TimestampLabels.svelte'
   import DayColumn from './DayColumn.svelte'
   import DayHeader from './DayHeader.svelte'
-  import MultiPhotoUploader from '$lib/Reusable/MultiPhotoUploader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
-  import { onDestroy } from 'svelte'
+  import MultiPhotoUploader from '$lib/Reusable/MultiPhotoUploader.svelte'
+
   import { trackWidth, trackHeight } from '/src/helpers/actions.js'
   import { DateTime } from 'luxon'
-  
-  import {
-    user,
-    hasInitialScrolled, calEarliestHHMM
-  } from '/src/store'
+  import { hasInitialScrolled, calEarliestHHMM } from '/src/store'
   import { tasksScheduledOn } from '/src/store/calendarStore.js'
-
   import { setupCalListener } from '/src/store/services/CalendarService.js'
-
+  import { onMount } from 'svelte'
 
   export let isCompact = false
-
-  // Video explanation for this component (refer to related videos in the "Two-way infinite scroll" folder)
-  // https://www.explanations.io/uRNISfkw0mE404Zn4GgH/ePfUWAU6CXL7leApJ9GP
 
   const TOTAL_COLUMNS = 365
   const COLUMN_WIDTH = 200
@@ -38,7 +35,8 @@
   let ScrollParent
   let scrollParentWidth // width doesn't change during scroll, so bind:clientWidth shouldn't cause performance issues
   let scrollX = middleIdx * COLUMN_WIDTH
-  let initialScrollParentWidth
+
+  let initialScrollParentWidth // so width changes don't affect correctness arguments
 
   let leftEdgeIdx, prevLeftEdgeIdx, leftTriggerIdx
   let rightEdgeIdx, rightTriggerIdx, prevRightEdgeIdx
@@ -48,64 +46,49 @@
 
   $: setLeftEdgeIdx(scrollX)
   $: setRightEdgeIdx(scrollX)
+  $: if (leftEdgeIdx && rightEdgeIdx) reactToScroll(leftEdgeIdx, rightEdgeIdx)
 
-  $: reactToScroll(leftEdgeIdx, rightEdgeIdx)
-
-  $: if (scrollParentWidth && !leftTriggerIdx && !rightTriggerIdx) {
-    setupInitialColumnsAndVariables()
-  }
-  
-  $: if (!$hasInitialScrolled && ScrollParent) {
-    scrollToTodayColumn()
-  }
+  onMount(() => {
+    setTimeout(() => {
+      setupInitialColumnsAndVariables()
+    }, 0)
+  })
 
   function setupInitialColumnsAndVariables() {
     initialScrollParentWidth = scrollParentWidth
+
     setLeftEdgeIdx()
     setRightEdgeIdx()
-
     leftTriggerIdx = leftEdgeIdx - c
     rightTriggerIdx = rightEdgeIdx + c
+
+    setupCalListener(
+      calOriginDT.plus({ days: leftEdgeIdx - 2*c }),
+      calOriginDT.plus({ days: rightEdgeIdx + 2*c })
+    )
 
     updateActiveColumns()
   }
 
-  // NOTE: there are some subtle bugs for the date ranges, that sometimes overlap by 1 day etc.
-  // future always works
-  // past can be off by 1 day
-  // also this is probably affected by effective calendar width
   function reactToScroll (leftEdgeIdx, rightEdgeIdx) {
-    // note: `leftEdgeIdx` jumps non-consecutively sometimes depending on how fast the user is scrolling
+    // note: `leftEdgeIdx` can jump non-consecutively depending on how fast the user is scrolling
     if (leftEdgeIdx <= leftTriggerIdx && leftEdgeIdx !== prevLeftEdgeIdx) {
-      // Set up listener for past tasks
-      // Calculate a date range that's c+1 to 3c+1 days before the trigger point
       const triggerDT = calOriginDT.plus({ days: leftTriggerIdx })
-      const rightBound = triggerDT.minus({ days: c + 1 })
-      const leftBound = rightBound.minus({ days: 2 * c })
-      setupCalListener($user.uid, leftBound, rightBound)
-      
-      // Move the trigger point further left to prepare for the next scroll event
-      leftTriggerIdx -= 2 * c + 1
-    } else if (
-      rightEdgeIdx >= rightTriggerIdx &&
-      rightEdgeIdx !== prevRightEdgeIdx
-    ) {
-      // Set up listener for future tasks
-      // Calculate a date range that's c+1 to 3c+1 days after the trigger point
+      setupCalListener(
+        triggerDT.minus({ days: 1 + 3*c }),
+        triggerDT.minus({ days: 1 + c })
+      )      
+      leftTriggerIdx -= 1 + 2*c
+    } else if (rightEdgeIdx >= rightTriggerIdx && rightEdgeIdx !== prevRightEdgeIdx) {
       const triggerDT = calOriginDT.plus({ days: rightTriggerIdx })
-      const leftBound = triggerDT.plus({ days: c + 1 })
-      const rightBound = leftBound.plus({ days: 2 * c })
-      setupCalListener($user.uid, leftBound, rightBound)
-      
-      // Move the trigger point further right to prepare for the next scroll event
-      rightTriggerIdx += 2 * c + 1
+      setupCalListener(
+        triggerDT.plus({ days: 1 + c }),
+        triggerDT.plus({ days: 1 + 3*c })
+      )
+      rightTriggerIdx += 1 + 2*c
     }
 
-    // HANDLE DISPLAY
-    if (
-      leftEdgeIdx <= prevLeftEdgeIdx - c ||
-      rightEdgeIdx >= prevRightEdgeIdx + c
-    ) {
+    if (leftEdgeIdx <= prevLeftEdgeIdx - c || rightEdgeIdx >= prevRightEdgeIdx + c) {
       updateActiveColumns()
     }
   }
@@ -135,12 +118,6 @@
       (scrollX + initialScrollParentWidth) / COLUMN_WIDTH
     )
   }
-
-  function scrollToTodayColumn() {
-    requestAnimationFrame(() => {
-      ScrollParent.scrollLeft = middleIdx * COLUMN_WIDTH
-    }) // we don't set `hasInitialScrolled` to true, let <CurrentTimeIndicator/> finish off the rest of the logic when it mounts
-  }
 </script>
 
 <div class="calendar-wrapper">
@@ -148,9 +125,8 @@
     <MultiPhotoUploader />
   </div>  
 
-  <YearAndMonthTile
+  <YearAndMonthTile {leftEdgeIdx}
     {isCompact}
-    {leftEdgeIdx}
     {calOriginDT}
     {exactHeight}
     {isShowingDockingArea}
@@ -159,8 +135,8 @@
 
   <div id="scroll-parent"
     bind:this={ScrollParent}
-    use:trackWidth={(newWidth) => (scrollParentWidth = newWidth)}
-    on:scroll={(e) => (scrollX = e.target.scrollLeft)}
+    use:trackWidth={newWidth => scrollParentWidth = newWidth}
+    on:scroll={e => scrollX = e.target.scrollLeft}
   >
     <div class="scroll-content" style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px">
       <TimestampLabels
@@ -212,9 +188,12 @@
   }
 
   #scroll-parent {
-    overflow-y: scroll; /* Enable vertical scrolling */
-    -ms-overflow-style: none;  /* Hide scrollbar in IE and Edge */
-    scrollbar-width: none;  /* Hide scrollbar in Firefox */
+    position: relative;
+    overflow: auto;
+
+    /* Hide scrollbar in IE, Edge & Firefox */
+    -ms-overflow-style: none; 
+    scrollbar-width: none;    
   }
 
   /* Hide scrollbar in Chrome, Safari and Opera */
@@ -233,13 +212,6 @@
     z-index: 0;
   }
 
-  #scroll-parent {
-    overflow: auto;
-    position: relative;
-    
-    /* FIRST: do no harm (this property has downsides) But it's a last-resort fallback if there are performance issues */
-    /* will-change: scroll-position; */
-  }
 
   .scroll-content {
     position: relative;
