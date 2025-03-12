@@ -67,7 +67,7 @@
     triggerRight += 1 + 2*c
   }
 
-  function updateRenderedColumns (viewportLeft, viewportRight) {
+  function updateRenderedColumns () {
     if (viewportLeft - renderedLeft < c || renderedRight - viewportRight < c) {
       renderedLeft = viewportLeft - 2*c
       renderedRight = viewportRight + 2*c
