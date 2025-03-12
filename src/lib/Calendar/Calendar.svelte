@@ -1,6 +1,6 @@
 <script>
-  /** TWO-WAY "INFINITE" SCROLL CALENDAR
-   * @see https://explanations.io/uRNISfkw0mE404Zn4GgH/ePfUWAU6CXL7leApJ9GP */
+  /** @see https://explanations.io/uRNISfkw0mE404Zn4GgH/ePfUWAU6CXL7leApJ9GP */
+
   import TimestampLabels from './TimestampLabels.svelte'
   import DayColumn from './DayColumn.svelte'
   import DayHeader from './DayHeader.svelte'
@@ -20,60 +20,57 @@
   const COLUMN_WIDTH = 200
   const PIXELS_PER_HOUR = 80
   const CORNER_LABEL_HEIGHT = 110
-
-  let isShowingDockingArea = true
-  let exactHeight = CORNER_LABEL_HEIGHT
-
   const middleIdx = Math.floor(TOTAL_COLUMNS / 2)
   const c = 4 // 2c = 8, total rendered will be visible columns + (8)(2), so 16 additional columns
 
+  let isShowingDockingArea = true
+  let exactHeight = CORNER_LABEL_HEIGHT
   let calOriginDT = DateTime.now().startOf('day').minus({ days: TOTAL_COLUMNS / 2 })
-  let dtOfActiveColumns = []
-
-  let prevLeftEdgeIdx = Infinity
-  let prevRightEdgeIdx = -Infinity
-
-  let leftTriggerIdx, rightTriggerIdx
+  let renderedColumnDTs = []
+  let renderedLeft = Infinity
+  let renderedRight = -Infinity
+  let triggerLeft = -Infinity
+  let triggerRight = Infinity
 
   let scrollX = middleIdx * COLUMN_WIDTH
 
-  $: leftEdgeIdx = Math.floor(scrollX / COLUMN_WIDTH)
-  $: rightEdgeIdx = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
-
-  $: manageListeners(leftEdgeIdx, rightEdgeIdx) 
-  $: updateRenderedColumns(leftEdgeIdx, rightEdgeIdx)
+  $: viewportLeft = Math.floor(scrollX / COLUMN_WIDTH)
+  $: visibleRight = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
+  $: updateRenderedColumns(viewportLeft, visibleRight)
+  $: if (viewportLeft <= triggerLeft) addPastListener()  
+  $: if (visibleRight >= triggerRight) addFutureListener()
 
   onMount(() => {
     setupCalListener(
-      calOriginDT.plus({ days: leftEdgeIdx - 2*c }),
-      calOriginDT.plus({ days: rightEdgeIdx + 2*c })
+      calOriginDT.plus({ days: viewportLeft - 2*c }),
+      calOriginDT.plus({ days: visibleRight + 2*c })
     )
-    leftTriggerIdx = leftEdgeIdx - c
-    rightTriggerIdx = rightEdgeIdx + c
+    triggerLeft = viewportLeft - c
+    triggerRight = visibleRight + c
   })
 
-  function manageListeners (leftEdgeIdx, rightEdgeIdx) {
-    if (leftEdgeIdx <= leftTriggerIdx) { // leftTriggerIdx is strictly decreasing, preventing duplicate listeners
-      const triggerDT = calOriginDT.plus({ days: leftTriggerIdx })
-      setupCalListener(
-        triggerDT.minus({ days: 1 + 3*c }),
-        triggerDT.minus({ days: 1 + c })
-      )      
-      leftTriggerIdx -= 1 + 2*c
-    } else if (rightEdgeIdx >= rightTriggerIdx) { // rightTriggerIdx is strictly increasing, preventing duplicate listeners
-      const triggerDT = calOriginDT.plus({ days: rightTriggerIdx })
-      setupCalListener(
-        triggerDT.plus({ days: 1 + c }),
-        triggerDT.plus({ days: 1 + 3*c })
-      )
-      rightTriggerIdx += 1 + 2*c
-    }
+  function addPastListener () {
+    const triggerDT = calOriginDT.plus({ days: triggerLeft })
+    setupCalListener(
+      triggerDT.minus({ days: 1 + 3*c }),
+      triggerDT.minus({ days: 1 + c })
+    )      
+    triggerLeft -= 1 + 2*c
   }
 
-  function updateRenderedColumns (leftEdgeIdx, rightEdgeIdx) {
-    if (leftEdgeIdx <= prevLeftEdgeIdx - c || rightEdgeIdx >= prevRightEdgeIdx + c) {
+  function addFutureListener () {
+    const triggerDT = calOriginDT.plus({ days: triggerRight })
+    setupCalListener(
+      triggerDT.plus({ days: 1 + c }),
+      triggerDT.plus({ days: 1 + 3*c })
+    )
+    triggerRight += 1 + 2*c
+  }
+
+  function updateRenderedColumns (viewportLeft, visibleRight) {
+    if (viewportLeft - renderedLeft < c || renderedRight - visibleRight < c) {
       const output = []
-      for (let i = leftEdgeIdx - 2 * c; i <= rightEdgeIdx + 2 * c; i++) {
+      for (let i = viewportLeft - 2*c; i <= visibleRight + 2*c; i++) {
         let dt = calOriginDT.plus({ days: i })
         dt = dt.set({
           hour: Number($calEarliestHHMM.split(':')[0]), 
@@ -81,10 +78,10 @@
         })
         output.push(dt)
       }
-      dtOfActiveColumns = output
+      renderedColumnDTs = output
 
-      prevRightEdgeIdx = rightEdgeIdx
-      prevLeftEdgeIdx = leftEdgeIdx
+      renderedLeft = viewportLeft - 2*c
+      renderedRight = visibleRight + 2*c
     }
   }
 </script>
@@ -94,14 +91,14 @@
     <MultiPhotoUploader />
   </div>  
 
-  <YearAndMonthTile {leftEdgeIdx}
+  <YearAndMonthTile {viewportLeft}
     {isCompact}
     {calOriginDT}
     {exactHeight}
     {isShowingDockingArea}
     on:toggle-docking-area={() => isShowingDockingArea = !isShowingDockingArea}
   />
-
+  
   <div id="scroll-parent"
     on:scroll={e => scrollX = e.target.scrollLeft}
   >
@@ -112,15 +109,15 @@
         topMargin={exactHeight}
       />
 
-      {#if dtOfActiveColumns[0] && $tasksScheduledOn}
+      {#if renderedColumnDTs[0] && $tasksScheduledOn}
         <div class="visible-days"
-          style:left={`${dtOfActiveColumns[0].diff(calOriginDT, 'days').days * COLUMN_WIDTH}px`}
+          style:left={`${renderedColumnDTs[0].diff(calOriginDT, 'days').days * COLUMN_WIDTH}px`}
         >
           <div use:trackHeight={newHeight => exactHeight = newHeight}
             class="headers-flexbox"
             class:bottom-border={$tasksScheduledOn}
           >
-            {#each dtOfActiveColumns as dt, i (dt.toFormat('yyyy-MM-dd') + `-${i}`)}
+            {#each renderedColumnDTs as dt, i (dt.toFormat('yyyy-MM-dd') + `-${i}`)}
               <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')}
                 {isCompact}
                 {isShowingDockingArea}
@@ -132,7 +129,7 @@
           </div>
 
           <div class="day-columns">
-            {#each dtOfActiveColumns as dt, i (dt.toMillis() + `-${i}`)}
+            {#each renderedColumnDTs as dt, i (dt.toMillis() + `-${i}`)}
               <DayColumn {dt}
                 scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
                 pixelsPerHour={PIXELS_PER_HOUR}
@@ -179,7 +176,6 @@
     z-index: 0;
   }
 
-
   .scroll-content {
     position: relative;
     display: flex;
@@ -189,7 +185,6 @@
   .visible-days {
     /* we use absolute positioning instead of `translateX` because iOS safari drag-drop is glitchy with translated elements */
     position: absolute; 
-
     left: 60px; /* Timestamp width */
   }
 

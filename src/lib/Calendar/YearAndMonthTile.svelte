@@ -6,7 +6,7 @@
   export let exactHeight
   export let monthName
   export let isShowingDockingArea
-  export let leftEdgeIdx
+  export let viewportLeft
   export let calOriginDT
   export let isCompact = false
 
@@ -14,8 +14,8 @@
 
   const dispatch = createEventDispatcher()
 
-  $: monthName = leftEdgeIdx ? calOriginDT.plus({ days: leftEdgeIdx }).toFormat('LLL') : ''
-  $: yearName = leftEdgeIdx ? calOriginDT.plus({ days: leftEdgeIdx }).toFormat('yyyy') : ''
+  $: monthName = viewportLeft ? calOriginDT.plus({ days: viewportLeft }).toFormat('LLL') : ''
+  $: yearName = viewportLeft ? calOriginDT.plus({ days: viewportLeft }).toFormat('yyyy') : ''
 </script>
 
 <div class="corner-label" style="
