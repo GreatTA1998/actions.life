@@ -1,18 +1,15 @@
 <script>
   import { tasksScheduledOn } from '/src/store'
-  import { createEventDispatcher } from 'svelte'
+  import { headerExpanded } from '/src/store/calendarStore.js'
   import { WIDTHS } from '/src/helpers/constants.js'
 
   export let exactHeight
   export let monthName
-  export let isShowingDockingArea
   export let viewportLeft
   export let originDT
   export let isCompact = false
 
   let exactWidth = isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
-
-  const dispatch = createEventDispatcher()
 
   $: monthName = viewportLeft ? originDT.plus({ days: viewportLeft }).toFormat('LLL') : ''
   $: yearName = viewportLeft ? originDT.plus({ days: viewportLeft }).toFormat('yyyy') : ''
@@ -38,10 +35,10 @@
   </div>
 
   {#if $tasksScheduledOn}
-    <button on:click={() => dispatch('toggle-docking-area')}
+    <button on:click={() => headerExpanded.set(!$headerExpanded)}
       class="collapse-arrow material-symbols-outlined"
     >
-      {isShowingDockingArea ? "expand_less" : "expand_more"}
+      {$headerExpanded ? "expand_less" : "expand_more"}
     </button>
   {/if}
 </div>

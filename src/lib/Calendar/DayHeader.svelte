@@ -4,10 +4,10 @@
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { createEventDispatcher } from 'svelte'
   import { tasksScheduledOn, activeDragItem } from '/src/store'
+  import { headerExpanded } from '/src/store/calendarStore.js'
   import { DateTime } from 'luxon'
 
   export let ISODate
-  export let isShowingDockingArea
   export let isCompact = false
 
   const dispatch = createEventDispatcher()
@@ -65,7 +65,7 @@
     </div>
   </div>
 
-  {#if isShowingDockingArea}
+  {#if $headerExpanded}
     <div style="overflow: hidden; margin-top: {isCompact ? '0' : '4'}px;">
       {#if $tasksScheduledOn}
         {#if $tasksScheduledOn[ISODate]}
@@ -89,7 +89,6 @@
       {/if}
     </div>
   {/if}
-  <!-- END OF DOCKING AREA -->
 
   {#if isDirectlyCreatingTask}
     <div id="calendar-direct-task-div">

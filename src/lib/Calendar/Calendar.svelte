@@ -22,7 +22,6 @@
   const CORNER_LABEL_HEIGHT = 110
   const c = 4
 
-  let isShowingDockingArea = true
   let exactHeight = CORNER_LABEL_HEIGHT
   let originDT = DateTime.now().startOf('day').minus({ days: TOTAL_COLUMNS / 2 })
   let renderedColumnDTs = []
@@ -31,7 +30,7 @@
   let triggerLeft = -Infinity
   let triggerRight = Infinity
 
-  let scrollX = Math.floor(TOTAL_COLUMNS / 2) * COLUMN_WIDTH // divergent from UI initially
+  let scrollX = Math.floor(TOTAL_COLUMNS / 2) * COLUMN_WIDTH // divergent from the UI initially
 
   $: viewportLeft = Math.floor(scrollX / COLUMN_WIDTH)
   $: viewportRight = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
@@ -85,44 +84,30 @@
     <MultiPhotoUploader />
   </div>  
 
-  <YearAndMonthTile 
-    {viewportLeft}
-    {isCompact}
-    {originDT}
-    {exactHeight}
-    {isShowingDockingArea}
-    on:toggle-docking-area={() => isShowingDockingArea = !isShowingDockingArea}
-  />
-  
-  <div id="scroll-parent"
-    on:scroll={e => scrollX = e.target.scrollLeft}
-  >
+  <YearAndMonthTile {viewportLeft} {isCompact} {originDT} {exactHeight}/>
+
+  <div id="scroll-parent" on:scroll={e => scrollX = e.target.scrollLeft}>
     <div class="scroll-content" style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px">
       <TimestampLabels
         {isCompact}
         pixelsPerHour={PIXELS_PER_HOUR}
         topMargin={exactHeight}
       />
-
       {#if renderedColumnDTs[0] && $tasksScheduledOn}
-        <div class="rendered-days"
+        <div
           style:left={`${renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px`}
+          class="rendered-days" 
         >
-          <div use:trackHeight={newHeight => exactHeight = newHeight}
-            class="headers-flexbox"
-            class:bottom-border={$tasksScheduledOn}
-          >
+          <div use:trackHeight={newHeight => exactHeight = newHeight} class="headers-flexbox" class:bottom-border={$tasksScheduledOn}>
             {#each renderedColumnDTs as dt, i (dt.toFormat('yyyy-MM-dd') + `-${i}`)}
               <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')}
                 {isCompact}
-                {isShowingDockingArea}
                 on:task-click
                 on:task-create
                 on:task-update
               />
             {/each}
           </div>
-
           <div class="day-columns">
             {#each renderedColumnDTs as dt, i (dt.toMillis() + `-${i}`)}
               <DayColumn {dt}
