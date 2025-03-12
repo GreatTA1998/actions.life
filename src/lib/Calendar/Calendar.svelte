@@ -57,6 +57,8 @@
   function setupInitialColumnsAndVariables() {
     initialScrollParentWidth = scrollParentWidth
 
+    if (!initialScrollParentWidth) alert('Undefined initialScrollParentWidth')
+
     setLeftEdgeIdx()
     setRightEdgeIdx()
     leftTriggerIdx = leftEdgeIdx - c
