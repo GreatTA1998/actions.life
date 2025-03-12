@@ -45,19 +45,17 @@
   })
 
   function addPastListener () {
-    const triggerDT = originDT.plus({ days: triggerLeft })
     setupCalListener(
-      triggerDT.minus({ days: 1 + 3*c }),
-      triggerDT.minus({ days: 1 + c })
-    )      
+      originDT.plus({ days: triggerLeft - (3*c + 1) }),
+      originDT.plus({ days: triggerLeft - (c + 1) })
+    )
     triggerLeft -= 1 + 2*c
   }
 
   function addFutureListener () {
-    const triggerDT = originDT.plus({ days: triggerRight })
     setupCalListener(
-      triggerDT.plus({ days: 1 + c }),
-      triggerDT.plus({ days: 1 + 3*c })
+      originDT.plus({ days: triggerRight + (c + 1) }),
+      originDT.plus({ days: triggerRight + (3*c + 1) })
     )
     triggerRight += 1 + 2*c
   }
