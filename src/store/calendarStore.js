@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store'
+import { HEIGHTS } from '/src/helpers/constants.js'
 
 export const calendarTasks = writable([])
 
@@ -7,3 +8,7 @@ export const tasksScheduledOn = writable({})
 export const headerExpanded = writable(true)
 
 export const pixelsPerHour = writable(80)
+
+export const headerHeight = writable(HEIGHTS.CORNER_LABEL)
+
+export const isCompact = writable(false)

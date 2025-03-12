@@ -10,18 +10,14 @@
   import { trackHeight } from '/src/helpers/actions.js'
   import { DateTime } from 'luxon'
   import { calEarliestHHMM } from '/src/store'
-  import { tasksScheduledOn } from '/src/store/calendarStore.js'
+  import { tasksScheduledOn, headerHeight } from '/src/store/calendarStore.js'
   import { setupCalListener } from '/src/store/services/CalendarService.js'
   import { onMount } from 'svelte'
 
-  export let isCompact = false
-
   const TOTAL_COLUMNS = 365
   const COLUMN_WIDTH = 200
-  const CORNER_LABEL_HEIGHT = 110
-  const c = 4
+  const c = 4 // stands for "cushion"
 
-  let exactHeight = CORNER_LABEL_HEIGHT
   let originDT = DateTime.now().startOf('day').minus({ days: TOTAL_COLUMNS / 2 })
   let renderedColumnDTs = []
   let renderedLeft = Infinity
@@ -83,36 +79,30 @@
     <MultiPhotoUploader />
   </div>  
 
-  <YearAndMonthTile {viewportLeft} {isCompact} {originDT} {exactHeight}/>
+  <YearAndMonthTile {viewportLeft} {originDT}/>
 
   <div id="scroll-parent" on:scroll={e => scrollX = e.target.scrollLeft}>
     <div class="scroll-content" style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px">
-      <TimestampLabels
-        {isCompact}
-        topMargin={exactHeight}
-      />
+      <TimestampLabels/>
+
       {#if renderedColumnDTs[0] && $tasksScheduledOn}
         <div
           style:left={`${renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px`}
           class="rendered-days" 
         >
-          <div use:trackHeight={newHeight => exactHeight = newHeight} class="headers-flexbox" class:bottom-border={$tasksScheduledOn}>
+          <div use:trackHeight={h => headerHeight.set(h)} class="headers-flexbox bottom-border">
             {#each renderedColumnDTs as dt, i (dt.toFormat('yyyy-MM-dd') + `-${i}`)}
               <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')}
-                {isCompact}
-                on:task-click
-                on:task-create
-                on:task-update
+                on:task-click on:task-create on:task-update
               />
             {/each}
           </div>
+
           <div class="day-columns">
             {#each renderedColumnDTs as dt, i (dt.toMillis() + `-${i}`)}
               <DayColumn {dt}
                 scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
-                on:task-click
-                on:task-create
-                on:task-update
+                on:task-click on:task-create on:task-update
               />
             {/each}
           </div>

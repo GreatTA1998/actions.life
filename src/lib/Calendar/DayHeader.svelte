@@ -3,12 +3,11 @@
   import FlexibleDayTask from '$lib/Reusable/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { createEventDispatcher } from 'svelte'
-  import { tasksScheduledOn, activeDragItem } from '/src/store'
-  import { headerExpanded } from '/src/store/calendarStore.js'
+  import { activeDragItem } from '/src/store'
+  import { headerExpanded, isCompact, tasksScheduledOn } from '/src/store/calendarStore.js'
   import { DateTime } from 'luxon'
 
   export let ISODate
-  export let isCompact = false
 
   const dispatch = createEventDispatcher()
   let isDirectlyCreatingTask = false
@@ -41,7 +40,7 @@
 </script>
 
 <div class="day-header sticky-day-of-week-abbreviation"
-  style:padding={isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
+  style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
   on:click|self={() => (isDirectlyCreatingTask = true)} on:keydown
   on:dragover={(e) => dragover_handler(e)}
   on:drop={(e) => drop_handler(e, ISODate)}
@@ -66,7 +65,7 @@
   </div>
 
   {#if $headerExpanded}
-    <div style="overflow: hidden; margin-top: {isCompact ? '0' : '4'}px;">
+    <div style="overflow: hidden; margin-top: {$isCompact ? '0' : '4'}px;">
       {#if $tasksScheduledOn}
         {#if $tasksScheduledOn[ISODate]}
           <div style="display: flex; flex-wrap: wrap;">
@@ -75,7 +74,7 @@
             {/each}
           </div>
 
-          <div style="display: flex; flex-direction: column; row-gap: {isCompact ? '4px' : '8px'};">
+          <div style="display: flex; flex-direction: column; row-gap: {$isCompact ? '4px' : '8px'};">
             {#each $tasksScheduledOn[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
               <div class="flexible-day-task">
                 <FlexibleDayTask task={flexibleDayTask}

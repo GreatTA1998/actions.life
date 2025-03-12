@@ -1,33 +1,30 @@
 <script>
-  import { tasksScheduledOn } from '/src/store'
-  import { headerExpanded } from '/src/store/calendarStore.js'
+  import { headerExpanded, headerHeight, tasksScheduledOn, isCompact } from '/src/store/calendarStore.js'
   import { WIDTHS } from '/src/helpers/constants.js'
 
-  export let exactHeight
   export let monthName
   export let viewportLeft
   export let originDT
-  export let isCompact = false
 
-  let exactWidth = isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
+  let exactWidth = $isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
 
   $: monthName = viewportLeft ? originDT.plus({ days: viewportLeft }).toFormat('LLL') : ''
   $: yearName = viewportLeft ? originDT.plus({ days: viewportLeft }).toFormat('yyyy') : ''
 </script>
 
 <div class="corner-label" style="
-  height: {exactHeight}px; 
+  height: {$headerHeight}px; 
   --timestamps-column-width: {exactWidth}px;"
 >
   <div style="display: flex; justify-content: center;"
-    class:mobile-compact={isCompact}
-    class:desktop-descriptive={!isCompact}
+    class:mobile-compact={$isCompact}
+    class:desktop-descriptive={!$isCompact}
   >
     <div style="color: rgb(0, 0, 0); font-weight: 400; display: inline-block;">
       {monthName}
     </div>
 
-    {#if !isCompact}
+    {#if !$isCompact}
       <div style="font-weight: 200; margin-top: 2px; display: inline-block;">
         {yearName}
       </div>

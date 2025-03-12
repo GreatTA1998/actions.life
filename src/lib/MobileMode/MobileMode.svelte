@@ -124,10 +124,10 @@
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
 
   import { setupTodoListener } from '/src/store/services/TodoService.js'
-  import { setupMobileCalendarTasks } from '/src/store/services/CalendarService.js'
   import { createTaskNode, updateTaskNode, deleteTaskNode } from '/src/helpers/crud.js'
   import { getRandomID, getDateInMMDD } from '/src/helpers/everythingElse.js'
   import { user, todoMemoryTree, hasInitialScrolled } from '/src/store'
+  import { isCompact } from '/src/store/calendarStore.js'
   import { page } from '$app/stores'
   import { onDestroy, onMount } from 'svelte'
 
@@ -147,6 +147,8 @@
     setupTodoListener(userID)
     // note, we fetch future events inside that component as a quickfix, so
     // it'll react to changes in calendar and todo
+
+    isCompact.set(true)
   })
 
   onDestroy(() => {

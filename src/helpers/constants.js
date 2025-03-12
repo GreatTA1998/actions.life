@@ -1,3 +1,4 @@
+// NOTE: right now there are 2 sources of truth: here and in <calendarStore.js>
 // lazy loading variables
 export const size = 4
 export const cushion = 6
@@ -5,7 +6,8 @@ export const cushion = 6
 export const HEIGHTS = Object.freeze({
   MAIN_CONTENT_TOP_MARGIN: 20,
   ROOT_DROPZONE: 24,
-  NAVBAR: 54
+  NAVBAR: 54,
+  CORNER_LABEL: 110
 })
 
 export const WIDTHS = Object.freeze({
