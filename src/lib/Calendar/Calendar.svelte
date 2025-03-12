@@ -75,7 +75,7 @@
 </script>
 
 <div class="calendar-wrapper">
-  <div class="floating-button" style="background-color: hsl(98, 40%, {90 + 2}%, 0.4);">
+  <div class="floating-button">
     <MultiPhotoUploader />
   </div>  
 
@@ -171,5 +171,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: hsl(98, 40%, 92%, 0.4);
   }
 </style>
