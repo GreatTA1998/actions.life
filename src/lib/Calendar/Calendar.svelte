@@ -25,7 +25,7 @@
 
   let isShowingDockingArea = true
   let exactHeight = CORNER_LABEL_HEIGHT
-  let calOriginDT = DateTime.now().startOf('day').minus({ days: TOTAL_COLUMNS / 2 })
+  let originDT = DateTime.now().startOf('day').minus({ days: TOTAL_COLUMNS / 2 })
   let renderedColumnDTs = []
   let renderedLeft = Infinity
   let renderedRight = -Infinity
@@ -35,22 +35,22 @@
   let scrollX = middleIdx * COLUMN_WIDTH
 
   $: viewportLeft = Math.floor(scrollX / COLUMN_WIDTH)
-  $: visibleRight = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
-  $: updateRenderedColumns(viewportLeft, visibleRight)
+  $: viewportRight = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
+  $: updateRenderedColumns(viewportLeft, viewportRight)
   $: if (viewportLeft <= triggerLeft) addPastListener()  
-  $: if (visibleRight >= triggerRight) addFutureListener()
+  $: if (viewportRight >= triggerRight) addFutureListener()
 
   onMount(() => {
     setupCalListener(
-      calOriginDT.plus({ days: viewportLeft - 2*c }),
-      calOriginDT.plus({ days: visibleRight + 2*c })
+      originDT.plus({ days: viewportLeft - 2*c }),
+      originDT.plus({ days: viewportRight + 2*c })
     )
     triggerLeft = viewportLeft - c
-    triggerRight = visibleRight + c
+    triggerRight = viewportRight + c
   })
 
   function addPastListener () {
-    const triggerDT = calOriginDT.plus({ days: triggerLeft })
+    const triggerDT = originDT.plus({ days: triggerLeft })
     setupCalListener(
       triggerDT.minus({ days: 1 + 3*c }),
       triggerDT.minus({ days: 1 + c })
@@ -59,7 +59,7 @@
   }
 
   function addFutureListener () {
-    const triggerDT = calOriginDT.plus({ days: triggerRight })
+    const triggerDT = originDT.plus({ days: triggerRight })
     setupCalListener(
       triggerDT.plus({ days: 1 + c }),
       triggerDT.plus({ days: 1 + 3*c })
@@ -67,11 +67,11 @@
     triggerRight += 1 + 2*c
   }
 
-  function updateRenderedColumns (viewportLeft, visibleRight) {
-    if (viewportLeft - renderedLeft < c || renderedRight - visibleRight < c) {
+  function updateRenderedColumns (viewportLeft, viewportRight) {
+    if (viewportLeft - renderedLeft < c || renderedRight - viewportRight < c) {
       const output = []
-      for (let i = viewportLeft - 2*c; i <= visibleRight + 2*c; i++) {
-        let dt = calOriginDT.plus({ days: i })
+      for (let i = viewportLeft - 2*c; i <= viewportRight + 2*c; i++) {
+        let dt = originDT.plus({ days: i })
         dt = dt.set({
           hour: Number($calEarliestHHMM.split(':')[0]), 
           minute: Number($calEarliestHHMM.split(':')[1])
@@ -79,9 +79,8 @@
         output.push(dt)
       }
       renderedColumnDTs = output
-
       renderedLeft = viewportLeft - 2*c
-      renderedRight = visibleRight + 2*c
+      renderedRight = viewportRight + 2*c
     }
   }
 </script>
@@ -93,7 +92,7 @@
 
   <YearAndMonthTile {viewportLeft}
     {isCompact}
-    {calOriginDT}
+    {originDT}
     {exactHeight}
     {isShowingDockingArea}
     on:toggle-docking-area={() => isShowingDockingArea = !isShowingDockingArea}
@@ -111,7 +110,7 @@
 
       {#if renderedColumnDTs[0] && $tasksScheduledOn}
         <div class="visible-days"
-          style:left={`${renderedColumnDTs[0].diff(calOriginDT, 'days').days * COLUMN_WIDTH}px`}
+          style:left={`${renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px`}
         >
           <div use:trackHeight={newHeight => exactHeight = newHeight}
             class="headers-flexbox"

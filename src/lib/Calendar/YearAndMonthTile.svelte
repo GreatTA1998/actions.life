@@ -7,15 +7,15 @@
   export let monthName
   export let isShowingDockingArea
   export let viewportLeft
-  export let calOriginDT
+  export let originDT
   export let isCompact = false
 
   let exactWidth = isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
 
   const dispatch = createEventDispatcher()
 
-  $: monthName = viewportLeft ? calOriginDT.plus({ days: viewportLeft }).toFormat('LLL') : ''
-  $: yearName = viewportLeft ? calOriginDT.plus({ days: viewportLeft }).toFormat('yyyy') : ''
+  $: monthName = viewportLeft ? originDT.plus({ days: viewportLeft }).toFormat('LLL') : ''
+  $: yearName = viewportLeft ? originDT.plus({ days: viewportLeft }).toFormat('yyyy') : ''
 </script>
 
 <div class="corner-label" style="
