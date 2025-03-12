@@ -72,15 +72,11 @@
       renderedLeft = viewportLeft - 2*c
       renderedRight = viewportRight + 2*c
 
-      const output = []
-      const [hour, minute] = $calEarliestHHMM.split(':').map(Number) // map works because `Number` is a built-in JS function
-      
-      for (let i = renderedLeft; i <= renderedRight; i++) {
-        output.push(
-          originDT.plus({ days: i }).set({ hour, minute })
-        )
-      }
-      renderedColumnDTs = output
+      const [hour, minute] = $calEarliestHHMM.split(':').map(Number)
+      renderedColumnDTs = Array.from(
+        { length: renderedRight - renderedLeft + 1 },
+        (_, i) => originDT.plus({ days: renderedLeft + i }).set({ hour, minute })
+      )
     }
   }
 </script>
@@ -153,10 +149,6 @@
   #scroll-parent {
     position: relative;
     overflow: auto;
-
-    /* Hide scrollbar in IE, Edge & Firefox */
-    -ms-overflow-style: none; 
-    scrollbar-width: none;    
   }
 
   /* Hide scrollbar in Chrome, Safari and Opera */
