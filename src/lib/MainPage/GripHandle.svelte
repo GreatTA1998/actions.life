@@ -10,7 +10,7 @@
 
 <style>
   :root {
-    --grip-line-color: rgba(0,0,0,0.1);
+    --grip-line-color: rgba(0,0,0,0.2);
   }
 
   .resize-handle {

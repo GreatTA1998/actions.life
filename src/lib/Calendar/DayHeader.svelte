@@ -66,25 +66,20 @@
 
   {#if $headerExpanded}
     <div style="overflow: hidden; margin-top: {$isCompact ? '0' : '4'}px;">
-      {#if $tasksScheduledOn}
-        {#if $tasksScheduledOn[ISODate]}
-          <div style="display: flex; flex-wrap: wrap;">
-            {#each $tasksScheduledOn[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
-              <DoodleIcon {iconTask} on:task-click on:task-update />
-            {/each}
-          </div>
+      {#if $tasksScheduledOn[ISODate]}
+        <div style="display: flex; flex-wrap: wrap;">
+          {#each $tasksScheduledOn[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
+            <DoodleIcon {iconTask} on:task-update />
+          {/each}
+        </div>
 
-          <div style="display: flex; flex-direction: column; row-gap: {$isCompact ? '4px' : '8px'};">
-            {#each $tasksScheduledOn[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
-              <div class="flexible-day-task">
-                <FlexibleDayTask task={flexibleDayTask}
-                  on:task-click
-                  on:task-update
-                />
-              </div>
-            {/each}
-          </div>
-        {/if}
+        <div style="display: flex; flex-direction: column; row-gap: {$isCompact ? '4px' : '8px'};">
+          {#each $tasksScheduledOn[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
+            <div class="flexible-day-task">
+              <FlexibleDayTask task={flexibleDayTask} on:task-update />
+            </div>
+          {/each}
+        </div>
       {/if}
     </div>
   {/if}
@@ -129,15 +124,13 @@
   }
 
   .sticky-day-of-week-abbreviation {
+    position: sticky;
+    top: 0px;
+    z-index: 1;
+
     font-size: 1.4em;
     background-color: var(--calendar-bg-color);
     color: #6d6d6d;
-
-    position: sticky;
-
-    /* FIGURE THIS OUT TOMORROW */
-    top: 0px;
-    z-index: 1;
   }
 
   .day-name-label {

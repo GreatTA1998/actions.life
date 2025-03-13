@@ -14,8 +14,8 @@
 
 <div class="corner-label" style="
   height: {$headerHeight}px; 
-  --timestamps-column-width: {exactWidth}px;"
->
+  --timestamps-column-width: {exactWidth}px;
+">
   <div style="display: flex; justify-content: center;"
     class:mobile-compact={$isCompact}
     class:desktop-descriptive={!$isCompact}

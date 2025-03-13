@@ -140,23 +140,19 @@
   {#each scheduledTasks as task, i (task.id)}
     <div class="task-absolute" style="top: {getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px;">
       {#if task.iconURL}
-        <!-- TO-DO: think about how attaching photos to icon tasks work -->
         <IconTaskElement {task}
           fontSize={0.8}
-          on:task-click
           on:task-update
         />
       {:else if task.imageDownloadURL}
         <PhotoTaskElement {task}
           fontSize={0.8}
-          on:task-click
           on:task-update
         />
       {:else}
         <TaskElement {task}
           fontSize={0.8}
           hasCheckbox
-          on:task-click
           on:task-update
         />
       {/if}

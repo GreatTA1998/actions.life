@@ -74,8 +74,8 @@
   }
 </script>
 
-<div class="calendar-wrapper">
-  <div class="floating-button">
+<div class="cal-root">
+  <div class="float-button">
     <MultiPhotoUploader />
   </div>  
 
@@ -86,14 +86,11 @@
       <TimestampLabels/>
 
       {#if renderedColumnDTs[0]}
-        <div
-          style:left={`${renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px`}
-          class="rendered-days" 
-        >
-          <div use:trackHeight={h => headerHeight.set(h)} class="headers-flexbox bottom-border">
+        <div style="position: absolute;" style:left={`${renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px`}>
+          <div use:trackHeight={h => headerHeight.set(h)} class="headers-flexbox">
             {#each renderedColumnDTs as dt (dt.toMillis())}
               <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')}
-                on:task-click on:task-create on:task-update
+                on:task-create on:task-update
               />
             {/each}
           </div>
@@ -102,7 +99,7 @@
             {#each renderedColumnDTs as dt (dt.toMillis())}
               <DayColumn {dt}
                 scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
-                on:task-click on:task-create on:task-update
+                on:task-create on:task-update
               />
             {/each}
           </div>
@@ -113,6 +110,14 @@
 </div>
 
 <style>
+  .cal-root {
+    position: relative;
+    z-index: 0; /* otherwise it doesn't count as a stacking context */
+    display: grid; /* I vaguely remember I had to use grid so the children naturally take up 100% height */
+    grid-template-rows: auto 1fr;
+    height: 100%;
+  }
+
   #scroll-parent {
     position: relative;
     overflow: auto;
@@ -122,23 +127,10 @@
     display: none;
   }
 
-  .calendar-wrapper {
-    position: relative;
-    z-index: 0; /* otherwise it doesn't count as a stacking context */
-    display: grid; /* I vaguely remember I had to use grid so the children naturally take up 100% height */
-    grid-template-rows: auto 1fr;
-    height: 100%;
-  }
-
   .scroll-content {
     position: relative;
     display: flex;
     background-color: var(--calendar-bg-color);
-  }
-
-  .rendered-days {
-    position: absolute; /* instead of `translateX` because iOS safari drag-drop is glitchy with translated elements */
-    left: 60px; /* Timestamp width */
   }
 
   .headers-flexbox {
@@ -147,6 +139,7 @@
     top: 0;
     background: var(--calendar-bg-color);
     z-index: 1;
+    box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);
   }
 
   .day-columns {
@@ -154,11 +147,7 @@
     padding-top: 7px; /* timestamp has a height of 14px (despite a font size of 12px) */
   }
 
-  .bottom-border {
-    box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);
-  }
-
-  .floating-button {
+  .float-button {
     position: absolute; 
     right: 1vw; 
     bottom: 1vw; 
