@@ -76,7 +76,7 @@
     right: auto;
     font-size: 26px;
     cursor: pointer;
-    color: rgb(121, 121, 121);
-    font-weight: 300;
+    color: rgba(110, 110, 110, 0.2);
+    font-weight: 200;
   }
 </style>
