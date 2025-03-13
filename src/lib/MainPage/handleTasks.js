@@ -1,5 +1,5 @@
 import { get } from "svelte/store"
-import { calendarTasks, todoTasks } from '/src/store'
+import { calendarTasks, todoTasks, tasksCache } from '/src/store'
 import CalendarService from '/src/store/services/CalendarService.js'
 import TodoService from '/src/store/services/TodoService.js'
 
@@ -17,7 +17,7 @@ export function findTaskById(taskID) {
   if (todoTask) return todoTask;
   
   // Then check calendarTasks
-  const calendarTask = CalendarService.tasksCache.get(taskID);
+  const calendarTask = get(tasksCache)[taskID]
   if (calendarTask) return calendarTask;
   
   // Task not found

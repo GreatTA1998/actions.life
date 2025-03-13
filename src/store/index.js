@@ -34,3 +34,14 @@ export const inclusiveWeekTodo = writable([])
 export const todoMemoryTree = writable(null)
 
 export const uniqueEvents = writable(null)
+
+export const tasksCache = writable({})
+
+export function updateCache (tasks) {
+  tasksCache.update(cache => {
+    for (const task of tasks) {
+      cache[task.id] = task
+    }
+    return cache
+  })
+}

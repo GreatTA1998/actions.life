@@ -1,6 +1,6 @@
 <script>
   import TodoList from '$lib/ListsArea/TodoList.svelte'
-  import { listenToListsAndTasks, listTreesMap, lists } from '/src/store/listAreaDataManager.js'
+  import { listenToListsAndTasks, listTreesMap, lists } from '/src/store/services/listAreaDataManager.js'
   import { createTaskNode, updateTaskNode } from '/src/helpers/crud.js'
   import { user } from '/src/store'
   import { onMount } from 'svelte'

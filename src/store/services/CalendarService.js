@@ -12,9 +12,9 @@ import { db } from '/src/back-end/firestoreConnection'
 import { size, cushion } from '/src/helpers/constants.js'
 import { page } from '$app/stores'
 import { get } from 'svelte/store'
+import { tasksCache, updateCache } from '/src/store'
 
 const activeListeners = {}
-const tasksCache = new Map()
 
 export function setupInitialCalendarTasks () {
   const today = DateTime.now()
@@ -28,8 +28,6 @@ export function setupCalListener (leftDT, rightDT) {
   const leftISO = leftDT.toFormat('yyyy-MM-dd')
   const rightISO = rightDT.toFormat('yyyy-MM-dd')
   activeListeners[`${leftISO}_${rightISO}`] = listenToDateRange(leftISO, rightISO)
-
-  console.log('active listeners', activeListeners)
 }
 
 function listenToDateRange (leftISO, rightISO) {
@@ -52,10 +50,7 @@ function listenToDateRange (leftISO, rightISO) {
 export function updateTasksForDateRange (flatArray, startDate, endDate) {
   if (!flatArray?.length) return
   
-  for (const task of flatArray) {
-    tasksCache.set(task.id, task)
-  }
-
+  updateCache(flatArray)
   const forest = constructForest(flatArray)
   const dateMapping = computeDateToTasksDict(forest)
   
@@ -123,7 +118,7 @@ function addTaskToDate (task, date, dateToTasks) {
 /** Updates a calendar task and handles cascading updates to descendants */
 export async function updateCalendarTask ({ uid, taskID, keyValueChanges }) {
   try {
-    const task = tasksCache.get(taskID)
+    const task = get(tasksCache)[taskID]
     if (!task) throw new Error(`Task ${taskID} not found in cache`)
 
     const isRescheduling = 'startDateISO' in keyValueChanges
@@ -139,7 +134,7 @@ export async function updateCalendarTask ({ uid, taskID, keyValueChanges }) {
       } else if (isReparenting) {
         if (keyValueChanges.parentID) {
           // Node being assigned a new parent
-          const newParent = tasksCache.get(keyValueChanges.parentID)
+          const newParent = get(tasksCache)[keyValueChanges.parentID]
           newRootStartDateISO = newParent?.rootStartDateISO || keyValueChanges.startDateISO || ''
         } else {
           // Node becoming a root
@@ -179,7 +174,8 @@ export async function updateCalendarTask ({ uid, taskID, keyValueChanges }) {
 }
 
 async function updateDescendantsRootStartDateISO (uid, taskID, rootStartDateISO) {
-  const children = Array.from(tasksCache.values()).filter(task => task.parentID === taskID)
+  // perhaps refactor to leverage our existing forest data structure
+  const children = Object.values(get(tasksCache)).filter(task => task.parentID === taskID)
   if (!children.length) return // base case
   
   const batch = writeBatch(db)
@@ -212,6 +208,5 @@ export default {
   setupCalListener,
   updateTasksForDateRange,
   updateCalendarTask,
-  cleanupCalendarListeners,
-  tasksCache
+  cleanupCalendarListeners
 } 

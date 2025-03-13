@@ -1,7 +1,8 @@
 import { writable, get } from 'svelte/store'
-import { db } from '../back-end/firestoreConnection'
+import { db } from '../../back-end/firestoreConnection'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { reconstructTreeInMemory } from './services/TodoService.js'
+import { reconstructTreeInMemory } from './TodoService.js'
+import { updateCache } from '/src/store'
 
 let persistTasks, nonPersistTasks
 
@@ -12,11 +13,17 @@ export function listenToListsAndTasks (uid) {
   const tasksCollection = collection(db, `users/${uid}/tasks`)
   setupListener(
     query(tasksCollection, where('persistsOnList', '==', true), where('isArchived', '==', false)),
-    data => persistTasks = data
+    data => { 
+      persistTasks = data 
+      updateCache(persistTasks)
+    }
   )
   setupListener(
     query(tasksCollection, where('persistsOnList', '==', false), where('startDateISO', '==', '')),
-    data => nonPersistTasks = data
+    data => { 
+      nonPersistTasks = data 
+      updateCache(nonPersistTasks)
+    }
   )
   setupListener(
     collection(db, `users/${uid}/lists`), 
@@ -47,9 +54,7 @@ function buildTreeMap (tasks) {
     d1[task.listID].push(task)
   }
 
-  // build tasks into trees
   const d2 = {}
-
   // ensure all lists are present on the map, even if no tasks belong there, 
   // otherwise the inconsistent data structure will cause reactivity to fail at the component level
   for (const list of get(lists)) {

@@ -180,12 +180,12 @@
         </div>
 
         <span on:click={() => dispatch('task-update', { id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
-          class:selected={taskObject.displayMode === 'timeline'}
+          class:selected={taskObject.childrenLayout === 'timeline'}
         >
           Timeline
         </span>
         <span on:click={() => dispatch('task-update', { id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
-          class:selected={taskObject.displayMode === 'normal'}
+          class:selected={taskObject.childrenLayout === 'normal'}
         >
           Normal
         </span>
