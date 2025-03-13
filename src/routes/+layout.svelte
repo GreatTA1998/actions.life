@@ -25,6 +25,8 @@
           person_profiles: 'always' // or 'always' to create profiles for anonymous users as well
         })
       } else {
+        // TO-DO comment out
+        return
         goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
 
         userInfoFromAuthProvider.set({
