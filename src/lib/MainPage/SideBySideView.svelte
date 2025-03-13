@@ -122,9 +122,11 @@
     overflow: hidden;
   }
   
+  /* THIS IS THE SCROLLING CONTAINER */
   .list-area-container {
     height: 100%;
     overflow-y: auto;
+    scrollbar-width: none;
     background-color: var(--todo-list-bg-color, #f5f5f5);
     position: relative;
     flex-shrink: 0;

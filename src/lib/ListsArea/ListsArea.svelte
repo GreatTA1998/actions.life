@@ -7,12 +7,10 @@
   import { doc, updateDoc } from 'firebase/firestore'
   import { db } from '../../back-end/firestoreConnection'
 
-  // Accept an optional listID parameter to filter which list to display
   export let listID = null;
 
-  // State for editing list names
   let editingListId = null;
-  let editingListName = '';
+  let editingListName = ''
 
   onMount(() => {
     listenToListsAndTasks($user.uid)
