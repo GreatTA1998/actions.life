@@ -2,31 +2,29 @@
   import ListsArea from '$lib/ListsArea/ListsArea.svelte'
   import TodoList from '$lib/ListsArea/TodoList.svelte'
   import Calendar from '$lib/Calendar/Calendar.svelte'
-  import { inclusiveWeekTodo } from '/src/store'
-  import { onMount, createEventDispatcher } from 'svelte'
 
-  // Props
+  import GripHandle from './GripHandle.svelte'
+  import { inclusiveWeekTodo } from '/src/store'
+  import { createEventDispatcher } from 'svelte'
+
   export let showLegacyTodo = true; // Default to showing the legacy todo list
   export let listID = null; // Optional specific list ID to display
   export let showToggle = true; // Whether to show the toggle button
 
-  // State
   let isResizing = false;
   let startX = 0;
   let startWidth = 0;
   let listAreaWidth = 360; // Default width
-  let minWidth = 250; // Minimum width for list area
-  let maxWidth = 800; // Maximum width for list area
+  let minWidth = 0; // Minimum width for list area
+  let maxWidth = window.innerWidth; // Maximum width for list area
   
   const dispatch = createEventDispatcher();
 
-  // Handle mouse down on the resize handle
   function handleMouseDown(e) {
     isResizing = true;
     startX = e.clientX;
     startWidth = listAreaWidth;
     
-    // Add event listeners for mouse move and mouse up
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
     
@@ -34,7 +32,6 @@
     document.body.style.userSelect = 'none';
   }
 
-  // Handle mouse move during resize
   function handleMouseMove(e) {
     if (!isResizing) return;
     
@@ -44,22 +41,17 @@
     listAreaWidth = newWidth;
   }
 
-  // Handle mouse up to stop resizing
   function handleMouseUp() {
     isResizing = false;
     
-    // Remove event listeners
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
     
-    // Restore text selection
     document.body.style.userSelect = '';
     
-    // Dispatch event with new width
     dispatch('resize', { width: listAreaWidth });
   }
 
-  // Toggle between legacy todo and multi-list view
   function toggleView() {
     showLegacyTodo = !showLegacyTodo;
     dispatch('viewToggle', { showLegacyTodo });
@@ -67,7 +59,6 @@
 </script>
 
 <div class="side-by-side-container">
-  <!-- List Area Container -->
   <div class="list-area-container" style="width: {listAreaWidth}px;">
     {#if showToggle}
       <button class="toggle-button" on:click={toggleView}>
@@ -76,7 +67,6 @@
     {/if}
     
     {#if showLegacyTodo}
-      <!-- Legacy Todo List -->
       <div class="todo-container">
         <TodoList
           listTitle="TO-DO"
@@ -93,7 +83,6 @@
         />
       </div>
     {:else}
-      <!-- Multi-list Area -->
       <ListsArea 
         {listID}
         on:task-click
@@ -107,14 +96,10 @@
     {/if}
   </div>
   
-  <!-- Resize Handle -->
-  <div 
-    class="resize-handle" 
-    on:mousedown={handleMouseDown}
-    class:active={isResizing}
-  ></div>
-  
-  <!-- Calendar Container -->
+  <div class="handle-wrapper">
+    <GripHandle on:mousedown={handleMouseDown}/>
+  </div>
+
   <div class="calendar-container">
     <Calendar
       on:task-create
@@ -149,34 +134,7 @@
     height: 100%;
     width: 100%;
     overflow-y: auto;
-  }
-  
-  .resize-handle {
-    width: 8px;
-    height: 100%;
-    background-color: transparent;
-    cursor: col-resize;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    transition: background-color 0.2s;
-  }
-  
-  .resize-handle:hover,
-  .resize-handle.active {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-  
-  .resize-handle::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    height: 50px;
-    width: 2px;
-    background-color: #ccc;
-    border-radius: 1px;
+    scrollbar-width: none;
   }
   
   .calendar-container {
@@ -203,5 +161,13 @@
   
   .toggle-button:hover {
     opacity: 1;
+  }
+  
+  .handle-wrapper {
+    position: relative;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    align-items: center;
   }
 </style> 
