@@ -69,7 +69,7 @@
         <RecursiveTask 
           taskObj={subtaskObj}
           depth={depth+1}
-          {willShowCheckbox}
+          willShowCheckbox
           ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
           {isLargeFont}
           {colorForDebugging}

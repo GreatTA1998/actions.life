@@ -79,12 +79,20 @@
 </script>
 
 <div class="timeline-container">
-  <!-- {#if sortedTasks.length > 0}
+  {#if sortedTasks.length > 0}
     <div class="timeline-line"></div>
-  {/if} -->
+  {/if}
   
   {#each sortedTasks as child, i (child.id)}
     <!-- style="padding-bottom: {spacings[child.id]}px" -->
+    <Dropzone
+      ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
+      roomsInThisLevel={children}
+      idxInThisLevel={i + 1}
+      parentID={parentID}
+      {colorForDebugging}
+      listID={child.listID}
+    />
     <div class="timeline-item">      
       <div class="task-wrapper">
         <RecursiveTask
@@ -122,18 +130,14 @@
     position: relative;
     padding-left: 40px; /* Reduced padding */
     margin-left: 0; /* Removed extra margin */
-    padding-top: 12px;
-
-    /*     border-left: 2px solid #ddd; */
-    border: 2px solid red;
   }
   
   .timeline-line {
     position: absolute;
-    top: 0;
-    left: 8px; /* align with center of checkbox */
+    top: 24px;
+    left: 44px; /* align with center of checkbox */
     width: 2px;
-    height: 100%;
+    height: calc(100% - 48px);
     background-color: #ddd;
     z-index: 0;
   }
@@ -164,34 +168,5 @@
     border: 1px solid #ddd;
     background-color: white;
     text-align: center;
-  }
-  
-  .date-indicator {
-    position: absolute;
-    left: -50px;
-    top: 0;
-    bottom: 0;
-    width: 40px; /* Reduced width */
-    display: flex;
-    align-items: center;
-  }
-  
-  .date-marker {
-    position: absolute;
-    left: 0; /* Align with timeline */
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: #4CAF50;
-    transform: translateX(-5px); /* Center on timeline */
-    z-index: 1;
-  }
-  
-  .date-label {
-    position: absolute;
-    left: 10px; /* Position to the right of the timeline */
-    font-size: 12px;
-    color: #666;
-    white-space: nowrap;
   }
 </style> 

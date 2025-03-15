@@ -9,10 +9,6 @@
 </div>
 
 <style>
-  :root {
-    --grip-line-color: rgba(0,0,0,0.2);
-  }
-
   .resize-handle {
     width: 0; /* No width */
     height: 80px; /* Limited height */
@@ -36,6 +32,6 @@
     justify-content: center;
     position: absolute;
     cursor: pointer;
-    left: -18px; /* Center the larger handle on the boundary */
+    left: -18px; /* center the larger handle on the boundary */
   }
 </style>

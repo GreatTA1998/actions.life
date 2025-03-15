@@ -5,7 +5,8 @@
 
   --logo-twig-color: #b34f1b;
   --location-indicator-color: var(--logo-twig-color);
-  --task-action-subtle-color: rgb(120, 120, 120);
+  --grip-line-color: rgba(0,0,0,0.2);
+  --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
   --calendar-section-left-spacing: 2vw;
 }
 

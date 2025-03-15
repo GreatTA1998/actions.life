@@ -63,12 +63,11 @@
               autofocus
             />
           {:else}
-            <h3 class="list-title" on:click={() => startEditingListName(list)} on:keydown>
-              {list.name}
-            </h3>
-
-            <div style="display: flex; column-gap: 8px; margin-left: auto; margin-right: 4px;">
-              <button on:click={() => triggerListID = list.id } style="width: 24px; height: 24px; font-size: 20px; color: rgb(100, 100, 100);">
+            <div style="display: flex;">
+              <h3 class="list-title" on:click={() => startEditingListName(list)} on:keydown>
+                {list.name}
+              </h3>
+              <button on:click={() => triggerListID = list.id } style="width: 24px; height: 16px; font-size: 20px; color: var(--task-action-subtle-color);">
                 <span class="new-task-icon">
                   +
                 </span>
@@ -130,19 +129,6 @@
     font-weight: 500;
     flex-grow: 1;
     cursor: pointer;
-  }
-
-  .edit-button {
-    background: none;
-    border: none;
-    font-size: 1rem;
-    cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.2s;
-  }
-
-  .edit-button:hover {
-    opacity: 1;
   }
 
   .list-name-input {
