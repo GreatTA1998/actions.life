@@ -1,7 +1,6 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte';
   import Dropzone from './Dropzone.svelte';
-  import { createEventDispatcher } from 'svelte';
   
   export let children = [];
   export let depth;
@@ -123,8 +122,10 @@
     position: relative;
     padding-left: 40px; /* Reduced padding */
     margin-left: 0; /* Removed extra margin */
-    border-left: 2px solid #ddd;
     padding-top: 12px;
+
+    /*     border-left: 2px solid #ddd; */
+    border: 2px solid red;
   }
   
   .timeline-line {

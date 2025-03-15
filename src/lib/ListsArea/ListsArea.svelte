@@ -80,7 +80,6 @@
           tasksToDisplay={$listTreesMap[list.id]}
           willShowCheckbox={true}
           hideListTitle={true}
-          on:task-click
           on:dragstart
           on:dragend
           on:dragover

@@ -65,8 +65,6 @@
     e.preventDefault()
     e.stopPropagation()
 
-    console.log('drop handler, id:', id)
-
     const dropY = getY(e)
     let resultDT = dt.plus({ 
       hours: (dropY - $grabOffset) / $pixelsPerHour
@@ -81,8 +79,6 @@
         startDateISO: resultDT.toFormat('yyyy-MM-dd')
       }
     })
-
-    console.log('updated task node')
 
     grabOffset.set(0)
     activeDragItem.set(null)
