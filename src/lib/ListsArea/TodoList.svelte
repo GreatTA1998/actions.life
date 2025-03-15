@@ -4,9 +4,9 @@
   import FormField from '$lib/Reusable/FormField.svelte'
   import { getRandomID } from '/src/helpers/everythingElse.js'
   import { HEIGHTS } from '/src/helpers/constants.js'
-  import { createEventDispatcher } from 'svelte'
   import { activeDragItem } from '/src/store/index.js'
   import { DateTime } from 'luxon'
+  import { updateTaskNode, createTaskNode } from '/src/helpers/crud.js'
 
   export let listID = ''
   export let tasksToDisplay = []
@@ -20,8 +20,6 @@
   let isTypingNewRootTask = false
   let newRootTaskStringValue = ''
   
-  const dispatch = createEventDispatcher()
-
   function startTypingNewTask() {
     isTypingNewRootTask = true
   }
@@ -43,6 +41,7 @@
     const newRootTaskObj = {
       name: taskName,
       parentID: '',
+      listID,
       timeZone: DateTime.local().zoneName,
     }
 
@@ -50,7 +49,7 @@
       newRootTaskObj.orderValue = (0 + tasksToDisplay[0].orderValue) / 1.1
     } // otherwise the default `orderValue` will be `maxOrder`, handled by `applyTaskSchema`
 
-    dispatch('task-create', {
+    createTaskNode({
       id: getRandomID(),
       newTaskObj: newRootTaskObj
     })
@@ -59,7 +58,7 @@
   function handleDroppedTask (e) {
     e.preventDefault()
 
-    dispatch('task-update', { 
+    updateTaskNode({ 
       id: $activeDragItem.id, 
       keyValueChanges: {
         listID,
@@ -136,9 +135,6 @@
           ancestorRoomIDs={['']}
           {willShowCheckbox}
           {isLargeFont}
-          on:task-click
-          on:task-update
-          on:task-create
         />
 
         <Dropzone

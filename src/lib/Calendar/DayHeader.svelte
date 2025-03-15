@@ -88,7 +88,6 @@
       <CreateTaskDirectly
         newTaskStartTime={''}
         resultantDateClassObject={DateTime.fromISO(ISODate).toJSDate()}
-        on:task-create
         on:reset={() => (isDirectlyCreatingTask = false)}
       />
     </div>

@@ -53,7 +53,6 @@
     <DoodleIcon
       iconTask={task}
       on:task-click
-      on:task-update
     />
 
     {#if isBulletPoint}
@@ -98,12 +97,12 @@
 
 <script>
   // Assumes `task` is hydrated
-  import { createEventDispatcher } from 'svelte'
   import { getTrueY } from '/src/helpers/everythingElse.js'
   import { grabOffset, activeDragItem } from '/src/store'
   import { openDetailedCard } from '/src/store/detailedCardStore.js'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/store/calendarStore.js'
+  import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let task = null
 
@@ -114,7 +113,6 @@
   $: height = ($pixelsPerHour / 60) * task.duration
   $: isBulletPoint = height < iconMinPixelHeight
 
-  const dispatch = createEventDispatcher()
   let startY = 0
 
   function startDragMove (e, id) {
@@ -148,7 +146,7 @@
     const newY = getTrueY(e)
     const durationChange = minutesPerPixel * (newY - startY)
 
-    dispatch('task-update', {
+    updateTaskNode({
       id: task.id,
       keyValueChanges: {
         duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event

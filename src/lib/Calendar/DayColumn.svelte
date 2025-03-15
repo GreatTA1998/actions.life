@@ -14,8 +14,9 @@
     timestamps, getMinutesDiff, calEarliestHHMM, totalMinutes, calLastHHMM, calSnapInterval
   } from "/src/store"
   import { pixelsPerHour } from '/src/store/calendarStore.js'
+  import { updateTaskNode } from '/src/helpers/crud.js'
 
-  import { onMount, createEventDispatcher, onDestroy } from "svelte"
+  import { onMount, onDestroy } from "svelte"
 
   export let dt
   export let scheduledTasks = []
@@ -25,7 +26,6 @@
   let formFieldTopPadding = 40
   let yPosition
   let pixelsPerMinute = $pixelsPerHour / 60
-  const dispatch = createEventDispatcher()
 
   // TO-DO: deprecate with luxon, but requires re-working <CreateTaskDirectly> perhaps with portals
   $: resultantDateClassObject = getResultantDateClassObject(yPosition)
@@ -65,6 +65,8 @@
     e.preventDefault()
     e.stopPropagation()
 
+    console.log('drop handler, id:', id)
+
     const dropY = getY(e)
     let resultDT = dt.plus({ 
       hours: (dropY - $grabOffset) / $pixelsPerHour
@@ -72,13 +74,15 @@
     
     resultDT = snapToNearestInterval(resultDT, $calSnapInterval)
 
-    dispatch('task-update', { 
+    updateTaskNode({ 
       id,
       keyValueChanges: {
         startTime: resultDT.toFormat('HH:mm'),
         startDateISO: resultDT.toFormat('yyyy-MM-dd')
       }
     })
+
+    console.log('updated task node')
 
     grabOffset.set(0)
     activeDragItem.set(null)
@@ -142,18 +146,15 @@
       {#if task.iconURL}
         <IconTaskElement {task}
           fontSize={0.8}
-          on:task-update
         />
       {:else if task.imageDownloadURL}
         <PhotoTaskElement {task}
           fontSize={0.8}
-          on:task-update
         />
       {:else}
         <TaskElement {task}
           fontSize={0.8}
           hasCheckbox
-          on:task-update
         />
       {/if}
     </div>
@@ -164,7 +165,6 @@
       <CreateTaskDirectly
         newTaskStartTime={getHHMM(resultantDateClassObject)}
         {resultantDateClassObject}
-        on:task-create
         on:reset={() => isDirectlyCreatingTask = false}
       />
     </div>

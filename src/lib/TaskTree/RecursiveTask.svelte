@@ -42,7 +42,6 @@
       ancestorRoomIDs={ancestorRoomIDs}
       {isLargeFont}
       {colorForDebugging}
-      on:task-create on:task-update
     />
   {:else}
     <div style="margin-left: {indentationAmount}px;">
@@ -74,7 +73,6 @@
           ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
           {isLargeFont}
           {colorForDebugging}
-          on:task-create on:task-update
         /> 
 
         <div class:ghost-negative={i === n - 1} 
@@ -121,9 +119,9 @@
     getRandomID, 
     getRandomColor,
   } from '/src/helpers/everythingElse.js'
-  import { createEventDispatcher } from 'svelte'
   import { activeDragItem } from '/src/store'
   import { openDetailedCard } from '/src/store/detailedCardStore.js'
+  import { updateTaskNode, createTaskNode } from '/src/helpers/crud.js'
 
   export let taskObj
   export let depth 
@@ -136,8 +134,6 @@
   let newSubtaskStringValue = ''
   let isTypingNewSubtask = false
   let depthAdjustedFontSize 
-
-  const dispatch = createEventDispatcher()
 
   $: n = taskObj.children.length 
 
@@ -156,7 +152,7 @@
   $: depthAdjustedFontWeight = 400 - (depth * 0) + (200 * Math.max(1 - depth, 0))
 
   function handleCheckboxChange (e) {
-    dispatch('task-update', {
+    updateTaskNode({
       id: taskObj.id,
       keyValueChanges: { isDone: e.target.checked }
     })
@@ -181,11 +177,12 @@
   }
 
   function createSubtask (name) {
-    dispatch('task-create', {
+    createTaskNode({
       id: getRandomID(),
       newTaskObj: {
         name,
         parentID: taskObj.id, 
+        listID: taskObj.listID,
         // Inherit parent's childrenLayout by default, can be changed later
         childrenLayout: taskObj.childrenLayout || 'normal'
       }

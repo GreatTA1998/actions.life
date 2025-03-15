@@ -9,9 +9,6 @@
   "
   willShowCheckbox={false}
   isLargeFont={true}
-  on:task-click
-  on:task-create
-  on:task-update
   let:startTypingNewTask={startTypingNewTask}
 >
   <slot {startTypingNewTask}>

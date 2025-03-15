@@ -15,7 +15,6 @@
             tasksThisDay={$uniqueEvents[simpleDateISO]} 
             {simpleDateISO}
             on:task-click
-            on:task-update
           />
         {/if}
       {/each}

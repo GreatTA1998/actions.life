@@ -44,7 +44,6 @@
 
 {#if $isDetailedCardOpen}
   <DetailedCardPopup
-    on:task-update={e => updateTaskNode(e.detail)}
     on:task-delete={e => deleteTaskNode(e.detail)}
     on:task-delete-children={e => deleteTaskAndChildren(e.detail)}
   />
@@ -67,8 +66,6 @@
       <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
         <SideBySideView 
           showLegacyTodo={showLegacyTodoInWeekMode}
-          on:task-create={e => createTaskNode(e.detail)}
-          on:task-update={e => updateTaskNode(e.detail)}
           on:viewToggle={e => handleViewToggle(e, 'Week')}
         />
 

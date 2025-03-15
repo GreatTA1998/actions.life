@@ -1,9 +1,9 @@
 <script>
   import MinimalisticInput from "$lib/DetailedCardPopup/MinimalisticInput.svelte"
-  import { createEventDispatcher } from "svelte";
   import MyJSDatePicker from "$lib/DetailedCardPopup/MyJSDatePicker.svelte";
   import MyTimePicker from "$lib/DetailedCardPopup/MyTimePicker.svelte";
   import { DateTime } from "luxon";
+  import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let taskObject;
 
@@ -11,7 +11,6 @@
   let newStartYYYY = taskObject.startDateISO ? taskObject.startDateISO.split('-')[0] : ''
 
   let internalStartTime = taskObject.startTime;
-  const dispatch = createEventDispatcher();
 
   function getLegacyMMDD (simpleISO) {
     if (!simpleISO) return 
@@ -34,7 +33,7 @@
 
     if (timeZone) taskUpdates.timeZone = DateTime.local().zoneName
 
-    dispatch("task-update", {
+    updateTaskNode({
       id: taskObject.id,
       keyValueChanges: taskUpdates
     })

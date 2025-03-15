@@ -159,9 +159,7 @@
             >
           </div>
 
-          <StartTimeDurationNotify {taskObject}
-            on:task-update
-          />
+          <StartTimeDurationNotify {taskObject} />
 
           <div style="width: 100%;">
             <UXFormTextArea value={taskObject.notes}
@@ -226,14 +224,13 @@
             Tree History
           </div>
 
-          <!-- <div style="max-height: 500px; overflow-y: auto;">
-            <RecursiveBulletPoint
-              taskObject={taskObject.parentID ? findTaskByID(taskObject.parentID) : taskObject}
+          <div style="max-height: 500px; overflow-y: auto;">
+            <!-- <RecursiveBulletPoint
+              taskObject={taskObject.parentID ? $tasksCache[taskObject.parentID] : taskObject}
               originalPopupTask={taskObject}
               on:task-click
-              on:task-update
-            />
-          </div> -->
+            /> -->
+          </div>
         </div>
         <!-- End of task details container -->
       </div>

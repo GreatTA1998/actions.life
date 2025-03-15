@@ -4,7 +4,6 @@
       <DetailedCardPopup
         on:task-delete={(e) => deleteTaskNode(e.detail)}
         on:task-click={(e) => openDetailedCard(e.detail)}
-        on:task-update={(e) => updateTaskNode(e.detail)}
       />
     {/if}
   {/key}
@@ -19,9 +18,6 @@
     <div style="overflow-y: auto;">
       {#if activeTabName === 'TODO_VIEW'}
         <ListView
-          on:task-click={e => openDetailedCard(e.detail)}
-          on:task-update={e => updateTaskNode(e.detail)}
-          on:task-create={e => createTaskNode(e.detail)}
           let:startTypingNewTask={startTypingNewTask}
         >
           <FloatingButtonWrapper on:click={startTypingNewTask} distanceFromBottom={100}>
@@ -44,16 +40,9 @@
           </FloatingButtonWrapper>
         </ListView>
       {:else if activeTabName === 'FUTURE_VIEW'}
-        <ScheduleView
-          on:task-duration-adjusted
-          on:task-click={(e) => openDetailedCard(e.detail)}
-        />
+        <ScheduleView on:task-duration-adjusted />
       {:else if activeTabName === 'CALENDAR_VIEW'}
-        <Calendar isCompact
-          on:task-create={e => createTaskNode(e.detail)}
-          on:task-click={e => openDetailedCard(e.detail)}
-          on:task-update={e => updateTaskNode(e.detail)}
-        />    
+        <Calendar isCompact/>    
       {:else if activeTabName === 'AI_VIEW'}
         <AI />
       {/if}

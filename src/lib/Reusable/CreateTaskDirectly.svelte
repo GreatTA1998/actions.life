@@ -7,6 +7,7 @@
   import { user } from '/src/store'
   import { onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
+  import { createTaskNode } from '/src/helpers/crud.js'
 
   export let resultantDateClassObject
   export let newTaskStartTime = '' // hh:mm format
@@ -54,7 +55,7 @@
       'yyyy-MM-dd'
     )
     copy.startTime = newTaskStartTime
-    dispatch('task-create', {
+    createTaskNode({
       id: getRandomID(),
       newTaskObj: copy
     })
@@ -64,7 +65,7 @@
   async function createTaskDirectly(e) {
     const newTaskName = e.detail.taskName
     if (newTaskName !== '') {
-      dispatch('task-create', {
+      createTaskNode({
         id: getRandomID(),
         newTaskObj: {
           name: newTaskName,

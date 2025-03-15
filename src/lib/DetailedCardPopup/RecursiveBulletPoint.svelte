@@ -40,7 +40,6 @@
       <div style="margin-left: 12px;">
         <RecursiveBulletPoint 
           on:task-click
-          on:task-update
           taskObject={child} {originalPopupTask}
         />
       </div>

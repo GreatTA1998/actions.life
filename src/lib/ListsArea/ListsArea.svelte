@@ -1,7 +1,6 @@
 <script>
   import TodoList from '$lib/ListsArea/TodoList.svelte'
   import { listenToListsAndTasks, listTreesMap, lists } from '/src/store/services/listAreaDataManager.js'
-  import { createTaskNode, updateTaskNode } from '/src/helpers/crud.js'
   import { user } from '/src/store'
   import { onMount } from 'svelte'
   import { doc, updateDoc } from 'firebase/firestore'
@@ -15,14 +14,6 @@
   onMount(() => {
     listenToListsAndTasks($user.uid)
   })
-
-  function handleNewTask (event, listId) {
-    const { id, newTaskObj } = event.detail
-    newTaskObj.listID = listId
-    newTaskObj.persistsOnList = true
-    newTaskObj.isArchived = false
-    createTaskNode({ id, newTaskObj })
-  }
 
   // Filter lists based on listID if provided
   $: filteredLists = listID ? $lists.filter(list => list.id === listID) : $lists;
@@ -89,9 +80,7 @@
           tasksToDisplay={$listTreesMap[list.id]}
           willShowCheckbox={true}
           hideListTitle={true}
-          on:task-create={e => handleNewTask(e, list.id)}
           on:task-click
-          on:task-update={e => updateTaskNode(e.detail)}
           on:dragstart
           on:dragend
           on:dragover

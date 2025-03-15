@@ -89,9 +89,7 @@
         <div style="position: absolute;" style:left={`${renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px`}>
           <div use:trackHeight={h => headerHeight.set(h)} class="headers-flexbox">
             {#each renderedColumnDTs as dt (dt.toMillis())}
-              <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')}
-                on:task-create on:task-update
-              />
+              <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')} />
             {/each}
           </div>
 
@@ -99,7 +97,6 @@
             {#each renderedColumnDTs as dt (dt.toMillis())}
               <DayColumn {dt}
                 scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
-                on:task-create on:task-update
               />
             {/each}
           </div>

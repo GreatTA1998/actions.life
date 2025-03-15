@@ -73,9 +73,6 @@
           tasksToDisplay={$inclusiveWeekTodo}
           style="padding-top: var(--height-main-content-top-margin); background-color: var(--todo-list-bg-color); border-radius: 16px; height: 100%;"
           willShowCheckbox={false}
-          on:task-click
-          on:task-create
-          on:task-update
           on:dragstart
           on:dragend
           on:dragover
@@ -85,13 +82,8 @@
     {:else}
       <ListsArea 
         {listID}
-        on:task-click
-        on:task-create
-        on:task-update
         on:dragstart
         on:dragend
-        on:dragover
-        on:drop
       />
     {/if}
   </div>
@@ -102,13 +94,10 @@
 
   <div class="calendar-container">
     <Calendar
-      on:task-create
-      on:task-update
       on:task-click
       on:dragstart
       on:dragend
       on:dragover
-      on:drop
     />
   </div>
 </div>

@@ -8,7 +8,6 @@
       <DoodleIcon
         {iconTask}
         on:task-click
-        on:task-update
       />
     {/each}
   </div>
@@ -26,7 +25,6 @@
       <FlexibleDayTask task={flexibleDayTask}
         fontSizeInPx={16}
         on:task-click
-        on:task-update
       />
     </button>
   {/each}

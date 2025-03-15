@@ -95,7 +95,6 @@
           {isLargeFont}
           ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
           {colorForDebugging}
-          on:task-create on:task-update
         >
           {#if child.startDateISO}
             <div class="date-badge">
