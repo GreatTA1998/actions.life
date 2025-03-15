@@ -62,7 +62,7 @@
   <div class="list-area-container" style="width: {listAreaWidth}px;">
     {#if showToggle}
       <button class="toggle-button" on:click={toggleView}>
-        {showLegacyTodo ? 'Switch to Multi-List' : 'Switch to Legacy Todo'}
+        Switch
       </button>
     {/if}
     

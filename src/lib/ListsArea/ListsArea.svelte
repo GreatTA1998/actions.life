@@ -63,17 +63,15 @@
               autofocus
             />
           {:else}
-            <h3 class="list-title" on:dblclick={() => startEditingListName(list)}>
+            <h3 class="list-title" on:click={() => startEditingListName(list)} on:keydown>
               {list.name}
             </h3>
 
             <div style="display: flex; column-gap: 8px; margin-left: auto; margin-right: 4px;">
               <button on:click={() => triggerListID = list.id } style="width: 24px; height: 24px; font-size: 20px; color: rgb(100, 100, 100);">
-                +
-              </button>
-  
-              <button class="edit-button" on:click={() => startEditingListName(list)}>
-                ✎
+                <span class="new-task-icon">
+                  +
+                </span>
               </button>
             </div>
           {/if}
