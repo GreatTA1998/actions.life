@@ -32,8 +32,6 @@ export function setupCalListener (leftDT, rightDT) {
     const n = dateISOs.length
     listeners[`${dateISOs[0]}_${dateISOs[n - 1]}`] = listenToRegion(dateISOs)
   }
-
-  console.log("active listeners =", listeners)
 }
 
 function divideIntoRegions(leftISO, rightISO, chunkSize = 10) {
@@ -148,6 +146,7 @@ function addTaskToDate (task, date, dateToTasks) {
 /** Updates a calendar task and handles cascading updates to descendants */
 export async function updateCalendarTask ({ uid, taskID, keyValueChanges }) {
   try {
+    console.log("updateCalendarTask", { uid, taskID, keyValueChanges })
     const task = get(tasksCache)[taskID]
     const batch = writeBatch(db)
 
@@ -169,12 +168,9 @@ export async function updateCalendarTask ({ uid, taskID, keyValueChanges }) {
         handleReparentingTreeISOs(uid, task, oldParentID, newParentID, batch)
       }
     }
-
-    if (isRescheduling || isReparenting) {      
-      batch.update(doc(db, 'users', uid, 'tasks', taskID), keyValueChanges)
-      await batch.commit()
-      console.log("batch success.")
-    }
+     
+    batch.update(doc(db, 'users', uid, 'tasks', taskID), keyValueChanges)
+    await batch.commit()
   } catch (error) {
     console.error('Error updating calendar task:', error)
     throw error
