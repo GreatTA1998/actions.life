@@ -6,21 +6,17 @@
   export let children = [];
   export let depth;
   export let parentID;
-  export let ancestorRoomIDs = [];
-  export let willShowCheckbox = true;
+  export let ancestorRoomIDs = []
   export let isLargeFont = false;
   export let colorForDebugging;
   
-  const dispatch = createEventDispatcher();
-  
-  // Format date for display (e.g., "Jul 15")
-  function formatDate(dateStr) {
+  function formatDate (dateStr) {
     if (!dateStr) return '';
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric'
-    });
+    }) // e.g. "Jun 15"
   }
   
   // Timeline-specific calculations
@@ -81,45 +77,34 @@
   $: timelineData = calculateTimePositions(children);
   $: sortedTasks = timelineData.sortedTasks;
   $: spacings = timelineData.spacings;
-  
-  // Forward the task-create event from child components
-  function handleTaskCreate(event) {
-    dispatch('task-create', event.detail);
-  }
 </script>
 
 <div class="timeline-container">
-  <!-- Timeline visualization (vertical line) -->
-  {#if sortedTasks.length > 0}
+  <!-- {#if sortedTasks.length > 0}
     <div class="timeline-line"></div>
-  {/if}
+  {/if} -->
   
-  <!-- Render children in timeline order with calculated vertical spacing -->
   {#each sortedTasks as child, i (child.id)}
-    <div class="timeline-item" style="margin-bottom: {spacings[child.id]}px">
-      <!-- Date indicator with marker on timeline -->
-      {#if child.startDateISO}
-        <div class="date-indicator">
-          <div class="date-marker"></div>
-          <div class="date-label">{formatDate(child.startDateISO)}</div>
-        </div>
-      {/if}
-      
+    <!-- style="padding-bottom: {spacings[child.id]}px" -->
+    <div class="timeline-item">      
       <div class="task-wrapper">
         <RecursiveTask
           taskObj={child}
           depth={depth+1}
-          {willShowCheckbox}
+          willShowCheckbox={false}
           {isLargeFont}
           ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
           {colorForDebugging}
-          on:task-click
-          on:task-create={handleTaskCreate}
-          on:task-update
-        />
+          on:task-create on:task-update
+        >
+          {#if child.startDateISO}
+            <div class="date-badge">
+              {formatDate(child.startDateISO)}
+            </div>
+          {/if}
+        </RecursiveTask>
       </div>
       
-      <!-- Dropzone logic -->
       <div class:absolute-bottom={i === sortedTasks.length - 1}>
         <Dropzone
           ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
@@ -139,6 +124,8 @@
     position: relative;
     padding-left: 40px; /* Reduced padding */
     margin-left: 0; /* Removed extra margin */
+    border-left: 2px solid #ddd;
+    padding-top: 12px;
   }
   
   .timeline-line {
@@ -166,6 +153,17 @@
   .absolute-bottom {
     position: absolute;
     bottom: -18px;
+  }
+
+  .date-badge {
+    min-width: 52px;
+    font-size: 12px;
+    color: #666;
+    padding: 2px 4px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    background-color: white;
+    text-align: center;
   }
   
   .date-indicator {

@@ -100,7 +100,8 @@
   // Assumes `task` is hydrated
   import { createEventDispatcher } from 'svelte'
   import { getTrueY } from '/src/helpers/everythingElse.js'
-  import { grabOffset, activeDragItem, openDetailedCard } from '/src/store'
+  import { grabOffset, activeDragItem } from '/src/store'
+  import { openDetailedCard } from '/src/store/detailedCardStore.js'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/store/calendarStore.js'
 

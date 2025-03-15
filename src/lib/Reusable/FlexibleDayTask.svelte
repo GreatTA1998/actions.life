@@ -1,9 +1,3 @@
-<!-- 
-  mika blue color: '#0085FF'
-  experimental green: '#509c13'
-  Note, the HTML checkbox tick color literally cannot be changed, but it will be automatically white if it "decides" that our chosen background color is dark enough, 
-  or vice versa
- -->
 <div on:click={() => openDetailedCard(task)}
   draggable="true" 
   on:dragstart|self={(e) => startDragMove(e, task.id)} 
@@ -52,7 +46,8 @@
 <script>
   // Assumes `task` is hydrated
   import { createEventDispatcher } from 'svelte'
-  import { grabOffset, activeDragItem, openDetailedCard } from '/src/store'
+  import { grabOffset, activeDragItem } from '/src/store'
+  import { openDetailedCard } from '/src/store/detailedCardStore.js'
   import Checkbox from './Checkbox.svelte'
 
   export let task = null

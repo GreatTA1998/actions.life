@@ -2,6 +2,7 @@
   <div draggable="true"
     on:dragstart|self={(e) => dragstart_handler(e, taskObj.id)}
     style="display: flex; align-items: center; opacity: {taskObj.isDone ? '0.6' : '1'};"
+    style:margin-left="{willShowCheckbox ? '' : '-30px'}"
   >
     <div class="task-row-container" style="font-size: {depthAdjustedFontSize};">   
       {#if willShowCheckbox}
@@ -11,6 +12,12 @@
             on:change={(e) => handleCheckboxChange(e)}
           />
         </div>
+      {:else}
+        <slot>
+
+        </slot>
+
+        <div style="margin-right: 6px;"></div>
       {/if}
 
       <div on:click={() => openDetailedCard(taskObj)} on:keydown
@@ -27,19 +34,15 @@
     </div>
   </div>
 
-  <!-- Children rendering based on task's own childrenLayout property -->
   {#if taskObj.childrenLayout === 'timeline' && taskObj.children.length > 0}
     <TimelineRenderer
       children={taskObj.children}
       depth={depth}
       parentID={taskObj.id}
       ancestorRoomIDs={ancestorRoomIDs}
-      {willShowCheckbox}
       {isLargeFont}
       {colorForDebugging}
-      on:task-click
-      on:task-create
-      on:task-update
+      on:task-create on:task-update
     />
   {:else}
     <div style="margin-left: {indentationAmount}px;">
@@ -71,9 +74,7 @@
           ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
           {isLargeFont}
           {colorForDebugging}
-          on:task-click
-          on:task-create
-          on:task-update
+          on:task-create on:task-update
         /> 
 
         <div class:ghost-negative={i === n - 1} 
@@ -121,7 +122,8 @@
     getRandomColor,
   } from '/src/helpers/everythingElse.js'
   import { createEventDispatcher } from 'svelte'
-  import { activeDragItem, openDetailedCard } from '/src/store'
+  import { activeDragItem } from '/src/store'
+  import { openDetailedCard } from '/src/store/detailedCardStore.js'
 
   export let taskObj
   export let depth 

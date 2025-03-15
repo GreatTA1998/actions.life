@@ -52,7 +52,8 @@
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import { createEventDispatcher } from 'svelte'
-  import { mostRecentlyCompletedTaskID, openDetailedCard } from '/src/store'
+  import { mostRecentlyCompletedTaskID } from '/src/store'
+  import { openDetailedCard } from '/src/store/detailedCardStore.js'
 
   export let taskObject 
   export let originalPopupTask

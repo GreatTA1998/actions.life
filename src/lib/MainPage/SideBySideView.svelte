@@ -168,7 +168,7 @@
   .handle-wrapper {
     position: relative;
     height: 100%;
-    z-index: 10;
+    z-index: 1;
     display: flex;
     align-items: center;
   }

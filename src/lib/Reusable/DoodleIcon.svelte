@@ -1,5 +1,6 @@
 <script>
-  import { activeDragItem, grabOffset, openDetailedCard } from '/src/store'
+  import { activeDragItem, grabOffset } from '/src/store'
+  import { openDetailedCard } from '/src/store/detailedCardStore.js'
   import { createEventDispatcher } from 'svelte'
 
   export let iconTask

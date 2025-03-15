@@ -13,7 +13,8 @@
 
   import { onDestroy, onMount } from 'svelte'
   import { page } from '$app/stores'
-  import { user, loadingTasks, showSnackbar, clickedTask, isDetailedCardOpen } from '/src/store'
+  import { user, loadingTasks, showSnackbar } from '/src/store'
+  import { isDetailedCardOpen } from '/src/store/detailedCardStore.js'
   import { createTaskNode, updateTaskNode, deleteTaskNode, deleteTaskAndChildren } from '/src/helpers/crud.js'
   import CalendarService from '/src/store/services/CalendarService.js'
   import TodoService from '/src/store/services/TodoService.js'
@@ -42,7 +43,7 @@
 </script>
 
 {#if $isDetailedCardOpen}
-  <DetailedCardPopup taskObject={$clickedTask}
+  <DetailedCardPopup
     on:task-update={e => updateTaskNode(e.detail)}
     on:task-delete={e => deleteTaskNode(e.detail)}
     on:task-delete-children={e => deleteTaskAndChildren(e.detail)}

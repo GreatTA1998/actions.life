@@ -76,9 +76,7 @@
   }
 </script>
 
-<!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified,
- so it IS confusing 
--->
+<!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
 <div class="todo-list-container"
   style={$$props.style}
   on:drop|stopPropagation={(e) => handleDroppedTask(e)}

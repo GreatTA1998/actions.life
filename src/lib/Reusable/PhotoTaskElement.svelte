@@ -97,7 +97,8 @@
  // Assumes `task` is hydrated
  import { createEventDispatcher } from 'svelte'
  import { getTrueY } from '/src/helpers/everythingElse.js'
- import { grabOffset, activeDragItem, openDetailedCard } from '/src/store'
+ import { grabOffset, activeDragItem } from '/src/store'
+ import { openDetailedCard } from '/src/store/detailedCardStore.js'
  import { lazyCallable } from '/src/helpers/actions.js'
  import { pixelsPerHour } from '/src/store/calendarStore.js'
 

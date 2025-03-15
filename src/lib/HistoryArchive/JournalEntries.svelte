@@ -2,13 +2,10 @@
   import { user } from '/src/store/userStore.js'
   import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
   import { formatDate } from '/src/helpers/everythingElse.js'
-  import { createEventDispatcher } from 'svelte'
-  import { openDetailedCard } from '/src/store'
+  import { openDetailedCard } from '/src/store/detailedCardStore.js'
 
   export let routineInstances = null
   export let selectedRoutine = null
-
-  const dispatch = createEventDispatcher()
 
   function togglePinToFavorite (routine) {
     updateFirestoreDoc(`/users/${$user.uid}/templates/${routine.id}`, {

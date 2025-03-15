@@ -1,8 +1,7 @@
 {#if $user.uid}
   {#key clickedTask}
     {#if isDetailedCardOpen}
-      <DetailedCardPopup taskObject={clickedTask}
-        on:card-close={() => isDetailedCardOpen = false}
+      <DetailedCardPopup
         on:task-delete={(e) => deleteTaskNode(e.detail)}
         on:task-click={(e) => openDetailedCard(e.detail)}
         on:task-update={(e) => updateTaskNode(e.detail)}
@@ -128,6 +127,7 @@
   import { getRandomID, getDateInMMDD } from '/src/helpers/everythingElse.js'
   import { user, todoMemoryTree, hasInitialScrolled } from '/src/store'
   import { isCompact } from '/src/store/calendarStore.js'
+  import { openDetailedCard, isDetailedCardOpen } from '/src/store/detailedCardStore.js'
   import { page } from '$app/stores'
   import { onDestroy, onMount } from 'svelte'
 
@@ -138,7 +138,6 @@
   let isUsingVoice = false
   let speechResult = ''
   
-  let isDetailedCardOpen = false
   let clickedTask = {}
 
   $: userID = $page.params.user
@@ -182,11 +181,6 @@
     // if it's the first task, the orderValue is initialized to `maxOrder`
 
     createTaskNode({ id: getRandomID(), newTaskObj })
-  }
-
-  function openDetailedCard ({ task }) {
-    clickedTask = task 
-    isDetailedCardOpen = true
   }
 </script>
 

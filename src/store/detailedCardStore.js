@@ -1,19 +1,16 @@
-import { writable, derived } from 'svelte/store'
+import { writable } from 'svelte/store'
 
-// Store for the currently clicked task that should be displayed in the DetailedCardPopup
-export const clickedTask = writable({})
+export const clickedTaskID = writable('')
 
-// Derived store to check if the popup is open (task has an id)
-export const isDetailedCardOpen = derived(
-  clickedTask,
-  $clickedTask => $clickedTask && $clickedTask.id ? true : false
-)
+export const isDetailedCardOpen = writable(false)
 
-// Helper functions to open and close the popup
-export function openDetailedCard(task) {
-  clickedTask.set(task)
+export function openDetailedCard (task) {
+  clickedTaskID.set(task.id)
+  isDetailedCardOpen.set(true)
 }
 
 export function closeDetailedCard() {
-  clickedTask.set({})
+  isDetailedCardOpen.set(false)
+  // we purposely don't reset `clickedTaskID` as there may still be a PENDING save request for task notes 
+  // after the user closes the detailed card, that still relies on the id
 } 

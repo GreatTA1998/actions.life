@@ -3,7 +3,6 @@ export { templates, deleteTemplate, updateTemplate } from './templatesStore.js'
 export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from './calendarTimestamps.js'
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
-export { clickedTask, openDetailedCard, closeDetailedCard, isDetailedCardOpen } from './detailedCardStore.js'
 
 export const todoTasks = writable(null)
 export { calendarTasks, tasksScheduledOn } from './calendarStore.js'
