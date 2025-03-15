@@ -33,7 +33,7 @@ export async function updateTaskNode ({ id, keyValueChanges }) {
     const validatedChanges = TaskSchema.partial().parse(keyValueChanges)
     
     // Use the updateTask function that handles descendant updates
-    await updateTask({ 
+    updateTask({ 
       uid: get(user).uid, 
       taskID: id, 
       keyValueChanges: validatedChanges 

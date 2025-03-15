@@ -27,23 +27,7 @@ export function findTaskById(taskID) {
 // Client-side function to update a task and handle descendant updates
 export async function updateTask({ uid, taskID, keyValueChanges }) {
   try {
-    // Find the task in the stores to determine which service to use
-    const task = findTaskById(taskID);
-    
-    if (!task) {
-      console.warn(`Task ${taskID} not found in stores, falling back to direct database update`);
-      // If we can't find the task, we don't know which service to use
-      // So we'll just update the task directly in the database
-      const allCalendarTasks = get(calendarTasks);
-      const allTodoTasks = get(todoTasks);
-      
-      // If the task has a startDateISO, it's likely a calendar task
-      if (keyValueChanges.startDateISO && keyValueChanges.startDateISO !== "") {
-        return CalendarService.updateCalendarTask({ uid, taskID, keyValueChanges });
-      } else {
-        return TodoService.updateTodoTask({ uid, taskID, keyValueChanges });
-      }
-    }
+    const task = get(tasksCache)[taskID]
     
     // Determine which service to use based on the task's current state
     // and the changes being made
@@ -51,10 +35,8 @@ export async function updateTask({ uid, taskID, keyValueChanges }) {
     const isMovingToTodo = task.startDateISO && keyValueChanges.startDateISO === "";
     
     if (isMovingToCalendar || (task.startDateISO && !isMovingToTodo)) {
-      // This is a calendar task or is becoming one
       return CalendarService.updateCalendarTask({ uid, taskID, keyValueChanges });
     } else {
-      // This is a todo task or is becoming one
       return TodoService.updateTodoTask({ uid, taskID, keyValueChanges });
     }
   } catch (error) {

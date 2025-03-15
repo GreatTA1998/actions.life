@@ -15,9 +15,9 @@
   import { page } from '$app/stores'
   import { user, loadingTasks, showSnackbar } from '/src/store'
   import { isDetailedCardOpen } from '/src/store/detailedCardStore.js'
-  import { createTaskNode, updateTaskNode, deleteTaskNode, deleteTaskAndChildren } from '/src/helpers/crud.js'
-  import CalendarService from '/src/store/services/CalendarService.js'
+  import { deleteTaskNode, deleteTaskAndChildren } from '/src/helpers/crud.js'
   import TodoService from '/src/store/services/TodoService.js'
+  import { migrateToTreeISOs } from '/src/store/services/CalendarService.js'
 
   let currentMode = 'Week'
   let isShowingAI = false
@@ -29,6 +29,8 @@
     TodoService.setupTodoListener(uid)
 
     loadingTasks.set(false)
+
+    // migrateToTreeISOs('yGVJSutBrnS1156uopQQOBuwpMl2', false)
   })
 
   onDestroy(() => {

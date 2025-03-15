@@ -1,20 +1,17 @@
 /**
  * Handles everything data-related for <Calendar/>, from snapshot listeners to tree building.
- * 
- * Assumes page.params.user is set
  */
 import { DateTime } from 'luxon'
-import Tasks from '/src/back-end/Tasks'
 import { pureNumericalHourForm } from '/src/helpers/everythingElse.js'
 import { tasksScheduledOn } from '../calendarStore.js'
-import { doc, collection, writeBatch, query, where, onSnapshot } from 'firebase/firestore'
+import { doc, collection, writeBatch, query, where, onSnapshot, getDocs } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
 import { size, cushion } from '/src/helpers/constants.js'
 import { page } from '$app/stores'
 import { get } from 'svelte/store'
 import { tasksCache, updateCache } from '/src/store'
 
-const activeListeners = {}
+const listeners = {}
 
 export function setupInitialCalendarTasks () {
   const today = DateTime.now()
@@ -27,36 +24,69 @@ export function setupInitialCalendarTasks () {
 export function setupCalListener (leftDT, rightDT) {  
   const leftISO = leftDT.toFormat('yyyy-MM-dd')
   const rightISO = rightDT.toFormat('yyyy-MM-dd')
-  activeListeners[`${leftISO}_${rightISO}`] = listenToDateRange(leftISO, rightISO)
+  
+  const FIREBASE_ARRAY_CONTAINS_ANY_LIMIT = 10
+  const regions = divideIntoRegions(leftISO, rightISO, FIREBASE_ARRAY_CONTAINS_ANY_LIMIT)
+  
+  for (const dateISOs of regions) { 
+    const n = dateISOs.length
+    listeners[`${dateISOs[0]}_${dateISOs[n - 1]}`] = listenToRegion(dateISOs)
+  }
+
+  console.log("active listeners =", listeners)
 }
 
-function listenToDateRange (leftISO, rightISO) {
+function divideIntoRegions(leftISO, rightISO, chunkSize = 10) {
+  const chunks = []
+  let currentChunk = []
+  let currentDate = DateTime.fromISO(leftISO)
+  const endDate = DateTime.fromISO(rightISO)
+  
+  while (currentDate <= endDate) {
+    const dateString = currentDate.toFormat('yyyy-MM-dd')
+    currentChunk.push(dateString)
+    
+    if (currentChunk.length === chunkSize) {
+      chunks.push([...currentChunk])
+      currentChunk = []
+    }
+    
+    currentDate = currentDate.plus({ days: 1 })
+  }
+  
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk)
+  }
+  
+  return chunks
+}
+
+function listenToRegion (dateISOs) {
   return onSnapshot(
     query(
       collection(db, `/users/${get(page).params.user}/tasks`), 
-      where('rootStartDateISO', '>=', leftISO),
-      where('rootStartDateISO', '<=', rightISO)
+      where('treeISOs', 'array-contains-any', dateISOs)
     ),
     (snapshot) => {
       const tasks = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-      updateTasksForDateRange(tasks, leftISO, rightISO)
+      rebuildRegion(tasks)
     }, 
     (error) => {
-      console.error('Error in listenToDateRange:', error)
+      console.error('Error in listenToDateChunk:', error)
     }
   )
 }
 
-export function updateTasksForDateRange (flatArray, startDate, endDate) {
-  if (!flatArray?.length) return
-  
-  updateCache(flatArray)
-  const forest = constructForest(flatArray)
-  const dateMapping = computeDateToTasksDict(forest)
+export function rebuildRegion (regionTasks) {
+  updateCache(regionTasks)
+
+  // NOTE: constructForest() will return only tasks that have `startDateISO`
+  const forest = constructForest(regionTasks)
+  const treesByDate = computeDateToTasksDict(forest) // RENAME: THIS IS TERRIBLE
   
   tasksScheduledOn.update($tasksScheduledOn => {
-    for (const [date, tasks] of Object.entries(dateMapping)) {
-      $tasksScheduledOn[date] = tasks
+    for (const [date, trees] of Object.entries(treesByDate)) {
+      $tasksScheduledOn[date] = trees
     }
     return $tasksScheduledOn
   })
@@ -119,57 +149,168 @@ function addTaskToDate (task, date, dateToTasks) {
 export async function updateCalendarTask ({ uid, taskID, keyValueChanges }) {
   try {
     const task = get(tasksCache)[taskID]
-    if (!task) throw new Error(`Task ${taskID} not found in cache`)
+    const batch = writeBatch(db)
 
     const isRescheduling = 'startDateISO' in keyValueChanges
     const isReparenting = 'parentID' in keyValueChanges
-    const updatedChanges = { ...keyValueChanges }
     
-    if (isRescheduling || isReparenting) {
-      let newRootStartDateISO = task.rootStartDateISO
-      
-      if (isRescheduling && !task.parentID) {
-        // Root node being rescheduled
-        newRootStartDateISO = keyValueChanges.startDateISO || ''
-      } else if (isReparenting) {
-        if (keyValueChanges.parentID) {
-          // Node being assigned a new parent
-          const newParent = get(tasksCache)[keyValueChanges.parentID]
-          newRootStartDateISO = newParent?.rootStartDateISO || keyValueChanges.startDateISO || ''
-        } else {
-          // Node becoming a root
-          newRootStartDateISO = keyValueChanges.startDateISO || task.startDateISO || ''
-        }
-      }
-      
-      if (newRootStartDateISO !== task.rootStartDateISO) {
-        updatedChanges.rootStartDateISO = newRootStartDateISO
-        
-        await Promise.all([
-          Tasks.updateTaskDoc({ userUID: uid, taskID, keyValueChanges: updatedChanges }),
-          updateDescendantsRootStartDateISO(uid, taskID, newRootStartDateISO)
-        ])
-        
-        return {
-          taskID,
-          changes: updatedChanges,
-          rootStartDateISOChanged: true,
-          originalTask: task
-        }
+    if (isRescheduling) {
+      const oldDate = task.startDateISO
+      const newDate = keyValueChanges.startDateISO
+      if (oldDate !== newDate) {
+        updateTreeISOsForTaskAndAncestors(uid, task, oldDate, newDate, batch)
       }
     }
     
-    await Tasks.updateTaskDoc({ userUID: uid, taskID, keyValueChanges: updatedChanges })
-    
-    return {
-      taskID,
-      changes: updatedChanges,
-      rootStartDateISOChanged: false,
-      originalTask: task
+    if (isReparenting) {
+      const oldParentID = task.parentID
+      const newParentID = keyValueChanges.parentID
+      if (oldParentID !== newParentID) {
+        handleReparentingTreeISOs(uid, task, oldParentID, newParentID, batch)
+      }
+    }
+
+    if (isRescheduling || isReparenting) {      
+      batch.update(doc(db, 'users', uid, 'tasks', taskID), keyValueChanges)
+      await batch.commit()
+      console.log("batch success.")
     }
   } catch (error) {
     console.error('Error updating calendar task:', error)
     throw error
+  }
+}
+
+/**
+ * Updates treeISOs for a task and all its ancestors when the task's date changes
+ */
+async function updateTreeISOsForTaskAndAncestors(uid, task, oldDate, newDate, batch) {
+  // Get all ancestors including this task
+  const ancestors = getAncestorChain(task)
+  
+  for (const ancestor of ancestors) {
+    const ancestorRef = doc(db, 'users', uid, 'tasks', ancestor.id)
+    const currentTreeISOs = ancestor.treeISOs || []
+    
+    // Remove old date if it exists
+    const updatedTreeISOs = oldDate ? 
+      currentTreeISOs.filter(date => date !== oldDate) : 
+      [...currentTreeISOs]
+    
+    // Add new date if it's not already there
+    if (newDate && !updatedTreeISOs.includes(newDate)) {
+      updatedTreeISOs.push(newDate)
+    }
+    
+    batch.update(ancestorRef, { treeISOs: updatedTreeISOs })
+  }
+}
+
+/**
+ * Gets a chain of ancestors for a task, including the task itself
+ */
+function getAncestorChain(task) {
+  const ancestors = [task]
+  let currentTask = task
+  
+  while (currentTask.parentID) {
+    const parent = get(tasksCache)[currentTask.parentID]
+    if (!parent) break
+    
+    ancestors.push(parent)
+    currentTask = parent
+  }
+  
+  return ancestors
+}
+
+async function handleReparentingTreeISOs(uid, task, oldParentID, newParentID, batch) {
+  // Get task's date
+  const taskDate = task.startDateISO
+  if (!taskDate) return // No date to update
+  
+  // Get all descendants of this task (including itself)
+  const descendants = getDescendantTasks(task.id)
+  const descendantDates = [...new Set(
+    descendants
+      .filter(t => t.startDateISO)
+      .map(t => t.startDateISO)
+  )]
+  
+  // Update old parent chain - remove all descendant dates
+  if (oldParentID) {
+    const oldParent = get(tasksCache)[oldParentID]
+    if (oldParent) {
+      const oldAncestors = getAncestorChain(oldParent)
+      updateAncestorsRemoveDates(uid, oldAncestors, descendantDates, batch)
+    }
+  }
+  
+  // Update new parent chain - add all descendant dates
+  if (newParentID) {
+    const newParent = get(tasksCache)[newParentID]
+    if (newParent) {
+      const newAncestors = getAncestorChain(newParent)
+      updateAncestorsAddDates(uid, newAncestors, descendantDates, batch)
+    }
+  }
+}
+
+function getDescendantTasks(taskID) {
+  const descendants = []
+  const queue = [taskID]
+  
+  while (queue.length > 0) {
+    const currentID = queue.shift()
+    const task = get(tasksCache)[currentID]
+    
+    if (task) {
+      descendants.push(task)
+      
+      // Add children to queue
+      const children = Object.values(get(tasksCache))
+        .filter(t => t.parentID === currentID)
+      
+      queue.push(...children.map(child => child.id))
+    }
+  }
+  
+  return descendants
+}
+
+/**
+ * Updates ancestors to remove dates from their treeISOs arrays
+ */
+async function updateAncestorsRemoveDates(uid, ancestors, datesToRemove) {
+  for (const ancestor of ancestors) {
+    const ancestorRef = doc(db, 'users', uid, 'tasks', ancestor.id)
+    const currentTreeISOs = ancestor.treeISOs || []
+    
+    // Remove dates that are in the datesToRemove array
+    const updatedTreeISOs = currentTreeISOs.filter(date => !datesToRemove.includes(date))
+    
+    batch.update(ancestorRef, { treeISOs: updatedTreeISOs })
+  }
+}
+
+/**
+ * Updates ancestors to add dates to their treeISOs arrays
+ */
+async function updateAncestorsAddDates(uid, ancestors, datesToAdd, batch) {  
+  for (const ancestor of ancestors) {
+    const ancestorRef = doc(db, 'users', uid, 'tasks', ancestor.id)
+    const currentTreeISOs = ancestor.treeISOs || []
+    
+    // Add dates that aren't already in the array
+    const updatedTreeISOs = [...currentTreeISOs]
+    
+    for (const date of datesToAdd) {
+      if (!updatedTreeISOs.includes(date)) {
+        updatedTreeISOs.push(date)
+      }
+    }
+    
+    batch.update(ancestorRef, { treeISOs: updatedTreeISOs })
   }
 }
 
@@ -192,21 +333,173 @@ async function updateDescendantsRootStartDateISO (uid, taskID, rootStartDateISO)
   ))
 }
 
+/**
+ * Migrates existing tasks to use the treeISOs field
+ * This function should be manually called from the console
+ * 
+ * Usage:
+ * import { migrateToTreeISOs } from '/src/store/services/CalendarService.js'
+ * migrateToTreeISOs('user123', true) // Dry run
+ * migrateToTreeISOs('user123') // Actual migration
+ * 
+ * @param {string} uid - User ID to migrate
+ * @param {boolean} dryRun - If true, only simulates the migration without writing
+ * @returns {Promise<Object>} Migration results
+ */
+export async function migrateToTreeISOs(uid, dryRun = false) {
+  try {
+    console.log(`${dryRun ? 'SIMULATION' : 'STARTING'} migration to treeISOs for user ${uid}`)
+    
+    // 1. Fetch all tasks for the user
+    const tasksSnapshot = await getDocs(collection(db, `users/${uid}/tasks`))
+    const tasks = tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    console.log(`Found ${tasks.length} tasks to process`)
+    
+    // 2. Build the task hierarchy
+    const taskMap = new Map()
+    tasks.forEach(task => taskMap.set(task.id, { ...task, children: [] }))
+    
+    // Connect parents and children
+    taskMap.forEach(task => {
+      if (task.parentID && taskMap.has(task.parentID)) {
+        taskMap.get(task.parentID).children.push(task)
+      }
+    })
+    
+    // 3. Find root tasks (no parent or parent not in our dataset)
+    const rootTasks = Array.from(taskMap.values())
+      .filter(task => !task.parentID || !taskMap.has(task.parentID))
+    console.log(`Found ${rootTasks.length} root tasks`)
+    
+    // 4. Process each tree starting from roots
+    const batchSize = 500 // Firestore batch limit
+    let operationCount = 0
+    let tasksToUpdate = 0
+    let currentBatch = dryRun ? null : writeBatch(db)
+    
+    // Process each tree
+    for (const rootTask of rootTasks) {
+      const result = await processTreeForMigration(
+        rootTask, 
+        taskMap, 
+        uid, 
+        currentBatch, 
+        dryRun,
+        () => {
+          operationCount++
+          tasksToUpdate++
+          
+          if (!dryRun && operationCount >= batchSize) {
+            // Commit current batch and start a new one
+            console.log(`Committing batch of ${operationCount} operations`)
+            currentBatch.commit()
+            currentBatch = writeBatch(db)
+            operationCount = 0
+          }
+        }
+      )
+    }
+    
+    // Commit any remaining operations
+    if (!dryRun && operationCount > 0) {
+      console.log(`Committing final batch of ${operationCount} operations`)
+      await currentBatch.commit()
+    }
+    
+    const message = dryRun 
+      ? `DRY RUN COMPLETE: ${tasksToUpdate} tasks would be updated` 
+      : `MIGRATION COMPLETE: ${tasksToUpdate} tasks updated`
+    
+    console.log(message)
+    
+    return { 
+      success: true, 
+      message, 
+      tasksToUpdate,
+      dryRun
+    }
+  } catch (error) {
+    console.error(`ERROR during ${dryRun ? 'dry run' : 'migration'} to treeISOs:`, error)
+    return { 
+      success: false, 
+      error: error.message,
+      dryRun
+    }
+  }
+}
+
+/**
+ * Processes a tree for migration, calculating treeISOs for each node
+ */
+async function processTreeForMigration(task, taskMap, uid, batch, dryRun, incrementCounter) {
+  // Skip tasks without dates
+  if (!task.startDateISO) return { dates: [] }
+  
+  // Process children first to collect all dates
+  let allDates = [task.startDateISO]
+  
+  // Process each child and collect their dates
+  for (const child of task.children) {
+    const childResult = await processTreeForMigration(
+      child, taskMap, uid, batch, dryRun, incrementCounter
+    )
+    allDates = [...allDates, ...childResult.dates]
+  }
+  
+  // Remove duplicates
+  const uniqueDates = [...new Set(allDates)]
+  
+  // Check if update is needed
+  const currentTreeISOs = task.treeISOs || []
+  const needsUpdate = !arraysEqual(currentTreeISOs.sort(), uniqueDates.sort())
+  
+  if (needsUpdate) {
+    // Update the task with treeISOs
+    if (!dryRun) {
+      const taskRef = doc(db, `users/${uid}/tasks`, task.id)
+      batch.update(taskRef, { treeISOs: uniqueDates })
+    }
+    incrementCounter()
+  }
+  
+  return { dates: uniqueDates }
+}
+
+/**
+ * Compares two arrays for equality
+ */
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}
+
 export function cleanupCalendarListeners () {
-  Object.entries(activeListeners).forEach(([key, unsubscribe]) => {
-    if (typeof unsubscribe === 'function') {
-      unsubscribe()
+  Object.entries(listeners).forEach(([key, unsubscribeArray]) => {
+    if (Array.isArray(unsubscribeArray)) {
+      unsubscribeArray.forEach(unsubscribe => {
+        if (typeof unsubscribe === 'function') {
+          unsubscribe()
+        }
+      })
+      console.log(`Cleaned up calendar listeners for range ${key}`)
+    } else if (typeof unsubscribeArray === 'function') {
+      // Handle legacy format for backward compatibility
+      unsubscribeArray()
       console.log(`Cleaned up calendar listener for range ${key}`)
     }
   })
   
-  Object.keys(activeListeners).forEach(key => delete activeListeners[key])
+  Object.keys(listeners).forEach(key => delete listeners[key])
 }
 
 export default {
   setupInitialCalendarTasks,
   setupCalListener,
-  updateTasksForDateRange,
+  rebuildRegion,
   updateCalendarTask,
-  cleanupCalendarListeners
-} 
+  cleanupCalendarListeners,
+  migrateToTreeISOs
+}

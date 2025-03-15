@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher, onMount, onDestroy } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { 
     tasksCache,
     mostRecentlyCompletedTaskID, 
@@ -20,7 +20,6 @@
   let PopupElem
 
   let isViewingPhoto = false
-  const dispatch = createEventDispatcher()
 
   let fullPhotoWidth, fullPhotoHeight 
 
@@ -43,6 +42,7 @@
     if (taskObject.imageDownloadURL) {
       computePhotoFullDisplaySize()
     }
+    console.log("taskObject =", taskObject)
   })
 
   onDestroy(() => {})
