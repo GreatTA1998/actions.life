@@ -7,29 +7,28 @@ const activeListeners = {
 }
 
 export function reconstructTreeInMemory(firestoreTaskDocs) {
-  const output = []
+  const memoryTree = []
 
   const memo = { '': [] }
-  for (const taskDoc of firestoreTaskDocs) {
-    if (!memo[taskDoc.parentID]) memo[taskDoc.parentID] = []
-    memo[taskDoc.parentID].push(taskDoc)
-
-    if (!memo[taskDoc.id]) memo[taskDoc.id] = []
+  for (const node of firestoreTaskDocs) {
+    if (!memo[node.parentID]) memo[node.parentID] = []
+    if (!memo[node.id]) memo[node.id] = []
+    memo[node.parentID].push(node)
   }
 
-  const rootTasks = memo[''] || []
-  for (const rootTask of rootTasks) {
-    recursivelyHydrateChildren(rootTask, memo)
-    output.push(rootTask)
+  const roots = memo[''].sort((a, b) => a.orderValue - b.orderValue)
+  for (const root of roots) {
+    extendTree(root, memo)
+    memoryTree.push(root)
   }
-  
-  return output
+  return memoryTree
 }
 
-function recursivelyHydrateChildren(node, memo) {
-  node.children = memo[node.id] || []
+function extendTree (node, memo) {
+  node.children = memo[node.id]
+  node.children = node.children.sort((a, b) => a.orderValue - b.orderValue)
   for (const child of node.children) {
-    recursivelyHydrateChildren(child, memo)
+    extendTree(child, memo)
   }
 }
 
