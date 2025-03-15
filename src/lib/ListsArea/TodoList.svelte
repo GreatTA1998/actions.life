@@ -7,6 +7,9 @@
   import { activeDragItem } from '/src/store/index.js'
   import { DateTime } from 'luxon'
   import { updateTaskNode, createTaskNode } from '/src/helpers/crud.js'
+  import { createEventDispatcher, onMount, afterUpdate } from 'svelte'
+
+  const dispatch = createEventDispatcher()
 
   export let listID = ''
   export let tasksToDisplay = []
@@ -15,10 +18,16 @@
   export let hasMaxWidth = false // quickfix to prevent complicated flexbox layout ordering issues
   export let willShowCheckbox = true
   export let isLargeFont = false
-  export let hideListTitle = false // New prop to control list title visibility
+  export let hideListTitle = false
+  export let triggerNewTask = false
 
   let isTypingNewRootTask = false
   let newRootTaskStringValue = ''
+  
+  $: if (triggerNewTask && !isTypingNewRootTask) {
+    startTypingNewTask()
+    dispatch('newTaskTriggered')
+  }
   
   function startTypingNewTask() {
     isTypingNewRootTask = true
@@ -31,12 +40,10 @@
     // nice side-effect of this: double-tap ENTER to be done
     else {
       createRootTask(newRootTaskStringValue)
-      // then reset
       newRootTaskStringValue = ''
     }
   }
 
-  // INTERFACE DIFFERENCE #2
   function createRootTask (taskName) {
     const newRootTaskObj = {
       name: taskName,
@@ -44,11 +51,9 @@
       listID,
       timeZone: DateTime.local().zoneName,
     }
-
     if (tasksToDisplay.length > 0) {
       newRootTaskObj.orderValue = (0 + tasksToDisplay[0].orderValue) / 1.1
-    } // otherwise the default `orderValue` will be `maxOrder`, handled by `applyTaskSchema`
-
+    }
     createTaskNode({
       id: getRandomID(),
       newTaskObj: newRootTaskObj
@@ -82,23 +87,20 @@
   on:dragover={(e) => dragover_handler(e)}
 >
   <div class="first-column">
-    <div class="list-header-area">
-      {#if listTitle && !hideListTitle}
-        <div class="list-title-container">
-          <div style="font-weight: 600; font-size: 18px; color: rgb(80, 80, 80)">
-            {listTitle}
-          </div>
+    {#if listTitle && !hideListTitle}
+      <div style="display: flex; align-items: center;">
+        <div style="font-weight: 600; font-size: 18px; color: rgb(80, 80, 80)">
+          {listTitle}
         </div>
-      {/if}
-      
-      <!-- Always show the add task button, regardless of title visibility -->
-      <span on:click={startTypingNewTask} on:keydown
-        class="new-task-icon material-icons"
-        style="margin-left: 10px; margin-bottom: 10px; cursor: pointer;"
-      >
-        +
-      </span>
-    </div>
+
+        <span on:click={startTypingNewTask} on:keydown
+          class="new-task-icon material-icons"
+          style="margin-left: 10px; margin-bottom: 10px; cursor: pointer;"
+        >
+          +
+        </span>
+      </div>
+    {/if}
 
     <div style="flex-grow: 1; padding: 0px 6px;"
       class:has-max-width={hasMaxWidth}
@@ -181,16 +183,6 @@
     height: 100%; 
     display: flex; 
     flex-direction: column;
-  }
-
-  .list-header-area {
-    display: flex;
-    align-items: center;
-    padding: 4px 0;
-  }
-  
-  .list-title-container {
-    flex-grow: 1;
   }
   
   .new-task-icon {

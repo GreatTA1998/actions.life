@@ -9,22 +9,20 @@
   export let listID = null;
 
   let editingListId = null;
+  let triggerListID = '' 
   let editingListName = ''
 
   onMount(() => {
     listenToListsAndTasks($user.uid)
   })
 
-  // Filter lists based on listID if provided
   $: filteredLists = listID ? $lists.filter(list => list.id === listID) : $lists;
 
-  // Start editing a list name
   function startEditingListName(list) {
     editingListId = list.id;
     editingListName = list.name;
   }
 
-  // Save the edited list name
   async function saveListName(listId) {
     if (editingListName.trim() === '') return;
     
@@ -40,7 +38,6 @@
     }
   }
 
-  // Handle key press in the edit input
   function handleKeyPress(event, listId) {
     if (event.key === 'Enter') {
       saveListName(listId);
@@ -69,21 +66,31 @@
             <h3 class="list-title" on:dblclick={() => startEditingListName(list)}>
               {list.name}
             </h3>
-            <button class="edit-button" on:click={() => startEditingListName(list)}>
-              ✎
-            </button>
+
+            <div style="display: flex; column-gap: 8px; margin-left: auto; margin-right: 4px;">
+              <button on:click={() => triggerListID = list.id } style="width: 24px; height: 24px; font-size: 20px; color: rgb(100, 100, 100);">
+                +
+              </button>
+  
+              <button class="edit-button" on:click={() => startEditingListName(list)}>
+                ✎
+              </button>
+            </div>
           {/if}
         </div>
+
         <TodoList
           listID={list.id}
           listTitle={list.name}
           tasksToDisplay={$listTreesMap[list.id]}
           willShowCheckbox={true}
           hideListTitle={true}
+          triggerNewTask={triggerListID === list.id}
           on:dragstart
           on:dragend
           on:dragover
           on:drop
+          on:newTaskTriggered={() => triggerListID = ''}
         />
       </div>
     {/each}
