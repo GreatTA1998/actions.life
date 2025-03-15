@@ -1,21 +1,19 @@
 <script>
   import { activeDragItem, grabOffset } from '/src/store'
   import { openDetailedCard } from '/src/store/detailedCardStore.js'
-  import { createEventDispatcher } from 'svelte'
+  import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let iconTask
 
   let timer
   let delay = 200
 
-  const dispatch = createEventDispatcher()
-
   function handleSingleOrDoubleClick() {
     if (timer) {
       clearTimeout(timer)
       timer = null
 
-      dispatch('task-update', { 
+      updateTaskNode({ 
         id: iconTask.id, 
         keyValueChanges: {
           isDone: !iconTask.isDone

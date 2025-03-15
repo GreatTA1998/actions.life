@@ -26,13 +26,12 @@
       -->
       <Checkbox
         value={task.isDone}
-        on:change={(e) => dispatch('task-update', {
+        on:change={(e) => updateTaskNode({
           id: task.id,
           keyValueChanges: {
             isDone: e.target.checked
           }
-        }
-        )}
+        })}
       />
     </div>
 
@@ -45,10 +44,10 @@
 
 <script>
   // Assumes `task` is hydrated
-  import { createEventDispatcher } from 'svelte'
   import { grabOffset, activeDragItem } from '/src/store'
   import { openDetailedCard } from '/src/store/detailedCardStore.js'
   import Checkbox from './Checkbox.svelte'
+  import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let task = null
   export let pixelsPerHour = null
@@ -57,8 +56,6 @@
 
   $: height = (pixelsPerHour / 60) * task.duration
   $: isBulletPoint = height < 20
-
-  const dispatch = createEventDispatcher()
 
   function startDragMove (e, id) {
     e.dataTransfer.setData("text/plain", id)

@@ -49,7 +49,7 @@
       <div style="margin-right: 4px;">
         <Checkbox
           value={task.isDone}
-          on:change={(e) => dispatch('task-update', {
+          on:change={(e) => updateTaskNode({
             id: task.id,
             keyValueChanges: {
               isDone: e.target.checked
@@ -100,12 +100,12 @@
 
 <script>
   // Assumes `task` is hydrated
-  import { createEventDispatcher } from 'svelte'
   import { getTrueY } from '/src/helpers/everythingElse.js'
   import { grabOffset, activeDragItem } from '/src/store'
   import { openDetailedCard } from '/src/store/detailedCardStore.js'
   import Checkbox from './Checkbox.svelte'
   import { pixelsPerHour } from '/src/store/calendarStore.js'
+  import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let task = null
   export let hasCheckbox = false
@@ -115,7 +115,6 @@
   $: height = ($pixelsPerHour / 60) * task.duration
   $: isBulletPoint = height < 24 // 24px is exactly enough to not crop the checkbox and the task name
 
-  const dispatch = createEventDispatcher()
   let startY = 0
 
   function startDragMove (e, id) {
@@ -149,7 +148,7 @@
     const newY = getTrueY(e)
     const durationChange = minutesPerPixel * (newY - startY)
 
-    dispatch('task-update', {
+    updateTaskNode({
       id: task.id,
       keyValueChanges: {
         duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event

@@ -95,12 +95,12 @@
 
 <script>
  // Assumes `task` is hydrated
- import { createEventDispatcher } from 'svelte'
  import { getTrueY } from '/src/helpers/everythingElse.js'
  import { grabOffset, activeDragItem } from '/src/store'
  import { openDetailedCard } from '/src/store/detailedCardStore.js'
  import { lazyCallable } from '/src/helpers/actions.js'
  import { pixelsPerHour } from '/src/store/calendarStore.js'
+ import { updateTaskNode } from '/src/helpers/crud.js'
 
  export let task = null
 
@@ -109,7 +109,6 @@
  $: height = ($pixelsPerHour / 60) * task.duration
  $: isBulletPoint = height < 24 // 24px is exactly enough to not crop the checkbox and the task name
 
- const dispatch = createEventDispatcher()
  let startY = 0
  let hasIntersected = false
 
@@ -144,7 +143,7 @@
    const newY = getTrueY(e)
    const durationChange = minutesPerPixel * (newY - startY)
 
-   dispatch('task-update', {
+   updateTaskNode({
      id: task.id,
      keyValueChanges: {
        duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event

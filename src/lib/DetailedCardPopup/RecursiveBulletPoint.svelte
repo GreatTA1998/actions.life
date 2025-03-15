@@ -51,20 +51,17 @@
 <script>
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
-  import { createEventDispatcher } from 'svelte'
-  import { mostRecentlyCompletedTaskID } from '/src/store'
   import { openDetailedCard } from '/src/store/detailedCardStore.js'
+  import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let taskObject 
   export let originalPopupTask
-
-  const dispatch = createEventDispatcher()
 
   // copied from <RecursiveTask/>
   function handleCheckboxChange (e) {
     // mostRecentlyCompletedTaskID.set(taskObj.id)
 
-    dispatch('task-update', {
+    updateTaskNode({
       id: taskObject.id,
       keyValueChanges: { isDone: e.target.checked }
     })

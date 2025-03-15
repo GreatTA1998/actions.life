@@ -2,14 +2,13 @@
   import CreateTaskDirectly from '$lib/Reusable/CreateTaskDirectly.svelte'
   import FlexibleDayTask from '$lib/Reusable/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
-  import { createEventDispatcher } from 'svelte'
   import { activeDragItem } from '/src/store'
   import { headerExpanded, isCompact, tasksScheduledOn } from '/src/store/calendarStore.js'
   import { DateTime } from 'luxon'
+  import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let ISODate
 
-  const dispatch = createEventDispatcher()
   let isDirectlyCreatingTask = false
 
   function dragover_handler(e) {
@@ -27,7 +26,7 @@
 
     const dt = DateTime.fromISO(ISODate)
 
-    dispatch('task-update', {
+    updateTaskNode({
       id,
       keyValueChanges: {
         startTime: '',
@@ -69,14 +68,14 @@
       {#if $tasksScheduledOn[ISODate]}
         <div style="display: flex; flex-wrap: wrap;">
           {#each $tasksScheduledOn[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
-            <DoodleIcon {iconTask} on:task-update />
+            <DoodleIcon {iconTask} />
           {/each}
         </div>
 
         <div style="display: flex; flex-direction: column; row-gap: {$isCompact ? '4px' : '8px'};">
           {#each $tasksScheduledOn[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
             <div class="flexible-day-task">
-              <FlexibleDayTask task={flexibleDayTask} on:task-update />
+              <FlexibleDayTask task={flexibleDayTask} />
             </div>
           {/each}
         </div>
