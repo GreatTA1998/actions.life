@@ -1,5 +1,5 @@
 /** Handles everything data-related for <Calendar/>, from snapshot listeners to tree building. */
-import { tasksScheduledOn, treesByID } from '../calendarStore.js'
+import { treesByDate, treesByID } from '../calendarStore.js'
 import { tasksCache, updateCache } from '/src/store'
 import { DateTime } from 'luxon'
 import { pureNumericalHourForm } from '/src/helpers/everythingElse.js'
@@ -69,13 +69,13 @@ export function rebuildRegion (regionTasks) {
 
   // NOTE: constructForest() will return only tasks that have `startDateISO`
   const regionForest = constructForest(regionTasks)
-  const treesByDate = computeDateToTasksDict(regionForest.filter(task => task.startDateISO)) // RENAME: THIS IS TERRIBLE
+  const regionTreesByDate = computeDateToTasksDict(regionForest.filter(task => task.startDateISO)) // RENAME: THIS IS TERRIBLE
   
-  tasksScheduledOn.update($tasksScheduledOn => {
-    for (const [date, trees] of Object.entries(treesByDate)) {
-      $tasksScheduledOn[date] = trees
+  treesByDate.update($treesByDate => {
+    for (const [date, trees] of Object.entries(regionTreesByDate)) {
+      $treesByDate[date] = trees
     }
-    return $tasksScheduledOn
+    return $treesByDate
   })
 }
 

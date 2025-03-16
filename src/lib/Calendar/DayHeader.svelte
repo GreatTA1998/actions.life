@@ -3,7 +3,7 @@
   import FlexibleDayTask from '$lib/Reusable/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { activeDragItem } from '/src/store'
-  import { headerExpanded, isCompact, tasksScheduledOn } from '/src/store/calendarStore.js'
+  import { headerExpanded, isCompact, treesByDate } from '/src/store/calendarStore.js'
   import { DateTime } from 'luxon'
   import { updateTaskNode } from '/src/helpers/crud.js'
 
@@ -65,15 +65,15 @@
 
   {#if $headerExpanded}
     <div style="overflow: hidden; margin-top: {$isCompact ? '0' : '4'}px;">
-      {#if $tasksScheduledOn[ISODate]}
+      {#if $treesByDate[ISODate]}
         <div style="display: flex; flex-wrap: wrap;">
-          {#each $tasksScheduledOn[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
+          {#each $treesByDate[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
             <DoodleIcon {iconTask} />
           {/each}
         </div>
 
         <div style="display: flex; flex-direction: column; row-gap: {$isCompact ? '4px' : '8px'};">
-          {#each $tasksScheduledOn[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
+          {#each $treesByDate[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
             <div class="flexible-day-task">
               <FlexibleDayTask task={flexibleDayTask} />
             </div>

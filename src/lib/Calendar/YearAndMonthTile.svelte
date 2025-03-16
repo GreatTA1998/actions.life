@@ -1,5 +1,5 @@
 <script>
-  import { headerExpanded, headerHeight, tasksScheduledOn, isCompact } from '/src/store/calendarStore.js'
+  import { headerExpanded, headerHeight, treesByDate, isCompact } from '/src/store/calendarStore.js'
   import { WIDTHS } from '/src/helpers/constants.js'
 
   export let monthName
@@ -31,7 +31,7 @@
     {/if}
   </div>
 
-  {#if $tasksScheduledOn}
+  {#if $treesByDate}
     <button on:click={() => headerExpanded.set(!$headerExpanded)}
       class="collapse-arrow material-symbols-outlined"
     >

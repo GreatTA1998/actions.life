@@ -10,7 +10,7 @@
   import { trackHeight } from '/src/helpers/actions.js'
   import { DateTime } from 'luxon'
   import { calEarliestHHMM } from '/src/store'
-  import { tasksScheduledOn, headerHeight } from '/src/store/calendarStore.js'
+  import { treesByDate, headerHeight } from '/src/store/calendarStore.js'
   import { setupCalListener } from '/src/store/services/CalendarService.js'
   import { onMount } from 'svelte'
 
@@ -96,7 +96,7 @@
           <div class="day-columns">
             {#each renderedColumnDTs as dt (dt.toMillis())}
               <DayColumn {dt}
-                scheduledTasks={$tasksScheduledOn[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
+                scheduledTasks={$treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
               />
             {/each}
           </div>

@@ -5,7 +5,7 @@ export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout }
 export { user } from './userStore.js'
 
 export const todoTasks = writable(null)
-export { calendarTasks, tasksScheduledOn } from './calendarStore.js'
+export { calendarTasks, treesByDate } from './calendarStore.js'
 export const loadingTasks = writable(true);
 
 export const doodleIcons = writable([])

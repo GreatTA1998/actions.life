@@ -3,7 +3,7 @@ import { HEIGHTS } from '/src/helpers/constants.js'
 
 export const calendarTasks = writable([]) // deprecate, but needs about 5 minutes of work
 export const treesByID = writable({})
-export const tasksScheduledOn = writable({}) 
+export const treesByDate = writable({})
 
 export const headerExpanded = writable(true)
 
