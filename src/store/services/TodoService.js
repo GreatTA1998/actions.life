@@ -1,6 +1,6 @@
 import Tasks from '/src/back-end/Tasks'
 import { get } from 'svelte/store'
-import { todoTasks, todoMemoryTree, inclusiveWeekTodo, updateCache } from '/src/store'
+import { todoTasks, todoMemoryTree, inclusiveWeekTodo, updateCache, tasksCache } from '/src/store'
 
 const activeListeners = {
   todo: null
@@ -46,9 +46,7 @@ export function setupTodoListener(uid) {
   }
 }
 
-/**
- * Updates todo tasks and their memory tree representation
- */
+/** Updates todo tasks and their memory tree representation */
 export function updateTodoTasks(tasks) {
   if (!tasks || !Array.isArray(tasks)) {
     return
@@ -62,14 +60,9 @@ export function updateTodoTasks(tasks) {
   inclusiveWeekTodo.set(memoryTree)
 }
 
-export function findTodoTaskById(taskID) {
-  const allTodoTasks = get(todoTasks)
-  return allTodoTasks.find(task => task.id === taskID)
-}
-
 export async function updateTodoTask({ uid, taskID, keyValueChanges }) {
   try {
-    const task = findTodoTaskById(taskID)
+    const task = get(tasksCache)[taskID]
     
     if (!task) {
       console.warn(`Task ${taskID} not found in todo store, falling back to direct database update`)
@@ -85,7 +78,7 @@ export async function updateTodoTask({ uid, taskID, keyValueChanges }) {
       let rootStartDateISO = keyValueChanges.startDateISO
       
       if (task.parentID && task.parentID !== '') {
-        const parent = findTodoTaskById(task.parentID)
+        const parent = get(tasksCache)[task.parentID]
         if (parent && parent.rootStartDateISO) {
           rootStartDateISO = parent.rootStartDateISO
         }
@@ -119,7 +112,6 @@ export function cleanupTodoListener() {
 export default {
   setupTodoListener,
   updateTodoTasks,
-  findTodoTaskById,
   updateTodoTask,
   cleanupTodoListener,
   reconstructTreeInMemory

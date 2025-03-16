@@ -45,7 +45,7 @@
       </span>
     {/if}
 
-    {#if hasCheckbox}
+    {#if hasCheckbox && $treesByID[task.id].children.length === 0}
       <div style="margin-right: 4px;">
         <Checkbox
           value={task.isDone}
@@ -71,6 +71,15 @@
   <!-- End of task name flexbox -->
 
   {#if !isBulletPoint}
+    {#if task.children.length > 0}
+      <div style="margin-top: 6px; display: flex; align-items: center; column-gap: 2px; color: white;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">check_circle</span>
+        <span class="font-weight: 200;">
+          {task.children.filter(child => child.isDone).length}/{task.children.length}
+        </span>
+      </div> 
+    {/if}
+
     <div style="flex-grow: 1; overflow: hidden; margin-top: 6px;">
       <div style="font-size: 12px; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
         {task.notes || ''}
@@ -104,7 +113,7 @@
   import { grabOffset, activeDragItem } from '/src/store'
   import { openDetailedCard } from '/src/store/detailedCardStore.js'
   import Checkbox from './Checkbox.svelte'
-  import { pixelsPerHour } from '/src/store/calendarStore.js'
+  import { pixelsPerHour, treesByID } from '/src/store/calendarStore.js'
   import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let task = null
@@ -137,11 +146,6 @@
   }
 
   function adjustDuration (e, task) {
-    // quickfix
-    if (!task.duration) {
-      task.duration = 10
-    }
-
     const hoursPerPixel = 1 / $pixelsPerHour
     const minutesPerPixel = 60 * hoursPerPixel
 

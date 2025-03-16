@@ -1,25 +1,14 @@
-/**
- * Handles everything data-related for <Calendar/>, from snapshot listeners to tree building.
- */
+/** Handles everything data-related for <Calendar/>, from snapshot listeners to tree building. */
+import { tasksScheduledOn, treesByID } from '../calendarStore.js'
+import { tasksCache, updateCache } from '/src/store'
 import { DateTime } from 'luxon'
 import { pureNumericalHourForm } from '/src/helpers/everythingElse.js'
-import { tasksScheduledOn } from '../calendarStore.js'
 import { doc, collection, writeBatch, query, where, onSnapshot, getDocs } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
-import { size, cushion } from '/src/helpers/constants.js'
 import { page } from '$app/stores'
 import { get } from 'svelte/store'
-import { tasksCache, updateCache } from '/src/store'
 
 const listeners = {}
-
-export function setupInitialCalendarTasks () {
-  const today = DateTime.now()
-  const left = today.minus({ days: size + cushion })
-  const right = today.plus({ days: size + cushion })
-  
-  setupCalListener(left, right)
-}
 
 export function setupCalListener (leftDT, rightDT) {  
   const leftISO = leftDT.toFormat('yyyy-MM-dd')
@@ -79,8 +68,8 @@ export function rebuildRegion (regionTasks) {
   updateCache(regionTasks)
 
   // NOTE: constructForest() will return only tasks that have `startDateISO`
-  const forest = constructForest(regionTasks)
-  const treesByDate = computeDateToTasksDict(forest) // RENAME: THIS IS TERRIBLE
+  const regionForest = constructForest(regionTasks)
+  const treesByDate = computeDateToTasksDict(regionForest.filter(task => task.startDateISO)) // RENAME: THIS IS TERRIBLE
   
   tasksScheduledOn.update($tasksScheduledOn => {
     for (const [date, trees] of Object.entries(treesByDate)) {
@@ -104,8 +93,15 @@ function constructForest (firestoreTaskDocs) {
       forest.get(tree.parentID).children.push(tree)
     }
   }
-  
-  return Array.from(forest.values()).filter(tree => tree.startDateISO)
+
+  treesByID.update(dict => {
+    for (const [id, tree] of forest) {
+      dict[id] = tree
+    }
+    return dict
+  })
+
+  return Array.from(forest.values())
 }
 
 function computeDateToTasksDict (forest) {
@@ -177,9 +173,6 @@ export async function updateCalendarTask ({ uid, taskID, keyValueChanges }) {
   }
 }
 
-/**
- * Updates treeISOs for a task and all its ancestors when the task's date changes
- */
 async function updateTreeISOsForTaskAndAncestors(uid, task, oldDate, newDate, batch) {
   // Get all ancestors including this task
   const ancestors = getAncestorChain(task)
@@ -202,9 +195,7 @@ async function updateTreeISOsForTaskAndAncestors(uid, task, oldDate, newDate, ba
   }
 }
 
-/**
- * Gets a chain of ancestors for a task, including the task itself
- */
+/** Gets a chain of ancestors for a task, including the task itself */
 function getAncestorChain(task) {
   const ancestors = [task]
   let currentTask = task
@@ -220,8 +211,7 @@ function getAncestorChain(task) {
   return ancestors
 }
 
-async function handleReparentingTreeISOs(uid, task, oldParentID, newParentID, batch) {
-  // Get task's date
+async function handleReparentingTreeISOs (uid, task, oldParentID, newParentID, batch) {
   const taskDate = task.startDateISO
   if (!taskDate) return // No date to update
   
@@ -252,7 +242,7 @@ async function handleReparentingTreeISOs(uid, task, oldParentID, newParentID, ba
   }
 }
 
-function getDescendantTasks(taskID) {
+function getDescendantTasks (taskID) {
   const descendants = []
   const queue = [taskID]
   
@@ -274,9 +264,7 @@ function getDescendantTasks(taskID) {
   return descendants
 }
 
-/**
- * Updates ancestors to remove dates from their treeISOs arrays
- */
+/** Updates ancestors to remove dates from their treeISOs arrays */
 async function updateAncestorsRemoveDates(uid, ancestors, datesToRemove) {
   for (const ancestor of ancestors) {
     const ancestorRef = doc(db, 'users', uid, 'tasks', ancestor.id)
@@ -289,9 +277,7 @@ async function updateAncestorsRemoveDates(uid, ancestors, datesToRemove) {
   }
 }
 
-/**
- * Updates ancestors to add dates to their treeISOs arrays
- */
+/** Updates ancestors to add dates to their treeISOs arrays */
 async function updateAncestorsAddDates(uid, ancestors, datesToAdd, batch) {  
   for (const ancestor of ancestors) {
     const ancestorRef = doc(db, 'users', uid, 'tasks', ancestor.id)
@@ -308,25 +294,6 @@ async function updateAncestorsAddDates(uid, ancestors, datesToAdd, batch) {
     
     batch.update(ancestorRef, { treeISOs: updatedTreeISOs })
   }
-}
-
-async function updateDescendantsRootStartDateISO (uid, taskID, rootStartDateISO) {
-  // perhaps refactor to leverage our existing forest data structure
-  const children = Object.values(get(tasksCache)).filter(task => task.parentID === taskID)
-  if (!children.length) return // base case
-  
-  const batch = writeBatch(db)
-  
-  children.forEach(child => {
-    const childRef = doc(db, 'users', uid, 'tasks', child.id)
-    batch.update(childRef, { rootStartDateISO })
-  })
-  
-  await batch.commit()
-  
-  await Promise.all(children.map(child => 
-    updateDescendantsRootStartDateISO(uid, child.id, rootStartDateISO)
-  ))
 }
 
 /**
@@ -424,9 +391,7 @@ export async function migrateToTreeISOs(uid, dryRun = false) {
   }
 }
 
-/**
- * Processes a tree for migration, calculating treeISOs for each node
- */
+/** Processes a tree for migration, calculating treeISOs for each node */
 async function processTreeForMigration(task, taskMap, uid, batch, dryRun, incrementCounter) {
   // Skip tasks without dates
   if (!task.startDateISO) return { dates: [] }
@@ -461,9 +426,6 @@ async function processTreeForMigration(task, taskMap, uid, batch, dryRun, increm
   return { dates: uniqueDates }
 }
 
-/**
- * Compares two arrays for equality
- */
 function arraysEqual(a, b) {
   if (a.length !== b.length) return false
   for (let i = 0; i < a.length; i++) {
@@ -492,9 +454,7 @@ export function cleanupCalendarListeners () {
 }
 
 export default {
-  setupInitialCalendarTasks,
   setupCalListener,
-  rebuildRegion,
   updateCalendarTask,
   cleanupCalendarListeners,
   migrateToTreeISOs

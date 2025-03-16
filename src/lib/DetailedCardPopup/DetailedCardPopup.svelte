@@ -7,6 +7,7 @@
     photoLayoutOptions, 
     getIconForLayout, 
   } from '/src/store'
+  import { treesByID } from '/src/store/calendarStore.js'
   import { clickedTaskID, closeDetailedCard } from '/src/store/detailedCardStore.js'
   import _ from 'lodash'
   import RecursiveBulletPoint from '$lib/DetailedCardPopup/RecursiveBulletPoint.svelte'
@@ -175,7 +176,6 @@
             persistsOnList: {taskObject.persistsOnList} |
             isArchived: {taskObject.isArchived} |
             listID: {taskObject.listID} |
-            children: {taskObject.children?.map(child => child.name)}
           </div>
 
           <div style="display: flex; align-items: center; column-gap: 12px;">
@@ -224,13 +224,14 @@
             Tree History
           </div>
 
-          <div style="max-height: 500px; overflow-y: auto;">
-            <!-- <RecursiveBulletPoint
-              taskObject={taskObject.parentID ? $tasksCache[taskObject.parentID] : taskObject}
-              originalPopupTask={taskObject}
-              on:task-click
-            /> -->
-          </div>
+          {#if $treesByID[taskObject.id]}
+            <div style="max-height: 500px; overflow-y: auto;">
+              <RecursiveBulletPoint
+                taskObject={$treesByID[taskObject.id]}
+                originalPopupTask={$treesByID[taskObject.id]}
+              />
+            </div>
+          {/if}
         </div>
         <!-- End of task details container -->
       </div>
