@@ -17,7 +17,6 @@
   import { isDetailedCardOpen } from '/src/store/detailedCardStore.js'
   import { deleteTaskNode, deleteTaskAndChildren } from '/src/helpers/crud.js'
   import TodoService from '/src/store/services/TodoService.js'
-  import { migrateToTreeISOs } from '/src/store/services/CalendarService.js'
 
   let currentMode = 'Week'
   let isShowingAI = false
