@@ -5,17 +5,11 @@ import { user, calendarTasks, todoTasks, tasksCache } from '/src/store/index.js'
 import TaskSchema from '/src/back-end/Schemas/TaskSchema.js'
 import { updateTask } from '/src/lib/MainPage/handleTasks.js'
 
-/**
- * Creates a new task node
- * @param {string} params.id - The task ID
- * @param {Object} params.newTaskObj - The new task object
- */
 export async function createTaskNode ({ id, newTaskObj }) {
   try {
     const { parentID, startDateISO } = newTaskObj
-    
-    let treeISOs = []
-    if (parentID) treeISOs = [...get(tasksCache)[parentID].treeISOs]
+
+    const treeISOs = parentID ? (get(tasksCache)[parentID].treeISOs || []) : [] // || [] is necessary because we have legacy schemas
     if (startDateISO) treeISOs.push(startDateISO)
 
     const validatedTask = TaskSchema.parse({
@@ -23,7 +17,11 @@ export async function createTaskNode ({ id, newTaskObj }) {
       treeISOs
     })
     
-    Tasks.post({ userUID: get(user).uid, task: validatedTask, taskID: id })
+    Tasks.post({ 
+      userUID: get(user).uid, 
+      task: validatedTask, 
+      taskID: id 
+    })
   } catch (error) {
     console.error('Error creating task:', error)
     alert('Error creating task: ' + error.message)
