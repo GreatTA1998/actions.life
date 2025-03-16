@@ -1,8 +1,7 @@
-
 import { deleteImage } from '/src/helpers/storage.js'
 import Tasks from "/src/back-end/Tasks.js"
 import { get } from 'svelte/store'
-import { user, calendarTasks, todoTasks } from '/src/store/index.js'
+import { user, calendarTasks, todoTasks, tasksCache } from '/src/store/index.js'
 import TaskSchema from '/src/back-end/Schemas/TaskSchema.js'
 import { updateTask } from '/src/lib/MainPage/handleTasks.js'
 
@@ -13,7 +12,17 @@ import { updateTask } from '/src/lib/MainPage/handleTasks.js'
  */
 export async function createTaskNode ({ id, newTaskObj }) {
   try {
-    const validatedTask = TaskSchema.parse(newTaskObj) // strips unknown fields, instantiate missing fields, apply defaults to all fields
+    const { parentID, startDateISO } = newTaskObj
+    
+    let treeISOs = []
+    if (parentID) treeISOs = [...get(tasksCache)[parentID].treeISOs]
+    if (startDateISO) treeISOs.push(startDateISO)
+
+    const validatedTask = TaskSchema.parse({
+      ...newTaskObj,
+      treeISOs
+    })
+    
     Tasks.post({ userUID: get(user).uid, task: validatedTask, taskID: id })
   } catch (error) {
     console.error('Error creating task:', error)
