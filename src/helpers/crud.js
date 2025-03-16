@@ -29,11 +29,7 @@ export async function createTaskNode ({ id, newTaskObj }) {
   }
 }
 
-/**
- * Updates a task node and its descendants if needed
- * @param {string} params.id - The task ID
- * @param {Object} params.keyValueChanges - The changes to apply
- */
+/** Updates a task node and its descendants if needed */
 export async function updateTaskNode ({ id, keyValueChanges }) {
   try {
     // discard fields changes that aren't defined in the schema
@@ -53,11 +49,6 @@ export async function updateTaskNode ({ id, keyValueChanges }) {
   }
 }
 
-/**
- * Deletes a task node
- * @param {string} params.id - The task ID
- * @param {string} [params.imageFullPath] - The image path to delete
- */
 export function deleteTaskNode ({ id, imageFullPath = "" }) {
   Tasks.remove({ userUID: get(user).uid, taskID: id })
   if (imageFullPath) deleteImage({ imageFullPath })
