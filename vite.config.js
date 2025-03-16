@@ -8,7 +8,13 @@ import { sveltekit } from '@sveltejs/kit/vite'
 export default {
   plugins: [
     sveltekit()
-  ]
+  ],
+  
+  build: {
+    rollupOptions: {
+      external: ['zod']
+    }
+  }
 
   // Fixes known issue with v9 Firebase and SvelteKit
   // https://kit.svelte.dev/faq
