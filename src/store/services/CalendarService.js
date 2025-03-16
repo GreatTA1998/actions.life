@@ -67,15 +67,18 @@ function listenToRegion (dateISOs) {
 export function rebuildRegion (regionTasks) {
   updateCache(regionTasks)
 
-  // NOTE: constructForest() will return only tasks that have `startDateISO`
+  // only the scheduled tasks are strictly within the reigion,
+  // as the query include tasks arbitrarily spread out over time
   const regionForest = constructForest(regionTasks)
-  const regionTreesByDate = computeDateToTasksDict(regionForest.filter(task => task.startDateISO)) // RENAME: THIS IS TERRIBLE
+  const scheduledTrees = regionForest.filter(task => task.startDateISO)
+  const scheduledTreeGroups = organizeToGroups(scheduledTrees)
   
-  treesByDate.update($treesByDate => {
-    for (const [date, trees] of Object.entries(regionTreesByDate)) {
-      $treesByDate[date] = trees
+  treesByDate.update(dict => {
+    // note tasks with dates outside the region will break it for some reason
+    for (const [date, treeGroups] of Object.entries(scheduledTreeGroups)) {
+      dict[date] = treeGroups
     }
-    return $treesByDate
+    return dict
   })
 }
 
@@ -104,7 +107,7 @@ function constructForest (firestoreTaskDocs) {
   return Array.from(forest.values())
 }
 
-function computeDateToTasksDict (forest) {
+function organizeToGroups (forest) {
   const dateToTasks = {}
   
   forest.forEach(tree => {
@@ -434,28 +437,8 @@ function arraysEqual(a, b) {
   return true
 }
 
-export function cleanupCalendarListeners () {
-  Object.entries(listeners).forEach(([key, unsubscribeArray]) => {
-    if (Array.isArray(unsubscribeArray)) {
-      unsubscribeArray.forEach(unsubscribe => {
-        if (typeof unsubscribe === 'function') {
-          unsubscribe()
-        }
-      })
-      console.log(`Cleaned up calendar listeners for range ${key}`)
-    } else if (typeof unsubscribeArray === 'function') {
-      // Handle legacy format for backward compatibility
-      unsubscribeArray()
-      console.log(`Cleaned up calendar listener for range ${key}`)
-    }
-  })
-  
-  Object.keys(listeners).forEach(key => delete listeners[key])
-}
-
 export default {
   setupCalListener,
   updateCalendarTask,
-  cleanupCalendarListeners,
   migrateToTreeISOs
 }
