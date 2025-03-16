@@ -56,7 +56,7 @@ function listenToRegion (dateISOs) {
     ),
     (snapshot) => {
       const tasks = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-      rebuildRegion(tasks)
+      rebuildRegion(tasks, dateISOs)
     }, 
     (error) => {
       console.error('Error in listenToDateChunk:', error)
@@ -64,7 +64,7 @@ function listenToRegion (dateISOs) {
   )
 }
 
-export function rebuildRegion (regionTasks) {
+export function rebuildRegion (regionTasks, dateISOs) {
   updateCache(regionTasks)
 
   // only the scheduled tasks are strictly within the reigion,
@@ -76,6 +76,10 @@ export function rebuildRegion (regionTasks) {
   treesByDate.update(dict => {
     // note tasks with dates outside the region will break it for some reason
     for (const [date, treeGroups] of Object.entries(scheduledTreeGroups)) {
+      if (!dateISOs.includes(date)) {
+        console.log('found a strange date, dateISOs =', date, dateISOs, treeGroups)
+        continue
+      }
       dict[date] = treeGroups
     }
     return dict
