@@ -68,7 +68,8 @@
       keyValueChanges: {
         listID,
         orderValue: 0.1 + Math.random() * 9.9,
-        parentID: ''
+        parentID: '',
+        startDateISO: ''
       }
     })
 

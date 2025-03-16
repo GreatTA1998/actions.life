@@ -1,16 +1,44 @@
 import { deleteImage } from '/src/helpers/storage.js'
 import Tasks from "/src/back-end/Tasks.js"
 import { get } from 'svelte/store'
-import { user, calendarTasks, todoTasks, tasksCache } from '/src/store/index.js'
+import { user, tasksCache } from '/src/store/index.js'
 import TaskSchema from '/src/back-end/Schemas/TaskSchema.js'
-import { updateTask } from '/src/lib/MainPage/handleTasks.js'
+import { writeBatch } from 'firebase/firestore'
+import { db } from '/src/back-end/firestoreConnection'
+import { 
+  updateTreeISOsForDateChange, 
+  handleReparentingTreeISOs, 
+  findRootTask,
+  getAllTasksInTree,
+  removeOneInstance
+} from '/src/store/services/treeISOs.js'
+import { doc } from 'firebase/firestore'
 
 export async function createTaskNode ({ id, newTaskObj }) {
   try {
     const { parentID, startDateISO } = newTaskObj
+    const batch = writeBatch(db)
+    const uid = get(user).uid
+    
+    let treeISOs = []
+    
+    if (parentID) {
+      const parentTask = get(tasksCache)[parentID]
+      const rootTask = findRootTask(parentTask)
+      const allTreeTasks = getAllTasksInTree(rootTask.id)
 
-    const treeISOs = parentID ? (get(tasksCache)[parentID].treeISOs || []) : [] // || [] is necessary because we have legacy schemas
-    if (startDateISO) treeISOs.push(startDateISO)
+      treeISOs = [...(rootTask.treeISOs || [])]
+      if (startDateISO) treeISOs.push(startDateISO) // duplicates allowed, each entry in treeISOs represents one task's date
+      
+      console.log("allTreeTasks =", allTreeTasks)
+      for (const treeTask of allTreeTasks) {
+        const taskRef = doc(db, 'users', uid, 'tasks', treeTask.id)
+        batch.update(taskRef, { treeISOs: treeISOs })
+      }
+    } 
+    else if (startDateISO) {
+      treeISOs = [startDateISO]
+    }
 
     const validatedTask = TaskSchema.parse({
       ...newTaskObj,
@@ -18,64 +46,74 @@ export async function createTaskNode ({ id, newTaskObj }) {
     })
     
     Tasks.post({ 
-      userUID: get(user).uid, 
+      userUID: uid, 
       task: validatedTask, 
-      taskID: id 
+      taskID: id,
+      batch 
     })
+
+    await batch.commit()
   } catch (error) {
     console.error('Error creating task:', error)
     alert('Error creating task: ' + error.message)
-    return error;
+    return error
   }
 }
 
 /** Updates a task node and its descendants if needed */
 export async function updateTaskNode ({ id, keyValueChanges }) {
   try {
-    // discard fields changes that aren't defined in the schema
-    const validatedChanges = TaskSchema.partial().parse(keyValueChanges)
+    const uid = get(user).uid
+    const task = get(tasksCache)[id]
+    const batch = writeBatch(db)
     
-    // Use the updateTask function that handles descendant updates
-    updateTask({ 
-      uid: get(user).uid, 
-      taskID: id, 
-      keyValueChanges: validatedChanges 
-    })
+    if ('startDateISO' in keyValueChanges) {
+      const oldDate = task.startDateISO
+      const newDate = keyValueChanges.startDateISO
+      await updateTreeISOsForDateChange(uid, task, oldDate, newDate, batch)
+    }
+    
+    if ('parentID' in keyValueChanges) {
+      const oldParentID = task.parentID
+      const newParentID = keyValueChanges.parentID
+      
+      if (oldParentID !== newParentID) {
+        handleReparentingTreeISOs(uid, task, oldParentID, newParentID, batch)
+      }
+    }
+    
+    const validatedChanges = TaskSchema.partial().parse(keyValueChanges)
+    batch.update(doc(db, 'users', uid, 'tasks', id), validatedChanges)
+    await batch.commit()
   } catch (error) {
-    alert(
-      "error attempting to save changes to the db, please reload "
-    );
-    console.error("error in updateTaskNode: ", error);
+    alert("Error attempting to save changes to the db, please reload");
+    console.error("Error in updateTaskNode: ", error);
   }
 }
 
-export function deleteTaskNode ({ id, imageFullPath = "" }) {
-  Tasks.remove({ userUID: get(user).uid, taskID: id })
+export async function deleteTaskNode ({ id, imageFullPath = "" }) {
+  const batch = writeBatch(db)
+  const uid = get(user).uid
+  const task = get(tasksCache)[id]
+  
+  await deleteTaskAndChildren(task, batch)
+  
   if (imageFullPath) deleteImage({ imageFullPath })
   
-  // Get affected tasks that have this task as parent
-  const affectedTasks = [...get(todoTasks).filter(task => task.parentID === id), 
-                         ...get(calendarTasks).filter(task => task.parentID === id)]
-  
-  affectedTasks.forEach(task => {
-    Tasks.updateTaskDoc({ 
-      userUID: get(user).uid, 
-      taskID: task.id, 
-      keyValueChanges: { parentID: "" } 
-    })
-  })
+  await batch.commit()
 }
 
-export async function deleteTaskAndChildren(task) {
+export async function deleteTaskAndChildren(task, existingBatch) {
   try {
-    const allTasks = get(todoTasks)
+    const uid = get(user).uid
+    const batch = existingBatch || writeBatch(db)
     const tasksToDelete = []
     
     function findChildren(parentID) {
-      allTasks.forEach(task => {
-        if (task.parentID === parentID) {
-          tasksToDelete.push(task)
-          findChildren(task.id) // Recursively find children
+      Object.values(get(tasksCache)).forEach(t => {
+        if (t.parentID === parentID) {
+          tasksToDelete.push(t)
+          findChildren(t.id)
         }
       })
     }
@@ -83,14 +121,50 @@ export async function deleteTaskAndChildren(task) {
     tasksToDelete.push(task)
     findChildren(task.id)
     
-    tasksToDelete.forEach(task => {
-      if(task.imageFullPath) deleteImage({ imageFullPath: task.imageFullPath })
-      Tasks.remove({ userUID: get(user).uid, taskID: task.id })
-    })
+    // Get all dates from tasks being deleted
+    const datesToRemove = tasksToDelete
+      .filter(t => t.startDateISO)
+      .map(t => t.startDateISO)
+    
+    // Update the parent tree if task has a parent - do this in a single operation
+    if (task.parentID && datesToRemove.length > 0) {
+      const parentTask = get(tasksCache)[task.parentID]
+      if (parentTask) {
+        const rootTask = findRootTask(parentTask)
+        const allTreeTasks = getAllTasksInTree(rootTask.id)
+        
+        // Remove exactly one instance of each date from the tree's treeISOs
+        let updatedTreeISOs = [...(rootTask.treeISOs || [])]
+        for (const date of datesToRemove) {
+          updatedTreeISOs = removeOneInstance(updatedTreeISOs, date)
+        }
+        
+        // Update all tasks in the tree with the new treeISOs in a single batch
+        for (const treeTask of allTreeTasks) {
+          // Skip tasks that are being deleted
+          if (!tasksToDelete.some(t => t.id === treeTask.id)) {
+            const taskRef = doc(db, 'users', uid, 'tasks', treeTask.id)
+            batch.update(taskRef, { treeISOs: updatedTreeISOs })
+          }
+        }
+      }
+    }
+    
+    // Delete all tasks in the same batch
+    for (const taskToDelete of tasksToDelete) {
+      if (taskToDelete.imageFullPath) {
+        deleteImage({ imageFullPath: taskToDelete.imageFullPath })
+      }
+      batch.delete(doc(db, 'users', uid, 'tasks', taskToDelete.id))
+    }
+    
+    if (!existingBatch) {
+      await batch.commit()
+    }
     
     return true
   } catch (error) {
-    console.error('Error in deleteTaskAndChildren:', error);
+    console.error('Error in deleteTaskAndChildren:', error)
     throw error
   }
 }

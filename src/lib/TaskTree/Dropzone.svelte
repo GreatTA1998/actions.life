@@ -18,6 +18,7 @@
   import { user, activeDragItem } from '/src/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '../../back-end/firestoreConnection'
+  import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let listID = ''
   export let ancestorRoomIDs
@@ -130,13 +131,12 @@
       betaUpdateObj.parentID = parentID
     }
 
-    // to make it reusable with milestones
     let ref = null
     ref = doc(db, `users/${$user.uid}/tasks/${id}`)
-    batch.update(ref, betaUpdateObj) // updateObj
+    updateTaskNode({ id, keyValueChanges: betaUpdateObj })
 
     try {
-      batch.commit()
+      batch.commit() // for updating user's maxOrderValue
       activeDragItem.set(null)
     } catch (error) {
       alert('Error updating, please reload the page')

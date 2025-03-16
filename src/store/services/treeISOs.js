@@ -3,85 +3,113 @@ import { tasksCache } from '/src/store'
 import { doc, collection, writeBatch, getDocs } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
 
-/**
- * Correctness
- *   createTaskNode:
- *     - Todo: 
- *         - task: treeISOs = []
- *         - sub-task: copy parent's treeISOs
- *     - Calendar:
- *         - task: treeISOs = [startDateISO]
- *         - sub-task: copy parent's treeISOs
- *   Update:
- *     - Reschedule: delete, old new date. Apply to every tree node
- *     - Reparent: figure 
- *   Delete:
- *     - Delete the dateISO for every tree node
- */
-export async function updateTreeISOsForEntireTree (uid, task, oldDate, newDate, batch) {
-  console.log('workflow 1')
-  const ancestors = getAncestorChain(task) // includes the task itself
-  console.log('ancestors =', ancestors)
+export async function updateTreeISOsForDateChange(uid, task, oldDate, newDate, batch) {
+  const rootTask = findRootTask(task)
+  const allTreeTasks = getAllTasksInTree(rootTask.id)
+  const currentDates = rootTask.treeISOs || []
   
-  for (const ancestor of ancestors) {
-    const ancestorRef = doc(db, 'users', uid, 'tasks', ancestor.id)
-    const currentTreeISOs = ancestor.treeISOs || []
-    
-    // Remove just one instance of the old date
-    const updatedTreeISOs = oldDate ? 
-      removeOneInstance(currentTreeISOs, oldDate) : 
-      [...currentTreeISOs]
-    
-    if (newDate) updatedTreeISOs.push(newDate)
-    
-    console.log('update ancestor', ancestor.name, updatedTreeISOs)
+  console.log('rootTask, oldDate, newDate =', rootTask, oldDate, newDate)
+  let updatedDates = oldDate ? 
+    removeOneInstance(currentDates, oldDate) : 
+    [...currentDates]
 
-    batch.update(ancestorRef, { treeISOs: updatedTreeISOs })
+  console.log("updatedDates should remain the same =", updatedDates)
+  
+  if (newDate) updatedDates.push(newDate)
+  
+  for (const treeTask of allTreeTasks) {
+    const taskRef = doc(db, 'users', uid, 'tasks', treeTask.id)
+    console.log("update ", treeTask.name, updatedDates)
+    batch.update(taskRef, { treeISOs: updatedDates })
   }
 }
 
-/** Gets a chain of ancestors for a task, including the task itself */
-function getAncestorChain(task) {
-  const ancestors = [task]
+export async function handleReparentingTreeISOs(uid, task, oldParentID, newParentID, batch) {
+  // Find the root tasks for old and new parent trees
+  const oldRootTask = oldParentID ? findRootTask(get(tasksCache)[oldParentID]) : null
+  const newRootTask = newParentID ? findRootTask(get(tasksCache)[newParentID]) : task
+  
+  // Get all tasks in each tree
+  const oldTreeTasks = oldRootTask ? getAllTasksInTree(oldRootTask.id) : []
+  const newTreeTasks = getAllTasksInTree(newRootTask.id)
+  const movingSubtreeTasks = getAllTasksInTree(task.id)
+  
+  // Get all dates from the moving subtree
+  const movingDates = movingSubtreeTasks
+    .filter(t => t.startDateISO)
+    .map(t => t.startDateISO)
+  
+  // Handle the old parent tree - remove dates from the moving subtree
+  if (oldRootTask) {
+    let updatedOldDates = [...(oldRootTask.treeISOs || [])]
+    
+    // Remove exactly ONE instance of each moving date
+    for (const date of movingDates) {
+      updatedOldDates = removeOneInstance(updatedOldDates, date)
+    }
+    
+    // Update all tasks in the old tree (except those being moved)
+    for (const oldTask of oldTreeTasks) {
+      if (!movingSubtreeTasks.some(t => t.id === oldTask.id)) {
+        const taskRef = doc(db, 'users', uid, 'tasks', oldTask.id)
+        batch.update(taskRef, { treeISOs: updatedOldDates })
+      }
+    }
+  }
+  
+  // Handle the new parent tree - add dates from the moving subtree
+  if (newParentID) {
+    // Get current dates from the new parent tree
+    const newTreeDates = newRootTask.treeISOs || []
+    
+    // Combine with dates from the moving subtree
+    const updatedNewDates = [...newTreeDates, ...movingDates]
+    
+    // Update all tasks in the new parent tree
+    for (const newTask of newTreeTasks) {
+      const taskRef = doc(db, 'users', uid, 'tasks', newTask.id)
+      batch.update(taskRef, { treeISOs: updatedNewDates })
+    }
+    
+    // Update all tasks in the moving subtree
+    for (const movingTask of movingSubtreeTasks) {
+      const taskRef = doc(db, 'users', uid, 'tasks', movingTask.id)
+      batch.update(taskRef, { treeISOs: updatedNewDates })
+    }
+  } else {
+    // If there's no new parent, the moving subtree becomes a root
+    // It should only contain its own dates
+    
+    // Update all tasks in the moving subtree
+    for (const movingTask of movingSubtreeTasks) {
+      const taskRef = doc(db, 'users', uid, 'tasks', movingTask.id)
+      batch.update(taskRef, { treeISOs: movingDates })
+    }
+  }
+}
+
+export function findRootTask(task) {
   let currentTask = task
   
   while (currentTask.parentID) {
     const parent = get(tasksCache)[currentTask.parentID]
     if (!parent) break
     
-    ancestors.push(parent)
     currentTask = parent
   }
   
-  return ancestors
+  return currentTask
 }
 
-export async function handleReparentingTreeISOs (uid, task, oldParentID, newParentID, batch) {
-  console.log("workflow 2")
-  const taskDate = task.startDateISO
-  if (!taskDate) return // No date to update
-  
-  const descendants = getDescendantTasks(task.id) // descendants includes task itself
-  const descendantDates = [...new Set(
-    descendants.filter(t => t.startDateISO).map(t => t.startDateISO)
-  )]
-  
-  // Update old parent chain - remove all descendant dates
-  if (oldParentID) {
-    const oldParent = get(tasksCache)[oldParentID]
-    const oldAncestors = getAncestorChain(oldParent)
-    updateAncestorsRemoveDates(uid, oldAncestors, descendantDates, batch)
-  }
-  
-  // Update new parent chain - add all descendant dates
-  if (newParentID) {
-    const newParent = get(tasksCache)[newParentID]
-    const newAncestors = getAncestorChain(newParent)
-    updateAncestorsAddDates(uid, newAncestors, descendantDates, batch)
-  }
+/** Get all tasks in a tree (including the root) */
+export function getAllTasksInTree(rootID) {
+  return getDescendantTasks(rootID)
 }
 
-function getDescendantTasks (taskID) {
+/**
+ * Get all descendants of a task (including the task itself)
+ */
+export function getDescendantTasks(taskID) {
   const descendants = []
   const queue = [taskID]
   
@@ -92,7 +120,6 @@ function getDescendantTasks (taskID) {
     if (task) {
       descendants.push(task)
       
-      // Add children to queue
       const children = Object.values(get(tasksCache))
         .filter(t => t.parentID === currentID)
       
@@ -103,30 +130,15 @@ function getDescendantTasks (taskID) {
   return descendants
 }
 
-async function updateAncestorsRemoveDates (uid, ancestors, datesToRemove, batch) {
-  for (const ancestor of ancestors) {
-    const ancestorRef = doc(db, 'users', uid, 'tasks', ancestor.id)
-    const currentTreeISOs = ancestor.treeISOs || []
-    
-    // Remove exactly one instance of each date in datesToRemove
-    const updatedTreeISOs = [...currentTreeISOs]
-    for (const dateToRemove of datesToRemove) {
-      const index = updatedTreeISOs.indexOf(dateToRemove)
-      if (index !== -1) updatedTreeISOs.splice(index, 1)
-    }
-    
-    batch.update(ancestorRef, { treeISOs: updatedTreeISOs })
-  }
+export function removeOneInstance(array, item) {
+  const index = array.indexOf(item)
+  if (index === -1) return [...array]
+  return [...array.slice(0, index), ...array.slice(index + 1)]
 }
 
-async function updateAncestorsAddDates (uid, ancestors, datesToAdd, batch) {  
-  for (const ancestor of ancestors) {
-    const ancestorRef = doc(db, 'users', uid, 'tasks', ancestor.id)
-    const currentTreeISOs = ancestor.treeISOs || []
-    const updatedTreeISOs = [...currentTreeISOs, ...datesToAdd]
-
-    batch.update(ancestorRef, { treeISOs: updatedTreeISOs })
-  }
+// For backward compatibility
+export async function updateTreeISOsForEntireTree(uid, task, oldDate, newDate, batch) {
+  await updateTreeISOsForDateChange(uid, task, oldDate, newDate, batch)
 }
 
 /**
@@ -265,10 +277,4 @@ function arraysEqual(a, b) {
     if (a[i] !== b[i]) return false
   }
   return true
-}
-
-function removeOneInstance(array, item) {
-  const index = array.indexOf(item)
-  if (index === -1) return [...array]
-  return [...array.slice(0, index), ...array.slice(index + 1)]
 }
