@@ -44,9 +44,9 @@ export function maintainTreeISOs ({ id, keyValueChanges, batch }) {
 
 export function handleCrossTree ({ task, keyValueChanges, batch }) {
   console.log('handleCrossTree', task, keyValueChanges)
-  const prevTree = listTreeNodes(getRoot(task.id))
+  const prevTree = listTreeNodes(getRoot(task.id).id)
   const prevSubtree = listTreeNodes(task.id)
-  const nextTree = listTreeNodes(getRoot(keyValueChanges.parentID))
+  const nextTree = listTreeNodes(getRoot(keyValueChanges.parentID).id)
 
   if (task.startDateISO) {
     batchUpdate({ nodes: prevTree, treeISOs: removeOneInstance(task.treeISOs, task.startDateISO), batch })
@@ -54,6 +54,9 @@ export function handleCrossTree ({ task, keyValueChanges, batch }) {
 
   const treeISOs = [...nextTree[0].treeISOs]
   if (keyValueChanges.startDateISO) treeISOs.push(keyValueChanges.startDateISO)
+  else if (keyValueChanges.startDateISO === '') { 
+    // do nothing
+  }
   else if (task.startDateISO) treeISOs.push(task.startDateISO)
 
   batchUpdate({ nodes: nextTree, treeISOs, batch })
