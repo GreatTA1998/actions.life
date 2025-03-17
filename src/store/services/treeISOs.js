@@ -24,63 +24,67 @@ export function handleCreateForTreeISOs ({ id, newTaskObj, batch }) {
 
 export function maintainTreeISOs ({ id, keyValueChanges, batch }) {
   const task = get(tasksCache)[id]
-  const { parentID, startDateISO } = keyValueChanges
-
-  if ((parentID !== undefined && parentID !== task.parentID) 
-        && getRoot(get(tasksCache)[parentID]) !== getRoot(task)
-      ) {
-    handleCrossTree({ task, keyValueChanges, batch })
+  const delta = keyValueChanges
+  if (hasChangedFamily({ task, delta })) {
+    handleCrossTree({ task, delta, batch })
   }
-  else if (startDateISO !== task.startDateISO) {
-    handleSimple({ task, oldDate: task.startDateISO, newDate: startDateISO, batch })
+  else if (delta.startDateISO !== task.startDateISO) {
+    handleSameTreeReschedule({ task, delta, batch })
   }
 }
 
-export function handleCrossTree ({ task, keyValueChanges, batch }) {
-  console.log('handleCrossTree', task, keyValueChanges)
+function hasChangedFamily ({ task, delta }) {
+  const { parentID } = delta
+  const parentChanged = (parentID !== undefined && parentID !== task.parentID) 
+  const rootChanged = getRoot(get(tasksCache)[parentID]) !== getRoot(task)
+  return parentChanged && rootChanged
+}
+
+export function handleCrossTree ({ task, delta, batch }) {
+  console.log('handleCrossTree', task, delta)
   const prevTree = listTreeNodes(getRoot(task))
-  const prevSubtree = listTreeNodes(task)
+  const movedSubtree = listTreeNodes(task)
   let prevTreeISOs = [...task.treeISOs]
 
-  for (const movedNode of prevSubtree) {
-    if (movedNode.startDateISO) { 
-      prevTreeISOs = removeOneInstance(prevTreeISOs, movedNode.startDateISO)
-    }
+  // remove subtree dates from previously connected tree
+  for (const node of movedSubtree) {
+    if (node.startDateISO) prevTreeISOs = removeOneInstance(prevTreeISOs, node.startDateISO)
   }
   batchUpdate({ nodes: prevTree, treeISOs: prevTreeISOs, batch })
 
   // incorporate new tree dates into the family tree
-  const newParent = get(tasksCache)[keyValueChanges.parentID]
-  const nextTree = listTreeNodes(getRoot(newParent))
+  const newParent = get(tasksCache)[delta.parentID]
+  const newFamily = listTreeNodes(getRoot(newParent))
+  let newFamilyISOs = []
+  if (newFamily.length > 0) newFamilyISOs = [...newFamily[0].treeISOs]
 
-  let newFamilyTreeISOs = []
-  if (nextTree.length > 0) newFamilyTreeISOs = [...nextTree[0].treeISOs]
-
-  for (const movedNode of prevSubtree) {
-    if (movedNode.startDateISO) {
-      newFamilyTreeISOs.push(movedNode.startDateISO)
-    }
+  for (const node of movedSubtree) {
+    if (node.startDateISO) newFamilyISOs.push(node.startDateISO)
   }
+
   const oldDate = task.startDateISO
-  const newDate = keyValueChanges.startDateISO
+  const newDate = delta.startDateISO
   if (oldDate !== newDate) {
-    if (oldDate !== '') newFamilyTreeISOs = removeOneInstance(newFamilyTreeISOs, oldDate)
-    if (newDate !== '') newFamilyTreeISOs.push(newDate)
+    if (oldDate) newFamilyISOs = removeOneInstance(newFamilyISOs, oldDate)
+    if (newDate) newFamilyISOs.push(newDate)
   }
-  batchUpdate({ nodes: nextTree, treeISOs: newFamilyTreeISOs, batch })
-  batchUpdate({ nodes: prevSubtree, treeISOs: newFamilyTreeISOs, batch })
+  batchUpdate({ nodes: newFamily, treeISOs: newFamilyISOs, batch })
+  batchUpdate({ nodes: movedSubtree, treeISOs: newFamilyISOs, batch })
 }
 
-export async function handleSimple ({ task, oldDate, newDate, batch }) {
-  console.log('handleSimple', task, oldDate, newDate)
-  const rootTask = getRoot(task)
-  const treeNodes = listTreeNodes(rootTask)
+export async function handleSameTreeReschedule ({ task, delta, batch }) {
+  const oldDate = task.startDateISO
+  const newDate = delta.startDateISO
 
-  let newTreeISOs = [...treeNodes[0].treeISOs]
+  let newTreeISOs = [...task.treeISOs]
   if (oldDate) newTreeISOs = removeOneInstance(newTreeISOs, oldDate)  
   if (newDate) newTreeISOs.push(newDate)
   
-  batchUpdate({ nodes: treeNodes, treeISOs: newTreeISOs, batch })
+  batchUpdate({ 
+    nodes: listTreeNodes(getRoot(task)),
+    treeISOs: newTreeISOs, 
+    batch 
+  })
 }
 
 function batchUpdate ({ nodes, treeISOs, batch }) {
