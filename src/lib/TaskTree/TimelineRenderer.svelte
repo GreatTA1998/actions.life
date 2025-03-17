@@ -1,13 +1,14 @@
 <script>
-  import RecursiveTask from './RecursiveTask.svelte';
-  import Dropzone from './Dropzone.svelte';
+  import RecursiveTask from './RecursiveTask.svelte'
+  import Dropzone from './Dropzone.svelte'
+  import { getRandomColor } from '/src/helpers/everythingElse.js'
   
   export let children = [];
   export let depth;
   export let parentID;
   export let ancestorRoomIDs = []
   export let isLargeFont = false;
-  export let colorForDebugging;
+  export let colorForDebugging
   
   function formatDate (dateStr) {
     if (!dateStr) return '';
@@ -83,16 +84,17 @@
     <div class="timeline-line"></div>
   {/if}
   
+  <Dropzone
+    ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
+    roomsInThisLevel={children}
+    idxInThisLevel={0}
+    parentID={parentID}
+    {colorForDebugging}
+    listID={children[0].listID}
+  />
+
   {#each sortedTasks as child, i (child.id)}
     <!-- style="padding-bottom: {spacings[child.id]}px" -->
-    <Dropzone
-      ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
-      roomsInThisLevel={children}
-      idxInThisLevel={i + 1}
-      parentID={parentID}
-      {colorForDebugging}
-      listID={child.listID}
-    />
     <div class="timeline-item">      
       <div class="task-wrapper">
         <RecursiveTask
