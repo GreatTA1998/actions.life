@@ -4,7 +4,12 @@ import { user, tasksCache } from '/src/store/index.js'
 import TaskSchema from '/src/back-end/Schemas/TaskSchema.js'
 import { writeBatch } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
-import { maintainTreeISOs, getRoot, listTreeNodes, removeOneInstance, handleCreateForTreeISOs } from '/src/store/services/treeISOs.js'
+import { maintainTreeISOs, 
+  maintainTreeISOsForCreate,
+  getRoot, 
+  listTreeNodes, 
+  removeOneInstance
+} from '/src/store/services/treeISOs.js'
 import { doc } from 'firebase/firestore'
 
 export async function createTaskNode ({ id, newTaskObj }) {
@@ -12,9 +17,8 @@ export async function createTaskNode ({ id, newTaskObj }) {
     const batch = writeBatch(db)
     const validatedTask = TaskSchema.parse({ ...newTaskObj })
 
-    const treeISOs = handleCreateForTreeISOs({ id, newTaskObj: validatedTask, batch })
     batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), { 
-      treeISOs,
+      treeISOs: maintainTreeISOsForCreate({ task: validatedTask, batch }),
       ...validatedTask
     })
 
