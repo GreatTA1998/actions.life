@@ -21,5 +21,5 @@ export default z.object({
     listID: z.string().default(''),
     childrenLayout: z.string().default('normal'), // 'normal' or 'timeline'
 
-    treeISOs: z.array(z.string()) // must be computed & maintained
+    treeISOs: z.array(z.string()).optional() // must be computed & maintained
 })

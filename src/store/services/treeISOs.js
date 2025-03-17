@@ -2,115 +2,121 @@ import { get } from 'svelte/store'
 import { tasksCache } from '/src/store'
 import { doc, collection, writeBatch, getDocs } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
+import { user } from '/src/store'
 
-export async function updateTreeISOsForDateChange(uid, task, oldDate, newDate, batch) {
-  const rootTask = findRootTask(task)
-  const allTreeTasks = getAllTasksInTree(rootTask.id)
-  const currentDates = rootTask.treeISOs || []
-  
-  console.log('rootTask, oldDate, newDate =', rootTask, oldDate, newDate)
-  let updatedDates = oldDate ? 
-    removeOneInstance(currentDates, oldDate) : 
-    [...currentDates]
+export function handleCreateForTreeISOs ({ id, newTaskObj, batch }) {
+  let treeISOs = []
+  const { parentID, startDateISO } = newTaskObj
+  if (parentID) {
+    const treeNodes = listTreeNodes(getRoot(parentID).id)
 
-  console.log("updatedDates should remain the same =", updatedDates)
-  
-  if (newDate) updatedDates.push(newDate)
-  
-  for (const treeTask of allTreeTasks) {
-    const taskRef = doc(db, 'users', uid, 'tasks', treeTask.id)
-    console.log("update ", treeTask.name, updatedDates)
-    batch.update(taskRef, { treeISOs: updatedDates })
+    treeISOs = [...(treeNodes[0].treeISOs || [])]
+    if (startDateISO) treeISOs.push(startDateISO) // duplicates allowed, each entry in treeISOs represents one task's date
+    
+    for (const node of treeNodes) {
+      batch.update(doc(db, `users/${get(user).uid}/tasks/${node.id}`), { 
+        treeISOs: treeISOs 
+      })
+    }
+  } 
+  else if (startDateISO) {
+    treeISOs = [startDateISO]
+  }
+  return treeISOs
+}
+
+export function maintainTreeISOs ({ id, keyValueChanges, batch }) {
+  const task = get(tasksCache)[id]
+
+  const { parentID, startDateISO } = keyValueChanges
+  if (parentID && parentID !== task.parentID) {
+    if (getRoot(parentID).id !== getRoot(task.id).id) {
+      handleCrossTree({ task, keyValueChanges, batch })
+    }
+    else {
+      handleSimple({ task, oldDate: task.startDateISO, newDate: startDateISO, batch })
+    }
+  }
+  else if (startDateISO !== task.startDateISO) {
+    handleSimple({ task, oldDate: task.startDateISO, newDate: startDateISO, batch })
   }
 }
 
-export async function handleReparentingTreeISOs(uid, task, oldParentID, newParentID, batch) {
-  // Find the root tasks for old and new parent trees
-  const oldRootTask = oldParentID ? findRootTask(get(tasksCache)[oldParentID]) : null
-  const newRootTask = newParentID ? findRootTask(get(tasksCache)[newParentID]) : task
-  
-  // Get all tasks in each tree
-  const oldTreeTasks = oldRootTask ? getAllTasksInTree(oldRootTask.id) : []
-  const newTreeTasks = getAllTasksInTree(newRootTask.id)
-  const movingSubtreeTasks = getAllTasksInTree(task.id)
-  
-  // Get all dates from the moving subtree
-  const movingDates = movingSubtreeTasks
-    .filter(t => t.startDateISO)
-    .map(t => t.startDateISO)
-  
-  // Handle the old parent tree - remove dates from the moving subtree
-  if (oldRootTask) {
-    let updatedOldDates = [...(oldRootTask.treeISOs || [])]
-    
-    // Remove exactly ONE instance of each moving date
-    for (const date of movingDates) {
-      updatedOldDates = removeOneInstance(updatedOldDates, date)
-    }
-    
-    // Update all tasks in the old tree (except those being moved)
-    for (const oldTask of oldTreeTasks) {
-      if (!movingSubtreeTasks.some(t => t.id === oldTask.id)) {
-        const taskRef = doc(db, 'users', uid, 'tasks', oldTask.id)
-        batch.update(taskRef, { treeISOs: updatedOldDates })
-      }
-    }
+export function handleCrossTree ({ task, keyValueChanges, batch }) {
+  console.log('handleCrossTree', task, keyValueChanges)
+  const prevTree = listTreeNodes(getRoot(task.id))
+  const prevSubtree = listTreeNodes(task.id)
+  const nextTree = listTreeNodes(getRoot(keyValueChanges.parentID))
+
+  if (task.startDateISO) {
+    batchUpdate({ nodes: prevTree, treeISOs: removeOneInstance(task.treeISOs, task.startDateISO), batch })
   }
+
+  const treeISOs = [...nextTree[0].treeISOs]
+  if (keyValueChanges.startDateISO) treeISOs.push(keyValueChanges.startDateISO)
+  else if (task.startDateISO) treeISOs.push(task.startDateISO)
+
+  batchUpdate({ nodes: nextTree, treeISOs, batch })
+  batchUpdate({ nodes: prevSubtree, treeISOs, batch }) // overrides `prevTree` values for this subtree
+}
+
+export async function handleSimple ({ task, oldDate, newDate, batch }) {
+  console.log('handleSimple', task, oldDate, newDate)
+  const treeNodes = listTreeNodes(getRoot(task.id).id)
+
+  let newTreeISOs = [...treeNodes[0].treeISOs]
+  if (oldDate) newTreeISOs = removeOneInstance(newTreeISOs, oldDate)  
+  if (newDate) newTreeISOs.push(newDate)
   
-  // Handle the new parent tree - add dates from the moving subtree
-  if (newParentID) {
-    // Get current dates from the new parent tree
-    const newTreeDates = newRootTask.treeISOs || []
-    
-    // Combine with dates from the moving subtree
-    const updatedNewDates = [...newTreeDates, ...movingDates]
-    
-    // Update all tasks in the new parent tree
-    for (const newTask of newTreeTasks) {
-      const taskRef = doc(db, 'users', uid, 'tasks', newTask.id)
-      batch.update(taskRef, { treeISOs: updatedNewDates })
-    }
-    
-    // Update all tasks in the moving subtree
-    for (const movingTask of movingSubtreeTasks) {
-      const taskRef = doc(db, 'users', uid, 'tasks', movingTask.id)
-      batch.update(taskRef, { treeISOs: updatedNewDates })
-    }
-  } else {
-    // If there's no new parent, the moving subtree becomes a root
-    // It should only contain its own dates
-    
-    // Update all tasks in the moving subtree
-    for (const movingTask of movingSubtreeTasks) {
-      const taskRef = doc(db, 'users', uid, 'tasks', movingTask.id)
-      batch.update(taskRef, { treeISOs: movingDates })
-    }
+  batchUpdate({ nodes: treeNodes, treeISOs: newTreeISOs, batch })
+}
+
+function batchUpdate ({ nodes, treeISOs, batch }) {
+  for (const node of nodes) {
+    const ref = doc(db, `/users/${get(user).uid}/tasks/${node.id}`)
+    batch.update(ref, { 
+      treeISOs
+    })
   }
 }
 
-export function findRootTask(task) {
-  let currentTask = task
-  
-  while (currentTask.parentID) {
-    const parent = get(tasksCache)[currentTask.parentID]
+export function getRoot (taskID) {
+  let current = get(tasksCache)[taskID]
+  while (current.parentID) {
+    const parent = get(tasksCache)[current.parentID]
     if (!parent) break
-    
-    currentTask = parent
+    current = parent
   }
-  
-  return currentTask
+  return current
 }
 
-/** Get all tasks in a tree (including the root) */
-export function getAllTasksInTree(rootID) {
-  return getDescendantTasks(rootID)
-}
+// export function listTreeNodes (rootID) {
+//   const results = [task(rootID)]
 
-/**
- * Get all descendants of a task (including the task itself)
- */
-export function getDescendantTasks(taskID) {
-  const descendants = []
+//   // this breaks for non-calendar tasks
+//   const tree = get(treesByID)[rootID]
+//   for (const child of tree.children) {
+//     results.push(task(child.id))
+//     helper(child, results)
+//   }
+//   console.log('all tree nodes =', results)
+//   return results
+// }
+
+// function helper (node, results) {
+//   for (const child of node.children) {
+//     results.push(task(child.id))
+//     helper(child, results)
+//   }
+// }
+
+// function task (id) {
+//   return get(tasksCache)[id]
+// }
+
+// inefficient, hard to underestand, but correct
+export function listTreeNodes (taskID) {
+  const nodes = []
   const queue = [taskID]
   
   while (queue.length > 0) {
@@ -118,7 +124,7 @@ export function getDescendantTasks(taskID) {
     const task = get(tasksCache)[currentID]
     
     if (task) {
-      descendants.push(task)
+      nodes.push(task)
       
       const children = Object.values(get(tasksCache))
         .filter(t => t.parentID === currentID)
@@ -126,19 +132,13 @@ export function getDescendantTasks(taskID) {
       queue.push(...children.map(child => child.id))
     }
   }
-  
-  return descendants
+  return nodes
 }
 
 export function removeOneInstance(array, item) {
   const index = array.indexOf(item)
   if (index === -1) return [...array]
   return [...array.slice(0, index), ...array.slice(index + 1)]
-}
-
-// For backward compatibility
-export async function updateTreeISOsForEntireTree(uid, task, oldDate, newDate, batch) {
-  await updateTreeISOsForDateChange(uid, task, oldDate, newDate, batch)
 }
 
 /**

@@ -1,10 +1,9 @@
 /** Handles everything data-related for <Calendar/>, from snapshot listeners to tree building. */
 import { treesByDate, treesByID } from '../calendarStore.js'
-import { updateTreeISOsForEntireTree, handleReparentingTreeISOs } from './treeISOs.js'
-import { tasksCache, updateCache } from '/src/store'
+import { updateCache } from '/src/store'
 import { DateTime } from 'luxon'
 import { pureNumericalHourForm } from '/src/helpers/everythingElse.js'
-import { doc, collection, writeBatch, query, where, onSnapshot, getDocs } from 'firebase/firestore'
+import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
 import { page } from '$app/stores'
 import { get } from 'svelte/store'
@@ -147,40 +146,6 @@ function addTaskToDate (task, date, dateToTasks) {
   else dateToTasks[date].noStartTime.noIcon.push(task)
 }
 
-/** Updates a calendar task and handles cascading updates to descendants */
-export async function updateCalendarTask ({ uid, taskID, keyValueChanges }) {
-  try {
-    const task = get(tasksCache)[taskID]
-    const batch = writeBatch(db)
-
-    const isRescheduling = 'startDateISO' in keyValueChanges
-    const isReparenting = 'parentID' in keyValueChanges
-    
-    if (isRescheduling) {
-      const oldDate = task.startDateISO
-      const newDate = keyValueChanges.startDateISO
-      if (oldDate !== newDate) {
-        updateTreeISOsForEntireTree(uid, task, oldDate, newDate, batch)
-      }
-    }
-    
-    if (isReparenting) {
-      const oldParentID = task.parentID
-      const newParentID = keyValueChanges.parentID
-      if (oldParentID !== newParentID) {
-        handleReparentingTreeISOs(uid, task, oldParentID, newParentID, batch)
-      }
-    }
-     
-    batch.update(doc(db, 'users', uid, 'tasks', taskID), keyValueChanges)
-    await batch.commit()
-  } catch (error) {
-    console.error('Error updating calendar task:', error)
-    throw error
-  }
-}
-
 export default {
-  setupCalListener,
-  updateCalendarTask
+  setupCalListener
 }
