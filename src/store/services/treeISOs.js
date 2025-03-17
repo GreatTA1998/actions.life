@@ -39,48 +39,53 @@ function hasChangedFamily ({ task, changes }) {
   const { parentID } = changes
   const parentChanged = (parentID !== undefined && parentID !== task.parentID) 
   const rootChanged = getRoot(get(tasksCache)[parentID]) !== getRoot(task)
+
   return parentChanged && rootChanged
 }
 
 export function handleCrossTree ({ task, changes, batch }) {
   console.log('handleCrossTree', task, changes)
-  // previous family
-  const prevTree = listTreeNodes(getRoot(task))
-  const movedSubtree = listTreeNodes(task)
-  let prevTreeISOs = [...task.treeISOs]
-
-  for (const node of movedSubtree) {
-    if (node.startDateISO) prevTreeISOs = removeOneInstance(prevTreeISOs, node.startDateISO)
+  const movedTree = listTreeNodes(task)
+  
+  // prev family
+  const prevFamily = listTreeNodes(getRoot(task))
+  let prevFamilyISOs = [...task.treeISOs]
+  for (const node of movedTree) {
+    if (node.startDateISO) prevFamilyISOs = removeOneInstance(prevFamilyISOs, node.startDateISO)
   }
-  batchUpdate({ nodes: prevTree, treeISOs: prevTreeISOs, batch })
+  batchUpdate({ nodes: prevFamily, treeISOs: prevFamilyISOs, batch })
 
   // new family
   const newParent = get(tasksCache)[changes.parentID]
   const newFamily = listTreeNodes(getRoot(newParent))
   let newFamilyISOs = newParent ? [...newParent.treeISOs] : []
-
-  for (const node of movedSubtree) {
+  for (const node of movedTree) {
     if (node.startDateISO) newFamilyISOs.push(node.startDateISO)
   }
-  newFamilyISOs = computeNewTreeISOs({ task, changes, array: newFamilyISOs })
-
+  newFamilyISOs = correctTreeISOs({ 
+    prevDate: task.startDateISO, 
+    newDate: changes.startDateISO, 
+    array: newFamilyISOs 
+  })
   batchUpdate({ nodes: newFamily, treeISOs: newFamilyISOs, batch })
-  batchUpdate({ nodes: movedSubtree, treeISOs: newFamilyISOs, batch })
+  batchUpdate({ nodes: movedTree, treeISOs: newFamilyISOs, batch })
 }
 
 export async function handleSameTree ({ task, changes, batch }) {
   return batchUpdate({ 
     nodes: listTreeNodes(getRoot(task)),
-    treeISOs: computeNewTreeISOs({ task, changes, array: [...task.treeISOs] }),
+    treeISOs: correctTreeISOs({ 
+      prevDate: task.startDateISO, 
+      newDate: changes.startDateISO, 
+      array: [...task.treeISOs] 
+    }),
     batch 
   })
 }
 
-function computeNewTreeISOs ({ task, changes, array }) {
-  const oldDate = task.startDateISO
-  const newDate = changes.startDateISO
-  if (oldDate !== newDate) {
-    if (oldDate) array = removeOneInstance(array, oldDate)  
+function correctTreeISOs ({ prevDate, newDate, array }) {
+  if (prevDate !== newDate) {
+    if (prevDate) array = removeOneInstance(array, prevDate)  
     if (newDate) array.push(newDate)
   }
   return array
@@ -109,31 +114,7 @@ export function getRoot (task) {
   return current
 }
 
-// export function listTreeNodes (rootID) {
-//   const results = [task(rootID)]
-
-//   // this breaks for non-calendar tasks
-//   const tree = get(treesByID)[rootID]
-//   for (const child of tree.children) {
-//     results.push(task(child.id))
-//     helper(child, results)
-//   }
-//   console.log('all tree nodes =', results)
-//   return results
-// }
-
-// function helper (node, results) {
-//   for (const child of node.children) {
-//     results.push(task(child.id))
-//     helper(child, results)
-//   }
-// }
-
-// function task (id) {
-//   return get(tasksCache)[id]
-// }
-
-// inefficient, hard to underestand, but correct
+// rewrite using caches in the future
 export function listTreeNodes (task) {
   if (task === undefined) return []
 
