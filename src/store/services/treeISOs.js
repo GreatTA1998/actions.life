@@ -7,6 +7,7 @@ import { user } from '/src/store'
 export function maintainTreeISOsForCreate ({ task, batch }) {
   if (task.parentID) {
     const parent = get(tasksCache)[task.parentID]
+
     if (task.startDateISO) {
       return batchUpdate({ 
         nodes: listTreeNodes(getRoot(parent)), 
@@ -27,6 +28,7 @@ export function maintainTreeISOsForCreate ({ task, batch }) {
 export function maintainTreeISOs ({ id, keyValueChanges, batch }) {
   const task = get(tasksCache)[id]
   const changes = keyValueChanges
+  
   if (hasChangedFamily({ task, changes })) {
     handleCrossTree({ task, changes, batch })
   }
