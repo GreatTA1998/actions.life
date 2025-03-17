@@ -32,7 +32,7 @@ export function maintainTreeISOs ({ id, keyValueChanges, batch }) {
   if (hasChangedFamily({ task, changes })) {
     handleCrossTree({ task, changes, batch })
   }
-  else if (changes.startDateISO !== task.startDateISO) {
+  else if (changes.startDateISO !== undefined && changes.startDateISO !== task.startDateISO) {
     handleSameTree({ task, changes, batch })
   }
 }
@@ -74,6 +74,7 @@ export function handleCrossTree ({ task, changes, batch }) {
 }
 
 export async function handleSameTree ({ task, changes, batch }) {
+  console.log('handleSameTree', task, changes)
   return batchUpdate({ 
     nodes: listTreeNodes(getRoot(task)),
     treeISOs: correctTreeISOs({ 
