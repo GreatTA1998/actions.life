@@ -5,20 +5,23 @@ import { db } from '/src/back-end/firestoreConnection'
 import { user } from '/src/store'
 
 export function maintainTreeISOsForCreate ({ task, batch }) {
-  const { parentID, startDateISO } = task
-  if (parentID && startDateISO) {
-    const parent = get(tasksCache)[parentID]
-    const newTreeISOs = computeNewTreeISOs({ 
-      task: { startDateISO: ''}, // simulating as if an empty task became scheduled, the effects are equal
-      changes: { startDateISO }, 
-      array: [...parent.treeISOs]
-    })
-    batchUpdate({ nodes: listTreeNodes(getRoot(parent)), treeISOs: newTreeISOs, batch })
-    return newTreeISOs
+  if (task.parentID) {
+    const parent = get(tasksCache)[task.parentID]
+    if (task.startDateISO) {
+      return batchUpdate({ 
+        nodes: listTreeNodes(getRoot(parent)), 
+        treeISOs: [...parent.treeISOs, task.startDateISO],
+        batch 
+      })
+    }
+    else {
+      return [...parent.treeISOs]
+    }
   }
-  else if (startDateISO) return [startDateISO]
 
-  else return []
+  else {
+    return task.startDateISO ? [task.startDateISO] : []
+  }
 }
 
 export function maintainTreeISOs ({ id, keyValueChanges, batch }) {
@@ -28,7 +31,7 @@ export function maintainTreeISOs ({ id, keyValueChanges, batch }) {
     handleCrossTree({ task, changes, batch })
   }
   else if (changes.startDateISO !== task.startDateISO) {
-    handleSameTreeReschedule({ task, changes, batch })
+    handleSameTree({ task, changes, batch })
   }
 }
 
@@ -54,8 +57,8 @@ export function handleCrossTree ({ task, changes, batch }) {
   // new family
   const newParent = get(tasksCache)[changes.parentID]
   const newFamily = listTreeNodes(getRoot(newParent))
-
   let newFamilyISOs = newParent ? [...newParent.treeISOs] : []
+
   for (const node of movedSubtree) {
     if (node.startDateISO) newFamilyISOs.push(node.startDateISO)
   }
@@ -65,14 +68,12 @@ export function handleCrossTree ({ task, changes, batch }) {
   batchUpdate({ nodes: movedSubtree, treeISOs: newFamilyISOs, batch })
 }
 
-export async function handleSameTreeReschedule ({ task, changes, batch }) {
-  const newTreeISOs = computeNewTreeISOs({ task, changes, array: [...task.treeISOs] })
-  batchUpdate({ 
+export async function handleSameTree ({ task, changes, batch }) {
+  return batchUpdate({ 
     nodes: listTreeNodes(getRoot(task)),
-    treeISOs: newTreeISOs, 
+    treeISOs: computeNewTreeISOs({ task, changes, array: [...task.treeISOs] }),
     batch 
   })
-  return newTreeISOs
 }
 
 function computeNewTreeISOs ({ task, changes, array }) {
@@ -93,6 +94,7 @@ function batchUpdate ({ nodes, treeISOs, batch }) {
     })
     console.log('updated', node.name, treeISOs)
   }
+  return treeISOs
 }
 
 export function getRoot (task) {

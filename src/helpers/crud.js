@@ -16,9 +16,10 @@ export async function createTaskNode ({ id, newTaskObj }) {
   try {
     const batch = writeBatch(db)
     const validatedTask = TaskSchema.parse({ ...newTaskObj })
-
+    const treeISOs = maintainTreeISOsForCreate({ task: validatedTask, batch })
+    
     batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), { 
-      treeISOs: maintainTreeISOsForCreate({ task: validatedTask, batch }),
+      treeISOs,
       ...validatedTask
     })
 

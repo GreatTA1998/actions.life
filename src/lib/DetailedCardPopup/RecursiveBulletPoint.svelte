@@ -22,10 +22,10 @@
     >
       {taskObject.name}
     </div>
-    
-    {#if taskObject.startDate && taskObject.startTime}
-      ({taskObject.startDate} {taskObject.startTime})
-    {/if}
+  
+    <div on:click={() => isTypingNewSubtask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
+      +
+    </div>
   </div>
 
   {#if taskObject.daysBeforeRepeating}
@@ -45,16 +45,35 @@
       </div>
     {/each}
   {/if}
+
+  {#if isTypingNewSubtask}
+    <FormField
+      fieldLabel="Task Name"
+      value={newSubtaskStringValue}
+      on:input={(e) => newSubtaskStringValue = e.detail.value}
+      on:focus-out={() => {
+        if (newSubtaskStringValue === '') {
+          isTypingNewSubtask = false
+        }
+      }}
+      on:task-entered={(e) => onEnter(e)}
+    />
+  {/if}
 </div>
 
 <script>
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import { openDetailedCard } from '/src/store/detailedCardStore.js'
-  import { updateTaskNode } from '/src/helpers/crud.js'
+  import { createTaskNode,updateTaskNode } from '/src/helpers/crud.js'
+  import FormField from '$lib/Reusable/FormField.svelte'
+  import { getRandomID } from '/src/helpers/everythingElse.js'
 
   export let taskObject 
   export let originalPopupTask
+
+  let newSubtaskStringValue = ''
+  let isTypingNewSubtask = false
 
   // copied from <RecursiveTask/>
   function handleCheckboxChange (e) {
@@ -63,6 +82,29 @@
     updateTaskNode({
       id: taskObject.id,
       keyValueChanges: { isDone: e.target.checked }
+    })
+  }
+
+  function onEnter (e) {
+    if (newSubtaskStringValue === '') {
+      isTypingNewSubtask = false
+    }
+    else {
+      createSubtask(newSubtaskStringValue)
+      newSubtaskStringValue = ''
+    } 
+  }
+
+  function createSubtask (name) {
+    createTaskNode({
+      id: getRandomID(),
+      newTaskObj: {
+        name,
+        parentID: taskObject.id, 
+        listID: taskObject.listID,
+        // Inherit parent's childrenLayout by default, can be changed later
+        childrenLayout: taskObject.childrenLayout || 'normal'
+      }
     })
   }
 </script>

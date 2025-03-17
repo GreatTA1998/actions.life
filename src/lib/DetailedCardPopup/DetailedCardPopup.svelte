@@ -16,6 +16,7 @@
   import StartTimeDurationNotify from '$lib/DetailedCardPopup/StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
   import { updateTaskNode, deleteTaskNode, deleteTaskAndChildren } from '/src/helpers/crud.js'
+  import { getRoot } from '/src/store/services/treeISOs.js'
 
   let TaskImageElem
   let PopupElem
@@ -227,8 +228,8 @@
           {#if $treesByID[taskObject.id]}
             <div style="max-height: 500px; overflow-y: auto;">
               <RecursiveBulletPoint
-                taskObject={$treesByID[taskObject.id]}
                 originalPopupTask={$treesByID[taskObject.id]}
+                taskObject={$treesByID[getRoot($tasksCache[taskObject.id]).id]}
               />
             </div>
           {/if}
