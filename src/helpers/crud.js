@@ -4,11 +4,10 @@ import { user, tasksCache } from '/src/store/index.js'
 import TaskSchema from '/src/back-end/Schemas/TaskSchema.js'
 import { writeBatch } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
-import { maintainTreeISOs, 
+import { 
+  maintainTreeISOs, 
   maintainTreeISOsForCreate,
-  getRoot, 
-  listTreeNodes, 
-  removeOneInstance
+  handleTreeISOsForDeletion
 } from '/src/store/services/treeISOs.js'
 import { doc } from 'firebase/firestore'
 
@@ -76,34 +75,7 @@ export async function deleteTaskAndChildren (task, existingBatch) {
     tasksToDelete.push(task)
     findChildren(task.id)
     
-    // Get all dates from tasks being deleted
-    const datesToRemove = tasksToDelete
-      .filter(t => t.startDateISO)
-      .map(t => t.startDateISO)
-    
-    // Update the parent tree if task has a parent - do this in a single operation
-    if (task.parentID && datesToRemove.length > 0) {
-      const parentTask = get(tasksCache)[task.parentID]
-      if (parentTask) {
-        const rootTask = getRoot(parentTask)
-        const allTreeTasks = listTreeNodes(rootTask.id)
-        
-        // Remove exactly one instance of each date from the tree's treeISOs
-        let updatedTreeISOs = [...(rootTask.treeISOs || [])]
-        for (const date of datesToRemove) {
-          updatedTreeISOs = removeOneInstance(updatedTreeISOs, date)
-        }
-        
-        // Update all tasks in the tree with the new treeISOs in a single batch
-        for (const treeTask of allTreeTasks) {
-          // Skip tasks that are being deleted
-          if (!tasksToDelete.some(t => t.id === treeTask.id)) {
-            const taskRef = doc(db, 'users', uid, 'tasks', treeTask.id)
-            batch.update(taskRef, { treeISOs: updatedTreeISOs })
-          }
-        }
-      }
-    }
+    handleTreeISOsForDeletion({ tasksToDelete, batch })
     
     // Delete all tasks in the same batch
     for (const taskToDelete of tasksToDelete) {

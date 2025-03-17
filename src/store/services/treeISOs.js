@@ -282,3 +282,50 @@ function arraysEqual(a, b) {
   }
   return true
 }
+
+/**
+ * Handles the maintenance of treeISOs when deleting tasks
+ * @param {Object} params - The parameters
+ * @param {Array} params.tasksToDelete - Array of tasks to be deleted
+ * @param {Object} params.batch - Firestore batch to use for updates
+ */
+export function handleTreeISOsForDeletion({ tasksToDelete, batch }) {
+  if (!tasksToDelete || tasksToDelete.length === 0) return
+  
+  // Get the root task of the first task to delete
+  // We assume all tasks being deleted are from the same tree
+  const rootTask = getRoot(tasksToDelete[0])
+  
+  // If the root task is being deleted, no need to update treeISOs
+  if (tasksToDelete.some(task => task.id === rootTask?.id)) return
+  
+  // Get all nodes in the tree
+  const treeNodes = listTreeNodes(rootTask)
+  
+  // Get the current treeISOs from the root
+  let updatedTreeISOs = [...rootTask.treeISOs]
+  
+  // Remove the startDateISO of each deleted task from the treeISOs
+  for (const taskToDelete of tasksToDelete) {
+    if (taskToDelete.startDateISO) {
+      updatedTreeISOs = removeOneInstance(updatedTreeISOs, taskToDelete.startDateISO)
+    }
+  }
+  
+  // Update all remaining nodes in the tree with the new treeISOs
+  const remainingNodes = treeNodes.filter(node => 
+    !tasksToDelete.some(taskToDelete => taskToDelete.id === node.id)
+  )
+  
+  batchUpdate({ nodes: remainingNodes, treeISOs: updatedTreeISOs, batch })
+  
+  // Also update the local tasksCache by removing the deleted tasks
+  tasksCache.update(cache => {
+    for (const taskToDelete of tasksToDelete) {
+      delete cache[taskToDelete.id]
+    }
+    return cache
+  })
+  
+  return updatedTreeISOs
+}
