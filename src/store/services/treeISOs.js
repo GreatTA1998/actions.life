@@ -116,26 +116,38 @@ export function getRoot (task) {
   return current
 }
 
-// rewrite using caches in the future
+// rewrite using unified app-level caches in the future
 export function listTreeNodes (task) {
   if (task === undefined) return []
 
-  const nodes = []
-  const queue = [task.id]
+  // Get tasksCache once (ideally we already have a cache, but right now it's hard to unify the todo & cal structures)
+  const allTasks = get(tasksCache)
   
-  while (queue.length > 0) {
-    const currentID = queue.shift()
-    const task = get(tasksCache)[currentID]
-    
-    if (task) {
-      nodes.push(task)
-      
-      const children = Object.values(get(tasksCache))
-        .filter(t => t.parentID === currentID)
-      
-      queue.push(...children.map(child => child.id))
+  // Build temporary parent->children map
+  const parentToChildren = {}
+  for (const [id, t] of Object.entries(allTasks)) {
+    if (t.parentID) {
+      if (!parentToChildren[t.parentID]) parentToChildren[t.parentID] = []
+      parentToChildren[t.parentID].push(t)
     }
   }
+  
+  // BFS traversal using the map
+  const nodes = []
+  const queue = [task]
+  
+  while (queue.length > 0) {
+    const currentTask = queue.shift()
+    
+    if (currentTask) {
+      nodes.push(currentTask)
+      
+      // Use map for direct child lookup
+      const children = parentToChildren[currentTask.id] || []
+      queue.push(...children)
+    }
+  }
+  
   return nodes
 }
 
