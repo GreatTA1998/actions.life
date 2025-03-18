@@ -1,6 +1,6 @@
 <script>
   import { PhotoLayout, photoLayoutOptions, getIconForLayout, defaultPhotoLayout } from '/src/store';
-  import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
+  import { updateFirestoreDoc } from '/src/helpers/firebase.js'
   import { user } from '/src/store';
 
   // Function to update user's default photo layout preference

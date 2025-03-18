@@ -23,7 +23,7 @@
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
   import { getRandomID, getTimeInHHMM } from '/src/helpers/utils.js'
   import { DateTime } from 'luxon'
-  import { deleteImage } from '/src/helpers/firestoreHelpers.js'
+  import { deleteImage } from '/src/helpers/firebase.js'
   import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let taskObject

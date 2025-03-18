@@ -1,4 +1,4 @@
-import { getFirestoreCollection, setFirestoreDoc, updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
+import { getFirestoreCollection, setFirestoreDoc, updateFirestoreDoc } from '/src/helpers/firebase.js'
 import { 
   createIndividualFirestoreDocForEachTaskInAllTasks, 
   applyFuncToEveryTreeNode, 

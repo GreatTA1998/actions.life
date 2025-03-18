@@ -1,6 +1,5 @@
-
 <script>
-  import { updateFirestoreDoc } from "/src/helpers/firestoreHelpers";
+  import { updateFirestoreDoc } from "/src/helpers/firebase.js";
   import { user, calSnapInterval } from '/src/store'
 
   const snapIntervals = [1, 5, 10, 15, 30]

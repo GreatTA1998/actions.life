@@ -1,5 +1,5 @@
 <script>
-  import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
+  import { updateFirestoreDoc } from '/src/helpers/firebase.js'
   import { user } from '/src/store'
   import { themes } from '/src/store/themes'
   

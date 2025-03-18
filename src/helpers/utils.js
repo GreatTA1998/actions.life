@@ -1,4 +1,4 @@
-import { setFirestoreDoc, updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
+import { setFirestoreDoc, updateFirestoreDoc } from '/src/helpers/firebase.js'
 
 // how far, INCLUDING SCROLL, the actual position on the calendar is
 // // containerDistanceFromTopOfPage should be fixed, and not be affected by scrolling
