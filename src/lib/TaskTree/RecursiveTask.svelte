@@ -2,7 +2,6 @@
   <div draggable="true"
     on:dragstart|self={(e) => dragstart_handler(e, taskObj.id)}
     style="display: flex; align-items: center; opacity: {taskObj.isDone ? '0.6' : '1'};"
-    style:margin-left="{willShowCheckbox ? '' : '-30px'}"
   >
     <div class="task-row-container" style="font-size: {depthAdjustedFontSize};">   
       {#if willShowCheckbox}
