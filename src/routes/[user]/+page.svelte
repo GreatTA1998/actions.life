@@ -17,7 +17,7 @@
   let currentMode = 'Week'
   let isShowingAI = false
   let unsub
-  let showLegacyTodoInWeekMode = true;
+  let showLegacyTodoInWeekMode
 
   onMount(() => {
     const uid = $page.params.user

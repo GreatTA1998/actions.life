@@ -8,7 +8,7 @@
   import { createEventDispatcher } from 'svelte'
   import { updateFirestoreDoc } from '/src/helpers/firebase.js'
 
-  export let showLegacyTodo = true; // Default to showing the legacy todo list
+  export let showLegacyTodo = false; // Default to showing the legacy todo list
   export let listID = null; // Optional specific list ID to display
   export let showToggle = true; // Whether to show the toggle button
 
