@@ -45,29 +45,29 @@
      </span>
    {/if}
 
-    <div>
-      <!-- Description is on the same line (so the place of the title),
-      but retains its own font to differentiate it from the title -->
-    </div>
+  <div>
+    <!-- Description is on the same line (so the place of the title),
+    but retains its own font to differentiate it from the title -->
+  </div>
 
-    <DoodleIcon
-      iconTask={task}
-      on:task-click
-    />
-
-    {#if isBulletPoint}
-      <!-- <div style="flex-grow: 1; overflow: hidden;">
-        <div class="truncate-to-one-line" 
-          style="font-size: 12px; font-weight: 400; color: {isBulletPoint ? 'rgb(0,0,0)' : 'rgb(0,0,0)'};">
-          {task.notes || ''}
-        </div>
-      </div> -->
-    {/if}
-
+  <DoodleIcon
+    iconTask={task}
+    on:task-click
+  />
  </div>
  <!-- End of task name flexbox -->
 
   {#if !isBulletPoint && !task.imageDownloadURL}
+  <!-- copied from TaskElement.svelte -->
+    {#if task.children.length > 0}
+      <div style="margin-top: 6px; display: flex; align-items: center; column-gap: 2px; color: rgb(40, 40, 40);">
+        <span class="material-symbols-outlined" style="font-size: 16px;">check_circle</span>
+        <span class="font-weight: 200;">
+          {task.children.filter(child => child.isDone).length}/{task.children.length}
+        </span>
+      </div> 
+    {/if}
+
     <div style="flex-grow: 1; overflow: hidden; margin-left: 4px;">
       <div style="font-size: 12px; font-weight: 400; color: rgb(20, 20, 20);">
         {task.notes || ''}

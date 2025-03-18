@@ -177,6 +177,7 @@
             persistsOnList: {taskObject.persistsOnList} |
             isArchived: {taskObject.isArchived} |
             listID: {taskObject.listID} |
+            treeISOs: {JSON.stringify(taskObject.treeISOs)}
           </div>
 
           <div style="display: flex; align-items: center; column-gap: 12px;">
