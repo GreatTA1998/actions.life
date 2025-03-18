@@ -63,15 +63,15 @@
   function handleDroppedTask (e) {
     e.preventDefault()
 
-    updateTaskNode({ 
-      id: $activeDragItem.id, 
-      keyValueChanges: {
-        listID,
-        orderValue: 0.1 + Math.random() * 9.9,
-        parentID: '',
-        startDateISO: ''
-      }
-    })
+    // updateTaskNode({ 
+    //   id: $activeDragItem.id, 
+    //   keyValueChanges: {
+    //     listID,
+    //     orderValue: 0.1 + Math.random() * 9.9,
+    //     parentID: '',
+    //     startDateISO: ''
+    //   }
+    // })
 
     activeDragItem.set(null)
   }
