@@ -5,21 +5,20 @@
   import { user, updateTemplate, deleteTemplate, doodleIcons } from '/src/store'
   import Templates from '/src/back-end/Templates/index.js'
   import { onMount } from 'svelte'
-  import _ from 'lodash'
+  import { createDebouncedFunction } from '/src/helpers/utils.js'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
   import Icons from '/src/back-end/Icons.js'
   export let template
   let isPopupOpen = false
   let newName = template.name
 
-  const debouncedRenameTask = _.debounce(
+  const debouncedRenameTask = createDebouncedFunction(
     (newVal) =>
       updateTemplate({
         templateID: template.id,
         keyValueChanges: { name: newVal },
         oldTemplate: template
       }),
-
     800
   )
 

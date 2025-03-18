@@ -9,7 +9,7 @@
   } from '/src/store'
   import { treesByID } from '/src/store/calendarStore.js'
   import { clickedTaskID, closeTaskPopup } from '/src/store/taskPopupStore.js'
-  import _ from 'lodash'
+  import { createDebouncedFunction } from '/src/helpers/utils.js'
   import RecursiveBulletPoint from '$lib/TaskPopup/RecursiveBulletPoint.svelte'
   import UXFormTextArea from '$lib/TaskPopup/UXFormTextArea.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
@@ -25,8 +25,8 @@
 
   let fullPhotoWidth, fullPhotoHeight 
 
-  const debouncedSaveTitle = _.debounce(saveTitle, 800)
-  const debouncedSaveNotes = _.debounce(saveNotes, 1500)
+  const debouncedSaveTitle = createDebouncedFunction(saveTitle, 800)
+  const debouncedSaveNotes = createDebouncedFunction(saveNotes, 1500)
 
   $: taskObject = $tasksCache[$clickedTaskID]
 
@@ -339,30 +339,12 @@
 
 
   .material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 48
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 48
   }
-
-  a {
-    flex: 1;
-    background-color: #F4F4F4;
-    color: #4E4E4E;
-    padding-top: 8px; 
-    padding-bottom: 8px;
-    padding-left: 20px;
-    padding-right: 20px;
-    border-radius: 20px;
-    text-align: center;
-    text-decoration: none;
-    transition: all 0.2s ease-out;
-    border: 1px solid #F4F4F4;
-    font-family: sans-serif;
-    font-size: 1rem;
-    height: 5px;
-    }
 
   .delete-button {
     position: relative;

@@ -2,10 +2,11 @@
   import ListsArea from '$lib/ListsArea/ListsArea.svelte'
   import TodoList from '$lib/ListsArea/TodoList.svelte'
   import Calendar from '$lib/Calendar/Calendar.svelte'
-
   import GripHandle from './GripHandle.svelte'
-  import { inclusiveWeekTodo } from '/src/store'
+
+  import { inclusiveWeekTodo, user } from '/src/store'
   import { createEventDispatcher } from 'svelte'
+  import { updateFirestoreDoc } from '/src/helpers/firebase.js'
 
   export let showLegacyTodo = true; // Default to showing the legacy todo list
   export let listID = null; // Optional specific list ID to display
@@ -14,11 +15,19 @@
   let isResizing = false;
   let startX = 0;
   let startWidth = 0;
-  let listAreaWidth = 360; // Default width
+  let listAreaWidth = getInitialWidth() // Default width
   let minWidth = 0; // Minimum width for list area
   let maxWidth = window.innerWidth; // Maximum width for list area
   
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher()
+
+  function getInitialWidth () {
+    if ($user.listAreaWidthRatio) {
+      return ($user.listAreaWidthRatio * 100 * window.innerWidth)
+    } else {
+      return 360
+    }
+  }
 
   function handleMouseDown(e) {
     isResizing = true;
@@ -41,15 +50,17 @@
     listAreaWidth = newWidth;
   }
 
-  function handleMouseUp() {
+  function handleMouseUp () {
     isResizing = false;
     
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
     
     document.body.style.userSelect = '';
-    
-    dispatch('resize', { width: listAreaWidth });
+
+    updateFirestoreDoc(`/users/${$user.uid}`, {
+      listAreaWidthRatio: (listAreaWidth / window.innerWidth) / 100
+    })
   }
 
   function toggleView() {
@@ -111,8 +122,7 @@
     overflow: hidden;
   }
   
-  /* THIS IS THE SCROLLING CONTAINER */
-  .list-area-container {
+  .list-area-container { /* THIS IS THE SCROLLING CONTAINER */
     height: 100%;
     overflow-y: auto;
     scrollbar-width: none;

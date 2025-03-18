@@ -1,4 +1,21 @@
-import { setFirestoreDoc, updateFirestoreDoc } from '/src/helpers/firebase.js'
+import { setFirestoreDoc } from '/src/helpers/firebase.js'
+
+export function createDebouncedFunction(func, waitFor) {
+  let timeout;
+
+  const debouncedFn = (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func(...args);
+    }, waitFor);
+  };
+
+  debouncedFn.cancel = () => {
+    clearTimeout(timeout);
+  };
+
+  return debouncedFn;
+}
 
 // how far, INCLUDING SCROLL, the actual position on the calendar is
 // // containerDistanceFromTopOfPage should be fixed, and not be affected by scrolling
