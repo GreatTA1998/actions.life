@@ -7,7 +7,7 @@
   import { activeDragItem } from '/src/store/index.js'
   import { DateTime } from 'luxon'
   import { updateTaskNode, createTaskNode } from '/src/helpers/crud.js'
-  import { createEventDispatcher, onMount, afterUpdate } from 'svelte'
+  import { createEventDispatcher } from 'svelte'
 
   const dispatch = createEventDispatcher()
 

@@ -44,11 +44,11 @@
       {colorForDebugging}
     />
   {:else}
-    <div style="margin-left: {indentationAmount}px;">
-      <!-- how we fill dropzones: define the top dropzone, then have each sub-task create a dropzone below themselves -->
+    <div style="margin-left: {WIDTHS.SUBTASK_LEFT_MARGIN}px;">
       <div class:ghost-negative={n === 0} 
         style="
-          width: calc(235px - {indentationAmount * (depth)}px);
+          width: 235px;
+          left: {WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
           z-index: {depth};
         "
       >
@@ -69,13 +69,13 @@
           willShowCheckbox
           ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
           {isLargeFont}
-          {colorForDebugging}
         /> 
 
         <div class:ghost-negative={i === n - 1} 
           style="
-            width: calc(235px - {indentationAmount * depth}px); 
+            left: {WIDTHS.SUBTASK_LEFT_MARGIN + WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
             z-index: {depth};
+            width: 235px;
           "
         >
           <Dropzone
@@ -119,18 +119,18 @@
   import { activeDragItem } from '/src/store'
   import { openTaskPopup } from '/src/store/taskPopupStore.js'
   import { updateTaskNode, createTaskNode } from '/src/helpers/crud.js'
+  import { WIDTHS } from '/src/helpers/constants.js'
 
   export let taskObj
   export let depth 
   export let willShowCheckbox = true
   export let ancestorRoomIDs = [] // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
-  export let colorForDebugging = getRandomColor()
   export let isLargeFont = false
 
-  const indentationAmount = 32
   let newSubtaskStringValue = ''
   let isTypingNewSubtask = false
-  let depthAdjustedFontSize 
+  let depthAdjustedFontSize
+  const colorForDebugging = getRandomColor()
 
   $: n = taskObj.children.length 
 

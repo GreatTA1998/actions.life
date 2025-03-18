@@ -19,6 +19,7 @@
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '../../back-end/firestoreConnection'
   import { updateTaskNode } from '/src/helpers/crud.js'
+  import { HEIGHTS } from '/src/helpers/constants.js'
 
   export let listID = ''
   export let ancestorRoomIDs
@@ -26,7 +27,7 @@
   export let idxInThisLevel
   export let parentID = ''
   export let colorForDebugging = "red"
-  export let heightInPx = 18
+  export let heightInPx = HEIGHTS.SUB_DROPZONE
 
   let ReorderDropzone
   let batch = writeBatch(db)

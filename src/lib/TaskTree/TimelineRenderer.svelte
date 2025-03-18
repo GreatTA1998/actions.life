@@ -1,6 +1,7 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
+  import { WIDTHS } from '/src/helpers/constants.js'
   import { DateTime } from 'luxon'
   
   export let children = []
@@ -9,8 +10,6 @@
   export let ancestorRoomIDs = []
   export let isLargeFont = false
   export let colorForDebugging
-
-  const indentationAmount = 32
   
   function formatDate (dateStr) {
     if (!dateStr) return '';
@@ -87,10 +86,12 @@
       </div>
     </div>
 
+    <!-- NOTE: the physical indentation of timelines is different, so this is only an approximation -->
     <div 
       class:ghost-negative={i === sortedTasks.length - 1}
       style="
-        width: calc(235px - {indentationAmount * depth}px); 
+        width: 235px;
+        left: {WIDTHS.SUBTASK_LEFT_MARGIN + WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
         z-index: {depth};
       "
     >
