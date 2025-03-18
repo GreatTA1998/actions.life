@@ -48,7 +48,8 @@
   }
 
   function getOffset({ dt1, dt2 }) {
-    const minutesDiff = dt2.diff(dt1, 'minutes').minutes
+    let minutesDiff = dt2.diff(dt1, 'minutes').minutes
+    if (minutesDiff < 0) minutesDiff += 24 * 60
     return ($pixelsPerHour/60) * minutesDiff 
   }
 
@@ -129,8 +130,9 @@
       {#if i === $timestamps.length - 1 && timestamp === $calLastHHMM}
         <!-- Skip rendering the last gridline as it causes a 1px overflow from the container's bottom edge -->
       {:else}
+        {@const [hour, minute] = timestamp.split(':').map(Number)}
         <div class="my-helper-gridline" 
-          style="top: {getOffset({ dt1: dt, dt2: dt.set({ hour: Number(timestamp.split(':')[0]), minute: Number(timestamp.split(':')[1]) }) })}px;"
+          style="top: {getOffset({ dt1: dt, dt2: dt.set({ hour, minute }) })}px;"
         >
         </div>
       {/if}

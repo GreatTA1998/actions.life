@@ -9,7 +9,7 @@
   let isMenuDisplayed = false;
 
   const hours = [];
-  for (let i = 6; i < 24; i++) {
+  for (let i = 0; i < 24; i++) {
     hours.push(i < 10 ? `0${i}` : `${i}`);
   }
   const minutes = ['00', '15', '30', '45'];

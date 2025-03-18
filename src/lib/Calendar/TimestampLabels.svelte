@@ -6,10 +6,15 @@
   let timestampsColumnWidth = $isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
 
   function getTopOffset (timestamp) {
-    return (timeToMinutes(timestamp) - timeToMinutes($calEarliestHHMM)) * ($pixelsPerHour / 60)
+    let origin = minutes($calEarliestHHMM)
+    let minutesForm = minutes(timestamp)
+    // Handle cases where timestamp is on the next day (after midnight)
+    if (minutesForm < origin) minutesForm += 24 * 60
+
+    return (minutesForm - origin) * ($pixelsPerHour / 60)
   }
 
-  function timeToMinutes (time) {
+  function minutes (time) {
     const [hours, minutes] = time.split(':').map(Number)
     return hours * 60 + minutes
   }
@@ -21,7 +26,7 @@
   margin-top: {$headerHeight}px;
 "
 >
-  {#each $timestamps as timestamp, i (timestamp)}
+  {#each $timestamps as timestamp, i (i)}
     <div class="absolute-timestamp" style="top: {getTopOffset(timestamp)}px;">
       {timestamp.substring(0, $isCompact ? 2 : 5)}
     </div>

@@ -33,12 +33,6 @@ user.subscribe($user => {
   )
 })
 
-/**
- * Given calEarliestHHMM and calLatestHHMM returns:
- * 1. The timestamps
- * 2. The number of minutes between calEarliestHHMM and calLatestHHMM (to determine the height of columns etc.)
- */
-
 // given calEarliestHHMM and calLatestHHMM, generate the invisible rectangles
 export function getTimestamps({ calEarliestHHMM, calLatestHHMM }) {
   const timestamps = []
@@ -51,12 +45,24 @@ export function getTimestamps({ calEarliestHHMM, calLatestHHMM }) {
     timestamps.push(calEarliestHHMM)
   }
   
-  // Add hourly timestamps
-  let currentHour = startMinute > 0 ? startHour + 1 : startHour;
-  while (currentHour <= endHour) {
-    const timestamp = `${currentHour.toString().padStart(2, '0')}:00`
-    timestamps.push(timestamp)
-    currentHour++
+  // Calculate start and end in total minutes since midnight
+  const startTotalMins = startHour * 60 + startMinute
+  let endTotalMins = endHour * 60 + endMinute
+
+  // Adjust end time if it crosses midnight
+  if (endTotalMins <= startTotalMins) {
+    endTotalMins += 24 * 60
+  }
+  
+  // Start at the next hour mark after start time
+  let currentHourMins = Math.ceil(startTotalMins / 60) * 60
+  
+  // Add all hourly timestamps between start and end
+  while (currentHourMins < endTotalMins) {
+    // Convert back to HH:MM format, handling midnight crossing with modulo
+    const hour = Math.floor(currentHourMins / 60) % 24
+    timestamps.push(`${hour.toString().padStart(2, '0')}:00`)
+    currentHourMins += 60
   }
   
   // Add final timestamp if it's not on the hour
@@ -70,5 +76,13 @@ export function getTimestamps({ calEarliestHHMM, calLatestHHMM }) {
 export function getMinutesDiff({ calEarliestHHMM, calLatestHHMM }) {
   const [startHour, startMinute] = calEarliestHHMM.split(':').map(Number)
   const [endHour, endMinute] = calLatestHHMM.split(':').map(Number)
-  return (endHour - startHour) * 60 + (endMinute - startMinute)
+  
+  let totalMinutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute)
+  
+  // If result is negative or zero (same times), it means we crossed midnight or need a full day
+  if (totalMinutes <= 0) {
+    totalMinutes += 24 * 60 // Add 24 hours worth of minutes
+  }
+  
+  return totalMinutes
 }
