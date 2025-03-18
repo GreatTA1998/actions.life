@@ -5,6 +5,8 @@
   import { onMount } from 'svelte'
   import { doc, updateDoc } from 'firebase/firestore'
   import { db } from '../../back-end/firestoreConnection'
+  import { getRandomID } from '/src/helpers/utils.js'
+  import { setFirestoreDoc } from '/src/helpers/firebase.js'
 
   export let listID = null;
 
@@ -16,7 +18,13 @@
     listenToListsAndTasks($user.uid)
   })
 
-  $: filteredLists = listID ? $lists.filter(list => list.id === listID) : $lists;
+  $: filteredLists = listID ? $lists.filter(list => list.id === listID) : $lists
+
+  function createNewList () {
+    setFirestoreDoc(`/users/${$user.uid}/lists/${getRandomID()}`, {
+      name: 'New List'
+    })
+  }
 
   function startEditingListName(list) {
     editingListId = list.id;
@@ -91,6 +99,12 @@
         />
       </div>
     {/each}
+
+    <button on:click={createNewList} style="width: 24px; height: 16px; font-size: 20px; color: var(--task-action-subtle-color);">
+      <span class="new-task-icon">
+        +
+      </span>
+    </button>
   </div>
 {/if}
 
