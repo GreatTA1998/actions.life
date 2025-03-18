@@ -1,9 +1,7 @@
 <script>
-  import PopupAppSettings from '$lib/PopupAppSettings/index.svelte'
+  import SettingsPopup from '$lib/SettingsPopup/index.svelte'
   import { hasInitialScrolled } from '/src/store'
   import { createEventDispatcher } from 'svelte'
-  import { goto } from '$app/navigation'
-  import { getAuth, signOut } from 'firebase/auth'
 
   export let currentMode
 
@@ -22,13 +20,13 @@
 </script>
 
 <div class="top-navbar">
-  <PopupAppSettings let:setIsPopupOpen> 
+  <SettingsPopup let:setIsPopupOpen> 
     <img on:click={() => setIsPopupOpen({ newVal: true })} on:keydown
       src="/trueoutput-square-nobg.png"
       style="width: 38px; height: 38px; margin-right: 6px; margin-left: -4px; cursor: pointer;"
       alt=""
     />
-  </PopupAppSettings>
+  </SettingsPopup>
 
   <div class="day-week-toggle-segment">
     <button on:click={recalibrateToCalendar}
