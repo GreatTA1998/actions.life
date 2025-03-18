@@ -1,6 +1,6 @@
 <script>
   import { showSnackbar, user } from '/src/store'
-  import { clickOutside } from '/src/helpers/everythingElse.js'
+  import { clickOutside } from '/src/helpers/utils.js'
   import ColorSettings from './ColorSettings.svelte'
   import TimeRangeSettings from './TimeRangeSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'

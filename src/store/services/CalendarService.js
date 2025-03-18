@@ -2,7 +2,7 @@
 import { treesByDate, treesByID } from '../calendarStore.js'
 import { updateCache } from '/src/store'
 import { DateTime } from 'luxon'
-import { pureNumericalHourForm } from '/src/helpers/everythingElse.js'
+import { pureNumericalHourForm } from '/src/helpers/utils.js'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
 import { page } from '$app/stores'

@@ -3,7 +3,7 @@
   import Templates from '/src/back-end/Templates/index.js'
   import {
     getRandomID,
-  } from '/src/helpers/everythingElse.js'
+  } from '/src/helpers/utils.js'
   import { user } from '/src/store'
   import { onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'

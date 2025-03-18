@@ -1,7 +1,7 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
-  import { getRandomColor } from '/src/helpers/everythingElse.js'
+  import { getRandomColor } from '/src/helpers/utils.js'
   
   export let children = [];
   export let depth;

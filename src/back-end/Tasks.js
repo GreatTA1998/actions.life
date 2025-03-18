@@ -1,5 +1,5 @@
 import { db } from "./firestoreConnection";
-import { getRandomID } from "../helpers/everythingElse.js";
+import { getRandomID } from "../helpers/utils.js";
 import {
   doc,
   getDocs,

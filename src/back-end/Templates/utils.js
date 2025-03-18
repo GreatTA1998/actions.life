@@ -2,7 +2,7 @@ import cronParser from 'cron-parser';
 import { DateTime } from 'luxon';
 import { db } from "../firestoreConnection.js";
 import { updateDoc, doc, setDoc, getDoc, collection, query, where, getDocs, deleteDoc, writeBatch } from 'firebase/firestore';
-import { getRandomID } from '../../helpers/everythingElse.js';
+import { getRandomID } from '../../helpers/utils.js';
 import Joi from 'joi';
 import { TaskSchema } from '../Schemas';
 const { parseExpression } = cronParser;

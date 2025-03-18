@@ -1,7 +1,7 @@
 <script>
   import { user } from '/src/store/userStore.js'
   import { updateFirestoreDoc } from '/src/helpers/firestoreHelpers.js'
-  import { formatDate } from '/src/helpers/everythingElse.js'
+  import { formatDate } from '/src/helpers/utils.js'
   import { openDetailedCard } from '/src/store/detailedCardStore.js'
 
   export let routineInstances = null

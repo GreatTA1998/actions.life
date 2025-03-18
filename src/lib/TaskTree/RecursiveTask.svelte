@@ -118,7 +118,7 @@
   import { 
     getRandomID, 
     getRandomColor,
-  } from '/src/helpers/everythingElse.js'
+  } from '/src/helpers/utils.js'
   import { activeDragItem } from '/src/store'
   import { openDetailedCard } from '/src/store/detailedCardStore.js'
   import { updateTaskNode, createTaskNode } from '/src/helpers/crud.js'

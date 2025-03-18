@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import { doodleIcons, user } from '/src/store'
   import Icons from '/src/back-end/Icons.js'
-  import { getRandomID } from '/src/helpers/everythingElse.js'
+  import { getRandomID } from '/src/helpers/utils.js'
   import ColorPicker from './ColorPicker.svelte'
   let colors = ['black', 'orange', 'red', 'lightblue', 'blue', 'green']
   let name = ''

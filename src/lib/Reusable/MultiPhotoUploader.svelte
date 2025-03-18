@@ -15,7 +15,7 @@
 
 <script>
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-  import { getRandomID, getTimeInHHMM } from '/src/helpers/everythingElse.js'
+  import { getRandomID, getTimeInHHMM } from '/src/helpers/utils.js'
   import { user } from '/src/store'
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'

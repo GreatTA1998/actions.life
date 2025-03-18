@@ -6,7 +6,7 @@
   import TimeIndicator from "./TimeIndicator.svelte"
 
   import { DateTime } from "luxon"
-  import { getHHMM } from "/src/helpers/everythingElse.js"
+  import { getHHMM } from "/src/helpers/utils.js"
 
   import {
     user,
