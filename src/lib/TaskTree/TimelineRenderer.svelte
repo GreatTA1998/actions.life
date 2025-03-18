@@ -71,7 +71,6 @@
           willShowCheckbox={false}
           {isLargeFont}
           ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
-          {colorForDebugging}
         >
           {#if child.startDateISO}
             <div class="date-badge">

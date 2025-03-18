@@ -1,12 +1,7 @@
 {#if $user.uid}
-  {#key clickedTask}
-    {#if isTaskPopupOpen}
-      <TaskPopup
-        on:task-delete={(e) => deleteTaskNode(e.detail)}
-        on:task-click={(e) => openTaskPopup(e.detail)}
-      />
-    {/if}
-  {/key}
+  {#if $isTaskPopupOpen}
+    <TaskPopup/>
+  {/if}
 
   <!-- Reason for 100dvh: https://stackoverflow.com/a/75648985/7812829 -->
   <!-- style="padding: 6px; background-color: white; display: flex; align-items: center; justify-content: center;" -->
@@ -112,11 +107,11 @@
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
 
   import { setupTodoListener } from '/src/store/services/TodoService.js'
-  import { createTaskNode, updateTaskNode, deleteTaskNode } from '/src/helpers/crud.js'
+  import { createTaskNode } from '/src/helpers/crud.js'
   import { getRandomID, getDateInMMDD } from '/src/helpers/utils.js'
   import { user, todoMemoryTree, hasInitialScrolled } from '/src/store'
   import { isCompact } from '/src/store/calendarStore.js'
-  import { openTaskPopup, isTaskPopupOpen } from '/src/store/taskPopupStore.js'
+  import { isTaskPopupOpen } from '/src/store/taskPopupStore.js'
   import { page } from '$app/stores'
   import { onDestroy, onMount } from 'svelte'
 
@@ -126,8 +121,6 @@
   
   let isUsingVoice = false
   let speechResult = ''
-  
-  let clickedTask = {}
 
   $: userID = $page.params.user
 
