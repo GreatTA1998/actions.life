@@ -4,9 +4,8 @@
   import FormField from '$lib/Reusable/FormField.svelte'
   import { getRandomID } from '/src/helpers/utils.js'
   import { HEIGHTS } from '/src/helpers/constants.js'
-  import { activeDragItem } from '/src/store/index.js'
   import { DateTime } from 'luxon'
-  import { updateTaskNode, createTaskNode } from '/src/helpers/crud.js'
+  import { createTaskNode } from '/src/helpers/crud.js'
   import { createEventDispatcher } from 'svelte'
 
   const dispatch = createEventDispatcher()
@@ -59,34 +58,10 @@
       newTaskObj: newRootTaskObj
     })
   }
-
-  function handleDroppedTask (e) {
-    e.preventDefault()
-
-    // updateTaskNode({ 
-    //   id: $activeDragItem.id, 
-    //   keyValueChanges: {
-    //     listID,
-    //     orderValue: 0.1 + Math.random() * 9.9,
-    //     parentID: '',
-    //     startDateISO: ''
-    //   }
-    // })
-
-    activeDragItem.set(null)
-  }
-
-  function dragover_handler(e) {
-    e.preventDefault()
-  }
 </script>
 
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
-<div class="todo-list-container"
-  style={$$props.style}
-  on:drop|stopPropagation={(e) => handleDroppedTask(e)}
-  on:dragover={(e) => dragover_handler(e)}
->
+<div class="todo-list-container" style={$$props.style}>
   <div class="first-column">
     {#if listTitle && !hideListTitle}
       <div style="display: flex; align-items: center;">
@@ -123,7 +98,7 @@
       {/if}
 
       <Dropzone
-        listID={listID}
+        {listID}
         ancestorRoomIDs={['']}
         roomsInThisLevel={tasksToDisplay}
         idxInThisLevel={0}
@@ -141,7 +116,7 @@
         />
 
         <Dropzone
-          listID={listID}
+          {listID}
           ancestorRoomIDs={['']}
           roomsInThisLevel={tasksToDisplay}
           idxInThisLevel={i + 1}

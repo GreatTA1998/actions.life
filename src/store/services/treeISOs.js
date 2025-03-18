@@ -46,7 +46,8 @@ function hasChangedFamily ({ task, changes }) {
 }
 
 export function handleCrossTree ({ task, changes, batch }) {
-  console.log('handleCrossTree', task, changes)
+  if (!task.treeISOs) alert('This task has no treeISOs so operations will fail!')
+  console.log('handleCrossTree', task, changes)  
   const movedTree = listTreeNodes(task)
   
   // prev family
@@ -74,6 +75,7 @@ export function handleCrossTree ({ task, changes, batch }) {
 }
 
 export async function handleSameTree ({ task, changes, batch }) {
+  if (!task.treeISOs) alert('This task has no treeISOs so operations will fail!')
   console.log('handleSameTree', task, changes)
   return batchUpdate({ 
     nodes: listTreeNodes(getRoot(task)),

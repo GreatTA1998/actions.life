@@ -20,6 +20,7 @@
   import { db } from '../../back-end/firestoreConnection'
   import { updateTaskNode } from '/src/helpers/crud.js'
   import { HEIGHTS } from '/src/helpers/constants.js'
+  import { listTreeNodes } from '/src/store/services/treeISOs.js'
 
   export let listID = ''
   export let ancestorRoomIDs
@@ -118,6 +119,14 @@
       // preserve parent relationship
     } else {
       updateObj.parentID = parentID
+    }
+
+    // list drag about logical grouping i.e. parentID and listID are affected, but scheduling is unaffected
+    const descendants = listTreeNodes($activeDragItem)
+    for (const descendant of descendants) {
+      batch.update(doc(db, `users/${$user.uid}/tasks/${descendant.id}`), {
+        listID
+      })
     }
 
     let ref = null
