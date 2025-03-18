@@ -163,8 +163,8 @@
     /* width: 100%; will cause the strange shifting out of screen bug*/
     height: 100%;
     padding-bottom: 16px;
-    padding-left: 2vw;
-    padding-right: 2vw;
+    padding-left: 1vw;
+    padding-right: 1vw;
     font-size: 2em;
   }
 

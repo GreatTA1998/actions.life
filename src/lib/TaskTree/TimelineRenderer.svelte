@@ -1,82 +1,52 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
-  import { getRandomColor } from '/src/helpers/utils.js'
+  import { DateTime } from 'luxon'
   
-  export let children = [];
+  export let children = []
   export let depth;
   export let parentID;
   export let ancestorRoomIDs = []
-  export let isLargeFont = false;
+  export let isLargeFont = false
   export let colorForDebugging
+
+  const indentationAmount = 32
   
   function formatDate (dateStr) {
     if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    }) // e.g. "Jun 15"
+
+    const dt = DateTime.fromISO(dateStr)
+    return `${dt.toFormat("MMM")} ${dt.toFormat("d")}, ${dt.toFormat("yyyy")}`;
   }
-  
-  // Timeline-specific calculations
-  function calculateTimePositions(tasks) {
-    // Sort tasks chronologically if they have startDateISO
+
+  function calculateTimePositions (tasks) {
     const sortedTasks = [...tasks].sort((a, b) => {
-      if (!a.startDateISO) return 1;
-      if (!b.startDateISO) return -1;
-      return new Date(a.startDateISO) - new Date(b.startDateISO);
-    });
+      if (!a.startDateISO) return 1
+      if (!b.startDateISO) return -1
+      return new Date(a.startDateISO) - new Date(b.startDateISO)
+    })
     
-    // Calculate vertical spacing
-    let spacings = {};
-    const baseSpacing = 10; // Base spacing between tasks (minimal spacing)
-    const maxSpacing = 100; // Maximum spacing to prevent too much empty space
+    const n = sortedTasks.length
+    let spacings = new Array(n).fill(0)
+
     const dayInMs = 24 * 60 * 60 * 1000; // Milliseconds in a day
+    const pxPerDay = 0.4
     
-    // Find min and max dates to calculate scale
-    let minDate = null;
-    let maxDate = null;
-    
-    sortedTasks.forEach(task => {
-      if (task.startDateISO) {
-        const date = new Date(task.startDateISO);
-        if (!minDate || date < minDate) minDate = date;
-        if (!maxDate || date > maxDate) maxDate = date;
+    for (let i = 0; i < n - 1; i++) {
+      const current = new Date(sortedTasks[i].startDateISO)
+      const next = new Date(sortedTasks[i + 1].startDateISO)
+
+      if (current && next) {
+        const daysDiff = Math.max(1, (next - current) / dayInMs)
+        spacings[i] = pxPerDay * daysDiff
       }
-    });
-    
-    // Calculate scale factor if we have date range
-    const scaleFactor = (minDate && maxDate && maxDate > minDate) 
-      ? Math.min(maxSpacing / baseSpacing, (maxDate - minDate) / dayInMs)
-      : 1;
-    
-    let prevDate = null;
-    
-    sortedTasks.forEach(task => {
-      // Default minimal spacing
-      spacings[task.id] = baseSpacing;
-      
-      // If tasks have dates, space them proportionally
-      if (task.startDateISO && prevDate) {
-        const currentDate = new Date(task.startDateISO);
-        const daysDiff = Math.max(1, (currentDate - prevDate) / dayInMs);
-        
-        // Scale the spacing based on days difference, but cap it
-        spacings[task.id] = Math.min(baseSpacing * daysDiff * scaleFactor, maxSpacing);
-        prevDate = currentDate;
-      } else if (task.startDateISO) {
-        // First task with a date
-        prevDate = new Date(task.startDateISO);
-      }
-    });
-    
-    return { sortedTasks, spacings };
+    }
+    return { sortedTasks, spacings }
   }
   
-  $: timelineData = calculateTimePositions(children);
-  $: sortedTasks = timelineData.sortedTasks;
-  $: spacings = timelineData.spacings;
+  $: timelineData = calculateTimePositions(children)
+  $: sortedTasks = timelineData.sortedTasks
+  $: spacings = timelineData.spacings
 </script>
 
 <div class="timeline-container">
@@ -94,8 +64,7 @@
   />
 
   {#each sortedTasks as child, i (child.id)}
-    <!-- style="padding-bottom: {spacings[child.id]}px" -->
-    <div class="timeline-item">      
+    <div class="timeline-item" style="margin-bottom: {spacings[i]}px">      
       <div class="task-wrapper">
         <RecursiveTask
           taskObj={child}
@@ -109,20 +78,30 @@
             <div class="date-badge">
               {formatDate(child.startDateISO)}
             </div>
+          {:else}
+            <div class="date-badge">
+              N/A
+            </div>
           {/if}
         </RecursiveTask>
       </div>
-      
-      <div class:absolute-bottom={i === sortedTasks.length - 1}>
-        <Dropzone
-          ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
-          roomsInThisLevel={children}
-          idxInThisLevel={i + 1}
-          parentID={parentID}
-          {colorForDebugging}
-          listID={child.listID}
-        />
-      </div>
+    </div>
+
+    <div 
+      class:ghost-negative={i === sortedTasks.length - 1}
+      style="
+        width: calc(235px - {indentationAmount * depth}px); 
+        z-index: {depth};
+      "
+    >
+      <Dropzone
+        ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
+        roomsInThisLevel={children}
+        idxInThisLevel={i + 1}
+        parentID={parentID}
+        {colorForDebugging}
+        listID={child.listID}
+      />
     </div>
   {/each}
 </div>
@@ -130,14 +109,13 @@
 <style>
   .timeline-container {
     position: relative;
-    padding-left: 40px; /* Reduced padding */
-    margin-left: 0; /* Removed extra margin */
+    padding-left: 40px;
   }
   
   .timeline-line {
     position: absolute;
     top: 24px;
-    left: 44px; /* align with center of checkbox */
+    left: 40px; /* modify this value to center the timeline */
     width: 2px;
     height: calc(100% - 48px);
     background-color: #ddd;
@@ -156,7 +134,7 @@
     margin-left: 10px; /* Add a small margin to separate from timeline */
   }
   
-  .absolute-bottom {
+  .ghost-negative {
     position: absolute;
     bottom: -18px;
   }

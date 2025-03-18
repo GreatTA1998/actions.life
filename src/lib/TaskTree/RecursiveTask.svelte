@@ -45,10 +45,7 @@
     />
   {:else}
     <div style="margin-left: {indentationAmount}px;">
-      <!-- 
-        the way we fill dropzones: define the top dropzone, 
-       then have each sub-task create a dropzone below themselves 
-       -->
+      <!-- how we fill dropzones: define the top dropzone, then have each sub-task create a dropzone below themselves -->
       <div class:ghost-negative={n === 0} 
         style="
           width: calc(235px - {indentationAmount * (depth)}px);

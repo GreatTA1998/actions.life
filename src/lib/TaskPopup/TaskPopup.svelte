@@ -179,22 +179,8 @@
 
           <div style="margin-top: 16px;"></div>
 
-          <div style="display: flex; align-items: center; column-gap: 12px;">
-            <span on:click={() => updateTaskNode({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
-              class:selected={taskObject.childrenLayout === 'timeline'}
-              style="padding: 4px;"
-            >
-              Timeline
-            </span>
-
-            <span on:click={() => updateTaskNode({ id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
-              class:selected={taskObject.childrenLayout === 'normal'}
-              style="padding: 4px;"
-            >
-              Normal
-            </span>
-
-            <div style="margin-left: 48px;">
+          <div style="display: flex; align-items: center; column-gap: 12px; padding: 12px;">
+            <div>
               persistsOnList: {taskObject.persistsOnList} |
               isArchived: {taskObject.isArchived} |
               listID: {taskObject.listID} |
@@ -202,7 +188,7 @@
             </div>
           </div>
  
-          <div style="display: flex; align-items: center; width: 100%;">
+          <div style="display: flex; align-items: center; width: 100%; column-gap: 12px;">
             {#if taskObject.imageDownloadURL}
               <div style="display: flex; column-gap: 6px;">
                 {#each photoLayoutOptions as layout}
@@ -214,6 +200,24 @@
             {/if}
 
             <PhotoUpload {taskObject}/>
+
+            <div style="display: flex; align-items: center; width: fit-content; box-sizing: border-box;">
+              <span on:click={() => updateTaskNode({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
+                class:selected={taskObject.childrenLayout === 'timeline'}
+                class:unselected={taskObject.childrenLayout !== 'timeline'}
+                style="padding: 2px 8px;"
+              >
+                Timeline
+              </span>
+  
+              <span on:click={() => updateTaskNode({ id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
+                class:selected={taskObject.childrenLayout === 'normal'}
+                class:unselected={taskObject.childrenLayout !== 'normal'}
+                style="padding: 2px 8px;"
+              >
+                Normal
+              </span>
+            </div>  
 
             <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined">
               delete
@@ -232,8 +236,12 @@
 
 <style>
   .selected {
-    background-color: #F4F4F4;
-    border: 1px solid orange;
+    border-bottom: 2px solid rgb(255, 196, 87);
+  }
+
+  .unselected {
+    border-bottom: 2px solid lightgrey;
+    color: lightgrey;
   }
 
   .side-by-side {

@@ -102,21 +102,10 @@
       newVal = (order1 + order2) / 2
     }
 
-    // 1. ORDER VALUE (and startTime)
-    // only applies to the subtree's root
     const { id } = $activeDragItem
-
-    let updateObj = {
-      orderValue: newVal,
-      id
-    }
     
     // 2. UNSCHEDULE: when you drag to the to-do list, it always unschedules it from the calendar
-    // updateObj.startDateISO = ''
-    // updateObj.startTime = ''
-
-    // NOTE `updateObj` will be deprecated and unused
-    const betaUpdateObj = {
+    const updateObj = {
       orderValue: newVal,
       startDateISO: '',
       startTime: '',
@@ -128,12 +117,11 @@
       // preserve parent relationship
     } else {
       updateObj.parentID = parentID
-      betaUpdateObj.parentID = parentID
     }
 
     let ref = null
     ref = doc(db, `users/${$user.uid}/tasks/${id}`)
-    updateTaskNode({ id, keyValueChanges: betaUpdateObj })
+    updateTaskNode({ id, keyValueChanges: updateObj })
 
     try {
       batch.commit() // for updating user's maxOrderValue
