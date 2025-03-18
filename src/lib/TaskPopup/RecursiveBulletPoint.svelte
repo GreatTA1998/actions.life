@@ -16,7 +16,7 @@
       DO NOT have `rootAncestor` (see picture in OneNote)
     -->
     <div 
-      on:click={() => openDetailedCard(taskObject)} on:keydown
+      on:click={() => openTaskPopup(taskObject)} on:keydown
       class:completed-task={taskObject.isDone}
       style="cursor: pointer; margin-left: 4px; margin-right: 4px;" class="truncate-to-one-line"
     >
@@ -64,7 +64,7 @@
 <script>
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
-  import { openDetailedCard } from '/src/store/detailedCardStore.js'
+  import { openTaskPopup } from '/src/store/taskPopupStore.js'
   import { createTaskNode,updateTaskNode } from '/src/helpers/crud.js'
   import FormField from '$lib/Reusable/FormField.svelte'
   import { getRandomID } from '/src/helpers/utils.js'

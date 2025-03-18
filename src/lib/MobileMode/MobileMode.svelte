@@ -1,9 +1,9 @@
 {#if $user.uid}
   {#key clickedTask}
-    {#if isDetailedCardOpen}
-      <DetailedCardPopup
+    {#if isTaskPopupOpen}
+      <TaskPopup
         on:task-delete={(e) => deleteTaskNode(e.detail)}
-        on:task-click={(e) => openDetailedCard(e.detail)}
+        on:task-click={(e) => openTaskPopup(e.detail)}
       />
     {/if}
   {/key}
@@ -108,7 +108,7 @@
   import ScheduleView from '$lib/MobileMode/ScheduleView.svelte'
   import ListView from '$lib/MobileMode/ListView.svelte'
   import VoiceKeywordDetect from './VoiceKeywordDetect.svelte'
-  import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
+  import TaskPopup from '$lib/TaskPopup/TaskPopup.svelte'
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
 
   import { setupTodoListener } from '/src/store/services/TodoService.js'
@@ -116,7 +116,7 @@
   import { getRandomID, getDateInMMDD } from '/src/helpers/utils.js'
   import { user, todoMemoryTree, hasInitialScrolled } from '/src/store'
   import { isCompact } from '/src/store/calendarStore.js'
-  import { openDetailedCard, isDetailedCardOpen } from '/src/store/detailedCardStore.js'
+  import { openTaskPopup, isTaskPopupOpen } from '/src/store/taskPopupStore.js'
   import { page } from '$app/stores'
   import { onDestroy, onMount } from 'svelte'
 

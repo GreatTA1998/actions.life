@@ -5,13 +5,13 @@
   import AI from '$lib/AI/AI.svelte'
   import TheSnackbar from '$lib/MainPage/TheSnackbar.svelte'
   import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
-  import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
   import SideBySideView from '$lib/MainPage/SideBySideView.svelte'
+  import TaskPopup from '$lib/TaskPopup/TaskPopup.svelte'
 
   import { onDestroy, onMount } from 'svelte'
   import { page } from '$app/stores'
   import { user, loadingTasks, showSnackbar } from '/src/store'
-  import { isDetailedCardOpen } from '/src/store/detailedCardStore.js'
+  import { isTaskPopupOpen } from '/src/store/taskPopupStore.js'
   import TodoService from '/src/store/services/TodoService.js'
 
   let currentMode = 'Week'
@@ -38,8 +38,8 @@
 </script>
 
 {#if $user.uid}
-  {#if $isDetailedCardOpen}
-    <DetailedCardPopup />
+  {#if $isTaskPopupOpen}
+    <TaskPopup />
   {/if}
 
   {#if $showSnackbar}

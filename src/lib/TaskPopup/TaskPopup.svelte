@@ -8,12 +8,12 @@
     getIconForLayout, 
   } from '/src/store'
   import { treesByID } from '/src/store/calendarStore.js'
-  import { clickedTaskID, closeDetailedCard } from '/src/store/detailedCardStore.js'
+  import { clickedTaskID, closeTaskPopup } from '/src/store/taskPopupStore.js'
   import _ from 'lodash'
-  import RecursiveBulletPoint from '$lib/DetailedCardPopup/RecursiveBulletPoint.svelte'
-  import UXFormTextArea from '$lib/DetailedCardPopup/UXFormTextArea.svelte'
+  import RecursiveBulletPoint from '$lib/TaskPopup/RecursiveBulletPoint.svelte'
+  import UXFormTextArea from '$lib/TaskPopup/UXFormTextArea.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
-  import StartTimeDurationNotify from '$lib/DetailedCardPopup/StartTimeDurationNotify.svelte'
+  import StartTimeDurationNotify from '$lib/TaskPopup/StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
   import { updateTaskNode, deleteTaskNode } from '/src/helpers/crud.js'
   import { getRoot } from '/src/store/services/treeISOs.js'
@@ -98,7 +98,7 @@
       id: taskObject.id,
       keyValueChanges: { isDone: e.target.checked }
     })
-    closeDetailedCard()
+    closeTaskPopup()
   }
 
   function updatePhotoLayout (layout) {
@@ -107,11 +107,11 @@
 
   function handleDelete () {
     deleteTaskNode({ ...taskObject });
-    closeDetailedCard();
+    closeTaskPopup();
   }
 
   function handleClickOutside (e) {
-    closeDetailedCard();
+    closeTaskPopup();
   }
 
   // note: if the popup closes before this debounced function is called, taskObject.id will be undefined
@@ -127,7 +127,7 @@
 {#if taskObject}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="fullscreen-invisible-modular-popup-layer" on:click|self={handleClickOutside} style="z-index: 10;">
-    <div class="detailed-card-popup {journalLayout}-container" bind:this={PopupElem}>
+    <div class="task-popup {journalLayout}-container" bind:this={PopupElem}>
       <div class="{journalLayout}">
         {#if taskObject.imageDownloadURL}
           <img src={taskObject.imageDownloadURL}
@@ -225,7 +225,7 @@
       </div>
       <!-- padding container -->
     </div>
-    <!-- detailed-card-popup -->
+    <!-- task-popup -->
   </div>
   <!-- modular invisible layer -->
 {/if}
@@ -310,7 +310,7 @@
     z-index: 1;
   }
 
-  .detailed-card-popup {
+  .task-popup {
     position: fixed;
     width: 60%;
     font-size: 14px;
@@ -388,4 +388,4 @@
   .delete-button:hover .tooltip {
     visibility: visible;
   }
-</style>
+</style> 

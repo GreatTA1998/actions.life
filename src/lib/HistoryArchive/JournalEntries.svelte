@@ -2,7 +2,7 @@
   import { user } from '/src/store/userStore.js'
   import { updateFirestoreDoc } from '/src/helpers/firebase.js'
   import { formatDate } from '/src/helpers/utils.js'
-  import { openDetailedCard } from '/src/store/detailedCardStore.js'
+  import { openTaskPopup } from '/src/store/taskPopupStore.js'
 
   export let routineInstances = null
   export let selectedRoutine = null
@@ -110,7 +110,7 @@
   {#if routineInstances}
     {#each routineInstances as instance, i (instance.id)}
       {@const gap = calculateGap(instance.startDateISO, routineInstances[i + 1]?.startDateISO)}
-      <div on:click={() => openDetailedCard(instance)} on:keydown
+      <div on:click={() => openTaskPopup(instance)} on:keydown
         class="entry-wrapper" 
         data-gap={gap.type}
         style="--gap-size: {calculateGapSize(gap.days)}px"

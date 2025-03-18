@@ -4,7 +4,7 @@
   Note, the HTML checkbox tick color literally cannot be changed, but it will be automatically white if it "decides" that our chosen background color is dark enough, 
   or vice versa
  -->
-<div on:click={() => openDetailedCard(task)}
+<div on:click={() => openTaskPopup(task)}
   draggable="true" 
   on:dragstart|self={(e) => startDragMove(e, task.id)} 
   use:lazyCallable={() => hasIntersected = true}
@@ -97,7 +97,7 @@
  // Assumes `task` is hydrated
  import { getTrueY } from '/src/helpers/utils.js'
  import { grabOffset, activeDragItem } from '/src/store'
- import { openDetailedCard } from '/src/store/detailedCardStore.js'
+ import { openTaskPopup } from '/src/store/taskPopupStore.js'
  import { lazyCallable } from '/src/helpers/actions.js'
  import { pixelsPerHour } from '/src/store/calendarStore.js'
  import { updateTaskNode } from '/src/helpers/crud.js'

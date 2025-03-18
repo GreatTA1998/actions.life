@@ -20,7 +20,7 @@
         <div style="margin-right: 6px;"></div>
       {/if}
 
-      <div on:click={() => openDetailedCard(taskObj)} on:keydown
+      <div on:click={() => openTaskPopup(taskObj)} on:keydown
         class="task-name truncate-to-one-line" 
         class:cross-out-todo={taskObj.isDone} 
       >
@@ -120,7 +120,7 @@
     getRandomColor,
   } from '/src/helpers/utils.js'
   import { activeDragItem } from '/src/store'
-  import { openDetailedCard } from '/src/store/detailedCardStore.js'
+  import { openTaskPopup } from '/src/store/taskPopupStore.js'
   import { updateTaskNode, createTaskNode } from '/src/helpers/crud.js'
 
   export let taskObj

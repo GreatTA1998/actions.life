@@ -1,7 +1,7 @@
 <script>
-  import MinimalisticInput from "$lib/DetailedCardPopup/MinimalisticInput.svelte"
-  import MyJSDatePicker from "$lib/DetailedCardPopup/MyJSDatePicker.svelte";
-  import MyTimePicker from "$lib/DetailedCardPopup/MyTimePicker.svelte";
+  import MinimalisticInput from "$lib/TaskPopup/MinimalisticInput.svelte"
+  import MyJSDatePicker from "$lib/TaskPopup/MyJSDatePicker.svelte";
+  import MyTimePicker from "$lib/TaskPopup/MyTimePicker.svelte";
   import { DateTime } from "luxon";
   import { updateTaskNode } from '/src/helpers/crud.js'
 

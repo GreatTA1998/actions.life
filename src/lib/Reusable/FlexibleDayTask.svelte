@@ -1,4 +1,4 @@
-<div on:click={() => openDetailedCard(task)}
+<div on:click={() => openTaskPopup(task)}
   draggable="true" 
   on:dragstart|self={(e) => startDragMove(e, task.id)} 
   class:calendar-block={!isBulletPoint}
@@ -45,7 +45,7 @@
 <script>
   // Assumes `task` is hydrated
   import { grabOffset, activeDragItem } from '/src/store'
-  import { openDetailedCard } from '/src/store/detailedCardStore.js'
+  import { openTaskPopup } from '/src/store/taskPopupStore.js'
   import Checkbox from './Checkbox.svelte'
   import { updateTaskNode } from '/src/helpers/crud.js'
 

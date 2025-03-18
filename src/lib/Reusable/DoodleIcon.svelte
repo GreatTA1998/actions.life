@@ -1,6 +1,6 @@
 <script>
   import { activeDragItem, grabOffset } from '/src/store'
-  import { openDetailedCard } from '/src/store/detailedCardStore.js'
+  import { openTaskPopup } from '/src/store/taskPopupStore.js'
   import { updateTaskNode } from '/src/helpers/crud.js'
 
   export let iconTask
@@ -22,7 +22,7 @@
     } 
     else {
       timer = setTimeout(() => {
-        openDetailedCard(iconTask)
+        openTaskPopup(iconTask)
 
         timer = null
       }, delay)

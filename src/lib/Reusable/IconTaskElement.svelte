@@ -4,7 +4,7 @@
  -->
 
 <div 
-  on:click={() => openDetailedCard(task)}
+  on:click={() => openTaskPopup(task)}
   on:dragstart|self={(e) => startDragMove(e, task.id)} 
   draggable="true" 
   class:calendar-block={!isBulletPoint}
@@ -99,7 +99,7 @@
   // Assumes `task` is hydrated
   import { getTrueY } from '/src/helpers/utils.js'
   import { grabOffset, activeDragItem } from '/src/store'
-  import { openDetailedCard } from '/src/store/detailedCardStore.js'
+  import { openTaskPopup } from '/src/store/taskPopupStore.js'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/store/calendarStore.js'
   import { updateTaskNode } from '/src/helpers/crud.js'
