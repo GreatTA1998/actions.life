@@ -15,7 +15,7 @@
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import StartTimeDurationNotify from '$lib/DetailedCardPopup/StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
-  import { updateTaskNode, deleteTaskNode, deleteTaskAndChildren } from '/src/helpers/crud.js'
+  import { updateTaskNode, deleteTaskNode } from '/src/helpers/crud.js'
   import { getRoot } from '/src/store/services/treeISOs.js'
 
   let TaskImageElem
@@ -110,11 +110,6 @@
     closeDetailedCard();
   }
 
-  function handleDeleteChildren () {
-    deleteTaskAndChildren({ ...taskObject })
-    closeDetailedCard();
-  }
-
   function handleClickOutside (e) {
     closeDetailedCard();
   }
@@ -163,22 +158,26 @@
 
           <StartTimeDurationNotify {taskObject} />
 
-          <div style="width: 100%;">
-            <UXFormTextArea value={taskObject.notes}
-              on:input={(e) => debouncedSaveNotes(e.detail)}
-              fieldLabel=""
-              placeholder="Notes..."
-            />
+          <div style="width: 100%; display: flex; column-gap: 12px;">
+            <div style="flex-grow: 1; flex-basis: 0;">
+              <UXFormTextArea value={taskObject.notes}
+                on:input={(e) => debouncedSaveNotes(e.detail)}
+                fieldLabel=""
+                placeholder="Notes..."
+              />
+            </div>
+
+            {#if $treesByID[taskObject.id]}
+              <div style="flex-grow: 1; flex-basis: 0; max-height: 500px; overflow-y: auto;">
+                <RecursiveBulletPoint
+                  originalPopupTask={$treesByID[taskObject.id]}
+                  taskObject={$treesByID[getRoot($tasksCache[taskObject.id]).id]}
+                />
+              </div>
+            {/if}
           </div>
 
           <div style="margin-top: 16px;"></div>
-
-          <div>
-            persistsOnList: {taskObject.persistsOnList} |
-            isArchived: {taskObject.isArchived} |
-            listID: {taskObject.listID} |
-            treeISOs: {JSON.stringify(taskObject.treeISOs)}
-          </div>
 
           <div style="display: flex; align-items: center; column-gap: 12px;">
             <span on:click={() => updateTaskNode({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
@@ -194,6 +193,13 @@
             >
               Normal
             </span>
+
+            <div style="margin-left: 48px;">
+              persistsOnList: {taskObject.persistsOnList} |
+              isArchived: {taskObject.isArchived} |
+              listID: {taskObject.listID} |
+              treeISOs: {JSON.stringify(taskObject.treeISOs)}
+            </div>
           </div>
  
           <div style="display: flex; align-items: center; width: 100%;">
@@ -211,37 +217,17 @@
 
             <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined">
               delete
-            </button>
-            
-            <button on:click|stopPropagation={handleDeleteChildren}
-              class="material-symbols-outlined delete-button"
-              style="cursor: pointer; margin-left: auto; right: 0px; border: 1px solid grey; border-radius: 24px; padding: 4px; position: relative;"
-            >
-              bomb
               <span class="tooltip">Delete this task and all its children</span>
             </button>
           </div>
-
-          <div style="font-size: 1rem; margin-top: 16px; margin-bottom: 12px; font-weight: 400;">
-            Tree History
-          </div>
-
-          {#if $treesByID[taskObject.id]}
-            <div style="max-height: 500px; overflow-y: auto;">
-              <RecursiveBulletPoint
-                originalPopupTask={$treesByID[taskObject.id]}
-                taskObject={$treesByID[getRoot($tasksCache[taskObject.id]).id]}
-              />
-            </div>
-          {/if}
         </div>
-        <!-- End of task details container -->
+        <!-- task details container -->
       </div>
-      <!-- End of padding container -->
+      <!-- padding container -->
     </div>
-    <!-- End of detailed-card-popup -->
+    <!-- detailed-card-popup -->
   </div>
-  <!-- End of modular invisible layer -->
+  <!-- modular invisible layer -->
 {/if}
 
 <style>
@@ -306,7 +292,6 @@
   .delete-button {
     margin-left: auto; 
     right: 0px; 
-    border: 1px solid grey; 
     border-radius: 24px; 
     padding: 4px;
   }

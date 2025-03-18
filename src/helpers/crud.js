@@ -46,52 +46,37 @@ export async function updateTaskNode ({ id, keyValueChanges }) {
   }
 }
 
-export async function deleteTaskNode ({ id, imageFullPath = "" }) {
-  const batch = writeBatch(db)
+export async function deleteTaskNode ({ id }) {
   const task = get(tasksCache)[id]
-  
-  await deleteTaskAndChildren(task, batch)
-  
-  if (imageFullPath) deleteImage({ imageFullPath })
-  
+
+  const tasksToDelete = [task]
+  pushDescendants(task.id, tasksToDelete)
+
+  if (tasksToDelete.length >= 2) {
+    if (!confirm(`${tasksToDelete.length} tasks will be deleted in this tree. Are you sure?`)) {
+      return
+    }
+  }
+
+  const { uid } = get(user)
+  const batch = writeBatch(db)
+
+  for (const task of tasksToDelete) {
+    const { imageFullPath, id } = task
+    if (imageFullPath) deleteImage({ imageFullPath })
+    batch.delete(doc(db, `/users/${uid}/tasks/${id}`))
+  }
+  handleTreeISOsForDeletion({ tasksToDelete, batch })
+
   await batch.commit()
+  return tasksToDelete
 }
 
-export async function deleteTaskAndChildren (task, existingBatch) {
-  try {
-    const uid = get(user).uid
-    const batch = existingBatch || writeBatch(db)
-    const tasksToDelete = []
-    
-    function findChildren(parentID) {
-      Object.values(get(tasksCache)).forEach(t => {
-        if (t.parentID === parentID) {
-          tasksToDelete.push(t)
-          findChildren(t.id)
-        }
-      })
+function pushDescendants (parentID, tasksToDelete) {
+  Object.values(get(tasksCache)).forEach(t => {
+    if (t.parentID === parentID) {
+      tasksToDelete.push(t)
+      pushDescendants(t.id, tasksToDelete)
     }
-
-    tasksToDelete.push(task)
-    findChildren(task.id)
-    
-    handleTreeISOsForDeletion({ tasksToDelete, batch })
-    
-    // Delete all tasks in the same batch
-    for (const taskToDelete of tasksToDelete) {
-      if (taskToDelete.imageFullPath) {
-        deleteImage({ imageFullPath: taskToDelete.imageFullPath })
-      }
-      batch.delete(doc(db, 'users', uid, 'tasks', taskToDelete.id))
-    }
-    
-    if (!existingBatch) {
-      await batch.commit()
-    }
-    
-    return true
-  } catch (error) {
-    console.error('Error in deleteTaskAndChildren:', error)
-    throw error
-  }
+  })
 }

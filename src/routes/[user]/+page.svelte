@@ -1,21 +1,17 @@
 <script>
-  import ListsArea from '$lib/ListsArea/ListsArea.svelte'
   import TopNavbar from '$lib/MainPage/TopNavbar.svelte'
-  import Calendar from '$lib/Calendar/Calendar.svelte'
   import HistoryArchive from '$lib/HistoryArchive/index.svelte'
   import Templates from '$lib/Templates/Templates.svelte'
   import AI from '$lib/AI/AI.svelte'
   import TheSnackbar from '$lib/MainPage/TheSnackbar.svelte'
   import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
   import DetailedCardPopup from '$lib/DetailedCardPopup/DetailedCardPopup.svelte'
-  import WeeklyTodo from '$lib/ListsArea/WeeklyTodo.svelte'
   import SideBySideView from '$lib/MainPage/SideBySideView.svelte'
 
   import { onDestroy, onMount } from 'svelte'
   import { page } from '$app/stores'
   import { user, loadingTasks, showSnackbar } from '/src/store'
   import { isDetailedCardOpen } from '/src/store/detailedCardStore.js'
-  import { deleteTaskNode, deleteTaskAndChildren } from '/src/helpers/crud.js'
   import TodoService from '/src/store/services/TodoService.js'
 
   let currentMode = 'Week'
@@ -26,9 +22,7 @@
   onMount(() => {
     const uid = $page.params.user
     TodoService.setupTodoListener(uid)
-
     loadingTasks.set(false)
-
     // migrateToTreeISOs('yGVJSutBrnS1156uopQQOBuwpMl2', false)
   })
 
@@ -43,14 +37,11 @@
   }
 </script>
 
-{#if $isDetailedCardOpen}
-  <DetailedCardPopup
-    on:task-delete={e => deleteTaskNode(e.detail)}
-    on:task-delete-children={e => deleteTaskAndChildren(e.detail)}
-  />
-{/if}
-
 {#if $user.uid}
+  {#if $isDetailedCardOpen}
+    <DetailedCardPopup />
+  {/if}
+
   {#if $showSnackbar}
     <TheSnackbar>Email copied to clipboard successfully.</TheSnackbar>
   {/if}

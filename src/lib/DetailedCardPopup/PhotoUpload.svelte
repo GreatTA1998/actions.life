@@ -120,6 +120,9 @@
 
 <style>
   .circle-outline-button {
-    cursor: pointer; margin-left: 6px; border: 1px solid grey; border-radius: 24px; padding: 4px;
+    cursor: pointer; 
+    margin-left: 6px; 
+    border-radius: 24px; 
+    padding: 4px;
   }
 </style>
