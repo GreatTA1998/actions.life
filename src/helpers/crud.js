@@ -1,4 +1,4 @@
-import { deleteImage } from '/src/helpers/storage.js'
+import { deleteImage } from '/src/helpers/firestoreHelpers.js'
 import { get } from 'svelte/store'
 import { user, tasksCache } from '/src/store/index.js'
 import TaskSchema from '/src/back-end/Schemas/TaskSchema.js'
