@@ -10,17 +10,16 @@ import {
 } from "firebase/firestore";
 import Tasks from '../Tasks.js';
 import { getPeriodFromCrontab, deleteFutureTasks, postFutureTasks, getTotalStats } from './utils.js';
-import Joi from 'joi';
-import TemplateSchema from '../Schemas/TemplateSchema.js';
+import { Template } from '../../db/schemas';
 
 const create = async ({ userID, newTemplate, templateID }) => {
-  Joi.assert(newTemplate, TemplateSchema);
+  Template.parse(newTemplate);
   const docRef = doc(db, "users", userID, 'templates', templateID);
   return setDoc(docRef, newTemplate);
 };
 
 const update = async ({ userID, id, updates, newTemplate }) => {
-  Joi.assert(newTemplate, TemplateSchema);
+  Template.parse(newTemplate);
   Tasks.updateQuickTasks({userID, templateID: id, updates})
   updateDoc(doc(db, "users", userID, 'templates', id), updates)
 }

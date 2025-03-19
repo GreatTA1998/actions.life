@@ -1,10 +1,6 @@
 import { sourceDB, destinationDB } from '../firestoreConnection.js';
 import { getDocs, query, collection, doc, writeBatch, getDoc, setDoc, getCountFromServer } from 'firebase/firestore';
-import Joi from 'joi';
-import TaskSchema from '../Schemas/TaskSchema.js';
-import TemplateSchema from '../Schemas/TemplateSchema.js';
-import UserSchema from '../Schemas/UserSchema.js';
-import IconSchema from '../Schemas/IconSchema.js';
+import { Task, Template, User, Icon } from '../../db/schemas';
 
 
 // only once
@@ -37,7 +33,11 @@ async function migrateUser(userID) {
         maxOrderValue: userSnapshot.data().maxOrderValue || 0,
         uid: userSnapshot.id
     }
-    Joi.attempt(newUser, UserSchema, "Error in user: " + userID);
+    try {
+        User.parse(newUser);
+    } catch (error) {
+        throw new Error(`Error in user: ${userID} - ${error.message}`);
+    }
     const newUserRef = doc(destinationDB, 'users', userID);
     return setDoc(newUserRef, newUser);
 }
@@ -63,7 +63,11 @@ async function migrateTemplates(userID, timeZone) {
                 duration: templateDoc.data().duration || 0,
                 startTime: templateDoc.data().startTime || '',
             }
-            Joi.attempt(newTemplate, TemplateSchema);
+            try {
+                Template.parse(newTemplate);
+            } catch (error) {
+                throw new Error(`Error in template: ${templateDoc.id} - ${error.message}`);
+            }
             batch.set(newDocRef, newTemplate);
         });
         console.log(`Successfully migrated documents to 'templates' collection`);
@@ -98,7 +102,11 @@ async function migrateTasks(userID, timeZone) {
                 imageFullPath: taskDoc.data().imageFullPath || '',
                 tags: taskDoc.data().tags || ''
             };
-            Joi.attempt(newTask, TaskSchema, "Error in task: " + taskDoc.id,);
+            try {
+                Task.parse(newTask);
+            } catch (error) {
+                throw new Error(`Error in task: ${taskDoc.id} - ${error.message}`);
+            }
             batch.set(newDocRef, newTask);
         });
         console.log(`Successfully updated tasks`);
@@ -122,7 +130,11 @@ async function migrateIconsCollection() {
             createdBy: iconDoc.data().createdBy,
             tags: iconDoc.data().tags || "",
         }
-        Joi.attempt(newIcon, IconSchema);
+        try {
+            Icon.parse(newIcon);
+        } catch (error) {
+            throw new Error(`Error in icon: ${iconDoc.id} - ${error.message}`);
+        }
         const newDocRef = doc(iconsDestRef, iconDoc.id)
         batch.set(newDocRef, newIcon)
     })

@@ -1,7 +1,6 @@
 import { writable, get } from 'svelte/store'
 import Templates from '../back-end/Templates/index.js'
-import Joi from 'joi';
-import TemplateSchema from '../back-end/Schemas/TemplateSchema.js';
+import { Template } from '../db/schemas';
 import { user } from './index.js'
 import './themes'
 
@@ -16,7 +15,7 @@ export function deleteTemplate({ templateID }) {
 export async function updateTemplate({ templateID, keyValueChanges, oldTemplate }) {
   const currentUser = get(user);
   const newTemplate = buildNewTemplate({ oldTemplate, keyValueChanges })
-  Joi.assert(newTemplate, TemplateSchema);
+  Template.parse(newTemplate);
   templates.update((templates) => templates.map((template) =>
     template.id === templateID ? newTemplate : template
   ))
@@ -41,6 +40,6 @@ function buildNewTemplate({ oldTemplate, keyValueChanges }) {
   delete newTemplate.userID
   delete newTemplate.totalMinutesSpent
   delete newTemplate.totalTasksCompleted
-  Joi.assert(newTemplate, TemplateSchema);
+  Template.parse(newTemplate);
   return newTemplate
 }

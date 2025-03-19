@@ -7,8 +7,7 @@ import {
     uploadString,
     deleteObject
 } from "firebase/storage";
-import IconSchema from "./Schemas/IconSchema.js"
-import Joi from 'joi'
+import { Icon } from '../db/schemas';
 
 async function getAvailable(uid) {
     const q = query(
@@ -25,7 +24,7 @@ async function getAvailable(uid) {
 async function uploadIconDataURL ({ id, iconObject }) {
     const url = await storeIconToBucket(id, iconObject.dataURL);
     delete iconObject.dataURL;
-    Joi.assert({...iconObject, url}, IconSchema)
+    Icon.parse({...iconObject, url});
     return setDoc(doc(db, "icons", id), {
         ...iconObject,
         url,

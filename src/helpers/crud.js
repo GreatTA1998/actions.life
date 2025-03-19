@@ -1,7 +1,7 @@
 import { deleteImage } from '/src/helpers/firebase.js'
 import { get } from 'svelte/store'
 import { user, tasksCache } from '/src/store/index.js'
-import TaskSchema from '/src/back-end/Schemas/TaskSchema.js'
+import { Task } from '../db/schemas'
 import { writeBatch } from 'firebase/firestore'
 import { db } from '/src/back-end/firestoreConnection'
 import { 
@@ -14,7 +14,7 @@ import { doc } from 'firebase/firestore'
 export async function createTaskNode ({ id, newTaskObj }) {
   try {
     const batch = writeBatch(db)
-    const validatedTask = TaskSchema.parse({ ...newTaskObj })
+    const validatedTask = Task.parse({ ...newTaskObj })
     const treeISOs = maintainTreeISOsForCreate({ task: validatedTask, batch })
     
     batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), { 
@@ -33,7 +33,7 @@ export async function createTaskNode ({ id, newTaskObj }) {
 
 export async function updateTaskNode ({ id, keyValueChanges }) {
   try {
-    const validatedChanges = TaskSchema.partial().parse(keyValueChanges)
+    const validatedChanges = Task.partial().parse(keyValueChanges)
     const batch = writeBatch(db)
     maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
     batch.update(doc(db, `users/${get(user).uid}/tasks/${id}`), validatedChanges)

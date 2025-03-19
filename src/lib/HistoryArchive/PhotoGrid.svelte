@@ -8,7 +8,7 @@
   export let photoTasks = null
 
   onMount(() => {
-    fetchPhotoTasks()
+    // fetchPhotoTasks()
   })
 
   async function fetchPhotoTasks () {

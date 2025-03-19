@@ -20,6 +20,5 @@ export default z.object({
     persistsOnList: z.boolean().default(true),
     listID: z.string().default(''),
     childrenLayout: z.string().default('normal'), // 'normal' or 'timeline'
-
     treeISOs: z.array(z.string()).optional() // must be computed & maintained
-})
+});

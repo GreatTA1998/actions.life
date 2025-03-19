@@ -37,7 +37,7 @@
       {:else if activeTabName === 'FUTURE_VIEW'}
         <ScheduleView on:task-duration-adjusted />
       {:else if activeTabName === 'CALENDAR_VIEW'}
-        <Calendar isCompact/>    
+        <Calendar />    
       {:else if activeTabName === 'AI_VIEW'}
         <AI />
       {/if}
