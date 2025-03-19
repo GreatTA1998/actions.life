@@ -1,6 +1,7 @@
 import Tasks from '/src/back-end/Tasks'
 import { get } from 'svelte/store'
 import { todoTasks, todoMemoryTree, inclusiveWeekTodo, updateCache, tasksCache } from '/src/store'
+import { updateFirestoreDoc } from '/src/helpers/firebase.js'
 
 const activeListeners = {
   todo: null
@@ -66,7 +67,7 @@ export async function updateTodoTask({ uid, taskID, keyValueChanges }) {
     
     if (!task) {
       console.warn(`Task ${taskID} not found in todo store, falling back to direct database update`)
-      await Tasks.updateTaskDoc({ userUID: uid, taskID, keyValueChanges })
+      await updateFirestoreDoc(`users/${uid}/tasks/${taskID}`, keyValueChanges)
       return {
         taskID,
         changes: keyValueChanges
@@ -87,7 +88,7 @@ export async function updateTodoTask({ uid, taskID, keyValueChanges }) {
       keyValueChanges.rootStartDateISO = rootStartDateISO
     }
     
-    await Tasks.updateTaskDoc({ userUID: uid, taskID, keyValueChanges })
+    await updateFirestoreDoc(`users/${uid}/tasks/${taskID}`, keyValueChanges)
     
     return {
       taskID,
