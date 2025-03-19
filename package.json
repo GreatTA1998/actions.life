@@ -27,7 +27,6 @@
     "cron-parser": "^4.9.0",
     "firebase": "^9.6.5",
     "firebase-functions": "^6.0.1",
-    "joi": "^17.13.3",
     "js-datepicker": "^5.18.2",
     "luxon": "^3.4.4",
     "openai": "^4.56.0",
