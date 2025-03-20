@@ -4,14 +4,10 @@ import { get } from 'svelte/store'
 import { user, tasksCache } from '/src/store/index.js'
 import { writeBatch } from 'firebase/firestore'
 import { db } from './init'
-import { 
-  maintainTreeISOs, 
-  maintainTreeISOsForCreate,
-  handleTreeISOsForDeletion
-} from './treeISOs.js'
+import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
 import { doc } from 'firebase/firestore'
 
-const Task = {
+export default {
   schema: z.object({
     name: z.string().default('Untitled'),
     duration: z.number().default(30),
@@ -32,10 +28,11 @@ const Task = {
     persistsOnList: z.boolean().default(true),
     listID: z.string().default(''),
     childrenLayout: z.string().default('normal'), // 'normal' or 'timeline'
+
     treeISOs: z.array(z.string()).optional() // must be computed & maintained
   }),
 
-  async create({ id, newTaskObj }) {
+  async create ({ id, newTaskObj }) {
     try {
       const batch = writeBatch(db)
       const validatedTask = Task.schema.parse({ ...newTaskObj })
@@ -55,7 +52,7 @@ const Task = {
     }
   },
 
-  async update({ id, keyValueChanges }) {
+  async update ({ id, keyValueChanges }) {
     try {
       const validatedChanges = Task.schema.partial().parse(keyValueChanges)
       const batch = writeBatch(db)
@@ -70,7 +67,7 @@ const Task = {
     }
   },
 
-  async delete({ id }) {
+  async delete ({ id }) {
     const taskObj = get(tasksCache)[id]
 
     const tasksToDelete = [taskObj]
@@ -97,8 +94,7 @@ const Task = {
   }
 }
 
-// Helper function
-function pushDescendants(parentID, tasksToDelete) {
+function pushDescendants (parentID, tasksToDelete) {
   Object.values(get(tasksCache)).forEach(t => {
     if (t.parentID === parentID) {
       tasksToDelete.push(t)
@@ -106,5 +102,3 @@ function pushDescendants(parentID, tasksToDelete) {
     }
   })
 } 
-
-export default Task 
