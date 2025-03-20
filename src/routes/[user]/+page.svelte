@@ -1,10 +1,10 @@
 <script>
   import TopNavbar from '$lib/MainPage/TopNavbar.svelte'
-  import HistoryArchive from '$lib/HistoryArchive/index.svelte'
+  import Archive from '$lib/Archive/index.svelte'
   import Templates from '$lib/Templates/Templates.svelte'
   import AI from '$lib/AI/AI.svelte'
   import TheSnackbar from '$lib/MainPage/TheSnackbar.svelte'
-  import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
+  import NavbarContentLayout from '$lib/NavbarContentLayout.svelte'
   import SideBySideView from '$lib/MainPage/SideBySideView.svelte'
   import TaskPopup from '$lib/TaskPopup/TaskPopup.svelte'
 
@@ -46,7 +46,7 @@
     <TheSnackbar>Email copied to clipboard successfully.</TheSnackbar>
   {/if}
 
-  <NavbarAndContentWrapper>
+  <NavbarContentLayout>
     <div slot="navbar">
       <TopNavbar {currentMode} 
         on:tab-click={e => currentMode = e.detail}
@@ -71,8 +71,8 @@
       </div>
 
       <div style="display: {currentMode === 'Archive' ? 'block' : 'none'}; width: 100%; height: 100%;">
-        <HistoryArchive />
+        <Archive />
       </div>
     </div>
-  </NavbarAndContentWrapper>
+  </NavbarContentLayout>
 {/if}

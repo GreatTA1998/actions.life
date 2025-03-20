@@ -2,7 +2,7 @@
   import LoginGoogle from '$lib/Reusable/LoginGoogle.svelte'
   import { hasFetchedUser } from '/src/store'
   import { onMount } from 'svelte'
-  import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
+  import NavbarContentLayout from '$lib/NavbarContentLayout.svelte'
 
   let isSoundOff = true
   let VideoElem
@@ -117,7 +117,7 @@
 </script>
 
 {#if hasFetchedUser}
-  <NavbarAndContentWrapper>
+  <NavbarContentLayout>
     <div
       slot="navbar"
       class="top-navbar transparent-glow-navbar"
@@ -272,7 +272,7 @@
         </div>
       </div>
     </div>
-  </NavbarAndContentWrapper>
+  </NavbarContentLayout>
 {/if}
 
 <style lang="scss">

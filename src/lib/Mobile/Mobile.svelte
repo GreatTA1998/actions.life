@@ -100,8 +100,8 @@
 <script>
   import Calendar from '$lib/Calendar/Calendar.svelte'
   import AI from '$lib/AI/AI.svelte'
-  import ScheduleView from '$lib/MobileMode/ScheduleView.svelte'
-  import ListView from '$lib/MobileMode/ListView.svelte'
+  import ScheduleView from '$lib/Mobile/ScheduleView.svelte'
+  import ListView from '$lib/Mobile/ListView.svelte'
   import VoiceKeywordDetect from './VoiceKeywordDetect.svelte'
   import TaskPopup from '$lib/TaskPopup/TaskPopup.svelte'
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
