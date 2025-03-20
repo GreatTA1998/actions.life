@@ -8,7 +8,7 @@ import {
   maintainTreeISOs, 
   maintainTreeISOsForCreate,
   handleTreeISOsForDeletion
-} from '/src/store/services/treeISOs.js'
+} from '/src/db/treeISOs.js'
 import { doc } from 'firebase/firestore'
 
 export async function createTaskNode ({ id, newTaskObj }) {

@@ -1,15 +1,17 @@
 import { writable, get } from 'svelte/store'
-import { db } from '../../db/init'
+import { db } from '/src/db/init'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { reconstructTreeInMemory } from './TodoService.js'
 import { updateCache } from '/src/store'
+
+// We'll need to fix this circular dependency later
+import { reconstructTreeInMemory } from '/src/lib/ListsArea/todoService.js'
 
 let persistTasks, nonPersistTasks
 
 export const lists = writable(null)
 export const listTreesMap = writable(null) // listID --> array of task trees
 
-export function listenToListsAndTasks (uid) {
+export function listenToListsAndTasks(uid) {
   const tasksCollection = collection(db, `users/${uid}/tasks`)
   setupListener(
     query(tasksCollection, where('persistsOnList', '==', true), where('isArchived', '==', false)),
@@ -31,7 +33,7 @@ export function listenToListsAndTasks (uid) {
   )
 } 
 
-function setupListener (ref, callback) {
+function setupListener(ref, callback) {
   onSnapshot(ref, snapshot => {
     const mappedData = snapshot.docs.map(doc => ({
       ...doc.data(), 
@@ -46,7 +48,7 @@ function setupListener (ref, callback) {
   })
 }
 
-function buildTreeMap (tasks) {
+function buildTreeMap(tasks) {
   // group tasks by `listID` first
   const d1 = {}
   for (const task of tasks) {
@@ -64,4 +66,4 @@ function buildTreeMap (tasks) {
     d2[listID] = reconstructTreeInMemory(listTasks)
   }
   listTreesMap.set(d2)
-}
+} 

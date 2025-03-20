@@ -106,7 +106,7 @@
   import TaskPopup from '$lib/TaskPopup/TaskPopup.svelte'
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
 
-  import { setupTodoListener } from '/src/store/services/TodoService.js'
+  import { setupTodoListener } from '/src/lib/ListsArea/todoService.js'
   import { createTaskNode } from '/src/db/crud.js'
   import { getRandomID, getDateInMMDD } from '/src/utils/core.js'
   import { user, todoMemoryTree, hasInitialScrolled, isTaskPopupOpen } from '/src/store'

@@ -17,7 +17,7 @@
   import StartTimeDurationNotify from '$lib/TaskPopup/StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
   import { updateTaskNode, deleteTaskNode } from '/src/db/crud.js'
-  import { getRoot } from '/src/store/services/treeISOs.js'
+  import { getRoot } from '/src/db/treeISOs.js'
 
   let TaskImageElem
   let PopupElem

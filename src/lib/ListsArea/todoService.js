@@ -1,7 +1,6 @@
 import Tasks from '/src/db/models/Tasks'
 import { get } from 'svelte/store'
-import { todoTasks, todoMemoryTree, inclusiveWeekTodo, updateCache, tasksCache } from '/src/store'
-import { updateFirestoreDoc } from '/src/db/helpers.js'
+import { todoTasks, todoMemoryTree, inclusiveWeekTodo, updateCache } from '/src/store'
 
 const activeListeners = {
   todo: null
@@ -25,7 +24,7 @@ export function reconstructTreeInMemory(firestoreTaskDocs) {
   return memoryTree
 }
 
-function extendTree (node, memo) {
+function extendTree(node, memo) {
   node.children = memo[node.id]
   node.children = node.children.sort((a, b) => a.orderValue - b.orderValue)
   for (const child of node.children) {
@@ -75,4 +74,4 @@ export default {
   updateTodoTasks,
   cleanupTodoListener,
   reconstructTreeInMemory
-}
+} 

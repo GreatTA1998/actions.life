@@ -248,98 +248,126 @@ export async function migrateToTreeISOs(uid, dryRun = false) {
     console.error(`ERROR during ${dryRun ? 'dry run' : 'migration'} to treeISOs:`, error)
     return { 
       success: false, 
-      error: error.message,
-      dryRun
+      message: `Error during migration: ${error.message}`,
+      error
     }
   }
-}
-
-/** Processes a tree for migration, calculating treeISOs for each node */
-async function processTreeForMigration(task, taskMap, uid, batch, dryRun, incrementCounter) {
-  // Skip tasks without dates
-  if (!task.startDateISO) return { dates: [] }
-  
-  // Process children first to collect all dates
-  let allDates = [task.startDateISO]
-  
-  // Process each child and collect their dates
-  for (const child of task.children) {
-    const childResult = await processTreeForMigration(
-      child, taskMap, uid, batch, dryRun, incrementCounter
-    )
-    allDates = [...allDates, ...childResult.dates]
-  }
-  
-  // Remove duplicates
-  const uniqueDates = [...new Set(allDates)]
-  
-  // Check if update is needed
-  const currentTreeISOs = task.treeISOs || []
-  const needsUpdate = !arraysEqual(currentTreeISOs.sort(), uniqueDates.sort())
-  
-  if (needsUpdate) {
-    // Update the task with treeISOs
-    if (!dryRun) {
-      const taskRef = doc(db, `users/${uid}/tasks`, task.id)
-      batch.update(taskRef, { treeISOs: uniqueDates })
-    }
-    incrementCounter()
-  }
-  
-  return { dates: uniqueDates }
-}
-
-function arraysEqual(a, b) {
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false
-  }
-  return true
 }
 
 /**
- * Handles the maintenance of treeISOs when deleting tasks
- * @param {Object} params - The parameters
- * @param {Array} params.tasksToDelete - Array of tasks to be deleted
- * @param {Object} params.batch - Firestore batch to use for updates
+ * Helper function for migrateToTreeISOs
+ * Processes a tree for migration, calculating and updating treeISOs for all nodes
  */
-export function handleTreeISOsForDeletion({ tasksToDelete, batch }) {
-  if (!tasksToDelete || tasksToDelete.length === 0) return
+async function processTreeForMigration(rootTask, taskMap, uid, batch, dryRun, onTaskProcessed) {
+  // Find all dates in this tree
+  const treeISOs = []
   
-  // Get the root task of the first task to delete
-  // We assume all tasks being deleted are from the same tree
-  const rootTask = getRoot(tasksToDelete[0])
+  // Collect all tasks in this tree with BFS
+  const queue = [rootTask]
+  const treeNodes = []
   
-  // If the root task is being deleted, no need to update treeISOs
-  if (tasksToDelete.some(task => task.id === rootTask?.id)) return
-  
-  // Get all nodes in the tree
-  const treeNodes = listTreeNodes(rootTask)
-  
-  // Get the current treeISOs from the root
-  let updatedTreeISOs = [...rootTask.treeISOs]
-  
-  // Remove the startDateISO of each deleted task from the treeISOs
-  for (const taskToDelete of tasksToDelete) {
-    if (taskToDelete.startDateISO) {
-      updatedTreeISOs = removeOneInstance(updatedTreeISOs, taskToDelete.startDateISO)
+  while (queue.length > 0) {
+    const current = queue.shift()
+    treeNodes.push(current)
+    
+    // Add startDateISO if present
+    if (current.startDateISO) {
+      treeISOs.push(current.startDateISO)
+    }
+    
+    // Add children to queue
+    if (current.children) {
+      queue.push(...current.children)
     }
   }
   
-  // Update all remaining nodes in the tree with the new treeISOs
-  const remainingNodes = treeNodes.filter(node => 
-    !tasksToDelete.some(taskToDelete => taskToDelete.id === node.id)
-  )
-  
-  batchUpdate({ nodes: remainingNodes, treeISOs: updatedTreeISOs, batch })
-  
-  // Also update the local tasksCache by removing the deleted tasks
-  tasksCache.update(cache => {
-    for (const taskToDelete of tasksToDelete) {
-      delete cache[taskToDelete.id]
+  // For each node in the tree, update its treeISOs field
+  for (const node of treeNodes) {
+    if (!dryRun) {
+      const docRef = doc(db, `users/${uid}/tasks/${node.id}`)
+      
+      // Only update if the node doesn't already have treeISOs or if it's different
+      if (!node.treeISOs || !arraysEqual(node.treeISOs, treeISOs)) {
+        batch.update(docRef, { treeISOs })
+        onTaskProcessed()
+      }
+    } else {
+      // In dry run, just count tasks that would be updated
+      if (!node.treeISOs || !arraysEqual(node.treeISOs, treeISOs)) {
+        onTaskProcessed()
+      }
     }
-    return cache
-  })
+  }
   
-  return updatedTreeISOs
+  return { rootId: rootTask.id, nodesCount: treeNodes.length, datesCount: treeISOs.length }
 }
+
+// Helper function to compare arrays
+function arraysEqual(a, b) {
+  if (a === b) return true
+  if (a == null || b == null) return false
+  if (a.length !== b.length) return false
+  
+  const sortedA = [...a].sort()
+  const sortedB = [...b].sort()
+  
+  for (let i = 0; i < sortedA.length; i++) {
+    if (sortedA[i] !== sortedB[i]) return false
+  }
+  
+  return true
+}
+
+export function handleTreeISOsForDeletion({ tasksToDelete, batch }) {
+  // Handle tree ISOs when deleting tasks
+  if (!tasksToDelete || !tasksToDelete.length) return
+  
+  const tasksByRoot = {}
+  
+  // Group tasks by their root
+  for (const task of tasksToDelete) {
+    if (!task.treeISOs || !task.treeISOs.length) continue
+    
+    const rootTask = getRoot(task)
+    if (!rootTask) continue
+    
+    const rootId = rootTask.id
+    if (!tasksByRoot[rootId]) {
+      tasksByRoot[rootId] = { 
+        root: rootTask, 
+        tasksToRemove: [], 
+        datesToRemove: [] 
+      }
+    }
+    
+    if (task.startDateISO) {
+      tasksByRoot[rootId].datesToRemove.push(task.startDateISO)
+    }
+    tasksByRoot[rootId].tasksToRemove.push(task)
+  }
+  
+  // Update tree ISOs for each affected root
+  for (const rootId in tasksByRoot) {
+    const { root, tasksToRemove, datesToRemove } = tasksByRoot[rootId]
+    
+    if (!root.treeISOs || !root.treeISOs.length) continue
+    
+    // Calculate the new tree ISOs
+    let newTreeISOs = [...root.treeISOs]
+    for (const date of datesToRemove) {
+      newTreeISOs = removeOneInstance(newTreeISOs, date)
+    }
+    
+    // Get all nodes in the tree that will remain
+    const allTreeNodes = listTreeNodes(root)
+    const remainingNodes = allTreeNodes.filter(node => 
+      !tasksToRemove.some(task => task.id === node.id)
+    )
+    
+    // Update all remaining nodes with the new tree ISOs
+    for (const node of remainingNodes) {
+      const ref = doc(db, `/users/${get(user).uid}/tasks/${node.id}`)
+      batch.update(ref, { treeISOs: newTreeISOs })
+    }
+  }
+} 

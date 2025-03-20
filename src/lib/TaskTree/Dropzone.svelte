@@ -20,7 +20,7 @@
   import { db } from '../../db/init'
   import { updateTaskNode } from '/src/db/crud.js'
   import { HEIGHTS } from '/src/utils/constants.js'
-  import { listTreeNodes } from '/src/store/services/treeISOs.js'
+  import { listTreeNodes } from '/src/db/treeISOs.js'
 
   export let listID = ''
   export let ancestorRoomIDs
