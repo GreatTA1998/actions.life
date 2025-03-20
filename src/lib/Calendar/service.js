@@ -1,5 +1,5 @@
 /** Handles everything data-related for <Calendar/>, from snapshot listeners to tree building. */
-import { treesByDate, treesByID } from '../calendarStore.js'
+import { treesByDate, treesByID } from './store.js'
 import { updateCache } from '/src/store'
 import { DateTime } from 'luxon'
 import { pureNumericalHourForm } from '/src/utils/core.js'
@@ -148,4 +148,4 @@ function addTaskToDate (task, date, dateToTasks) {
 
 export default {
   setupCalListener
-}
+} 

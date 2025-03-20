@@ -11,4 +11,4 @@ export const pixelsPerHour = writable(80)
 
 export const headerHeight = writable(HEIGHTS.CORNER_LABEL)
 
-export const isCompact = writable(false)
+export const isCompact = writable(false) 

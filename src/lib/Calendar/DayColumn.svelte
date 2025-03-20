@@ -13,7 +13,7 @@
     grabOffset, activeDragItem,
     timestamps, getMinutesDiff, calEarliestHHMM, totalMinutes, calLastHHMM, calSnapInterval
   } from "/src/store"
-  import { pixelsPerHour } from '/src/store/calendarStore.js'
+  import { pixelsPerHour } from './store.js'
   import { updateTaskNode } from '/src/db/crud.js'
 
   import { onMount, onDestroy } from "svelte"

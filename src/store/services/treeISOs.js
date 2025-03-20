@@ -165,7 +165,6 @@ export function removeOneInstance(array, item) {
  * This function should be manually called from the console
  * 
  * Usage:
- * import { migrateToTreeISOs } from '/src/store/services/CalendarService.js'
  * migrateToTreeISOs('user123', true) // Dry run
  * migrateToTreeISOs('user123') // Actual migration
  * 

@@ -110,7 +110,7 @@
   import { createTaskNode } from '/src/db/crud.js'
   import { getRandomID, getDateInMMDD } from '/src/utils/core.js'
   import { user, todoMemoryTree, hasInitialScrolled } from '/src/store'
-  import { isCompact } from '/src/store/calendarStore.js'
+  import { isCompact } from '/src/lib/Calendar/store.js'
   import { isTaskPopupOpen } from '/src/store/taskPopupStore.js'
   import { page } from '$app/stores'
   import { onDestroy, onMount } from 'svelte'

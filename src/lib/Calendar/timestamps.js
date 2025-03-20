@@ -1,5 +1,5 @@
 import { writable, derived, get } from 'svelte/store'
-import { user } from './userStore.js'
+import { user } from '/src/store/userStore.js'
 
 export const timestamps = writable([])
 // TO-DO: initialize default properly at the database level
@@ -85,4 +85,4 @@ export function getMinutesDiff({ calEarliestHHMM, calLatestHHMM }) {
   }
   
   return totalMinutes
-}
+} 

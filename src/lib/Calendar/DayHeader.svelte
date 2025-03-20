@@ -3,7 +3,7 @@
   import FlexibleDayTask from '$lib/Reusable/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { activeDragItem } from '/src/store'
-  import { headerExpanded, isCompact, treesByDate } from '/src/store/calendarStore.js'
+  import { headerExpanded, isCompact, treesByDate } from './store.js'
   import { DateTime } from 'luxon'
   import { updateTaskNode } from '/src/db/crud.js'
 

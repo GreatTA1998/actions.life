@@ -1,11 +1,11 @@
 import { writable } from 'svelte/store'
 export { templates, deleteTemplate, updateTemplate } from './templatesStore.js'
-export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from './calendarTimestamps.js'
+export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from '/src/lib/Calendar/timestamps.js'
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
 
 export const todoTasks = writable(null)
-export { calendarTasks, treesByDate } from './calendarStore.js'
+export { calendarTasks, treesByDate } from '/src/lib/Calendar/store.js'
 export const loadingTasks = writable(true);
 
 export const doodleIcons = writable([])

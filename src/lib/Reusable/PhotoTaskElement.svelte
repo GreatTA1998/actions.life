@@ -99,7 +99,7 @@
  import { grabOffset, activeDragItem } from '/src/store'
  import { openTaskPopup } from '/src/store/taskPopupStore.js'
  import { lazyCallable } from '/src/utils/actions.js'
- import { pixelsPerHour } from '/src/store/calendarStore.js'
+ import { pixelsPerHour } from '/src/lib/Calendar/store.js'
  import { updateTaskNode } from '/src/db/crud.js'
 
  export let task = null

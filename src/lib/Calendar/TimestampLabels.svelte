@@ -1,7 +1,7 @@
 <script>
   import { WIDTHS } from '/src/utils/constants.js'
-  import { timestamps, calEarliestHHMM, totalMinutes } from '/src/store/calendarTimestamps.js'
-  import { pixelsPerHour, headerHeight, isCompact } from '/src/store/calendarStore.js'
+  import { timestamps, calEarliestHHMM, totalMinutes } from './timestamps.js'
+  import { pixelsPerHour, headerHeight, isCompact } from './store.js'
 
   let timestampsColumnWidth = $isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
 

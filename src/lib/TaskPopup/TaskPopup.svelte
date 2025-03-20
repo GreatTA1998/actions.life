@@ -7,7 +7,7 @@
     photoLayoutOptions, 
     getIconForLayout, 
   } from '/src/store'
-  import { treesByID } from '/src/store/calendarStore.js'
+  import { treesByID } from '/src/lib/Calendar/store.js'
   import { clickedTaskID, closeTaskPopup } from '/src/store/taskPopupStore.js'
   import { createDebouncedFunction } from '/src/utils/core.js'
   import RecursiveBulletPoint from '$lib/TaskPopup/RecursiveBulletPoint.svelte'
