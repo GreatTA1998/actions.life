@@ -7,7 +7,7 @@ import { db } from './init'
 import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
 import { doc } from 'firebase/firestore'
 
-export default {
+const Task = {
   schema: z.object({
     name: z.string().default('Untitled'),
     duration: z.number().default(30),
@@ -102,3 +102,5 @@ function pushDescendants (parentID, tasksToDelete) {
     }
   })
 } 
+
+export default Task
