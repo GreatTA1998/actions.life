@@ -1,7 +1,3 @@
-// lazy loading variables
-export const size = 4
-export const cushion = 6
-
 export const HEIGHTS = Object.freeze({
   MAIN_CONTENT_TOP_MARGIN: 20,
   ROOT_DROPZONE: 24,

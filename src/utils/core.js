@@ -1,5 +1,3 @@
-import { setFirestoreDoc } from '/src/db/helpers.js'
-
 export function createDebouncedFunction(func, waitFor) {
   let timeout;
 
@@ -52,26 +50,6 @@ export function getRandomColor () {
 export function getTrueY (e) {
   const ScrollParent = document.getElementById('scroll-parent')
   return e.clientY + ScrollParent.scrollTop - ScrollParent.getBoundingClientRect().top - ScrollParent.style.paddingTop
-}
-
-/** Dispatch event on click outside of node */
-// Thank god for the person who wrote took 30 minutes of debugging and still no avail
-// https://svelte.dev/repl/0ace7a508bd843b798ae599940a91783?version=3.16.7
-export function clickOutside (node) {
-  const handleClick = event => {
-    if (node && !node.contains(event.target) && !event.defaultPrevented) {
-      node.dispatchEvent(
-        new CustomEvent('click_outside', node)
-      )
-    }
-  }
-	document.addEventListener('click', handleClick, true);
-  
-  return {
-    destroy() {
-      document.removeEventListener('click', handleClick, true);
-    }
-	}
 }
 
 // % gives the remainder, not the modulus, see https://stackoverflow.com/a/17323608/7812829
@@ -185,97 +163,6 @@ export function helperFunction ({ node, applyFunc }) {
     for (const child of node.children) {
       helperFunction({ node: child, applyFunc })
     }
-  }
-}
-
-export async function generateRepeatedTasks (taskObject) {
-  const allGeneratedTasksToUpload = []
-  const repeatGroupID = taskObject.id // the first instance of the repeated task will represent the repeatGroupID
-  const d = new Date()
-  for (let i = 0; i < 7; i++) { // as it's a new feature, try 7 day foresight window to avoid taking forever to delete everything manually
-    d.setDate(d.getDate() + 1)
-
-    const weekDayNumber = mod(d.getDay() - 1, 7) // for getDay(), Sunday = 0, Monday = 1
-    if (taskObject.willRepeatOnWeekDayNumber[weekDayNumber]) {
-      const generatedTask = await createRepeatedTask(
-        { 
-          repeatGroupID,
-          dateClassObj: new Date(d.getTime()),
-        },
-        taskObject)
-      allGeneratedTasksToUpload.push(generatedTask)
-    }
-  }
-  
-  return allGeneratedTasksToUpload
-}
-
-export async function createRepeatedTask ({ dateClassObj, repeatGroupID }, taskObject) {
-  const taskObjCopy = {...taskObject}
-
-  taskObjCopy.id = getRandomID()
-  taskObjCopy.isDone = false
-  
-  taskObjCopy.repeatGroupID = repeatGroupID // way to label separate tasks as essentially clones of an original repeating task
-
-  const yyyy = `${dateClassObj.getFullYear()}`
-  const mm = twoDigits(dateClassObj.getMonth() + 1) // month is 0-indexed
-  const dd = twoDigits(dateClassObj.getDate())
-
-  // reference https://www.explanations.app/KsPz7BOExANWvkaauNKE/Xau9NekRv7t9iNJEJrPt
-  function hasDeadline (task) {
-    return task.deadlineDate && task.deadlineTime
-  }
-
-  function isScheduled (task) {
-    return task.startYYYY && task.startDate && task.startTime
-  }
-
-  // note: we do nothing for tasks that have neither deadlines nor a scheduled time
-  if (!isScheduled(taskObjCopy) && hasDeadline(taskObjCopy)) {
-    // notice we keep `deadlineTime` unchanged, but shift the `deadlineDate`
-    taskObjCopy.deadlineDate = `${dd}/${mm}/${yyyy}`
-  } 
-  else if (isScheduled(taskObjCopy)) {
-    taskObjCopy.startYYYY = yyyy
-    taskObjCopy.startDate = `${mm}/${dd}` 
-    // keep all other attributes whatever they were
-  }
-  return taskObjCopy
-}
-
-export async function createIndividualFirestoreDocForEachTaskInAllTasks (tree, userDoc) {
-  const artificialRootNode = {
-    name: 'root',
-    children: tree
-  }
-  for (const child of artificialRootNode.children) {
-    await helperFunc({ 
-      node: child, 
-      parentID: "", 
-      userDoc 
-    })
-  }
-}
-
-// "root" shouldn't be included in this
-async function helperFunc ({ node, parentID, userDoc }) {
-  if (!node.children) return
-
-  node.children = node.children.filter(child => child.id)
-
-  const newDocObj = {
-    parentID: parentID || "", // handle legacy code where tasks didn't have IDs
-    childrenIDs: node.children.map(child => child.id), // assuming children is an array [], mapping an empty array is still an empty array
-    ...node
-  }
-
-  if (!node.id) newDocObj.id = getRandomID()
-  
-  await setFirestoreDoc(`/users/${userDoc.uid}/tasks/${newDocObj.id}`, newDocObj)
- 
-  for (const child of node.children) {
-    helperFunc({ node: child, parentID: node.id, userDoc })
   }
 }
 

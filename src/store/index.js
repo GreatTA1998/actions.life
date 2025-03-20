@@ -5,7 +5,6 @@ export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes,
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
 
-// TaskPopup-related stores
 export const clickedTaskID = writable('')
 export const isTaskPopupOpen = writable(false)
 
