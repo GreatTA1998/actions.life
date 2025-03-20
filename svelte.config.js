@@ -8,10 +8,6 @@ const config = {
 	preprocess: preprocess({ scss: true }),
 	kit: {
 		adapter: vercel(),
-	},
-	onwarn: (warning, handler) => {
-		if (warning.code === 'a11y-click-events-have-key-events') return;
-		handler(warning);
 	}
 };
 
