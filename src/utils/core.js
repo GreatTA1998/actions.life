@@ -54,29 +54,6 @@ export function getTrueY (e) {
   return e.clientY + ScrollParent.scrollTop - ScrollParent.getBoundingClientRect().top - ScrollParent.style.paddingTop
 }
 
-export const MIKA_PIXELS_PER_HOUR = 80
-export const MIKA_PIXELS_PER_MINUTE = MIKA_PIXELS_PER_HOUR / 60
-
-export const PIXELS_PER_HOUR = 600
-export const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60
-
-// compute's the offset from top if the task is displayed absolutely (not used if positioned statically e.g. "in today's unscheduled tasks")
-export function computeOffset ({ startTime }, pxPerHour, calendarStartTime) {
-  if (!calendarStartTime) {
-    return
-  }
-
-  // compute how many hours ahead of calendar's starting hour
-  // TODO: this breaks when the scheduled time is "lower" than the calendar's startTime i.e. need to pad 24 on top of it
-  const hh = startTime.slice(0, 2)
-  const mm = startTime.slice(3, 5)
-
-  const hoursOffset = Number(hh) + (Number(mm) / 60) - parseInt(calendarStartTime.substring(0, 2)) // 8 refers to "8 am"
-
-  // offsetFromTop = hoursOffset * pxPerHour
-  return (hoursOffset * pxPerHour) || 1 // quickfix so computeOffset doesn't return a falsy value
-}
-
 /** Dispatch event on click outside of node */
 // Thank god for the person who wrote took 30 minutes of debugging and still no avail
 // https://svelte.dev/repl/0ace7a508bd843b798ae599940a91783?version=3.16.7
@@ -97,11 +74,6 @@ export function clickOutside (node) {
 	}
 }
 
-export function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
-
-
 // % gives the remainder, not the modulus, see https://stackoverflow.com/a/17323608/7812829
 export function mod (n, m) {
   return ((n % m) + m) % m;
@@ -117,32 +89,13 @@ export function getDayOfWeek (MMDDString) {
   ).format(d)
 }
 
-// copied from chatGPT
-export function getNicelyFormattedDate (dateClassObj = new Date()) {  
-  const options = { 
-    month: 'long',  // Display the full month name (e.g., "April")
-    day: 'numeric', // Display the day of the month (e.g., "16")
-    ordinal: 'numeric' // Display the ordinal suffix (e.g., "th")
+export function getRandomID () {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let autoId = '';
+  for (let i = 0; i < 20; i++) {
+    autoId += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  const formattedDate = dateClassObj.toLocaleDateString('en-US', options)
-  const suffix = getDaySuffix(dateClassObj.getDate())
-  return formattedDate + suffix
-}
-
-function getDaySuffix (day) {
-  if (day >= 11 && day <= 13) {
-    return 'th'
-  }
-  switch (day % 10) {
-    case 1:
-      return 'st'
-    case 2:
-      return 'nd'
-    case 3:
-      return 'rd'
-    default: 
-      return 'th'
-  }
+  return autoId;
 }
 
 export function getDateInDDMMYYYY (dateClassObject) {
@@ -167,74 +120,16 @@ export function getDateInMMDD (dateClassObject) {
   return `${mm}/${dd}`
 }
 
-// copied from https://www.w3resource.com/javascript-exercises/javascript-basic-exercise-3.php
-// TODO: rename, and enable it to take arbitrary Date object and return a 
-// mm:dd string
-export function getDateOfToday () {
-  const today = new Date()   
-  return getDateInMMDD(today)
-}
-
-// https://flaviocopes.com/how-to-get-tomorrow-date-javascript/
-export function getDateOfTomorrow () {
-  const today = new Date()
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  return getDateInMMDD(tomorrow)
-}
-
-export function getHH () {
-  const today = new Date()
-  let hh = today.getHours()
-  if (hh < 10) hh = '0' + hh
-  return `${hh}`
-}
-
 export function getHHMM (dateClassObj) {
   const d = dateClassObj
-  const hhmm = ensureTwoDigits(d.getHours()) + ':' + ensureTwoDigits(d.getMinutes())
-  return hhmm
+  const hh = ensureTwoDigits(d.getHours()) 
+  const mm = ensureTwoDigits(d.getMinutes())
+  return hh + ":" + mm
 }
 
 // now format to hh:mm format to be compatible with old API
 export function ensureTwoDigits (number) {
   return (number < 10 ? `0${number}` : `${number}`)
-}
-
-export function getRandomID () {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let autoId = '';
-  for (let i = 0; i < 20; i++) {
-    autoId += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return autoId;
-}
-
-// The reliable way to create date object is new Date(yyyy, mm, dd)
-// where `yyyy`, `mm` and `dd` are all integers
-
-// return d2 - d1
-// Based on https://stackoverflow.com/a/15289883/7812829
-// UTC computations are time-zone safe because UTC never observes Daylight Savings Time
-export function computeDayDifference (dateClassObject1, dateClassObject2) {
-  const msPerDay = 1000 * 60 * 60 * 24
-  const msDiff = computeMillisecsDifference(dateClassObject1, dateClassObject2)
-  return msDiff / msPerDay
-}
-
-// return d2 - d1
-// Based on https://stackoverflow.com/a/15289883/7812829
-// by shifting both dates to UTC, the DIFFERENCE calculation is "daylight-savings safe" because UTC never observes Daylight Savings Time
-export function computeMillisecsDifference (dateClassObject1, dateClassObject2) {
-  const d1 = dateClassObject1
-  const d2 = dateClassObject2
-  
-  // monthIndex ranges from 0 to 11 
-  // hours ranges from 0 to 23
-  // minutes ranges from 0 to 69
-  const utc1 = Date.UTC(d1.getFullYear(), d1.getMonth(), d1.getDate(), d1.getHours(), d1.getMinutes())
-  const utc2 = Date.UTC(d2.getFullYear(), d2.getMonth(), d2.getDate(), d2.getHours(), d2.getMinutes())
-  return utc2 - utc1
 }
 
 export function convertMMDDToDateClassObject (MMDD, yyyy = 2023, hhmm = '00:00') {
@@ -245,8 +140,6 @@ export function convertMMDDToDateClassObject (MMDD, yyyy = 2023, hhmm = '00:00')
   return new Date(yyyy, MM - 1, DD, Number(hh), Number(mm))
 }
 
-// notice we purposely differentiate `minutes` from `mm` (month) 
-// TO-DO: use destructuring so the parameters are more readable when used by clients
 export function convertDDMMYYYYToDateClassObject (ddmmyyyy, hhmm = '') {
   const [dd, mm, yyyy] = ddmmyyyy.split('/')
   if (!hhmm) {
@@ -259,7 +152,6 @@ export function convertDDMMYYYYToDateClassObject (ddmmyyyy, hhmm = '') {
    // month is 0-indexed where as mm is 1-indexed, so subtract 1 (Stackoverflow commmunity agrees this is stupid design)
 }
 
-// NOT zero-indexed, just normal
 export function getMonthNameFromNumber (monthNumber) {
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
   return monthNames[monthNumber]
@@ -267,11 +159,6 @@ export function getMonthNameFromNumber (monthNumber) {
 
 export function twoDigits (number) {
   return (number < 10 ? `0${number}` : `${number}`)
-}
-
-// https://stackoverflow.com/a/18229149/7812829
-export function getCurrentTimeInHHMM () {
-  return getTimeInHHMM({ dateClassObj: new Date() })
 }
 
 export function getTimeInHHMM ({ dateClassObj }) {
@@ -357,25 +244,6 @@ export async function createRepeatedTask ({ dateClassObj, repeatGroupID }, taskO
   return taskObjCopy
 }
 
-// Recommended Format: The most reliable format for cross-browser compatibility is "YYYY-MM-DD", often referred to as the ISO 8601 format (e.g., "2023-04-10").
-export function convertToISO8061 ({ mmdd, yyyy = '2024' }) {
-  const formattedDate = mmdd.replace('/', '-')
-  const iso8061 = yyyy + '-' + formattedDate
-  return iso8061
-}
-
-export function convertMMDDToReadableMonthDayForm (mmdd, yyyy = '2024') {
-  const iso8061 = convertToISO8061({ mmdd, yyyy })
-  const dateStr = new Date(iso8061).toDateString() //  'Fri Apr 10 2020'
-  const splitArr = dateStr.split(' ' )// ['Fri', 'Apr', '10', '2020']
-  return splitArr[1] + ' ' + splitArr[2] 
-}
-
-
-// COMMON MISTAKES YOU MADE:
-// Here, you're converting the legacy `$user.allTasks` into a pointer-based data structure
-// So the data that you're starting with will have NO `parentID` nor `childrenIDs`
-// YOU DON'T EVEN NEED THE ARTIFICAL ROOT NODE, just run a for loop on `tree` directly
 export async function createIndividualFirestoreDocForEachTaskInAllTasks (tree, userDoc) {
   const artificialRootNode = {
     name: 'root',
