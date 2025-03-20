@@ -24,7 +24,7 @@
   import { getRandomID, getTimeInHHMM } from '/src/utils/core.js'
   import { DateTime } from 'luxon'
   import { deleteImage } from '/src/db/helpers.js'
-  import { updateTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
 
   export let taskObject
 
@@ -85,7 +85,7 @@
       updateObj.duration = durationForFullDisplay
     }
     try {
-      updateTaskNode({ 
+      Task.update({ 
         id: taskObject.id, 
         keyValueChanges: updateObj 
       })
@@ -107,7 +107,7 @@
     if (confirm('Are you sure you want to delete the photo?')) {
       deleteImage({ imageFullPath })
 
-      updateTaskNode({ 
+      Task.update({ 
         id: taskObject.id,
         keyValueChanges: {
           imageDownloadURL: '',

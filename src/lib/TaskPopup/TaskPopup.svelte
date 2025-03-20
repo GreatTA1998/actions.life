@@ -16,8 +16,8 @@
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import StartTimeDurationNotify from '$lib/TaskPopup/StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
-  import { updateTaskNode, deleteTaskNode } from '/src/db/task-service.js'
   import { getRoot } from '/src/db/treeISOs.js'
+  import Task from '/src/db/Task.js'
 
   let TaskImageElem
   let PopupElem
@@ -95,7 +95,7 @@
     if (taskObject.parentID === '') {
       mostRecentlyCompletedTaskID.set(taskObject.id)
     }
-    updateTaskNode({
+    Task.update({
       id: taskObject.id,
       keyValueChanges: { isDone: e.target.checked }
     })
@@ -103,11 +103,11 @@
   }
 
   function updatePhotoLayout (layout) {
-    updateTaskNode({ id: taskObject.id, keyValueChanges: { photoLayout: layout }})
+    Task.update({ id: taskObject.id, keyValueChanges: { photoLayout: layout }})
   }
 
   function handleDelete () {
-    deleteTaskNode({ ...taskObject });
+    Task.delete({ ...taskObject });
     closeTaskPopup();
   }
 
@@ -117,11 +117,11 @@
 
   // note: if the popup closes before this debounced function is called, taskObject.id will be undefined
   function saveNotes (newVal) {
-    updateTaskNode({ id: taskObject.id, keyValueChanges: { notes: newVal }})
+    Task.update({ id: taskObject.id, keyValueChanges: { notes: newVal }})
   }
 
   function saveTitle (newVal) {
-    updateTaskNode({ id: taskObject.id, keyValueChanges: { name: newVal }})
+    Task.update({ id: taskObject.id, keyValueChanges: { name: newVal }})
   }
 </script>
 
@@ -203,7 +203,7 @@
             <PhotoUpload {taskObject}/>
 
             <div style="display: flex; align-items: center; width: fit-content; box-sizing: border-box;">
-              <span on:click={() => updateTaskNode({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
+              <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
                 class:selected={taskObject.childrenLayout === 'timeline'}
                 class:unselected={taskObject.childrenLayout !== 'timeline'}
                 style="padding: 2px 8px;"
@@ -211,7 +211,7 @@
                 Timeline
               </span>
   
-              <span on:click={() => updateTaskNode({ id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
+              <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
                 class:selected={taskObject.childrenLayout === 'normal'}
                 class:unselected={taskObject.childrenLayout !== 'normal'}
                 style="padding: 2px 8px;"

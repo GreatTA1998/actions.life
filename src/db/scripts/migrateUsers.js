@@ -1,6 +1,7 @@
 import { sourceDB, destinationDB } from '../init.js';
 import { getDocs, query, collection, doc, writeBatch, getDoc, setDoc, getCountFromServer } from 'firebase/firestore';
-import { Task, Template, User, Icon } from '../../db/schemas';
+import { Template, User, Icon } from '../../db/schemas';
+import Task from '../../db/Task.js'
 
 
 // only once

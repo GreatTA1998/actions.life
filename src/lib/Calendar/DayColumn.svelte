@@ -14,7 +14,7 @@
     timestamps, getMinutesDiff, calEarliestHHMM, totalMinutes, calLastHHMM, calSnapInterval
   } from "/src/store"
   import { pixelsPerHour } from './store.js'
-  import { updateTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
 
   import { onMount, onDestroy } from "svelte"
 
@@ -73,7 +73,7 @@
     
     resultDT = snapToNearestInterval(resultDT, $calSnapInterval)
 
-    updateTaskNode({ 
+    Task.update({ 
       id,
       keyValueChanges: {
         startTime: resultDT.toFormat('HH:mm'),

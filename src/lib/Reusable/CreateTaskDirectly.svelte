@@ -7,7 +7,7 @@
   import { user } from '/src/store'
   import { onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
-  import { createTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
 
   export let resultantDateClassObject
   export let newTaskStartTime = '' // hh:mm format
@@ -55,7 +55,7 @@
       'yyyy-MM-dd'
     )
     copy.startTime = newTaskStartTime
-    createTaskNode({
+    Task.create({
       id: getRandomID(),
       newTaskObj: copy
     })
@@ -65,7 +65,7 @@
   async function createTaskDirectly(e) {
     const newTaskName = e.detail.taskName
     if (newTaskName !== '') {
-      createTaskNode({
+      Task.create({
         id: getRandomID(),
         newTaskObj: {
           name: newTaskName,

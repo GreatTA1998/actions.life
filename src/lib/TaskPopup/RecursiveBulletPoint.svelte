@@ -65,7 +65,7 @@
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import { openTaskPopup } from '/src/store'
-  import { createTaskNode, updateTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
   import FormField from '$lib/Reusable/FormField.svelte'
   import { getRandomID } from '/src/utils/core.js'
 
@@ -75,11 +75,10 @@
   let newSubtaskStringValue = ''
   let isTypingNewSubtask = false
 
-  // copied from <RecursiveTask/>
   function handleCheckboxChange (e) {
     // mostRecentlyCompletedTaskID.set(taskObj.id)
 
-    updateTaskNode({
+    Task.update({
       id: taskObject.id,
       keyValueChanges: { isDone: e.target.checked }
     })
@@ -96,7 +95,7 @@
   }
 
   function createSubtask (name) {
-    createTaskNode({
+    Task.create({
       id: getRandomID(),
       newTaskObj: {
         name,

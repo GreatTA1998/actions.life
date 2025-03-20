@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { db } from "../../init.js";
 import { updateDoc, doc, setDoc, getDoc, collection, query, where, getDocs, deleteDoc, writeBatch } from 'firebase/firestore';
 import { getRandomID } from '../../../utils/core.js';
-import { Task } from '/src/db/schemas';
+import Task from '/src/db/Task.js'
 const { parseExpression } = cronParser;
 
 const getPeriodFromCrontab = (crontab) => {
@@ -28,7 +28,7 @@ const buildFutureTasks = async ({ template, startDateJS, endDateJS, userID, temp
         const cronObj = interval.next();
         const ISODate = DateTime.fromJSDate(new Date(cronObj.value.toString())).toFormat('yyyy-MM-dd')
         const task = buildTaskFromTemplate(template, ISODate, templateID);
-        Task.parse(task);
+        task.schema.parse(task);
         generatedTasks.push(task);
         if (cronObj.done) {
           await updateDoc(doc(db, "users", userID, 'templates', templateID), { lastGeneratedTask: ISODate });

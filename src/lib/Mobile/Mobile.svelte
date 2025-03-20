@@ -105,9 +105,9 @@
   import VoiceKeywordDetect from './VoiceKeywordDetect.svelte'
   import TaskPopup from '$lib/TaskPopup/TaskPopup.svelte'
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
+  import Task from '/src/db/Task.js'
 
   import { setupTodoListener } from '/src/lib/ListsArea/todoService.js'
-  import { createTaskNode } from '/src/db/task-service.js'
   import { getRandomID, getDateInMMDD } from '/src/utils/core.js'
   import { user, todoMemoryTree, hasInitialScrolled, isTaskPopupOpen } from '/src/store'
   import { isCompact } from '/src/lib/Calendar/store.js'
@@ -142,7 +142,7 @@
       startTime,
       startDate: getDateInMMDD(new Date())
     }
-    createTaskNode({ id: getRandomID(), newTaskObj })
+    Task.create({ id: getRandomID(), newTaskObj })
   }
 
   // should be a function exposed by the `TodoList` component
@@ -161,7 +161,7 @@
     } 
     // if it's the first task, the orderValue is initialized to `maxOrder`
 
-    createTaskNode({ id: getRandomID(), newTaskObj })
+    Task.create({ id: getRandomID(), newTaskObj })
   }
 </script>
 

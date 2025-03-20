@@ -5,7 +5,7 @@
   import { activeDragItem } from '/src/store'
   import { headerExpanded, isCompact, treesByDate } from './store.js'
   import { DateTime } from 'luxon'
-  import { updateTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
 
   export let ISODate
 
@@ -26,7 +26,7 @@
 
     const dt = DateTime.fromISO(ISODate)
 
-    updateTaskNode({
+    Task.update({
       id,
       keyValueChanges: {
         startTime: '',

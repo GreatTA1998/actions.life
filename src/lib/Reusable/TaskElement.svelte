@@ -49,12 +49,13 @@
       <div style="margin-right: 4px;">
         <Checkbox
           value={task.isDone}
-          on:change={(e) => updateTaskNode({
+          on:change={(e) => taskService.update({
             id: task.id,
             keyValueChanges: {
               isDone: e.target.checked
             }
           })}
+          zoom={0.5}
         />
       </div>
     {/if}
@@ -110,10 +111,10 @@
 <script>
   // Assumes `task` is hydrated
   import { getTrueY } from '/src/utils/core.js'
-  import { grabOffset, activeDragItem, openTaskPopup } from '/src/store'
+  import { activeDragItem, grabOffset, openTaskPopup } from '/src/store'
   import Checkbox from './Checkbox.svelte'
   import { pixelsPerHour, treesByID } from '/src/lib/Calendar/store.js'
-  import { updateTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
 
   export let task = null
   export let hasCheckbox = false
@@ -151,11 +152,11 @@
     const newY = getTrueY(e)
     const durationChange = minutesPerPixel * (newY - startY)
 
-    updateTaskNode({
+    taskService.update({
       id: task.id,
       keyValueChanges: {
-        duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event
-      }      
+        duration: Math.max(1, task.duration + durationChange)
+      }
     })
 
     activeDragItem.set(null)

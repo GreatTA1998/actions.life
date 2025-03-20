@@ -19,7 +19,7 @@
   import { user } from '/src/store'
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
-  import { createTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
 
   const storage = getStorage()
 
@@ -93,7 +93,7 @@
     }
 
     // Use the proper API to create the task
-    await createTaskNode({ id, newTaskObj });
+    await Task.create({ id, newTaskObj });
   }
 </script>
 

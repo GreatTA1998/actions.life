@@ -1,6 +1,6 @@
 <script>
   import { activeDragItem, grabOffset, openTaskPopup } from '/src/store'
-  import { updateTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
 
   export let iconTask
 
@@ -12,7 +12,7 @@
       clearTimeout(timer)
       timer = null
 
-      updateTaskNode({ 
+      Task.update({ 
         id: iconTask.id, 
         keyValueChanges: {
           isDone: !iconTask.isDone

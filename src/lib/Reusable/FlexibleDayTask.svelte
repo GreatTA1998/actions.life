@@ -26,7 +26,7 @@
       -->
       <Checkbox
         value={task.isDone}
-        on:change={(e) => updateTaskNode({
+        on:change={(e) => Task.update({
           id: task.id,
           keyValueChanges: {
             isDone: e.target.checked
@@ -46,7 +46,7 @@
   // Assumes `task` is hydrated
   import { grabOffset, activeDragItem, openTaskPopup } from '/src/store'
   import Checkbox from './Checkbox.svelte'
-  import { updateTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
 
   export let task = null
   export let pixelsPerHour = null

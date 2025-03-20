@@ -116,7 +116,7 @@
     getRandomColor,
   } from '/src/utils/core.js'
   import { activeDragItem, openTaskPopup } from '/src/store'
-  import { updateTaskNode, createTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
   import { WIDTHS } from '/src/utils/constants.js'
 
   export let taskObj
@@ -147,7 +147,7 @@
   $: depthAdjustedFontWeight = 400 - (depth * 0) + (200 * Math.max(1 - depth, 0))
 
   function handleCheckboxChange (e) {
-    updateTaskNode({
+    Task.update({
       id: taskObj.id,
       keyValueChanges: { isDone: e.target.checked }
     })
@@ -172,7 +172,7 @@
   }
 
   function createSubtask (name) {
-    createTaskNode({
+    Task.create({
       id: getRandomID(),
       newTaskObj: {
         name,

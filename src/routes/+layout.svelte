@@ -1,4 +1,5 @@
 <script>
+  import '/src/db/init.js'
   import '/src/app.css'
   import { user, loadingTasks } from '/src/store/index.js'
   import posthog from 'posthog-js'

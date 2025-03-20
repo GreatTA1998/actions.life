@@ -3,7 +3,7 @@
   import MyJSDatePicker from "$lib/TaskPopup/MyJSDatePicker.svelte";
   import MyTimePicker from "$lib/TaskPopup/MyTimePicker.svelte";
   import { DateTime } from "luxon";
-  import { updateTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
 
   export let taskObject;
 
@@ -33,7 +33,7 @@
 
     if (timeZone) taskUpdates.timeZone = DateTime.local().zoneName
 
-    updateTaskNode({
+    Task.update({
       id: taskObject.id,
       keyValueChanges: taskUpdates
     })

@@ -18,7 +18,7 @@
   import { user, activeDragItem } from '/src/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '../../db/init'
-  import { updateTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
   import { HEIGHTS } from '/src/utils/constants.js'
   import { listTreeNodes } from '/src/db/treeISOs.js'
 
@@ -131,7 +131,7 @@
 
     let ref = null
     ref = doc(db, `users/${$user.uid}/tasks/${id}`)
-    updateTaskNode({ id, keyValueChanges: updateObj })
+    Task.update({ id, keyValueChanges: updateObj })
 
     try {
       batch.commit() // for updating user's maxOrderValue

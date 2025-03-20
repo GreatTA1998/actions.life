@@ -5,7 +5,7 @@
   import { getRandomID } from '/src/utils/core.js'
   import { HEIGHTS } from '/src/utils/constants.js'
   import { DateTime } from 'luxon'
-  import { createTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
   import { createEventDispatcher } from 'svelte'
 
   const dispatch = createEventDispatcher()
@@ -53,7 +53,7 @@
     if (tasksToDisplay.length > 0) {
       newRootTaskObj.orderValue = (0 + tasksToDisplay[0].orderValue) / 1.1
     }
-    createTaskNode({
+    Task.create({
       id: getRandomID(),
       newTaskObj: newRootTaskObj
     })

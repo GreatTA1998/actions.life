@@ -101,7 +101,7 @@
   import { grabOffset, activeDragItem, openTaskPopup } from '/src/store'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/lib/Calendar/store.js'
-  import { updateTaskNode } from '/src/db/task-service.js'
+  import Task from '/src/db/Task.js'
 
   export let task = null
 
@@ -145,7 +145,7 @@
     const newY = getTrueY(e)
     const durationChange = minutesPerPixel * (newY - startY)
 
-    updateTaskNode({
+    Task.update({
       id: task.id,
       keyValueChanges: {
         duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event
