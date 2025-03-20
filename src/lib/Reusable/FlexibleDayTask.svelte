@@ -44,8 +44,7 @@
 
 <script>
   // Assumes `task` is hydrated
-  import { grabOffset, activeDragItem } from '/src/store'
-  import { openTaskPopup } from '/src/store/taskPopupStore.js'
+  import { grabOffset, activeDragItem, openTaskPopup } from '/src/store'
   import Checkbox from './Checkbox.svelte'
   import { updateTaskNode } from '/src/db/crud.js'
 

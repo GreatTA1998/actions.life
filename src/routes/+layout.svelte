@@ -1,6 +1,6 @@
 <script>
   import '/src/app.css'
-  import { user, loadingTasks } from '../store/index.js'
+  import { user, loadingTasks } from '/src/store/index.js'
   import posthog from 'posthog-js'
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'

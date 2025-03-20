@@ -1,5 +1,6 @@
 <script>
-  import { user, doodleIcons, updateTemplate } from '/src/store'
+  import { user, doodleIcons } from '/src/store'
+  import { updateTemplate } from '/src/lib/Templates/store.js'
   import PremiumPopup from './PremiumPopup.svelte'
   import BasicWhiteboard from './BasicWhiteboard.svelte'
   import Icons from '/src/db/models/Icons.js'

@@ -1,5 +1,6 @@
 <script>
-  import { user, templates } from '/src/store'
+  import { user } from '/src/store'
+  import { templates } from '../store.js'
   import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { DateTime } from 'luxon'
   import Templates from '/src/db/models/Templates'

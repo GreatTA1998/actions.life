@@ -2,7 +2,7 @@
   import FormField from '$lib/Reusable/FormField.svelte'
   import ToggleSwitch from '$lib/Reusable/ToggleSwitch.svelte'
   import RoundButton from '$lib/Reusable/RoundButton.svelte'
-  import { updateTemplate } from '/src/store'
+  import { updateTemplate } from '/src/lib/Templates/store.js'
   export let template
 
   let isEditingSpecificTime = false

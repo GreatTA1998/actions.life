@@ -1,6 +1,5 @@
 <script>
-  import { activeDragItem, grabOffset } from '/src/store'
-  import { openTaskPopup } from '/src/store/taskPopupStore.js'
+  import { activeDragItem, grabOffset, openTaskPopup } from '/src/store'
   import { updateTaskNode } from '/src/db/crud.js'
 
   export let iconTask

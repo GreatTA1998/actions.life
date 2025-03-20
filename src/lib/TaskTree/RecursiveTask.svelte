@@ -115,8 +115,7 @@
     getRandomID, 
     getRandomColor,
   } from '/src/utils/core.js'
-  import { activeDragItem } from '/src/store'
-  import { openTaskPopup } from '/src/store/taskPopupStore.js'
+  import { activeDragItem, openTaskPopup } from '/src/store'
   import { updateTaskNode, createTaskNode } from '/src/db/crud.js'
   import { WIDTHS } from '/src/utils/constants.js'
 

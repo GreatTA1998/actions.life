@@ -1,4 +1,4 @@
-import { updateTemplate } from '/src/store'
+import { updateTemplate } from './store.js'
 import Templates from '/src/db/models/Templates/index.js'
 
 export const filterByType = (tasks, type) =>

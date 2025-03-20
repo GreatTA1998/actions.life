@@ -109,9 +109,8 @@
   import { setupTodoListener } from '/src/store/services/TodoService.js'
   import { createTaskNode } from '/src/db/crud.js'
   import { getRandomID, getDateInMMDD } from '/src/utils/core.js'
-  import { user, todoMemoryTree, hasInitialScrolled } from '/src/store'
+  import { user, todoMemoryTree, hasInitialScrolled, isTaskPopupOpen } from '/src/store'
   import { isCompact } from '/src/lib/Calendar/store.js'
-  import { isTaskPopupOpen } from '/src/store/taskPopup.js'
   import { page } from '$app/stores'
   import { onDestroy, onMount } from 'svelte'
 

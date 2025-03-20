@@ -1,12 +1,28 @@
 import { writable } from 'svelte/store'
-export { templates, deleteTemplate, updateTemplate } from './templatesStore.js'
+import './themes'
+
 export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from '/src/lib/Calendar/timestamps.js'
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
 
+// TaskPopup-related stores
+export const clickedTaskID = writable('')
+export const isTaskPopupOpen = writable(false)
+
+export function openTaskPopup(task) {
+  clickedTaskID.set(task.id)
+  isTaskPopupOpen.set(true)
+}
+
+export function closeTaskPopup() {
+  isTaskPopupOpen.set(false)
+  // we purposely don't reset `clickedTaskID` as there may still be a PENDING save request for task notes 
+  // after the user closes the task popup, that still relies on the id
+}
+
 export const todoTasks = writable(null)
 export { calendarTasks, treesByDate } from '/src/lib/Calendar/store.js'
-export const loadingTasks = writable(true);
+export const loadingTasks = writable(true)
 
 export const doodleIcons = writable([])
 

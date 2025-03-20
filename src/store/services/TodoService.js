@@ -61,46 +61,6 @@ export function updateTodoTasks(tasks) {
   inclusiveWeekTodo.set(memoryTree)
 }
 
-export async function updateTodoTask({ uid, taskID, keyValueChanges }) {
-  try {
-    const task = get(tasksCache)[taskID]
-    
-    if (!task) {
-      console.warn(`Task ${taskID} not found in todo store, falling back to direct database update`)
-      await updateFirestoreDoc(`users/${uid}/tasks/${taskID}`, keyValueChanges)
-      return {
-        taskID,
-        changes: keyValueChanges
-      }
-    }
-    
-    // Handle rootStartDateISO for scheduled tasks
-    if (keyValueChanges.startDateISO && keyValueChanges.startDateISO !== '') {
-      let rootStartDateISO = keyValueChanges.startDateISO
-      
-      if (task.parentID && task.parentID !== '') {
-        const parent = get(tasksCache)[task.parentID]
-        if (parent && parent.rootStartDateISO) {
-          rootStartDateISO = parent.rootStartDateISO
-        }
-      }
-      
-      keyValueChanges.rootStartDateISO = rootStartDateISO
-    }
-    
-    await updateFirestoreDoc(`users/${uid}/tasks/${taskID}`, keyValueChanges)
-    
-    return {
-      taskID,
-      changes: keyValueChanges,
-      originalTask: task
-    }
-  } catch (error) {
-    console.error('Error updating todo task:', error)
-    throw error
-  }
-}
-
 export function cleanupTodoListener() {
   if (typeof activeListeners.todo === 'function') {
     activeListeners.todo()
@@ -113,7 +73,6 @@ export function cleanupTodoListener() {
 export default {
   setupTodoListener,
   updateTodoTasks,
-  updateTodoTask,
   cleanupTodoListener,
   reconstructTreeInMemory
 }

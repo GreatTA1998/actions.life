@@ -1,5 +1,5 @@
 <script>
-  import { updateTemplate } from '/src/store'
+  import { updateTemplate } from '/src/lib/Templates/store.js'
   export let template
 
   let yearlyDate = ''

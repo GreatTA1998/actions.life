@@ -2,7 +2,7 @@
   import AddTemplate from './components/AddTemplate.svelte'
   import SimpleDropzone from '$lib/Reusable/SimpleDropzone.svelte'
   import EditTemplatePopup from './components/EditTemplatePopup/EditTemplatePopup.svelte'
-  import { updateTemplate } from '/src/store'
+  import { updateTemplate } from './store.js'
   import { getDisplayLength } from './utils.js'
   import Templates from '/src/db/models/Templates/index.js'
   export let templates
