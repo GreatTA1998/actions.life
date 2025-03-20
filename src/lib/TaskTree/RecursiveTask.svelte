@@ -116,7 +116,7 @@
     getRandomColor,
   } from '/src/utils/core.js'
   import { activeDragItem, openTaskPopup } from '/src/store'
-  import { updateTaskNode, createTaskNode } from '/src/db/crud.js'
+  import { updateTaskNode, createTaskNode } from '/src/db/task-service.js'
   import { WIDTHS } from '/src/utils/constants.js'
 
   export let taskObj

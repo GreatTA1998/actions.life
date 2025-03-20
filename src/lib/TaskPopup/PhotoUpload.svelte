@@ -24,7 +24,7 @@
   import { getRandomID, getTimeInHHMM } from '/src/utils/core.js'
   import { DateTime } from 'luxon'
   import { deleteImage } from '/src/db/helpers.js'
-  import { updateTaskNode } from '/src/db/crud.js'
+  import { updateTaskNode } from '/src/db/task-service.js'
 
   export let taskObject
 

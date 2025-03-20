@@ -101,7 +101,7 @@
   import { grabOffset, activeDragItem, openTaskPopup } from '/src/store'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/lib/Calendar/store.js'
-  import { updateTaskNode } from '/src/db/crud.js'
+  import { updateTaskNode } from '/src/db/task-service.js'
 
   export let task = null
 

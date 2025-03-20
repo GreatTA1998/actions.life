@@ -18,7 +18,7 @@
   import { user, activeDragItem } from '/src/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '../../db/init'
-  import { updateTaskNode } from '/src/db/crud.js'
+  import { updateTaskNode } from '/src/db/task-service.js'
   import { HEIGHTS } from '/src/utils/constants.js'
   import { listTreeNodes } from '/src/db/treeISOs.js'
 

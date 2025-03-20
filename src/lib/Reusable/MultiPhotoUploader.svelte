@@ -19,7 +19,7 @@
   import { user } from '/src/store'
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
-  import { createTaskNode } from '/src/db/crud.js'
+  import { createTaskNode } from '/src/db/task-service.js'
 
   const storage = getStorage()
 

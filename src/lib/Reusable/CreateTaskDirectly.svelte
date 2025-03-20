@@ -7,7 +7,7 @@
   import { user } from '/src/store'
   import { onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
-  import { createTaskNode } from '/src/db/crud.js'
+  import { createTaskNode } from '/src/db/task-service.js'
 
   export let resultantDateClassObject
   export let newTaskStartTime = '' // hh:mm format

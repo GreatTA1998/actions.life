@@ -16,7 +16,7 @@
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import StartTimeDurationNotify from '$lib/TaskPopup/StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
-  import { updateTaskNode, deleteTaskNode } from '/src/db/crud.js'
+  import { updateTaskNode, deleteTaskNode } from '/src/db/task-service.js'
   import { getRoot } from '/src/db/treeISOs.js'
 
   let TaskImageElem
