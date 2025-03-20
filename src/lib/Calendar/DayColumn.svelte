@@ -6,7 +6,7 @@
   import TimeIndicator from "./TimeIndicator.svelte"
 
   import { DateTime } from "luxon"
-  import { getHHMM } from "/src/helpers/utils.js"
+  import { getHHMM } from "/src/utils/core.js"
 
   import {
     user,
@@ -14,7 +14,7 @@
     timestamps, getMinutesDiff, calEarliestHHMM, totalMinutes, calLastHHMM, calSnapInterval
   } from "/src/store"
   import { pixelsPerHour } from '/src/store/calendarStore.js'
-  import { updateTaskNode } from '/src/helpers/crud.js'
+  import { updateTaskNode } from '/src/db/crud.js'
 
   import { onMount, onDestroy } from "svelte"
 

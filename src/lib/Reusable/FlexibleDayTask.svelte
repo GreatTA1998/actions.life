@@ -47,7 +47,7 @@
   import { grabOffset, activeDragItem } from '/src/store'
   import { openTaskPopup } from '/src/store/taskPopupStore.js'
   import Checkbox from './Checkbox.svelte'
-  import { updateTaskNode } from '/src/helpers/crud.js'
+  import { updateTaskNode } from '/src/db/crud.js'
 
   export let task = null
   export let pixelsPerHour = null

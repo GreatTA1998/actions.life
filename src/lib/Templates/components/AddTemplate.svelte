@@ -2,8 +2,8 @@
   import { user, templates } from '/src/store'
   import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { DateTime } from 'luxon'
-  import Templates from '/src/back-end/Templates'
-  import { getRandomID } from '/src/helpers/utils.js'
+  import Templates from '/src/db/models/Templates'
+  import { getRandomID } from '/src/utils/core.js'
   export let defaultOrderValue = 1
   export let crontab
   let isPopupOpen = false

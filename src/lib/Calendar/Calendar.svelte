@@ -7,7 +7,7 @@
   import YearAndMonthTile from './YearAndMonthTile.svelte'
   import MultiPhotoUploader from '$lib/Reusable/MultiPhotoUploader.svelte'
 
-  import { trackHeight } from '/src/helpers/actions.js'
+  import { trackHeight } from '/src/utils/actions.js'
   import { DateTime } from 'luxon'
   import { calEarliestHHMM } from '/src/store'
   import { treesByDate, headerHeight } from '/src/store/calendarStore.js'

@@ -1,7 +1,7 @@
-import Tasks from '/src/back-end/Tasks'
+import Tasks from '/src/db/models/Tasks'
 import { get } from 'svelte/store'
 import { todoTasks, todoMemoryTree, inclusiveWeekTodo, updateCache, tasksCache } from '/src/store'
-import { updateFirestoreDoc } from '/src/helpers/firebase.js'
+import { updateFirestoreDoc } from '/src/db/helpers.js'
 
 const activeListeners = {
   todo: null

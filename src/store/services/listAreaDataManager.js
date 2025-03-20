@@ -1,5 +1,5 @@
 import { writable, get } from 'svelte/store'
-import { db } from '../../back-end/firestoreConnection'
+import { db } from '../../db/init'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { reconstructTreeInMemory } from './TodoService.js'
 import { updateCache } from '/src/store'

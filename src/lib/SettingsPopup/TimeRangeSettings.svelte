@@ -1,7 +1,7 @@
 <script>
   import ClaudeTimePicker from '$lib/Reusable/ClaudeTimePicker.svelte'
   import { user, calEarliestHHMM, calLastHHMM } from '/src/store'
-  import { updateFirestoreDoc } from '/src/helpers/firebase.js'
+  import { updateFirestoreDoc } from '/src/db/helpers.js'
 
   $: userPath = '/users/' + $user.uid
 </script>

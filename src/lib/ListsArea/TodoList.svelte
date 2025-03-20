@@ -2,10 +2,10 @@
   import Dropzone from '$lib/TaskTree/Dropzone.svelte'
   import RecursiveTask from '$lib/TaskTree/RecursiveTask.svelte'
   import FormField from '$lib/Reusable/FormField.svelte'
-  import { getRandomID } from '/src/helpers/utils.js'
-  import { HEIGHTS } from '/src/helpers/constants.js'
+  import { getRandomID } from '/src/utils/core.js'
+  import { HEIGHTS } from '/src/utils/constants.js'
   import { DateTime } from 'luxon'
-  import { createTaskNode } from '/src/helpers/crud.js'
+  import { createTaskNode } from '/src/db/crud.js'
   import { createEventDispatcher } from 'svelte'
 
   const dispatch = createEventDispatcher()

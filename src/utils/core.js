@@ -1,4 +1,4 @@
-import { setFirestoreDoc } from '/src/helpers/firebase.js'
+import { setFirestoreDoc } from '/src/db/helpers.js'
 
 export function createDebouncedFunction(func, waitFor) {
   let timeout;

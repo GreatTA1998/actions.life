@@ -1,7 +1,7 @@
 <script>
   import { user } from '/src/store/userStore.js'
-  import { updateFirestoreDoc } from '/src/helpers/firebase.js'
-  import { formatDate } from '/src/helpers/utils.js'
+  import { updateFirestoreDoc } from '/src/db/helpers.js'
+  import { formatDate } from '/src/utils/core.js'
   import { openTaskPopup } from '/src/store/taskPopupStore.js'
 
   export let routineInstances = null

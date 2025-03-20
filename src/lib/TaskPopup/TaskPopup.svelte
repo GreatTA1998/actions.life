@@ -9,13 +9,13 @@
   } from '/src/store'
   import { treesByID } from '/src/store/calendarStore.js'
   import { clickedTaskID, closeTaskPopup } from '/src/store/taskPopupStore.js'
-  import { createDebouncedFunction } from '/src/helpers/utils.js'
+  import { createDebouncedFunction } from '/src/utils/core.js'
   import RecursiveBulletPoint from '$lib/TaskPopup/RecursiveBulletPoint.svelte'
   import UXFormTextArea from '$lib/TaskPopup/UXFormTextArea.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import StartTimeDurationNotify from '$lib/TaskPopup/StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
-  import { updateTaskNode, deleteTaskNode } from '/src/helpers/crud.js'
+  import { updateTaskNode, deleteTaskNode } from '/src/db/crud.js'
   import { getRoot } from '/src/store/services/treeISOs.js'
 
   let TaskImageElem

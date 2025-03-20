@@ -97,12 +97,12 @@
 
 <script>
   // Assumes `task` is hydrated
-  import { getTrueY } from '/src/helpers/utils.js'
+  import { getTrueY } from '/src/utils/core.js'
   import { grabOffset, activeDragItem } from '/src/store'
   import { openTaskPopup } from '/src/store/taskPopupStore.js'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/store/calendarStore.js'
-  import { updateTaskNode } from '/src/helpers/crud.js'
+  import { updateTaskNode } from '/src/db/crud.js'
 
   export let task = null
 

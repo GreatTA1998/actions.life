@@ -1,8 +1,8 @@
 <script>
   import { user } from "../../store";
-  import Tasks from "../../back-end/Tasks";
+  import Tasks from "../../db/models/Tasks";
   import text from "./text";
-  import GPT from "../../back-end/GPT.js";
+  import GPT from "../../db/models/GPT.js";
   import { onMount, tick } from "svelte";
   import { DateTime } from "luxon";
 

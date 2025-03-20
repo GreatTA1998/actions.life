@@ -114,11 +114,11 @@
   import { 
     getRandomID, 
     getRandomColor,
-  } from '/src/helpers/utils.js'
+  } from '/src/utils/core.js'
   import { activeDragItem } from '/src/store'
   import { openTaskPopup } from '/src/store/taskPopupStore.js'
-  import { updateTaskNode, createTaskNode } from '/src/helpers/crud.js'
-  import { WIDTHS } from '/src/helpers/constants.js'
+  import { updateTaskNode, createTaskNode } from '/src/db/crud.js'
+  import { WIDTHS } from '/src/utils/constants.js'
 
   export let taskObj
   export let depth 

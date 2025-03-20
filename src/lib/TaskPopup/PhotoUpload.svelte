@@ -21,10 +21,10 @@
 
 <script>
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-  import { getRandomID, getTimeInHHMM } from '/src/helpers/utils.js'
+  import { getRandomID, getTimeInHHMM } from '/src/utils/core.js'
   import { DateTime } from 'luxon'
-  import { deleteImage } from '/src/helpers/firebase.js'
-  import { updateTaskNode } from '/src/helpers/crud.js'
+  import { deleteImage } from '/src/db/helpers.js'
+  import { updateTaskNode } from '/src/db/crud.js'
 
   export let taskObject
 

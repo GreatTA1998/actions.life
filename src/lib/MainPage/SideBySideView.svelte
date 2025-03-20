@@ -6,7 +6,7 @@
 
   import { inclusiveWeekTodo, user } from '/src/store'
   import { createEventDispatcher } from 'svelte'
-  import { updateFirestoreDoc } from '/src/helpers/firebase.js'
+  import { updateFirestoreDoc } from '/src/db/helpers.js'
 
   export let showLegacyTodo = false; // Default to showing the legacy todo list
   export let listID = null; // Optional specific list ID to display

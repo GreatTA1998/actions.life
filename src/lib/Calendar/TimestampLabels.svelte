@@ -1,5 +1,5 @@
 <script>
-  import { WIDTHS } from '/src/helpers/constants.js'
+  import { WIDTHS } from '/src/utils/constants.js'
   import { timestamps, calEarliestHHMM, totalMinutes } from '/src/store/calendarTimestamps.js'
   import { pixelsPerHour, headerHeight, isCompact } from '/src/store/calendarStore.js'
 

@@ -1,6 +1,6 @@
 <script>
   import { doc, onSnapshot, setDoc } from 'firebase/firestore'
-  import { db } from '/src/back-end/firestoreConnection'
+  import { db } from '/src/db/init'
   import { user, userInfoFromAuthProvider } from '/src/store'
   import { onMount, onDestroy } from 'svelte'
   import { page } from '$app/stores'

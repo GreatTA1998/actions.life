@@ -2,9 +2,9 @@
 import { treesByDate, treesByID } from '../calendarStore.js'
 import { updateCache } from '/src/store'
 import { DateTime } from 'luxon'
-import { pureNumericalHourForm } from '/src/helpers/utils.js'
+import { pureNumericalHourForm } from '/src/utils/core.js'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { db } from '/src/back-end/firestoreConnection'
+import { db } from '/src/db/init'
 import { page } from '$app/stores'
 import { get } from 'svelte/store'
 

@@ -3,7 +3,7 @@
   import MyJSDatePicker from "$lib/TaskPopup/MyJSDatePicker.svelte";
   import MyTimePicker from "$lib/TaskPopup/MyTimePicker.svelte";
   import { DateTime } from "luxon";
-  import { updateTaskNode } from '/src/helpers/crud.js'
+  import { updateTaskNode } from '/src/db/crud.js'
 
   export let taskObject;
 

@@ -3,11 +3,11 @@
   import YearlyInput from '$lib/Templates/components/EditTemplatePopup/YearlyInput.svelte'
   import EditTime from '$lib/Templates/components/EditTemplatePopup/EditTime.svelte'
   import { user, updateTemplate, deleteTemplate, doodleIcons } from '/src/store'
-  import Templates from '/src/back-end/Templates/index.js'
+  import Templates from '/src/db/models/Templates/index.js'
   import { onMount } from 'svelte'
-  import { createDebouncedFunction } from '/src/helpers/utils.js'
+  import { createDebouncedFunction } from '/src/utils/core.js'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
-  import Icons from '/src/back-end/Icons.js'
+  import Icons from '/src/db/models/Icons.js'
   export let template
   let isPopupOpen = false
   let newName = template.name

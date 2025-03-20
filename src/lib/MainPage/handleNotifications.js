@@ -1,6 +1,6 @@
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import { app } from "../../back-end/firestoreConnection";
-import User from "../../back-end/User";
+import { app } from "../../db/init";
+import User from "../../db/models/User";
 
 export const handleNotificationPermission = (user) => {
   Notification.requestPermission().then((permission) => {

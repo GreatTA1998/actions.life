@@ -1,4 +1,4 @@
-import { db } from "./firestoreConnection"
+import { db } from "../init"
 import { getDocs, collection, query, where, updateDoc, onSnapshot } from "firebase/firestore"
 
 // still used for templates

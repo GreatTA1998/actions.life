@@ -5,7 +5,7 @@
   import { user } from '/src/store/userStore.js'
   import { onMount, onDestroy } from 'svelte'
   import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
-  import { db } from "/src/back-end/firestoreConnection"
+  import { db } from "/src/db/init"
 
   let sidebarOpen = true
   let routines = null

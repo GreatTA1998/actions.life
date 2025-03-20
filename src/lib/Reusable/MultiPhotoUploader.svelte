@@ -15,11 +15,11 @@
 
 <script>
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-  import { getRandomID, getTimeInHHMM } from '/src/helpers/utils.js'
+  import { getRandomID, getTimeInHHMM } from '/src/utils/core.js'
   import { user } from '/src/store'
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
-  import { createTaskNode } from '/src/helpers/crud.js'
+  import { createTaskNode } from '/src/db/crud.js'
 
   const storage = getStorage()
 

@@ -1,8 +1,8 @@
 <script>
-  import { formatDate } from '/src/helpers/utils.js'
+  import { formatDate } from '/src/utils/core.js'
   import { user } from '/src/store/userStore.js'
   import { onMount } from 'svelte'
-  import Tasks from '/src/back-end/Tasks'
+  import Tasks from '/src/db/models/Tasks'
   import { DateTime } from 'luxon'
 
   export let photoTasks = null

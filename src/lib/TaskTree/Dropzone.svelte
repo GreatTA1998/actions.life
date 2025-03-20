@@ -17,9 +17,9 @@
 <script>
   import { user, activeDragItem } from '/src/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
-  import { db } from '../../back-end/firestoreConnection'
-  import { updateTaskNode } from '/src/helpers/crud.js'
-  import { HEIGHTS } from '/src/helpers/constants.js'
+  import { db } from '../../db/init'
+  import { updateTaskNode } from '/src/db/crud.js'
+  import { HEIGHTS } from '/src/utils/constants.js'
   import { listTreeNodes } from '/src/store/services/treeISOs.js'
 
   export let listID = ''

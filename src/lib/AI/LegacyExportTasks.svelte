@@ -1,7 +1,7 @@
 <!-- !!!!!!!CURRENTLY NOT USED!!!!!!!!! -->
 <script>
   import { user } from "../../store";
-  import Tasks from "../../back-end/Tasks";
+  import Tasks from "../../db/models/Tasks";
   import text from "./text";
 
   // TOUCH THIS AND THE WORLD WILL BURN WAHAHAHA !!!!

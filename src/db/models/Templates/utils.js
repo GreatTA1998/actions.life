@@ -1,9 +1,9 @@
 import cronParser from 'cron-parser';
 import { DateTime } from 'luxon';
-import { db } from "../firestoreConnection.js";
+import { db } from "../../init.js";
 import { updateDoc, doc, setDoc, getDoc, collection, query, where, getDocs, deleteDoc, writeBatch } from 'firebase/firestore';
-import { getRandomID } from '../../helpers/utils.js';
-import { Task } from '../../db/schemas';
+import { getRandomID } from '../../../utils/core.js';
+import { Task } from '/src/db/schemas';
 const { parseExpression } = cronParser;
 
 const getPeriodFromCrontab = (crontab) => {

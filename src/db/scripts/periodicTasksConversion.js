@@ -1,4 +1,4 @@
-import { sourceDB, destinationDB } from "../firestoreConnection.js";
+import { sourceDB, destinationDB } from "../init.js";
 import {
     getDoc,
     doc,

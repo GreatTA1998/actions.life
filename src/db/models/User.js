@@ -1,4 +1,4 @@
-import { db } from "./firestoreConnection";
+import { db } from "../init";
 import {
   doc,
   updateDoc,

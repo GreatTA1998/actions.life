@@ -1,9 +1,9 @@
-import { deleteImage } from '/src/helpers/firebase.js'
+import { deleteImage } from '/src/db/helpers.js'
 import { get } from 'svelte/store'
 import { user, tasksCache } from '/src/store/index.js'
 import { Task } from '../db/schemas'
 import { writeBatch } from 'firebase/firestore'
-import { db } from '/src/back-end/firestoreConnection'
+import { db } from '/src/db/init'
 import { 
   maintainTreeISOs, 
   maintainTreeISOsForCreate,

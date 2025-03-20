@@ -2,7 +2,7 @@ import {
   doc, setDoc, getDoc, updateDoc, deleteDoc,
   collection, getDocs, query, where
 } from 'firebase/firestore'
-import { db } from '../back-end/firestoreConnection'
+import { db } from './init'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
 
 // All Firestore helpers have the `firestore` prefix

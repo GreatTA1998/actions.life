@@ -4,9 +4,9 @@
   import { user } from '/src/store'
   import { onMount } from 'svelte'
   import { doc, updateDoc } from 'firebase/firestore'
-  import { db } from '../../back-end/firestoreConnection'
-  import { getRandomID } from '/src/helpers/utils.js'
-  import { setFirestoreDoc } from '/src/helpers/firebase.js'
+  import { db } from '../../db/init'
+  import { getRandomID } from '/src/utils/core.js'
+  import { setFirestoreDoc } from '/src/db/helpers.js'
 
   export let listID = null;
 

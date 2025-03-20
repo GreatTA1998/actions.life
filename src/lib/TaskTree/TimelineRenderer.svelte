@@ -1,7 +1,7 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
-  import { WIDTHS } from '/src/helpers/constants.js'
+  import { WIDTHS } from '/src/utils/constants.js'
   import { DateTime } from 'luxon'
   
   export let children = []

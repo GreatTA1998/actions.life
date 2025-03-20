@@ -3,7 +3,7 @@
   export let docPath = ''
 
   import { doc, onSnapshot } from 'firebase/firestore'
-  import { db } from '/src/back-end/firestoreConnection.js'
+  import { db } from '/src/db/init.js'
 
   let unsubListener = null
 

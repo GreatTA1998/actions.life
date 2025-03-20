@@ -1,8 +1,8 @@
-import { getFirestoreCollection, setFirestoreDoc, updateFirestoreDoc } from '/src/helpers/firebase.js'
+import { getFirestoreCollection, setFirestoreDoc, updateFirestoreDoc } from '../helpers.js'
 import { 
   createIndividualFirestoreDocForEachTaskInAllTasks, 
   applyFuncToEveryTreeNode, 
-} from '/src/helpers/utils.js'
+} from '/src/utils/core.js'
 
 export async function fixOrderValueZero () {
   const allUsers = await getFirestoreCollection(`/users`)

@@ -5,7 +5,7 @@
   import { activeDragItem } from '/src/store'
   import { headerExpanded, isCompact, treesByDate } from '/src/store/calendarStore.js'
   import { DateTime } from 'luxon'
-  import { updateTaskNode } from '/src/helpers/crud.js'
+  import { updateTaskNode } from '/src/db/crud.js'
 
   export let ISODate
 

@@ -5,7 +5,7 @@
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
-  import { translateJSConstantsToCSSVariables } from '/src/helpers/constants.js'
+  import { translateJSConstantsToCSSVariables } from '/src/utils/constants.js'
   import { userInfoFromAuthProvider } from '/src/store/index.js'
 
   let doingAuth = true

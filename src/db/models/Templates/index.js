@@ -1,4 +1,4 @@
-import { db } from "../firestoreConnection.js";
+import { db } from "/src/db/init.js";
 import {
   doc,
   getDocs,
@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 import Tasks from '../Tasks.js';
 import { getPeriodFromCrontab, deleteFutureTasks, postFutureTasks, getTotalStats } from './utils.js';
-import { Template } from '../../db/schemas';
+import { Template } from '/src/db/schemas';
 
 const create = async ({ userID, newTemplate, templateID }) => {
   Template.parse(newTemplate);

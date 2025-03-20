@@ -1,5 +1,5 @@
 import { collection, getDocs, query, where, or, deleteDoc, doc, updateDoc, setDoc } from "firebase/firestore";
-import { db } from "./firestoreConnection";
+import { db } from "../init";
 import {
     getStorage,
     ref,
@@ -7,7 +7,7 @@ import {
     uploadString,
     deleteObject
 } from "firebase/storage";
-import { Icon } from '../db/schemas';
+import { Icon } from '/src/db/schemas';
 
 async function getAvailable(uid) {
     const q = query(

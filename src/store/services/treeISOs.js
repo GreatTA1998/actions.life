@@ -1,7 +1,7 @@
 import { get } from 'svelte/store'
 import { tasksCache } from '/src/store'
 import { doc, collection, writeBatch, getDocs } from 'firebase/firestore'
-import { db } from '/src/back-end/firestoreConnection'
+import { db } from '/src/db/init'
 import { user } from '/src/store'
 
 export function maintainTreeISOsForCreate ({ task, batch }) {
