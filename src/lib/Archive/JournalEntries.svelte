@@ -2,7 +2,7 @@
   import { user } from '/src/store/userStore.js'
   import { updateFirestoreDoc } from '/src/db/helpers.js'
   import { formatDate } from '/src/utils/core.js'
-  import { openTaskPopup } from '/src/store/taskPopupStore.js'
+  import { openTaskPopup } from '/src/store/taskPopup.js'
 
   export let routineInstances = null
   export let selectedRoutine = null
