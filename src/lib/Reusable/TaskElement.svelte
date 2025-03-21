@@ -49,7 +49,7 @@
       <div style="margin-right: 4px;">
         <Checkbox
           value={task.isDone}
-          on:change={(e) => taskService.update({
+          on:change={(e) => Task.update({
             id: task.id,
             keyValueChanges: {
               isDone: e.target.checked
@@ -152,7 +152,7 @@
     const newY = getTrueY(e)
     const durationChange = minutesPerPixel * (newY - startY)
 
-    taskService.update({
+    Task.update({
       id: task.id,
       keyValueChanges: {
         duration: Math.max(1, task.duration + durationChange)
