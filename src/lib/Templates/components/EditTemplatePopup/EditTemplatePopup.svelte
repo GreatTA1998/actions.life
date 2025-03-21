@@ -4,11 +4,11 @@
   import EditTime from '$lib/Templates/components/EditTemplatePopup/EditTime.svelte'
   import { user, doodleIcons } from '/src/store'
   import { updateTemplate, deleteTemplate } from '/src/lib/Templates/store.js'
-  import Template from '/src/db/Template'
+  import Template from '/src/db/models/Template'
   import { onMount } from 'svelte'
   import { createDebouncedFunction } from '/src/utils/core.js'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
-  import Icon from '/src/db/Icon.js'
+  import Icon from '/src/db/models/Icon.js'
   export let template
   let isPopupOpen = false
   let newName = template.name

@@ -6,8 +6,8 @@
   import { user } from '/src/store'
   import { onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
-  import Task from '/src/db/Task.js'
-  import Template from '/src/db/Template'
+  import Task from '/src/db/models/Task.js'
+  import Template from '/src/db/models/Template'
 
   export let resultantDateClassObject
   export let newTaskStartTime = '' // hh:mm format

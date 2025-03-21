@@ -116,7 +116,7 @@
     getRandomColor,
   } from '/src/utils/core.js'
   import { activeDragItem, openTaskPopup } from '/src/store'
-  import Task from '/src/db/Task.js'
+  import Task from '/src/db/models/Task.js'
   import { WIDTHS } from '/src/utils/constants.js'
 
   export let taskObj

@@ -5,7 +5,7 @@
   import { getRandomID } from '/src/utils/core.js'
   import { HEIGHTS } from '/src/utils/constants.js'
   import { DateTime } from 'luxon'
-  import Task from '/src/db/Task.js'
+  import Task from '/src/db/models/Task.js'
   import { createEventDispatcher } from 'svelte'
 
   const dispatch = createEventDispatcher()

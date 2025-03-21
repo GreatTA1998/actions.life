@@ -2,9 +2,9 @@
   import AddTemplate from './components/AddTemplate.svelte'
   import SimpleDropzone from '$lib/Reusable/SimpleDropzone.svelte'
   import EditTemplatePopup from './components/EditTemplatePopup/EditTemplatePopup.svelte'
-  import { updateTemplate } from './store.js'
+  import { updateTemplate, deleteTemplate } from './store.js'
   import { getDisplayLength } from './utils.js'
-  import Template from '/src/db/Template'
+  import Template from '/src/db/models/Template'
   export let templates
   export let crontab
   let draggedTemplate

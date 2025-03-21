@@ -114,7 +114,7 @@
   import { activeDragItem, grabOffset, openTaskPopup } from '/src/store'
   import Checkbox from './Checkbox.svelte'
   import { pixelsPerHour, treesByID } from '/src/lib/Calendar/store.js'
-  import Task from '/src/db/Task.js'
+  import Task from '/src/db/models/Task.js'
 
   export let task = null
   export let hasCheckbox = false

@@ -105,7 +105,7 @@
   import VoiceKeywordDetect from './VoiceKeywordDetect.svelte'
   import TaskPopup from '$lib/TaskPopup/TaskPopup.svelte'
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
-  import Task from '/src/db/Task.js'
+  import Task from '/src/db/models/Task.js'
 
   import { setupTodoListener } from '/src/lib/ListsArea/todoService.js'
   import { getRandomID, getDateInMMDD } from '/src/utils/core.js'

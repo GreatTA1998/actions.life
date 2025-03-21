@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { deleteImage } from './helpers.js'
+import { deleteImage } from '/src/db/helpers.js'
 import { get } from 'svelte/store'
 import { user, tasksCache } from '/src/store/index.js'
 import { 
@@ -12,8 +12,8 @@ import {
   onSnapshot, 
   doc 
 } from 'firebase/firestore'
-import { db } from './init'
-import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
+import { db } from '/src/db/init.js'
+import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from '/src/db/treeISOs.js'
 
 const Task = {
   schema: z.object({

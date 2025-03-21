@@ -1,6 +1,6 @@
 <script>
   import { user } from "../../store";
-  import Task from "../../db/Task.js";
+  import Task from "/src/db/models/Task.js";
   import text from "./text";
   import GPT from "./GPT.js";
   import { onMount, tick } from "svelte";

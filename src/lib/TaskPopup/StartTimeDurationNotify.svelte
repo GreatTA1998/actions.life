@@ -3,7 +3,7 @@
   import MyJSDatePicker from "$lib/TaskPopup/MyJSDatePicker.svelte";
   import MyTimePicker from "$lib/TaskPopup/MyTimePicker.svelte";
   import { DateTime } from "luxon";
-  import Task from '/src/db/Task.js'
+  import Task from '/src/db/models/Task.js'
 
   export let taskObject;
 

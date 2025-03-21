@@ -19,7 +19,7 @@
   import { user } from '/src/store'
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
-  import Task from '/src/db/Task.js'
+  import Task from '/src/db/models/Task.js'
 
   const storage = getStorage()
 

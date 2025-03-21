@@ -65,7 +65,7 @@
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import { openTaskPopup } from '/src/store'
-  import Task from '/src/db/Task.js'
+  import Task from '/src/db/models/Task.js'
   import FormField from '$lib/Reusable/FormField.svelte'
   import { getRandomID } from '/src/utils/core.js'
 

@@ -1,5 +1,5 @@
 import { updateTemplate } from './store.js'
-import Template from '/src/db/Template'
+import Template from '/src/db/models/Template'
 
 export const filterByType = (tasks, type) =>
   tasks.filter((task) => Template.getPeriodFromCrontab(task.crontab) === type)

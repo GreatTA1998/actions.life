@@ -1,4 +1,4 @@
-import Task from '../Task.js';
+import Task from '../models/Task.js';
 import fs from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'url';

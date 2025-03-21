@@ -1,9 +1,10 @@
 <script>
   import { user, doodleIcons } from '/src/store'
-  import { updateTemplate } from '/src/lib/Templates/store.js'
+  import { updateTemplate } from '../../store.js'
+  import { onMount } from 'svelte'
   import PremiumPopup from './PremiumPopup.svelte'
   import BasicWhiteboard from './BasicWhiteboard.svelte'
-  import Icon from '/src/db/Icon.js'
+  import Icon from '/src/db/models/Icon.js'
   export let template
   let isShowingPremiumPopup = false
 

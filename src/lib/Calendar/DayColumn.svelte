@@ -14,7 +14,7 @@
     timestamps, getMinutesDiff, calEarliestHHMM, totalMinutes, calLastHHMM, calSnapInterval
   } from "/src/store"
   import { pixelsPerHour } from './store.js'
-  import Task from '/src/db/Task.js'
+  import Task from '/src/db/models/Task.js'
 
   import { onMount, onDestroy } from "svelte"
 

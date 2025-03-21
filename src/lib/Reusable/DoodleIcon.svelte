@@ -1,6 +1,6 @@
 <script>
   import { activeDragItem, grabOffset, openTaskPopup } from '/src/store'
-  import Task from '/src/db/Task.js'
+  import Task from '/src/db/models/Task.js'
 
   export let iconTask
 

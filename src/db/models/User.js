@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { db } from "./init"
+import { db } from "/src/db/init.js"
 import {
   doc,
   updateDoc,

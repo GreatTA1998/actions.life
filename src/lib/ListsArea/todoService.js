@@ -1,4 +1,4 @@
-import Task from '/src/db/Task.js'
+import Task from '/src/db/models/Task.js'
 import { get } from 'svelte/store'
 import { todoTasks, todoMemoryTree, inclusiveWeekTodo, updateCache } from '/src/store'
 
