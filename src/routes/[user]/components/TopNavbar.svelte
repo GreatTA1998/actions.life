@@ -51,8 +51,9 @@
       class="ux-tab-item"
       class:active-ux-tab={currentMode === 'Archive'}
     >
+      <!-- archive -->
       <span class="material-symbols-outlined" style="font-size: 32px;">
-        archive
+        search_insights
       </span>
     </button>
   </div>
