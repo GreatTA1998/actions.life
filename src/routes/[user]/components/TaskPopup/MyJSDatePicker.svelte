@@ -4,7 +4,7 @@
   import {
     getDateInMMDD,
     convertMMDDToDateClassObject
-  } from '/src/utils/core.js'
+  } from '/src/lib/utils/core.js'
 
   // THIS COMPONENT STILL USES THE LEGACY API where `startDate` is mm/dd and `startYYYY` is yyyy
 

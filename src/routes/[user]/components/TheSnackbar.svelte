@@ -16,7 +16,7 @@
 
 <script>
   import { createEventDispatcher } from "svelte"
-  import { mostRecentlyCompletedTaskID, isSnackbarHidden } from '/src/store'
+  import { mostRecentlyCompletedTaskID, isSnackbarHidden } from '/src/lib/store'
 
   $: if ($mostRecentlyCompletedTaskID) {
     resetDisappearCountdown()

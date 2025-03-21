@@ -1,7 +1,7 @@
 import { writable, get } from 'svelte/store'
-import { db } from '/src/db/init'
+import { db } from '/src/lib/db/init'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { updateCache } from '/src/store'
+import { updateCache } from '/src/lib/store'
 
 // We'll need to fix this circular dependency later
 import { reconstructTreeInMemory } from './todoService.js'

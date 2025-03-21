@@ -44,9 +44,9 @@
 
 <script>
   // Assumes `task` is hydrated
-  import { grabOffset, activeDragItem, openTaskPopup } from '/src/store'
+  import { grabOffset, activeDragItem, openTaskPopup } from '/src/lib/store'
   import Checkbox from './Checkbox.svelte'
-  import Task from '/src/db/models/Task.js'
+  import Task from '/src/lib/db/models/Task.js'
 
   export let task = null
   export let pixelsPerHour = null

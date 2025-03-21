@@ -1,10 +1,10 @@
 <script>
-  import { user } from '/src/store'
+  import { user } from '/src/lib/store'
   import { templates } from '../store.js'
   import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { DateTime } from 'luxon'
-  import Template from '/src/db/models/Template'
-  import { getRandomID } from '/src/utils/core.js'
+  import Template from '/src/lib/db/models/Template'
+  import { getRandomID } from '/src/lib/utils/core.js'
   export let defaultOrderValue = 1
   export let crontab
   let isPopupOpen = false

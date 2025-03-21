@@ -1,13 +1,13 @@
 <script>
-  import '/src/db/init.js'
+  import '/src/lib/db/init.js'
   import '/src/app.css'
-  import { user, loadingTasks } from '/src/store/index.js'
+  import { user, loadingTasks } from '/src/lib/store/index.js'
   import posthog from 'posthog-js'
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
-  import { translateJSConstantsToCSSVariables } from '/src/utils/constants.js'
-  import { userInfoFromAuthProvider } from '/src/store/index.js'
+  import { translateJSConstantsToCSSVariables } from '/src/lib/utils/constants.js'
+  import { userInfoFromAuthProvider } from '/src/lib/store/index.js'
 
   let doingAuth = true
 

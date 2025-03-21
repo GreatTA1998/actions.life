@@ -1,9 +1,9 @@
 <script>
   import TemplateColumn from './TemplateColumn.svelte'
   import { onMount } from 'svelte'
-  import { user, calendarTasks } from '/src/store'
+  import { user, calendarTasks } from '/src/lib/store'
   import { templates } from './store.js'
-  import Template from '/src/db/models/Template'
+  import Template from '/src/lib/db/models/Template'
   import { filterByType } from './utils.js'
 
   $: weeklyTasks = filterByType($templates, 'weekly')

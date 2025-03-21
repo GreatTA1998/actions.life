@@ -9,7 +9,7 @@
 
 <script>
   import { getAuth, signInWithRedirect, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
-  import { userInfoFromAuthProvider } from '/src/store/index.js'
+  import { userInfoFromAuthProvider } from '/src/lib/store/index.js'
 
   async function signInWithGoogle () {
     const auth = getAuth();

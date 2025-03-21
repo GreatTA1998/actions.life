@@ -2,13 +2,13 @@
   import PeriodicInput from './PeriodicInput.svelte'
   import YearlyInput from './YearlyInput.svelte'
   import EditTime from './EditTime.svelte'
-  import { user, doodleIcons } from '/src/store'
+  import { user, doodleIcons } from '/src/lib/store'
   import { updateTemplate, deleteTemplate } from '../../store.js'
-  import Template from '/src/db/models/Template'
+  import Template from '/src/lib/db/models/Template'
   import { onMount } from 'svelte'
-  import { createDebouncedFunction } from '/src/utils/core.js'
+  import { createDebouncedFunction } from '/src/lib/utils/core.js'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
-  import Icon from '/src/db/models/Icon.js'
+  import Icon from '/src/lib/db/models/Icon.js'
   export let template
   let isPopupOpen = false
   let newName = template.name

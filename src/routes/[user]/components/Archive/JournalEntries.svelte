@@ -1,8 +1,8 @@
 <script>
-  import { user } from '/src/store/userStore.js'
-  import { updateFirestoreDoc } from '/src/db/helpers.js'
-  import { formatDate } from '/src/utils/core.js'
-  import { openTaskPopup } from '/src/store'
+  import { user } from '/src/lib/store/userStore.js'
+  import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
+  import { formatDate } from '/src/lib/utils/core.js'
+  import { openTaskPopup } from '/src/lib/store'
 
   export let routineInstances = null
   export let selectedRoutine = null

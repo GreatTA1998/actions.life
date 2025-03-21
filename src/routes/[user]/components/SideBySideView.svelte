@@ -4,9 +4,9 @@
   import Calendar from '../components/Calendar/Calendar.svelte'
   import GripHandle from './GripHandle.svelte'
 
-  import { inclusiveWeekTodo, user } from '/src/store'
+  import { inclusiveWeekTodo, user } from '/src/lib/store'
   import { createEventDispatcher } from 'svelte'
-  import { updateFirestoreDoc } from '/src/db/helpers.js'
+  import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
 
   export let showLegacyTodo = false; // Default to showing the legacy todo list
   export let listID = null; // Optional specific list ID to display

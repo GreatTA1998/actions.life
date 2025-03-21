@@ -13,7 +13,7 @@
 <script>
   import { DateTime, Interval } from 'luxon'
   import { onMount, onDestroy } from 'svelte'
-  import { hasInitialScrolled } from '/src/store'
+  import { hasInitialScrolled } from '/src/lib/store'
 
   export let pixelsPerMinute
   export let originDT

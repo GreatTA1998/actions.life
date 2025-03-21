@@ -1,5 +1,5 @@
 import { writable, derived, get } from 'svelte/store'
-import { user } from '/src/store/userStore.js'
+import { user } from '/src/lib/store/userStore.js'
 
 export const timestamps = writable([])
 // TO-DO: initialize default properly at the database level

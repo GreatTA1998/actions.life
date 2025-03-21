@@ -8,16 +8,16 @@
     getIconForLayout,
     clickedTaskID,
     closeTaskPopup
-  } from '/src/store'
+  } from '/src/lib/store'
   import { treesByID } from '../../components/Calendar/store.js'
-  import { createDebouncedFunction } from '/src/utils/core.js'
+  import { createDebouncedFunction } from '/src/lib/utils/core.js'
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import UXFormTextArea from './UXFormTextArea.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
-  import { getRoot } from '/src/db/models/treeISOs.js'
-  import Task from '/src/db/models/Task.js'
+  import { getRoot } from '/src/lib/db/models/treeISOs.js'
+  import Task from '/src/lib/db/models/Task.js'
 
   let TaskImageElem
   let PopupElem

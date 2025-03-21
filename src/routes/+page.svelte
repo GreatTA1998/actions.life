@@ -1,6 +1,6 @@
 <script>
   import LoginGoogle from '$lib/Reusable/LoginGoogle.svelte'
-  import { hasFetchedUser } from '/src/store'
+  import { hasFetchedUser } from '/src/lib/store'
   import { onMount } from 'svelte'
   import NavbarContentLayout from '$lib/Reusable/NavbarContentLayout.svelte'
 

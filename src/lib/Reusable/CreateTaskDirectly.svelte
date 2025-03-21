@@ -2,12 +2,12 @@
   import FormField from '$lib/Reusable/FormField.svelte'
   import {
     getRandomID,
-  } from '/src/utils/core.js'
-  import { user } from '/src/store'
+  } from '/src/lib/utils/core.js'
+  import { user } from '/src/lib/store'
   import { onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
-  import Task from '/src/db/models/Task.js'
-  import Template from '/src/db/models/Template'
+  import Task from '/src/lib/db/models/Task.js'
+  import Template from '/src/lib/db/models/Template'
 
   export let resultantDateClassObject
   export let newTaskStartTime = '' // hh:mm format

@@ -1,6 +1,6 @@
 <script>
   import Settings from '../components/Settings/index.svelte'
-  import { hasInitialScrolled } from '/src/store'
+  import { hasInitialScrolled } from '/src/lib/store'
   import { createEventDispatcher } from 'svelte'
 
   export let currentMode

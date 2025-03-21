@@ -10,7 +10,7 @@
 
   import { onDestroy, onMount } from 'svelte'
   import { page } from '$app/stores'
-  import { user, loadingTasks, showSnackbar, isTaskPopupOpen } from '/src/store'
+  import { user, loadingTasks, showSnackbar, isTaskPopupOpen } from '/src/lib/store'
   import TodoService from './components/ListsArea/todoService.js'
 
   let currentMode = 'Week'

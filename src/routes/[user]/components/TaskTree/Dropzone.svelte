@@ -15,12 +15,12 @@
 </div>
 
 <script>
-  import { user, activeDragItem } from '/src/store'
+  import { user, activeDragItem } from '/src/lib/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
-  import { db } from '/src/db/init'
-  import Task from '/src/db/models/Task.js'
-  import { HEIGHTS } from '/src/utils/constants.js'
-  import { listTreeNodes } from '/src/db/models/treeISOs.js'
+  import { db } from '/src/lib/db/init'
+  import Task from '/src/lib/db/models/Task.js'
+  import { HEIGHTS } from '/src/lib/utils/constants.js'
+  import { listTreeNodes } from '/src/lib/db/models/treeISOs.js'
 
   export let listID = ''
   export let ancestorRoomIDs

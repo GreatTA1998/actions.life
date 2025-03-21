@@ -1,12 +1,12 @@
 <script>
   import TodoList from './TodoList.svelte'
   import { listenToListsAndTasks, listTreesMap, lists } from './service.js'
-  import { user } from '/src/store'
+  import { user } from '/src/lib/store'
   import { onMount } from 'svelte'
   import { doc, updateDoc } from 'firebase/firestore'
-  import { db } from '/src/db/init'
-  import { getRandomID } from '/src/utils/core.js'
-  import { setFirestoreDoc } from '/src/db/helpers.js'
+  import { db } from '/src/lib/db/init'
+  import { getRandomID } from '/src/lib/utils/core.js'
+  import { setFirestoreDoc } from '/src/lib/db/helpers.js'
 
   export let listID = null;
 

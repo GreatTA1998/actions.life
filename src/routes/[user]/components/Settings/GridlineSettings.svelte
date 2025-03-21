@@ -1,6 +1,6 @@
 <script>
-  import { updateFirestoreDoc } from "/src/db/helpers.js";
-  import { user, calSnapInterval } from '/src/store'
+  import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
+  import { user, calSnapInterval } from '/src/lib/store'
 
   const snapIntervals = [1, 5, 10, 15, 30]
 

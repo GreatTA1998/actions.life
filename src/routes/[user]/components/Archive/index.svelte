@@ -2,10 +2,10 @@
   import PhotoGrid from './PhotoGrid.svelte'
   import JournalEntries from './JournalEntries.svelte'  
   import ListenToDoc from './ListenToDoc.svelte'
-  import { user } from '/src/store/userStore.js'
+  import { user } from '/src/lib/store/userStore.js'
   import { onMount, onDestroy } from 'svelte'
   import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
-  import { db } from "/src/db/init"
+  import { db } from '/src/lib/db/init'
 
   let sidebarOpen = true
   let routines = null

@@ -1,7 +1,7 @@
 import { writable, get } from 'svelte/store'
-import Template from '/src/db/models/Template'
-import { user } from '/src/store/userStore.js'
-import '/src/store/themes'
+import Template from '/src/lib/db/models/Template'
+import { user } from '/src/lib/store/userStore.js'
+import '/src/lib/store/themes'
 
 export const templates = writable([])
 

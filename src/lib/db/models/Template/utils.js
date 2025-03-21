@@ -1,6 +1,6 @@
 import cronParser from 'cron-parser'
 import { DateTime } from 'luxon'
-import { db } from "/src/db/init.js"
+import { db } from '/src/lib/db/init.js'
 import { 
   updateDoc, 
   doc, 
@@ -12,7 +12,7 @@ import {
   deleteDoc, 
   writeBatch 
 } from 'firebase/firestore'
-import { getRandomID } from '/src/utils/core.js'
+import { getRandomID } from '/src/lib/utils/core.js'
 
 const { parseExpression } = cronParser
 

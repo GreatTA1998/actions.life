@@ -1,6 +1,6 @@
 <script>
-  import { showSnackbar, user } from '/src/store'
-  import { clickOutside } from '/src/utils/svelteActions.js'
+  import { showSnackbar, user } from '/src/lib/store'
+  import { clickOutside } from '/src/lib/utils/svelteActions.js'
   import ColorSettings from './ColorSettings.svelte'
   import TimeRangeSettings from './TimeRangeSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'

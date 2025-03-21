@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store'
 import { browser } from '$app/environment'
-import { user } from '/src/store/userStore.js'
+import { user } from '/src/lib/store/userStore.js'
 import { themes } from './definitions.js'
 
 export { themes }

@@ -6,15 +6,15 @@
   import TimeIndicator from "./TimeIndicator.svelte"
 
   import { DateTime } from "luxon"
-  import { getHHMM } from "/src/utils/core.js"
+  import { getHHMM } from '/src/lib/utils/core.js'
 
   import {
     user,
     grabOffset, activeDragItem,
     timestamps, getMinutesDiff, calEarliestHHMM, totalMinutes, calLastHHMM, calSnapInterval
-  } from "/src/store"
+  } from '/src/lib/store'
   import { pixelsPerHour } from './store.js'
-  import Task from '/src/db/models/Task.js'
+  import Task from '/src/lib/db/models/Task.js'
 
   import { onMount, onDestroy } from "svelte"
 

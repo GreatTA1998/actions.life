@@ -1,6 +1,6 @@
-import Task from '/src/db/models/Task.js'
+import Task from '/src/lib/db/models/Task.js'
 import { get } from 'svelte/store'
-import { todoTasks, todoMemoryTree, inclusiveWeekTodo, updateCache } from '/src/store'
+import { todoTasks, todoMemoryTree, inclusiveWeekTodo, updateCache } from '/src/lib/store'
 
 const activeListeners = {
   todo: null

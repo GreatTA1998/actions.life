@@ -1,6 +1,6 @@
 <script>
   import { headerExpanded, headerHeight, treesByDate, isCompact } from './store.js'
-  import { WIDTHS } from '/src/utils/constants.js'
+  import { WIDTHS } from '/src/lib/utils/constants.js'
 
   export let monthName
   export let viewportLeft

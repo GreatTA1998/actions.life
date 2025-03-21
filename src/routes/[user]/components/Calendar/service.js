@@ -1,10 +1,10 @@
 /** Handles everything data-related for <Calendar/>, from snapshot listeners to tree building. */
 import { treesByDate, treesByID } from './store.js'
-import { updateCache } from '/src/store'
+import { updateCache } from '/src/lib/store'
 import { DateTime } from 'luxon'
-import { pureNumericalHourForm } from '/src/utils/core.js'
+import { pureNumericalHourForm } from '/src/lib/utils/core.js'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { db } from '/src/db/init'
+import { db } from '/src/lib/db/init'
 import { page } from '$app/stores'
 import { get } from 'svelte/store'
 
