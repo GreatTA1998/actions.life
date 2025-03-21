@@ -57,16 +57,6 @@ export function mod (n, m) {
   return ((n % m) + m) % m;
 }
 
-export function getDayOfWeek (MMDDString) {
-  const d = new Date()
-  d.setMonth(parseInt(MMDDString.substring(0, 2)) - 1) // `-1` because setMonth() is 0-indexed whereas MMDD is 1-indexed
-  d.setDate(parseInt(MMDDString.substring(3, 5))) // MMDDString.substring(3, 5)
-  return new Intl.DateTimeFormat(
-    'en-US', 
-    { weekday: 'short' }
-  ).format(d)
-}
-
 export function getRandomID () {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let autoId = '';
@@ -74,20 +64,6 @@ export function getRandomID () {
     autoId += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return autoId;
-}
-
-export function getDateInDDMMYYYY (dateClassObject) {
-  const d = dateClassObject
-
-  const yyyy = d.getFullYear();
-  let mm = d.getMonth() + 1; // Months start at 0!
-  let dd = d.getDate();
-
-  if (dd < 10) dd = '0' + dd;
-  if (mm < 10) mm = '0' + mm;
-
-  const formattedToday = dd + '/' + mm + '/' + yyyy;
-  return formattedToday
 }
 
 export function getDateInMMDD (dateClassObject) {
@@ -118,23 +94,6 @@ export function convertMMDDToDateClassObject (MMDD, yyyy = 2023, hhmm = '00:00')
   return new Date(yyyy, MM - 1, DD, Number(hh), Number(mm))
 }
 
-export function convertDDMMYYYYToDateClassObject (ddmmyyyy, hhmm = '') {
-  const [dd, mm, yyyy] = ddmmyyyy.split('/')
-  if (!hhmm) {
-    return new Date(yyyy, mm - 1, dd)
-  } else {
-    const [hh, minutes] = hhmm.split(':')
-    const result = new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd), parseInt(hh), parseInt(minutes))
-    return result
-  }
-   // month is 0-indexed where as mm is 1-indexed, so subtract 1 (Stackoverflow commmunity agrees this is stupid design)
-}
-
-export function getMonthNameFromNumber (monthNumber) {
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-  return monthNames[monthNumber]
-}
-
 export function twoDigits (number) {
   return (number < 10 ? `0${number}` : `${number}`)
 }
@@ -144,26 +103,6 @@ export function getTimeInHHMM ({ dateClassObj }) {
   const hh = ("0" + d.getHours()).slice(-2) 
   const mm = ("0" + d.getMinutes()).slice(-2)
   return hh + ":" + mm
-}
-
-export function applyFuncToEveryTreeNode ({ tree, applyFunc }) {
-  const artificialRootNode = {
-    name: 'root',
-    children: tree
-  }
-  helperFunction({ node: artificialRootNode, applyFunc })
-}
-
-export function helperFunction ({ node, applyFunc }) {
-  // this is a quick-fix: terminate once we find the deadline ask
-  if (applyFunc(node)) {
-    return
-  } 
-  else {
-    for (const child of node.children) {
-      helperFunction({ node: child, applyFunc })
-    }
-  }
 }
 
 export function sortByUnscheduledThenByOrderValue (array) {
