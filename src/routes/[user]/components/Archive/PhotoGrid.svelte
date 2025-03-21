@@ -242,15 +242,15 @@
 
   .year-label {
     font-weight: 600;
-    font-size: 13px;
+    font-size: 15px;
     color: #333;
-    min-width: 50px;
+    min-width: 60px;
   }
 
   .months-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 6px;
     align-items: center;
   }
 
@@ -262,20 +262,20 @@
     border: none;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 500;
   }
 
   .random-button {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     background-color: #f8f8f8;
     color: #888;
     opacity: 0.7;
     box-shadow: 0 1px 2px rgba(0,0,0,0.08);
     transform-origin: center;
-    margin-left: 8px;
+    margin-left: 10px;
   }
 
   .random-button:hover {
@@ -311,20 +311,20 @@
   }
 
   .random-button span {
-    font-size: 18px;
+    font-size: 22px;
   }
 
   .month-button {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 2px 6px;
+    padding: 4px 8px;
     border-radius: 4px;
     transition: background-color 0.2s;
-    font-size: 12px;
+    font-size: 14px;
     white-space: nowrap;
-    min-width: 40px;
-    height: 24px;
+    min-width: 50px;
+    height: 32px;
   }
 
   .month-button:hover {
@@ -338,17 +338,18 @@
 
   .photo-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 8px;
-    min-height: 180px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    min-height: 240px;
   }
 
   .loading, .no-photos {
     grid-column: 1 / -1;
     text-align: center;
-    padding: 20px;
+    padding: 30px;
     color: #666;
     font-style: italic;
+    font-size: 16px;
   }
 
   .photo-grid-item {
@@ -382,7 +383,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 8px;
+    padding: 12px;
     background: linear-gradient(transparent, rgba(0,0,0,0.7));
     color: white;
     opacity: 1;
@@ -392,12 +393,12 @@
 
   .photo-date {
     font-weight: 500;
-    margin-bottom: 4px;
-    font-size: 0.8rem;
+    margin-bottom: 6px;
+    font-size: 1rem;
   }
 
   .photo-caption {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
