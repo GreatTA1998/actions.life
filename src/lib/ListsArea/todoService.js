@@ -1,4 +1,4 @@
-import Tasks from '/src/db/models/Tasks'
+import Task from '/src/db/Task.js'
 import { get } from 'svelte/store'
 import { todoTasks, todoMemoryTree, inclusiveWeekTodo, updateCache } from '/src/store'
 
@@ -38,7 +38,7 @@ export function setupTodoListener(uid) {
     return
   }
   try {
-    activeListeners.todo = Tasks.listenToUnscheduled(uid, (tasks) => {
+    activeListeners.todo = Task.listenToUnscheduled(uid, (tasks) => {
       updateTodoTasks(tasks)
     })
   } catch (error) {

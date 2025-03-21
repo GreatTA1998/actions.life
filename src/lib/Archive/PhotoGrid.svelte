@@ -2,7 +2,7 @@
   import { formatDate } from '/src/utils/core.js'
   import { user } from '/src/store/userStore.js'
   import { onMount } from 'svelte'
-  import Tasks from '/src/db/models/Tasks'
+  import Task from '/src/db/Task'
   import { DateTime } from 'luxon'
 
   export let photoTasks = null
@@ -12,7 +12,7 @@
   })
 
   async function fetchPhotoTasks () {
-    const allTasks = await Tasks.getByDateRange(
+    const allTasks = await Task.getByDateRange(
       $user.uid, 
       '2024-01-01', 
       DateTime.now().toFormat('yyyy-MM-dd')

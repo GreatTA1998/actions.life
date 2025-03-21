@@ -2,10 +2,18 @@ import { z } from 'zod'
 import { deleteImage } from './helpers.js'
 import { get } from 'svelte/store'
 import { user, tasksCache } from '/src/store/index.js'
-import { writeBatch } from 'firebase/firestore'
+import { 
+  writeBatch, 
+  getDocs, 
+  collection, 
+  query, 
+  where, 
+  updateDoc, 
+  onSnapshot, 
+  doc 
+} from 'firebase/firestore'
 import { db } from './init'
 import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
-import { doc } from 'firebase/firestore'
 
 const Task = {
   schema: z.object({
@@ -32,7 +40,8 @@ const Task = {
     treeISOs: z.array(z.string()).optional() // must be computed & maintained
   }),
 
-  async create ({ id, newTaskObj }) {
+  // Individual task operations
+  create: async ({ id, newTaskObj }) => {
     try {
       const batch = writeBatch(db)
       const validatedTask = Task.schema.parse({ ...newTaskObj })
@@ -52,7 +61,7 @@ const Task = {
     }
   },
 
-  async update ({ id, keyValueChanges }) {
+  update: async ({ id, keyValueChanges }) => {
     try {
       const validatedChanges = Task.schema.partial().parse(keyValueChanges)
       const batch = writeBatch(db)
@@ -67,7 +76,7 @@ const Task = {
     }
   },
 
-  async delete ({ id }) {
+  delete: async ({ id }) => {
     const taskObj = get(tasksCache)[id]
 
     const tasksToDelete = [taskObj]
@@ -91,6 +100,81 @@ const Task = {
 
     await batch.commit()
     return tasksToDelete
+  },
+
+  // Collection operations
+  updateQuickTasks: async ({ userID, templateID, updates }) => {
+    const q = query(collection(db, "users", userID, "tasks"), where("templateID", "==", templateID))
+    const snapshot = await getDocs(q)
+    const updatePromises = snapshot.docs.map(doc => updateDoc(doc.ref, updates))
+    return Promise.all(updatePromises)
+  },
+
+  listenToUnscheduled: (userUID, callback) => {
+    try {
+      const q = query(
+        collection(db, "users", userUID, "tasks"),
+        where("startDateISO", "==", ""),
+        where("isDone", "==", false)
+      )
+      
+      return onSnapshot(q, (snapshot) => {
+        const tasks = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+        callback(tasks)
+      }, (error) => {
+        console.error("Error in listenToUnscheduled", error)
+        callback([])
+      })
+    } catch (err) {
+      console.error("Error setting up listener in listenToUnscheduled", err)
+      return () => {} // Return a no-op unsubscribe function
+    }
+  },
+
+  getTasksJSONByRange: async (uid, startDate, endDate) => {
+    const neededProperties = [
+      "duration",
+      "isDone",
+      "name",
+      "notes",
+      "startDateISO",
+      "startTime",
+    ]
+    const q = query(
+      collection(db, "users", uid, "tasks"),
+      where("rootStartDateISO", "!=", ""),
+      where("rootStartDateISO", ">=", startDate),
+      where("rootStartDateISO", "<=", endDate)
+    )
+    const getDataArray = (snapshot) => snapshot.docs.map((doc) => doc.data())
+    const taskArray = await getDocs(q).then(getDataArray).catch(console.error)
+
+    const reducetoNeeded = (task) =>
+      neededProperties.reduce(
+        (acc, prop) => ({ [prop]: task[prop] || "", ...acc }),
+        {}
+      )
+    return JSON.stringify(taskArray.map(reducetoNeeded))
+  },
+  
+  // Added method for compatibility with PhotoGrid.svelte
+  getByDateRange: async (uid, startDate, endDate) => {
+    const q = query(
+      collection(db, "users", uid, "tasks"),
+      where("startDateISO", ">=", startDate),
+      where("startDateISO", "<=", endDate),
+      where("imageFullPath", "!=", "")
+    )
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+  },
+  
+  // Added method for compatibility with LegacyExportTasks.svelte
+  getTasksJSON: async (uid) => {
+    // Using getTasksJSONByRange with a wide date range
+    const startDate = "2000-01-01"
+    const endDate = "2100-12-31"
+    return Task.getTasksJSONByRange(uid, startDate, endDate)
   }
 }
 

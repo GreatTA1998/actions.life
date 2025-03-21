@@ -10,7 +10,7 @@ import {
   deleteDoc,
   where
 } from "firebase/firestore"
-import Tasks from '../models/Tasks.js'
+import Task from '../Task.js'
 import { getPeriodFromCrontab, deleteFutureTasks, postFutureTasks, getTotalStats } from './utils.js'
 
 const Template = {
@@ -37,7 +37,7 @@ const Template = {
 
   async update ({ userID, id, updates, newTemplate }) {
     Template.schema.parse(newTemplate)
-    Tasks.updateQuickTasks({userID, templateID: id, updates})
+    Task.updateQuickTasks({userID, templateID: id, updates})
     updateDoc(doc(db, "users", userID, 'templates', id), updates)
   },
 

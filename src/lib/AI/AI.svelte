@@ -1,6 +1,6 @@
 <script>
   import { user } from "../../store";
-  import Tasks from "../../db/models/Tasks";
+  import Task from "../../db/Task.js";
   import text from "./text";
   import GPT from "../../db/models/GPT.js";
   import { onMount, tick } from "svelte";
@@ -35,7 +35,7 @@
   }
 
   onMount(async () => {
-    const tasksJSON = await Tasks.getTasksJSONByRange(
+    const tasksJSON = await Task.getTasksJSONByRange(
       state.userID,
       state.DateRange.startDate,
       state.DateRange.endDate

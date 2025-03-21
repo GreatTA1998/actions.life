@@ -1,7 +1,7 @@
 <!-- !!!!!!!CURRENTLY NOT USED!!!!!!!!! -->
 <script>
   import { user } from "../../store";
-  import Tasks from "../../db/models/Tasks";
+  import Task from "../../db/Task";
   import text from "./text";
 
   // TOUCH THIS AND THE WORLD WILL BURN WAHAHAHA !!!!
@@ -16,7 +16,7 @@
   });
 
   async function exportTasks() {
-    const tasksJSON = await Tasks.getTasksJSON(state.userID);
+    const tasksJSON = await Task.getTasksJSON(state.userID);
     setState({ ...state, tasksJSON });
   }
 
