@@ -1,8 +1,8 @@
 import { updateTemplate } from './store.js'
-import Templates from '/src/db/models/Templates/index.js'
+import Template from '/src/db/Template'
 
 export const filterByType = (tasks, type) =>
-  tasks.filter((task) => Templates.getPeriodFromCrontab(task.crontab) === type)
+  tasks.filter((task) => Template.getPeriodFromCrontab(task.crontab) === type)
     .sort((a, b) => a.orderValue - b.orderValue)
 
 

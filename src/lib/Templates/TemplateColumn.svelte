@@ -4,7 +4,7 @@
   import EditTemplatePopup from './components/EditTemplatePopup/EditTemplatePopup.svelte'
   import { updateTemplate } from './store.js'
   import { getDisplayLength } from './utils.js'
-  import Templates from '/src/db/models/Templates/index.js'
+  import Template from '/src/db/Template'
   export let templates
   export let crontab
   let draggedTemplate
@@ -59,7 +59,7 @@
           <div style="font-size: 16px; font-color: rgb(120, 120, 120)">
             {template.name}
           </div>
-          {#if Templates.getPeriodFromCrontab(template.crontab)==="weekly"}
+          {#if Template.getPeriodFromCrontab(template.crontab)==="weekly"}
           <div style="display: flex; margin-top: 4px;">
             {#each dayOfWeekSymbol as _, i}
               <div

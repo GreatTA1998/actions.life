@@ -3,7 +3,7 @@
   import { onMount } from 'svelte'
   import { user, calendarTasks } from '/src/store'
   import { templates } from './store.js'
-  import Templates from '/src/db/models/Templates'
+  import Template from '/src/db/Template'
   import { filterByType } from './utils.js'
 
   $: weeklyTasks = filterByType($templates, 'weekly')
@@ -16,7 +16,7 @@
 
   $: {
     if ($calendarTasks) {
-      Templates.getAll({
+      Template.getAll({
         userID: $user.uid,
         includeStats: true
       }).then((result) => {
@@ -26,7 +26,7 @@
   }
 
   onMount(async () => {
-    $templates = await Templates.getAll({
+    $templates = await Template.getAll({
       userID: $user.uid,
       includeStats: true
     })

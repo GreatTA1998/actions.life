@@ -1,6 +1,5 @@
 <script>
   import FormField from '$lib/Reusable/FormField.svelte'
-  import Templates from '/src/db/models/Templates/index.js'
   import {
     getRandomID,
   } from '/src/utils/core.js'
@@ -8,6 +7,7 @@
   import { onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
   import Task from '/src/db/Task.js'
+  import Template from '/src/db/Template'
 
   export let resultantDateClassObject
   export let newTaskStartTime = '' // hh:mm format
@@ -20,7 +20,7 @@
   const dispatch = createEventDispatcher()
 
   onMount(async () => {
-    const temp = await Templates.getAll({ userID: $user.uid, includeStats: false })
+    const temp = await Template.getAll({ userID: $user.uid, includeStats: false })
     reusableTaskTemplates = temp
   })
 

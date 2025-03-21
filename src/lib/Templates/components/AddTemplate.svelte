@@ -3,7 +3,7 @@
   import { templates } from '../store.js'
   import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { DateTime } from 'luxon'
-  import Templates from '/src/db/models/Templates'
+  import Template from '/src/db/Template'
   import { getRandomID } from '/src/utils/core.js'
   export let defaultOrderValue = 1
   export let crontab
@@ -34,7 +34,7 @@
       tags: ''
     }
     const templateID = getRandomID()
-    Templates.create({ userID: $user.uid, newTemplate, templateID })
+    Template.create({ userID: $user.uid, newTemplate, templateID })
     $templates = [
       ...$templates,
       { ...newTemplate, id: templateID, userID: $user.uid }
@@ -50,7 +50,7 @@
     style="cursor:pointer"
     on:click={() => setIsPopupOpen({ newVal: true })}
   >
-    {Templates.getPeriodFromCrontab(crontab).toUpperCase()}</span
+    {Template.getPeriodFromCrontab(crontab).toUpperCase()}</span
   >
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <span

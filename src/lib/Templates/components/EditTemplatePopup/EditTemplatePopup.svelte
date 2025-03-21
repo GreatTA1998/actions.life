@@ -4,7 +4,7 @@
   import EditTime from '$lib/Templates/components/EditTemplatePopup/EditTime.svelte'
   import { user, doodleIcons } from '/src/store'
   import { updateTemplate, deleteTemplate } from '/src/lib/Templates/store.js'
-  import Templates from '/src/db/models/Templates/index.js'
+  import Template from '/src/db/Template'
   import { onMount } from 'svelte'
   import { createDebouncedFunction } from '/src/utils/core.js'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
@@ -58,11 +58,11 @@
       />
 
       <div style="display: flex; align-items: center; margin-top: 24px;">
-        {#if Templates.getPeriodFromCrontab(template.crontab) === 'weekly'}
+        {#if Template.getPeriodFromCrontab(template.crontab) === 'weekly'}
           <PeriodicInput {template} maxDays={7} crontabIndex={4} />
-        {:else if Templates.getPeriodFromCrontab(template.crontab) === 'monthly'}
+        {:else if Template.getPeriodFromCrontab(template.crontab) === 'monthly'}
           <PeriodicInput {template} maxDays={31} crontabIndex={2} />
-        {:else if Templates.getPeriodFromCrontab(template.crontab) === 'yearly'}
+        {:else if Template.getPeriodFromCrontab(template.crontab) === 'yearly'}
           <YearlyInput {template} />
         {/if}
 

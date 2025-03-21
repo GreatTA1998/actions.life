@@ -1,4 +1,4 @@
-import Template from './Template.js'
+import Template from '../Template'
 import User from './User.js'
 import Icon from '../Icon.js'
 
