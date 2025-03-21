@@ -1,7 +1,7 @@
 <script>
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
-  import FormField from '$lib/Reusable/FormField.svelte'
+  import FormField from '$lib/components/FormField.svelte'
   import { getRandomID } from '/src/lib/utils/core.js'
   import { HEIGHTS } from '/src/lib/utils/constants.js'
   import { DateTime } from 'luxon'

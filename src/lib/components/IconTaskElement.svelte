@@ -99,7 +99,7 @@
   // Assumes `task` is hydrated
   import { getTrueY } from '/src/lib/utils/core.js'
   import { grabOffset, activeDragItem, openTaskPopup } from '/src/lib/store'
-  import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
+  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import Task from '/src/lib/db/models/Task.js'
 

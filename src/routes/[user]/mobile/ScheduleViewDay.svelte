@@ -64,8 +64,8 @@
 
 <script>
   import { DateTime } from 'luxon'
-  import FlexibleDayTask from '$lib/Reusable/FlexibleDayTask.svelte'
-  import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
+  import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
+  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { createEventDispatcher } from 'svelte'
 
   export let tasksThisDay

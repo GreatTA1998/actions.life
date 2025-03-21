@@ -1,5 +1,5 @@
 <script>
-  import ClaudeTimePicker from '$lib/Reusable/ClaudeTimePicker.svelte'
+  import ClaudeTimePicker from '$lib/components/ClaudeTimePicker.svelte'
   import { user, calEarliestHHMM, calLastHHMM } from '/src/lib/store'
   import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
 

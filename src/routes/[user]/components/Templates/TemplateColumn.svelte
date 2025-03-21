@@ -1,6 +1,6 @@
 <script>
   import AddTemplate from './components/AddTemplate.svelte'
-  import SimpleDropzone from '$lib/Reusable/SimpleDropzone.svelte'
+  import SimpleDropzone from '$lib/components/SimpleDropzone.svelte'
   import EditTemplatePopup from './components/EditTemplatePopup/EditTemplatePopup.svelte'
   import { updateTemplate, deleteTemplate } from './store.js'
   import { getDisplayLength } from './utils.js'

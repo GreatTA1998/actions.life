@@ -1,5 +1,5 @@
 <script>
-  import RoundButton from '$lib/Reusable/RoundButton.svelte'
+  import RoundButton from '$lib/components/RoundButton.svelte'
   import { user } from '/src/lib/store'
   import { onMount } from 'svelte'
   import User from '/src/lib/db/models/User'

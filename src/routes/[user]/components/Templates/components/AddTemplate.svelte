@@ -1,7 +1,7 @@
 <script>
   import { user } from '/src/lib/store'
   import { templates } from '../store.js'
-  import RoundButton from '$lib/Reusable/RoundButton.svelte'
+  import RoundButton from '$lib/components/RoundButton.svelte'
   import { DateTime } from 'luxon'
   import Template from '/src/lib/db/models/Template'
   import { getRandomID } from '/src/lib/utils/core.js'

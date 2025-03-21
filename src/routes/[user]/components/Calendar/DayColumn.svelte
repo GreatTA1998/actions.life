@@ -1,8 +1,8 @@
 <script>
-  import TaskElement from "$lib/Reusable/TaskElement.svelte"
-  import PhotoTaskElement from "$lib/Reusable/PhotoTaskElement.svelte"
-  import IconTaskElement from "$lib/Reusable/IconTaskElement.svelte"
-  import CreateTaskDirectly from "$lib/Reusable/CreateTaskDirectly.svelte"
+  import TaskElement from '$lib/components/TaskElement.svelte'
+  import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
+  import IconTaskElement from '$lib/components/IconTaskElement.svelte'
+  import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import TimeIndicator from "./TimeIndicator.svelte"
 
   import { DateTime } from "luxon"

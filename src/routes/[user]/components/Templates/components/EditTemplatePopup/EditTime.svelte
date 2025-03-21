@@ -1,7 +1,7 @@
 <script>
-  import FormField from '$lib/Reusable/FormField.svelte'
-  import ToggleSwitch from '$lib/Reusable/ToggleSwitch.svelte'
-  import RoundButton from '$lib/Reusable/RoundButton.svelte'
+  import FormField from '$lib/components/FormField.svelte'
+  import ToggleSwitch from '$lib/components/ToggleSwitch.svelte'
+  import RoundButton from '$lib/components/RoundButton.svelte'
   import { updateTemplate } from '/src/routes/[user]/components/Templates/store.js'
   export let template
 

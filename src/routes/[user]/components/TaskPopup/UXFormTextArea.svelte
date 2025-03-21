@@ -33,7 +33,7 @@
   export let placeholder
   export let value = ''
 
-  import TextAreaAutoResizing from "$lib/Reusable/TextAreaAutoResizing.svelte"
+  import TextAreaAutoResizing from '$lib/components/TextAreaAutoResizing.svelte'
   
   let InputElem
   let willTriggerFocus = false

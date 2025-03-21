@@ -5,7 +5,7 @@
   import DayColumn from './DayColumn.svelte'
   import DayHeader from './DayHeader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
-  import MultiPhotoUploader from '$lib/Reusable/MultiPhotoUploader.svelte'
+  import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
 
   import { trackHeight } from '/src/lib/utils/svelteActions.js'
   import { DateTime } from 'luxon'

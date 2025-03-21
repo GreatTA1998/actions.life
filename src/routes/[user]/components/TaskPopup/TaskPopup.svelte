@@ -13,7 +13,7 @@
   import { createDebouncedFunction } from '/src/lib/utils/core.js'
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import UXFormTextArea from './UXFormTextArea.svelte'
-  import Checkbox from '$lib/Reusable/Checkbox.svelte'
+  import Checkbox from '$lib/components/Checkbox.svelte'
   import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
   import { getRoot } from '/src/lib/db/models/treeISOs.js'

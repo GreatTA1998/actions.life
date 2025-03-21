@@ -1,5 +1,5 @@
 <script>
-  import RoundButton from '$lib/Reusable/RoundButton.svelte'
+  import RoundButton from '$lib/components/RoundButton.svelte'
   import { updateCrontab } from '/src/routes/[user]/components/Templates/utils.js'
   export let template
   export let crontabIndex = 3

@@ -106,9 +106,9 @@
 </div>
 
 <script>
-  import FormField from '$lib/Reusable/FormField.svelte'
+  import FormField from '$lib/components/FormField.svelte'
   import RecursiveTask from './RecursiveTask.svelte'
-  import Checkbox from '$lib/Reusable/Checkbox.svelte'
+  import Checkbox from '$lib/components/Checkbox.svelte'
   import Dropzone from './Dropzone.svelte'
   import TimelineRenderer from './TimelineRenderer.svelte'
   import { 

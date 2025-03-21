@@ -1,5 +1,5 @@
 <script>
-  import FormField from '$lib/Reusable/FormField.svelte'
+  import FormField from '$lib/components/FormField.svelte'
   import {
     getRandomID,
   } from '/src/lib/utils/core.js'
