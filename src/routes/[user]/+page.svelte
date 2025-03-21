@@ -1,11 +1,11 @@
 <script>
-  import TopNavbar from '$lib/MainPage/TopNavbar.svelte'
-  import Archive from '$lib/Archive/index.svelte'
-  import Templates from '$lib/Templates/Templates.svelte'
-  import AI from '$lib/AI/AI.svelte'
-  import TheSnackbar from '$lib/MainPage/TheSnackbar.svelte'
+  import TopNavbar from './components/TopNavbar.svelte'
+  import Archive from './components/Archive/index.svelte'
+  import Templates from './components/Templates/Templates.svelte'
+  import AI from './components/AI/AI.svelte'
+  import TheSnackbar from './components/TheSnackbar.svelte'
   import NavbarContentLayout from '$lib/NavbarContentLayout.svelte'
-  import SideBySideView from '$lib/MainPage/SideBySideView.svelte'
+  import SideBySideView from './components/SideBySideView.svelte'
   import TaskPopup from '$lib/TaskPopup/TaskPopup.svelte'
 
   import { onDestroy, onMount } from 'svelte'

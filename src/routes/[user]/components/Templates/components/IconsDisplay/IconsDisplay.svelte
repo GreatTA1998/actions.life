@@ -1,6 +1,6 @@
 <script>
   import { user, doodleIcons } from '/src/store'
-  import { updateTemplate } from '../../store.js'
+  import { updateTemplate } from '/src/routes/[user]/components/Templates/store.js'
   import { onMount } from 'svelte'
   import PremiumPopup from './PremiumPopup.svelte'
   import BasicWhiteboard from './BasicWhiteboard.svelte'

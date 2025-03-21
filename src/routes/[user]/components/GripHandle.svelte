@@ -34,4 +34,4 @@
     cursor: pointer;
     left: -18px; /* center the larger handle on the boundary */
   }
-</style>
+</style> 

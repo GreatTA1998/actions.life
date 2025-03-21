@@ -1,5 +1,5 @@
 <script>
-  import { user } from "../../store";
+  import { user } from "/src/store";
   import Task from "/src/db/models/Task.js";
   import text from "./text";
   import GPT from "./GPT.js";

@@ -1,5 +1,5 @@
 <script>
-  import Mobile from '$lib/Mobile/Mobile.svelte'
+  import Mobile from './Mobile.svelte'
 </script>
 
 <Mobile />

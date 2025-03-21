@@ -1,9 +1,9 @@
 <script>
-  import PeriodicInput from '$lib/Templates/components/EditTemplatePopup/PeriodicInput.svelte'
-  import YearlyInput from '$lib/Templates/components/EditTemplatePopup/YearlyInput.svelte'
-  import EditTime from '$lib/Templates/components/EditTemplatePopup/EditTime.svelte'
+  import PeriodicInput from './PeriodicInput.svelte'
+  import YearlyInput from './YearlyInput.svelte'
+  import EditTime from './EditTime.svelte'
   import { user, doodleIcons } from '/src/store'
-  import { updateTemplate, deleteTemplate } from '/src/lib/Templates/store.js'
+  import { updateTemplate, deleteTemplate } from '../../store.js'
   import Template from '/src/db/models/Template'
   import { onMount } from 'svelte'
   import { createDebouncedFunction } from '/src/utils/core.js'
