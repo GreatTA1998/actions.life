@@ -1,6 +1,5 @@
 <script>
   import '/src/lib/db/init.js'
-  import '/src/app.css'
   import { user, loadingTasks } from '/src/lib/store/index.js'
   import posthog from 'posthog-js'
   import { goto } from '$app/navigation'
@@ -65,6 +64,144 @@
 </div>
 
 <style>
+  /* Global styles moved from app.css */
+  :global(:root) {
+    --accent-color: rgb(92, 101, 22);
+    --base-color: rgb(0, 89, 125);
+    --sub-color: rgb(172, 160, 78);
+
+    --logo-twig-color: #b34f1b;
+    --location-indicator-color: var(--logo-twig-color);
+    --grip-line-color: rgba(0,0,0,0.15);
+    --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
+    --calendar-section-left-spacing: 2vw;
+  }
+
+  :global(*) {
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* prevent accidental going back page */
+  /* https://stackoverflow.com/questions/30636930/disable-web-page-navigation-on-swipeback-and-forward?rq=1 */
+  :global(html, body) {
+    overscroll-behavior-x: none;
+  }
+
+  /* adding body { height: 100% } and remove html, body { overflow: hidden} at least allows you to scroll the page back up from the mystery white space, whereas
+  before the problem would happen AND you cannot scroll back up*/
+  :global(body) {
+    margin: 0;
+    height: 100%;
+  }
+
+  /* Reset button's default styling */
+  :global(button) {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    outline: inherit;
+    text-align: center;
+
+    /* Fix for Safari/iOS */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  :global(.simple-flex) {
+    display: flex;
+    align-items: center;
+  }
+
+  :global(.new-task-icon) {  
+    font-weight: 100;
+    color: var(--task-action-subtle-color);
+    font-size: 30px; 
+    line-height: 0.3;
+    margin-left: 4px; 
+    cursor: pointer;  
+  }
+
+  /* NOTE: must have a explicitly set width */
+  :global(.truncate-to-one-line) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Reused between some components */
+  :global(.reset-textarea) {
+    border: none;
+    overflow: auto;
+    outline: none;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    resize: none; /*remove the resize handle on the bottom right*/
+  }
+
+  :global(.unselectable) {
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+  }
+
+  /*
+    A full size invisible container to cover the entire screen for modularity purposes, 
+    not accidentally trigger click on other elements e.g. accidentally creating a new task on the calendar when you're just trying to exit
+  */
+  :global(.fullscreen-invisible-modular-popup-layer) {
+    width: 100vw; 
+    height: 100vh; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    background: transparent; 
+    z-index: 2;
+  }
+
+  /* Notion scrollbar styles */
+  :global(::-webkit-scrollbar) {
+    width: 6px;
+    height: 6px;
+    background: transparent;
+  }
+  :global(::-webkit-scrollbar-thumb) {
+    background: #D3D1CB;
+  }
+  :global(::-webkit-scrollbar-track) {
+    background: #EDECE9;
+  }
+
+  /* https://uxmovement.substack.com/p/how-to-use-surface-elevation-to-elevate
+    We base low, medium and high elevation on this essay.
+  */
+  :global(.core-shadow) {
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1)
+  }
+
+  :global(.cast-shadow) {
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  :global(.cast-shadow-max) {
+    box-shadow: 0px 18px 36px rgba(0, 0, 0, 0.08);
+  }
+
+  :global(.paper-shadow) {
+    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
+  }
+
+  /* Original layout.svelte styles */
   .invisible {
     visibility: hidden;
   }
