@@ -16,7 +16,7 @@
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
   import StartTimeDurationNotify from '$lib/TaskPopup/StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
-  import { getRoot } from '/src/db/treeISOs.js'
+  import { getRoot } from '/src/db/models/treeISOs.js'
   import Task from '/src/db/models/Task.js'
 
   let TaskImageElem

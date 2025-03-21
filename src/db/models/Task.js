@@ -13,7 +13,7 @@ import {
   doc 
 } from 'firebase/firestore'
 import { db } from '/src/db/init.js'
-import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from '/src/db/treeISOs.js'
+import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
 
 const Task = {
   schema: z.object({

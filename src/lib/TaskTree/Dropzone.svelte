@@ -20,7 +20,7 @@
   import { db } from '../../db/init'
   import Task from '/src/db/models/Task.js'
   import { HEIGHTS } from '/src/utils/constants.js'
-  import { listTreeNodes } from '/src/db/treeISOs.js'
+  import { listTreeNodes } from '/src/db/models/treeISOs.js'
 
   export let listID = ''
   export let ancestorRoomIDs
