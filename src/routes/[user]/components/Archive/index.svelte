@@ -111,7 +111,7 @@
   
   <main class="main-content">
     <div style="opacity: 0.5; font-size: 14px;">
-      Historical Archive
+      Archive
     </div>
 
     {#if isViewingPhotos && !selectedRoutineID}
