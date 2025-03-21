@@ -8,7 +8,7 @@
   import { onMount } from 'svelte'
   import { createDebouncedFunction } from '/src/utils/core.js'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
-  import Icons from '/src/db/models/Icons.js'
+  import Icon from '/src/db/Icon.js'
   export let template
   let isPopupOpen = false
   let newName = template.name
@@ -24,7 +24,7 @@
   )
 
   onMount(async () => {
-    $doodleIcons = await Icons.getAvailable($user.uid)
+    $doodleIcons = await Icon.getAvailable($user.uid)
   })
 
   function handleDelete() {

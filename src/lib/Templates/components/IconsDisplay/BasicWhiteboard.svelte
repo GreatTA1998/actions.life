@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte'
   import { doodleIcons, user } from '/src/store'
-  import Icons from '/src/db/models/Icons.js'
+  import Icon from '/src/db/Icon.js'
   import { getRandomID } from '/src/utils/core.js'
   import ColorPicker from './ColorPicker.svelte'
   let colors = ['black', 'orange', 'red', 'lightblue', 'blue', 'green']
@@ -35,7 +35,7 @@
 
   function handleSave () {    
     const dataURL = canvas.toDataURL()
-    Icons.uploadIconDataURL({ 
+    Icon.uploadDataURL({ 
       id: getRandomID(), 
       iconObject: {
         createdBy: $user.uid,

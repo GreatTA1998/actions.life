@@ -2,13 +2,13 @@
   import RoundButton from '$lib/Reusable/RoundButton.svelte'
   import { user } from '/src/store'
   import { onMount } from 'svelte'
-  import Icons from '/src/db/models/Icons'
   import User from '/src/db/models/User'
+  import Icon from '/src/db/Icon'
 
   let doodleIcons = null
 
   onMount(async () => {
-    doodleIcons = await Icons.getAvailable($user.uid)
+    doodleIcons = await Icon.getAvailable($user.uid)
   })
 
   function unlockFeature() {

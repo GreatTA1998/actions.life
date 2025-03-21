@@ -3,7 +3,7 @@
   import { updateTemplate } from '/src/lib/Templates/store.js'
   import PremiumPopup from './PremiumPopup.svelte'
   import BasicWhiteboard from './BasicWhiteboard.svelte'
-  import Icons from '/src/db/models/Icons.js'
+  import Icon from '/src/db/Icon.js'
   export let template
   let isShowingPremiumPopup = false
 
@@ -13,7 +13,7 @@
 
   function handleDeleteIcon({ id, url }) {
     if (confirm('Are you sure you want to delete this icon?')) {
-      Icons.deleteRecursively({ id, uid: $user.uid, url })
+      Icon.deleteRecursively({ id, uid: $user.uid, url })
       $doodleIcons = $doodleIcons.filter((icon) => icon.id !== id)
     }
   }
