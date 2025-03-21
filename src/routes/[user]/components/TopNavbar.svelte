@@ -52,7 +52,7 @@
       class:active-ux-tab={currentMode === 'Archive'}
     >
       <span class="material-symbols-outlined" style="font-size: 32px;">
-        history
+        archive
       </span>
     </button>
   </div>

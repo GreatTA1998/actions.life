@@ -36,6 +36,9 @@
         endOfMonth.toFormat("MMMM yyyy"),
         "ISO:", startDateISO, "to", endDateISO
       )
+      
+      // Explicitly trigger update when date range changes
+      updatePhotoDisplay()
     }
   }
 
@@ -79,10 +82,13 @@
 
   // Update the photo display based on current view mode
   function updatePhotoDisplay() {
+    console.log("Updating photo display, viewMode =", viewMode, "startDateISO =", startDateISO, "endDateISO =", endDateISO)
+    
     if (viewMode === 'random') {
       // Get 10 random photos from all photos
       const randomized = [...allPhotoTasks]
       dateRangePhotoTasks = randomized.sort(() => Math.random() - 0.5).slice(0, 10)
+      console.log("Random mode, showing", dateRangePhotoTasks.length, "photos")
     } else {
       // Filter photos for the current month - use consistent DateTime methods
       dateRangePhotoTasks = allPhotoTasks.filter(task => {
@@ -108,6 +114,8 @@
         
         return isInRange
       })
+      
+      console.log("Month mode, showing", dateRangePhotoTasks.length, "photos for date range", startDateISO, "to", endDateISO)
     }
   }
   
@@ -125,8 +133,17 @@
   
   // Set to month mode
   function selectMonth(newCenterDate) {
+    console.log('Selecting month, old centerDate =', centerDate.toFormat("MMMM yyyy"), 'new centerDate =', newCenterDate.toFormat("MMMM yyyy"))
     viewMode = 'month'
     centerDate = newCenterDate
+    
+    // Immediately calculate new date range and update display
+    const startOfMonth = centerDate.startOf('month')
+    const endOfMonth = centerDate.endOf('month')
+    startDateISO = startOfMonth.toISODate()
+    endDateISO = endOfMonth.toISODate()
+    
+    console.log('New date range set in selectMonth:', startDateISO, 'to', endDateISO)
     updatePhotoDisplay()
   }
 </script>
@@ -365,19 +382,22 @@
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 12px;
+    padding: 8px;
     background: linear-gradient(transparent, rgba(0,0,0,0.7));
     color: white;
     opacity: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   .photo-date {
     font-weight: 500;
     margin-bottom: 4px;
+    font-size: 0.8rem;
   }
 
   .photo-caption {
-    font-size: 0.9em;
+    font-size: 0.8rem;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;

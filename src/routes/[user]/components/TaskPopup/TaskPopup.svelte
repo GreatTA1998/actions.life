@@ -14,6 +14,7 @@
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import UXFormTextArea from './UXFormTextArea.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
+  import SharePhotoButton from '$lib/components/SharePhotoButton.svelte'
   import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
   import { getRoot } from '/src/lib/db/models/treeISOs.js'
@@ -198,6 +199,13 @@
                   </button>
                 {/each}
               </div>
+            
+              <SharePhotoButton 
+                imageURL={taskObject.imageDownloadURL}
+                date={taskObject.startDateISO}
+                notes={taskObject.notes}
+                lightTheme={true}
+              />
             {/if}
 
             <PhotoUpload {taskObject}/>
