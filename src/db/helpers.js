@@ -83,5 +83,5 @@ export function deleteFirestoreDoc (path) {
 export async function deleteImage ({ imageFullPath }) {
   const storage = getStorage()
   await deleteObject(ref(storage, imageFullPath))
-  console.log('successfully deleted')
+  console.log('successfully deleted image', imageFullPath)
 } 
