@@ -1,12 +1,11 @@
 <script>
   import { formatDate } from '/src/lib/utils/core.js'
-  import { user } from '/src/lib/store/userStore.js'
+  import { user, tasksCache, openTaskPopup } from '/src/lib/store/index.js'
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
   import { collection, query, where, getDocs } from 'firebase/firestore'
   import { db } from '/src/lib/db/init.js'
 
-  export let photoTasks = null
   let allPhotoTasks = []
   let dateRangePhotoTasks = []
   let startDateISO 
@@ -54,7 +53,17 @@
       )
       
       const snapshot = await getDocs(q)
-      allPhotoTasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+      const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+      
+      // Add tasks to tasksCache
+      tasksCache.update(cache => {
+        for (const task of tasks) {
+          cache[task.id] = task
+        }
+        return cache
+      })
+      
+      allPhotoTasks = tasks
       
       // Sort by date (newest first)
       allPhotoTasks.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
@@ -164,7 +173,14 @@
       <div class="loading">Loading photos...</div>
     {:else if dateRangePhotoTasks && dateRangePhotoTasks.length > 0}
       {#each dateRangePhotoTasks as task (task.id)}
-        <div class="photo-grid-item">
+        <div 
+          class="photo-grid-item" 
+          on:click={() => openTaskPopup(task)}
+          on:keydown={(e) => e.key === 'Enter' && openTaskPopup(task)}
+          tabindex="0"
+          role="button"
+          aria-label="Open task details"
+        >
           <img 
             src={task.imageDownloadURL} 
             alt="Task" 
@@ -324,6 +340,13 @@
     overflow: hidden;
     border-radius: 8px;
     background: #f0f0f0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .photo-grid-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   }
 
   .photo-grid-item img {
@@ -360,10 +383,5 @@
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-  }
-  
-  /* Remove refresh button styles */
-  .refresh-button, .refresh-button:hover {
-    display: none;
   }
 </style>
