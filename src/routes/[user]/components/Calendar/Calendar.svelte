@@ -93,7 +93,7 @@
             {/each}
           </div>
 
-          <div class="day-columns">
+          <div class="columns-flexbox">
             {#each renderedColumnDTs as dt (dt.toMillis())}
               <DayColumn {dt}
                 scheduledTasks={$treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
@@ -139,7 +139,7 @@
     box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);
   }
 
-  .day-columns {
+  .columns-flexbox {
     display: flex;
     padding-top: 7px; /* timestamp has a height of 14px (despite a font size of 12px) */
   }
