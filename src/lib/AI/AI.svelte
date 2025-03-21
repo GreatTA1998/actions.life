@@ -2,7 +2,7 @@
   import { user } from "../../store";
   import Task from "../../db/Task.js";
   import text from "./text";
-  import GPT from "../../db/models/GPT.js";
+  import GPT from "./GPT.js";
   import { onMount, tick } from "svelte";
   import { DateTime } from "luxon";
 
