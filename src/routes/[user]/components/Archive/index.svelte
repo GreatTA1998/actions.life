@@ -63,9 +63,8 @@
 <div class="container" class:sidebar-closed={!sidebarOpen}>
   <nav class="sidebar">
     <div class="nav-items">  
-      <div class="photo-nav-item" style="border: none; opacity: 0.2;">  
-        <span class="material-symbols-outlined">search</span>
-        Search
+      <div style="border: none; font-size: 18px; font-weight: bold; padding: 8px 16px; margin-top: 16px; color: #333;">  
+        Archive
       </div>
     </div>
     
@@ -110,9 +109,9 @@
   </nav>
   
   <main class="main-content">
-    <div style="opacity: 0.5; font-size: 14px;">
+    <!-- <div style="opacity: 0.5; font-size: 14px;">
       Archive
-    </div>
+    </div> -->
 
     {#if isViewingPhotos && !selectedRoutineID}
       <PhotoGrid 

@@ -3,7 +3,6 @@
   import { user } from '/src/lib/store/userStore.js'
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
-  import MyJSDatePicker from '../../components/TaskPopup/MyJSDatePicker.svelte'
   import { collection, query, where, getDocs } from 'firebase/firestore'
   import { db } from '/src/lib/db/init.js'
 
@@ -17,35 +16,29 @@
   let centerDate = DateTime.now()
   let loadingPhotos = false
   
-  // Add a state to track if we're showing random or monthly photos
-  let showingRandom = false
+  // Use a string for view mode instead of boolean
+  let viewMode = 'month' // 'month' or 'random'
+  
+  // Add state for button animation
+  let isSpinning = false
   
   // Compute date interval for photo display - changing to a full month view
   $: {
-    if (!showingRandom) {
+    if (viewMode === 'month') {
       // For a full month view centered on selected date
       const startOfMonth = centerDate.startOf('month')
       const endOfMonth = centerDate.endOf('month')
-      startDateISO = startOfMonth.toFormat('yyyy-MM-dd')
-      endDateISO = endOfMonth.toFormat('yyyy-MM-dd')
+      startDateISO = startOfMonth.toISODate()
+      endDateISO = endOfMonth.toISODate()
+      
+      console.log("Date range set:", 
+        startOfMonth.toFormat("MMMM yyyy"), 
+        "to", 
+        endOfMonth.toFormat("MMMM yyyy"),
+        "ISO:", startDateISO, "to", endDateISO
+      )
     }
   }
-  
-  // Format for MyJSDatePicker (which uses MM/DD format and YYYY separately)
-  $: {
-    if (centerDate) {
-      // Format as MM/DD
-      const month = centerDate.month.toString().padStart(2, '0')
-      const day = centerDate.day.toString().padStart(2, '0')
-      mmdd = `${month}/${day}`
-      yyyy = centerDate.year.toString()
-    } else {
-      mmdd = ''
-      yyyy = ''
-    }
-  }
-  let mmdd = '' 
-  let yyyy = ''
 
   onMount(() => {
     fetchAllPhotoTasks()
@@ -67,7 +60,7 @@
       allPhotoTasks.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
       
       // Show initial photos
-      updateDateRangePhotos()
+      updatePhotoDisplay()
     } catch (error) {
       console.error("Error fetching photos:", error)
     } finally {
@@ -75,103 +68,92 @@
     }
   }
 
-  // Update the dateRangePhotoTasks based on current mode
-  function updateDateRangePhotos() {
-    if (showingRandom) {
+  // Update the photo display based on current view mode
+  function updatePhotoDisplay() {
+    if (viewMode === 'random') {
       // Get 10 random photos from all photos
       const randomized = [...allPhotoTasks]
       dateRangePhotoTasks = randomized.sort(() => Math.random() - 0.5).slice(0, 10)
     } else {
-      // Filter photos for the current month
-      dateRangePhotoTasks = allPhotoTasks.filter(task => 
-        task.startDateISO >= startDateISO && 
-        task.startDateISO <= endDateISO
-      )
+      // Filter photos for the current month - use consistent DateTime methods
+      dateRangePhotoTasks = allPhotoTasks.filter(task => {
+        if (!task.startDateISO) return false
+        
+        // Use same parsing method for consistency
+        const taskDate = DateTime.fromISO(task.startDateISO)
+        const startDate = DateTime.fromISO(startDateISO)
+        const endDate = DateTime.fromISO(endDateISO)
+        
+        const isInRange = taskDate >= startDate && taskDate <= endDate
+        
+        // Log a sample of the comparisons
+        if (task.id.includes("1")) {
+          console.log("Photo date check:", 
+            task.startDateISO, 
+            "as", taskDate.toFormat("MMMM yyyy"),
+            "in range", startDate.toFormat("MMMM yyyy"), 
+            "to", endDate.toFormat("MMMM yyyy"),
+            "=", isInRange
+          )
+        }
+        
+        return isInRange
+      })
     }
   }
-
-  function handleDateSelected(event) {
-    const { selectedDate, selectedYear } = event.detail
-    console.log("Date selected:", selectedDate, selectedYear)
+  
+  // Set to random mode with animation
+  function showRandomPhotos() {
+    // Trigger animation
+    isSpinning = true;
+    setTimeout(() => {
+      isSpinning = false;
+    }, 500);
     
-    if (selectedDate && selectedYear) {
-      // Convert MM/DD format to DateTime object
-      const [month, day] = selectedDate.split('/')
-      const newCenterDate = DateTime.fromObject({
-        year: parseInt(selectedYear),
-        month: parseInt(month),
-        day: parseInt(day)
-      })
-      
-      showingRandom = false
-      centerDate = newCenterDate
-      updateDateRangePhotos()
-    }
+    viewMode = 'random'
+    updatePhotoDisplay()
+  }
+  
+  // Set to month mode
+  function selectMonth(newCenterDate) {
+    viewMode = 'month'
+    centerDate = newCenterDate
+    updatePhotoDisplay()
   }
 </script>
 
 <div class="section">
-  
-  <div class="navigation-controls">
-    <div class="date-navigation">
-      <div class="navigation-row">
-        <div class="date-picker-container" on:click={() => {
-          const datePicker = document.querySelector('.date-picker-container input')
-          if (datePicker) datePicker.focus()
-        }}>
-          <span class="calendar-icon material-symbols-outlined">calendar_month</span>
-          <MyJSDatePicker
-            MMDD={mmdd}
-            YYYY={yyyy}
-            placeholder="Pick a date"
-            on:date-selected={handleDateSelected}
-          />
-          <span class="year-display">{yyyy}</span>
-        </div>
-        <div class="date-range-info">
-          Showing photos from {formatDate(startDateISO)} to {formatDate(endDateISO)}
-        </div>
-      </div>
-    </div>
-  </div>
-  
   <div class="month-selector">
-    <div class="month-actions">
-      <button 
-        class="action-button random-button" 
-        class:active={showingRandom}
-        on:click={() => {
-          showingRandom = true
-          updateDateRangePhotos()
-        }}
-      >
-        <span class="material-symbols-outlined">shuffle</span>
-        Random
-      </button>
-    </div>
-
     {#each Array.from({ length: 3 }) as _, yearIndex}
       {@const year = DateTime.now().minus({ years: yearIndex })}
       <div class="year-group">
         <div class="year-label">{year.year}</div>
         <div class="months-container">
           {#each Array.from({ length: 12 }) as _, monthIndex}
-            {@const monthDate = DateTime.fromObject({ year: year.year, month: 12 - monthIndex })}
+            {@const monthDate = DateTime.fromObject({ year: year.year, month: monthIndex + 1 })}
             {@const isCurrentMonth = monthDate <= DateTime.now()}
             {#if isCurrentMonth}
               <button 
                 class="month-button" 
-                class:active={!showingRandom && centerDate.hasSame(monthDate, 'month') && centerDate.hasSame(monthDate, 'year')}
-                on:click={() => {
-                  showingRandom = false
-                  centerDate = monthDate
-                  updateDateRangePhotos()
-                }}
+                class:active={viewMode === 'month' && centerDate.hasSame(monthDate, 'month') && centerDate.hasSame(monthDate, 'year')}
+                on:click={() => selectMonth(monthDate)}
               >
                 {monthDate.toFormat('MMM')}
               </button>
             {/if}
           {/each}
+          
+          {#if yearIndex === 0}
+            <button 
+              class="action-button random-button" 
+              class:active={viewMode === 'random'}
+              class:spinning={isSpinning}
+              on:click={showRandomPhotos}
+              title="Show random photos"
+            >
+              <span class="material-symbols-outlined">casino</span>
+            </button>
+          {/if}
         </div>
       </div>
     {/each}
@@ -201,7 +183,7 @@
         </div>
       {/each}
     {:else}
-      <div class="no-photos">No photos found for this {showingRandom ? 'selection' : 'date range'}</div>
+      <div class="no-photos">No photos found for this {viewMode === 'random' ? 'selection' : 'date range'}</div>
     {/if}
   </div>
 </div>
@@ -210,132 +192,12 @@
   .section {
     margin-bottom: 20px;
   }
-  
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .instruction-text {
-    font-size: 11px;
-    color: #666;
-    font-style: italic;
-  }
-
-  .navigation-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-
-  .date-navigation {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .navigation-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .current-month-display {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 2px;
-  }
-
-  .date-picker-container {
-    display: flex;
-    align-items: center;
-    background-color: #f5f5f5;
-    padding: 3px 6px;
-    border-radius: 4px;
-    min-width: 140px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-
-  .date-picker-container:hover {
-    background-color: #e0e0e0;
-  }
-
-  .calendar-icon {
-    font-size: 16px;
-    margin-right: 4px;
-    color: #666;
-  }
-
-  .year-display {
-    margin-left: 4px;
-    color: #666;
-    font-weight: 500;
-  }
-
-  .date-picker-container :global(input) {
-    background-color: transparent;
-    border: none;
-    padding: 4px;
-    font-weight: 500;
-    cursor: pointer;
-  }
-
-  .date-range-info {
-    font-size: 12px;
-    color: #666;
-  }
 
   .month-selector {
     display: flex;
     flex-direction: column;
     gap: 4px;
     margin-bottom: 12px;
-  }
-
-  .month-actions {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  .action-button {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-    font-size: 13px;
-    font-weight: 500;
-  }
-
-  .action-button span {
-    font-size: 16px;
-    color: #666;
-  }
-
-  .random-button {
-    background-color: #f0f0f0;
-  }
-
-  .random-button:hover {
-    background-color: #e0e0e0;
-  }
-
-  .random-button.active {
-    background-color: #007bff;
-    color: white;
-  }
-
-  .random-button.active span {
-    color: white;
   }
 
   .year-group {
@@ -357,6 +219,66 @@
     flex-wrap: wrap;
     gap: 4px;
     align-items: center;
+  }
+
+  .action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .random-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #f8f8f8;
+    color: #888;
+    opacity: 0.7;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    transform-origin: center;
+    margin-left: 8px;
+  }
+
+  .random-button:hover {
+    opacity: 1;
+    background-color: #f0f0f0;
+    transform: rotate(15deg) scale(1.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    color: #555;
+  }
+  
+  .random-button.spinning {
+    animation: spin-bounce 0.5s ease-out;
+  }
+  
+  @keyframes spin-bounce {
+    0% {
+      transform: rotate(0deg) scale(1);
+    }
+    50% {
+      transform: rotate(180deg) scale(1.15);
+    }
+    100% {
+      transform: rotate(360deg) scale(1);
+    }
+  }
+
+  .random-button.active {
+    background-color: #e9f3ff;
+    color: #007bff;
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+    box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+  }
+
+  .random-button span {
+    font-size: 18px;
   }
 
   .month-button {
