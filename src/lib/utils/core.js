@@ -15,11 +15,6 @@ export function createDebouncedFunction(func, waitFor) {
   return debouncedFn;
 }
 
-// how far, INCLUDING SCROLL, the actual position on the calendar is
-// // containerDistanceFromTopOfPage should be fixed, and not be affected by scrolling
-// so it's the e.clientY + initialOffset + scrollOffset 
-// e.clientY := coordinates relative to VIEWPORT, so doesn't matter if root page is scrolled
-
 export function formatDate(dateStr) {
   const date = new Date(dateStr)
   return date.toLocaleDateString('en-US', {
