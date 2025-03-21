@@ -1,5 +1,5 @@
 <script>
-  import Settings from '$lib/Settings/index.svelte'
+  import Settings from '../components/Settings/index.svelte'
   import { hasInitialScrolled } from '/src/store'
   import { createEventDispatcher } from 'svelte'
 
