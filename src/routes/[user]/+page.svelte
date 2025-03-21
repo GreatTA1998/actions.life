@@ -5,7 +5,7 @@
   import AI from './components/AI/AI.svelte'
   import TheSnackbar from './components/TheSnackbar.svelte'
   import NavbarContentLayout from '$lib/components/NavbarContentLayout.svelte'
-  import SideBySideView from './components/SideBySideView.svelte'
+  import SideBySideView from './components/SideBySideView/index.svelte'
   import TaskPopup from './components/TaskPopup/TaskPopup.svelte'
 
   import { onDestroy, onMount } from 'svelte'

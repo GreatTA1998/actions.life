@@ -64,7 +64,6 @@
 </div>
 
 <style>
-  /* Global styles moved from app.css */
   :global(:root) {
     --accent-color: rgb(92, 101, 22);
     --base-color: rgb(0, 89, 125);

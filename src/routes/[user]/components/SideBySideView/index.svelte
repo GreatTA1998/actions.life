@@ -1,23 +1,23 @@
 <script>
-  import ListsArea from '../components/ListsArea/ListsArea.svelte'
-  import TodoList from '../components/ListsArea/TodoList.svelte'
-  import Calendar from '../components/Calendar/Calendar.svelte'
+  import ListsArea from '../ListsArea/ListsArea.svelte'
+  import TodoList from '../ListsArea/TodoList.svelte'
+  import Calendar from '../Calendar/Calendar.svelte'
   import GripHandle from './GripHandle.svelte'
 
   import { inclusiveWeekTodo, user } from '/src/lib/store'
   import { createEventDispatcher } from 'svelte'
   import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
 
-  export let showLegacyTodo = false; // Default to showing the legacy todo list
-  export let listID = null; // Optional specific list ID to display
-  export let showToggle = true; // Whether to show the toggle button
+  export let showLegacyTodo = false // Default to showing the legacy todo list
+  export let listID = null // Optional specific list ID to display
+  export let showToggle = true // Whether to show the toggle button
 
-  let isResizing = false;
-  let startX = 0;
-  let startWidth = 0;
+  let isResizing = false
+  let startX = 0
+  let startWidth = 0
   let listAreaWidth = getInitialWidth() // Default width
-  let minWidth = 0; // Minimum width for list area
-  let maxWidth = window.innerWidth; // Maximum width for list area
+  let minWidth = 0 // Minimum width for list area
+  let maxWidth = window.innerWidth // Maximum width for list area
   
   const dispatch = createEventDispatcher()
 
@@ -30,33 +30,33 @@
   }
 
   function handleMouseDown(e) {
-    isResizing = true;
-    startX = e.clientX;
-    startWidth = listAreaWidth;
+    isResizing = true
+    startX = e.clientX
+    startWidth = listAreaWidth
     
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
     
     // Prevent text selection during resize
-    document.body.style.userSelect = 'none';
+    document.body.style.userSelect = 'none'
   }
 
   function handleMouseMove(e) {
-    if (!isResizing) return;
+    if (!isResizing) return
     
-    const deltaX = e.clientX - startX;
-    const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + deltaX));
+    const deltaX = e.clientX - startX
+    const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + deltaX))
     
-    listAreaWidth = newWidth;
+    listAreaWidth = newWidth
   }
 
   function handleMouseUp () {
-    isResizing = false;
+    isResizing = false
     
-    window.removeEventListener('mousemove', handleMouseMove);
-    window.removeEventListener('mouseup', handleMouseUp);
+    window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('mouseup', handleMouseUp)
     
-    document.body.style.userSelect = '';
+    document.body.style.userSelect = ''
 
     updateFirestoreDoc(`/users/${$user.uid}`, {
       listAreaWidthRatio: (listAreaWidth / window.innerWidth) / 100
@@ -64,8 +64,8 @@
   }
 
   function toggleView() {
-    showLegacyTodo = !showLegacyTodo;
-    dispatch('viewToggle', { showLegacyTodo });
+    showLegacyTodo = !showLegacyTodo
+    dispatch('viewToggle', { showLegacyTodo })
   }
 </script>
 
