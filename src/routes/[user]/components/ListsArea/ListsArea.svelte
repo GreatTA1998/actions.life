@@ -1,10 +1,10 @@
 <script>
-  import TodoList from '$lib/ListsArea/TodoList.svelte'
+  import TodoList from './TodoList.svelte'
   import { listenToListsAndTasks, listTreesMap, lists } from './service.js'
   import { user } from '/src/store'
   import { onMount } from 'svelte'
   import { doc, updateDoc } from 'firebase/firestore'
-  import { db } from '../../db/init'
+  import { db } from '/src/db/init'
   import { getRandomID } from '/src/utils/core.js'
   import { setFirestoreDoc } from '/src/db/helpers.js'
 

@@ -100,7 +100,7 @@
   import { getTrueY } from '/src/utils/core.js'
   import { grabOffset, activeDragItem, openTaskPopup } from '/src/store'
   import DoodleIcon from '$lib/Reusable/DoodleIcon.svelte'
-  import { pixelsPerHour } from '/src/lib/Calendar/store.js'
+  import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import Task from '/src/db/models/Task.js'
 
   export let task = null

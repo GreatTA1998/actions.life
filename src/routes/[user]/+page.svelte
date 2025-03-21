@@ -6,12 +6,12 @@
   import TheSnackbar from './components/TheSnackbar.svelte'
   import NavbarContentLayout from '$lib/NavbarContentLayout.svelte'
   import SideBySideView from './components/SideBySideView.svelte'
-  import TaskPopup from '$lib/TaskPopup/TaskPopup.svelte'
+  import TaskPopup from './components/TaskPopup/TaskPopup.svelte'
 
   import { onDestroy, onMount } from 'svelte'
   import { page } from '$app/stores'
   import { user, loadingTasks, showSnackbar, isTaskPopupOpen } from '/src/store'
-  import TodoService from '/src/lib/ListsArea/todoService.js'
+  import TodoService from './components/ListsArea/todoService.js'
 
   let currentMode = 'Week'
   let isShowingAI = false

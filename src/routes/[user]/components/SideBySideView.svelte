@@ -1,7 +1,7 @@
 <script>
-  import ListsArea from '$lib/ListsArea/ListsArea.svelte'
-  import TodoList from '$lib/ListsArea/TodoList.svelte'
-  import Calendar from '$lib/Calendar/Calendar.svelte'
+  import ListsArea from '../components/ListsArea/ListsArea.svelte'
+  import TodoList from '../components/ListsArea/TodoList.svelte'
+  import Calendar from '../components/Calendar/Calendar.svelte'
   import GripHandle from './GripHandle.svelte'
 
   import { inclusiveWeekTodo, user } from '/src/store'

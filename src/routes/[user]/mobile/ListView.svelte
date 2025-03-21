@@ -17,6 +17,6 @@
 </TodoList>
 
 <script>
-  import TodoList from '$lib/ListsArea/TodoList.svelte'
+  import TodoList from '../components/ListsArea/TodoList.svelte'
   import { inclusiveWeekTodo } from '/src/store'
 </script>

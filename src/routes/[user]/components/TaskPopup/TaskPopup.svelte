@@ -9,12 +9,12 @@
     clickedTaskID,
     closeTaskPopup
   } from '/src/store'
-  import { treesByID } from '/src/lib/Calendar/store.js'
+  import { treesByID } from '../../components/Calendar/store.js'
   import { createDebouncedFunction } from '/src/utils/core.js'
-  import RecursiveBulletPoint from '$lib/TaskPopup/RecursiveBulletPoint.svelte'
-  import UXFormTextArea from '$lib/TaskPopup/UXFormTextArea.svelte'
+  import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
+  import UXFormTextArea from './UXFormTextArea.svelte'
   import Checkbox from '$lib/Reusable/Checkbox.svelte'
-  import StartTimeDurationNotify from '$lib/TaskPopup/StartTimeDurationNotify.svelte'
+  import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
   import { getRoot } from '/src/db/models/treeISOs.js'
   import Task from '/src/db/models/Task.js'

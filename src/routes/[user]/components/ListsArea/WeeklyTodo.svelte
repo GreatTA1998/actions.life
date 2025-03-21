@@ -8,7 +8,7 @@
 </div>
 
 <script>
-  import TodoList from '$lib/ListsArea/TodoList.svelte'
+  import TodoList from './TodoList.svelte'
   import { inclusiveWeekTodo } from '/src/store'
 </script>
 

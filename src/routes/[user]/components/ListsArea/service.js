@@ -4,7 +4,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { updateCache } from '/src/store'
 
 // We'll need to fix this circular dependency later
-import { reconstructTreeInMemory } from '/src/lib/ListsArea/todoService.js'
+import { reconstructTreeInMemory } from './todoService.js'
 
 let persistTasks, nonPersistTasks
 

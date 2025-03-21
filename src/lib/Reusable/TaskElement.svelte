@@ -113,7 +113,7 @@
   import { getTrueY } from '/src/utils/core.js'
   import { activeDragItem, grabOffset, openTaskPopup } from '/src/store'
   import Checkbox from './Checkbox.svelte'
-  import { pixelsPerHour, treesByID } from '/src/lib/Calendar/store.js'
+  import { pixelsPerHour, treesByID } from '/src/routes/[user]/components/Calendar/store.js'
   import Task from '/src/db/models/Task.js'
 
   export let task = null

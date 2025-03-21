@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store'
 import './themes'
 
-export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from '/src/lib/Calendar/timestamps.js'
+export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from '/src/routes/[user]/components/Calendar/timestamps.js'
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
 
@@ -20,7 +20,7 @@ export function closeTaskPopup() {
 }
 
 export const todoTasks = writable(null)
-export { calendarTasks, treesByDate } from '/src/lib/Calendar/store.js'
+export { calendarTasks, treesByDate } from '/src/routes/[user]/components/Calendar/store.js'
 export const loadingTasks = writable(true)
 
 export const doodleIcons = writable([])

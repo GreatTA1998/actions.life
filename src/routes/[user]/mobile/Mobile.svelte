@@ -98,19 +98,19 @@
 {/if}
 
 <script>
-  import Calendar from '$lib/Calendar/Calendar.svelte'
+  import Calendar from '../components/Calendar/Calendar.svelte'
   import AI from '../components/AI/AI.svelte'
   import ScheduleView from './ScheduleView.svelte'
   import ListView from './ListView.svelte'
   import VoiceKeywordDetect from './VoiceKeywordDetect.svelte'
-  import TaskPopup from '$lib/TaskPopup/TaskPopup.svelte'
+  import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
   import Task from '/src/db/models/Task.js'
 
-  import { setupTodoListener } from '/src/lib/ListsArea/todoService.js'
+  import { setupTodoListener } from '../components/ListsArea/todoService.js'
   import { getRandomID, getDateInMMDD } from '/src/utils/core.js'
   import { user, todoMemoryTree, hasInitialScrolled, isTaskPopupOpen } from '/src/store'
-  import { isCompact } from '/src/lib/Calendar/store.js'
+  import { isCompact } from '../components/Calendar/store.js'
   import { page } from '$app/stores'
   import { onDestroy, onMount } from 'svelte'
 

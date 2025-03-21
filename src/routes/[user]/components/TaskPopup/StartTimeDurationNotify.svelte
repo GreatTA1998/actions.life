@@ -1,7 +1,7 @@
 <script>
-  import MinimalisticInput from "$lib/TaskPopup/MinimalisticInput.svelte"
-  import MyJSDatePicker from "$lib/TaskPopup/MyJSDatePicker.svelte";
-  import MyTimePicker from "$lib/TaskPopup/MyTimePicker.svelte";
+  import MinimalisticInput from "./MinimalisticInput.svelte"
+  import MyJSDatePicker from "./MyJSDatePicker.svelte";
+  import MyTimePicker from "./MyTimePicker.svelte";
   import { DateTime } from "luxon";
   import Task from '/src/db/models/Task.js'
 
