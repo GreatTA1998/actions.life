@@ -2,7 +2,7 @@
   import LoginGoogle from '$lib/Reusable/LoginGoogle.svelte'
   import { hasFetchedUser } from '/src/store'
   import { onMount } from 'svelte'
-  import NavbarContentLayout from '$lib/NavbarContentLayout.svelte'
+  import NavbarContentLayout from '$lib/Reusable/NavbarContentLayout.svelte'
 
   let isSoundOff = true
   let VideoElem

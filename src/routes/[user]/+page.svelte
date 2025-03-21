@@ -4,7 +4,7 @@
   import Templates from './components/Templates/Templates.svelte'
   import AI from './components/AI/AI.svelte'
   import TheSnackbar from './components/TheSnackbar.svelte'
-  import NavbarContentLayout from '$lib/NavbarContentLayout.svelte'
+  import NavbarContentLayout from '$lib/Reusable/NavbarContentLayout.svelte'
   import SideBySideView from './components/SideBySideView.svelte'
   import TaskPopup from './components/TaskPopup/TaskPopup.svelte'
 
