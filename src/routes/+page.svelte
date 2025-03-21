@@ -125,7 +125,7 @@
     >
       <!-- svelte-ignore a11y-missing-attribute -->
       <img
-        src="/trueoutput-square-nobg.png"
+        src="/logo-no-bg.png"
         style="margin-left: 0vw; width: 38px; height: 38px;"
       />
 

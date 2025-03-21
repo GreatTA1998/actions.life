@@ -51,7 +51,7 @@ export const handleSW = async () => {
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
       body: payload.notification.body,
-      icon: payload.notification.icon || '%sveltekit.assets%/trueoutput-square.png',
+      icon: payload.notification.icon || '%sveltekit.assets%/logo-has-bg.png',
       data: { url: payload.data?.click_action || '/'}
      };
     if (!("Notification" in window)) {

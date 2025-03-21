@@ -51,7 +51,7 @@
   class:invisible={!doingAuth}
 >
   <img
-    src="/trueoutput-square-nobg.png"
+    src="/logo-no-bg.png"
     class="app-loading-logo elementToFadeInAndOut center"
     alt="logo"
     style="width: 48px; height: 48px;"
