@@ -1,6 +1,6 @@
 import { sourceDB, destinationDB } from '../init.js';
 import { getDocs, query, collection, doc, writeBatch, getDoc, setDoc, getCountFromServer } from 'firebase/firestore';
-import User from '../schemas/User.js';
+import User from '../User.js';
 import Task from '../../db/Task.js'
 import Icon from '../../db/Icon.js'
 import Template from '../../db/Template'
@@ -37,7 +37,7 @@ async function migrateUser(userID) {
         uid: userSnapshot.id
     }
     try {
-        User.parse(newUser);
+        User.schema.parse(newUser);
     } catch (error) {
         throw new Error(`Error in user: ${userID} - ${error.message}`);
     }

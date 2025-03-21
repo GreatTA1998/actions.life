@@ -28,6 +28,7 @@ export function maintainTreeISOsForCreate ({ task, batch }) {
 export function maintainTreeISOs ({ id, keyValueChanges, batch }) {
   const task = get(tasksCache)[id]
   const changes = keyValueChanges
+  console.log('maintainTreeISOs', task, changes)
   
   if (hasChangedFamily({ task, changes })) {
     handleCrossTree({ task, changes, batch })
