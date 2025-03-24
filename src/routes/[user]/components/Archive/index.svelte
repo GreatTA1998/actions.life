@@ -114,9 +114,7 @@
     </div> -->
 
     {#if isViewingPhotos && !selectedRoutineID}
-      <PhotoGrid 
-        {photoTasks}
-      />
+      <PhotoGrid />
     {:else if selectedRoutineID}
       <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}
         let:theDoc={selectedRoutine}

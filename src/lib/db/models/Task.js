@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '/src/lib/db/init.js'
 import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
+import { listTreeNodes } from './treeISOs.js'
 
 const Task = {
   schema: z.object({
@@ -46,7 +47,7 @@ const Task = {
       const batch = writeBatch(db)
       const validatedTask = Task.schema.parse({ ...newTaskObj })
       const treeISOs = maintainTreeISOsForCreate({ task: validatedTask, batch })
-      
+
       batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), { 
         treeISOs,
         ...validatedTask
@@ -66,7 +67,21 @@ const Task = {
       const validatedChanges = Task.schema.partial().parse(keyValueChanges)
       const batch = writeBatch(db)
       maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
-      batch.update(doc(db, `users/${get(user).uid}/tasks/${id}`), validatedChanges)
+
+      // TO-DO: refactor into a helper function
+      if (validatedChanges.listID) {
+        const descendants = listTreeNodes(get(tasksCache)[id])
+        for (const descendant of descendants) {
+          batch.update(doc(db, `users/${get(user).uid}/tasks/${descendant.id}`), {
+            listID: validatedChanges.listID
+          })
+        }
+      }
+
+      batch.update(
+        doc(db, `users/${get(user).uid}/tasks/${id}`), 
+        validatedChanges
+      )
 
       batch.commit()
     }

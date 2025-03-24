@@ -30,13 +30,6 @@
       startDateISO = startOfMonth.toISODate()
       endDateISO = endOfMonth.toISODate()
       
-      console.log("Date range set:", 
-        startOfMonth.toFormat("MMMM yyyy"), 
-        "to", 
-        endOfMonth.toFormat("MMMM yyyy"),
-        "ISO:", startDateISO, "to", endDateISO
-      )
-      
       // Explicitly trigger update when date range changes
       updatePhotoDisplay()
     }
@@ -82,13 +75,11 @@
 
   // Update the photo display based on current view mode
   function updatePhotoDisplay() {
-    console.log("Updating photo display, viewMode =", viewMode, "startDateISO =", startDateISO, "endDateISO =", endDateISO)
     
     if (viewMode === 'random') {
       // Get 10 random photos from all photos
       const randomized = [...allPhotoTasks]
       dateRangePhotoTasks = randomized.sort(() => Math.random() - 0.5).slice(0, 10)
-      console.log("Random mode, showing", dateRangePhotoTasks.length, "photos")
     } else {
       // Filter photos for the current month - use consistent DateTime methods
       dateRangePhotoTasks = allPhotoTasks.filter(task => {
@@ -103,19 +94,11 @@
         
         // Log a sample of the comparisons
         if (task.id.includes("1")) {
-          console.log("Photo date check:", 
-            task.startDateISO, 
-            "as", taskDate.toFormat("MMMM yyyy"),
-            "in range", startDate.toFormat("MMMM yyyy"), 
-            "to", endDate.toFormat("MMMM yyyy"),
-            "=", isInRange
-          )
+
         }
-        
+
         return isInRange
       })
-      
-      console.log("Month mode, showing", dateRangePhotoTasks.length, "photos for date range", startDateISO, "to", endDateISO)
     }
   }
   
@@ -133,7 +116,6 @@
   
   // Set to month mode
   function selectMonth(newCenterDate) {
-    console.log('Selecting month, old centerDate =', centerDate.toFormat("MMMM yyyy"), 'new centerDate =', newCenterDate.toFormat("MMMM yyyy"))
     viewMode = 'month'
     centerDate = newCenterDate
     
@@ -143,7 +125,6 @@
     startDateISO = startOfMonth.toISODate()
     endDateISO = endOfMonth.toISODate()
     
-    console.log('New date range set in selectMonth:', startDateISO, 'to', endDateISO)
     updatePhotoDisplay()
   }
 </script>

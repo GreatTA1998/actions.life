@@ -155,10 +155,10 @@
 
   function dragstart_handler (e, id) {
     e.dataTransfer.setData("text/plain", id)
-    const payload = { ...taskObj }
-    if (depth === 0) payload.kind = 'top-level-task-within-this-todo-list'
-    else payload.kind = 'room'
-    activeDragItem.set(payload)
+    activeDragItem.set({ 
+      kind: 'room', 
+      ...taskObj 
+    })
   }
 
   function onEnter (e) {

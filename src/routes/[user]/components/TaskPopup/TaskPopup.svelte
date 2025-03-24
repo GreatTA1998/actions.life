@@ -183,8 +183,6 @@
 
           <div style="display: flex; align-items: center; column-gap: 12px; padding: 12px;">
             <div>
-              persistsOnList: {taskObject.persistsOnList} |
-              isArchived: {taskObject.isArchived} |
               listID: {taskObject.listID} |
               treeISOs: {JSON.stringify(taskObject.treeISOs)}
             </div>

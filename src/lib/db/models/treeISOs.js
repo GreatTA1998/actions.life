@@ -28,7 +28,6 @@ export function maintainTreeISOsForCreate ({ task, batch }) {
 export function maintainTreeISOs ({ id, keyValueChanges, batch }) {
   const task = get(tasksCache)[id]
   const changes = keyValueChanges
-  console.log('maintainTreeISOs', task, changes)
   
   if (hasChangedFamily({ task, changes })) {
     handleCrossTree({ task, changes, batch })
@@ -98,12 +97,12 @@ function correctTreeISOs ({ prevDate, newDate, array }) {
 }
 
 function batchUpdate ({ nodes, treeISOs, batch }) {
+  console.log('batchUpdate:', nodes.length, treeISOs)
   for (const node of nodes) {
     const ref = doc(db, `/users/${get(user).uid}/tasks/${node.id}`)
     batch.update(ref, { 
       treeISOs
     })
-    console.log('updated', node.name, treeISOs)
   }
   return treeISOs
 }

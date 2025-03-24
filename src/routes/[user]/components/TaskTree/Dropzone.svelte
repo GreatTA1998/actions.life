@@ -20,7 +20,6 @@
   import { db } from '/src/lib/db/init'
   import Task from '/src/lib/db/models/Task.js'
   import { HEIGHTS } from '/src/lib/utils/constants.js'
-  import { listTreeNodes } from '/src/lib/db/models/treeISOs.js'
 
   export let listID = ''
   export let ancestorRoomIDs
@@ -36,7 +35,7 @@
   $: n = roomsInThisLevel.length
 
   function isInvalidReorderDrop () {
-    return !['room', 'top-level-task-within-this-todo-list'].includes($activeDragItem.kind) || ancestorRoomIDs.includes($activeDragItem.id)
+    return !['room'].includes($activeDragItem.kind) || ancestorRoomIDs.includes($activeDragItem.id)
   }
 
   function dragover_handler (e) {
@@ -103,35 +102,14 @@
       const order2 = topNeighborDoc.orderValue || 3 + initialNumericalDifference
       newVal = (order1 + order2) / 2
     }
-
-    const { id } = $activeDragItem
     
-    // 2. UNSCHEDULE: when you drag to the to-do list, it always unschedules it from the calendar
-    const updateObj = {
+    Task.update({ id: $activeDragItem.id, keyValueChanges: {
+      listID,
+      parentID,
       orderValue: newVal,
       startDateISO: '',
-      startTime: '',
-      listID
-    }
-
-    // 4. PARENTID
-    if ($activeDragItem.kind === 'top-level-task-within-this-todo-list' && ancestorRoomIDs.length === 1) {
-      // preserve parent relationship
-    } else {
-      updateObj.parentID = parentID
-    }
-
-    // list drag about logical grouping i.e. parentID and listID are affected, but scheduling is unaffected
-    const descendants = listTreeNodes($activeDragItem)
-    for (const descendant of descendants) {
-      batch.update(doc(db, `users/${$user.uid}/tasks/${descendant.id}`), {
-        listID
-      })
-    }
-
-    let ref = null
-    ref = doc(db, `users/${$user.uid}/tasks/${id}`)
-    Task.update({ id, keyValueChanges: updateObj })
+      startTime: ''
+    }})
 
     try {
       batch.commit() // for updating user's maxOrderValue
@@ -140,4 +118,4 @@
       alert('Error updating, please reload the page')
     }
   }
-</script> 
+</script>
