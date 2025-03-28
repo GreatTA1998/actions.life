@@ -168,7 +168,7 @@
                 placeholder="Notes..."
               />
             </div>
-
+<!-- 
             {#if $treesByID[taskObject.id]}
               <div style="flex-grow: 1; flex-basis: 0; max-height: 500px; overflow-y: auto;">
                 <RecursiveBulletPoint
@@ -176,13 +176,15 @@
                   taskObject={$treesByID[getRoot($tasksCache[taskObject.id]).id]}
                 />
               </div>
-            {/if}
+            {/if} -->
           </div>
 
           <div style="margin-top: 16px;"></div>
 
           <div style="display: flex; align-items: center; column-gap: 12px; padding: 12px;">
             <div>
+              id: {taskObject.id} |
+              rootID: {taskObject.rootID} |
               listID: {taskObject.listID} |
               treeISOs: {JSON.stringify(taskObject.treeISOs)}
             </div>

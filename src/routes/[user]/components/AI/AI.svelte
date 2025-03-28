@@ -29,9 +29,9 @@
 
   $: if (TheChatInput) {
     
-    requestAnimationFrame(() => {
-      TheChatInput.focus()
-    })
+    // requestAnimationFrame(() => {
+    //   TheChatInput.focus()
+    // })
   }
 
   onMount(async () => {

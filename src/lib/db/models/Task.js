@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '/src/lib/db/init.js'
 import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
-import { listTreeNodes } from './treeISOs.js'
+import { getTreeNodes } from './treeISOs.js'
 
 const Task = {
   schema: z.object({
@@ -38,7 +38,8 @@ const Task = {
     listID: z.string().default(''),
     childrenLayout: z.string().default('normal'), // 'normal' or 'timeline'
 
-    treeISOs: z.array(z.string()).optional() // must be computed & maintained
+    treeISOs: z.array(z.string()).optional(), // must be maintained
+    rootID: z.string().optional() // must be maintained
   }),
 
   // Individual task operations
@@ -46,10 +47,28 @@ const Task = {
     try {
       const batch = writeBatch(db)
       const validatedTask = Task.schema.parse({ ...newTaskObj })
-      const treeISOs = maintainTreeISOsForCreate({ task: validatedTask, batch })
+      const result = await maintainTreeISOsForCreate({ task: validatedTask, batch })
+      let treeISOs = []
+      
+      // If result is an object with treeISOs property, use that
+      if (result && typeof result === 'object' && Array.isArray(result.treeISOs)) {
+        treeISOs = result.treeISOs
+      } 
+      // If result is directly an array, use that
+      else if (Array.isArray(result)) {
+        treeISOs = result
+      }
+
+      // Set rootID - either parent's rootID or self if root
+      let rootID = id // Default to self (for root tasks)
+      if (validatedTask.parentID) {
+        const parent = get(tasksCache)[validatedTask.parentID]
+        rootID = parent?.rootID || id
+      }
 
       batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), { 
         treeISOs,
+        rootID,
         ...validatedTask
       })
 
@@ -62,27 +81,17 @@ const Task = {
     }
   },
 
+  // FIRST TRY THIS FOR UDPATE
   update: async ({ id, keyValueChanges }) => {
     try {
-      const validatedChanges = Task.schema.partial().parse(keyValueChanges)
       const batch = writeBatch(db)
-      maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
-
-      // TO-DO: refactor into a helper function
-      if (validatedChanges.listID) {
-        const descendants = listTreeNodes(get(tasksCache)[id])
-        for (const descendant of descendants) {
-          batch.update(doc(db, `users/${get(user).uid}/tasks/${descendant.id}`), {
-            listID: validatedChanges.listID
-          })
-        }
-      }
-
+      const validatedChanges = Task.schema.partial().parse(keyValueChanges)
+      
+      await maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
       batch.update(
         doc(db, `users/${get(user).uid}/tasks/${id}`), 
         validatedChanges
       )
-
       batch.commit()
     }
     catch (error) {
@@ -111,7 +120,7 @@ const Task = {
       if (imageFullPath) deleteImage({ imageFullPath })
       batch.delete(doc(db, `/users/${uid}/tasks/${id}`))
     }
-    handleTreeISOsForDeletion({ tasksToDelete, batch })
+    await handleTreeISOsForDeletion({ tasksToDelete, batch })
 
     await batch.commit()
     return tasksToDelete
