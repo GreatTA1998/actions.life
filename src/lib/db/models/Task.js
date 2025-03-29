@@ -37,6 +37,7 @@ const Task = {
     persistsOnList: z.boolean().default(true),
     listID: z.string().default(''),
     childrenLayout: z.string().default('normal'), // 'normal' or 'timeline'
+    photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'thumbnail'
 
     treeISOs: z.array(z.string()).optional(), // must be maintained
     rootID: z.string().optional() // must be maintained

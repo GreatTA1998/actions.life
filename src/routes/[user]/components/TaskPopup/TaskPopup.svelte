@@ -1,8 +1,7 @@
 <script>
-  import { onMount, onDestroy } from 'svelte'
+  import { onMount } from 'svelte'
   import { 
     tasksCache,
-    mostRecentlyCompletedTaskID, 
     defaultPhotoLayout, 
     photoLayoutOptions, 
     getIconForLayout,
@@ -24,22 +23,20 @@
   let PopupElem
 
   let isViewingPhoto = false
-
   let fullPhotoWidth, fullPhotoHeight 
-
-  const debouncedSaveTitle = createDebouncedFunction(saveTitle, 800)
-  const debouncedSaveNotes = createDebouncedFunction(saveNotes, 1500)
+  
+  const debouncedUpdate = createDebouncedFunction(
+    (id, keyValueChanges) => Task.update({ id, keyValueChanges }), 
+    1000
+  )
 
   $: taskObject = $tasksCache[$clickedTaskID]
 
   $: journalLayout = taskObject?.photoLayout || $defaultPhotoLayout
   
-  $: if (PopupElem && journalLayout === 'full-photo') {
-    setPopupToFullPhotoSize()
-  }
-
-  $: if (PopupElem && journalLayout !== 'full-photo') {
-    resetPopupCSS()
+  $: if (PopupElem) {
+    if (journalLayout === 'full-photo') setPopupToFullPhotoSize()
+    else resetPopupCSS()
   }
 
   onMount(() => {
@@ -49,7 +46,10 @@
     console.log("taskObject =", taskObject)
   })
 
-  onDestroy(() => {})
+  function handleDelete () {
+    Task.delete({ ...taskObject })
+    closeTaskPopup()
+  }
 
   function setPopupToFullPhotoSize () {
     PopupElem.style.width = fullPhotoWidth + 'px'
@@ -88,47 +88,11 @@
       fullPhotoHeight = maxHeight
     }
   }
-
-  // the other place to pay attention to is <RecursiveTask/>
-  // but the idea is still the same, provide an "undo"
-  // for root level tasks because they disappear on completion
-  function handleCheckboxChange (e) {
-    if (taskObject.parentID === '') {
-      mostRecentlyCompletedTaskID.set(taskObject.id)
-    }
-    Task.update({
-      id: taskObject.id,
-      keyValueChanges: { isDone: e.target.checked }
-    })
-    closeTaskPopup()
-  }
-
-  function updatePhotoLayout (layout) {
-    Task.update({ id: taskObject.id, keyValueChanges: { photoLayout: layout }})
-  }
-
-  function handleDelete () {
-    Task.delete({ ...taskObject });
-    closeTaskPopup();
-  }
-
-  function handleClickOutside (e) {
-    closeTaskPopup();
-  }
-
-  // note: if the popup closes before this debounced function is called, taskObject.id will be undefined
-  function saveNotes (newVal) {
-    Task.update({ id: taskObject.id, keyValueChanges: { notes: newVal }})
-  }
-
-  function saveTitle (newVal) {
-    Task.update({ id: taskObject.id, keyValueChanges: { name: newVal }})
-  }
 </script>
 
 {#if taskObject}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="fullscreen-invisible-modular-popup-layer" on:click|self={handleClickOutside} style="z-index: 10;">
+  <div class="fullscreen-invisible-modular-popup-layer" on:click|self={closeTaskPopup} style="z-index: 10;">
     <div class="task-popup {journalLayout}-container" bind:this={PopupElem}>
       <div class="{journalLayout}">
         {#if taskObject.imageDownloadURL}
@@ -145,13 +109,13 @@
           <div style="display: flex; align-items: center; column-gap: 12px;">
             {#if !taskObject.imageDownloadURL}
               <Checkbox value={taskObject.isDone}
-                on:change={(e) => handleCheckboxChange(e)}
+                on:change={e => Task.update({ id: taskObject.id, keyValueChanges: { isDone: e.target.checked }})}
                 zoom={1.2}
               />
             {/if}
             <input 
               value={taskObject.name}
-              on:input={(e) => debouncedSaveTitle(e.target.value)}
+              on:input={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
               placeholder="Untitled"
               type="text" 
               style="width: 100%; box-sizing: border-box; font-size: 24px;"
@@ -163,20 +127,21 @@
           <div style="width: 100%; display: flex; column-gap: 12px;">
             <div style="flex-grow: 1; flex-basis: 0;">
               <UXFormTextArea value={taskObject.notes}
-                on:input={(e) => debouncedSaveNotes(e.detail)}
+                on:input={e => debouncedUpdate($clickedTaskID, { notes: e.detail })}
                 fieldLabel=""
                 placeholder="Notes..."
               />
             </div>
-<!-- 
-            {#if $treesByID[taskObject.id]}
-              <div style="flex-grow: 1; flex-basis: 0; max-height: 500px; overflow-y: auto;">
-                <RecursiveBulletPoint
-                  originalPopupTask={$treesByID[taskObject.id]}
-                  taskObject={$treesByID[getRoot($tasksCache[taskObject.id]).id]}
-                />
-              </div>
-            {/if} -->
+            <!-- 
+              {#if $treesByID[taskObject.id]}
+                <div style="flex-grow: 1; flex-basis: 0; max-height: 500px; overflow-y: auto;">
+                  <RecursiveBulletPoint
+                    originalPopupTask={$treesByID[taskObject.id]}
+                    taskObject={$treesByID[getRoot($tasksCache[taskObject.id]).id]}
+                  />
+                </div>
+              {/if} 
+            -->
           </div>
 
           <div style="margin-top: 16px;"></div>
@@ -194,7 +159,7 @@
             {#if taskObject.imageDownloadURL}
               <div style="display: flex; column-gap: 6px;">
                 {#each photoLayoutOptions as layout}
-                  <button on:click={() => updatePhotoLayout(layout)} class="material-symbols-outlined">
+                  <button on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { photoLayout: layout }})} class="material-symbols-outlined">
                     {getIconForLayout(layout)}
                   </button>
                 {/each}
@@ -353,7 +318,6 @@
     padding-left: 0px;
     padding-bottom: 6px;
   }
-
 
   .material-symbols-outlined {
     font-variation-settings:
