@@ -1,12 +1,48 @@
-import { writable } from 'svelte/store'
+import { writable, get } from 'svelte/store'
 import './themes'
+import { collection, query, where, onSnapshot } from 'firebase/firestore'
+import { db } from '/src/lib/db/init.js'
+import { user } from './userStore.js'
+import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/todoService.js'
 
 export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from '/src/routes/[user]/components/Calendar/timestamps.js'
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
 
+export const tasksCache = writable({})
+
+export function updateCache (tasks) {
+  tasksCache.update(cache => {
+    for (const task of tasks) {
+      cache[task.id] = task
+    }
+    return cache
+  })
+}
+
 export const clickedTaskID = writable('')
 export const isTaskPopupOpen = writable(false)
+export const ancestralTree = writable(null)
+
+let unsubAncestralTree = null
+
+clickedTaskID.subscribe(async (taskID) => {
+  if (unsubAncestralTree) unsubAncestralTree()
+  if (!taskID) return
+
+  const task = get(tasksCache)[taskID]
+  const tasksCollection = collection(db, `users/${get(user).uid}/tasks`)
+  const q = query(tasksCollection, where('rootID', '==', task.rootID))
+  
+  unsubAncestralTree = onSnapshot(q, (snapshot) => {
+    const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+    updateCache(tasks)
+    const memoryTrees = reconstructTreeInMemory(tasks) // TO-DO: tree singular is misleading
+    ancestralTree.set(memoryTrees[0])
+  }, (error) => {
+    console.error('Error in task tree subscription:', error)
+  })
+})
 
 export function openTaskPopup(task) {
   clickedTaskID.set(task.id)
@@ -15,8 +51,7 @@ export function openTaskPopup(task) {
 
 export function closeTaskPopup() {
   isTaskPopupOpen.set(false)
-  // we purposely don't reset `clickedTaskID` as there may still be a PENDING save request for task notes 
-  // after the user closes the task popup, that still relies on the id
+  clickedTaskID.set('')
 }
 
 export const todoTasks = writable(null)
@@ -48,14 +83,3 @@ export const inclusiveWeekTodo = writable([])
 export const todoMemoryTree = writable(null)
 
 export const uniqueEvents = writable(null)
-
-export const tasksCache = writable({})
-
-export function updateCache (tasks) {
-  tasksCache.update(cache => {
-    for (const task of tasks) {
-      cache[task.id] = task
-    }
-    return cache
-  })
-}

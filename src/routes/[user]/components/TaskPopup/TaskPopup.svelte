@@ -5,10 +5,8 @@
     defaultPhotoLayout, 
     photoLayoutOptions, 
     getIconForLayout,
-    clickedTaskID,
-    closeTaskPopup
+    clickedTaskID, closeTaskPopup, ancestralTree
   } from '/src/lib/store'
-  import { treesByID } from '../../components/Calendar/store.js'
   import { createDebouncedFunction } from '/src/lib/utils/core.js'
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import UXFormTextArea from './UXFormTextArea.svelte'
@@ -16,7 +14,6 @@
   import SharePhotoButton from '$lib/components/SharePhotoButton.svelte'
   import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
-  import { getRoot } from '/src/lib/db/models/treeISOs.js'
   import Task from '/src/lib/db/models/Task.js'
 
   let TaskImageElem
@@ -132,16 +129,15 @@
                 placeholder="Notes..."
               />
             </div>
-            <!-- 
-              {#if $treesByID[taskObject.id]}
-                <div style="flex-grow: 1; flex-basis: 0; max-height: 500px; overflow-y: auto;">
-                  <RecursiveBulletPoint
-                    originalPopupTask={$treesByID[taskObject.id]}
-                    taskObject={$treesByID[getRoot($tasksCache[taskObject.id]).id]}
-                  />
-                </div>
-              {/if} 
-            -->
+
+            {#if $ancestralTree}
+              <div style="flex-grow: 1; flex-basis: 0; max-height: 500px; overflow-y: auto;">
+                <RecursiveBulletPoint
+                  originalPopupTask={taskObject}
+                  node={$ancestralTree}
+                />
+              </div>
+            {/if} 
           </div>
 
           <div style="margin-top: 16px;"></div>

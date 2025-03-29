@@ -1,12 +1,10 @@
-<div 
-  style="margin-bottom: 2px; font-size: 12px;"
->
+<div style="margin-bottom: 2px; font-size: 12px;">
   <div 
     style="display: flex; align-items: center;" 
-    class:accented-branch={taskObject.id === originalPopupTask.id}
+    class:accented-branch={node.id === originalPopupTask.id}
   >
     <Checkbox 
-      value={taskObject.isDone} 
+      value={node.isDone} 
       on:change={(e) => handleCheckboxChange(e)}
       zoom={0.5}
     />
@@ -15,12 +13,11 @@
       BUT once we open the popup <RecursiveBulletPoint/> is rendered on the `rootAncestor` tree, whose nodes
       DO NOT have `rootAncestor` (see picture in OneNote)
     -->
-    <div 
-      on:click={() => openTaskPopup(taskObject)} on:keydown
-      class:completed-task={taskObject.isDone}
+    <div on:click={() => openTaskPopup(node)} on:keydown
+      class:completed-task={node.isDone}
       style="cursor: pointer; margin-left: 4px; margin-right: 4px;" class="truncate-to-one-line"
     >
-      {taskObject.name}
+      {node.name}
     </div>
   
     <div on:click={() => isTypingNewSubtask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
@@ -28,24 +25,21 @@
     </div>
   </div>
 
-  {#if taskObject.daysBeforeRepeating}
-    (repeats every {taskObject.daysBeforeRepeating} days)
-    (completed {taskObject.completionCount || 0} times)
-    (missed {taskObject.missedCount || 0} times)
+  {#if node.daysBeforeRepeating}
+    (repeats every {node.daysBeforeRepeating} days)
+    (completed {node.completionCount || 0} times)
+    (missed {node.missedCount || 0} times)
   {/if}
 
-  <!-- quickfix, as this'll be re-worked soon -->
-  {#if taskObject.children}
-    {#each taskObject.children as child}
-      <div style="margin-left: 12px;">
-        <RecursiveBulletPoint 
-          on:task-click
-          taskObject={child} {originalPopupTask}
-        />
-      </div>
-    {/each}
-  {/if}
-
+  {#each node.children as child}
+    <div style="margin-left: 12px;">
+      <RecursiveBulletPoint 
+        node={child} 
+        {originalPopupTask}
+      />
+    </div>
+  {/each}
+  
   {#if isTypingNewSubtask}
     <FormField
       fieldLabel="Task Name"
@@ -64,22 +58,20 @@
 <script>
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
-  import { openTaskPopup } from '/src/lib/store'
-  import Task from '/src/lib/db/models/Task.js'
   import FormField from '$lib/components/FormField.svelte'
+  import { openTaskPopup } from '/src/lib/store'
   import { getRandomID } from '/src/lib/utils/core.js'
+  import Task from '/src/lib/db/models/Task.js'
 
-  export let taskObject 
+  export let node 
   export let originalPopupTask
 
   let newSubtaskStringValue = ''
   let isTypingNewSubtask = false
 
   function handleCheckboxChange (e) {
-    // mostRecentlyCompletedTaskID.set(taskObj.id)
-
     Task.update({
-      id: taskObject.id,
+      id: node.id,
       keyValueChanges: { isDone: e.target.checked }
     })
   }
@@ -99,10 +91,9 @@
       id: getRandomID(),
       newTaskObj: {
         name,
-        parentID: taskObject.id, 
-        listID: taskObject.listID,
-        // Inherit parent's childrenLayout by default, can be changed later
-        childrenLayout: taskObject.childrenLayout || 'normal'
+        parentID: node.id, 
+        listID: node.listID,
+        childrenLayout: node.childrenLayout || 'normal'
       }
     })
   }
