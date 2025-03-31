@@ -1,5 +1,9 @@
 <label class="switch">
-  <input type="checkbox" bind:checked={isChecked}>
+  <input type="checkbox" 
+    {label}
+    checked={isChecked} 
+    on:change={(e) => dispatch('change', { checked: e.target.checked })}
+  >
   <span class="slider"></span>
 </label>
 
@@ -7,12 +11,9 @@
   import { createEventDispatcher } from "svelte"
   
   export let isChecked = false
+  export let label = ''
 
   const dispatch = createEventDispatcher()
-
-  $: {
-    dispatch('new-checked-state', { isChecked: isChecked })
-  }
 </script>
 
 <style>

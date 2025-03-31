@@ -7,13 +7,12 @@
     {#each tasksThisDay.noStartTime.hasIcon as iconTask}
       <DoodleIcon
         {iconTask}
-        on:task-click
       />
     {/each}
   </div>
 
   {#each tasksThisDay.noStartTime.noIcon as flexibleDayTask}
-    <button on:click={() => dispatch('task-click', { task: flexibleDayTask })} 
+    <button on:click={() => openTaskPopup(flexibleDayTask)} 
       style="
         width: var(--width-calendar-day-section); 
         font-size: 12px; 
@@ -24,7 +23,6 @@
     >
       <FlexibleDayTask task={flexibleDayTask}
         fontSizeInPx={16}
-        on:task-click
       />
     </button>
   {/each}
@@ -35,7 +33,7 @@
     {/if}
 
     <div
-      on:click={() => dispatch('task-click', { task })} on:keydown
+      on:click={() => openTaskPopup(task)} on:keydown
       style="display: flex; align-items: center; flex-wrap: nowrap; padding: 2px;"
     >
       <div 
@@ -66,6 +64,7 @@
   import { DateTime } from 'luxon'
   import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
+  import { openTaskPopup } from '$lib/store'
   import { createEventDispatcher } from 'svelte'
 
   export let tasksThisDay

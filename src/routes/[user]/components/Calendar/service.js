@@ -111,7 +111,7 @@ function constructForest (firestoreTaskDocs) {
   return Array.from(forest.values())
 }
 
-function organizeToGroups (forest) {
+export function organizeToGroups (forest) {
   const dateToTasks = {}
   
   forest.forEach(tree => {
