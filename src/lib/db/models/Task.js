@@ -104,8 +104,7 @@ const Task = {
   delete: async ({ id }) => {
     const taskObj = get(tasksCache)[id]
 
-    const tasksToDelete = [taskObj]
-    pushDescendants(taskObj.id, tasksToDelete)
+    const tasksToDelete = await getTreeNodes(taskObj)
 
     if (tasksToDelete.length >= 2) {
       if (!confirm(`${tasksToDelete.length} tasks will be deleted in this tree. Are you sure?`)) {
@@ -202,14 +201,5 @@ const Task = {
     return Task.getTasksJSONByRange(uid, startDate, endDate)
   }
 }
-
-function pushDescendants (parentID, tasksToDelete) {
-  Object.values(get(tasksCache)).forEach(t => {
-    if (t.parentID === parentID) {
-      tasksToDelete.push(t)
-      pushDescendants(t.id, tasksToDelete)
-    }
-  })
-} 
 
 export default Task
