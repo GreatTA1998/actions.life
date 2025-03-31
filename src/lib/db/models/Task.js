@@ -126,6 +126,27 @@ const Task = {
     return tasksToDelete
   },
 
+  archiveTree: async ({ id }) => {
+    const taskObj = get(tasksCache)[id]
+    const tasksToArchive = await getTreeNodes(taskObj)
+
+    if (tasksToArchive.length >= 2) {
+      if (!confirm(`${tasksToArchive.length} tasks will be archived in this tree. Are you sure?`)) {
+        return
+      }
+    }
+
+    const { uid } = get(user)
+    const batch = writeBatch(db)
+
+    for (const task of tasksToArchive) {
+      batch.update(doc(db, `/users/${uid}/tasks/${task.id}`), { isArchived: true })
+    }
+
+    await batch.commit()
+    return tasksToArchive
+  },
+
   // Collection operations
   updateQuickTasks: async ({ userID, templateID, updates }) => {
     const q = query(collection(db, "users", userID, "tasks"), where("templateID", "==", templateID))

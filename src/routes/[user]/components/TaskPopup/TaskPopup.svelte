@@ -150,7 +150,7 @@
               treeISOs: {JSON.stringify(taskObject.treeISOs)}
             </div>
           </div>
- 
+
           <div style="display: flex; align-items: center; width: 100%; column-gap: 12px;">
             {#if taskObject.imageDownloadURL}
               <div style="display: flex; column-gap: 6px;">
@@ -170,6 +170,17 @@
             {/if}
 
             <PhotoUpload {taskObject}/>
+
+            <button on:click={async () => {
+              await Task.archiveTree({ id: taskObject.id })
+              closeTaskPopup()
+            }}
+            >
+              <span class="material-symbols-outlined" style="font-size: 22px; padding: 4px; font-weight: 600">
+                inventory_2
+              </span>
+              <span class="tooltip">Archive this task and all its children</span>
+            </button>
 
             <div style="display: flex; align-items: center; width: fit-content; box-sizing: border-box;">
               <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
@@ -321,10 +332,6 @@
       'wght' 400,
       'GRAD' 0,
       'opsz' 48
-  }
-
-  .delete-button {
-    position: relative;
   }
 
   .tooltip {
