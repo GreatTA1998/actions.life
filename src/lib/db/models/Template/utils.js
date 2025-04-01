@@ -82,7 +82,7 @@ const postFutureTasks = async ({ userID, id, newTemplate }) => {
       startDateJS: new Date(startDate), 
       endDateJS: new Date(endDate), 
       userID, 
-      templateID: id 
+      templateID: id
     })
     for (const task of tasksArray) {
       Task.create({ 
@@ -111,13 +111,15 @@ const getTotalStats = async ({ userID, id }) => {
 function buildTaskFromTemplate (template, ISODate, templateID) {
   const startDateISO = ISODate
   return Task.schema.parse({
-    startDateISO, templateID, ...template
+    startDateISO, 
+    templateID, 
+    persistsOnList: false, // otherwise habits will pollute the list area
+    ...template
   })
 }
 
 export {
   getPeriodFromCrontab,
-  buildFutureTasks,
   postFutureTasks,
   deleteFutureTasks,
   getTotalStats

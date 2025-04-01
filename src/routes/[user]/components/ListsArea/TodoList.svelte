@@ -11,7 +11,7 @@
   const dispatch = createEventDispatcher()
 
   export let listID = ''
-  export let tasksToDisplay = []
+  export let treesToDisplay = []
   export let listTitle
   export let enableScrolling = false
   export let hasMaxWidth = false // quickfix to prevent complicated flexbox layout ordering issues
@@ -50,8 +50,8 @@
       listID,
       timeZone: DateTime.local().zoneName,
     }
-    if (tasksToDisplay.length > 0) {
-      newRootTaskObj.orderValue = (0 + tasksToDisplay[0].orderValue) / 1.1
+    if (treesToDisplay.length > 0) {
+      newRootTaskObj.orderValue = (0 + treesToDisplay[0].orderValue) / 1.1
     }
     Task.create({
       id: getRandomID(),
@@ -97,34 +97,40 @@
         <div style="margin-bottom: 8px;"></div>
       {/if}
 
-      <Dropzone
-        {listID}
-        ancestorRoomIDs={['']}
-        roomsInThisLevel={tasksToDisplay}
-        idxInThisLevel={0}
-        parentID={''}
-        colorForDebugging="purple"
-        heightInPx={HEIGHTS.ROOT_DROPZONE}
-      />
-
-      {#each tasksToDisplay as taskObj, i (taskObj.id)}
-        <RecursiveTask {taskObj}
-          depth={0}
-          ancestorRoomIDs={['']}
-          {willShowCheckbox}
-          {isLargeFont}
-        />
-
+      <div class="lists">
         <Dropzone
           {listID}
           ancestorRoomIDs={['']}
-          roomsInThisLevel={tasksToDisplay}
-          idxInThisLevel={i + 1}
+          roomsInThisLevel={treesToDisplay}
+          idxInThisLevel={0}
           parentID={''}
           colorForDebugging="purple"
           heightInPx={HEIGHTS.ROOT_DROPZONE}
         />
-      {/each}
+
+        {#each treesToDisplay as taskObj, i (taskObj.id)}
+          <div>
+            <div class="list-container">
+              <RecursiveTask {taskObj}
+                depth={0}
+                ancestorRoomIDs={['']}
+                {willShowCheckbox}
+                {isLargeFont}
+              />
+            </div>
+
+            <Dropzone
+              {listID}
+              ancestorRoomIDs={['']}
+              roomsInThisLevel={treesToDisplay}
+              idxInThisLevel={i + 1}
+              parentID={''}
+              colorForDebugging="purple"
+              heightInPx={HEIGHTS.ROOT_DROPZONE}
+            />
+          </div>
+        {/each}
+      </div>
     </div>
   </div>
 
@@ -133,7 +139,21 @@
   </slot>
 </div>
 
-<style>
+<style>  
+  .lists {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+
+  .list-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    padding: 0.5vw;
+  }
+
   .todo-list-container {
     /* width: 100%; will cause the strange shifting out of screen bug*/
     height: 100%;

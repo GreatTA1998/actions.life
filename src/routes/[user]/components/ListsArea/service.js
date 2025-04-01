@@ -10,6 +10,7 @@ let persistTasks, nonPersistTasks
 
 export const lists = writable(null)
 export const listTreesMap = writable(null) // listID --> array of task trees
+export const trees = writable(null)
 
 export function listenToListsAndTasks(uid) {
   const tasksCollection = collection(db, `users/${uid}/tasks`)
@@ -42,28 +43,14 @@ function setupListener(ref, callback) {
     
     callback(mappedData)
 
-    if (persistTasks && nonPersistTasks && get(lists)) {
+    if (persistTasks && nonPersistTasks) {
       buildTreeMap([...persistTasks, ...nonPersistTasks])
     }
   })
 }
 
 function buildTreeMap(tasks) {
-  // group tasks by `listID` first
-  const d1 = {}
-  for (const task of tasks) {
-    if (!d1[task.listID]) d1[task.listID] = []
-    d1[task.listID].push(task)
-  }
-
-  const d2 = {}
-  // ensure all lists are present on the map, even if no tasks belong there, 
-  // otherwise the inconsistent data structure will cause reactivity to fail at the component level
-  for (const list of get(lists)) {
-    d2[list.id] = []
-  }
-  for (const [listID, listTasks] of Object.entries(d1)) {
-    d2[listID] = reconstructTreeInMemory(listTasks)
-  }
-  listTreesMap.set(d2)
+  // reconstructTreeInMemory is really constructing a forest
+  const result = reconstructTreeInMemory(tasks)
+  trees.set(result)
 } 
