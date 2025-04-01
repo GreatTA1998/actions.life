@@ -72,9 +72,9 @@
 <div class="side-by-side-container">
   <div class="list-area-container" style="width: {listAreaWidth}px;">
     {#if showToggle}
-      <button class="toggle-button" on:click={toggleView}>
+      <!-- <button class="toggle-button" on:click={toggleView}>
         Switch
-      </button>
+      </button> -->
     {/if}
     
     {#if showLegacyTodo}
