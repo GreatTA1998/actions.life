@@ -12,25 +12,28 @@ export function deleteTemplate({ templateID }) {
 }
 
 export async function updateTemplate({ templateID, keyValueChanges, oldTemplate }) {
-  const currentUser = get(user)
   const newTemplate = buildNewTemplate({ oldTemplate, keyValueChanges })
   Template.schema.parse(newTemplate)
-  templates.update((templates) => templates.map((template) =>
-    template.id === templateID ? newTemplate : template
-  ))
+  // TO-DO: rename `templates`
+  // replaces the item in the array with the new template
+  templates.update(templates => templates.map(template => template.id === templateID ? newTemplate : template))
+ 
   if (oldTemplate.crontab === '') {
-    return updateQuickTasks({ templateID, newTemplate, keyValueChanges, userID: currentUser.uid })
+    Template.update({ 
+      id: templateID, 
+      newTemplate, 
+      updates: keyValueChanges, 
+      userID: get(user).uid 
+    })
   }
-  const hydratedTasks = await Template.updateWithTasks({
-    userID: currentUser.uid,
-    id: templateID,
-    updates: keyValueChanges,
-    newTemplate
-  })
-}
-
-function updateQuickTasks({ templateID, keyValueChanges, userID, newTemplate }) {
-  Template.update({ userID, id: templateID, newTemplate, updates: keyValueChanges })
+  else {
+    Template.updateWithTasks({
+      userID: get(user).uid,
+      id: templateID,
+      updates: keyValueChanges,
+      newTemplate
+    })
+  }
 }
 
 function buildNewTemplate({ oldTemplate, keyValueChanges }) {

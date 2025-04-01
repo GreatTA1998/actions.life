@@ -51,6 +51,7 @@ const Task = {
       const result = await maintainTreeISOsForCreate({ task: validatedTask, batch })
       let treeISOs = []
       
+      // BACKWARDS COMPATIBILITY CODE HERE
       // If result is an object with treeISOs property, use that
       if (result && typeof result === 'object' && Array.isArray(result.treeISOs)) {
         treeISOs = result.treeISOs
@@ -67,11 +68,13 @@ const Task = {
         rootID = parent?.rootID || id
       }
 
-      batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), { 
-        treeISOs,
-        rootID,
-        ...validatedTask
-      })
+      const finalizedTask = { treeISOs, rootID, ...validatedTask }
+      console.log('creating task =', finalizedTask)
+
+      batch.set(
+        doc(db, `users/${get(user).uid}/tasks/${id}`), 
+        finalizedTask
+      )
 
       batch.commit()
     } 

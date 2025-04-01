@@ -43,16 +43,15 @@
     return taskObj.startDate && taskObj.startTime && taskObj.startYYYY
   }
 
-  function handleSwitchToggle() {
-    if (!displaySpecificTime) displaySpecificTime = true
-    else {
+  function handleSwitchToggle (e) {
+    if (!e.detail.checked) {
       updateTemplate({
         templateID: template.id,
-        keyValueChanges: { startTime: "" },
+        keyValueChanges: { startTime: '' },
         oldTemplate: template
       })
-      displaySpecificTime = false
     }
+    displaySpecificTime = !displaySpecificTime
   }
 </script>
 
@@ -88,7 +87,7 @@
       <div>
         <ToggleSwitch
           isChecked={displaySpecificTime}
-          on:new-checked-state={handleSwitchToggle}
+          on:change={handleSwitchToggle}
         />
       </div>
       </div>

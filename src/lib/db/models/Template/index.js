@@ -35,20 +35,23 @@ const Template = {
     return setDoc(docRef, newTemplate)
   },
 
+  // THESE ARE THE ONLY TWO FUNCTIONS THAT UPDATE THE TEMPLATE
   async update ({ userID, id, updates, newTemplate }) {
     Template.schema.parse(newTemplate)
-    Task.updateQuickTasks({userID, templateID: id, updates})
     updateDoc(doc(db, "users", userID, 'templates', id), updates)
+
+    // this is `Task`, not `Template`
+    Task.updateQuickTasks({ userID, templateID: id, updates })
   },
 
   async updateWithTasks ({ userID, id, updates, newTemplate }) {
     updateDoc(doc(db, "users", userID, 'templates', id), updates)
     if (newTemplate.crontab !== '0 0 0 * *' && newTemplate.crontab !== '0 0 * * 0') {
       deleteFutureTasks({ userID, id })
-      return postFutureTasks({ userID, id, newTemplate })
+      postFutureTasks({ userID, id, newTemplate })
     }
-    return []
   },
+  ////////////////////////////////
 
   async getAll ({ userID, includeStats = true }) {
     const q = query(collection(db, "users", userID, "templates"))

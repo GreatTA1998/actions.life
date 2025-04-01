@@ -1,16 +1,11 @@
 import cronParser from 'cron-parser'
 import { DateTime } from 'luxon'
 import { db } from '/src/lib/db/init.js'
+import Task from '$lib/db/models/Task.js'
 import { 
-  updateDoc, 
-  doc, 
-  setDoc, 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  deleteDoc, 
-  writeBatch 
+  updateDoc, doc, 
+  collection, query, where, 
+  getDocs, deleteDoc 
 } from 'firebase/firestore'
 import { getRandomID } from '/src/lib/utils/core.js'
 
@@ -28,17 +23,20 @@ const getPeriodFromCrontab = (crontab) => {
   return 'unknown'
 }
 
-const buildFutureTasks = async ({ template, startDateJS, endDateJS, userID, templateID }) => {
+async function buildFutureTasks ({ template, startDateJS, endDateJS, userID, templateID }) {
   return new Promise(async (resolve, reject) => {
     try {
       const interval = parseExpression(template.crontab, ({ currentDate: startDateJS, endDate: endDateJS, iterator: true }))
       const generatedTasks = []
+
+      // could this be re-wrote more explicitly as `while (!cronObj.done)`
       while (true) {
         const cronObj = interval.next()
         const ISODate = DateTime.fromJSDate(new Date(cronObj.value.toString())).toFormat('yyyy-MM-dd')
         const task = buildTaskFromTemplate(template, ISODate, templateID)
         generatedTasks.push(task)
         if (cronObj.done) {
+          // this should use the Template model, so it receives schema checks
           await updateDoc(doc(db, "users", userID, 'templates', templateID), { lastGeneratedTask: ISODate })
           resolve(generatedTasks)
           return
@@ -54,7 +52,7 @@ const buildFutureTasks = async ({ template, startDateJS, endDateJS, userID, temp
 const deleteFutureTasks = async ({ userID, id }) => {
   const fromDate = DateTime.now().toFormat('yyyy-MM-dd')
   const tasksQuery = query(
-    collection(db, "users", userID, "tasks"),
+    collection(db, 'users', userID, 'tasks'),
     where('templateID', '==', id),
     where('startDateISO', '>=', fromDate)
   )
@@ -65,6 +63,7 @@ const deleteFutureTasks = async ({ userID, id }) => {
       `${task.startDateISO}T${task.startTime || '23:59'}:00`,
     )
     if (taskDateTime >= DateTime.now()) {
+      // technically this should use the TaskModel
       return deleteDoc(doc(db, "users", userID, 'tasks', taskDoc.id))
     }
     return Promise.resolve()
@@ -85,18 +84,14 @@ const postFutureTasks = async ({ userID, id, newTemplate }) => {
       userID, 
       templateID: id 
     })
-    console.log('tasksArray', tasksArray)
-    const hydratedTasks = []
-    tasksArray.forEach(async task => {
-      const taskID = getRandomID()
-      setDoc(doc(db, "users", userID, 'tasks', taskID), task)
-      const hydratedTask = { ...task, id: taskID }
-      hydratedTasks.push(hydratedTask)
-    })
-    return hydratedTasks
+    for (const task of tasksArray) {
+      Task.create({ 
+        id: getRandomID(), 
+        newTaskObj: task 
+      })
+    }
   } catch (error) {
     console.error('error posting future tasks', error)
-    return []
   }
 }
 
@@ -113,24 +108,11 @@ const getTotalStats = async ({ userID, id }) => {
   return [totalTasksCompleted, totalMinutesSpent]
 }
 
-function buildTaskFromTemplate(template, ISODate, templateID) {
-  return {
-    name: template.name,
-    startDateISO: ISODate,
-    iconURL: template.iconURL,
-    tags: template.tags,
-    templateID: templateID,
-    timeZone: template.timeZone,
-    notes: template.notes,
-    notify: template.notify,
-    isDone: false,
-    imageDownloadURL: "",
-    imageFullPath: "",
-    duration: template.duration,
-    parentID: "",
-    orderValue: 0,
-    startTime: template.startTime,
-  }
+function buildTaskFromTemplate (template, ISODate, templateID) {
+  const startDateISO = ISODate
+  return Task.schema.parse({
+    startDateISO, templateID, ...template
+  })
 }
 
 export {
@@ -138,6 +120,5 @@ export {
   buildFutureTasks,
   postFutureTasks,
   deleteFutureTasks,
-  getTotalStats,
-  buildTaskFromTemplate
+  getTotalStats
 }

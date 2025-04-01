@@ -5,8 +5,10 @@
   import { updateTemplate, deleteTemplate } from './store.js'
   import { getDisplayLength } from './utils.js'
   import Template from '/src/lib/db/models/Template'
+  
   export let templates
   export let crontab
+
   let draggedTemplate
   const templateWidthInPx = 180
   const dayOfWeekSymbol = ['S', 'M', 'T', 'W', 'T', 'F', 'S']

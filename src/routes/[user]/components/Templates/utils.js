@@ -1,3 +1,5 @@
+// NOTE THERE ARE TEMPLATE UTILS IN THE COMPONENT AND IN THE LIB/DB/MODELS/TEMPLATE
+// THIS FILE IS ONLY FOR THE COMPONENT
 import { updateTemplate } from './store.js'
 import Template from '/src/lib/db/models/Template'
 

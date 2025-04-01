@@ -9,7 +9,9 @@
   import { createDebouncedFunction } from '/src/lib/utils/core.js'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
   import Icon from '/src/lib/db/models/Icon.js'
+
   export let template
+  
   let isPopupOpen = false
   let newName = template.name
 

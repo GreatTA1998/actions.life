@@ -1,35 +1,31 @@
 <script>
   import TemplateColumn from './TemplateColumn.svelte'
   import { onMount } from 'svelte'
-  import { user, calendarTasks } from '/src/lib/store'
+  import { user } from '/src/lib/store'
   import { templates } from './store.js'
-  import Template from '/src/lib/db/models/Template'
   import { filterByType } from './utils.js'
+  import { onSnapshot, collection } from 'firebase/firestore'
+  import { db } from '/src/lib/db/init.js'
 
-  $: weeklyTasks = filterByType($templates, 'weekly')
+  let weeklyTasks = []
+  let monthlyTasks = []
+  let yearlyTasks = []
+  let quickTasks = []
 
-  $: monthlyTasks = filterByType($templates, 'monthly')
+  onMount(() => {
+    const unsub = onSnapshot(
+      collection(db, 'users', $user.uid, 'templates'), 
+      snapshot => {
+        const result = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+        templates.set(result)
 
-  $: yearlyTasks = filterByType($templates, 'yearly')
-
-  $: quickTasks = filterByType($templates, 'quick')
-
-  $: {
-    if ($calendarTasks) {
-      Template.getAll({
-        userID: $user.uid,
-        includeStats: true
-      }).then((result) => {
-        $templates = result
-      })
-    }
-  }
-
-  onMount(async () => {
-    $templates = await Template.getAll({
-      userID: $user.uid,
-      includeStats: true
-    })
+        weeklyTasks = filterByType($templates, 'weekly')
+        monthlyTasks = filterByType($templates, 'monthly')
+        yearlyTasks = filterByType($templates, 'yearly')
+        quickTasks = filterByType($templates, 'quick')
+      }
+    )
+    return () => unsub()
   })
 </script>
 
