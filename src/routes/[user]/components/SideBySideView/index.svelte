@@ -50,6 +50,7 @@
   }
 
   function handlePointerUp (e) {
+    e.preventDefault()
     isResizing = false
     
     window.removeEventListener('pointermove', handlePointerMove)
