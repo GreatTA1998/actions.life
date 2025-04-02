@@ -20,7 +20,6 @@
   }
 
   function handlePointerDown (e) {
-    e.preventDefault()
     isResizing = true
     startX = e.clientX
     startWidth = listAreaWidth
@@ -35,7 +34,6 @@
   }
 
   function handlePointerMove (e) {
-    e.preventDefault()
     if (!isResizing) return
 
     const deltaX = e.clientX - startX
@@ -112,5 +110,6 @@
     z-index: 1;
     display: flex;
     align-items: center;
+    touch-action: none; /* Prevent all browser touch gestures including pull-to-refresh */
   }
 </style> 
