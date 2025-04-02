@@ -21,7 +21,6 @@
   import Task from '/src/lib/db/models/Task.js'
   import { HEIGHTS } from '/src/lib/utils/constants.js'
 
-  export let listID = ''
   export let ancestorRoomIDs
   export let roomsInThisLevel
   export let idxInThisLevel
@@ -104,7 +103,6 @@
     }
     
     Task.update({ id: $activeDragItem.id, keyValueChanges: {
-      listID,
       parentID,
       orderValue: newVal,
       startDateISO: '',

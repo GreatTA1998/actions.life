@@ -92,7 +92,6 @@ export async function handleCrossTree ({ task, changes, batch }) {
   
     // new family
     let newFamilyISOs = newParent ? [...newParent.treeISOs] : []
-    let newFamilyListID = changes.listID ? changes.listID : undefined
     const rootTask = await getRoot(newParent)
     let newFamilyRootID = rootTask ? rootTask.id : task.id
 
@@ -114,14 +113,13 @@ export async function handleCrossTree ({ task, changes, batch }) {
     }
 
 
-    // no need to change listID nor rootID
+    // no need to change `rootID`
     batchUpdate({ nodes: newFamily, treeISOs: newFamilyISOs, batch })
 
-    // need to change the listID and rootID for the small tree to the new parent
+    // need to change `rootID` for the small tree to the new parent
     batchUpdate({ 
       nodes: movedTree, 
       treeISOs: newFamilyISOs, 
-      listID: newFamilyListID, 
       rootID: newFamilyRootID,
       batch
     })
@@ -156,15 +154,14 @@ function correctTreeISOs ({ prevDate, newDate, array }) {
   return array
 }
 
-function batchUpdate ({ nodes, treeISOs, batch, listID, rootID }) {
+function batchUpdate ({ nodes, treeISOs, batch, rootID }) {
   const updateObj = { treeISOs }
-  if (listID !== undefined) updateObj.listID = listID
   if (rootID !== undefined) updateObj.rootID = rootID
   for (const node of nodes) {
     const ref = doc(db, `/users/${get(user).uid}/tasks/${node.id}`)
     batch.update(ref, updateObj)
   }
-  return { treeISOs, listID, rootID }
+  return { treeISOs, rootID }
 }
 
 export function getRoot (task) {

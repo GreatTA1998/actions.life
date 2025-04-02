@@ -45,12 +45,9 @@
     const newRootTaskObj = {
       name: taskName,
       parentID: '',
-      listID,
       timeZone: DateTime.local().zoneName,
     }
-    if (treesToDisplay.length > 0) {
-      newRootTaskObj.orderValue = (0 + treesToDisplay[0].orderValue) / 1.1
-    }
+
     Task.create({
       id: getRandomID(),
       newTaskObj: newRootTaskObj
@@ -65,21 +62,6 @@
       class:has-max-width={hasMaxWidth}
       class:enable-scrolling={enableScrolling}
     >
-      {#if isTypingNewRootTask}
-        <FormField
-          fieldLabel="Task Name"
-          value={newRootTaskStringValue}
-          on:input={(e) => (newRootTaskStringValue = e.detail.value)}
-          on:focus-out={() => {
-            if (newRootTaskStringValue === '') {
-              isTypingNewRootTask = false
-            }
-          }}
-          on:task-entered={(e) => handleKeyDown(e)}
-        />
-        <div style="margin-bottom: 8px;"></div>
-      {/if}
-
       <div class="lists">
         <div style="width: 235px;">
           <Dropzone
@@ -115,6 +97,25 @@
             />
           </div>
         {/each}
+
+        <div on:click={() => isTypingNewRootTask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
+          +
+        </div>
+
+        {#if isTypingNewRootTask}
+          <FormField
+            fieldLabel="Task Name"
+            value={newRootTaskStringValue}
+            on:input={(e) => (newRootTaskStringValue = e.detail.value)}
+            on:focus-out={() => {
+              if (newRootTaskStringValue === '') {
+                isTypingNewRootTask = false
+              }
+            }}
+            on:task-entered={(e) => handleKeyDown(e)}
+          />
+          <div style="margin-bottom: 8px;"></div>
+        {/if}
       </div>
     </div>
   </div>

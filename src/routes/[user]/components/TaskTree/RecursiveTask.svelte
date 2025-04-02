@@ -172,16 +172,18 @@
   }
 
   function createSubtask (name) {
-    Task.create({
-      id: getRandomID(),
-      newTaskObj: {
-        name,
-        parentID: taskObj.id, 
-        listID: taskObj.listID,
-        // Inherit parent's childrenLayout by default, can be changed later
-        childrenLayout: taskObj.childrenLayout || 'normal'
-      }
-    })
+    const newTaskObj = {
+      name,
+      parentID: taskObj.id, 
+      listID: taskObj.listID,
+      childrenLayout: 'normal'
+    }
+
+    if (taskObj.children.length > 0) {
+      newTaskObj.orderValue = (taskObj.children[0].orderValue) / 1.1
+    } // otherwise Task.create will initialize `$user.maxOrderValue`
+
+    Task.create({ id: getRandomID(), newTaskObj })
   }
 </script>
 
