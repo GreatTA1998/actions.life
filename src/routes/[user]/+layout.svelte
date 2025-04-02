@@ -1,7 +1,7 @@
 <script>
   import { doc, onSnapshot, setDoc } from 'firebase/firestore'
-  import { db } from '/src/back-end/firestoreConnection'
-  import { user, userInfoFromAuthProvider } from '/src/store'
+  import { db } from '/src/lib/db/init'
+  import { user, userInfoFromAuthProvider } from '/src/lib/store'
   import { onMount, onDestroy } from 'svelte'
   import { page } from '$app/stores'
 

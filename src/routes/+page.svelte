@@ -1,15 +1,17 @@
 <script>
-  import LoginGoogle from '$lib/LoginGoogle.svelte'
-  import { hasFetchedUser } from '/src/store'
+  import LoginGoogle from '$lib/components/LoginGoogle.svelte'
+  import { hasFetchedUser } from '/src/lib/store'
   import { onMount } from 'svelte'
-  import NavbarAndContentWrapper from '$lib/NavbarAndContentWrapper.svelte'
+  import NavbarContentLayout from '$lib/components/NavbarContentLayout.svelte'
 
   let isSoundOff = true
   let VideoElem
   let isPlaying = false
   let hasMobilePlayButtonAlready = true
 
-  onMount(() => {})
+  onMount(() => {
+    
+  })
 
   // when we switch "src" on <video> playback speed resets, so this is a hack
   $: if (currentIdx || currentIdx === 0) {
@@ -115,7 +117,7 @@
 </script>
 
 {#if hasFetchedUser}
-  <NavbarAndContentWrapper>
+  <NavbarContentLayout>
     <div
       slot="navbar"
       class="top-navbar transparent-glow-navbar"
@@ -123,7 +125,7 @@
     >
       <!-- svelte-ignore a11y-missing-attribute -->
       <img
-        src="/trueoutput-square-nobg.png"
+        src="/logo-no-bg.png"
         style="margin-left: 0vw; width: 38px; height: 38px;"
       />
 
@@ -270,7 +272,7 @@
         </div>
       </div>
     </div>
-  </NavbarAndContentWrapper>
+  </NavbarContentLayout>
 {/if}
 
 <style lang="scss">

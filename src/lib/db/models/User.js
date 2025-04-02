@@ -1,0 +1,44 @@
+import { z } from 'zod'
+import { db } from '/src/lib/db/init.js'
+import {
+  doc,
+  updateDoc,
+  arrayUnion,
+  collection,
+  addDoc
+} from "firebase/firestore"
+
+const User = {
+  schema: z.object({
+    FCMTokens: z.array(z.string()).default([]),
+    email: z.string().default(''),
+    isSubscriber: z.boolean().default(false),
+    phoneNumber: z.string().optional(),
+    maxOrderValue: z.number().default(3),
+    uid: z.string()
+  }),
+
+  update (userUID, keyValueChanges) {
+    return updateDoc(doc(db, "users", userUID), keyValueChanges)
+      .catch((err) => console.error("error in User.update", err))
+  },
+
+  addIconURL (userUID, name, url, hidden) {
+    return addDoc(collection(db, "users", userUID, "icons"), {
+      url,
+      name,
+      hidden
+    })
+      .then(() => url)
+      .catch((err) => console.error("error in User.addIcon", err))
+  },
+
+  addFCMToken (userUID, FCMToken) {
+    return updateDoc(doc(db, "users", userUID), {
+      FCMTokens: arrayUnion(FCMToken)
+    })
+      .catch((err) => console.error("error in User.update", err))
+  }
+}
+
+export default User 
