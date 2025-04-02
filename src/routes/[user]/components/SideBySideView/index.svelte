@@ -9,7 +9,7 @@
   let isResizing = false
   let startX = 0
   let startWidth = 0
-  let listAreaWidth = getInitialWidth() // Default width
+  let listAreaWidth = getInitialWidth()
 
   function getInitialWidth () {
     if ($user.listAreaWidthRatio) {
@@ -19,19 +19,21 @@
     }
   }
 
-  function handleMouseDown(e) {
+  function handlePointerDown (e) {
     isResizing = true
     startX = e.clientX
     startWidth = listAreaWidth
     
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
     
     // Prevent text selection during resize
     document.body.style.userSelect = 'none'
+    // Capture pointer to ensure events fire even when moved outside window
+    e.target.setPointerCapture(e.pointerId)
   }
 
-  function handleMouseMove(e) {
+  function handlePointerMove (e) {
     if (!isResizing) return
 
     const deltaX = e.clientX - startX
@@ -45,13 +47,18 @@
     listAreaWidth = newWidth
   }
 
-  function handleMouseUp () {
+  function handlePointerUp (e) {
     isResizing = false
     
-    window.removeEventListener('mousemove', handleMouseMove)
-    window.removeEventListener('mouseup', handleMouseUp)
+    window.removeEventListener('pointermove', handlePointerMove)
+    window.removeEventListener('pointerup', handlePointerUp)
     
     document.body.style.userSelect = ''
+
+    // Release pointer capture
+    if (e.target.hasPointerCapture(e.pointerId)) {
+      e.target.releasePointerCapture(e.pointerId)
+    }
 
     updateFirestoreDoc(`/users/${$user.uid}`, {
       listAreaWidthRatio: (listAreaWidth / window.innerWidth) / 100
@@ -61,23 +68,15 @@
 
 <div class="side-by-side-container">
   <div class="list-area-container" style="width: {listAreaWidth}px;">    
-    <ListsArea 
-      on:dragstart
-      on:dragend
-    />
+    <ListsArea />
   </div>
   
   <div class="handle-wrapper">
-    <GripHandle on:mousedown={handleMouseDown}/>
+    <GripHandle on:pointerdown={handlePointerDown}/>
   </div>
 
   <div class="calendar-container">
-    <Calendar
-      on:task-click
-      on:dragstart
-      on:dragend
-      on:dragover
-    />
+    <Calendar />
   </div>
 </div>
 

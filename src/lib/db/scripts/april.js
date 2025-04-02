@@ -60,15 +60,10 @@ export async function migrateBasicProperties (uid, testRun = true) {
         photoLayout: task.photoLayout ? task.photoLayout : 'full-photo',
         childrenLayout: task.childrenLayout ? task.childrenLayout : 'normal'
       })
+      if (!!task.isDone === undefined || !!task.persistsOnList === undefined) {
+        console.log('task =', task)
+      }
     }
-
-    if (task.persistsOnList || task.photoLayout === 'side-by-side' || task.childrenLayout === 'timeline')
-    console.log('updating =', {
-      persistsOnList: !!task.persistsOnList,
-      isArchived: !!task.isDone,
-      photoLayout: task.photoLayout ? task.photoLayout : 'full-photo',
-      childrenLayout: task.childrenLayout ? task.childrenLayout : 'normal'
-    })
     count += 1
   }
   console.log('successfully migrated', count, 'tasks')

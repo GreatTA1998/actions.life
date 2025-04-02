@@ -13,9 +13,5 @@
   <TodoList
     treesToDisplay={$trees}
     willShowCheckbox={true}
-    on:dragstart
-    on:dragend
-    on:dragover
-    on:drop
   />
 {/if}
