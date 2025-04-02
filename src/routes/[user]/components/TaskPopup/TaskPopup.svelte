@@ -141,7 +141,8 @@
           </div>
 
           <div style="margin-top: 16px;"></div>
-
+          
+          <!-- GOOD FOR DEBUGGING 
           <div style="display: flex; align-items: center; column-gap: 12px; padding: 12px;">
             <div>
               id: {taskObject.id} |
@@ -151,7 +152,7 @@
               persistsOnList: {taskObject.persistsOnList} | 
               orderValue: {taskObject.orderValue}
             </div>
-          </div>
+          </div> -->
 
           <div style="display: flex; align-items: center; width: 100%; column-gap: 12px;">
             {#if taskObject.imageDownloadURL}
