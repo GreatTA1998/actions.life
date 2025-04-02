@@ -20,6 +20,7 @@
   }
 
   function handlePointerDown (e) {
+    e.preventDefault()
     isResizing = true
     startX = e.clientX
     startWidth = listAreaWidth
@@ -35,6 +36,7 @@
 
   function handlePointerMove (e) {
     if (!isResizing) return
+    e.preventDefault()
 
     const deltaX = e.clientX - startX
     const newWidth = Math.max(
@@ -110,5 +112,8 @@
     z-index: 1;
     display: flex;
     align-items: center;
+
+    /* prevent defeault gestures like scrolling on the handle */
+    touch-action: none;
   }
 </style> 
