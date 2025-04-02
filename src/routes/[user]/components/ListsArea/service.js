@@ -22,7 +22,7 @@ export function listenToListsAndTasks(uid) {
     }
   )
   setupListener(
-    query(tasksCollection, where('persistsOnList', '==', false), where('startDateISO', '==', '')),
+    query(tasksCollection, where('persistsOnList', '==', false), where('startDateISO', '==', ''), where('isArchived', '==', false)),
     data => { 
       nonPersistTasks = data 
       updateCache(nonPersistTasks)
