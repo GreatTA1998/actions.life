@@ -21,7 +21,7 @@
             </span>
           </FloatingButtonWrapper>
 
-          <FloatingButtonWrapper let:setBackgroundColor={setBackgroundColor}>
+          <!-- <FloatingButtonWrapper let:setBackgroundColor={setBackgroundColor}>
             <VoiceKeywordDetect
               on:voice-start={() => {
                 isUsingVoice = true; 
@@ -32,7 +32,7 @@
               on:new-event-today={(e) => createNewEvent(e.detail)}
               on:new-todo={(e) => createNewTodo(e.detail)}
             />
-          </FloatingButtonWrapper>
+          </FloatingButtonWrapper> -->
         </ListView>
       {:else if activeTabName === 'FUTURE_VIEW'}
         <ScheduleView on:task-duration-adjusted />
