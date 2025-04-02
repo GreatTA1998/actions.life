@@ -21,6 +21,7 @@
     window.migrateCalendarTasks = migrateCalendarTasks
     window.fixInvalidStartDateISOs = fixInvalidStartDateISOs
     window.migrateBasicProperties = migrateBasicProperties
+
     translateJSConstantsToCSSVariables()
 
     // fetching user takes around 300 - 500 ms
@@ -81,7 +82,7 @@
 
     --logo-twig-color: #b34f1b;
     --location-indicator-color: var(--logo-twig-color);
-    --grip-line-color: rgba(0,0,0,0.15);
+    --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */
     --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
     --calendar-section-left-spacing: 2vw;
   }
