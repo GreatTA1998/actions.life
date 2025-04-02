@@ -1,5 +1,5 @@
 <div class="resize-handle">
-  <div class="resize-fab" on:mousedown>
+  <div class="resize-fab" on:mousedown|stopPropagation>
     <svg width="12" height="36" viewBox="0 0 12 36" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="6" width="0.5" height="24" fill="var(--grip-line-color)" />
       <rect x="5.75" y="0" width="0.5" height="36" fill="var(--grip-line-color)" />
