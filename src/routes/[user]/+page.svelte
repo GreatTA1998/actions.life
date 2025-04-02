@@ -9,19 +9,14 @@
   import TaskPopup from './components/TaskPopup/TaskPopup.svelte'
 
   import { onDestroy, onMount } from 'svelte'
-  import { page } from '$app/stores'
   import { user, loadingTasks, showSnackbar, isTaskPopupOpen } from '/src/lib/store'
-  import TodoService from './components/ListsArea/todoService.js'
 
   let currentMode = 'Week'
   let isShowingAI = false
   let unsub
 
   onMount(() => {
-    const uid = $page.params.user
-    TodoService.setupTodoListener(uid)
     loadingTasks.set(false)
-    // migrateToTreeISOs('yGVJSutBrnS1156uopQQOBuwpMl2', false)
   })
 
   onDestroy(() => {

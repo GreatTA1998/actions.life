@@ -107,7 +107,6 @@
   import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
   import Task from '/src/lib/db/models/Task.js'
 
-  import { setupTodoListener } from '../components/ListsArea/todoService.js'
   import { getRandomID, getDateInMMDD } from '/src/lib/utils/core.js'
   import { user, todoMemoryTree, hasInitialScrolled, isTaskPopupOpen } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
@@ -121,13 +120,7 @@
   let isUsingVoice = false
   let speechResult = ''
 
-  $: userID = $page.params.user
-
   onMount(async () => {
-    setupTodoListener(userID)
-    // note, we fetch future events inside that component as a quickfix, so
-    // it'll react to changes in calendar and todo
-
     isCompact.set(true)
   })
 

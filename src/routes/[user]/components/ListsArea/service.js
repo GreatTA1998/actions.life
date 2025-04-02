@@ -11,7 +11,7 @@ let persistTasks, nonPersistTasks
 export const lists = writable(null)
 export const trees = writable(null)
 
-export function listenToListsAndTasks(uid) {
+export function listenToListsAndTasks (uid) {
   const tasksCollection = collection(db, `users/${uid}/tasks`)
   setupListener(
     query(tasksCollection, where('persistsOnList', '==', true), where('isArchived', '==', false)),
