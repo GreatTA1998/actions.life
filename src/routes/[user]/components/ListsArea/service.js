@@ -8,10 +8,9 @@ import { reconstructTreeInMemory } from './todoService.js'
 
 let persistTasks, nonPersistTasks
 
-export const lists = writable(null)
 export const trees = writable(null)
 
-export function listenToListsAndTasks (uid) {
+export function listenToTasks (uid) {
   const tasksCollection = collection(db, `users/${uid}/tasks`)
   setupListener(
     query(tasksCollection, where('persistsOnList', '==', true), where('isArchived', '==', false)),
@@ -26,10 +25,6 @@ export function listenToListsAndTasks (uid) {
       nonPersistTasks = data 
       updateCache(nonPersistTasks)
     }
-  )
-  setupListener(
-    collection(db, `users/${uid}/lists`), 
-    data => lists.set(data)
   )
 } 
 

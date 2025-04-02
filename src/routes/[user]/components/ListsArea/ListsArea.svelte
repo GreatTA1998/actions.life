@@ -1,11 +1,11 @@
 <script>
-  import { listenToListsAndTasks, trees } from './service.js'
+  import { listenToTasks, trees } from './service.js'
   import { user } from '/src/lib/store'
   import { onMount } from 'svelte'
   import TodoList from './TodoList.svelte'
 
   onMount(() => {
-    listenToListsAndTasks($user.uid)
+    listenToTasks($user.uid)
   })
 </script>
 

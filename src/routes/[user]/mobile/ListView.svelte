@@ -19,10 +19,10 @@
 <script>
   import TodoList from '../components/ListsArea/TodoList.svelte'
   import { user } from '/src/lib/store'
-  import { listenToListsAndTasks, trees } from '../components/ListsArea/service'
+  import { listenToTasks, trees } from '../components/ListsArea/service'
   import { onMount } from 'svelte'
 
   onMount(() => {
-    listenToListsAndTasks($user.uid)
+    listenToTasks($user.uid)
   })
 </script>
