@@ -11,13 +11,26 @@ import { db } from '/src/lib/db/init.js'
 import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
 import { getTreeNodes } from './treeISOs.js'
 
+export function isValidISODate (dateStr) {
+  if (dateStr === '') return true
+  const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/
+  if (!isoFormatRegex.test(dateStr)) return false
+  const date = new Date(dateStr)
+  return !isNaN(date.getTime())
+}
+
 const Task = {
   schema: z.object({
     name: z.string().default('Untitled'),
     duration: z.number().default(30),
     parentID: z.string().default(''),
     startTime: z.string().default(''),
-    startDateISO: z.string().default(''),
+    startDateISO: z.string()
+      .default('')
+      .refine(isValidISODate, {
+        message: 'startDateISO is not in proper yyyy-MM-dd format'
+      })
+    ,
     iconURL: z.string().default(''),
     timeZone: z.string().default(Intl.DateTimeFormat().resolvedOptions().timeZone),
     notify: z.string().default(''),
@@ -42,10 +55,12 @@ const Task = {
   // Individual task operations
   create: async ({ id, newTaskObj }) => {
     try {
+      const validatedTask = Task.schema.parse(newTaskObj)
+
       const batch = writeBatch(db)
-      const validatedTask = Task.schema.parse({ ...newTaskObj })
       const result = await maintainTreeISOsForCreate({ task: validatedTask, batch })
       let treeISOs = []
+      
       const { uid } = get(user)
       
       // BACKWARDS COMPATIBILITY CODE HERE

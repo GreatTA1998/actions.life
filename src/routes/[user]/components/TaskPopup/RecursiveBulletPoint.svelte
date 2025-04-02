@@ -102,7 +102,7 @@
 <style>
   .completed-task {
     text-decoration: line-through;
-    color: rgb(180, 180, 180);
+    opacity: 0.5;
   }
 
   .accented-branch {

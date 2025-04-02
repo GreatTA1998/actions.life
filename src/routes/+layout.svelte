@@ -8,14 +8,21 @@
   import { translateJSConstantsToCSSVariables } from '/src/lib/utils/constants.js'
   import { userInfoFromAuthProvider } from '/src/lib/store/index.js'
   import { migrateToRootID } from '/src/lib/db/models/treeISOs.js'
-  import { convertTasksToNonPersist } from '/src/lib/db/scripts/april.js'
+  import { 
+    convertTasksToNonPersist,
+    migrateCalendarTasks,
+    fixInvalidStartDateISOs,
+    migrateBasicProperties
+  } from '/src/lib/db/scripts/april.js'
 
   let doingAuth = true
 
   onMount(() => {
     window.migrateToRootID = migrateToRootID
     window.convertTasksToNonPersist = convertTasksToNonPersist
-    
+    window.migrateCalendarTasks = migrateCalendarTasks
+    window.fixInvalidStartDateISOs = fixInvalidStartDateISOs
+    window.migrateBasicProperties = migrateBasicProperties
     translateJSConstantsToCSSVariables()
 
     // fetching user takes around 300 - 500 ms
