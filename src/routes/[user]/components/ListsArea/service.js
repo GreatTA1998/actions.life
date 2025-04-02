@@ -1,4 +1,4 @@
-import { writable, get } from 'svelte/store'
+import { writable } from 'svelte/store'
 import { db } from '/src/lib/db/init'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { updateCache } from '/src/lib/store'

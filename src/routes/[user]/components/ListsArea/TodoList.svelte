@@ -11,8 +11,6 @@
   const dispatch = createEventDispatcher()
 
   export let treesToDisplay = []
-  export let enableScrolling = false
-  export let hasMaxWidth = false // quickfix to prevent complicated flexbox layout ordering issues
   export let willShowCheckbox = true
   export let isLargeFont = false
   export let triggerNewTask = false
@@ -56,65 +54,58 @@
 
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
 <div class="todo-list-container" style={$$props.style}>
-  <div class="first-column">
-    <div style="flex-grow: 1; padding: 0px 6px;"
-      class:has-max-width={hasMaxWidth}
-      class:enable-scrolling={enableScrolling}
-    >
-      <div class="lists">
-        <div style="width: 235px;">
-          <Dropzone
-            ancestorRoomIDs={['']}
-            roomsInThisLevel={treesToDisplay}
-            idxInThisLevel={0}
-            parentID={''}
-            colorForDebugging="purple"
-            heightInPx={HEIGHTS.ROOT_DROPZONE}
-          />
-        </div>
-
-        {#each treesToDisplay as taskObj, i (taskObj.id)}
-          <div class="list-container">
-            <RecursiveTask {taskObj}
-              depth={0}
-              ancestorRoomIDs={['']}
-              {willShowCheckbox}
-              {isLargeFont}
-            />
-          </div>
-
-          <div style="width: 235px;">
-            <Dropzone
-              ancestorRoomIDs={['']}
-              roomsInThisLevel={treesToDisplay}
-              idxInThisLevel={i + 1}
-              parentID={''}
-              colorForDebugging="purple"
-              heightInPx={HEIGHTS.ROOT_DROPZONE}
-            />
-          </div>
-        {/each}
-
-        <div on:click={() => isTypingNewRootTask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
-          +
-        </div>
-
-        {#if isTypingNewRootTask}
-          <FormField
-            fieldLabel="Task Name"
-            value={newRootTaskStringValue}
-            on:input={(e) => (newRootTaskStringValue = e.detail.value)}
-            on:focus-out={() => {
-              if (newRootTaskStringValue === '') {
-                isTypingNewRootTask = false
-              }
-            }}
-            on:task-entered={(e) => handleKeyDown(e)}
-          />
-          <div style="margin-bottom: 8px;"></div>
-        {/if}
-      </div>
+  <div class="lists">
+    <div style="width: 235px;">
+      <Dropzone
+        ancestorRoomIDs={['']}
+        roomsInThisLevel={treesToDisplay}
+        idxInThisLevel={0}
+        parentID={''}
+        colorForDebugging="purple"
+        heightInPx={HEIGHTS.ROOT_DROPZONE}
+      />
     </div>
+
+    {#each treesToDisplay as taskObj, i (taskObj.id)}
+      <div class="list-container">
+        <RecursiveTask {taskObj}
+          depth={0}
+          ancestorRoomIDs={['']}
+          {willShowCheckbox}
+          {isLargeFont}
+        />
+      </div>
+
+      <div style="width: 235px;">
+        <Dropzone
+          ancestorRoomIDs={['']}
+          roomsInThisLevel={treesToDisplay}
+          idxInThisLevel={i + 1}
+          parentID={''}
+          colorForDebugging="purple"
+          heightInPx={HEIGHTS.ROOT_DROPZONE}
+        />
+      </div>
+    {/each}
+
+    <div on:click={() => isTypingNewRootTask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
+      +
+    </div>
+
+    {#if isTypingNewRootTask}
+      <FormField
+        fieldLabel="Task Name"
+        value={newRootTaskStringValue}
+        on:input={(e) => (newRootTaskStringValue = e.detail.value)}
+        on:focus-out={() => {
+          if (newRootTaskStringValue === '') {
+            isTypingNewRootTask = false
+          }
+        }}
+        on:task-entered={(e) => handleKeyDown(e)}
+      />
+      <div style="margin-bottom: 8px;"></div>
+    {/if}
   </div>
 
   <slot {startTypingNewTask}>
@@ -145,24 +136,6 @@
     padding-left: 1vw;
     padding-right: 1vw;
     font-size: 2em;
-  }
-
-  .enable-scrolling {
-    overflow-y: auto;
-  }
-
-  /* This saves a lot of pain, trust me. I have no idea why the flexboxes don't shrink with flex-basis, flex-shrink etc. and upon further research it looks like 
-    it can get extremely complicated, and that CSS grid could be a better solution.
-  */
-  .has-max-width {
-    max-width: 21.2vw;
-  }
-
-  .first-column {
-    flex-basis: 100%;
-    height: 100%; 
-    display: flex; 
-    flex-direction: column;
   }
   
   .new-task-icon {
