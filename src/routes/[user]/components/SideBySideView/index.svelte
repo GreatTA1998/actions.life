@@ -35,8 +35,8 @@
   }
 
   function handlePointerMove (e) {
-    if (!isResizing) return
     e.preventDefault()
+    if (!isResizing) return
 
     const deltaX = e.clientX - startX
     const newWidth = Math.max(

@@ -1,4 +1,5 @@
 <div class="resize-handle">
+  <!-- reason for handling touchstart: https://pqina.nl/blog/blocking-navigation-gestures-on-ios-13-4/ -->
   <div class="resize-fab" 
     on:pointerdown|stopPropagation|preventDefault 
     on:touchstart|preventDefault
