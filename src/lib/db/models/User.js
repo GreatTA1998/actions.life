@@ -14,7 +14,7 @@ const User = {
     email: z.string().default(''),
     isSubscriber: z.boolean().default(false),
     phoneNumber: z.string().optional(),
-    maxOrderValue: z.number().default(0),
+    maxOrderValue: z.number().default(3),
     uid: z.string()
   }),
 

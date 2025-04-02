@@ -22,7 +22,16 @@
     const sortedTasks = [...tasks].sort((a, b) => {
       if (!a.startDateISO) return 1
       if (!b.startDateISO) return -1
-      return new Date(a.startDateISO) - new Date(b.startDateISO)
+      
+      const dateA = new Date(a.startDateISO)
+      const dateB = new Date(b.startDateISO)
+      
+      // If dates are equal, sort by orderValue
+      if (dateA.getTime() === dateB.getTime()) {
+        return (a.orderValue || 0) - (b.orderValue || 0)
+      }
+      
+      return dateA - dateB
     })
     
     const n = sortedTasks.length

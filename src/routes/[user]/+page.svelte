@@ -16,7 +16,6 @@
   let currentMode = 'Week'
   let isShowingAI = false
   let unsub
-  let showLegacyTodoInWeekMode
 
   onMount(() => {
     const uid = $page.params.user
@@ -28,12 +27,6 @@
   onDestroy(() => {
     if (unsub) unsub()
   })
-
-  function handleViewToggle(event, mode) {
-    if (mode === 'Week') {
-      showLegacyTodoInWeekMode = event.detail.showLegacyTodo;
-    }
-  }
 </script>
 
 {#if $user.uid}
@@ -55,10 +48,7 @@
 
     <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
       <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
-        <SideBySideView 
-          showLegacyTodo={showLegacyTodoInWeekMode}
-          on:viewToggle={e => handleViewToggle(e, 'Week')}
-        />
+        <SideBySideView />
 
         <div style="display: {isShowingAI ? 'block' : 'none'}; flex: 0 0 320px;">
           <AI />

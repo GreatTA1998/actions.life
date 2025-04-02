@@ -13,7 +13,6 @@
   <TodoList
     treesToDisplay={$trees}
     willShowCheckbox={true}
-    hideListTitle={true}
     on:dragstart
     on:dragend
     on:dragover

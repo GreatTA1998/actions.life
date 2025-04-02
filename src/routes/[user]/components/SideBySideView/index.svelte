@@ -6,8 +6,6 @@
   import { user } from '/src/lib/store'
   import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
 
-  export let listID = null // Optional specific list ID to display
-
   let isResizing = false
   let startX = 0
   let startWidth = 0
@@ -64,7 +62,6 @@
 <div class="side-by-side-container">
   <div class="list-area-container" style="width: {listAreaWidth}px;">    
     <ListsArea 
-      {listID}
       on:dragstart
       on:dragend
     />

@@ -12,12 +12,10 @@
 
   export let listID = ''
   export let treesToDisplay = []
-  export let listTitle
   export let enableScrolling = false
   export let hasMaxWidth = false // quickfix to prevent complicated flexbox layout ordering issues
   export let willShowCheckbox = true
   export let isLargeFont = false
-  export let hideListTitle = false
   export let triggerNewTask = false
 
   let isTypingNewRootTask = false
@@ -63,21 +61,6 @@
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
 <div class="todo-list-container" style={$$props.style}>
   <div class="first-column">
-    {#if listTitle && !hideListTitle}
-      <div style="display: flex; align-items: center;">
-        <div style="font-weight: 600; font-size: 18px; color: rgb(80, 80, 80)">
-          {listTitle}
-        </div>
-
-        <span on:click={startTypingNewTask} on:keydown
-          class="new-task-icon material-icons"
-          style="margin-left: 10px; margin-bottom: 10px; cursor: pointer;"
-        >
-          +
-        </span>
-      </div>
-    {/if}
-
     <div style="flex-grow: 1; padding: 0px 6px;"
       class:has-max-width={hasMaxWidth}
       class:enable-scrolling={enableScrolling}

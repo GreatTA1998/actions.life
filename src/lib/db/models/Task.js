@@ -3,14 +3,9 @@ import { deleteImage } from '/src/lib/db/helpers.js'
 import { get } from 'svelte/store'
 import { user, tasksCache } from '/src/lib/store/index.js'
 import { 
-  writeBatch, 
-  getDocs, 
-  collection, 
-  query, 
-  where, 
-  updateDoc, 
-  onSnapshot, 
-  doc 
+  writeBatch, getDocs, increment, 
+  collection, query, where, 
+  updateDoc, onSnapshot, doc 
 } from 'firebase/firestore'
 import { db } from '/src/lib/db/init.js'
 import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
@@ -20,7 +15,6 @@ const Task = {
   schema: z.object({
     name: z.string().default('Untitled'),
     duration: z.number().default(30),
-    orderValue: z.number().default(0.1),
     parentID: z.string().default(''),
     startTime: z.string().default(''),
     startDateISO: z.string().default(''),
@@ -39,6 +33,8 @@ const Task = {
     childrenLayout: z.string().default('normal'), // 'normal' or 'timeline'
     photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'thumbnail'
 
+    orderValue: z.number().optional(), // must be maintained
+
     treeISOs: z.array(z.string()).optional(), // must be maintained
     rootID: z.string().optional() // must be maintained
   }),
@@ -50,6 +46,7 @@ const Task = {
       const validatedTask = Task.schema.parse({ ...newTaskObj })
       const result = await maintainTreeISOsForCreate({ task: validatedTask, batch })
       let treeISOs = []
+      const { uid } = get(user)
       
       // BACKWARDS COMPATIBILITY CODE HERE
       // If result is an object with treeISOs property, use that
@@ -68,11 +65,23 @@ const Task = {
         rootID = parent?.rootID || id
       }
 
-      const finalizedTask = { treeISOs, rootID, ...validatedTask }
+      // handle orderValue
+      if (!validatedTask.orderValue) {
+        validatedTask.orderValue = get(user).maxOrderValue + 1
+        batch.update(doc(db, 'users', uid), { 
+          maxOrderValue: increment(2) 
+        })
+      }
+
+      const finalizedTask = { 
+        treeISOs, 
+        rootID, 
+        ...validatedTask 
+      }
       console.log('creating task =', finalizedTask)
 
       batch.set(
-        doc(db, `users/${get(user).uid}/tasks/${id}`), 
+        doc(db, `users/${uid}/tasks/${id}`), 
         finalizedTask
       )
 
