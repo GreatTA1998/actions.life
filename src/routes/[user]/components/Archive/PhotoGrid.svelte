@@ -1,11 +1,12 @@
 <script>
   import { formatDate } from '/src/lib/utils/core.js'
   import { user, tasksCache, openTaskPopup } from '/src/lib/store/index.js'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy} from 'svelte'
   import { DateTime } from 'luxon'
-  import { collection, query, where, getDocs } from 'firebase/firestore'
+  import { collection, query, where, onSnapshot } from 'firebase/firestore'
   import { db } from '/src/lib/db/init.js'
 
+  let unsub
   let allPhotoTasks = []
   let dateRangePhotoTasks = []
   let startDateISO 
@@ -36,11 +37,14 @@
   }
 
   onMount(() => {
-    fetchAllPhotoTasks()
+    listenToPhotoTasks()
   })
 
-  // Fetch all tasks with photos once
-  async function fetchAllPhotoTasks() {
+  onDestroy(() => {
+    if (unsub) unsub()
+  })
+
+  async function listenToPhotoTasks() {
     loadingPhotos = true
     try {
       const q = query(
@@ -48,24 +52,18 @@
         where("imageDownloadURL", "!=", "")
       )
       
-      const snapshot = await getDocs(q)
-      const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-      
-      // Add tasks to tasksCache
-      tasksCache.update(cache => {
-        for (const task of tasks) {
-          cache[task.id] = task
-        }
-        return cache
+      unsub = onSnapshot(q, snapshot => {
+        const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+        tasksCache.update(cache => {
+          for (const task of tasks) {
+            cache[task.id] = task
+          }
+          return cache
+        })
+        allPhotoTasks = tasks
+        allPhotoTasks.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
+        updatePhotoDisplay()
       })
-      
-      allPhotoTasks = tasks
-      
-      // Sort by date (newest first)
-      allPhotoTasks.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
-      
-      // Show initial photos
-      updatePhotoDisplay()
     } catch (error) {
       console.error("Error fetching photos:", error)
     } finally {
