@@ -1,13 +1,12 @@
 <script>
   import '/src/lib/db/init.js'
-  import { user, loadingTasks } from '/src/lib/store/index.js'
+  import { user } from '/src/lib/store/index.js'
   import posthog from 'posthog-js'
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
   import { translateJSConstantsToCSSVariables } from '/src/lib/utils/constants.js'
   import { userInfoFromAuthProvider } from '/src/lib/store/index.js'
-  import { migrateToRootID } from '/src/lib/db/models/treeISOs.js'
   import { 
     convertTasksToNonPersist,
     migrateCalendarTasks,
@@ -18,7 +17,6 @@
   let doingAuth = true
 
   onMount(() => {
-    window.migrateToRootID = migrateToRootID
     window.convertTasksToNonPersist = convertTasksToNonPersist
     window.migrateCalendarTasks = migrateCalendarTasks
     window.fixInvalidStartDateISOs = fixInvalidStartDateISOs
