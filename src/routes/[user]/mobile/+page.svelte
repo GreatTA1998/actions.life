@@ -15,7 +15,7 @@
         <ListView
           let:startTypingNewTask={startTypingNewTask}
         >
-          <FloatingButtonWrapper on:click={startTypingNewTask} distanceFromBottom={100}>
+          <FloatingButtonWrapper on:click={startTypingNewTask} distanceFromBottom={16}>
             <span id="startButton" class="material-symbols-outlined" style="font-size: 48px; font-weight: 600;">
               add
             </span>
