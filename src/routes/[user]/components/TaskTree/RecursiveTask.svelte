@@ -57,7 +57,6 @@
           idxInThisLevel={0}
           parentID={taskObj.id}
           {colorForDebugging}
-          listID={taskObj.listID}
         /> 
       </div>
 
@@ -83,7 +82,6 @@
             idxInThisLevel={i + 1}
             parentID={taskObj.id}
             {colorForDebugging}
-            listID={taskObj.listID}
           /> 
         </div>
       {/each}
@@ -175,7 +173,6 @@
     const newTaskObj = {
       name,
       parentID: taskObj.id, 
-      listID: taskObj.listID,
       childrenLayout: 'normal'
     }
 

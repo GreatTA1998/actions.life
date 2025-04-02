@@ -9,7 +9,6 @@ import { reconstructTreeInMemory } from './todoService.js'
 let persistTasks, nonPersistTasks
 
 export const lists = writable(null)
-export const listTreesMap = writable(null) // listID --> array of task trees
 export const trees = writable(null)
 
 export function listenToListsAndTasks(uid) {

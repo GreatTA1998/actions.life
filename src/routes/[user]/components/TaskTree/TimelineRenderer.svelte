@@ -68,7 +68,6 @@
     idxInThisLevel={0}
     parentID={parentID}
     {colorForDebugging}
-    listID={children[0].listID}
   />
 
   {#each sortedTasks as child, i (child.id)}
@@ -109,7 +108,6 @@
         idxInThisLevel={i + 1}
         parentID={parentID}
         {colorForDebugging}
-        listID={child.listID}
       />
     </div>
   {/each}

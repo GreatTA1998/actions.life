@@ -92,7 +92,6 @@
       newTaskObj: {
         name,
         parentID: node.id, 
-        listID: node.listID,
         childrenLayout: node.childrenLayout || 'normal'
       }
     })

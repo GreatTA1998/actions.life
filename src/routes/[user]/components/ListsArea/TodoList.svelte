@@ -10,7 +10,6 @@
 
   const dispatch = createEventDispatcher()
 
-  export let listID = ''
   export let treesToDisplay = []
   export let enableScrolling = false
   export let hasMaxWidth = false // quickfix to prevent complicated flexbox layout ordering issues
@@ -65,7 +64,6 @@
       <div class="lists">
         <div style="width: 235px;">
           <Dropzone
-            {listID}
             ancestorRoomIDs={['']}
             roomsInThisLevel={treesToDisplay}
             idxInThisLevel={0}
@@ -87,7 +85,6 @@
 
           <div style="width: 235px;">
             <Dropzone
-              {listID}
               ancestorRoomIDs={['']}
               roomsInThisLevel={treesToDisplay}
               idxInThisLevel={i + 1}

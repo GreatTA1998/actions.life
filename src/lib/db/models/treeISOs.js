@@ -87,7 +87,6 @@ export async function handleCrossTree ({ task, changes, batch }) {
     }
     console.log('familyISOs after =', prevFamilyISOs)
 
-    // no need to change listID nor rootID
     batchUpdate({ nodes: prevFamily, treeISOs: prevFamilyISOs, batch })
   
     // new family
