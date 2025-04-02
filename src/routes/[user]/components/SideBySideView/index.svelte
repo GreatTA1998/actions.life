@@ -50,7 +50,6 @@
   }
 
   function handlePointerUp (e) {
-    e.preventDefault()
     isResizing = false
     
     window.removeEventListener('pointermove', handlePointerMove)
@@ -113,8 +112,5 @@
     z-index: 1;
     display: flex;
     align-items: center;
-
-    /* prevent defeault gestures like scrolling on the handle */
-    touch-action: none;
   }
 </style> 
