@@ -110,6 +110,8 @@
     z-index: 1;
     display: flex;
     align-items: center;
-    touch-action: none; /* Prevent all browser touch gestures including pull-to-refresh */
+
+    /* this is magic for some reason, suddenly fixed everything without even needing e.preventDefault() */
+    touch-action: none;
   }
 </style> 
