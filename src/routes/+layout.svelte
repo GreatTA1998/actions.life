@@ -8,7 +8,6 @@
   import { translateJSConstantsToCSSVariables } from '/src/lib/utils/constants.js'
   import { userInfoFromAuthProvider } from '/src/lib/store/index.js'
   import { 
-    convertTasksToNonPersist,
     migrateCalendarTasks,
     fixInvalidStartDateISOs,
     migrateBasicProperties
@@ -17,10 +16,9 @@
   let doingAuth = true
 
   onMount(() => {
-    window.convertTasksToNonPersist = convertTasksToNonPersist
-    window.migrateCalendarTasks = migrateCalendarTasks
     window.fixInvalidStartDateISOs = fixInvalidStartDateISOs
     window.migrateBasicProperties = migrateBasicProperties
+    window.migrateCalendarTasks = migrateCalendarTasks
 
     translateJSConstantsToCSSVariables()
 

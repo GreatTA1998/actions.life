@@ -44,6 +44,20 @@
     />
   {:else}
     <div style="margin-left: {WIDTHS.SUBTASK_LEFT_MARGIN}px;">
+      {#if isTypingNewSubtask}  
+        <FormField
+          fieldLabel="Task Name"
+          value={newSubtaskStringValue}
+          on:input={(e) => newSubtaskStringValue = e.detail.value}
+          on:focus-out={() => {
+            if (newSubtaskStringValue === '') {
+              isTypingNewSubtask = false
+            }
+          }}
+          on:task-entered={(e) => onEnter(e)}
+        />
+      {/if}
+
       <div class:ghost-negative={n === 0} 
         style="
           width: 235px;
@@ -86,20 +100,6 @@
         </div>
       {/each}
     </div>
-  {/if}
-  
-  {#if isTypingNewSubtask}
-    <FormField
-      fieldLabel="Task Name"
-      value={newSubtaskStringValue}
-      on:input={(e) => newSubtaskStringValue = e.detail.value}
-      on:focus-out={() => {
-        if (newSubtaskStringValue === '') {
-          isTypingNewSubtask = false
-        }
-      }}
-      on:task-entered={(e) => onEnter(e)}
-    />
   {/if}
 </div>
 
@@ -178,7 +178,8 @@
 
     if (taskObj.children.length > 0) {
       newTaskObj.orderValue = (taskObj.children[0].orderValue) / 1.1
-    } // otherwise Task.create will initialize `$user.maxOrderValue`
+    } 
+    // Task.create(), by default, initializes `$user.maxOrderValue`
 
     Task.create({ id: getRandomID(), newTaskObj })
   }

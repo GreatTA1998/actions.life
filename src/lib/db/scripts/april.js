@@ -52,20 +52,24 @@ export async function migrateBasicProperties (uid, testRun = true) {
   console.log('testRun = ', testRun)
   const tasks = await getFirestoreCollection(`/users/${uid}/tasks`)
   let count = 0
+  const promises = []
   for (const task of tasks) {
     if (!testRun) {
-      updateFirestoreDoc(`/users/${uid}/tasks/${task.id}`, {
-        persistsOnList: !!task.persistsOnList,
-        isArchived: !!task.isDone,
-        photoLayout: task.photoLayout ? task.photoLayout : 'full-photo',
-        childrenLayout: task.childrenLayout ? task.childrenLayout : 'normal'
-      })
+      promises.push(
+        updateFirestoreDoc(`/users/${uid}/tasks/${task.id}`, {
+          persistsOnList: !!task.persistsOnList,
+          isArchived: !!task.isDone,
+          photoLayout: task.photoLayout ? task.photoLayout : 'full-photo',
+          childrenLayout: task.childrenLayout ? task.childrenLayout : 'normal'
+        })
+      )
       if (!!task.isDone === undefined || !!task.persistsOnList === undefined) {
         console.log('task =', task)
       }
     }
     count += 1
   }
+  await Promise.all(promises)
   console.log('successfully migrated', count, 'tasks')
 }
 
