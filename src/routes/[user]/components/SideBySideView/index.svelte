@@ -1,25 +1,17 @@
 <script>
   import ListsArea from '../ListsArea/ListsArea.svelte'
-  import TodoList from '../ListsArea/TodoList.svelte'
   import Calendar from '../Calendar/Calendar.svelte'
   import GripHandle from './GripHandle.svelte'
 
-  import { inclusiveWeekTodo, user } from '/src/lib/store'
-  import { createEventDispatcher } from 'svelte'
+  import { user } from '/src/lib/store'
   import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
 
-  export let showLegacyTodo = false // Default to showing the legacy todo list
   export let listID = null // Optional specific list ID to display
-  export let showToggle = true // Whether to show the toggle button
 
   let isResizing = false
   let startX = 0
   let startWidth = 0
   let listAreaWidth = getInitialWidth() // Default width
-  let minWidth = 0 // Minimum width for list area
-  let maxWidth = window.innerWidth // Maximum width for list area
-  
-  const dispatch = createEventDispatcher()
 
   function getInitialWidth () {
     if ($user.listAreaWidthRatio) {
@@ -43,10 +35,15 @@
 
   function handleMouseMove(e) {
     if (!isResizing) return
-    
+
     const deltaX = e.clientX - startX
-    const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + deltaX))
-    
+    const newWidth = Math.max(
+      0, 
+      Math.min(
+        window.innerWidth, 
+        startWidth + deltaX
+      )
+    )
     listAreaWidth = newWidth
   }
 
@@ -62,41 +59,15 @@
       listAreaWidthRatio: (listAreaWidth / window.innerWidth) / 100
     })
   }
-
-  function toggleView() {
-    showLegacyTodo = !showLegacyTodo
-    dispatch('viewToggle', { showLegacyTodo })
-  }
 </script>
 
 <div class="side-by-side-container">
-  <div class="list-area-container" style="width: {listAreaWidth}px;">
-    {#if showToggle}
-      <!-- <button class="toggle-button" on:click={toggleView}>
-        Switch
-      </button> -->
-    {/if}
-    
-    {#if showLegacyTodo}
-      <div class="todo-container">
-        <TodoList
-          listTitle="TO-DO"
-          tasksToDisplay={$inclusiveWeekTodo}
-          style="padding-top: var(--height-main-content-top-margin); background-color: var(--todo-list-bg-color); border-radius: 16px; height: 100%;"
-          willShowCheckbox={false}
-          on:dragstart
-          on:dragend
-          on:dragover
-          on:drop
-        />
-      </div>
-    {:else}
-      <ListsArea 
-        {listID}
-        on:dragstart
-        on:dragend
-      />
-    {/if}
+  <div class="list-area-container" style="width: {listAreaWidth}px;">    
+    <ListsArea 
+      {listID}
+      on:dragstart
+      on:dragend
+    />
   </div>
   
   <div class="handle-wrapper">
@@ -131,37 +102,10 @@
     flex-shrink: 0;
   }
   
-  .todo-container {
-    height: 100%;
-    width: 100%;
-    overflow-y: auto;
-    scrollbar-width: none;
-  }
-  
   .calendar-container {
     flex-grow: 1;
     height: 100%;
     overflow: hidden;
-  }
-  
-  .toggle-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 20;
-    padding: 5px 10px;
-    background-color: var(--primary-color, #4a90e2);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-  }
-  
-  .toggle-button:hover {
-    opacity: 1;
   }
   
   .handle-wrapper {

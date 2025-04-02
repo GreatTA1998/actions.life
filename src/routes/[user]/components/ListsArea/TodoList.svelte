@@ -98,27 +98,29 @@
       {/if}
 
       <div class="lists">
-        <Dropzone
-          {listID}
-          ancestorRoomIDs={['']}
-          roomsInThisLevel={treesToDisplay}
-          idxInThisLevel={0}
-          parentID={''}
-          colorForDebugging="purple"
-          heightInPx={HEIGHTS.ROOT_DROPZONE}
-        />
+        <div style="width: 235px;">
+          <Dropzone
+            {listID}
+            ancestorRoomIDs={['']}
+            roomsInThisLevel={treesToDisplay}
+            idxInThisLevel={0}
+            parentID={''}
+            colorForDebugging="purple"
+            heightInPx={HEIGHTS.ROOT_DROPZONE}
+          />
+        </div>
 
         {#each treesToDisplay as taskObj, i (taskObj.id)}
-          <div>
-            <div class="list-container">
-              <RecursiveTask {taskObj}
-                depth={0}
-                ancestorRoomIDs={['']}
-                {willShowCheckbox}
-                {isLargeFont}
-              />
-            </div>
+          <div class="list-container">
+            <RecursiveTask {taskObj}
+              depth={0}
+              ancestorRoomIDs={['']}
+              {willShowCheckbox}
+              {isLargeFont}
+            />
+          </div>
 
+          <div style="width: 235px;">
             <Dropzone
               {listID}
               ancestorRoomIDs={['']}
@@ -141,23 +143,24 @@
 
 <style>  
   .lists {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    height: calc(100vh - var(--height-navbar));
+    align-items: start; /* default is stretch */
+    column-gap: 24px; /* matches dropzone's height */
   }
 
   .list-container {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    overflow: auto;
     padding: 0.5vw;
   }
 
   .todo-list-container {
     /* width: 100%; will cause the strange shifting out of screen bug*/
     height: 100%;
-    padding-bottom: 16px;
     padding-left: 1vw;
     padding-right: 1vw;
     font-size: 2em;

@@ -72,7 +72,8 @@
           startDateISO: DateTime.fromJSDate(resultantDateClassObject).toFormat(
             'yyyy-MM-dd'
           ),
-          startTime: newTaskStartTime
+          startTime: newTaskStartTime,
+          persistsOnList: false
         }
       })
     }

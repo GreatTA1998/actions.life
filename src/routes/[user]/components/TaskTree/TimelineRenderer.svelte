@@ -78,7 +78,7 @@
             </div>
           {:else}
             <div class="date-badge">
-              N/A
+              No date
             </div>
           {/if}
         </RecursiveTask>

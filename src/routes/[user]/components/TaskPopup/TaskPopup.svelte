@@ -146,8 +146,9 @@
             <div>
               id: {taskObject.id} |
               rootID: {taskObject.rootID} |
-              listID: {taskObject.listID} |
-              treeISOs: {JSON.stringify(taskObject.treeISOs)}
+              treeISOs: {JSON.stringify(taskObject.treeISOs)} |
+              isArchived: {taskObject.isArchived} |
+              persistsOnList: {taskObject.persistsOnList}
             </div>
           </div>
 
