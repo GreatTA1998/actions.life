@@ -357,4 +357,4 @@
   .delete-button:hover .tooltip {
     visibility: visible;
   }
-</style> 
+</style>

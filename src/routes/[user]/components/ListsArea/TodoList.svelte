@@ -4,8 +4,8 @@
   import FormField from '$lib/components/FormField.svelte'
   import { getRandomID } from '/src/lib/utils/core.js'
   import { HEIGHTS } from '/src/lib/utils/constants.js'
-  import { DateTime } from 'luxon'
   import Task from '/src/lib/db/models/Task.js'
+  import { DateTime } from 'luxon'
   import { createEventDispatcher } from 'svelte'
 
   const dispatch = createEventDispatcher()
@@ -54,7 +54,7 @@
 
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
 <div class="todo-list-container" style={$$props.style}>
-  <div class="lists">
+  <div class="lists-flexbox">
     <div style="width: 235px;">
       <Dropzone
         ancestorRoomIDs={['']}
@@ -114,7 +114,7 @@
 </div>
 
 <style>  
-  .lists {
+  .lists-flexbox {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
