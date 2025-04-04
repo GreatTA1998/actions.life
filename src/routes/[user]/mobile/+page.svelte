@@ -1,7 +1,3 @@
-<svelte:head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-</svelte:head>
-
 {#if $user.uid}
   {#if $isTaskPopupOpen}
     <TaskPopup/>
@@ -10,9 +6,7 @@
   <div class="grid-container">
     <main class="content-area">
       {#if activeTabName === 'TODO_VIEW'}
-        <div style="  height: 100%;
-    width: 100%;
-    position: relative;">
+        <div style="height: 100%; width: 100%; position: relative;">
           <TodoList style="background-color: transparent; padding-top: var(--main-content-top-margin);"
             willShowCheckbox={false}
             isLargeFont
@@ -110,6 +104,10 @@
     if (unsub) unsub()
   })
 </script>
+
+<svelte:head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+</svelte:head>
 
 <style>
   :root {
