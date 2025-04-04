@@ -34,7 +34,8 @@
           person_profiles: 'always' // or 'always' to create profiles for anonymous users as well
         })
       } else {
-        goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
+        // NOTE: UNCOMMENT WHEN PUSHING TO PRODUCTION
+        // goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
 
         userInfoFromAuthProvider.set({
           email: resultUser.email,
