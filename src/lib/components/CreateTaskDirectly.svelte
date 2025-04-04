@@ -25,11 +25,9 @@
   function searchTaskTemplates () {
     if (allTemplates === null) return
 
-    const searchQuery = newTaskName
-    const searchResults = allTemplates.filter(template => 
-      template.name.toLowerCase().includes(searchQuery.toLowerCase())
+    searchResults = allTemplates.filter(template => 
+      template.name.toLowerCase().includes(newTaskName.toLowerCase())
     )
-    return searchResults
   }
 
   function handleEnterKey (e) {
@@ -87,7 +85,7 @@
 
 {#if $user && newTaskName.length >= 1}
   <div class="core-shadow cast-shadow" style="background-color: white; padding: 6px; border-radius: 12px">
-    {#each searchResults as template}
+    {#each searchResults as template (template.id)}
       <div on:click={() => createTaskFrom(template)} on:keydown
         class="autocomplete-option"
         class:option-highlight={searchResults.length === 1}
