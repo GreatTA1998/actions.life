@@ -64,10 +64,9 @@
     {#each $trees as taskObj, i (taskObj.id)}
       <div>
         <div style="width: 235px;">
-          <Dropzone
+          <Dropzone idxInThisLevel={i}
             ancestorRoomIDs={['']}
             roomsInThisLevel={treesToDisplay}
-            idxInThisLevel={i}
             parentID={''}
             colorForDebugging="purple"
             heightInPx={HEIGHTS.ROOT_DROPZONE}
@@ -85,10 +84,9 @@
 
         <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
         <div style="position: absolute; width: 235px;">
-          <Dropzone
+          <Dropzone idxInThisLevel={i+1}
             ancestorRoomIDs={['']}
             roomsInThisLevel={treesToDisplay}
-            idxInThisLevel={i+1}
             parentID={''}
             colorForDebugging="purple"
             heightInPx={HEIGHTS.ROOT_DROPZONE}
@@ -98,10 +96,9 @@
     {/each}
 
     <div style="width: 235px;">
-      <Dropzone
+      <Dropzone idxInThisLevel={treesToDisplay.length}
         ancestorRoomIDs={['']}
         roomsInThisLevel={treesToDisplay}
-        idxInThisLevel={treesToDisplay.length}
         parentID={''}
         colorForDebugging="purple"
         heightInPx={HEIGHTS.ROOT_DROPZONE}
