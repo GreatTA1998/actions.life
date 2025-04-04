@@ -55,6 +55,30 @@
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
 <div class="todo-list-container" style={$$props.style}>
   <div class="lists-flexbox">
+    {#each treesToDisplay as taskObj, i (taskObj.id)}
+      <div>
+        <div style="width: 235px;">
+          <Dropzone
+            ancestorRoomIDs={['']}
+            roomsInThisLevel={treesToDisplay}
+            idxInThisLevel={i}
+            parentID={''}
+            colorForDebugging="purple"
+            heightInPx={HEIGHTS.ROOT_DROPZONE}
+          />
+        </div>
+
+        <div class="list-container">
+          <RecursiveTask {taskObj}
+            depth={0}
+            ancestorRoomIDs={['']}
+            {willShowCheckbox}
+            {isLargeFont}
+          />
+        </div>
+      </div>
+    {/each}
+
     <div style="width: 235px;">
       <Dropzone
         ancestorRoomIDs={['']}
@@ -65,28 +89,6 @@
         heightInPx={HEIGHTS.ROOT_DROPZONE}
       />
     </div>
-
-    {#each treesToDisplay as taskObj, i (taskObj.id)}
-      <div class="list-container">
-        <RecursiveTask {taskObj}
-          depth={0}
-          ancestorRoomIDs={['']}
-          {willShowCheckbox}
-          {isLargeFont}
-        />
-      </div>
-
-      <div style="width: 235px;">
-        <Dropzone
-          ancestorRoomIDs={['']}
-          roomsInThisLevel={treesToDisplay}
-          idxInThisLevel={i + 1}
-          parentID={''}
-          colorForDebugging="purple"
-          heightInPx={HEIGHTS.ROOT_DROPZONE}
-        />
-      </div>
-    {/each}
 
     <div on:click={() => isTypingNewRootTask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
       +
