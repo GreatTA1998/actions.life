@@ -10,17 +10,21 @@
   <div class="grid-container">
     <main class="content-area">
       {#if activeTabName === 'TODO_VIEW'}
-        <TodoList style="background-color: transparent; padding-top: var(--main-content-top-margin);"
-          willShowCheckbox={false}
-          isLargeFont
-          let:startTypingNewTask={startTypingNewTask}
-        >
-          <div on:click={startTypingNewTask} on:keydown class="fixed-round-button">
-            <span id="startButton" class="material-symbols-outlined" style="font-size: 48px; font-weight: 600;">
-              add
-            </span>
-          </div>
-        </TodoList>
+        <div style="  height: 100%;
+    width: 100%;
+    position: relative;">
+          <TodoList style="background-color: transparent; padding-top: var(--main-content-top-margin);"
+            willShowCheckbox={false}
+            isLargeFont
+            let:startTypingNewTask={startTypingNewTask}
+          >
+            <div on:click={startTypingNewTask} on:keydown class="fixed-round-button">
+              <span id="startButton" class="material-symbols-outlined" style="font-size: 48px; font-weight: 600;">
+                add
+              </span>
+            </div>
+          </TodoList>
+        </div>
       {:else if activeTabName === 'FUTURE_VIEW'}
         <ScheduleView on:task-duration-adjusted />
       {:else if activeTabName === 'CALENDAR_VIEW'}
