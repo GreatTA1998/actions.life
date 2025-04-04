@@ -6,7 +6,9 @@
   import { HEIGHTS } from '/src/lib/utils/constants.js'
   import Task from '/src/lib/db/models/Task.js'
   import { DateTime } from 'luxon'
-  import { createEventDispatcher } from 'svelte'
+  import { onMount, createEventDispatcher } from 'svelte'
+  import { user } from '$lib/store'
+  import { trees, listenToTasks } from './service.js'
 
   const dispatch = createEventDispatcher()
 
@@ -17,6 +19,10 @@
 
   let isTypingNewRootTask = false
   let newRootTaskStringValue = ''
+
+  onMount(() => {
+    listenToTasks($user.uid)
+  })
   
   $: if (triggerNewTask && !isTypingNewRootTask) {
     startTypingNewTask()
@@ -53,9 +59,9 @@
 </script>
 
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
-<div class="todo-list-container" style={$$props.style}>
-  <div class="lists-flexbox">
-    {#each treesToDisplay as taskObj, i (taskObj.id)}
+<div style={$$props.style}>
+  {#if $trees}
+    {#each $trees as taskObj, i (taskObj.id)}
       <div>
         <div style="width: 235px;">
           <Dropzone
@@ -120,7 +126,7 @@
       />
       <div style="margin-bottom: 8px;"></div>
     {/if}
-  </div>
+  {/if}
 
   <slot {startTypingNewTask}>
     
@@ -128,15 +134,6 @@
 </div>
 
 <style>  
-  .lists-flexbox {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    height: calc(100vh - var(--height-navbar));
-    align-items: start; /* default is stretch */
-    column-gap: 24px; /* matches dropzone's height */
-  }
-
   .list-container {
     background-color: #fff;
     border-radius: 8px;
@@ -144,14 +141,6 @@
     padding: 0.5vw;
   }
 
-  .todo-list-container {
-    /* width: 100%; will cause the strange shifting out of screen bug*/
-    height: 100%;
-    padding-left: 1vw;
-    padding-right: 1vw;
-    font-size: 2em;
-  }
-  
   .new-task-icon {
     font-size: 24px;
     color: #666;

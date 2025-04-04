@@ -1,17 +1,28 @@
 <script>
-  import { listenToTasks, trees } from './service.js'
-  import { user } from '/src/lib/store'
-  import { onMount } from 'svelte'
   import TodoList from './TodoList.svelte'
 
-  onMount(() => {
-    listenToTasks($user.uid)
-  })
+  const wrappingColumnLayout = `
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    height: calc(100vh - var(--height-navbar));
+    align-items: start; /* default is stretch */
+    column-gap: 24px; /* matches dropzone's height */
+    padding: 0 24px; /* add same spacing on left/right sides to match column gap */
+  `
 </script>
 
-{#if $trees}
-  <TodoList
-    treesToDisplay={$trees}
-    willShowCheckbox={true}
+<div class="todo-list-container">
+  <TodoList 
+    willShowCheckbox={true} 
+    style={wrappingColumnLayout}
   />
-{/if}
+</div>
+
+<style>
+  .todo-list-container {
+    /* width: 100%; will cause the strange shifting out of screen bug*/
+    height: 100%;
+    font-size: 2em;
+  }
+</style>
