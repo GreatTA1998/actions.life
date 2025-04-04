@@ -34,7 +34,7 @@
 
   function handleEnterKey (e) {
     if (searchResults.length === 1) createTaskFrom(searchResults[0])
-    else createTaskDirectly(e)
+    else createNormalTask(e)
 
     dispatch('reset')
   }
@@ -53,7 +53,7 @@
     })
   }
 
-  async function createTaskDirectly (e) {
+  async function createNormalTask (e) {
     const newTaskName = e.detail.taskName
     if (newTaskName !== '') {
       Task.create({
