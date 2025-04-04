@@ -76,6 +76,18 @@
             {isLargeFont}
           />
         </div>
+
+        <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
+        <div style="position: absolute; width: 235px;">
+          <Dropzone
+            ancestorRoomIDs={['']}
+            roomsInThisLevel={treesToDisplay}
+            idxInThisLevel={i+1}
+            parentID={''}
+            colorForDebugging="purple"
+            heightInPx={HEIGHTS.ROOT_DROPZONE}
+          />
+        </div>
       </div>
     {/each}
 
@@ -83,7 +95,7 @@
       <Dropzone
         ancestorRoomIDs={['']}
         roomsInThisLevel={treesToDisplay}
-        idxInThisLevel={0}
+        idxInThisLevel={treesToDisplay.length}
         parentID={''}
         colorForDebugging="purple"
         heightInPx={HEIGHTS.ROOT_DROPZONE}
