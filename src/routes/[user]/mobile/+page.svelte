@@ -6,14 +6,12 @@
   <div class="grid-container" class:iphone-se-size={isTesting} class:voice-active-highlight={isUsingVoice}>
     <main class="content-area">
       {#if activeTabName === 'TODO_VIEW'}
-        <ListView
-          let:startTypingNewTask={startTypingNewTask}
-        >
-          <FloatingButtonWrapper on:click={startTypingNewTask} distanceFromBottom={16}>
+        <ListView let:startTypingNewTask={startTypingNewTask}>
+          <div class="fixed-round-button">
             <span id="startButton" class="material-symbols-outlined" style="font-size: 48px; font-weight: 600;">
               add
             </span>
-          </FloatingButtonWrapper>
+          </div>
         </ListView>
       {:else if activeTabName === 'FUTURE_VIEW'}
         <ScheduleView on:task-duration-adjusted />
@@ -228,5 +226,21 @@
 
   .nav-tab-icon {
     font-size: 24px;
+  }
+
+  .fixed-round-button {
+    position: fixed; 
+    bottom: 60px; 
+    right: 20px; 
+
+    height: 72px;
+    width: 72px;
+    border-radius: 36px;  
+    border: 4px solid black;
+
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    cursor: pointer;
   }
 </style>
