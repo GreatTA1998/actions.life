@@ -1,18 +1,26 @@
+<svelte:head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+</svelte:head>
+
 {#if $user.uid}
   {#if $isTaskPopupOpen}
     <TaskPopup/>
   {/if}
 
-  <div class="grid-container" class:iphone-se-size={isTesting} class:voice-active-highlight={isUsingVoice}>
+  <div class="grid-container">
     <main class="content-area">
       {#if activeTabName === 'TODO_VIEW'}
-        <ListView let:startTypingNewTask={startTypingNewTask}>
-          <div class="fixed-round-button">
+        <TodoList style="background-color: transparent; padding-top: var(--main-content-top-margin);"
+          willShowCheckbox={false}
+          isLargeFont
+          let:startTypingNewTask={startTypingNewTask}
+        >
+          <div on:click={startTypingNewTask} on:keydown class="fixed-round-button">
             <span id="startButton" class="material-symbols-outlined" style="font-size: 48px; font-weight: 600;">
               add
             </span>
           </div>
-        </ListView>
+        </TodoList>
       {:else if activeTabName === 'FUTURE_VIEW'}
         <ScheduleView on:task-duration-adjusted />
       {:else if activeTabName === 'CALENDAR_VIEW'}
@@ -78,26 +86,17 @@
 
 <script>
   import Calendar from '../components/Calendar/Calendar.svelte'
+  import TodoList from '../components/ListsArea/TodoList.svelte'
   import AI from '../components/AI/AI.svelte'
   import ScheduleView from './ScheduleView.svelte'
-  import ListView from './ListView.svelte'
-  import VoiceKeywordDetect from './VoiceKeywordDetect.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
-  import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
-  import Task from '/src/lib/db/models/Task.js'
 
-  import { getRandomID, getDateInMMDD } from '/src/lib/utils/core.js'
-  import { user, todoMemoryTree, hasInitialScrolled, isTaskPopupOpen } from '/src/lib/store'
+  import { user, hasInitialScrolled, isTaskPopupOpen } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
-  import { page } from '$app/stores'
   import { onDestroy, onMount } from 'svelte'
 
-  let isTesting = false
   let activeTabName = 'CALENDAR_VIEW' // probably the new user default, butthen persists the user's preference e.g. I prefer the to-do
   let unsub
-  
-  let isUsingVoice = false
-  let speechResult = ''
 
   onMount(async () => {
     isCompact.set(true)
@@ -106,40 +105,7 @@
   onDestroy(() => {
     if (unsub) unsub()
   })
-
-  function createNewEvent ({ name, startTime }) {
-    const newTaskObj = {
-      name,
-      parentID: '',
-      startTime,
-      startDate: getDateInMMDD(new Date())
-    }
-    Task.create({ id: getRandomID(), newTaskObj })
-  }
-
-  // should be a function exposed by the `TodoList` component
-  function createNewTodo ({ name }) {
-    const dueInHowManyDays = 7
-    const d = new Date()
-    d.setDate(d.getDate() + dueInHowManyDays - 1)
-
-    const newTaskObj = {
-      name,
-      parentID: ''
-    }
-
-    if ($todoMemoryTree.length > 0) {
-      newTaskObj.orderValue = (0 + $todoMemoryTree[0].orderValue) / 1.1
-    } 
-    // if it's the first task, the orderValue is initialized to `maxOrder`
-
-    Task.create({ id: getRandomID(), newTaskObj })
-  }
 </script>
-
-<svelte:head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-</svelte:head>
 
 <style>
   :root {
@@ -174,15 +140,6 @@
     /* Critical for grid scrolling - allows content to be smaller than container */
     min-height: 0;
     position: relative;
-  }
-
-  .voice-active-highlight {
-    background-color: rgb(180, 238, 221);
-  }
-
-  .iphone-se-size {
-    width: 375px; 
-    border: 2px solid black;
   }
 
   .bottom-navbar {
