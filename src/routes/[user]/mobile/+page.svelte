@@ -3,6 +3,7 @@
     <TaskPopup/>
   {/if}
 
+  <!-- Minimal grid container solution -->
   <div class="grid-container" class:iphone-se-size={isTesting} class:voice-active-highlight={isUsingVoice}>
     <main class="content-area">
       {#if activeTabName === 'TODO_VIEW'}
@@ -148,34 +149,35 @@
     --bottom-navbar-height: 48px;
   }
 
-  /* Prevent any scrolling on body */
+  /* 
+   * CRITICAL: Prevent Safari from creating unwanted scrolling outside the app container
+   * position:fixed on body/html is essential for mobile Safari
+   */
   :global(body),
   :global(html) {
     overflow: hidden;
+    position: fixed;
     height: 100%;
     width: 100%;
-    position: fixed;
   }
   
   .grid-container {
+    /* CRITICAL: Grid layout is the key to fixing Safari spacing issues */
     display: grid;
+    /* CRITICAL: Explicit row template with minmax(0, 1fr) is essential for proper scrolling */
     grid-template-rows: minmax(0, 1fr) var(--bottom-navbar-height);
-    height: 100vh;
-    /* Support for iOS Safari */
+    /* CRITICAL: -webkit-fill-available is necessary for iOS Safari height calculation */
     height: -webkit-fill-available;
-    /* Support for modern browsers with dynamic viewport units */
-    height: 100dvh;
-    width: 100%;
-    overflow: hidden;
+    /* Fallback for non-Safari browsers */
+    height: 100vh;
   }
   
   .content-area {
     grid-row: 1;
+    /* CRITICAL: This allows content to scroll properly */
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    /* Critical for grid scrolling - allows content to be smaller than container */
+    /* CRITICAL: min-height:0 is essential for scrolling in grid layouts */
     min-height: 0;
-    position: relative;
   }
 
   .voice-active-highlight {
@@ -188,6 +190,7 @@
   }
 
   .bottom-navbar {
+    /* CRITICAL: Explicit grid placement ensures navbar stays at the bottom */
     grid-row: 2;
     width: 100%; 
     height: var(--bottom-navbar-height); 
@@ -196,7 +199,6 @@
     justify-content: space-between; 
     background-color: white;
     border-top: 1px solid lightgrey;
-    z-index: 10;
   }
 
   .bottom-nav-tab {
