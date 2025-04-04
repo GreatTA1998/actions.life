@@ -26,7 +26,7 @@
     onAuthStateChanged(getAuth(), async (resultUser) => {
       if (!resultUser) {
         user.set({})
-        // goto('/')
+        goto('/')
 
         // see how new visitors interacts with home page demos
         posthog.init('phc_Cm2c1eB0MCZLTjJDYHklZ7GUp0Ar7p5bIpF5hkCJPdo', {
@@ -34,8 +34,7 @@
           person_profiles: 'always' // or 'always' to create profiles for anonymous users as well
         })
       } else {
-        // NOTE: UNCOMMENT WHEN PUSHING TO PRODUCTION
-        // goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
+        goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
 
         userInfoFromAuthProvider.set({
           email: resultUser.email,
