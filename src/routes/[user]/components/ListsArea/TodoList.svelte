@@ -10,56 +10,84 @@
   import { user } from '$lib/store'
   import { trees, listenToTasks } from './service.js'
 
-  const dispatch = createEventDispatcher()
-
   export let willShowCheckbox = true
   export let isLargeFont = false
   export let triggerNewTask = false
 
-  let isTypingNewRootTask = false
-  let newRootTaskStringValue = ''
+  let bottomInput = false
+  let newTaskName = ''
+  let topInput = false
+
+  const dispatch = createEventDispatcher()
 
   onMount(() => {
     listenToTasks($user.uid)
   })
   
-  $: if (triggerNewTask && !isTypingNewRootTask) {
+  $: if (triggerNewTask && !bottomInput) {
     startTypingNewTask()
     dispatch('newTaskTriggered')
   }
   
-  function startTypingNewTask() {
-    isTypingNewRootTask = true
+  function startTypingNewTask () {
+    topInput = true
   }
 
-  function handleKeyDown(e) {
-    if (newRootTaskStringValue === '') {
-      isTypingNewRootTask = false
+  function addTaskAbove () {
+    if (newTaskName === '') topInput = false
+
+    else {
+      let orderValue
+      if ($trees.length > 0) {
+        orderValue = $trees[0].orderValue / 1.1
+      }
+
+      Task.create({
+        id: getRandomID(),
+        newTaskObj: {
+          orderValue,
+          name: newTaskName,
+          parentID: '',
+          timeZone: DateTime.local().zoneName,
+        }
+      })
+
+      newTaskName = ''
     }
+  }
+
+  function addTaskBelow (e) {
+    if (newTaskName === '') bottomInput = false
     // nice side-effect of this: double-tap ENTER to be done
     else {
-      createRootTask(newRootTaskStringValue)
-      newRootTaskStringValue = ''
+      Task.create({
+        id: getRandomID(),
+        newTaskObj: {
+          name: newTaskName,
+          parentID: '',
+          timeZone: DateTime.local().zoneName,
+        }
+      })
+      newTaskName = ''
     }
-  }
-
-  function createRootTask (taskName) {
-    const newRootTaskObj = {
-      name: taskName,
-      parentID: '',
-      timeZone: DateTime.local().zoneName,
-    }
-
-    Task.create({
-      id: getRandomID(),
-      newTaskObj: newRootTaskObj
-    })
   }
 </script>
 
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
 <div style={$$props.style}>
   {#if $trees}
+
+    {#if topInput}
+      <FormField fieldLabel="Task Name"
+        value={newTaskName}
+        on:input={e => newTaskName = e.detail.value}
+        on:focus-out={() => {
+          if (newTaskName === '') topInput = false
+        }}
+        on:task-entered={e => addTaskAbove(e)}
+      />
+    {/if}
+
     {#each $trees as taskObj, i (taskObj.id)}
       <div>
         <div style="width: 235px;">
@@ -104,21 +132,18 @@
       />
     </div>
 
-    <div on:click={() => isTypingNewRootTask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
+    <div on:click={() => bottomInput = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
       +
     </div>
 
-    {#if isTypingNewRootTask}
-      <FormField
-        fieldLabel="Task Name"
-        value={newRootTaskStringValue}
-        on:input={(e) => (newRootTaskStringValue = e.detail.value)}
+    {#if bottomInput}
+      <FormField fieldLabel="Task Name"
+        value={newTaskName}
+        on:input={e => newTaskName = e.detail.value}
         on:focus-out={() => {
-          if (newRootTaskStringValue === '') {
-            isTypingNewRootTask = false
-          }
+          if (newTaskName === '') bottomInput = false
         }}
-        on:task-entered={(e) => handleKeyDown(e)}
+        on:task-entered={e => addTaskBelow(e)}
       />
       <div style="margin-bottom: 8px;"></div>
     {/if}
