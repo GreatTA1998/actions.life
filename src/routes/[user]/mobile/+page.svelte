@@ -3,9 +3,14 @@
     <TaskPopup/>
   {/if}
 
-  <!-- Minimal grid container solution -->
-  <div class="grid-container" class:iphone-se-size={isTesting} class:voice-active-highlight={isUsingVoice}>
-    <main class="content-area">
+  <!-- Reason for 100dvh: https://stackoverflow.com/a/75648985/7812829 -->
+  <!-- style="padding: 6px; background-color: white; display: flex; align-items: center; justify-content: center;" -->
+  <div class:iphone-se-size={isTesting} 
+      class:general-mobile-size={!isTesting}
+      class:voice-active-highlight={isUsingVoice}
+      style="height: 100dvh; position: relative; display: flex; flex-direction: column;"
+  >
+    <div style="overflow-y: auto;">
       {#if activeTabName === 'TODO_VIEW'}
         <ListView
           let:startTypingNewTask={startTypingNewTask}
@@ -23,7 +28,7 @@
       {:else if activeTabName === 'AI_VIEW'}
         <AI />
       {/if}
-    </main>
+    </div>
 
     <div class="bottom-navbar">
       <button on:click={() => activeTabName = 'TODO_VIEW'} class="bottom-nav-tab" class:active-nav-tab={activeTabName === 'TODO_VIEW'}>
@@ -140,44 +145,9 @@
   }
 </script>
 
-<svelte:head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-</svelte:head>
-
 <style>
   :root {
     --bottom-navbar-height: 48px;
-  }
-
-  /* 
-   * CRITICAL: Prevent Safari from creating unwanted scrolling outside the app container
-   * position:fixed on body/html is essential for mobile Safari
-   */
-  :global(body),
-  :global(html) {
-    overflow: hidden;
-    position: fixed;
-    height: 100%;
-    width: 100%;
-  }
-  
-  .grid-container {
-    /* CRITICAL: Grid layout is the key to fixing Safari spacing issues */
-    display: grid;
-    /* CRITICAL: Explicit row template with minmax(0, 1fr) is essential for proper scrolling */
-    grid-template-rows: minmax(0, 1fr) var(--bottom-navbar-height);
-    /* CRITICAL: -webkit-fill-available is necessary for iOS Safari height calculation */
-    height: -webkit-fill-available;
-    /* Fallback for non-Safari browsers */
-    height: 100vh;
-  }
-  
-  .content-area {
-    grid-row: 1;
-    /* CRITICAL: This allows content to scroll properly */
-    overflow-y: auto;
-    /* CRITICAL: min-height:0 is essential for scrolling in grid layouts */
-    min-height: 0;
   }
 
   .voice-active-highlight {
@@ -186,12 +156,16 @@
 
   .iphone-se-size {
     width: 375px; 
+    height: 667px;
     border: 2px solid black;
   }
 
+  .general-mobile-size {
+    height: 100vh; 
+  }
+
   .bottom-navbar {
-    /* CRITICAL: Explicit grid placement ensures navbar stays at the bottom */
-    grid-row: 2;
+    margin-top: auto;
     width: 100%; 
     height: var(--bottom-navbar-height); 
     display: flex; 
@@ -199,6 +173,7 @@
     justify-content: space-between; 
     background-color: white;
     border-top: 1px solid lightgrey;
+    z-index: 10;
   }
 
   .bottom-nav-tab {
