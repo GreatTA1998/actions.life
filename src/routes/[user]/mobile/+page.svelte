@@ -1,26 +1,26 @@
+<svelte:head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+</svelte:head>
+
 {#if $user.uid}
   {#if $isTaskPopupOpen}
     <TaskPopup/>
   {/if}
 
-  <!-- Reason for 100dvh: https://stackoverflow.com/a/75648985/7812829 -->
-  <!-- style="padding: 6px; background-color: white; display: flex; align-items: center; justify-content: center;" -->
-  <div class:iphone-se-size={isTesting} 
-      class:general-mobile-size={!isTesting}
-      class:voice-active-highlight={isUsingVoice}
-      style="height: 100dvh; position: relative; display: flex; flex-direction: column;"
-  >
-    <div style="overflow-y: auto;">
+  <div class="grid-container">
+    <main class="content-area">
       {#if activeTabName === 'TODO_VIEW'}
-        <ListView
+        <TodoList style="background-color: transparent; padding-top: var(--main-content-top-margin);"
+          willShowCheckbox={false}
+          isLargeFont
           let:startTypingNewTask={startTypingNewTask}
         >
-          <FloatingButtonWrapper on:click={startTypingNewTask} distanceFromBottom={16}>
+          <div on:click={startTypingNewTask} on:keydown class="fixed-round-button">
             <span id="startButton" class="material-symbols-outlined" style="font-size: 48px; font-weight: 600;">
               add
             </span>
-          </FloatingButtonWrapper>
-        </ListView>
+          </div>
+        </TodoList>
       {:else if activeTabName === 'FUTURE_VIEW'}
         <ScheduleView on:task-duration-adjusted />
       {:else if activeTabName === 'CALENDAR_VIEW'}
@@ -28,7 +28,7 @@
       {:else if activeTabName === 'AI_VIEW'}
         <AI />
       {/if}
-    </div>
+    </main>
 
     <div class="bottom-navbar">
       <button on:click={() => activeTabName = 'TODO_VIEW'} class="bottom-nav-tab" class:active-nav-tab={activeTabName === 'TODO_VIEW'}>
@@ -86,26 +86,17 @@
 
 <script>
   import Calendar from '../components/Calendar/Calendar.svelte'
+  import TodoList from '../components/ListsArea/TodoList.svelte'
   import AI from '../components/AI/AI.svelte'
   import ScheduleView from './ScheduleView.svelte'
-  import ListView from './ListView.svelte'
-  import VoiceKeywordDetect from './VoiceKeywordDetect.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
-  import FloatingButtonWrapper from './FloatingButtonWrapper.svelte'
-  import Task from '/src/lib/db/models/Task.js'
 
-  import { getRandomID, getDateInMMDD } from '/src/lib/utils/core.js'
-  import { user, todoMemoryTree, hasInitialScrolled, isTaskPopupOpen } from '/src/lib/store'
+  import { user, hasInitialScrolled, isTaskPopupOpen } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
-  import { page } from '$app/stores'
   import { onDestroy, onMount } from 'svelte'
 
-  let isTesting = false
   let activeTabName = 'CALENDAR_VIEW' // probably the new user default, butthen persists the user's preference e.g. I prefer the to-do
   let unsub
-  
-  let isUsingVoice = false
-  let speechResult = ''
 
   onMount(async () => {
     isCompact.set(true)
@@ -114,35 +105,6 @@
   onDestroy(() => {
     if (unsub) unsub()
   })
-
-  function createNewEvent ({ name, startTime }) {
-    const newTaskObj = {
-      name,
-      parentID: '',
-      startTime,
-      startDate: getDateInMMDD(new Date())
-    }
-    Task.create({ id: getRandomID(), newTaskObj })
-  }
-
-  // should be a function exposed by the `TodoList` component
-  function createNewTodo ({ name }) {
-    const dueInHowManyDays = 7
-    const d = new Date()
-    d.setDate(d.getDate() + dueInHowManyDays - 1)
-
-    const newTaskObj = {
-      name,
-      parentID: ''
-    }
-
-    if ($todoMemoryTree.length > 0) {
-      newTaskObj.orderValue = (0 + $todoMemoryTree[0].orderValue) / 1.1
-    } 
-    // if it's the first task, the orderValue is initialized to `maxOrder`
-
-    Task.create({ id: getRandomID(), newTaskObj })
-  }
 </script>
 
 <style>
@@ -150,22 +112,39 @@
     --bottom-navbar-height: 48px;
   }
 
-  .voice-active-highlight {
-    background-color: rgb(180, 238, 221);
+  /* Prevent any scrolling on body */
+  :global(body),
+  :global(html) {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    position: fixed;
   }
-
-  .iphone-se-size {
-    width: 375px; 
-    height: 667px;
-    border: 2px solid black;
+  
+  .grid-container {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) var(--bottom-navbar-height);
+    height: 100vh;
+    /* Support for iOS Safari */
+    height: -webkit-fill-available;
+    /* Support for modern browsers with dynamic viewport units */
+    height: 100dvh;
+    width: 100%;
+    overflow: hidden;
   }
-
-  .general-mobile-size {
-    height: 100vh; 
+  
+  .content-area {
+    grid-row: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Critical for grid scrolling - allows content to be smaller than container */
+    min-height: 0;
+    position: relative;
   }
 
   .bottom-navbar {
-    margin-top: auto;
+    grid-row: 2;
+    z-index: 10;
     width: 100%; 
     height: var(--bottom-navbar-height); 
     display: flex; 
@@ -204,5 +183,21 @@
 
   .nav-tab-icon {
     font-size: 24px;
+  }
+
+  .fixed-round-button {
+    position: fixed; 
+    bottom: 60px; 
+    right: 20px; 
+
+    height: 72px;
+    width: 72px;
+    border-radius: 36px;  
+    border: 4px solid black;
+
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    cursor: pointer;
   }
 </style>

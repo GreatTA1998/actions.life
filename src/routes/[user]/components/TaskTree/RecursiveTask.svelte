@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <div on:click={() => isTypingNewSubtask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
+    <div on:click={() => isTypingNewSubtask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px; font-size: {isLargeFont ? '48px' : ''}">
       +
     </div>
   </div>
