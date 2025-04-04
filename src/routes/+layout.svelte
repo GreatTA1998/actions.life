@@ -26,7 +26,7 @@
     onAuthStateChanged(getAuth(), async (resultUser) => {
       if (!resultUser) {
         user.set({})
-        goto('/')
+        // goto('/')
 
         // see how new visitors interacts with home page demos
         posthog.init('phc_Cm2c1eB0MCZLTjJDYHklZ7GUp0Ar7p5bIpF5hkCJPdo', {
