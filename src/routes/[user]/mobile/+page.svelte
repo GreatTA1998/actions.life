@@ -144,6 +144,7 @@
 
   .bottom-navbar {
     grid-row: 2;
+    z-index: 10;
     width: 100%; 
     height: var(--bottom-navbar-height); 
     display: flex; 
@@ -151,7 +152,6 @@
     justify-content: space-between; 
     background-color: white;
     border-top: 1px solid lightgrey;
-    z-index: 10;
   }
 
   .bottom-nav-tab {
