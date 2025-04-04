@@ -3,14 +3,8 @@
     <TaskPopup/>
   {/if}
 
-  <!-- Reason for 100dvh: https://stackoverflow.com/a/75648985/7812829 -->
-  <!-- style="padding: 6px; background-color: white; display: flex; align-items: center; justify-content: center;" -->
-  <div class:iphone-se-size={isTesting} 
-      class:general-mobile-size={!isTesting}
-      class:voice-active-highlight={isUsingVoice}
-      style="height: 100dvh; position: relative; display: flex; flex-direction: column;"
-  >
-    <div style="overflow-y: auto;">
+  <div class="grid-container" class:iphone-se-size={isTesting} class:voice-active-highlight={isUsingVoice}>
+    <main class="content-area">
       {#if activeTabName === 'TODO_VIEW'}
         <ListView
           let:startTypingNewTask={startTypingNewTask}
@@ -28,7 +22,7 @@
       {:else if activeTabName === 'AI_VIEW'}
         <AI />
       {/if}
-    </div>
+    </main>
 
     <div class="bottom-navbar">
       <button on:click={() => activeTabName = 'TODO_VIEW'} class="bottom-nav-tab" class:active-nav-tab={activeTabName === 'TODO_VIEW'}>
@@ -145,9 +139,43 @@
   }
 </script>
 
+<svelte:head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+</svelte:head>
+
 <style>
   :root {
     --bottom-navbar-height: 48px;
+  }
+
+  /* Prevent any scrolling on body */
+  :global(body),
+  :global(html) {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+  }
+  
+  .grid-container {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) var(--bottom-navbar-height);
+    height: 100vh;
+    /* Support for iOS Safari */
+    height: -webkit-fill-available;
+    /* Support for modern browsers with dynamic viewport units */
+    height: 100dvh;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .content-area {
+    grid-row: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Critical for grid scrolling - allows content to be smaller than container */
+    min-height: 0;
+    position: relative;
   }
 
   .voice-active-highlight {
@@ -156,16 +184,11 @@
 
   .iphone-se-size {
     width: 375px; 
-    height: 667px;
     border: 2px solid black;
   }
 
-  .general-mobile-size {
-    height: 100vh; 
-  }
-
   .bottom-navbar {
-    margin-top: auto;
+    grid-row: 2;
     width: 100%; 
     height: var(--bottom-navbar-height); 
     display: flex; 
