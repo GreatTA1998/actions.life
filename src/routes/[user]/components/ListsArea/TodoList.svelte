@@ -14,9 +14,9 @@
   export let isLargeFont = false
   export let triggerNewTask = false
 
+  let topInput = false
   let bottomInput = false
   let newTaskName = ''
-  let topInput = false
 
   const dispatch = createEventDispatcher()
 
@@ -37,38 +37,43 @@
     if (newTaskName === '') topInput = false
 
     else {
-      let orderValue
-      if ($trees.length > 0) {
-        orderValue = $trees[0].orderValue / 1.1
-      }
-
-      Task.create({
-        id: getRandomID(),
-        newTaskObj: {
-          orderValue,
-          name: newTaskName,
-          parentID: '',
-          timeZone: DateTime.local().zoneName,
-        }
+      createTask({ 
+        orderValue: $trees.length ? $trees[0].orderValue / 1.1 : undefined
       })
-
       newTaskName = ''
+      // we don't reset the input to allow for rapid consecutive inputs (double-tap ENTER to be done
     }
   }
 
   function addTaskBelow (e) {
     if (newTaskName === '') bottomInput = false
-    // nice side-effect of this: double-tap ENTER to be done
+
     else {
-      Task.create({
-        id: getRandomID(),
-        newTaskObj: {
-          name: newTaskName,
-          parentID: '',
-          timeZone: DateTime.local().zoneName,
-        }
-      })
+      createTask({ orderValue: undefined })
       newTaskName = ''
+    }
+  }
+
+  function createTask ({ orderValue }) {
+    const newTaskObj = {
+      name: newTaskName,
+      parentID: '',
+      timeZone: DateTime.local().zoneName
+    }
+    if (orderValue) {
+      newTaskObj.orderValue = orderValue
+    }
+    Task.create({ newTaskObj, id: getRandomID() })
+  }
+  
+  function renderDropzone (idx) {
+    return {
+      idxInThisLevel: idx,
+      ancestorRoomIDs: [''],
+      roomsInThisLevel: $trees,
+      parentID: '',
+      colorForDebugging: "purple",
+      heightInPx: HEIGHTS.ROOT_DROPZONE
     }
   }
 </script>
@@ -91,13 +96,7 @@
     {#each $trees as taskObj, i (taskObj.id)}
       <div>
         <div style="width: 235px;">
-          <Dropzone idxInThisLevel={i}
-            ancestorRoomIDs={['']}
-            roomsInThisLevel={$trees}
-            parentID={''}
-            colorForDebugging="purple"
-            heightInPx={HEIGHTS.ROOT_DROPZONE}
-          />
+          <Dropzone {...renderDropzone(i)} />
         </div>
 
         <div class="list-container">
@@ -111,25 +110,13 @@
 
         <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
         <div style="position: absolute; width: 235px;">
-          <Dropzone idxInThisLevel={i+1}
-            ancestorRoomIDs={['']}
-            roomsInThisLevel={$trees}
-            parentID={''}
-            colorForDebugging="purple"
-            heightInPx={HEIGHTS.ROOT_DROPZONE}
-          />
+          <Dropzone {...renderDropzone(i+1)} />
         </div>
       </div>
     {/each}
 
     <div style="width: 235px;">
-      <Dropzone idxInThisLevel={$trees.length}
-        ancestorRoomIDs={['']}
-        roomsInThisLevel={$trees}
-        parentID={''}
-        colorForDebugging="purple"
-        heightInPx={HEIGHTS.ROOT_DROPZONE}
-      />
+      <Dropzone {...renderDropzone($trees.length)} />
     </div>
 
     <div on:click={() => bottomInput = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
