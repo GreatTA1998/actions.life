@@ -1,16 +1,16 @@
 <script>
-  // Setup for mobile-safari-tests version 2
+  // Minimal Grid Version 1 - Full-featured grid solution
 </script>
 
 <svelte:head>
-  <title>Safari Test 2: CSS Grid</title>
+  <title>Minimal Grid 1: Full-featured</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 </svelte:head>
 
 <div class="grid-container">
   <main class="content">
-    <h2>Version 2: CSS Grid Layout</h2>
-    <p>Scroll test with CSS Grid for layout structure.</p>
+    <h2>Minimal Grid 1: Full-featured</h2>
+    <p>This version includes all grid fixes and optimizations.</p>
     {#each Array(50) as _, i}
       <div class="item">Item {i + 1}</div>
     {/each}
@@ -37,6 +37,7 @@
     height: 100%;
     width: 100%;
     position: fixed;
+    touch-action: none;
   }
   
   .grid-container {
@@ -61,9 +62,10 @@
     grid-row: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 20px;
     /* Critical for grid scrolling - allows content to be smaller than container */
     min-height: 0;
+    position: relative;
+    padding: 20px;
     /* Add bottom padding to ensure content isn't hidden behind navbar */
     padding-bottom: 20px;
   }

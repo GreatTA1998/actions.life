@@ -1,16 +1,16 @@
 <script>
-  // Setup for mobile-safari-tests version 2
+  // Minimal Grid Version 3 - Essential Safari fixes only
 </script>
 
 <svelte:head>
-  <title>Safari Test 2: CSS Grid</title>
+  <title>Minimal Grid 3: Essential Safari Fixes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 </svelte:head>
 
 <div class="grid-container">
   <main class="content">
-    <h2>Version 2: CSS Grid Layout</h2>
-    <p>Scroll test with CSS Grid for layout structure.</p>
+    <h2>Minimal Grid 3: Essential Safari Fixes</h2>
+    <p>This version keeps only the essential fixes for Safari.</p>
     {#each Array(50) as _, i}
       <div class="item">Item {i + 1}</div>
     {/each}
@@ -30,42 +30,22 @@
     box-sizing: border-box;
   }
   
-  /* Prevent any scrolling on body */
-  :global(body),
-  :global(html) {
+  :global(body) {
     overflow: hidden;
-    height: 100%;
-    width: 100%;
-    position: fixed;
   }
   
   .grid-container {
     display: grid;
-    /* Explicitly set row size with minmax to ensure scrolling works */
-    grid-template-rows: minmax(0, 1fr) 60px;
+    grid-template-rows: 1fr 60px;
     height: 100vh;
-    /* Fallback for browsers that don't support vh */
-    height: 100%;
-    /* Support for iOS Safari */
     height: -webkit-fill-available;
-    width: 100%;
     overflow: hidden;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
   }
   
   .content {
-    grid-row: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     padding: 20px;
-    /* Critical for grid scrolling - allows content to be smaller than container */
-    min-height: 0;
-    /* Add bottom padding to ensure content isn't hidden behind navbar */
-    padding-bottom: 20px;
   }
   
   .item {
@@ -76,13 +56,10 @@
   }
   
   .navbar {
-    grid-row: 2;
-    height: 60px;
     background-color: #333;
     color: white;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    z-index: 10;
   }
 </style> 
