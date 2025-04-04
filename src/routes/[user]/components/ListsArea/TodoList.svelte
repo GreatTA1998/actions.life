@@ -12,7 +12,6 @@
 
   const dispatch = createEventDispatcher()
 
-  export let treesToDisplay = []
   export let willShowCheckbox = true
   export let isLargeFont = false
   export let triggerNewTask = false
@@ -66,7 +65,7 @@
         <div style="width: 235px;">
           <Dropzone idxInThisLevel={i}
             ancestorRoomIDs={['']}
-            roomsInThisLevel={treesToDisplay}
+            roomsInThisLevel={$trees}
             parentID={''}
             colorForDebugging="purple"
             heightInPx={HEIGHTS.ROOT_DROPZONE}
@@ -86,7 +85,7 @@
         <div style="position: absolute; width: 235px;">
           <Dropzone idxInThisLevel={i+1}
             ancestorRoomIDs={['']}
-            roomsInThisLevel={treesToDisplay}
+            roomsInThisLevel={$trees}
             parentID={''}
             colorForDebugging="purple"
             heightInPx={HEIGHTS.ROOT_DROPZONE}
@@ -96,9 +95,9 @@
     {/each}
 
     <div style="width: 235px;">
-      <Dropzone idxInThisLevel={treesToDisplay.length}
+      <Dropzone idxInThisLevel={$trees.length}
         ancestorRoomIDs={['']}
-        roomsInThisLevel={treesToDisplay}
+        roomsInThisLevel={$trees}
         parentID={''}
         colorForDebugging="purple"
         heightInPx={HEIGHTS.ROOT_DROPZONE}
