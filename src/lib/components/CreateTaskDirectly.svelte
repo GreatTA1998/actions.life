@@ -1,4 +1,6 @@
 <script>
+  import Task from '/src/lib/db/models/Task.js'
+  import Template from '/src/lib/db/models/Template'
   import FormField from '$lib/components/FormField.svelte'
   import {
     getRandomID,
@@ -6,85 +8,71 @@
   import { user } from '/src/lib/store'
   import { onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
-  import Task from '/src/lib/db/models/Task.js'
-  import Template from '/src/lib/db/models/Template'
 
   export let resultantDateClassObject
   export let newTaskStartTime = '' // hh:mm format
 
-  let taskTemplateSearchResults = []
-  let reusableTaskTemplates = null
-
+  let allTemplates = null
+  let searchResults = []
   let newTaskName = ''
-
   const dispatch = createEventDispatcher()
 
   onMount(async () => {
     const temp = await Template.getAll({ userID: $user.uid, includeStats: false })
-    reusableTaskTemplates = temp
+    allTemplates = temp
   })
 
-  function searchTaskTemplates() {
-    if (reusableTaskTemplates === null) return
+  function searchTaskTemplates () {
+    if (allTemplates === null) return
 
-    const uniqueSet = new Set()
     const searchQuery = newTaskName
-    for (const taskTemplate of reusableTaskTemplates) {
-      if (taskTemplate.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-        uniqueSet.add(taskTemplate)
-      }
-    }
-    const result = [...uniqueSet]
-    taskTemplateSearchResults = result
-    return result
-  }
-
-  function handleEnterKey(e) {
-    if (taskTemplateSearchResults.length === 1) {
-      createNewInstanceOfReusableTask(taskTemplateSearchResults[0])
-    } else {
-      createTaskDirectly(e)
-    }
-  }
-
-  async function createNewInstanceOfReusableTask(taskObj) {
-    const copy = { ...taskObj }
-    copy.templateID = taskObj.id
-    copy.isDone = false
-    copy.startDateISO = DateTime.fromJSDate(resultantDateClassObject).toFormat(
-      'yyyy-MM-dd'
+    const searchResults = allTemplates.filter(template => 
+      template.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    copy.startTime = newTaskStartTime
-    Task.create({
-      id: getRandomID(),
-      newTaskObj: copy
-    })
+    return searchResults
+  }
+
+  function handleEnterKey (e) {
+    if (searchResults.length === 1) createTaskFrom(searchResults[0])
+    else createTaskDirectly(e)
+
     dispatch('reset')
   }
 
-  async function createTaskDirectly(e) {
+  function createTaskFrom (template) {
+    Task.create({
+      id: getRandomID(),
+      newTaskObj: {
+        ...template,
+        templateID: template.id,
+        isDone: false,
+        startDateISO: DateTime.fromJSDate(resultantDateClassObject).toFormat('yyyy-MM-dd'),
+        startTime: newTaskStartTime,
+        persistsOnList: false,
+      }
+    })
+  }
+
+  async function createTaskDirectly (e) {
     const newTaskName = e.detail.taskName
     if (newTaskName !== '') {
       Task.create({
         id: getRandomID(),
         newTaskObj: {
           name: newTaskName,
-          startDateISO: DateTime.fromJSDate(resultantDateClassObject).toFormat(
-            'yyyy-MM-dd'
-          ),
+          startDateISO: DateTime.fromJSDate(resultantDateClassObject).toFormat('yyyy-MM-dd'),
           startTime: newTaskStartTime,
           persistsOnList: false
         }
       })
     }
-    dispatch('reset')
   }
 </script>
 
 <FormField
   fieldLabel="Task Name"
   value={newTaskName}
-  on:input={(e) => {
+  on:input={e => {
     newTaskName = e.detail.value
     searchTaskTemplates()
   }}
@@ -93,39 +81,28 @@
       dispatch('reset')
     }
   }}
-  on:task-entered={(e) => handleEnterKey(e)}
+  on:task-entered={e => handleEnterKey(e)}
 />
 
-<!-- Display reusable task templates here -->
-{#key taskTemplateSearchResults}
-  {#if $user && newTaskName.length >= 1}
-    <div
-      class="core-shadow cast-shadow"
-      style="background-color: white; padding: 6px; border-radius: 12px"
-    >
-      {#each taskTemplateSearchResults as taskTemplate}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div
-          class="autocomplete-option"
-          on:click={() => createNewInstanceOfReusableTask(taskTemplate)}
-          class:option-highlight={taskTemplateSearchResults.length === 1}
-        >
-          {#if taskTemplate.iconURL}
-            <!-- svelte-ignore a11y-missing-attribute -->
-            <img
-              src={taskTemplate.iconURL}
-              style="width: 24px; height: 24px;"
-            />
-          {/if}
 
-          <div style="margin-left: {taskTemplate.iconURL ? '0px' : '12px'}">
-            {taskTemplate.name}
-          </div>
+{#if $user && newTaskName.length >= 1}
+  <div class="core-shadow cast-shadow" style="background-color: white; padding: 6px; border-radius: 12px">
+    {#each searchResults as template}
+      <div on:click={() => createTaskFrom(template)} on:keydown
+        class="autocomplete-option"
+        class:option-highlight={searchResults.length === 1}
+      >
+        {#if template.iconURL}
+          <img src={template.iconURL} style="width: 24px; height: 24px;" alt="template icon"/>
+        {/if}
+
+        <div style="margin-left: {template.iconURL ? '0px' : '12px'}">
+          {template.name}
         </div>
-      {/each}
-    </div>
-  {/if}
-{/key}
+      </div>
+    {/each}
+  </div>
+{/if}
 
 <style lang="scss">
   .autocomplete-option {
