@@ -143,10 +143,11 @@
 
 <style>  
   .list-container {
+    width: 320px;
+    padding: 0.5vw;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 0.5vw;
   }
 
   .new-task-icon {

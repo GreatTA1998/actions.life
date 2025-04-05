@@ -7,13 +7,19 @@
   function updateSettings (interval) {
     updateFirestoreDoc(`users/${$user.uid}`, { calSnapInterval: interval })
   }
+
+  function toggleGridlines () {
+    updateFirestoreDoc(`users/${$user.uid}`, { 
+      hasGridlines: !$user.hasGridlines 
+    })
+  }
+
 </script>
 
 <div style='display: flex; align-items: center; column-gap: 4px;'>
-  <input type="checkbox" bind:checked={$user.hasGridlines} 
-    on:change={e => updateFirestoreDoc(`users/${$user.uid}`, { hasGridlines: e.target.checked }
-  )}/>
-  Show gridlines for calendar
+  <div on:click|stopPropagation={toggleGridlines}>
+    Show gridlines for calendar (otherwise click will propagate)
+  </div>
 </div>
 
 <div style="display: flex; align-items: center; column-gap: 4px;">

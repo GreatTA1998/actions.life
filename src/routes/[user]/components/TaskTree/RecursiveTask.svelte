@@ -4,7 +4,7 @@
     style="display: flex; align-items: center; opacity: {taskObj.isDone ? '0.6' : '1'};"
   >
     <div class="task-row-container" style="font-size: {depthAdjustedFontSize};">   
-      {#if willShowCheckbox}
+      {#if willShowCheckbox && taskObj.childrenLayout !== 'timeline'}
         <div style="margin-left: 2px; margin-right: 4px;">
           <Checkbox 
             value={taskObj.isDone}
