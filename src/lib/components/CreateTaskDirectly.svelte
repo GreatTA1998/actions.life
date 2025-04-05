@@ -47,7 +47,7 @@
         persistsOnList: false,
       }
     })
-    dispatch('reset')
+    dispatch('reset') // we reset here because this function can get called directly by clicking the search resul
   }
 
   async function createNormalTask (e) {
