@@ -33,8 +33,6 @@
   function handleEnterKey (e) {
     if (searchResults.length === 1) createTaskFrom(searchResults[0])
     else createNormalTask(e)
-
-    dispatch('reset')
   }
 
   function createTaskFrom (template) {
@@ -49,6 +47,7 @@
         persistsOnList: false,
       }
     })
+    dispatch('reset')
   }
 
   async function createNormalTask (e) {
@@ -64,6 +63,7 @@
         }
       })
     }
+    dispatch('reset')
   }
 </script>
 
