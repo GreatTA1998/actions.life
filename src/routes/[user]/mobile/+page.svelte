@@ -35,7 +35,7 @@
             summarize
           </span>
           <div class="nav-tab-desc">
-            To-do
+            List
           </div>
         </div>
       </button>
@@ -63,7 +63,7 @@
             upcoming
           </span>
           <div class="nav-tab-desc">
-            Events
+            Itinerary
           </div>
         </div>
       </button>

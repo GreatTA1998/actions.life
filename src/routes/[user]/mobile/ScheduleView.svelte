@@ -32,6 +32,7 @@
   import { db } from '$lib/db/init.js'  
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
   import { uniqueEvents, user } from '$lib/store'
+  import { updateCache } from '$lib/store'
 
   let unsub
   let futureTasks
@@ -59,15 +60,14 @@
       where('startDateISO', '<=', today.plus({ years: 2 }).toFormat('yyyy-MM-dd'))
     )
     unsub = onSnapshot(q, snapshot => {
-      console.log("snapshot =", snapshot)
       futureTasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      updateCache(futureTasks)
       if (hideRoutines) {
         futureTasks = futureTasks.filter(task => task.templateID === '')
       }
       uniqueEvents.set(
         organizeToGroups(futureTasks)
       )
-      console.log('$uniqueEvents =', uniqueEvents)
     })
   }
 </script>

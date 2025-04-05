@@ -1,6 +1,6 @@
 <script>
   import { formatDate } from '/src/lib/utils/core.js'
-  import { user, tasksCache, openTaskPopup } from '/src/lib/store/index.js'
+  import { user, updateCache, openTaskPopup } from '/src/lib/store/index.js'
   import { onMount, onDestroy} from 'svelte'
   import { DateTime } from 'luxon'
   import { collection, query, where, onSnapshot } from 'firebase/firestore'
@@ -54,12 +54,7 @@
       
       unsub = onSnapshot(q, snapshot => {
         const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-        tasksCache.update(cache => {
-          for (const task of tasks) {
-            cache[task.id] = task
-          }
-          return cache
-        })
+        updateCache(tasks)
         allPhotoTasks = tasks
         allPhotoTasks.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
         updatePhotoDisplay()

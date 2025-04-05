@@ -11,6 +11,10 @@ export { user } from './userStore.js'
 
 export const tasksCache = writable({})
 
+// NOTE: this must be called for every listener, otherwise unexpected code that relies on `tasksCache` will break
+// latest bug was due to `updateCache` not being used for the itinerary listener. 
+// in the future, implement a Sentry-like system to email these errors, and also redesign the cache such that
+// it's coupled with listeners
 export function updateCache (tasks) {
   tasksCache.update(cache => {
     for (const task of tasks) {
