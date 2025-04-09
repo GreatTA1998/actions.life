@@ -102,7 +102,7 @@
           >
         {/if}
 
-        <div class="{journalLayout}-details" style="flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; row-gap: 2px;">
+        <div class="{journalLayout}-details" style="align-self: stretch; flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; row-gap: 2px;">
           <div style="display: flex; align-items: center; column-gap: 12px;">
             {#if !taskObject.imageDownloadURL}
               <Checkbox value={taskObject.isDone}
@@ -121,8 +121,8 @@
 
           <StartTimeDurationNotify {taskObject} />
 
-          <div style="width: 100%; display: flex; column-gap: 12px;">
-            <div style="flex-grow: 1; flex-basis: 0;">
+          <div class="notes-tree-container" style="width: 100%; display: flex; flex-wrap: wrap; gap: 12px;">
+            <div class="notes-section" style="flex: 999 1 100%; min-width: 0;">
               <UXFormTextArea value={taskObject.notes}
                 on:input={e => debouncedUpdate($clickedTaskID, { notes: e.detail })}
                 fieldLabel=""
@@ -131,7 +131,27 @@
             </div>
 
             {#if $ancestralTree}
-              <div style="flex-grow: 1; flex-basis: 0; max-height: 500px; overflow-y: auto;">
+              <div class="tree-section" style="flex: 0 1 100%; min-width: 0; display: grid; row-gap: 12px;">
+                {#if $ancestralTree.children.length > 0}
+                  <div style="display: flex; align-items: center; width: fit-content; box-sizing: border-box;">
+                    <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
+                      class:selected={taskObject.childrenLayout === 'timeline'}
+                      class:unselected={taskObject.childrenLayout !== 'timeline'}
+                      style="padding: 2px 8px;"
+                    >
+                      Timeline
+                    </span>
+            
+                    <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
+                      class:selected={taskObject.childrenLayout === 'normal'}
+                      class:unselected={taskObject.childrenLayout !== 'normal'}
+                      style="padding: 2px 8px;"
+                    >
+                      Normal
+                    </span>
+                  </div>  
+                {/if}
+                
                 <RecursiveBulletPoint
                   originalPopupTask={taskObject}
                   node={$ancestralTree}
@@ -141,20 +161,8 @@
           </div>
 
           <div style="margin-top: 16px;"></div>
-          
-          <!-- GOOD FOR DEBUGGING 
-          <div style="display: flex; align-items: center; column-gap: 12px; padding: 12px;">
-            <div>
-              id: {taskObject.id} |
-              rootID: {taskObject.rootID} |
-              treeISOs: {JSON.stringify(taskObject.treeISOs)} |
-              isArchived: {taskObject.isArchived} |
-              persistsOnList: {taskObject.persistsOnList} | 
-              orderValue: {taskObject.orderValue}
-            </div>
-          </div> -->
 
-          <div style="display: flex; align-items: center; width: 100%; column-gap: 12px;">
+          <div style="margin-top: auto; margin-bottom: 0; display: flex; align-items: center; width: 100%; column-gap: 12px;">
             {#if taskObject.imageDownloadURL}
               <div style="display: flex; column-gap: 6px;">
                 {#each photoLayoutOptions as layout}
@@ -184,24 +192,6 @@
               </span>
               <span class="tooltip">Archive this task and all its children</span>
             </button>
-
-            <div style="display: flex; align-items: center; width: fit-content; box-sizing: border-box;">
-              <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
-                class:selected={taskObject.childrenLayout === 'timeline'}
-                class:unselected={taskObject.childrenLayout !== 'timeline'}
-                style="padding: 2px 8px;"
-              >
-                Timeline
-              </span>
-  
-              <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
-                class:selected={taskObject.childrenLayout === 'normal'}
-                class:unselected={taskObject.childrenLayout !== 'normal'}
-                style="padding: 2px 8px;"
-              >
-                Normal
-              </span>
-            </div>  
 
             <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined">
               delete
@@ -268,7 +258,6 @@
   }
 
   .full-photo-container {
-    height: 50%;
     overflow-y: auto;
   }
 
@@ -304,7 +293,8 @@
 
   .task-popup {
     position: fixed;
-    width: 60%;
+    width: 100%;
+    max-height: 90vh;
     font-size: 14px;
     top: 50%;
     left: 50%;
@@ -312,9 +302,26 @@
     z-index: 4;    
     border-radius: 24px;
     background-color: white;
+    box-shadow: 0px 0px 0px 9999px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+  }
 
-    /* border: 1px solid #000; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
-    box-shadow:  0px 0px 0px 9999px rgba(0, 0, 0, 0.5);
+  @media (min-width: 768px) {
+    .task-popup {
+      width: 70%;
+    }
+
+    :global(.task-popup .notes-tree-container) {
+      flex-wrap: nowrap !important;
+    }
+
+    :global(.task-popup .notes-section) {
+      flex: 999 1 400px !important;
+    }
+
+    :global(.task-popup .tree-section) {
+      flex: 0 1 200px !important;
+    }
   }
 
   /* Refer to: https://stackoverflow.com/a/3131082/7812829 */
