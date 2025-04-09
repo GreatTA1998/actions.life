@@ -28,7 +28,7 @@
         
         {#if taskObj.startDateISO && taskObj.startTime}
           <span class="schedule-badge">
-            {DateTime.fromISO(taskObj.startDateISO).toFormat('ccc')} {taskObj.startTime.slice(0, -3)}
+            {DateTime.fromISO(taskObj.startDateISO).toFormat('ccc')} {taskObj.startTime}
           </span>
         {/if}
       </div>
