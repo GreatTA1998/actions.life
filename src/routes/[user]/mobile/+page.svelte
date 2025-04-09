@@ -147,7 +147,7 @@
 
   .bottom-navbar {
     grid-row: 2;
-    z-index: 10;
+    z-index: 3;
     width: 100%; 
     height: var(--bottom-navbar-height); 
     display: flex; 

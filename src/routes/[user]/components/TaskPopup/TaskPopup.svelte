@@ -294,7 +294,7 @@
   .task-popup {
     position: fixed;
     width: 100%;
-    max-height: 90vh;
+    max-height: 90dvh;
     font-size: 14px;
     top: 50%;
     left: 50%;
