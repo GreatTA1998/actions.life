@@ -1,65 +1,63 @@
 <script>
   import { user } from '/src/lib/store'
   import Task from '/src/lib/db/models/Task.js'
-  import text from "./text"
-  import GPT from "./GPT.js";
-  import { onMount, tick } from "svelte";
-  import { DateTime } from "luxon";
+  import text from './text'
+  import GPT from './GPT.js'
+  import { DateTime } from 'luxon'
 
   let TheChatInput
+  let tasksJSON
+  let loading = false
 
   const DefaultDateRange = {
     startDate: DateTime.now().minus({ month: 2 }).toISODate(),
     endDate: DateTime.now().plus({ month: 2 }).toISODate(),
-  };
+  }
   
   let state = {
-    userID: "",
+    userID: '',
     chat: [{role: 'assistant', content: text.example}],
-    currentInput: "",
-    tasksJSON: "",
+    currentInput: '',
+    tasksJSON: '',
     DateRange: DefaultDateRange,
-  };
+  }
 
-  const setState = (newState) => (state = newState);
+  const setState = (newState) => (state = newState)
 
   $: user.subscribe((value) => {
-    state = { ...state, userID: value.uid };
-  });
+    state = { ...state, userID: value.uid }
+  })
 
   $: if (TheChatInput) {
-    
     // requestAnimationFrame(() => {
     //   TheChatInput.focus()
     // })
   }
 
-  onMount(async () => {
-    const tasksJSON = await Task.getTasksJSONByRange(
-      state.userID,
-      state.DateRange.startDate,
-      state.DateRange.endDate
-    ).catch((err) => {
-      console.error("error in onMount, ", err);
-    });
-    setState({ ...state, tasksJSON });
-
-    await tick()
-  });
-
   async function addMessage() {
+    if (!tasksJSON) {
+      tasksJSON = await Task.getTasksJSONByRange(
+        state.userID,
+        state.DateRange.startDate,
+        state.DateRange.endDate
+      )
+      setState({ ...state, tasksJSON })
+    }
+
     if (state.currentInput.trim()) {
+      loading = true
       setState({
         ...state,
-        chat: [...state.chat, { role: "user", content: state.currentInput }],
-      });
+        chat: [...state.chat, { role: 'user', content: state.currentInput }],
+      })
     }
-    state.currentInput = "";
-    const { role, content } = await GPT.chat(state.tasksJSON, state.chat);
+    state.currentInput = ''
+    const { role, content } = await GPT.chat(state.tasksJSON, state.chat)
     setState({
       ...state,
       chat: [...state.chat, { role, content }],
-    });
+    })
+    loading = false
   }
 </script>
 
@@ -68,16 +66,18 @@
     {#each state.chat as message}
       {#if message.role === "user"}
         <div class="message-class">
-          <strong>{message.role}:</strong>
-          {message.content}
+          <strong>{message.role}:</strong> {message.content}
         </div>
       {:else}
         <div>
-          <strong>{message.role}:</strong>
-          {message.content}
+          <strong>{message.role}:</strong> {message.content}
         </div>
       {/if}
     {/each}
+
+    {#if loading}
+      Loading response...
+    {/if}
   </div>
 
   <div class="input-section">
@@ -87,7 +87,7 @@
       bind:value={state.currentInput}
     />
 
-    <button class="submit-button" on:click={addMessage}>
+    <button on:click={addMessage} class="submit-button">
       <span class="material-symbols-outlined">
         arrow_upward
       </span>
@@ -101,16 +101,12 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    /* background-color: var(--todo-list-bg-color); */
     background-color:  var(--navbar-bg-color);
   }
 
   .chat-box {
-    /* border-radius: 16px; */
-    /* margin: auto; */
     padding: 1vw;
     flex-grow: 1;
-    /* border: 1px solid #ccc; */
     overflow-y: scroll;
     white-space: pre-wrap;
   }
@@ -125,7 +121,6 @@
   .input-section input {
     width: 100%;
     padding: 10px;
-    /* border: 1px solid #ccc; */
     border-radius: 16px;
     font-size: 16px;
     border: none;
@@ -160,5 +155,3 @@
     background-color: #0056b3;
   }
 </style>
-
-<!-- <style src="./AI.css"></style> -->
