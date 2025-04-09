@@ -148,19 +148,17 @@
 
   {#each sortedTasks as child, i (child.id)}
     <div class="timeline-item" style="margin-bottom: {spacings[i]}px">      
-      <div class="task-wrapper">
-        <RecursiveTask
-          taskObj={child}
-          depth={depth+1}
-          willShowCheckbox={false}
-          {isLargeFont}
-          ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
-        >
-          <div class="date-badge">
-            {formatDate(child.startDateISO)}
-          </div>
-        </RecursiveTask>
-      </div>
+      <RecursiveTask
+        taskObj={child}
+        depth={depth+1}
+        willShowCheckbox={false}
+        {isLargeFont}
+        ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
+      >
+        <div class="date-badge">
+          {formatDate(child.startDateISO)}
+        </div>
+      </RecursiveTask>
     </div>
 
     <div 
@@ -209,18 +207,14 @@
     min-height: 30px;
   }
   
-  .task-wrapper {
-    flex: 1;
-    margin-left: 10px;
-  }
-  
   .ghost-negative {
     position: absolute;
     bottom: -18px;
   }
 
   .date-badge {
-    min-width: 52px;
+    white-space: nowrap;
+    flex-shrink: 0;
     font-size: 12px;
     color: #666;
     padding: 2px 4px;
