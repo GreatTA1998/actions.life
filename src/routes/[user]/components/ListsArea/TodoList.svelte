@@ -13,6 +13,7 @@
   export let willShowCheckbox = true
   export let isLargeFont = false
   export let triggerNewTask = false
+  export let listWidth = '320px'
 
   let topInput = false
   let bottomInput = false
@@ -58,7 +59,8 @@
     const newTaskObj = {
       name: newTaskName,
       parentID: '',
-      timeZone: DateTime.local().zoneName
+      timeZone: DateTime.local().zoneName,
+      persistsOnList: false
     }
     if (orderValue) {
       newTaskObj.orderValue = orderValue
@@ -81,7 +83,6 @@
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
 <div style={$$props.style}>
   {#if $trees}
-
     {#if topInput}
       <FormField fieldLabel="Task Name"
         value={newTaskName}
@@ -94,7 +95,7 @@
     {/if}
 
     {#each $trees as taskObj, i (taskObj.id)}
-      <div>
+      <div style="width: {listWidth}">
         <div style="width: 235px;">
           <Dropzone {...renderDropzone(i)} />
         </div>
@@ -143,7 +144,6 @@
 
 <style>  
   .list-container {
-    width: 320px;
     padding: 0.5vw;
     background-color: #fff;
     border-radius: 8px;

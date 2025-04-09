@@ -10,6 +10,7 @@
           <TodoList style="background-color: transparent; padding-top: var(--main-content-top-margin);"
             willShowCheckbox={false}
             isLargeFont
+            listWidth="100%"
             let:startTypingNewTask={startTypingNewTask}
           >
             <div on:click={startTypingNewTask} on:keydown class="fixed-round-button">

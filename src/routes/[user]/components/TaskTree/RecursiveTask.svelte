@@ -25,6 +25,12 @@
       >
         <!-- {taskObj.orderValue}  -->
         {taskObj.name}
+        
+        {#if taskObj.startDateISO && taskObj.startTime}
+          <span class="schedule-badge">
+            {DateTime.fromISO(taskObj.startDateISO).toFormat('ccc')} {taskObj.startTime.slice(0, -3)}
+          </span>
+        {/if}
       </div>
     </div>
 
@@ -130,6 +136,7 @@
   import { activeDragItem, openTaskPopup } from '/src/lib/store'
   import Task from '/src/lib/db/models/Task.js'
   import { WIDTHS } from '/src/lib/utils/constants.js'
+  import { DateTime } from 'luxon'
 
   export let taskObj
   export let depth 
@@ -245,5 +252,16 @@
 
   .cross-out-todo {
     text-decoration: line-through;
+  }
+
+  .schedule-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    color: #666;
+    font-size: 0.85em;
+    font-weight: normal;
   }
 </style> 
