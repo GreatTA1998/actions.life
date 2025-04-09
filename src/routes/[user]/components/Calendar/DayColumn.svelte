@@ -118,6 +118,7 @@
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
 <div bind:this={OverallContainer} class="overall-container unselectable"
   style="height: {$totalMinutes * pixelsPerMinute}px;"
+  class:grid-y={$user.hasGridlines}
   on:drop={e => drop_handler(e)}
   on:dragover={e => dragover_handler(e)}
   on:click|self={e => {
@@ -205,5 +206,9 @@
     overflow-x: hidden;
     width: var(--width-calendar-day-section);
     background-color: var(--calendar-bg-color);
+  }
+
+  .grid-y {
+    border-right: 1px solid var(--grid-color);
   }
 </style>

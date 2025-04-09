@@ -39,5 +39,3 @@
     </div>
   </div>
 </div>
-
-<style src="./AI.css"></style>

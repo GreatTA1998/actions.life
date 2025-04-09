@@ -213,10 +213,11 @@ const Task = {
     ]
     const q = query(
       collection(db, "users", uid, "tasks"),
-      where("rootStartDateISO", "!=", ""),
-      where("rootStartDateISO", ">=", startDate),
-      where("rootStartDateISO", "<=", endDate)
+      where("startDateISO", "!=", ""),
+      where("startDateISO", ">=", startDate),
+      where("startDateISO", "<=", endDate)
     )
+
     const getDataArray = (snapshot) => snapshot.docs.map((doc) => doc.data())
     const taskArray = await getDocs(q).then(getDataArray).catch(console.error)
 
@@ -225,7 +226,9 @@ const Task = {
         (acc, prop) => ({ [prop]: task[prop] || "", ...acc }),
         {}
       )
-    return JSON.stringify(taskArray.map(reducetoNeeded))
+    const result = taskArray.map(reducetoNeeded)
+    
+    return JSON.stringify(result)
   },
   
   // Added method for compatibility with PhotoGrid.svelte
