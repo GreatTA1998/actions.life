@@ -68,15 +68,15 @@
         <div class="message-class">
           <strong>{message.role}:</strong> {message.content}
         </div>
-      {:else}
+      {:else if message.role === 'assistant'}
         <div>
-          <strong>{message.role}:</strong> {message.content}
+          <strong>robot:</strong> {message.content}
         </div>
       {/if}
     {/each}
 
     {#if loading}
-      Loading response...
+      (robot starts thinking...)
     {/if}
   </div>
 
