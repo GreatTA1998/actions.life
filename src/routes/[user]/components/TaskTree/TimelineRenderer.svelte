@@ -147,7 +147,7 @@
   />
 
   {#each sortedTasks as child, i (child.id)}
-    <div class="timeline-item" style="margin-bottom: {spacings[i]}px">      
+    <div class="timeline-item" style="margin-bottom: {spacings[i]}px; padding-left: 8px;">      
       <RecursiveTask
         taskObj={child}
         depth={depth+1}
