@@ -49,14 +49,15 @@
     width: 160px;  /* Increased width to accommodate longer text */
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 0px;
   }
 
   .rhythm-line {
     height: 2px;
     background-color: rgb(223, 223, 223);
     position: relative;
-    margin: 8px 0;
+    margin-top: 8px;
+    margin-bottom: 4px;
   }
 
   .month-marker {

@@ -25,7 +25,7 @@
     {#each selectedDays as day}
       <div 
         class="day-marker"
-        style="left: calc({(day - 1) / 30 * 100}% - 3px)"
+        style="left: calc({day / 31 * 100}%)"
       ></div>
     {/each}
   </div>
@@ -37,7 +37,9 @@
     width: 120px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 0px;
+    padding: 0 3px;
+    box-sizing: border-box;
   }
 
   .rhythm-line {
@@ -54,6 +56,7 @@
     border-radius: 50%;
     background-color: darkslategrey;
     top: -2px;
+    transform: translateX(-50%);
   }
 
   .days-text {

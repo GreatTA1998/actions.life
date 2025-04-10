@@ -1,5 +1,4 @@
 <script>
-  import TemplateColumn from './TemplateColumn.svelte'
   import WeekRhythm from './WeekRhythm.svelte'
   import MonthRhythm from './MonthRhythm.svelte'
   import YearRhythm from './YearRhythm.svelte'
@@ -48,8 +47,11 @@
     <EditTemplatePopup template={$editingTemplateId} />
   {/if}
 
-  <div style="display: flex; width: 90vw; justify-content: space-between;">
+  <div style="display: flex; width: 90vw; justify-content: space-between; gap: 48px;">
     <div style="display: flex; gap: 16px; flex-wrap: wrap; max-width: 480px; align-content: flex-start;">
+      <span class="my-header">
+        WEEKLY
+      </span>
       {#each iconHabits as habit}
         <div on:click={() => openTemplateEditor(habit.id)} on:keydown style="cursor: pointer;">
           <img src={habit.iconURL} alt="icon" style="width: 60px; height: 60px;" />
@@ -58,37 +60,50 @@
       {/each}
     </div>
 
-    <div style="display: grid; gap: 16px; align-items: start; grid-auto-rows: min-content;">
+    <div style="display: grid; gap: 16px; align-items: start; grid-auto-rows: min-content; max-width: 260px;">
+      <div style="height: 0px;">
+
+      </div>
       {#each noIconHabits as habit}
-        <div on:click={() => openTemplateEditor(habit.id)} on:keydown 
-          style="display: grid; gap: 2px; cursor: pointer;"
-        >
-          <div>{habit.name}</div>
+        <div on:click={() => openTemplateEditor(habit.id)} on:keydown style="display: grid; gap: 2px; cursor: pointer;">
+          <div class="truncate-to-one-line">{habit.name}</div>
           <WeekRhythm crontab={habit.crontab} />
         </div>
       {/each}
     </div>
 
-    <div style="display: grid; gap: 16px; align-items: start; grid-auto-rows: min-content;">
-      {#each monthlyTasks as task}
-        <div on:click={() => openTemplateEditor(task.id)} on:keydown 
-          style="display: grid; gap: 2px; cursor: pointer;"
-        >
-          <div>{task.name}</div>
-          <MonthRhythm crontab={task.crontab} />
-        </div>
-      {/each}
+    <div>
+      <span class="my-header">
+        MONTHLY
+      </span>
+
+      <div style="margin-left: 24px; margin-top: 24px; display: grid; gap: 24px; align-items: start; grid-auto-rows: min-content; max-width: 300px;">
+        {#each monthlyTasks as task}
+          <div on:click={() => openTemplateEditor(task.id)} on:keydown 
+            style="display: grid; gap: 0px; cursor: pointer;"
+          >
+            <div class="truncate-to-one-line">{task.name}</div>
+            <MonthRhythm crontab={task.crontab} />
+          </div>
+        {/each}
+      </div>
     </div>
 
-    <div style="display: grid; gap: 16px; align-items: start; grid-auto-rows: min-content;">
-      {#each yearlyTasks as task}
-        <div on:click={() => openTemplateEditor(task.id)} on:keydown 
-          style="display: grid; gap: 2px; cursor: pointer;"
-        >
-          <div>{task.name}</div>
-          <YearRhythm crontab={task.crontab} />
-        </div>
-      {/each}
+    <div>
+      <span class="my-header">
+        YEARLY
+      </span>
+
+      <div style="margin-left: 24px; margin-top: 24px; display: grid; gap: 24px; align-items: start; grid-auto-rows: min-content;">
+        {#each yearlyTasks as task}
+          <div on:click={() => openTemplateEditor(task.id)} on:keydown 
+            style="display: grid; gap: 0px; cursor: pointer;"
+          >
+            <div class="truncate-to-one-line">{task.name}</div>
+            <YearRhythm crontab={task.crontab} />
+          </div>
+        {/each}
+      </div>
     </div>
   </div>
 </div>
@@ -97,3 +112,9 @@
 <TemplateColumn templates={[...quickTasks,...weeklyTasks]} crontab="0 0 * * 0" />
 <TemplateColumn templates={monthlyTasks} crontab="0 0 0 * *" />
 <TemplateColumn templates={yearlyTasks} crontab="0 0 0 0 *" /> -->
+
+<style>
+  .my-header {
+    font-size: 24px;
+  }
+</style>
