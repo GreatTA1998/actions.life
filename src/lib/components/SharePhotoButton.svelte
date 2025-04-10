@@ -6,9 +6,9 @@
   export let imageURL = ''
   export let date = ''
   export let notes = ''
-  export let showDownload = true
+  export let showDownload = false
   export let buttonSize = '32px'
-  export let iconSize = '18px'
+  export let iconSize = '22px'
   export let lightTheme = false
   
   // State
