@@ -1,6 +1,8 @@
 <script>
   import TemplateColumn from './TemplateColumn.svelte'
   import WeekRhythm from './WeekRhythm.svelte'
+  import MonthRhythm from './MonthRhythm.svelte'
+  import YearRhythm from './YearRhythm.svelte'
   import { onMount } from 'svelte'
   import { user } from '/src/lib/store'
   import { templates, openTemplateEditor } from './store.js'
@@ -45,10 +47,6 @@
   {#if $editingTemplateId}
     <EditTemplatePopup template={$editingTemplateId} />
   {/if}
-  
-  <div style="font-size: 16px; font-color: rgb(120, 120, 120)">
-    Frequent Routines
-  </div>
 
   <div style="display: flex; width: 90vw; justify-content: space-between;">
     <div style="display: flex; gap: 16px; flex-wrap: wrap; max-width: 480px; align-content: flex-start;">
@@ -71,10 +69,31 @@
       {/each}
     </div>
 
-    <!-- 
-    <TemplateColumn templates={quickTasks} crontab="" />
-    <TemplateColumn templates={[...quickTasks,...weeklyTasks]} crontab="0 0 * * 0" /> -->
-    <TemplateColumn templates={monthlyTasks} crontab="0 0 0 * *" />
-    <TemplateColumn templates={yearlyTasks} crontab="0 0 0 0 *" />
+    <div style="display: grid; gap: 16px; align-items: start; grid-auto-rows: min-content;">
+      {#each monthlyTasks as task}
+        <div on:click={() => openTemplateEditor(task.id)} on:keydown 
+          style="display: grid; gap: 2px; cursor: pointer;"
+        >
+          <div>{task.name}</div>
+          <MonthRhythm crontab={task.crontab} />
+        </div>
+      {/each}
+    </div>
+
+    <div style="display: grid; gap: 16px; align-items: start; grid-auto-rows: min-content;">
+      {#each yearlyTasks as task}
+        <div on:click={() => openTemplateEditor(task.id)} on:keydown 
+          style="display: grid; gap: 2px; cursor: pointer;"
+        >
+          <div>{task.name}</div>
+          <YearRhythm crontab={task.crontab} />
+        </div>
+      {/each}
+    </div>
   </div>
 </div>
+
+<!-- <TemplateColumn templates={quickTasks} crontab="" />
+<TemplateColumn templates={[...quickTasks,...weeklyTasks]} crontab="0 0 * * 0" />
+<TemplateColumn templates={monthlyTasks} crontab="0 0 0 * *" />
+<TemplateColumn templates={yearlyTasks} crontab="0 0 0 0 *" /> -->
