@@ -10,10 +10,10 @@
   let selectedDays = template.crontab.split(' ')[crontabIndex].split(',')
   let isEditingPeriodicity = false
 
-function handleSave() {
-  updateCrontab({selectedDays, template, crontabIndex})
-  isEditingPeriodicity = false
-}
+  function handleSave() {
+    updateCrontab({selectedDays, template, crontabIndex})
+    isEditingPeriodicity = false
+  }
 
   function handleSelectDay(i) {
     if (selectedDays.includes(i)) {
@@ -29,20 +29,18 @@ function handleSave() {
   }
 </script>
 
-<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-  <div style="display: flex; max-width: 100%; flex-wrap: wrap;">
-    {#each { length: maxDays } as _, i}
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div
-        on:click={() => handleSelectDay(String(i + 1))}
-        class="circle"
-        class:not-selected={!selectedDays.includes(String(i + 1))}
-        class:highlighted={selectedDays.includes(String(i + 1))}
-      >
-        {maxDays == 7 ? dayOfWeekSymbol[i + 1]: i + 1}
-      </div>
-    {/each}
-  </div>
+<div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+  {#each { length: maxDays } as _, i}
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <div
+      on:click={() => handleSelectDay(String(i + 1))}
+      class="circle"
+      class:not-selected={!selectedDays.includes(String(i + 1))}
+      class:highlighted={selectedDays.includes(String(i + 1))}
+    >
+      {maxDays == 7 ? dayOfWeekSymbol[i + 1]: i + 1}
+    </div>
+  {/each}
 
   {#if isEditingPeriodicity}
     <RoundButton
@@ -56,18 +54,6 @@ function handleSave() {
 </div>
 
 <style>
-  /* .underlined-input {
-    border: none;
-    border-bottom: 2px solid #313131;
-    outline: none;
-    padding: 4px;
-    padding-bottom: 4px;
-    font-size: 16px;
-    width: 20px;
-    margin: 4px;
-    font-weight: 500;
-  } */
-
   .circle {
     width: 30px;
     height: 30px;
@@ -77,7 +63,6 @@ function handleSave() {
     text-align: center;
 
     /* extra */
-    margin-right: 8px;
     cursor: pointer;
   }
 

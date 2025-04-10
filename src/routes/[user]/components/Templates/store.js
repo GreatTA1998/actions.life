@@ -4,11 +4,21 @@ import { user } from '/src/lib/store/userStore.js'
 import '/src/lib/store/themes'
 
 export const templates = writable([])
+export const editingTemplateId = writable('')
+
+export function openTemplateEditor(templateId) {
+  editingTemplateId.set(templateId)
+}
+
+export function closeTemplateEditor() {
+  editingTemplateId.set(null)
+}
 
 export function deleteTemplate({ templateID }) {
   const currentUser = get(user)
   Template.delete({ id: templateID, userID: currentUser.uid })
   templates.update((templates) => templates.filter((template) => template.id !== templateID))
+  closeTemplateEditor()
 }
 
 export async function updateTemplate({ templateID, keyValueChanges, oldTemplate }) {
