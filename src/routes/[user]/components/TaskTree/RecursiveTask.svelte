@@ -26,9 +26,10 @@
         <!-- {taskObj.orderValue}  -->
         {taskObj.name}
         
-        {#if taskObj.startDateISO && taskObj.startTime}
+        {#if taskObj.startDateISO}
           <span class="schedule-badge">
-            {DateTime.fromISO(taskObj.startDateISO).toFormat('ccc')} {taskObj.startTime}
+            {DateTime.fromISO(taskObj.startDateISO).toRelative()}
+            {taskObj.startTime}
           </span>
         {/if}
       </div>
