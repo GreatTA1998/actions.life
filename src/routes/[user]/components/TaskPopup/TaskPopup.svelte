@@ -15,6 +15,7 @@
   import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
   import Task from '/src/lib/db/models/Task.js'
+  import RepeatTask from './RepeatTask.svelte'
 
   let TaskImageElem
   let PopupElem
@@ -181,6 +182,8 @@
             {/if}
 
             <PhotoUpload {taskObject}/>
+
+            <RepeatTask {taskObject}/>
 
             <button on:click={async () => {
               await Task.archiveTree({ id: taskObject.id })
