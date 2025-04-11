@@ -185,26 +185,28 @@
 
             <RepeatTask {taskObject}/>
 
-            <div style="margin-left: auto; right: 0px;">
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
               {#if !taskObject.isArchived}
-                <button on:click={async () => {
-                  await Task.archiveTree({ id: taskObject.id })
-                  closeTaskPopup()
-                }}
+                <button 
+                  on:click={async () => {
+                    await Task.archiveTree({ id: taskObject.id })
+                    closeTaskPopup()
+                  }} 
+                  class="material-symbols-outlined action-button"
+                  style="font-size: 22px;"
                 >
-                <span class="material-symbols-outlined" style="font-size: 22px; padding: 4px; font-weight: 600">
                   inventory_2
-                </span>
                   <span class="tooltip">Archive this task and all its children</span>
                 </button>
               {:else}
-                <button on:click={async () => Task.unarchiveTree({ id: taskObject.id })}>
-                  <span class="material-symbols-outlined" style="font-size: 22px; padding: 4px; font-weight: 600">
-                    unarchive
+                <button on:click={async () => Task.unarchiveTree({ id: taskObject.id })} class="action-button" style="background-color: black; color: white;">
+                  <span class="material-symbols-outlined" style="font-size: 22px;">
+                    inventory_2
+                  </span>
                 </button>
               {/if}
 
-              <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined">
+              <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined action-button">
                 delete
                 <span class="tooltip">Delete this task and all its children</span>
               </button>
@@ -284,7 +286,6 @@
 
   .delete-button {
     border-radius: 24px; 
-    padding: 4px;
   }
 
   ::-webkit-scrollbar {
@@ -373,5 +374,22 @@
 
   .delete-button:hover .tooltip {
     visibility: visible;
+  }
+
+  .action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+
+  .action-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .delete-button:hover {
+    color: #d32f2f;
   }
 </style>
