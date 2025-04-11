@@ -4,18 +4,6 @@ import { writeBatch, doc } from 'firebase/firestore'
 import { db } from '/src/lib/db/init.js'
 import { isValidISODate } from '/src/lib/db/models/Task.js'
 
-export async function convertTasksToNonPersist (uid) {
-  const tasks = await getFirestoreCollection(`/users/${uid}/tasks`)
-  for (const task of tasks) {
-    if (task.listID == '') {
-      console.log('no ID found, converting')
-      updateFirestoreDoc(`/users/${uid}/tasks/${task.id}`, {
-        persistsOnList: false,
-      })
-    }
-  }
-}
-
 // DANGER, as once you fuck up startDateISOs, you can't get them back
 export async function fixInvalidStartDateISOs (uid, testRun = true) {
   console.log('testRun = ', testRun)
