@@ -28,7 +28,7 @@
   }
 
   .highlighted {
-    background-color: darkslategrey;
+    background-color: var(--rhythm-highlight-color);
     border: none;
   }
 </style>

@@ -54,7 +54,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background-color: darkslategrey;
+    background-color: var(--rhythm-highlight-color);
     top: -2px;
     transform: translateX(-50%);
   }

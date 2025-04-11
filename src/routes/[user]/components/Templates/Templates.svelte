@@ -114,6 +114,10 @@
 <TemplateColumn templates={yearlyTasks} crontab="0 0 0 0 *" /> -->
 
 <style>
+  :root {
+    --rhythm-highlight-color: orange;
+  }
+
   .my-header {
     font-size: 24px;
   }
