@@ -10,6 +10,7 @@ import {
 import { db } from '/src/lib/db/init.js'
 import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
 import { getTreeNodes } from './treeISOs.js'
+import { showUndoSnackbar } from '/src/lib/store'
 
 export function isValidISODate (dateStr) {
   if (dateStr === '') return true
@@ -108,7 +109,6 @@ const Task = {
     }
   },
 
-  // FIRST TRY THIS FOR UDPATE
   update: async ({ id, keyValueChanges }) => {
     try {
       const batch = writeBatch(db)
@@ -129,48 +129,61 @@ const Task = {
 
   delete: async ({ id }) => {
     const taskObj = get(tasksCache)[id]
-
     const tasksToDelete = await getTreeNodes(taskObj)
 
-    if (tasksToDelete.length >= 2) {
-      if (!confirm(`${tasksToDelete.length} tasks will be deleted in this tree. Are you sure?`)) {
-        return
+    if (confirm(`${tasksToDelete.length} task${tasksToDelete.length > 1 ? 's' : ''} will be deleted. Are you sure?`)) {
+      const { uid } = get(user)
+      const batch = writeBatch(db)
+  
+      for (const taskObj of tasksToDelete) {
+        const { imageFullPath, id } = taskObj
+        if (imageFullPath) deleteImage({ imageFullPath })
+        batch.delete(doc(db, `/users/${uid}/tasks/${id}`))
       }
+      await handleTreeISOsForDeletion({ tasksToDelete, batch })
+  
+      await batch.commit()
+
+      return tasksToDelete 
     }
-
-    const { uid } = get(user)
-    const batch = writeBatch(db)
-
-    for (const taskObj of tasksToDelete) {
-      const { imageFullPath, id } = taskObj
-      if (imageFullPath) deleteImage({ imageFullPath })
-      batch.delete(doc(db, `/users/${uid}/tasks/${id}`))
-    }
-    await handleTreeISOsForDeletion({ tasksToDelete, batch })
-
-    await batch.commit()
-    return tasksToDelete
   },
 
   archiveTree: async ({ id }) => {
     const taskObj = get(tasksCache)[id]
-    const tasksToArchive = await getTreeNodes(taskObj)
-
-    if (tasksToArchive.length >= 2) {
-      if (!confirm(`${tasksToArchive.length} tasks will be archived in this tree. Are you sure?`)) {
-        return
-      }
-    }
+    const tasks = await getTreeNodes(taskObj)
 
     const { uid } = get(user)
     const batch = writeBatch(db)
 
-    for (const task of tasksToArchive) {
-      batch.update(doc(db, `/users/${uid}/tasks/${task.id}`), { isArchived: true })
+    for (const task of tasks) {
+      batch.update(doc(db, `/users/${uid}/tasks/${task.id}`), { 
+        isArchived: true
+      })
     }
 
     await batch.commit()
-    return tasksToArchive
+
+    showUndoSnackbar(
+      `${tasks.length} task${tasks.length > 1 ? 's' : ''} archived`,
+      () => Task.unarchiveTree({ id })
+    )
+
+    return tasks
+  },
+
+  unarchiveTree: async ({ id }) => {
+    const { uid } = get(user)
+    const batch = writeBatch(db)
+    const taskObj = get(tasksCache)[id]
+    const tasksToUnarchive = await getTreeNodes(taskObj)
+
+    for (const task of tasksToUnarchive) {
+      batch.update(doc(db, `/users/${uid}/tasks/${task.id}`), { 
+        isArchived: false
+      })
+    }
+
+    await batch.commit()
   },
 
   // Collection operations

@@ -12,6 +12,7 @@
     fixInvalidStartDateISOs,
     migrateBasicProperties
   } from '/src/lib/db/scripts/april.js'
+  import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
 
   let doingAuth = true
 
@@ -50,26 +51,28 @@
   }
 </script>
 
-<!-- TO-DO: fix loader -->
-<!-- !(doingAuth || $loadingTasks) -->
-<div
-  id="loading-screen-logo-start"
-  style="z-index: 99999; background: white; width: 100vw; height: 100vh"
-  class="center"
-  class:invisible={!doingAuth}
->
-  <img
-    src="/logo-no-bg.png"
-    class="app-loading-logo elementToFadeInAndOut center"
-    alt="logo"
-    style="width: 48px; height: 48px;"
-  />
-</div>
-
 <div>
-  <slot>
+  <div
+    id="loading-screen-logo-start"
+    style="z-index: 99999; background: white; width: 100vw; height: 100vh"
+    class="center"
+    class:invisible={!doingAuth}
+  >
+    <img
+      src="/logo-no-bg.png"
+      class="app-loading-logo elementToFadeInAndOut center"
+      alt="logo"
+      style="width: 48px; height: 48px;"
+    />
+  </div>
 
-  </slot>
+  <div>
+    <slot>
+
+    </slot>
+  </div>
+
+  <TheSnackbar />
 </div>
 
 <style>

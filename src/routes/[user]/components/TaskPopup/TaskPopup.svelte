@@ -29,6 +29,7 @@
   )
 
   $: taskObject = $tasksCache[$clickedTaskID]
+  $: console.log("taskObject =", taskObject)
 
   $: journalLayout = taskObject?.photoLayout || $defaultPhotoLayout
   
@@ -41,7 +42,6 @@
     if (taskObject.imageDownloadURL) {
       computePhotoFullDisplaySize()
     }
-    console.log("taskObject =", taskObject)
   })
 
   function handleDelete () {
@@ -185,21 +185,30 @@
 
             <RepeatTask {taskObject}/>
 
-            <button on:click={async () => {
-              await Task.archiveTree({ id: taskObject.id })
-              closeTaskPopup()
-            }}
-            >
-              <span class="material-symbols-outlined" style="font-size: 22px; padding: 4px; font-weight: 600">
-                inventory_2
-              </span>
-              <span class="tooltip">Archive this task and all its children</span>
-            </button>
+            <div style="margin-left: auto; right: 0px;">
+              {#if !taskObject.isArchived}
+                <button on:click={async () => {
+                  await Task.archiveTree({ id: taskObject.id })
+                  closeTaskPopup()
+                }}
+                >
+                <span class="material-symbols-outlined" style="font-size: 22px; padding: 4px; font-weight: 600">
+                  inventory_2
+                </span>
+                  <span class="tooltip">Archive this task and all its children</span>
+                </button>
+              {:else}
+                <button on:click={async () => Task.unarchiveTree({ id: taskObject.id })}>
+                  <span class="material-symbols-outlined" style="font-size: 22px; padding: 4px; font-weight: 600">
+                    unarchive
+                </button>
+              {/if}
 
-            <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined">
-              delete
-              <span class="tooltip">Delete this task and all its children</span>
-            </button>
+              <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined">
+                delete
+                <span class="tooltip">Delete this task and all its children</span>
+              </button>
+            </div>
           </div>
         </div>
         <!-- task details container -->
@@ -274,8 +283,6 @@
   }
 
   .delete-button {
-    margin-left: auto; 
-    right: 0px; 
     border-radius: 24px; 
     padding: 4px;
   }

@@ -87,3 +87,35 @@ export const inclusiveWeekTodo = writable([])
 export const todoMemoryTree = writable(null)
 
 export const uniqueEvents = writable(null)
+
+// New snackbar store for undo operations
+export const snackbarState = writable({
+  isVisible: false,
+  message: '',
+  undoAction: null
+})
+
+export const SNACKBAR_DURATION = 5000
+let timeoutId = null
+
+export function showUndoSnackbar(message, undoAction) {
+  // Clear any existing timeout
+  if (timeoutId) clearTimeout(timeoutId)
+  
+  // Show new snackbar
+  snackbarState.set({
+    isVisible: true,
+    message,
+    undoAction
+  })
+
+  // Set new timeout
+  timeoutId = setTimeout(() => {
+    snackbarState.update(s => ({ ...s, isVisible: false }))
+  }, SNACKBAR_DURATION)
+}
+
+export function hideSnackbar() {
+  if (timeoutId) clearTimeout(timeoutId)
+  snackbarState.update(s => ({ ...s, isVisible: false }))
+}
