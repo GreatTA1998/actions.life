@@ -9,6 +9,7 @@
   import { createDebouncedFunction } from '/src/lib/utils/core.js'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
   import Icon from '/src/lib/db/models/Icon.js'
+  import MonthlyInput from './MonthlyInput.svelte'
 
   export let template
 
@@ -70,7 +71,8 @@
       {#if Template.getPeriodFromCrontab(template.crontab) === 'weekly'}
         <PeriodicInput {template} maxDays={7} crontabIndex={4} />
       {:else if Template.getPeriodFromCrontab(template.crontab) === 'monthly'}
-        <PeriodicInput {template} maxDays={31} crontabIndex={2} />
+        <MonthlyInput {template} />
+        <!-- <PeriodicInput {template} maxDays={31} crontabIndex={2} /> -->
       {:else if Template.getPeriodFromCrontab(template.crontab) === 'yearly'}
         <YearlyInput {template} />
       {/if}
