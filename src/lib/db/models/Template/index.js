@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { db } from '/src/lib/db/init.js'
+import { updateFirestoreDoc } from '$lib/db/helpers.js'
 import {
   doc,
   getDocs,
@@ -7,8 +8,7 @@ import {
   query,
   setDoc,
   updateDoc,
-  deleteDoc,
-  where
+  deleteDoc
 } from "firebase/firestore"
 import Task from '../Task.js'
 import { getPeriodFromCrontab, deleteFutureTasks, postFutureTasks, getTotalStats } from './utils.js'
@@ -26,7 +26,8 @@ const Template = {
     notify: z.string().default(''),
     duration: z.number().default(0),
     startTime: z.string().default(''),
-    isStarred: z.boolean().default(false)
+    isStarred: z.boolean().default(false),
+    rrStr: z.string().default('')
   }),
 
   async create ({ userID, newTemplate, templateID }) {
@@ -37,10 +38,11 @@ const Template = {
 
   // THESE ARE THE ONLY TWO FUNCTIONS THAT UPDATE THE TEMPLATE
   async update ({ userID, id, updates, newTemplate }) {
-    Template.schema.parse(newTemplate)
-    updateDoc(doc(db, "users", userID, 'templates', id), updates)
+    const validatedChanges = Template.schema.partial().parse(updates)
+    updateFirestoreDoc(`/users/${userID}/templates/${id}`, validatedChanges)
 
     // this is `Task`, not `Template`
+    return
     Task.updateQuickTasks({ userID, templateID: id, updates })
   },
 

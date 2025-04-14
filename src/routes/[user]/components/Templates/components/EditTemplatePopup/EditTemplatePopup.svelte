@@ -12,10 +12,14 @@
 
   export let template
 
-  $: template = $templates.find(t => t.id === $editingTemplateId)
-  
+  let newName = '' 
   let isPopupOpen = false
-  let newName = template.name
+
+  $: template = $templates.find(t => t.id === $editingTemplateId)
+  $: if (template) {
+    console.log('template.rrStr =', template.rrStr)
+    init()
+  }
 
   const debouncedRenameTask = createDebouncedFunction(
     (newVal) =>
@@ -30,6 +34,11 @@
   onMount(async () => {
     $doodleIcons = await Icon.getAvailable($user.uid)
   })
+
+  function init () {
+    isPopupOpen = false
+    newName = template.name
+  }
 
   function handleDelete() {
     deleteTemplate({ templateID: template.id })

@@ -1,31 +1,54 @@
 <script>
+  import Template from '/src/lib/db/models/Template/index.js'
   import RoundButton from '$lib/components/RoundButton.svelte'
-  import { updateCrontab } from '/src/routes/[user]/components/Templates/utils.js'
+  import { user } from '/src/lib/store'
   export let template
   export let crontabIndex = 3
   export let maxDays = 7
 
   let oldSelectedDays = template.crontab.split(' ')[crontabIndex].split(',')
   let dayOfWeekSymbol = [ "Sun", 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  let selectedDays = template.crontab.split(' ')[crontabIndex].split(',')
+  let selectedDays = [] // template.crontab.split(' ')[crontabIndex].split(',')
   let isEditingPeriodicity = false
 
+  $: {
+    isEditingPeriodicity = oldSelectedDays.join(',') !== selectedDays.join(',')
+  }
+
   function handleSave() {
-    updateCrontab({selectedDays, template, crontabIndex})
+    console.log('selectedDays =', selectedDays) // ['0', '5', '7', '3']
+    const rrStr = convertArrayToRRule(selectedDays)
+    console.log(`rrStr = ${rrStr}`)
+    Template.update({ userID: $user.uid, id: template.id, updates: { rrStr } })
     isEditingPeriodicity = false
+  }
+
+  function convertArrayToRRule(selectedDays) {
+    // Map from array indices to RRule day abbreviations
+    // ISO 8601 standard which uses 1-7 for Monday-Sunday
+    const dayMap = {
+      1: 'MO',
+      2: 'TU',
+      3: 'WE',
+      4: 'TH',
+      5: 'FR',
+      6: 'SA',
+      7: 'SU'
+    }
+      
+    // Convert the array numbers to day abbreviations
+    const days = selectedDays.map(day => dayMap[day]).join(',')
+    
+    // Return the RRule string
+    return `FREQ=WEEKLY;BYDAY=${days}`
   }
 
   function handleSelectDay(i) {
     if (selectedDays.includes(i)) {
       selectedDays = selectedDays.filter((day) => day !== i)
-      if(selectedDays.length === 0) selectedDays = ['0']
     } else {
       selectedDays = [...selectedDays, i]
     }
-  }
-
-  $: {
-    isEditingPeriodicity = oldSelectedDays.join(',') !== selectedDays.join(',')
   }
 </script>
 

@@ -11,7 +11,13 @@ const handleTemplate = async (template) => {
     const offset = getPeriodFromCrontab(template.crontab) === 'yearly' ? { years: 2 } : { months: 2 };
     const startDate = DateTime.fromISO(template.lastGeneratedTask).setZone(template.timeZone)
     const endDate = DateTime.now().setZone(template.timeZone).plus(offset);
-    const tasksArray = await buildFutureTasks({ template, startDateJS: new Date(startDate), endDateJS: new Date(endDate), userID: template.userID, templateID: template.id });
+    const tasksArray = await buildFutureTasks({ 
+      template, 
+      startDateJS: new Date(startDate), 
+      endDateJS: new Date(endDate), 
+      userID: template.userID, 
+      templateID: template.id 
+    })
     if(!tasksArray.length) return;
     tasksArray.forEach(async task => {
         const taskID = getRandomID()

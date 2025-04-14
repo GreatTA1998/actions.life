@@ -1,9 +1,11 @@
-import { writable, get } from 'svelte/store'
+import { db } from '/src/lib/db/init.js' // not initialize db first will cause permission errors
+
 import './themes'
+import './templateInstances'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { db } from '/src/lib/db/init.js'
 import { user } from './userStore.js'
 import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/todoService.js'
+import { writable, get } from 'svelte/store'
 
 export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from '/src/routes/[user]/components/Calendar/timestamps.js'
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
