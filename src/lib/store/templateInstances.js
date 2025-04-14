@@ -1,7 +1,8 @@
 import { user } from './userStore.js'
 import { getFirestoreCollection } from '$lib/db/helpers.js'
 import Task from '$lib/db/models/Task.js'
-import { datetime, RRule, RRuleSet, rrulestr } from 'rrule'
+import Template from '$lib/db/models/Template/index.js'
+import { RRule } from 'rrule'
 import { DateTime } from 'luxon'
 
 user.subscribe(async ($user) => {
@@ -9,39 +10,43 @@ user.subscribe(async ($user) => {
     console.log('handling templates')
     const templates = await getFirestoreCollection('/users/' + $user.uid + '/templates')
     for (const template of templates) {
-      fillTaskInstances(template)
+      fillTaskInstances(template, $user.uid)
     }
   }
 })
 
-function fillTaskInstances (template) {
+function fillTaskInstances (template, uid) {
   if (!template.rrStr) return
-  let { lastTaskISO, rrStr, lookahead } = template
+  
+  let { lastTaskISO, rrStr, previewSpan } = template
   if (!lastTaskISO) lastTaskISO = DateTime.now().toFormat('yyyy-MM-dd')
-  if (!lookahead) lookahead = 2*7
+  if (!previewSpan) previewSpan = 2*7
   
   const start = new Date(lastTaskISO)
-  const end = DateTime.now().plus({ days: lookahead }).toJSDate()
+  const end = DateTime.now().plus({ days: previewSpan }).toJSDate()
   console.log('start =', start)
   console.log('end =', end)
   console.log('rrStr =', rrStr)
   const occurences = RRule.fromString(rrStr).between(
     start,
-    end, // // 2*7, 2*31, 2*365
+    end,
     false // excludes start date
   )
 
   for (const occurence of occurences) {
-    console.log("would create this =", {
+    const newTaskObj = Task.schema.parse(template)
+    newTaskObj.templateID = template.id
+    newTaskObj.startDateISO = DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd') // note: startDateISO gets overidden if merged with the spread operator with template properties
+    Task.create({
       id: template.id + '_' + occurence.toISOString(), // be clear about format, 
-      newTaskObj: Task.schema.parse(template)
+      newTaskObj
     })
-    // should the ID be cleaner? 
-    
-    // Task.create({
-    //   id: template.id + '_' + occurence.toISOString(), // be clear about format, 
-    //   newTaskObj: Task.schema.parse(template)
-    // })
   }
+
+  Template.update({ userID: uid, id: template.id, updates: {
+    lastTaskISO: DateTime.fromJSDate(end).toFormat('yyyy-MM-dd')
+  }})
+
   console.log("occurences =", occurences)
+  console.log('lastTaskISO =', DateTime.fromJSDate(end).toFormat('yyyy-MM-dd'))
 }

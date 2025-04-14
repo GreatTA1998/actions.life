@@ -27,13 +27,14 @@ const Template = {
     duration: z.number().default(0),
     startTime: z.string().default(''),
     isStarred: z.boolean().default(false),
-    rrStr: z.string().default('')
+    rrStr: z.string().default(''),
+    lastTaskISO: z.string().default('')
   }),
 
   async create ({ userID, newTemplate, templateID }) {
     Template.schema.parse(newTemplate)
     const docRef = doc(db, "users", userID, 'templates', templateID)
-    return setDoc(docRef, newTemplate)
+    return setDoc(docRef, newTemplate, { merge: true }) // `merge: true` matters for generating periodic tasks
   },
 
   // THESE ARE THE ONLY TWO FUNCTIONS THAT UPDATE THE TEMPLATE
