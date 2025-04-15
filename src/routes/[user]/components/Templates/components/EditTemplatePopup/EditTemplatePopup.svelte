@@ -152,16 +152,18 @@
   .detailed-card-popup {
     /* safety */
     max-height: 90vh;
-
+    min-width: 360px;
+    
+    width: 70%;
+ 
     position: fixed;
     font-size: 14px;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 58%;
+ 
     overflow-y: auto;
     z-index: 3;
-    min-width: 360px;
 
     height: fit-content;
 

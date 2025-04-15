@@ -1,14 +1,23 @@
 <script>
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, onMount } from 'svelte'
   
+  export let rrStr = ''
+  
+  let selectedDays = new Set()
+  let lastDaySelected = false
+
+  const variableDays = [29, 30, 31]
   const dispatch = createEventDispatcher()
   
-  export let selectedDays = new Set()
+  $: if (rrStr) parseRRuleString(rrStr)
+  $: lastDaySelected = variableDays.every(day => selectedDays.has(day))
+
+  onMount(() => {
+    if (rrStr) parseRRuleString(rrStr)
+    selectedDays = selectedDays // Trigger reactivity
+  })
   
-  const variableDays = [29, 30, 31]
-  let lastDaySelected = false
-  
-  function toggleDay(day, event) {
+  function toggleDay (day) {
     if (selectedDays.has(day)) {
       selectedDays.delete(day)
     } else {
@@ -16,10 +25,10 @@
     }
     
     selectedDays = selectedDays // Trigger reactivity
-    dispatch('update', { selectedDays })
+    dispatchChange()
   }
   
-  function toggleAllVariableDays(event) {
+  function toggleAllVariableDays () {
     const areAllSelected = variableDays.every(day => selectedDays.has(day))
     
     if (areAllSelected) {
@@ -29,57 +38,76 @@
     }
     
     selectedDays = selectedDays // Trigger reactivity
-    dispatch('update', { selectedDays })
+    dispatchChange()
   }
   
-  $: lastDaySelected = variableDays.every(day => selectedDays.has(day))
+  function parseRRuleString (rrStr) {
+    if (!rrStr || !rrStr.includes('FREQ=MONTHLY') || !rrStr.includes('BYMONTHDAY=')) return false
+    
+    selectedDays.clear()
+    
+    const bymonthdayMatch = rrStr.match(/BYMONTHDAY=([^;]*)/)
+    if (bymonthdayMatch) {
+      const days = bymonthdayMatch[1].split(',').map(Number)
+      days.forEach(day => selectedDays.add(day))
+      selectedDays = selectedDays // Trigger reactivity
+      return true
+    }
+    return false
+  }
+  
+  function createRRuleString () {
+    if (selectedDays.size > 0) {
+      const days = Array.from(selectedDays).sort((a, b) => a - b)
+      return `FREQ=MONTHLY;BYMONTHDAY=${days.join(',')}`
+    }
+    return ''
+  }
+  
+  function dispatchChange () {
+    const pattern = {
+      type: 'specific',
+      days: Array.from(selectedDays).sort((a, b) => a - b)
+    }
+    
+    const newRRuleStr = createRRuleString()
+    dispatch('update', { 
+      pattern,
+      rrStr: newRRuleStr
+    })
+  }
 </script>
 
-<div class="section-content">
-  <div class="calendar-grid">
-    {#each Array(28) as _, i}
-      {@const day = i + 1}
-      <button on:click={(e) => toggleDay(day, e)}
-        type="button"
-        class="day-button {selectedDays.has(day) ? 'selected' : ''}"
-      >
-        {day}
-      </button>
-    {/each}
-    
-    <!-- Last Days Group (29-31) -->
-    <button 
-      type="button"
-      class="day-button variable-group {variableDays.some(day => selectedDays.has(day)) ? 'selected' : ''} {lastDaySelected ? 'all-selected' : ''}"
-      on:click={(e) => toggleAllVariableDays(e)}
-      title="Select last days (29, 30, 31)"
+<div class="calendar-grid">
+  {#each Array(28) as _, i}
+    <button on:click={e => toggleDay(i+1, e)}
+      class:selected={selectedDays.has(i+1)}
+      class="day-button"
     >
-      Last day
+      {i+1}
     </button>
-    
-    <!-- Individual variable days (hidden but tracked for state) -->
-    {#each variableDays as day}
-      <div class="hidden-day">
-        {#if selectedDays.has(day)}
-          <!-- Hidden marker to track state -->
-        {/if}
-      </div>
-    {/each}
-  </div>
+  {/each}
+
+  <button on:click={e => toggleAllVariableDays(e)}
+    class:selected={lastDaySelected}
+    class="day-button variable-group"
+  >
+    Last day
+  </button>
 </div>
 
-<style>
-  .section-content {
-    padding: 0.75rem;
-    width: 100%;
-  }
-  
+<style>  
   .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 2px;
     margin: 0 auto;
-    width: 284px; /* Fixed width for 7 columns of 38px + 2px gap */
+
+    /* width: 284px; */
+     /* Fixed width for 7 columns of 38px + 2px gap */
+
+    padding: 0.75rem;
+    width: 100%;
   }
   
   .day-button {
@@ -98,7 +126,7 @@
     justify-content: center;
   }
   
-  .day-button.selected {
+  .selected {
     background: var(--active);
     color: white;
   }
@@ -108,18 +136,5 @@
     width: auto;
     font-size: 0.85rem;
     font-weight: 500;
-  }
-  
-  .day-button.variable-group.selected {
-    background: var(--active);
-    color: white;
-  }
-  
-  .day-button.variable-group.all-selected {
-    background: var(--active);
-  }
-  
-  .hidden-day {
-    display: none;
   }
 </style> 

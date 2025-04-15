@@ -1,10 +1,13 @@
 <script>
-  import { createEventDispatcher } from 'svelte'
+  import { onMount, createEventDispatcher } from 'svelte'
+  import { weekdayToRRule, occurrenceToPosition, rruleToWeekday, positionToOccurrence } from './rruleUtils.js'
   
   const dispatch = createEventDispatcher()
   
-  export let selectedWeekday = 'saturday'
-  export let selectedOccurrences = new Set()
+  export let rrStr = ''
+  
+  let selectedWeekday = 'saturday'
+  let selectedOccurrences = new Set()
   
   const weekOccurrences = [
     { id: 'first', label: '1st', shortLabel: '1' },
@@ -22,20 +25,98 @@
     { id: 'saturday', label: 'Saturday', shortLabel: 'Sa' },
     { id: 'sunday', label: 'Sunday', shortLabel: 'Su' }
   ]
+
+  $: if (rrStr) parseRRuleString(rrStr)
+
+  onMount(() => {
+    if (rrStr) {
+      parseRRuleString(rrStr)
+    }
+    selectedOccurrences = selectedOccurrences // Trigger reactivity
+  })
   
-  function toggleOccurrence(occurrence, event) {
+  function toggleOccurrence (occurrence) {
     if (selectedOccurrences.has(occurrence)) {
       selectedOccurrences.delete(occurrence)
     } else {
       selectedOccurrences.add(occurrence)
     }
     selectedOccurrences = selectedOccurrences // Trigger reactivity
-    dispatch('update', { selectedOccurrences })
+    dispatchChange()
   }
   
-  function selectWeekday(weekdayId, event) {
+  function selectWeekday (weekdayId, event) {
     selectedWeekday = weekdayId
-    dispatch('update', { selectedWeekday })
+    dispatchChange()
+  }
+  
+  // Parse RRule string to extract weekly pattern
+  function parseRRuleString (rrStr) {
+    if (!rrStr || !rrStr.includes('FREQ=MONTHLY') || !rrStr.includes('BYDAY=')) return false
+    
+    selectedOccurrences.clear()
+    
+    const bydayMatch = rrStr.match(/BYDAY=([^;]*)/)
+    if (bydayMatch) {
+      const bydayParts = bydayMatch[1].split(',')
+      
+      // We only need to set the weekday once - we'll use the first one found
+      let weekdaySet = false
+      
+      bydayParts.forEach(part => {
+        const posMatch = part.match(/([+\-]\d+)([A-Z]{2})/)
+        if (posMatch) {
+          const pos = posMatch[1]
+          const day = posMatch[2]
+          
+          // Convert position to occurrence id
+          const occId = positionToOccurrence[pos]
+          if (occId) {
+            selectedOccurrences.add(occId)
+          }
+          
+          // Convert day code to weekday id and set it once
+          if (!weekdaySet) {
+            const weekdayId = rruleToWeekday[day]
+            if (weekdayId) {
+              selectedWeekday = weekdayId
+              weekdaySet = true
+            }
+          }
+        }
+      })
+      
+      selectedOccurrences = selectedOccurrences // Trigger reactivity
+      return true
+    }
+    return false
+  }
+  
+  // Create RRule string for weekly pattern
+  function createRRuleString () {
+    if (selectedOccurrences.size > 0) {
+      const bydays = Array.from(selectedOccurrences)
+        .sort()
+        .map(occ => `${occurrenceToPosition[occ]}${weekdayToRRule[selectedWeekday]}`)
+        .join(',')
+      
+      return `FREQ=MONTHLY;BYDAY=${bydays}`
+    }
+    return ''
+  }
+  
+  function dispatchChange () {
+    const pattern = {
+      type: 'weekly',
+      weekday: selectedWeekday,
+      occurrences: Array.from(selectedOccurrences).sort()
+    }
+    
+    const newRRuleStr = createRRuleString()
+    dispatch('update', { 
+      pattern,
+      rrStr: newRRuleStr
+    })
   }
 </script>
 
