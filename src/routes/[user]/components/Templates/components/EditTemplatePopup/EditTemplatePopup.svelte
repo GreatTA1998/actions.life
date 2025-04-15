@@ -1,5 +1,5 @@
 <script>
-  import PeriodicInput from './PeriodicInput.svelte'
+  import WeeklyInput from './WeeklyInput.svelte'
   import YearlyInput from './YearlyInput.svelte'
   import EditTime from './EditTime.svelte'
   import { user, doodleIcons } from '/src/lib/store'
@@ -69,26 +69,25 @@
 
     <div style="display: flex; align-items: center; margin-top: 24px;">
       {#if Template.getPeriodFromCrontab(template.crontab) === 'weekly'}
-        <PeriodicInput {template} />
+        <WeeklyInput {template} />
       {:else if Template.getPeriodFromCrontab(template.crontab) === 'monthly'}
         <MonthlyInput {template} />
-        <!-- <PeriodicInput {template} maxDays={31} crontabIndex={2} /> -->
+        <!-- <WeeklyInput {template} maxDays={31} crontabIndex={2} /> -->
       {:else if Template.getPeriodFromCrontab(template.crontab) === 'yearly'}
         <YearlyInput {template} />
       {/if}
-
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <span on:click|stopPropagation={handleDelete}
-        class="material-symbols-outlined"
-        style="cursor: pointer; margin-left: auto; right: 0px; border: 1px solid grey; border-radius: 24px; padding: 4px;"
-      >
-        delete
-      </span>
     </div>
 
     <EditTime {template} />
 
     <IconsDisplay {template} />
+
+    <div on:click|stopPropagation={handleDelete} on:keydown
+      class="material-symbols-outlined"
+      style="cursor: pointer; margin-left: auto; margin-right: 0px; border: 1px solid grey; border-radius: 24px; padding: 4px;"
+    >
+      delete
+    </div>
   </div>
 </div>
 
