@@ -2,72 +2,79 @@
   import Template from '/src/lib/db/models/Template/index.js'
   import RoundButton from '$lib/components/RoundButton.svelte'
   import { user } from '/src/lib/store'
-  export let template
-  export let crontabIndex = 3
-  export let maxDays = 7
 
-  let oldSelectedDays = template.crontab.split(' ')[crontabIndex].split(',')
+  export let template
+
   let dayOfWeekSymbol = [ "Sun", 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  let selectedDays = [] // template.crontab.split(' ')[crontabIndex].split(',')
+  
+  // ISO 8601 standard which uses 1-7 for Monday-Sunday
+  const dayMap = {
+    1: 'MO',
+    2: 'TU',
+    3: 'WE',
+    4: 'TH',
+    5: 'FR',
+    6: 'SA',
+    7: 'SU'
+  }
+  
+  const inverseDayMap = {}
+  Object.entries(dayMap).forEach(([key, value]) => {
+    inverseDayMap[value] = key
+  })
+
+  let selectedIndices = template.rrStr ? parseRRuleString(template.rrStr) : []
   let isEditingPeriodicity = false
 
   $: {
-    isEditingPeriodicity = oldSelectedDays.join(',') !== selectedDays.join(',')
+    isEditingPeriodicity = parseRRuleString(template.rrStr).toString() != selectedIndices.toString() // .toString() is necessary for array equality
+  }
+  
+  function parseRRuleString(rrStr) {
+    if (!rrStr) return []
+    
+    const bydayMatch = rrStr.match(/BYDAY=([^;]*)/)
+    if (!bydayMatch) return []
+    
+    const bydayValue = bydayMatch[1]
+    return bydayValue.split(',').map(day => inverseDayMap[day]).filter(Boolean)
   }
 
   function handleSave() {
-    console.log('selectedDays =', selectedDays) // ['0', '5', '7', '3']
-    const rrStr = convertArrayToRRule(selectedDays)
+    console.log('selectedIndices =', selectedIndices) // ['0', '5', '7', '3']
+    const rrStr = convertArrayToRRule(selectedIndices)
     console.log(`rrStr = ${rrStr}`)
     Template.update({ userID: $user.uid, id: template.id, updates: { rrStr } })
     isEditingPeriodicity = false
   }
 
-  function convertArrayToRRule(selectedDays) {
-    // Map from array indices to RRule day abbreviations
-    // ISO 8601 standard which uses 1-7 for Monday-Sunday
-    const dayMap = {
-      1: 'MO',
-      2: 'TU',
-      3: 'WE',
-      4: 'TH',
-      5: 'FR',
-      6: 'SA',
-      7: 'SU'
-    }
-      
-    // Convert the array numbers to day abbreviations
-    const days = selectedDays.map(day => dayMap[day]).join(',')
-    
-    // Return the RRule string
+  function convertArrayToRRule(selectedIndices) {
+    const days = selectedIndices.map(i => dayMap[i]).join(',')
     return `FREQ=WEEKLY;BYDAY=${days}`
   }
 
   function handleSelectDay(i) {
-    if (selectedDays.includes(i)) {
-      selectedDays = selectedDays.filter((day) => day !== i)
+    if (selectedIndices.includes(i)) {
+      selectedIndices = selectedIndices.filter((day) => day !== i)
     } else {
-      selectedDays = [...selectedDays, i]
+      selectedIndices = [...selectedIndices, i]
     }
   }
 </script>
 
 <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
-  {#each { length: maxDays } as _, i}
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div
-      on:click={() => handleSelectDay(String(i + 1))}
+  {#each { length: 7 } as _, i}
+    <div on:click={() => handleSelectDay(String(i + 1))} on:keydown
       class="circle"
-      class:not-selected={!selectedDays.includes(String(i + 1))}
-      class:highlighted={selectedDays.includes(String(i + 1))}
+      class:not-selected={!selectedIndices.includes(String(i + 1))}
+      class:highlighted={selectedIndices.includes(String(i + 1))}
     >
-      {maxDays == 7 ? dayOfWeekSymbol[i + 1]: i + 1}
+      {dayOfWeekSymbol[i + 1]}
     </div>
   {/each}
 
   {#if isEditingPeriodicity}
-    <RoundButton
-      on:click={handleSave}
+    <RoundButton on:click={handleSave}
       backgroundColor="rgb(0, 89, 125)"
       textColor="white"
     >
@@ -84,8 +91,6 @@
     border-radius: 50%;
     font-size: 12px;
     text-align: center;
-
-    /* extra */
     cursor: pointer;
   }
 

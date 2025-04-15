@@ -69,7 +69,7 @@
 
     <div style="display: flex; align-items: center; margin-top: 24px;">
       {#if Template.getPeriodFromCrontab(template.crontab) === 'weekly'}
-        <PeriodicInput {template} maxDays={7} crontabIndex={4} />
+        <PeriodicInput {template} />
       {:else if Template.getPeriodFromCrontab(template.crontab) === 'monthly'}
         <MonthlyInput {template} />
         <!-- <PeriodicInput {template} maxDays={31} crontabIndex={2} /> -->

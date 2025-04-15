@@ -7,7 +7,6 @@ import { DateTime } from 'luxon'
 
 user.subscribe(async ($user) => {
   if ($user.uid) {
-    console.log('handling templates')
     const templates = await getFirestoreCollection('/users/' + $user.uid + '/templates')
     for (const template of templates) {
       fillTaskInstances(template, $user.uid)
@@ -32,11 +31,14 @@ function fillTaskInstances (template, uid) {
     end,
     false // excludes start date
   )
+  console.log('occurences =', occurences)
 
   for (const occurence of occurences) {
+    const startDateISO = DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd')
+    console.log('startDateISO =', startDateISO)
     const newTaskObj = Task.schema.parse(template)
     newTaskObj.templateID = template.id
-    newTaskObj.startDateISO = DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd') // note: startDateISO gets overidden if merged with the spread operator with template properties
+    newTaskObj.startDateISO = startDateISO // note: startDateISO gets overidden if merged with the spread operator with template properties
     Task.create({
       id: template.id + '_' + occurence.toISOString(), // be clear about format, 
       newTaskObj
@@ -46,7 +48,4 @@ function fillTaskInstances (template, uid) {
   Template.update({ userID: uid, id: template.id, updates: {
     lastTaskISO: DateTime.fromJSDate(end).toFormat('yyyy-MM-dd')
   }})
-
-  console.log("occurences =", occurences)
-  console.log('lastTaskISO =', DateTime.fromJSDate(end).toFormat('yyyy-MM-dd'))
 }
