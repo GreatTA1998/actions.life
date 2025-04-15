@@ -26,6 +26,11 @@
 </div>
 
 <style>
+  /* note this overrides other components' --active color */
+  :root {
+    --active: rgb(0, 89, 125); /* used to be rgb(0, 89, 125) */
+  }
+
   .tabs-container {
     margin-bottom: 16px;
     width: fit-content;
@@ -60,11 +65,11 @@
   }
   
   .tab-button.active {
-    color: rgb(0, 89, 125);
+    color: var(--active);
     font-weight: 600;
   }
   
   .tab-button.active:after {
-    background-color: rgb(0, 89, 125);
+    background-color: var(--active);
   }
 </style> 
