@@ -59,8 +59,7 @@
   function handleSave() {
     const rrStr = createRRuleFromDate(selectedMMDD)
     if (rrStr) {
-      console.log('would create rrStr = ', rrStr)
-      return
+      console.log('updating rrStr = ', rrStr)
       Template.update({ 
         userID: $user.uid, 
         id: template.id, 

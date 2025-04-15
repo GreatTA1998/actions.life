@@ -243,11 +243,11 @@
     const rrStr = createRRuleString()
     if (rrStr) {
       console.log('rrStr =', rrStr)
-      // Template.update({ 
-      //   userID: $user.uid, 
-      //   id: template.id, 
-      //   updates: { rrStr } 
-      // })
+      Template.update({ 
+        userID: $user.uid, 
+        id: template.id, 
+        updates: { rrStr } 
+      })
       isEditingPeriodicity = false
     }
   }
@@ -455,8 +455,6 @@
   .day-button.variable-group {
     grid-column: span 3;
     width: auto;
-    background: #f9f9f9;
-    border: 1px dashed #ccc;
     font-size: 0.85rem;
     font-weight: 500;
   }
@@ -513,7 +511,6 @@
   }
   
   .occurrence-button.selected {
-    /* background: #007bff; */
     color: var(--active);
     border-color: var(--active);
   }

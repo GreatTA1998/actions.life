@@ -1,13 +1,34 @@
 <script>
+  import { parseRecurrenceString, monthlyCrontabFromSelectedDays } from './recurrenceParser.js'
+  
   export let crontab
-
-  // Parse the days from crontab (3rd field is day of month)
-  $: selectedDays = crontab.split(' ')[2].split(',').map(Number).sort((a, b) => a - b)
+  export let rrStr = null
+  
+  let selectedDays = []
+  
+  $: {
+    if (rrStr) {
+      // Prioritize rrStr if available
+      const parsed = parseRecurrenceString(rrStr)
+      selectedDays = parsed.monthlyData.selectedDays
+    } else if (crontab) {
+      // Fall back to crontab parsing
+      try {
+        selectedDays = crontab.split(' ')[2].split(',').map(Number).filter(d => !isNaN(d)).sort((a, b) => a - b)
+      } catch (e) {
+        selectedDays = []
+      }
+    } else {
+      selectedDays = []
+    }
+  }
 
   // Format days for display (e.g., "5th, 20th")
-  $: daysText = selectedDays
-    .map(day => `${day}${getOrdinalSuffix(day)}`)
-    .join(', ')
+  $: daysText = selectedDays.length > 0 
+    ? selectedDays
+        .map(day => `${day}${getOrdinalSuffix(day)}`)
+        .join(', ')
+    : 'Not scheduled'
 
   function getOrdinalSuffix(day) {
     if (day > 3 && day < 21) return 'th'

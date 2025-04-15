@@ -11,6 +11,7 @@
   import Icon from '/src/lib/db/models/Icon.js'
   import MonthlyInput from './MonthlyInput.svelte'
   import Tabs from '/src/lib/components/Tabs.svelte'
+  import { parseRecurrenceString } from '../../recurrenceParser.js'
 
   export let template
 
@@ -18,6 +19,11 @@
   let isPopupOpen = false
   let activeTab = 'weekly'
   let iconsMenu = false
+  
+  // Format states for each periodicity type
+  let weeklyState = { selectedDays: [] }
+  let monthlyState = { selectedDays: [] }
+  let yearlyState = { selectedMonths: [], selectedDays: [] }
   
   const tabItems = [
     { label: 'Weekly', value: 'weekly' },
@@ -29,6 +35,18 @@
   $: if (template) {
     console.log('template.rrStr =', template.rrStr)
     init()
+  }
+
+  function determineRecurrenceType(rrStr) {
+    const parsedData = parseRecurrenceString(rrStr)
+    
+    // Update component state based on parsed data
+    activeTab = parsedData.type
+    weeklyState = parsedData.weeklyData
+    monthlyState = parsedData.monthlyData
+    yearlyState = parsedData.yearlyData
+    
+    return parsedData.type
   }
 
   const debouncedRenameTask = createDebouncedFunction(
@@ -48,6 +66,7 @@
   function init () {
     isPopupOpen = false
     newName = template.name
+    determineRecurrenceType(template.rrStr)
   }
 
   function handleDelete() {
@@ -68,12 +87,11 @@
 </script>
 <slot {setIsPopupOpen}></slot>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<div on:click|self={closeTemplateEditor} class="fullscreen-invisible-modular-popup-layer">
+<div on:click|self={closeTemplateEditor} on:keydown class="fullscreen-invisible-modular-popup-layer">
   <div class="detailed-card-popup">
     <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
       {#if template.iconURL}
-        <div class="icon-container" class:active={iconsMenu} on:click={() => iconsMenu = !iconsMenu}>
+        <div class="icon-container" class:active={iconsMenu} on:click={() => iconsMenu = !iconsMenu} on:keydown>
           <img src={template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
         </div>
       {/if}
@@ -97,11 +115,11 @@
       <Tabs tabs={tabItems} bind:activeTab on:tabChange={handleTabChange} />
 
       {#if activeTab === 'weekly'}
-        <WeeklyInput {template} />
+        <WeeklyInput {template} selectedDays={weeklyState.selectedDays} />
       {:else if activeTab === 'monthly'}
-        <MonthlyInput {template} />
+        <MonthlyInput {template} selectedDays={monthlyState.selectedDays} />
       {:else if activeTab === 'yearly'}
-        <YearlyInput {template} />
+        <YearlyInput {template} selectedMonths={yearlyState.selectedMonths} selectedDays={yearlyState.selectedDays} />
       {/if}
     </div>
 

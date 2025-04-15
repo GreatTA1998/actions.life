@@ -55,7 +55,7 @@
       {#each iconHabits as habit}
         <div on:click={() => openTemplateEditor(habit.id)} on:keydown style="cursor: pointer;">
           <img src={habit.iconURL} alt="icon" style="width: 60px; height: 60px;" />
-          <WeekRhythm crontab={habit.crontab} />
+          <WeekRhythm crontab={habit.crontab} rrStr={habit.rrStr} />
         </div>
       {/each}
     </div>
@@ -67,7 +67,7 @@
       {#each noIconHabits as habit}
         <div on:click={() => openTemplateEditor(habit.id)} on:keydown style="display: grid; gap: 2px; cursor: pointer;">
           <div class="truncate-to-one-line">{habit.name}</div>
-          <WeekRhythm crontab={habit.crontab} />
+          <WeekRhythm crontab={habit.crontab} rrStr={habit.rrStr} />
         </div>
       {/each}
     </div>
@@ -83,7 +83,7 @@
             style="display: grid; gap: 0px; cursor: pointer;"
           >
             <div class="truncate-to-one-line">{task.name}</div>
-            <MonthRhythm crontab={task.crontab} />
+            <MonthRhythm crontab={task.crontab} rrStr={task.rrStr} />
           </div>
         {/each}
       </div>
@@ -100,7 +100,7 @@
             style="display: grid; gap: 0px; cursor: pointer;"
           >
             <div class="truncate-to-one-line">{task.name}</div>
-            <YearRhythm crontab={task.crontab} />
+            <YearRhythm crontab={task.crontab} rrStr={task.rrStr} />
           </div>
         {/each}
       </div>

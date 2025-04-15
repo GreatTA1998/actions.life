@@ -1,28 +1,42 @@
 <script>
+  import { parseRecurrenceString, yearlyCrontabFromData } from './recurrenceParser.js'
+  
   export let crontab
+  export let rrStr = null
 
   const monthAbbrev = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 
-  // Parse both month and day from crontab (3rd field is day, 4th is month)
+  let selectedDays = []
+  let selectedMonths = []
+
+  // Parse data from either rrStr or crontab
   $: {
-    try {
-      const parts = crontab?.split(' ') || []
-      selectedDays = (parts[2] || '').split(',').filter(d => d).map(Number)
-      selectedMonths = (parts[3] || '').split(',').filter(m => m).map(Number)
-    } catch (e) {
+    if (rrStr) {
+      // Prioritize rrStr if available
+      const parsed = parseRecurrenceString(rrStr)
+      selectedMonths = parsed.yearlyData.selectedMonths
+      selectedDays = parsed.yearlyData.selectedDays
+    } else if (crontab) {
+      // Fall back to crontab parsing
+      try {
+        const parts = crontab?.split(' ') || []
+        selectedDays = (parts[2] || '').split(',').filter(d => d).map(Number)
+        selectedMonths = (parts[3] || '').split(',').filter(m => m).map(Number)
+      } catch (e) {
+        selectedDays = []
+        selectedMonths = []
+      }
+    } else {
       selectedDays = []
       selectedMonths = []
     }
   }
 
-  let selectedDays = []
-  let selectedMonths = []
-
   // Get month-day combinations for display
   $: dateText = selectedMonths.length && selectedDays.length ? 
     selectedMonths
       .map((month, i) => {
-        const day = selectedDays[i]
+        const day = i < selectedDays.length ? selectedDays[i] : selectedDays[0]
         if (!month || !day || month < 1 || month > 12) return ''
         return `${monthAbbrev[month - 1]} ${day}`
       })
