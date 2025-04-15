@@ -1,20 +1,18 @@
 <script>
   import { createEventDispatcher } from 'svelte'
+  import Template from '/src/lib/db/models/Template/index.js'
+  import { user } from '/src/lib/store'
+  import RoundButton from '$lib/components/RoundButton.svelte'
   
   const dispatch = createEventDispatcher()
   
   export let initialPattern = null
+  export let template
   
-  // Currently selected pattern type
   let patternType = 'specific' // 'specific' or 'weekly'
-  
-  // Specific days selection
   let selectedDays = new Set()
-  
-  // Weekly options
   let selectedWeekday = 'saturday'
   
-  // Week occurrences (1st, 2nd, 3rd, 4th, last)
   let selectedOccurrences = new Set()
   const weekOccurrences = [
     { id: 'first', label: '1st', shortLabel: '1' },
@@ -33,11 +31,27 @@
     { id: 'sunday', label: 'Sunday', shortLabel: 'Su' }
   ]
   
-  // Days that don't exist in all months
   const variableDays = [29, 30, 31]
-  
-  // Track last day button state
   let lastDaySelected = false
+  let isEditingPeriodicity = false
+  let currentPattern = null
+
+  const weekdayToRRule = {
+    monday: 'MO',
+    tuesday: 'TU',
+    wednesday: 'WE',
+    thursday: 'TH',
+    friday: 'FR',
+    saturday: 'SA',
+    sunday: 'SU'
+  }
+  
+  const occurrenceToPosition = {
+    first: '+1',
+    second: '+2',
+    third: '+3',
+    fourth: '+4'
+  }
   
   // Initialize with some defaults
   function initializeDefaults() {
@@ -72,12 +86,85 @@
       }
     }
     
+    // Try to parse from existing rrule if available
+    if (template && template.rrStr) {
+      parseRRuleString(template.rrStr)
+    }
+    
     // Trigger reactivity
     selectedDays = selectedDays
     selectedOccurrences = selectedOccurrences
     
-    // Initial update
     updateSelection()
+  }
+  
+  // Parse rrule string to set component state
+  function parseRRuleString(rrStr) {
+    if (!rrStr || !rrStr.includes('FREQ=MONTHLY')) return
+    
+    if (rrStr.includes('BYMONTHDAY=')) {
+      // Specific days pattern
+      patternType = 'specific'
+      selectedDays.clear()
+      
+      const bymonthdayMatch = rrStr.match(/BYMONTHDAY=([^;]*)/)
+      if (bymonthdayMatch) {
+        const days = bymonthdayMatch[1].split(',').map(Number)
+        days.forEach(day => selectedDays.add(day))
+      }
+    } 
+    else if (rrStr.includes('BYDAY=')) {
+      // Weekly pattern
+      patternType = 'weekly'
+      selectedOccurrences.clear()
+      
+      const bydayMatch = rrStr.match(/BYDAY=([^;]*)/)
+      if (bydayMatch) {
+        const bydayParts = bydayMatch[1].split(',')
+        
+        bydayParts.forEach(part => {
+          const posMatch = part.match(/([+\-]\d+)([A-Z]{2})/)
+          if (posMatch) {
+            const pos = posMatch[1]
+            const day = posMatch[2]
+            
+            // Convert position to occurrence id
+            const occId = Object.entries(occurrenceToPosition)
+              .find(([_, val]) => val === pos)?.[0]
+            
+            if (occId) {
+              selectedOccurrences.add(occId)
+            }
+            
+            // Convert day code to weekday id
+            const weekdayId = Object.entries(weekdayToRRule)
+              .find(([_, val]) => val === day)?.[0]
+            
+            if (weekdayId) {
+              selectedWeekday = weekdayId
+            }
+          }
+        })
+      }
+    }
+  }
+  
+  // Create rrule string from current selection
+  function createRRuleString() {
+    if (patternType === 'specific' && selectedDays.size > 0) {
+      const days = Array.from(selectedDays).sort((a, b) => a - b)
+      return `FREQ=MONTHLY;BYMONTHDAY=${days.join(',')}`
+    } 
+    else if (patternType === 'weekly' && selectedOccurrences.size > 0) {
+      const bydays = Array.from(selectedOccurrences)
+        .sort()
+        .map(occ => `${occurrenceToPosition[occ]}${weekdayToRRule[selectedWeekday]}`)
+        .join(',')
+      
+      return `FREQ=MONTHLY;BYDAY=${bydays}`
+    }
+    
+    return ''
   }
   
   function toggleDay(day, event) {
@@ -88,12 +175,9 @@
     }
     
     selectedDays = selectedDays // Trigger reactivity
-    updateSelection()
   }
   
   function toggleAllVariableDays(event) {
-  
-    
     const areAllSelected = variableDays.every(day => selectedDays.has(day))
     
     if (areAllSelected) {
@@ -103,7 +187,6 @@
     }
     
     selectedDays = selectedDays // Trigger reactivity
-    updateSelection()
   }
   
   function toggleOccurrence(occurrence, event) {
@@ -113,17 +196,14 @@
       selectedOccurrences.add(occurrence)
     }
     selectedOccurrences = selectedOccurrences // Trigger reactivity
-    updateSelection()
   }
   
   function selectWeekday(weekdayId, event) {
     selectedWeekday = weekdayId
-    updateSelection()
   }
   
   function selectPatternType(type, event) {
     patternType = type
-    updateSelection()
   }
   
   function updateSelection() {
@@ -150,14 +230,32 @@
     }
     
     if (pattern) {
+      currentPattern = pattern
       dispatch('update', { pattern })
+      
+      // Check if editing
+      const newRRuleStr = createRRuleString()
+      isEditingPeriodicity = template && template.rrStr !== newRRuleStr && newRRuleStr !== ''
+    }
+  }
+  
+  function handleSave() {
+    const rrStr = createRRuleString()
+    if (rrStr) {
+      console.log('rrStr =', rrStr)
+      // Template.update({ 
+      //   userID: $user.uid, 
+      //   id: template.id, 
+      //   updates: { rrStr } 
+      // })
+      isEditingPeriodicity = false
     }
   }
   
   // Run initialization once
   initializeDefaults()
   
-  // Reactive statements to ensure UI updates on pattern type change
+  // Reactive statements to ensure UI updates
   $: if (patternType) updateSelection()
   $: lastDaySelected = variableDays.every(day => selectedDays.has(day))
 </script>
@@ -186,7 +284,6 @@
               type="button"
               class="day-button variable-group {variableDays.some(day => selectedDays.has(day)) ? 'selected' : ''} {lastDaySelected ? 'all-selected' : ''}"
               on:click={(e) => toggleAllVariableDays(e)}
-              disabled={patternType !== 'specific'}
               title="Select last days (29, 30, 31)"
             >
               Last day
@@ -220,7 +317,6 @@
                     class="occurrence-button {selectedOccurrences.has(occurrence.id) ? 'selected' : ''}"
                     on:click={(e) => toggleOccurrence(occurrence.id, e)}
                     title={occurrence.label}
-                    disabled={patternType !== 'weekly'}
                   >
                     {occurrence.label}
                   </button>
@@ -248,6 +344,18 @@
       </section>
     </div>
   </div>
+  
+  {#if isEditingPeriodicity}
+    <div class="save-button-container">
+      <RoundButton
+        on:click={handleSave}
+        backgroundColor="rgb(0, 89, 125)"
+        textColor="white"
+      >
+        Save changes
+      </RoundButton>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -366,11 +474,6 @@
     display: none;
   }
   
-  .day-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
   .weekly-selector {
     display: flex;
     flex-direction: column;
@@ -415,8 +518,9 @@
     border-color: var(--active);
   }
   
-  .occurrence-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  .save-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
   }
 </style>

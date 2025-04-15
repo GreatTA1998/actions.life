@@ -10,11 +10,19 @@
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
   import Icon from '/src/lib/db/models/Icon.js'
   import MonthlyInput from './MonthlyInput.svelte'
+  import Tabs from '/src/lib/components/Tabs.svelte'
 
   export let template
 
   let newName = '' 
   let isPopupOpen = false
+  let activeTab = 'weekly'
+  
+  const tabItems = [
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Monthly', value: 'monthly' },
+    { label: 'Yearly', value: 'yearly' }
+  ]
 
   $: template = $templates.find(t => t.id === $editingTemplateId)
   $: if (template) {
@@ -52,6 +60,10 @@
       closeTemplateEditor()
     }
   }
+  
+  function handleTabChange(event) {
+    activeTab = event.detail.tab
+  }
 </script>
 <slot {setIsPopupOpen}></slot>
 
@@ -67,13 +79,14 @@
       class="title-underline-input"
     />
 
-    <div style="display: flex; align-items: center; margin-top: 24px;">
-      {#if Template.getPeriodFromCrontab(template.crontab) === 'weekly'}
+    <div style="display: flex; flex-direction: column; margin-top: 24px;">
+      <Tabs tabs={tabItems} bind:activeTab on:tabChange={handleTabChange} />
+
+      {#if activeTab === 'weekly'}
         <WeeklyInput {template} />
-      {:else if Template.getPeriodFromCrontab(template.crontab) === 'monthly'}
+      {:else if activeTab === 'monthly'}
         <MonthlyInput {template} />
-        <!-- <WeeklyInput {template} maxDays={31} crontabIndex={2} /> -->
-      {:else if Template.getPeriodFromCrontab(template.crontab) === 'yearly'}
+      {:else if activeTab === 'yearly'}
         <YearlyInput {template} />
       {/if}
     </div>
@@ -84,7 +97,7 @@
 
     <div on:click|stopPropagation={handleDelete} on:keydown
       class="material-symbols-outlined"
-      style="cursor: pointer; margin-left: auto; margin-right: 0px; border: 1px solid grey; border-radius: 24px; padding: 4px;"
+      style="cursor: pointer; margin-left: auto; margin-right: 0px; border-radius: 50%; padding: 4px;"
     >
       delete
     </div>
@@ -96,7 +109,10 @@
     /* Refer to: https://stackoverflow.com/a/3131082/7812829 */
     background: transparent;
     border: none;
-    border-bottom: 1px solid #dbdbdd;
+
+    /* no border to differentiate it from TaskPopup */
+    /* border-bottom: 1px solid #dbdbdd; */
+
     outline: none;
     font-size: 23px;
     font-weight: 700;
@@ -120,7 +136,7 @@
 
     height: fit-content;
 
-    padding: 40px 24px 24px;
+    padding: 24px;
     border-radius: 24px;
     background-color: white;
 

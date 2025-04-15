@@ -1,67 +1,84 @@
 <script>
   import RoundButton from '$lib/components/RoundButton.svelte'
-  import { updateCrontab } from '/src/routes/[user]/components/Templates/utils.js'
+  import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
+  import { user } from '/src/lib/store'
+  import Template from '/src/lib/db/models/Template/index.js'
 
   export let template
 
-  // function validateAndSaveYearlyDate() {
-  //   const dateRegex = /^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/
-  //   if (dateRegex.test(yearlyDate)) {
-  //     const [month, day] = yearlyDate.split('-')
-  //     const crontab = `0 0 ${day} ${month} *`
-  //     updateTemplate({ templateID: template.id, keyValueChanges: { crontab: crontab }, oldTemplate: template })
-  //   } else {
-  //     alert('Please enter a valid date in MM-DD format')
-  //   }
-  // }
-
-  // <input
-  //   type="text"
-  //   bind:value={yearlyDate}
-  //   placeholder="MM-DD"
-  //   pattern="^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$"
-  //   title="Please enter a date in MM-DD format"
-  // />
-
-  const monthAbbrev = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-
-  let oldSelectedMonths = template.crontab.split(' ')[3].split(',')
-  let selectedMonths = template.crontab.split(' ')[3].split(',')
+  let selectedMMDD = ''
+  let selectedYear = ''
   let isEditingPeriodicity = false
 
-  function handleSave() {
-    updateCrontab({selectedDays: selectedMonths, template, crontabIndex: 3})
-    isEditingPeriodicity = false
-  }
-
-  function handleSelectMonth(i) {
-    if (selectedMonths.includes(i)) {
-      selectedMonths = selectedMonths.filter((month) => month !== i)
-      if(selectedMonths.length === 0) selectedMonths = ['1']
-    } else {
-      selectedMonths = [...selectedMonths, i]
+  // Parse the existing rrule if available
+  $: {
+    if (template && template.rrStr) {
+      const parsedDate = parseRRuleString(template.rrStr)
+      if (parsedDate) {
+        selectedMMDD = parsedDate.mmdd
+        selectedYear = parsedDate.year
+      }
     }
   }
 
+  // Track whether we're editing (changes have been made)
   $: {
-    isEditingPeriodicity = oldSelectedMonths.join(',') !== selectedMonths.join(',')
+    const currentRRule = createRRuleFromDate(selectedMMDD)
+    isEditingPeriodicity = template && template.rrStr !== currentRRule && selectedMMDD !== ''
+  }
+
+  function parseRRuleString(rrStr) {
+    if (!rrStr || !rrStr.includes('FREQ=YEARLY')) return null
+    
+    const bymonthdayMatch = rrStr.match(/BYMONTHDAY=(\d+)/)
+    const bymonthMatch = rrStr.match(/BYMONTH=(\d+)/)
+    
+    if (bymonthdayMatch && bymonthMatch) {
+      const day = parseInt(bymonthdayMatch[1])
+      const month = parseInt(bymonthMatch[1])
+      // Format as MM/DD
+      const mmdd = `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}`
+      return { mmdd, year: new Date().getFullYear().toString() }
+    }
+    
+    return null
+  }
+
+  function createRRuleFromDate(mmdd) {
+    if (!mmdd) return ''
+    
+    const [month, day] = mmdd.split('/').map(part => parseInt(part))
+    return `FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day}`
+  }
+
+  function handleDateSelected(event) {
+    selectedMMDD = event.detail.selectedDate
+    selectedYear = event.detail.selectedYear
+  }
+
+  function handleSave() {
+    const rrStr = createRRuleFromDate(selectedMMDD)
+    if (rrStr) {
+      console.log('would create rrStr = ', rrStr)
+      return
+      Template.update({ 
+        userID: $user.uid, 
+        id: template.id, 
+        updates: { rrStr } 
+      })
+      isEditingPeriodicity = false
+    }
   }
 </script>
 
 <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
-  <div class="month-grid">
-    {#each monthAbbrev as month, i}
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div
-        on:click={() => handleSelectMonth(String(i + 1))}
-        class="month-pill"
-        class:not-selected={!selectedMonths.includes(String(i + 1))}
-        class:highlighted={selectedMonths.includes(String(i + 1))}
-      >
-        {selectedMonths.includes(String(i + 1)) ? month : ''}
-      </div>
-    {/each}
-  </div>
+  <MyJSDatePicker
+    MMDD={selectedMMDD || '12/30'}
+    YYYY={selectedYear || '2005'}
+    placeholder="Nov 2"
+    on:date-selected={handleDateSelected}
+  />
+  every year
 
   {#if isEditingPeriodicity}
     <RoundButton
@@ -73,36 +90,3 @@
     </RoundButton>
   {/if}
 </div>
-
-<style>
-  .month-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    width: fit-content;
-  }
-
-  .month-pill {
-    width: 36px;
-    height: 24px;
-    border-radius: 12px;
-    font-size: 10px;
-    text-align: center;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .not-selected {
-    color: rgb(160, 160, 160);
-    background-color: rgb(100, 100, 100);
-    background: #000;
-  }
-
-  .highlighted {
-    background-color: orange;
-    color: black;
-    font-weight: 600;
-  }
-</style>

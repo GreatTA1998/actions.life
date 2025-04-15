@@ -8,7 +8,7 @@
   {#each dayOfWeekSymbol as _, i}
     <div
       class="day-of-week-circle"
-      class:highlighted={crontab.split(' ')[4].split(',').includes((i + 1).toString())}
+      class:highlighted={crontab?.split(' ')[4].split(',').includes((i + 1).toString())}
     ></div>
   {/each}
 </div>
