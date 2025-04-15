@@ -17,6 +17,7 @@
   let newName = '' 
   let isPopupOpen = false
   let activeTab = 'weekly'
+  let iconsMenu = false
   
   const tabItems = [
     { label: 'Weekly', value: 'weekly' },
@@ -70,14 +71,27 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div on:click|self={closeTemplateEditor} class="fullscreen-invisible-modular-popup-layer">
   <div class="detailed-card-popup">
-    <input
-      type="text"
-      bind:value={newName}
-      on:input={(e) => debouncedRenameTask(e.target.value)}
-      placeholder="Untitled"
-      style="width: 100%; font-size: 24px;"
-      class="title-underline-input"
-    />
+    <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
+      {#if template.iconURL}
+        <div class="icon-container" on:click={() => iconsMenu = !iconsMenu}>
+          <img src={template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
+        </div>
+      {/if}
+
+      <!-- on:input={(e) => debouncedRenameTask(e.target.value)} -->
+      <input
+        type="text"
+        bind:value={newName}
+        placeholder="Untitled"
+        style="width: 100%; font-size: 24px;"
+        class="title-underline-input"
+      />
+    </div>
+
+    
+    {#if activeTab === 'weekly' && iconsMenu}
+      <IconsDisplay {template} />
+    {/if}
 
     <div style="display: flex; flex-direction: column; margin-top: 24px;">
       <Tabs tabs={tabItems} bind:activeTab on:tabChange={handleTabChange} />
@@ -92,8 +106,6 @@
     </div>
 
     <EditTime {template} />
-
-    <IconsDisplay {template} />
 
     <div on:click|stopPropagation={handleDelete} on:keydown
       class="material-symbols-outlined"
@@ -117,7 +129,6 @@
     font-size: 23px;
     font-weight: 700;
     padding-left: 0px;
-    padding-bottom: 6px;
   }
 
   .detailed-card-popup {
@@ -142,5 +153,15 @@
 
     /* border: 1px solid #000; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
     box-shadow: 0px 0px 0px 9999px rgba(0, 0, 0, 0.5);
+  }
+
+  .icon-container {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 50%;
   }
 </style>
