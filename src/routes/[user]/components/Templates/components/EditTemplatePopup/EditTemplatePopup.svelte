@@ -32,6 +32,7 @@
   ]
 
   $: template = $templates.find(t => t.id === $editingTemplateId)
+
   $: if (template) {
     console.log('template.rrStr =', template.rrStr)
     init()
@@ -90,7 +91,7 @@
 <div on:click|self={closeTemplateEditor} on:keydown class="fullscreen-invisible-modular-popup-layer">
   <div class="detailed-card-popup">
     <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
-      {#if template.iconURL}
+      {#if template.iconURL && activeTab === 'weekly'}
         <div class="icon-container" class:active={iconsMenu} on:click={() => iconsMenu = !iconsMenu} on:keydown>
           <img src={template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
         </div>
@@ -139,10 +140,6 @@
     /* Refer to: https://stackoverflow.com/a/3131082/7812829 */
     background: transparent;
     border: none;
-
-    /* no border to differentiate it from TaskPopup */
-    /* border-bottom: 1px solid #dbdbdd; */
-
     outline: none;
     font-size: 23px;
     font-weight: 700;
@@ -153,7 +150,7 @@
     /* safety */
     max-height: 90vh;
     min-width: 360px;
-    
+
     width: 70%;
  
     position: fixed;
