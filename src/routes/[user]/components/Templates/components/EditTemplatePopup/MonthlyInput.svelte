@@ -296,6 +296,7 @@
   
   .pattern-section {
     border-radius: 4px;
+    border: 2px solid rgb(238, 238, 238);
     width: auto;
     transition: all 0.2s;
     cursor: pointer;
