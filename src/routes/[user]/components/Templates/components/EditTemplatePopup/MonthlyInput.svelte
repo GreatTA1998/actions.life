@@ -3,6 +3,8 @@
   import Template from '/src/lib/db/models/Template/index.js'
   import { user } from '/src/lib/store'
   import RoundButton from '$lib/components/RoundButton.svelte'
+  import SpecificDaysPattern from './SpecificDaysPattern.svelte'
+  import WeeklyPattern from './WeeklyPattern.svelte'
   
   const dispatch = createEventDispatcher()
   
@@ -12,30 +14,8 @@
   let patternType = 'specific' // 'specific' or 'weekly'
   let selectedDays = new Set()
   let selectedWeekday = 'saturday'
-  
   let selectedOccurrences = new Set()
-  const weekOccurrences = [
-    { id: 'first', label: '1st', shortLabel: '1' },
-    { id: 'second', label: '2nd', shortLabel: '2' },
-    { id: 'third', label: '3rd', shortLabel: '3' },
-    { id: 'fourth', label: '4th', shortLabel: '4' }
-  ]
   
-  const weekdays = [
-    { id: 'monday', label: 'Monday', shortLabel: 'Mo' },
-    { id: 'tuesday', label: 'Tuesday', shortLabel: 'Tu' },
-    { id: 'wednesday', label: 'Wednesday', shortLabel: 'We' },
-    { id: 'thursday', label: 'Thursday', shortLabel: 'Th' },
-    { id: 'friday', label: 'Friday', shortLabel: 'Fr' },
-    { id: 'saturday', label: 'Saturday', shortLabel: 'Sa' },
-    { id: 'sunday', label: 'Sunday', shortLabel: 'Su' }
-  ]
-  
-  const variableDays = [29, 30, 31]
-  let lastDaySelected = false
-  let isEditingPeriodicity = false
-  let currentPattern = null
-
   const weekdayToRRule = {
     monday: 'MO',
     tuesday: 'TU',
@@ -53,6 +33,9 @@
     fourth: '+4'
   }
   
+  let isEditingPeriodicity = false
+  let currentPattern = null
+
   // Initialize with some defaults
   function initializeDefaults() {
     // Default for specific days
@@ -167,41 +150,6 @@
     return ''
   }
   
-  function toggleDay(day, event) {
-    if (selectedDays.has(day)) {
-      selectedDays.delete(day)
-    } else {
-      selectedDays.add(day)
-    }
-    
-    selectedDays = selectedDays // Trigger reactivity
-  }
-  
-  function toggleAllVariableDays(event) {
-    const areAllSelected = variableDays.every(day => selectedDays.has(day))
-    
-    if (areAllSelected) {
-      variableDays.forEach(day => selectedDays.delete(day))
-    } else {
-      variableDays.forEach(day => selectedDays.add(day))
-    }
-    
-    selectedDays = selectedDays // Trigger reactivity
-  }
-  
-  function toggleOccurrence(occurrence, event) {
-    if (selectedOccurrences.has(occurrence)) {
-      selectedOccurrences.delete(occurrence)
-    } else {
-      selectedOccurrences.add(occurrence)
-    }
-    selectedOccurrences = selectedOccurrences // Trigger reactivity
-  }
-  
-  function selectWeekday(weekdayId, event) {
-    selectedWeekday = weekdayId
-  }
-  
   function selectPatternType(type, event) {
     patternType = type
   }
@@ -252,12 +200,26 @@
     }
   }
   
+  function handleSpecificDaysUpdate(event) {
+    selectedDays = event.detail.selectedDays
+    updateSelection()
+  }
+  
+  function handleWeeklyPatternUpdate(event) {
+    if (event.detail.selectedWeekday) {
+      selectedWeekday = event.detail.selectedWeekday
+    }
+    if (event.detail.selectedOccurrences) {
+      selectedOccurrences = event.detail.selectedOccurrences
+    }
+    updateSelection()
+  }
+  
   // Run initialization once
   initializeDefaults()
   
   // Reactive statements to ensure UI updates
   $: if (patternType) updateSelection()
-  $: lastDaySelected = variableDays.every(day => selectedDays.has(day))
 </script>
 
 <div class="repeat-input">
@@ -267,80 +229,22 @@
         class="pattern-section {patternType === 'specific' ? 'active' : ''}"
         on:click={() => selectPatternType('specific')} on:keydown
       >
-        <div class="section-content">
-          <div class="calendar-grid">
-            {#each Array(28) as _, i}
-              {@const day = i + 1}
-              <button on:click={(e) => toggleDay(day, e)}
-                type="button"
-                class="day-button {selectedDays.has(day) ? 'selected' : ''}"
-              >
-                {day}
-              </button>
-            {/each}
-            
-            <!-- Last Days Group (29-31) -->
-            <button 
-              type="button"
-              class="day-button variable-group {variableDays.some(day => selectedDays.has(day)) ? 'selected' : ''} {lastDaySelected ? 'all-selected' : ''}"
-              on:click={(e) => toggleAllVariableDays(e)}
-              title="Select last days (29, 30, 31)"
-            >
-              Last day
-            </button>
-            
-            <!-- Individual variable days (hidden but tracked for state) -->
-            {#each variableDays as day}
-              <div class="hidden-day">
-                {#if selectedDays.has(day)}
-                  <!-- Hidden marker to track state -->
-                {/if}
-              </div>
-            {/each}
-          </div>
-        </div>
+        <SpecificDaysPattern 
+          bind:selectedDays={selectedDays}
+          on:update={handleSpecificDaysUpdate}
+        />
       </section>
       
       <!-- Weekly Pattern Section -->
       <section 
-        class="pattern-section {patternType === 'weekly' ? 'active' : ''}"
         on:click={() => selectPatternType('weekly')} on:keydown
+        class="pattern-section {patternType === 'weekly' ? 'active' : ''}"
       >
-        <div class="section-content">
-          <div class="weekly-selector">  
-            <div class="occurrences">
-              <div>Every</div>
-              <div class="occurrence-buttons">
-                {#each weekOccurrences as occurrence}
-                  <button 
-                    type="button"
-                    class="occurrence-button {selectedOccurrences.has(occurrence.id) ? 'selected' : ''}"
-                    on:click={(e) => toggleOccurrence(occurrence.id, e)}
-                    title={occurrence.label}
-                  >
-                    {occurrence.label}
-                  </button>
-                {/each}
-              </div>
-            </div>
-
-            <div class="weekday-selector">
-              {#each weekdays as day}
-                <button 
-                  type="button"
-                  class="circle {selectedWeekday === day.id ? 'selected' : ''}" 
-                  on:click={(e) => selectWeekday(day.id, e)}
-                >
-                  {day.shortLabel}
-                </button>
-              {/each}
-            </div>
-
-            <div style="margin-left: auto; margin-right: 0;">
-              of each month
-            </div>
-          </div>
-        </div>
+        <WeeklyPattern 
+          bind:selectedWeekday={selectedWeekday}
+          bind:selectedOccurrences={selectedOccurrences}
+          on:update={handleWeeklyPatternUpdate}
+        />
       </section>
     </div>
   </div>
@@ -361,25 +265,6 @@
 <style>
   :root {
     --active: orange;
-  }
-
-  .circle {
-    width: 34px;
-    height: 34px;
-    line-height: 34px;
-    border-radius: 50%;
-    font-size: 12px;
-    text-align: center;
-    cursor: pointer;
-    border: 1px solid #ccc;
-    background: white;
-    padding: 0;
-  }
-  
-  .circle.selected {
-    background: var(--active);
-    color: white;
-    border-color: var(--active);
   }
 
   .repeat-input {
@@ -415,104 +300,6 @@
   .pattern-section.active {
     border: 2px solid var(--active);
     opacity: 1;
-  }
-  
-  .section-content {
-    padding: 0.75rem;
-    width: 100%;
-  }
-  
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-    margin: 0 auto;
-    width: 284px; /* Fixed width for 7 columns of 38px + 2px gap */
-  }
-  
-  .day-button {
-    position: relative;
-    width: 38px;
-    height: 38px;
-    padding: 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .day-button.selected {
-    background: var(--active);
-    color: white;
-  }
-
-  
-  .day-button.variable-group {
-    grid-column: span 3;
-    width: auto;
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
-  
-  .day-button.variable-group.selected {
-    background: var(--active);
-    color: white;
-  }
-  
-  .day-button.variable-group.all-selected {
-    background: var(--active);
-  }
-  
-  .hidden-day {
-    display: none;
-  }
-  
-  .weekly-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 284px; /* Match the width of the calendar grid */
-  }
-  
-  .weekday-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 0.5rem 0;
-    justify-content: center;
-  }
-  
-  .occurrences {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  
-  .occurrence-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  
-  .occurrence-button {
-    width: 2.2rem;
-    height: 2.2rem;
-    padding: 0;
-    background: white;
-    cursor: pointer;
-    font-weight: 500;
-    color: #aaa;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .occurrence-button.selected {
-    color: var(--active);
-    border-color: var(--active);
   }
   
   .save-button-container {
