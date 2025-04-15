@@ -28,7 +28,8 @@ const Template = {
     startTime: z.string().default(''),
     isStarred: z.boolean().default(false),
     rrStr: z.string().default(''),
-    lastTaskISO: z.string().default('')
+    previewSpan: z.number().default(2 * 7),
+    prevEndISO: z.string().default('')
   }),
 
   async create ({ userID, newTemplate, templateID }) {
@@ -43,6 +44,7 @@ const Template = {
     updateFirestoreDoc(`/users/${userID}/templates/${id}`, validatedChanges)
 
     // this is `Task`, not `Template`
+    // note: these tasks need to be set with { merge: true }
     return
     Task.updateQuickTasks({ userID, templateID: id, updates })
   },

@@ -1,16 +1,14 @@
 <script>
-  import RoundButton from '$lib/components/RoundButton.svelte'
   import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
-  import { user } from '/src/lib/store'
-  import Template from '/src/lib/db/models/Template/index.js'
+  import { createEventDispatcher } from 'svelte'
 
+  const dispatch = createEventDispatcher()
   export let template
 
   let selectedMMDD = ''
   let selectedYear = ''
   let isEditingPeriodicity = false
 
-  // Parse the existing rrule if available
   $: {
     if (template && template.rrStr) {
       const parsedDate = parseRRuleString(template.rrStr)
@@ -25,6 +23,10 @@
   $: {
     const currentRRule = createRRuleFromDate(selectedMMDD)
     isEditingPeriodicity = template && template.rrStr !== currentRRule && selectedMMDD !== ''
+    
+    if (isEditingPeriodicity) {
+      dispatch('rruleChange', { rrStr: currentRRule })
+    }
   }
 
   function parseRRuleString(rrStr) {
@@ -55,19 +57,6 @@
     selectedMMDD = event.detail.selectedDate
     selectedYear = event.detail.selectedYear
   }
-
-  function handleSave() {
-    const rrStr = createRRuleFromDate(selectedMMDD)
-    if (rrStr) {
-      console.log('updating rrStr = ', rrStr)
-      Template.update({ 
-        userID: $user.uid, 
-        id: template.id, 
-        updates: { rrStr } 
-      })
-      isEditingPeriodicity = false
-    }
-  }
 </script>
 
 <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
@@ -78,14 +67,4 @@
     on:date-selected={handleDateSelected}
   />
   every year
-
-  {#if isEditingPeriodicity}
-    <RoundButton
-      on:click={handleSave}
-      backgroundColor="rgb(0, 89, 125)"
-      textColor="white"
-    >
-      Save changes
-    </RoundButton>
-  {/if}
 </div>

@@ -1,8 +1,7 @@
 <script>
-  import Template from '/src/lib/db/models/Template/index.js'
-  import RoundButton from '$lib/components/RoundButton.svelte'
-  import { user } from '/src/lib/store'
+  import { createEventDispatcher } from 'svelte'
 
+  const dispatch = createEventDispatcher()
   export let template
 
   let dayOfWeekSymbol = [ "Sun", 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -28,6 +27,11 @@
 
   $: {
     isEditingPeriodicity = parseRRuleString(template.rrStr).toString() != selectedIndices.toString() // .toString() is necessary for array equality
+
+    if (isEditingPeriodicity) {
+      const rrStr = convertArrayToRRule(selectedIndices)
+      dispatch('rruleChange', { rrStr })
+    }
   }
   
   function parseRRuleString(rrStr) {
@@ -38,14 +42,6 @@
     
     const bydayValue = bydayMatch[1]
     return bydayValue.split(',').map(day => inverseDayMap[day]).filter(Boolean)
-  }
-
-  function handleSave() {
-    console.log('selectedIndices =', selectedIndices) // ['0', '5', '7', '3']
-    const rrStr = convertArrayToRRule(selectedIndices)
-    console.log(`rrStr = ${rrStr}`)
-    Template.update({ userID: $user.uid, id: template.id, updates: { rrStr } })
-    isEditingPeriodicity = false
   }
 
   function convertArrayToRRule(selectedIndices) {
@@ -72,15 +68,6 @@
       {dayOfWeekSymbol[i + 1]}
     </div>
   {/each}
-
-  {#if isEditingPeriodicity}
-    <RoundButton on:click={handleSave}
-      backgroundColor="rgb(0, 89, 125)"
-      textColor="white"
-    >
-      Save changes
-    </RoundButton>
-  {/if}
 </div>
 
 <style>

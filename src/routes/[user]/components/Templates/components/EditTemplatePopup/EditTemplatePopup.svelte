@@ -2,6 +2,7 @@
   import WeeklyInput from './WeeklyInput.svelte'
   import YearlyInput from './YearlyInput.svelte'
   import EditTime from './EditTime.svelte'
+  import PreviewChanges from './PreviewChanges.svelte'
   import { user, doodleIcons } from '/src/lib/store'
   import { updateTemplate, deleteTemplate, closeTemplateEditor, templates, editingTemplateId } from '../../store.js'
   import Template from '/src/lib/db/models/Template'
@@ -12,6 +13,9 @@
   import MonthlyInput from './MonthlyInput.svelte'
   import Tabs from '/src/lib/components/Tabs.svelte'
   import { parseRecurrenceString } from '../../recurrenceParser.js'
+  import RoundButton from '$lib/components/RoundButton.svelte'
+  import { deleteFutureInstances, fillTaskInstances } from '$lib/store/templateInstances.js'
+  import { DateTime } from 'luxon'
 
   export let template
 
@@ -20,10 +24,8 @@
   let activeTab = 'weekly'
   let iconsMenu = false
   
-  // Format states for each periodicity type
-  let weeklyState = { selectedDays: [] }
-  let monthlyState = { selectedDays: [] }
-  let yearlyState = { selectedMonths: [], selectedDays: [] }
+  let hasUnsavedChanges = false
+  let pendingRRStr = ''
   
   const tabItems = [
     { label: 'Weekly', value: 'weekly' },
@@ -40,14 +42,7 @@
 
   function determineRecurrenceType(rrStr) {
     const parsedData = parseRecurrenceString(rrStr)
-    
-    // Update component state based on parsed data
     activeTab = parsedData.type
-    weeklyState = parsedData.weeklyData
-    monthlyState = parsedData.monthlyData
-    yearlyState = parsedData.yearlyData
-    
-    return parsedData.type
   }
 
   const debouncedRenameTask = createDebouncedFunction(
@@ -68,6 +63,8 @@
     isPopupOpen = false
     newName = template.name
     determineRecurrenceType(template.rrStr)
+    hasUnsavedChanges = false
+    pendingRRStr = ''
   }
 
   function handleDelete() {
@@ -84,6 +81,40 @@
   
   function handleTabChange(event) {
     activeTab = event.detail.tab
+  }
+
+  function handleRRuleChange(event) {
+    hasUnsavedChanges = true
+    pendingRRStr = event.detail.rrStr
+  }
+
+  async function handleSave() {
+    if (hasUnsavedChanges && pendingRRStr) {
+      // determine the previewSpan depneding on if rrSTr is monthly, weekly or yearly
+      let previewSpan = 2*7
+      if (activeTab === 'monthly') previewSpan = 2*30
+      if (activeTab === 'yearly') previewSpan = 2*365
+
+      Template.update({ 
+        userID: $user.uid, 
+        id: template.id, 
+        updates: { rrStr: pendingRRStr, previewSpan } 
+      })
+
+      // regenerate tasks
+      // NOTE: potentially dangerous if user spent effort
+      // writing notes and putting photos on a future task
+
+      // this await is VERY IMPORTANT, or you'll delete the filled tasks
+      await deleteFutureInstances(template, $user.uid)
+
+      fillTaskInstances({ 
+        template, 
+        startISO: DateTime.now().toFormat('yyyy-MM-dd'), 
+        uid: $user.uid 
+      })
+      hasUnsavedChanges = false
+    }
   }
 </script>
 <slot {setIsPopupOpen}></slot>
@@ -116,21 +147,30 @@
       <Tabs tabs={tabItems} bind:activeTab on:tabChange={handleTabChange} />
 
       {#if activeTab === 'weekly'}
-        <WeeklyInput {template} />
+        <WeeklyInput {template} on:rruleChange={handleRRuleChange} />
       {:else if activeTab === 'monthly'}
-        <MonthlyInput {template} />
+        <MonthlyInput {template} on:rruleChange={handleRRuleChange} />
       {:else if activeTab === 'yearly'}
-        <YearlyInput {template} />
+        <YearlyInput {template} on:rruleChange={handleRRuleChange} />
       {/if}
     </div>
 
     <EditTime {template} />
 
-    <div on:click|stopPropagation={handleDelete} on:keydown
-      class="material-symbols-outlined"
-      style="cursor: pointer; margin-left: auto; margin-right: 0px; border-radius: 50%; padding: 4px;"
-    >
-      delete
+    <PreviewChanges {template} {pendingRRStr} />
+
+    <div class="actions-container">
+      {#if hasUnsavedChanges}
+        <RoundButton on:click={handleSave} backgroundColor="rgb(0, 89, 125)" textColor="white">
+          Save changes
+        </RoundButton>
+      {/if}
+
+      <div on:click|stopPropagation={handleDelete} on:keydown
+        class="material-symbols-outlined delete-button"
+      >
+        delete
+      </div>
     </div>
   </div>
 </div>
@@ -185,5 +225,18 @@
   
   .icon-container.active {
     box-shadow: 0 2px 8px rgba(90, 179, 39, 0.5);
+  }
+
+  .actions-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .delete-button {
+    cursor: pointer;
+    border-radius: 50%;
+    padding: 4px;
   }
 </style>

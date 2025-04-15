@@ -1,8 +1,5 @@
 <script>
   import { createEventDispatcher } from 'svelte'
-  import Template from '/src/lib/db/models/Template/index.js'
-  import { user } from '/src/lib/store'
-  import RoundButton from '$lib/components/RoundButton.svelte'
   import SpecificDaysPattern from './SpecificDaysPattern.svelte'
   import WeeklyPattern from './WeeklyPattern.svelte'
   
@@ -28,22 +25,13 @@
   }
   
   function handlePatternUpdate(event) {
-    // Forward pattern update to parent
-    dispatch('update', { pattern: event.detail.pattern })
-    
     // Track if we have a new RRule that's different from the template
     newRRuleStr = event.detail.rrStr
     isEditingPeriodicity = template && template.rrStr !== newRRuleStr && newRRuleStr !== ''
-  }
-  
-  function handleSave() {
-    if (newRRuleStr) {
-      Template.update({ 
-        userID: $user.uid, 
-        id: template.id, 
-        updates: { rrStr: newRRuleStr } 
-      })
-      isEditingPeriodicity = false
+    
+    // If we have changes, dispatch to parent
+    if (isEditingPeriodicity) {
+      dispatch('rruleChange', { rrStr: newRRuleStr })
     }
   }
 </script>
@@ -73,18 +61,6 @@
       </section>
     </div>
   </div>
-  
-  {#if isEditingPeriodicity}
-    <div class="save-button-container">
-      <RoundButton
-        on:click={handleSave}
-        backgroundColor="rgb(0, 89, 125)"
-        textColor="white"
-      >
-        Save changes
-      </RoundButton>
-    </div>
-  {/if}
 </div>
 
 <style>
@@ -125,11 +101,5 @@
   .pattern-section.active {
     border: 2px solid var(--active);
     opacity: 1;
-  }
-  
-  .save-button-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 16px;
   }
 </style>
