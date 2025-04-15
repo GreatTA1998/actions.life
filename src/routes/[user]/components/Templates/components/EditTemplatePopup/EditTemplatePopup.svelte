@@ -73,7 +73,7 @@
   <div class="detailed-card-popup">
     <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
       {#if template.iconURL}
-        <div class="icon-container" on:click={() => iconsMenu = !iconsMenu}>
+        <div class="icon-container" class:active={iconsMenu} on:click={() => iconsMenu = !iconsMenu}>
           <img src={template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
         </div>
       {/if}
@@ -163,5 +163,10 @@
     transform: scale(1.05);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     border-radius: 50%;
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .icon-container.active {
+    box-shadow: 0 2px 8px rgba(90, 179, 39, 0.5);
   }
 </style>
