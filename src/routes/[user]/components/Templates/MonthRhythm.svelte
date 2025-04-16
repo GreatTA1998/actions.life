@@ -1,6 +1,6 @@
 <script>
-  import { parseRecurrenceString, monthlyCrontabFromSelectedDays } from './recurrenceParser.js'
-  import { rruleToWeekday, positionToOccurrence } from './components/EditTemplatePopup/rruleUtils.js'
+  import { parseRecurrenceString } from './recurrenceParser.js'
+  import { rruleToWeekday, positionToOccurrence } from './components/TemplatePopup/rruleUtils.js'
   
   export let crontab
   export let rrStr = null
@@ -9,7 +9,6 @@
   let isWeeklyPattern = false
   let weeklyDescription = ''
   
-  // Short weekday names for display
   const weekdayShortNames = {
     'monday': 'Mon',
     'tuesday': 'Tue',
@@ -20,7 +19,6 @@
     'sunday': 'Sun'
   }
   
-  // Ordinal labels for occurrences
   const ordinalLabels = {
     'first': '1st',
     'second': '2nd',

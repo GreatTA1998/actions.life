@@ -8,7 +8,7 @@
   import { filterByType } from './utils.js'
   import { onSnapshot, collection } from 'firebase/firestore'
   import { db } from '/src/lib/db/init.js'
-  import EditTemplatePopup from './components/EditTemplatePopup/EditTemplatePopup.svelte'
+  import TemplatePopup from './components/TemplatePopup/TemplatePopup.svelte'
   import { editingTemplateId } from './store.js'
 
   let weeklyTasks = []
@@ -44,7 +44,7 @@
 
 <div style="padding: 48px; height: 100%; overflow-y: auto;">
   {#if $editingTemplateId}
-    <EditTemplatePopup template={$editingTemplateId} />
+    <TemplatePopup template={$editingTemplateId} />
   {/if}
 
   <div style="display: flex; width: 90vw; justify-content: space-between; gap: 48px;">
