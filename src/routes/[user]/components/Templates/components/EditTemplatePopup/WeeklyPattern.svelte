@@ -10,30 +10,25 @@
   let selectedOccurrences = new Set()
   
   const weekOccurrences = [
-    { id: 'first', label: '1st', shortLabel: '1' },
-    { id: 'second', label: '2nd', shortLabel: '2' },
-    { id: 'third', label: '3rd', shortLabel: '3' },
-    { id: 'fourth', label: '4th', shortLabel: '4' }
+    { id: 'first', label: '1st' },
+    { id: 'second', label: '2nd' },
+    { id: 'third', label: '3rd' },
+    { id: 'fourth', label: '4th' }
   ]
   
   const weekdays = [
-    { id: 'monday', label: 'Monday', shortLabel: 'Mo' },
-    { id: 'tuesday', label: 'Tuesday', shortLabel: 'Tu' },
-    { id: 'wednesday', label: 'Wednesday', shortLabel: 'We' },
-    { id: 'thursday', label: 'Thursday', shortLabel: 'Th' },
-    { id: 'friday', label: 'Friday', shortLabel: 'Fr' },
-    { id: 'saturday', label: 'Saturday', shortLabel: 'Sa' },
-    { id: 'sunday', label: 'Sunday', shortLabel: 'Su' }
+    { id: 'monday', shortLabel: 'Mo' },
+    { id: 'tuesday', shortLabel: 'Tu' },
+    { id: 'wednesday', shortLabel: 'We' },
+    { id: 'thursday', shortLabel: 'Th' },
+    { id: 'friday', shortLabel: 'Fr' },
+    { id: 'saturday', shortLabel: 'Sa' },
+    { id: 'sunday', shortLabel: 'Su' }
   ]
 
-  $: if (rrStr) parseRRuleString(rrStr)
+  $: parseRRuleString(rrStr)
 
-  onMount(() => {
-    if (rrStr) {
-      parseRRuleString(rrStr)
-    }
-    selectedOccurrences = selectedOccurrences // Trigger reactivity
-  })
+  onMount(() => {})
   
   function toggleOccurrence (occurrence) {
     if (selectedOccurrences.has(occurrence)) {
@@ -50,7 +45,6 @@
     dispatchChange()
   }
   
-  // Parse RRule string to extract weekly pattern
   function parseRRuleString (rrStr) {
     if (!rrStr || !rrStr.includes('FREQ=MONTHLY') || !rrStr.includes('BYDAY=')) return false
     
@@ -92,7 +86,6 @@
     return false
   }
   
-  // Create RRule string for weekly pattern
   function createRRuleString () {
     if (selectedOccurrences.size > 0) {
       const bydays = Array.from(selectedOccurrences)
@@ -127,7 +120,6 @@
       <div class="occurrence-buttons">
         {#each weekOccurrences as occurrence}
           <button on:click={(e) => toggleOccurrence(occurrence.id, e)}
-            type="button"
             class="occurrence-button {selectedOccurrences.has(occurrence.id) ? 'selected' : ''}"
             title={occurrence.label}
           >
@@ -140,7 +132,6 @@
     <div class="weekday-selector">
       {#each weekdays as day}
         <button on:click={(e) => selectWeekday(day.id, e)}
-          type="button"
           class="circle {selectedWeekday === day.id ? 'selected' : ''}" 
         >
           {day.shortLabel}

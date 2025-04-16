@@ -127,7 +127,7 @@
   }
   
   .selected {
-    background: var(--active);
+    background: var(--selected);
     color: white;
   }
   

@@ -22,6 +22,10 @@
   let isPopupOpen = false
   let activeTab = 'weekly'
   let iconsMenu = false
+
+  let weekRR = ''
+  let monthRR = ''
+  let yearRR = ''
   
   let hasUnsavedChanges = false
   let pendingRRStr = ''
@@ -36,7 +40,22 @@
 
   $: if (template) {
     console.log('template =', template)
+    pendingRRStr = template.rrStr
     init()
+  }
+
+  $: hasUnsavedChanges = template.rrStr !== pendingRRStr && pendingRRStr !== ''
+  
+  onMount(async () => {
+    $doodleIcons = await Icon.getAvailable($user.uid)
+  })
+
+  function handleTabChange (e) {
+    activeTab = e.detail.tab
+
+    if (activeTab === 'weekly') pendingRRStr = weekRR
+    else if (activeTab === 'monthly') pendingRRStr = monthRR
+    else if (activeTab === 'yearly') pendingRRStr = yearRR
   }
 
   function determineRecurrenceType(rrStr) {
@@ -54,16 +73,11 @@
     800
   )
 
-  onMount(async () => {
-    $doodleIcons = await Icon.getAvailable($user.uid)
-  })
-
   function init () {
     isPopupOpen = false
     newName = template.name
     determineRecurrenceType(template.rrStr)
     hasUnsavedChanges = false
-    pendingRRStr = ''
   }
 
   function handleDelete() {
@@ -78,15 +92,6 @@
     if (!newVal) {
       closeTemplateEditor()
     }
-  }
-  
-  function handleTabChange(event) {
-    activeTab = event.detail.tab
-  }
-
-  function handleRRuleChange(event) {
-    pendingRRStr = event.detail.rrStr
-    hasUnsavedChanges = template.rrStr !== pendingRRStr
   }
 
   async function handleSave() {
@@ -130,13 +135,7 @@
       {/if}
 
       <!-- on:input={(e) => debouncedRenameTask(e.target.value)} -->
-      <input
-        type="text"
-        bind:value={newName}
-        placeholder="Untitled"
-        style="width: 100%; font-size: 24px;"
-        class="title-underline-input"
-      />
+      <input bind:value={newName} type="text" placeholder="Untitled" style="width: 100%; font-size: 24px;" class="title-underline-input" />
     </div>
     
     {#if activeTab === 'weekly' && iconsMenu}
@@ -147,11 +146,20 @@
       <Tabs tabs={tabItems} bind:activeTab on:tabChange={handleTabChange} />
 
       {#if activeTab === 'weekly'}
-        <WeeklyInput {template} on:rruleChange={handleRRuleChange} />
+        <WeeklyInput {template} on:rruleChange={e => {
+          weekRR = e.detail.rrStr
+          pendingRRStr = weekRR
+        }} />
       {:else if activeTab === 'monthly'}
-        <MonthlyInput {template} on:rruleChange={handleRRuleChange} />
+        <MonthlyInput {template} on:rruleChange={e => {
+          monthRR = e.detail.rrStr
+          pendingRRStr = monthRR
+        }} />
       {:else if activeTab === 'yearly'}
-        <YearlyInput {template} on:rruleChange={handleRRuleChange} />
+        <YearlyInput {template} on:rruleChange={e => {
+          yearRR = e.detail.rrStr
+          pendingRRStr = yearRR
+        }} />
       {/if}
     </div>
 

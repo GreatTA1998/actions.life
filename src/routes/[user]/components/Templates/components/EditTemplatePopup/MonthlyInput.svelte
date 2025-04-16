@@ -3,16 +3,16 @@
   import SpecificDaysPattern from './SpecificDaysPattern.svelte'
   import WeeklyPattern from './WeeklyPattern.svelte'
   
+  export let template
+
   const dispatch = createEventDispatcher()
   
-  export let template
-  
   let patternType = 'specific' // Default pattern type
-  let isEditingPeriodicity = false
-  let newRRuleStr = ''
+  let isEditing = false
+  let byWeekNumberRR = ''
+  let byMonthDayRR = ''
   
-  // Determine initial pattern type from template.rrStr
-  if (template?.rrStr) {
+  if (template.rrStr) {
     if (template.rrStr.includes('BYMONTHDAY=')) {
       patternType = 'specific'
     } else if (template.rrStr.includes('BYDAY=')) {
@@ -22,17 +22,19 @@
   
   function selectPatternType(type) {
     patternType = type
+    dispatch('rruleChange', { 
+      rrStr: patternType === 'specific' ? byMonthDayRR : byWeekNumberRR
+    })
   }
   
-  function handlePatternUpdate(event) {
-    // Track if we have a new RRule that's different from the template
-    newRRuleStr = event.detail.rrStr
-    isEditingPeriodicity = template && template.rrStr !== newRRuleStr && newRRuleStr !== ''
+  function handlePatternUpdate (e) {
+    if (patternType === 'specific') byMonthDayRR = e.detail.rrStr
+    else if (patternType === 'weekly') byWeekNumberRR = e.detail.rrStr
     
-    // If we have changes, dispatch to parent
-    if (isEditingPeriodicity) {
-      dispatch('rruleChange', { rrStr: newRRuleStr })
-    }
+    isEditing = template.rrStr !== e.detail.rrStr
+    dispatch('rruleChange', { 
+      rrStr: e.detail.rrStr 
+    })
   }
 </script>
 
@@ -65,7 +67,7 @@
 
 <style>
   :root {
-    --active: orange;
+    --selected: orange;
   }
 
   .repeat-input {
