@@ -36,7 +36,7 @@
   $: template = $templates.find(t => t.id === $editingTemplateId)
 
   $: if (template) {
-    console.log('template.rrStr =', template.rrStr)
+    console.log('template =', template)
     init()
   }
 
@@ -95,7 +95,7 @@
       if (activeTab === 'monthly') previewSpan = 2*30
       if (activeTab === 'yearly') previewSpan = 2*365
 
-      Template.update({ 
+      await Template.update({ 
         userID: $user.uid, 
         id: template.id, 
         updates: { rrStr: pendingRRStr, previewSpan } 

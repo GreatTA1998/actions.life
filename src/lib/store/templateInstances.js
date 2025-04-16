@@ -1,4 +1,5 @@
 import { user } from './userStore.js'
+import { updateCache } from '$lib/store'
 import { getFirestoreCollection } from '$lib/db/helpers.js'
 import Task from '$lib/db/models/Task.js'
 import Template from '$lib/db/models/Template/index.js'
@@ -29,14 +30,12 @@ export function getOccurrences ({ template, startISO, uid }) {
   
   const start = new Date(startISO)
   const end = DateTime.now().plus({ days: previewSpan }).toJSDate()
-  console.log('start =', start)
-  console.log('end =', end)
-  console.log('rrStr =', rrStr)
   const occurences = RRule.fromString(rrStr).between(
     start,
     end,
     false // excludes start date
   )
+  // console.log('start, end, occurences =', start, end, occurences)
   return occurences
 }
 
@@ -53,7 +52,7 @@ export function fillTaskInstances ({ template, startISO, uid }) {
   }
 
   Template.update({ userID: uid, id: template.id, updates: {
-    lastTaskISO: DateTime.now().plus({ days: template.previewSpan }).toFormat('yyyy-MM-dd') // rename to prevEndISO
+    prevEndISO: DateTime.now().plus({ days: template.previewSpan }).toFormat('yyyy-MM-dd')
   }})
 }
 
@@ -66,13 +65,15 @@ export async function deleteFutureInstances (template, uid) {
     )
     const tasksSnapshot = await getDocs(tasksQuery)
     const tasks = tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    
-    console.log('tasks to be deleted =', tasks)
-    for (const task of tasks) {
-      Task.delete({ id: task.id })
-    }
+    updateCache(tasks)
 
-    // DANGER: this is not correct
-    setTimeout(resolve, 5000)
+    const promises = []
+    for (const task of tasks) {
+      promises.push(
+        Task.delete({ id: task.id, willConfirm: false })
+      )
+    }
+    await Promise.all(promises)
+    resolve()
   })
 }

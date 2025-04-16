@@ -40,8 +40,11 @@ const Template = {
 
   // THESE ARE THE ONLY TWO FUNCTIONS THAT UPDATE THE TEMPLATE
   async update ({ userID, id, updates, newTemplate }) {
-    const validatedChanges = Template.schema.partial().parse(updates)
-    updateFirestoreDoc(`/users/${userID}/templates/${id}`, validatedChanges)
+    return new Promise(async (resolve) => {
+      const validatedChanges = Template.schema.partial().parse(updates)
+      await updateFirestoreDoc(`/users/${userID}/templates/${id}`, validatedChanges)
+      resolve()
+    })
 
     // this is `Task`, not `Template`
     // note: these tasks need to be set with { merge: true }

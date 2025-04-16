@@ -45,7 +45,7 @@
   }
 
   function convertArrayToRRule(selectedIndices) {
-    const days = selectedIndices.map(i => dayMap[i]).join(',')
+    const days = selectedIndices.sort((a, b) => Number(a) - Number(b)).map(i => dayMap[i]).join(',')
     return `FREQ=WEEKLY;BYDAY=${days}`
   }
 

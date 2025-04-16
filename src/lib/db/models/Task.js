@@ -56,31 +56,25 @@ const Task = {
   create: async ({ id, newTaskObj }) => {
     try {
       const validatedTask = Task.schema.parse(newTaskObj)
-
+      const { uid } = get(user)
       const batch = writeBatch(db)
       const result = await maintainTreeISOsForCreate({ task: validatedTask, batch })
       let treeISOs = []
-      
-      const { uid } = get(user)
-      
+  
       // BACKWARDS COMPATIBILITY CODE HERE
-      // If result is an object with treeISOs property, use that
       if (result && typeof result === 'object' && Array.isArray(result.treeISOs)) {
         treeISOs = result.treeISOs
       } 
-      // If result is directly an array, use that
       else if (Array.isArray(result)) {
         treeISOs = result
       }
 
-      // Set rootID - either parent's rootID or self if root
-      let rootID = id // Default to self (for root tasks)
+      let rootID = id
       if (validatedTask.parentID) {
         const parent = get(tasksCache)[validatedTask.parentID]
         rootID = parent?.rootID || id
       }
 
-      // handle orderValue
       if (!validatedTask.orderValue) {
         validatedTask.orderValue = get(user).maxOrderValue + 1
         batch.update(doc(db, 'users', uid), { 
@@ -88,18 +82,11 @@ const Task = {
         })
       }
 
-      const finalizedTask = { 
+      batch.set(doc(db, `users/${uid}/tasks/${id}`), { 
         treeISOs, 
         rootID, 
         ...validatedTask 
-      }
-      console.log('creating task =', finalizedTask)
-
-      batch.set(
-        doc(db, `users/${uid}/tasks/${id}`), 
-        finalizedTask
-      )
-
+      })
       batch.commit()
     } 
     catch (error) {
@@ -127,25 +114,27 @@ const Task = {
     }
   },
 
-  delete: async ({ id }) => {
-    const taskObj = get(tasksCache)[id]
-    const tasksToDelete = await getTreeNodes(taskObj)
+  delete: async ({ id, willConfirm = true }) => {
+    return new Promise(async (resolve) => {
+      const taskObj = get(tasksCache)[id]
+      const tasksToDelete = await getTreeNodes(taskObj)
 
-    if (confirm(`${tasksToDelete.length} task${tasksToDelete.length > 1 ? 's' : ''} will be deleted. Are you sure?`)) {
-      const { uid } = get(user)
-      const batch = writeBatch(db)
-  
-      for (const taskObj of tasksToDelete) {
-        const { imageFullPath, id } = taskObj
-        if (imageFullPath) deleteImage({ imageFullPath })
-        batch.delete(doc(db, `/users/${uid}/tasks/${id}`))
+      if (!willConfirm || confirm(`${tasksToDelete.length} task${tasksToDelete.length > 1 ? 's' : ''} will be deleted. Are you sure?`)) {
+        const { uid } = get(user)
+        const batch = writeBatch(db)
+    
+        for (const taskObj of tasksToDelete) {
+          const { imageFullPath, id } = taskObj
+          if (imageFullPath) deleteImage({ imageFullPath })
+          batch.delete(doc(db, `/users/${uid}/tasks/${id}`))
+        }
+        await handleTreeISOsForDeletion({ tasksToDelete, batch })
+    
+        await batch.commit()
+
+        resolve(tasksToDelete)
       }
-      await handleTreeISOsForDeletion({ tasksToDelete, batch })
-  
-      await batch.commit()
-
-      return tasksToDelete 
-    }
+    })
   },
 
   archiveTree: async ({ id }) => {

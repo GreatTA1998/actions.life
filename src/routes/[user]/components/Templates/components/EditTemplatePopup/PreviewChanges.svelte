@@ -1,12 +1,14 @@
 <div class="preview-changes-container">
   <div class="dates-container">
     <div class="dates-column">
-      {#each tasks as task}   
-        <div class="date-item deletion">
-          <span class="minus">-</span>
-          {formatDate(task.startDateISO)}
-        </div>
-      {/each}
+      {#if tasks}
+        {#each tasks as task}   
+          <div class="date-item deletion">
+            <span class="minus">-</span>
+            {formatDate(task.startDateISO)}
+          </div>
+        {/each}
+      {/if}
     </div>
 
     <div class="dates-column">
@@ -17,6 +19,10 @@
         </div>
       {/each}
     </div>
+  </div>
+
+  <div>
+    Previously generated until: {template.prevEndISO}
   </div>
 </div>
 
@@ -31,16 +37,25 @@
   export let template
   export let pendingRRStr
 
-  let tasks = []
+  let tasks = null
   let simulatedResult = []
 
-  $: if (pendingRRStr) {
-    simulateChanges()
+  $: onRRStrChange(pendingRRStr) 
+
+  function reset () {
+    console.log('reset')
+    tasks = null
+    simulatedResult = []
   }
 
-  onMount(async () => {
-    tasks = await getAffectedTasks()
-  })
+  // there's a case where template.rrStr is undefined
+  async function onRRStrChange () {
+    if (!pendingRRStr || pendingRRStr === template.rrStr) reset()
+    else {
+      tasks = await getAffectedTasks()
+      simulateChanges()  
+    }
+  }
 
   // Simple one-liner to determine periodicity
   const getPeriodicity = (rrStr) => rrStr?.toLowerCase().includes('freq=monthly') ? 'monthly' : rrStr?.toLowerCase().includes('freq=yearly') ? 'yearly' : 'weekly'
