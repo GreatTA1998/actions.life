@@ -19,10 +19,10 @@
         </div>
       {/each}
     </div>
-  </div>
 
-  <div>
-    Generated until: {template.prevEndISO}, maintains a preview span of {template.previewSpan} days every time you log in
+    <div>
+      Today is {DateTime.now().toFormat('yyyy-MM-dd')}. Repeats were handled until {template.prevEndISO}, will continuously maintain a {template.previewSpan || 2*7} day preview
+    </div>
   </div>
 </div>
 

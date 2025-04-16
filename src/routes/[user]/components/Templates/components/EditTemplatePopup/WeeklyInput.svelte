@@ -6,6 +6,7 @@
   const days = [, 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] // ISO 8601 standard uses 1-7 for Mon-Sun
   const dispatch = createEventDispatcher()
 
+  // [1, 3, 7] means Mon, Tue & Sun are selected
   let indices = template.rrStr ? toIndices(template.rrStr) : []
   let isEditing = false
 
@@ -20,7 +21,9 @@
   function toIndices (rrStr) {
     const dayParts = rrStr.match(/(?<=BYDAY=)[^;]*/) // BYDAY=TU,FR becomes TU,FR
     if (!dayParts) return []
-    return dayParts[0].split(',').map(day => days.indexOf(day))
+    else {
+      return dayParts[0].split(',').map(day => days.indexOf(day))
+    }
   }
 
   function toRRStr (indices) {
@@ -38,7 +41,7 @@
 
 <div style="display: flex; gap: 4px;">
   {#each { length: 7 } as _, k}
-    <button on:click={() => toggle(k+1)} class="circle" class:highlighted={indices.includes(k+1)}>
+    <button on:click={() => toggle(k+1)} class="circle" class:highlight={indices.includes(k+1)}>
       {days[k+1]}
     </button>
   {/each}
@@ -57,7 +60,7 @@
     user-select: none;
   }
 
-  .highlighted {
+  .highlight {
     background-color: orange;
     color: black;
     font-weight: 600;

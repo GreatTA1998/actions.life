@@ -1,7 +1,6 @@
 <script>
   import WeeklyInput from './WeeklyInput.svelte'
   import YearlyInput from './YearlyInput.svelte'
-  import EditTime from './EditTime.svelte'
   import PreviewChanges from './PreviewChanges.svelte'
   import { user, doodleIcons } from '/src/lib/store'
   import { updateTemplate, deleteTemplate, closeTemplateEditor, templates, editingTemplateId } from '../../store.js'
@@ -68,8 +67,10 @@
   }
 
   function handleDelete() {
-    deleteTemplate({ templateID: template.id })
-    isPopupOpen = false
+    if (confirm('Are you sure you want to delete this template?')) {
+      deleteTemplate({ templateID: template.id })
+      isPopupOpen = false
+    }
   }
 
   function setIsPopupOpen({ newVal }) {
@@ -90,7 +91,6 @@
 
   async function handleSave() {
     if (hasUnsavedChanges) {
-      // determine the previewSpan depneding on if rrSTr is monthly, weekly or yearly
       let previewSpan = 2*7
       if (activeTab === 'monthly') previewSpan = 2*30
       if (activeTab === 'yearly') previewSpan = 2*365
@@ -101,11 +101,8 @@
         updates: { rrStr: pendingRRStr, previewSpan } 
       })
 
-      // regenerate tasks
-      // NOTE: potentially dangerous if user spent effort
-      // writing notes and putting photos on a future task
-
       // this await is VERY IMPORTANT, or you'll delete the filled tasks
+      // NOTE: potentially dangerous if user spent effort writing notes and putting photos on a future task
       await deleteFutureInstances(template, $user.uid)
 
       fillTaskInstances({ 
@@ -118,7 +115,10 @@
     }
   }
 </script>
-<slot {setIsPopupOpen}></slot>
+
+<slot {setIsPopupOpen}>
+
+</slot>
 
 <div on:click|self={closeTemplateEditor} on:keydown class="fullscreen-invisible-modular-popup-layer">
   <div class="detailed-card-popup">
@@ -138,7 +138,6 @@
         class="title-underline-input"
       />
     </div>
-
     
     {#if activeTab === 'weekly' && iconsMenu}
       <IconsDisplay {template} />
@@ -156,23 +155,23 @@
       {/if}
     </div>
 
-    <EditTime {template} />
-
-    <PreviewChanges {template} {pendingRRStr} />
+    <!-- <EditTime {template} /> -->
 
     <div class="actions-container">
       {#if hasUnsavedChanges}
-        <RoundButton on:click={handleSave} backgroundColor="rgb(0, 89, 125)" textColor="white">
-          Save changes
-        </RoundButton>
-      {/if}
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <PreviewChanges {template} {pendingRRStr} />
 
-      <div on:click|stopPropagation={handleDelete} on:keydown
-        class="material-symbols-outlined delete-button"
-      >
-        delete
-      </div>
+          <RoundButton on:click={handleSave} backgroundColor="rgb(0, 89, 125)" textColor="white">
+            Save changes
+          </RoundButton>
+        </div>
+      {/if}
     </div>
+
+    <button on:click|stopPropagation={handleDelete} class="material-symbols-outlined delete-button">
+      delete
+    </button>
   </div>
 </div>
 
@@ -193,23 +192,20 @@
     min-width: 360px;
 
     width: 70%;
+    height: 90vh;
+    overflow-y: auto;
  
     position: fixed;
-    font-size: 14px;
+    z-index: 3;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
- 
-    overflow-y: auto;
-    z-index: 3;
 
-    height: fit-content;
-
+    font-size: 14px;
     padding: 24px;
     border-radius: 24px;
     background-color: white;
 
-    /* border: 1px solid #000; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
     box-shadow: 0px 0px 0px 9999px rgba(0, 0, 0, 0.5);
   }
 
@@ -236,7 +232,9 @@
   }
 
   .delete-button {
-    cursor: pointer;
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
     border-radius: 50%;
     padding: 4px;
   }
