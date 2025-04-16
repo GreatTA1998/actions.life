@@ -1,72 +1,46 @@
 <script>
   import { createEventDispatcher } from 'svelte'
 
-  const dispatch = createEventDispatcher()
   export let template
 
-  let dayOfWeekSymbol = [ "Sun", 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  
-  // ISO 8601 standard which uses 1-7 for Monday-Sunday
-  const dayMap = {
-    1: 'MO',
-    2: 'TU',
-    3: 'WE',
-    4: 'TH',
-    5: 'FR',
-    6: 'SA',
-    7: 'SU'
+  const days = [, 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] // ISO 8601 standard uses 1-7 for Mon-Sun
+  const dispatch = createEventDispatcher()
+
+  let indices = template.rrStr ? toIndices(template.rrStr) : []
+  let isEditing = false
+
+  $: onDaySelect(indices)
+
+  function onDaySelect () {
+    const rrStr = toRRStr(indices)
+    isEditing = template.rrStr !== rrStr
+    dispatch('rruleChange', { rrStr })
   }
   
-  const inverseDayMap = {}
-  Object.entries(dayMap).forEach(([key, value]) => {
-    inverseDayMap[value] = key
-  })
+  function toIndices (rrStr) {
+    const dayParts = rrStr.match(/(?<=BYDAY=)[^;]*/) // BYDAY=TU,FR becomes TU,FR
+    if (!dayParts) return []
+    return dayParts[0].split(',').map(day => days.indexOf(day))
+  }
 
-  let selectedIndices = template.rrStr ? parseRRuleString(template.rrStr) : []
-  let isEditingPeriodicity = false
-
-  $: {
-    isEditingPeriodicity = parseRRuleString(template.rrStr).toString() != selectedIndices.toString() // .toString() is necessary for array equality
-
-    if (isEditingPeriodicity) {
-      const rrStr = convertArrayToRRule(selectedIndices)
-      dispatch('rruleChange', { rrStr })
+  function toRRStr (indices) {
+    if (!indices.length) return '' // repeating without selected days is considered an invalid recurrence rule
+    else {
+      return `FREQ=WEEKLY;BYDAY=${indices.map(i => days[i]).join(',')}`
     }
   }
-  
-  function parseRRuleString(rrStr) {
-    if (!rrStr) return []
-    
-    const bydayMatch = rrStr.match(/BYDAY=([^;]*)/)
-    if (!bydayMatch) return []
-    
-    const bydayValue = bydayMatch[1]
-    return bydayValue.split(',').map(day => inverseDayMap[day]).filter(Boolean)
-  }
 
-  function convertArrayToRRule(selectedIndices) {
-    const days = selectedIndices.sort((a, b) => Number(a) - Number(b)).map(i => dayMap[i]).join(',')
-    return `FREQ=WEEKLY;BYDAY=${days}`
-  }
-
-  function handleSelectDay(i) {
-    if (selectedIndices.includes(i)) {
-      selectedIndices = selectedIndices.filter((day) => day !== i)
-    } else {
-      selectedIndices = [...selectedIndices, i]
-    }
+  function toggle (k) {
+    if (indices.includes(k)) indices = indices.filter(i => i !== k)
+    else indices = [...indices, k].sort((i, j) => i - j)
   }
 </script>
 
-<div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
-  {#each { length: 7 } as _, i}
-    <div on:click={() => handleSelectDay(String(i + 1))} on:keydown
-      class="circle"
-      class:not-selected={!selectedIndices.includes(String(i + 1))}
-      class:highlighted={selectedIndices.includes(String(i + 1))}
-    >
-      {dayOfWeekSymbol[i + 1]}
-    </div>
+<div style="display: flex; gap: 4px;">
+  {#each { length: 7 } as _, k}
+    <button on:click={() => toggle(k+1)} class="circle" class:highlighted={indices.includes(k+1)}>
+      {days[k+1]}
+    </button>
   {/each}
 </div>
 
@@ -74,17 +48,13 @@
   .circle {
     width: 30px;
     height: 30px;
-    line-height: 30px;
     border-radius: 50%;
     font-size: 12px;
+    line-height: 30px;
     text-align: center;
-    cursor: pointer;
-  }
-
-  .not-selected {
-    color: rgb(160, 160, 160);
+    color: rgb(170, 170, 170);
     background-color: rgb(100, 100, 100);
-    background: #000;
+    user-select: none;
   }
 
   .highlighted {

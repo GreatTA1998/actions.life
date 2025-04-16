@@ -84,12 +84,12 @@
   }
 
   function handleRRuleChange(event) {
-    hasUnsavedChanges = true
     pendingRRStr = event.detail.rrStr
+    hasUnsavedChanges = template.rrStr !== pendingRRStr
   }
 
   async function handleSave() {
-    if (hasUnsavedChanges && pendingRRStr) {
+    if (hasUnsavedChanges) {
       // determine the previewSpan depneding on if rrSTr is monthly, weekly or yearly
       let previewSpan = 2*7
       if (activeTab === 'monthly') previewSpan = 2*30
@@ -113,6 +113,7 @@
         startISO: DateTime.now().toFormat('yyyy-MM-dd'), 
         uid: $user.uid 
       })
+
       hasUnsavedChanges = false
     }
   }

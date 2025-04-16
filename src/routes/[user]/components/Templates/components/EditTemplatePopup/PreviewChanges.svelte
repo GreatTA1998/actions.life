@@ -1,10 +1,10 @@
 <div class="preview-changes-container">
   <div class="dates-container">
     <div class="dates-column">
-      {#if tasks}
-        {#each tasks as task}   
+      {#if deletingTasks}
+        {#each deletingTasks as task}   
           <div class="date-item deletion">
-            <span class="minus">-</span>
+            <span class="icon">-</span>
             {formatDate(task.startDateISO)}
           </div>
         {/each}
@@ -12,9 +12,9 @@
     </div>
 
     <div class="dates-column">
-      {#each simulatedResult as occurence (occurence.toISOString())}
+      {#each addingTasks as occurence (occurence.toISOString())}
         <div class="date-item creation">
-          <span class="plus">+</span>
+          <span class="icon">+</span>
           {formatDate(DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd'))}
         </div>
       {/each}
@@ -22,7 +22,7 @@
   </div>
 
   <div>
-    Previously generated until: {template.prevEndISO}
+    Generated until: {template.prevEndISO}, maintains a preview span of {template.previewSpan} days every time you log in
   </div>
 </div>
 
@@ -31,29 +31,27 @@
   import { db } from '$lib/db/init.js'
   import { query, collection, where, getDocs } from 'firebase/firestore'
   import { user } from '$lib/store'
-  import { onMount } from 'svelte'
   import { getOccurrences } from '$lib/store/templateInstances.js'
 
   export let template
   export let pendingRRStr
 
-  let tasks = null
-  let simulatedResult = []
+  let deletingTasks = null
+  let addingTasks = []
 
-  $: onRRStrChange(pendingRRStr) 
+  $: onRRStrChange(pendingRRStr, template.rrStr) 
 
   function reset () {
-    console.log('reset')
-    tasks = null
-    simulatedResult = []
+    deletingTasks = null
+    addingTasks = []
   }
 
   // there's a case where template.rrStr is undefined
   async function onRRStrChange () {
-    if (!pendingRRStr || pendingRRStr === template.rrStr) reset()
+    if (pendingRRStr === template.rrStr) reset()
     else {
-      tasks = await getAffectedTasks()
-      simulateChanges()  
+      deletingTasks = await getAffectedTasks()
+      addingTasks = simulateChanges()  
     }
   }
 
@@ -66,6 +64,8 @@
   }
 
   function simulateChanges () {
+    if (!pendingRRStr) return []
+
     const copy = {...template}
     copy.rrStr = pendingRRStr
     if (getPeriodicity(pendingRRStr) === 'monthly') {
@@ -76,7 +76,7 @@
       copy.previewSpan = 2*7
     }
 
-    simulatedResult = getOccurrences({ 
+    return getOccurrences({ 
       template: copy, 
       startISO: DateTime.now().toFormat('yyyy-MM-dd'), 
       uid: $user.uid 
@@ -90,7 +90,7 @@
       where('startDateISO', '>=', DateTime.now().toFormat('yyyy-MM-dd'))
     )
     const tasksSnapshot = await getDocs(tasksQuery)
-    return tasksSnapshot.docs.map(doc => doc.data())
+    return tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}))
   }
 </script>
 
@@ -126,13 +126,7 @@
     color: #36a76b;
   }
 
-  .minus {
-    font-weight: bold;
-    margin-right: 6px;
-    min-width: 8px;
-  }
-
-  .plus {
+  .icon {
     font-weight: bold;
     margin-right: 6px;
     min-width: 8px;
