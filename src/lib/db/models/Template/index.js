@@ -81,7 +81,7 @@ const Template = {
   },
 
   async delete ({ userID, id }) {
-    deleteFutureTasks({ userID, id })
+    // deleteFutureTasks({ userID, id })
     return deleteDoc(doc(db, "users", userID, "templates", id))
   },
 
