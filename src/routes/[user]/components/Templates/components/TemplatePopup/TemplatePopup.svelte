@@ -200,9 +200,9 @@
       <Tabs tabs={tabItems} bind:activeTab on:tabChange={handleTabChange} />
 
       {#if activeTab === 'weekly'}
-        <WeeklyInput {template} />
+        <WeeklyInput />
       {:else if activeTab === 'monthly'}
-        <MonthlyInput {template} />
+        <MonthlyInput />
       {:else if activeTab === 'yearly'}
         <YearlyInput {template} />
       {/if}
