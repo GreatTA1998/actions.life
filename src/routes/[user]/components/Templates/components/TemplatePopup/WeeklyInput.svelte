@@ -14,7 +14,7 @@
   }
   
   function toIndices (rrStr) {
-    const dayParts = rrStr.match(/(?<=BYDAY=)[^;]*/) // BYDAY=TU,FR becomes TU,FR
+    const dayParts = rrStr?.match(/(?<=BYDAY=)[^;]*/) // BYDAY=TU,FR becomes TU,FR
     if (!dayParts) return []
     else {
       return dayParts[0].split(',').map(day => days.indexOf(day))
