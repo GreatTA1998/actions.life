@@ -1,12 +1,12 @@
 <script>
   import { onMount, createEventDispatcher } from 'svelte'
   import { weekdayToRRule, occurrenceToPosition, rruleToWeekday, positionToOccurrence } from './rruleUtils.js'
+  import { inputStates } from './store.js'
   
   const dispatch = createEventDispatcher()
   
-  export let rrStr = ''
-  
-  let selectedWeekday = 'saturday'
+  let rrStr = ''
+  let selectedWeekdays = []
   let selectedOccurrences = new Set()
   
   const weekOccurrences = [
@@ -28,34 +28,45 @@
 
   $: parseRRuleString(rrStr)
 
-  onMount(() => {})
+  onMount(() => {
+    // Set default selection if no RRSTR is present and store doesn't have a value
+    if (!$inputStates.monthlyTypeII) {
+      selectedOccurrences.add('first')
+      selectedOccurrences = selectedOccurrences
+      dispatchChange()
+    }
+  })
   
-  function toggleOccurrence (occurrence) {
+  function toggleOccurrence(occurrence) {
     if (selectedOccurrences.has(occurrence)) {
       selectedOccurrences.delete(occurrence)
     } else {
       selectedOccurrences.add(occurrence)
     }
-    selectedOccurrences = selectedOccurrences // Trigger reactivity
+    selectedOccurrences = selectedOccurrences
     dispatchChange()
   }
   
-  function selectWeekday (weekdayId, event) {
-    selectedWeekday = weekdayId
+  function toggleWeekday(weekdayId) {
+    if (selectedWeekdays.includes(weekdayId)) {
+      selectedWeekdays = selectedWeekdays.filter(day => day !== weekdayId)
+    } else {
+      selectedWeekdays = [...selectedWeekdays, weekdayId].sort()
+    }
     dispatchChange()
   }
   
-  function parseRRuleString (rrStr) {
+  function parseRRuleString(rrStr) {
     if (!rrStr || !rrStr.includes('FREQ=MONTHLY') || !rrStr.includes('BYDAY=')) return false
     
     selectedOccurrences.clear()
+    selectedWeekdays = []
     
     const bydayMatch = rrStr.match(/BYDAY=([^;]*)/)
     if (bydayMatch) {
       const bydayParts = bydayMatch[1].split(',')
       
-      // We only need to set the weekday once - we'll use the first one found
-      let weekdaySet = false
+      const weekdaysFound = new Set()
       
       bydayParts.forEach(part => {
         const posMatch = part.match(/([+\-]\d+)([A-Z]{2})/)
@@ -69,39 +80,41 @@
             selectedOccurrences.add(occId)
           }
           
-          // Convert day code to weekday id and set it once
-          if (!weekdaySet) {
-            const weekdayId = rruleToWeekday[day]
-            if (weekdayId) {
-              selectedWeekday = weekdayId
-              weekdaySet = true
-            }
+          // Add weekday to our selected weekdays
+          const weekdayId = rruleToWeekday[day]
+          if (weekdayId && !weekdaysFound.has(weekdayId)) {
+            weekdaysFound.add(weekdayId)
+            selectedWeekdays.push(weekdayId)
           }
         }
       })
       
-      selectedOccurrences = selectedOccurrences // Trigger reactivity
+      selectedWeekdays.sort()
+      selectedOccurrences = selectedOccurrences
       return true
     }
     return false
   }
   
-  function createRRuleString () {
-    if (selectedOccurrences.size > 0) {
-      const bydays = Array.from(selectedOccurrences)
-        .sort()
-        .map(occ => `${occurrenceToPosition[occ]}${weekdayToRRule[selectedWeekday]}`)
-        .join(',')
+  function createRRuleString() {
+    if (selectedOccurrences.size > 0 && selectedWeekdays.length > 0) {
+      const bydays = []
       
-      return `FREQ=MONTHLY;BYDAY=${bydays}`
+      for (const occ of Array.from(selectedOccurrences).sort()) {
+        for (const weekday of selectedWeekdays) {
+          bydays.push(`${occurrenceToPosition[occ]}${weekdayToRRule[weekday]}`)
+        }
+      }
+      
+      return `FREQ=MONTHLY;BYDAY=${bydays.join(',')}`
     }
     return ''
   }
   
-  function dispatchChange () {
+  function dispatchChange() {
     const pattern = {
       type: 'weekly',
-      weekday: selectedWeekday,
+      weekdays: selectedWeekdays,
       occurrences: Array.from(selectedOccurrences).sort()
     }
     
@@ -119,7 +132,7 @@
       <div>Every</div>
       <div class="occurrence-buttons">
         {#each weekOccurrences as occurrence}
-          <button on:click={(e) => toggleOccurrence(occurrence.id, e)}
+          <button on:click={() => toggleOccurrence(occurrence.id)}
             class="occurrence-button {selectedOccurrences.has(occurrence.id) ? 'selected' : ''}"
             title={occurrence.label}
           >
@@ -131,8 +144,8 @@
 
     <div class="weekday-selector">
       {#each weekdays as day}
-        <button on:click={(e) => selectWeekday(day.id, e)}
-          class="circle {selectedWeekday === day.id ? 'selected' : ''}" 
+        <button on:click={() => toggleWeekday(day.id)}
+          class="circle {selectedWeekdays.includes(day.id) ? 'selected' : ''}" 
         >
           {day.shortLabel}
         </button>
@@ -174,7 +187,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    width: 284px; /* Match the width of the calendar grid */
+    width: 284px;
   }
   
   .weekday-selector {
@@ -194,18 +207,18 @@
   .occurrence-buttons {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
   }
   
   .occurrence-button {
-    width: 2.2rem;
-    height: 2.2rem;
-    padding: 0;
+    width: 2rem;
+    height: 2rem;
     background: white;
     cursor: pointer;
     font-weight: 500;
+    font-size: 1rem;
     color: #aaa;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 2px solid #ccc;
   }
   
   .occurrence-button.selected {

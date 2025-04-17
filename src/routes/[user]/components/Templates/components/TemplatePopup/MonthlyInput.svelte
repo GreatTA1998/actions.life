@@ -1,9 +1,7 @@
 <script>
-  import SpecificDaysPattern from './SpecificDaysPattern.svelte'
-  import WeeklyPattern from './WeeklyPattern.svelte'
+  import MonthlyInputI from './MonthlyInputI.svelte'
+  import MonthlyInputII from './MonthlyInputII.svelte'
   import { inputStates, monthlyInputSourceOfTruth } from './store.js'
-
-  export let template
   
   function selectPatternType (type) {
     monthlyInputSourceOfTruth.set(type)
@@ -20,18 +18,16 @@
       <section on:click={() => selectPatternType('monthlyTypeI')} on:keydown
         class="pattern-section {$monthlyInputSourceOfTruth === 'monthlyTypeI' ? 'active' : ''}"
       >
-        <SpecificDaysPattern 
-          rrStr={template.rrStr || ''}
-          on:update={e => updateState('monthlyTypeI', e)}
+        <MonthlyInputI 
+          on:update={e => updateState('monthlyTypeI', e)} 
         />
       </section>
       
       <section on:click={() => selectPatternType('monthlyTypeII')} on:keydown
         class="pattern-section {$monthlyInputSourceOfTruth === 'monthlyTypeII' ? 'active' : ''}"
       >
-        <WeeklyPattern 
-          rrStr={template.rrStr || ''}
-          on:update={e => updateState('monthlyTypeII', e)}
+        <MonthlyInputII 
+          on:update={e => updateState('monthlyTypeII', e)} 
         />
       </section>
     </div>
