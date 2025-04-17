@@ -1,64 +1,37 @@
 <script>
-  import { createEventDispatcher } from 'svelte'
   import SpecificDaysPattern from './SpecificDaysPattern.svelte'
   import WeeklyPattern from './WeeklyPattern.svelte'
-  
-  export let template
+  import { inputStates, monthlyInputSourceOfTruth } from './store.js'
 
-  const dispatch = createEventDispatcher()
+  export let template
   
-  let patternType = 'specific' // Default pattern type
-  let isEditing = false
-  let byWeekNumberRR = ''
-  let byMonthDayRR = ''
-  
-  if (template.rrStr) {
-    if (template.rrStr.includes('BYMONTHDAY=')) {
-      patternType = 'specific'
-    } else if (template.rrStr.includes('BYDAY=')) {
-      patternType = 'weekly'
-    }
+  function selectPatternType (type) {
+    monthlyInputSourceOfTruth.set(type)
   }
-  
-  function selectPatternType(type) {
-    patternType = type
-    dispatch('rruleChange', { 
-      rrStr: patternType === 'specific' ? byMonthDayRR : byWeekNumberRR
-    })
-  }
-  
-  function handlePatternUpdate (e) {
-    if (patternType === 'specific') byMonthDayRR = e.detail.rrStr
-    else if (patternType === 'weekly') byWeekNumberRR = e.detail.rrStr
-    
-    isEditing = template.rrStr !== e.detail.rrStr
-    dispatch('rruleChange', { 
-      rrStr: e.detail.rrStr 
-    })
+
+  function updateState (type, e) {
+    inputStates.update(states => ({ ...states, [type]: e.detail.rrStr }))
   }
 </script>
 
 <div class="repeat-input">
   <div class="sections-container">
     <div class="options-row">
-      <section 
-        class="pattern-section {patternType === 'specific' ? 'active' : ''}"
-        on:click={() => selectPatternType('specific')} on:keydown
+      <section on:click={() => selectPatternType('monthlyTypeI')} on:keydown
+        class="pattern-section {$monthlyInputSourceOfTruth === 'monthlyTypeI' ? 'active' : ''}"
       >
         <SpecificDaysPattern 
-          rrStr={template?.rrStr || ''}
-          on:update={handlePatternUpdate}
+          rrStr={template.rrStr || ''}
+          on:update={e => updateState('monthlyTypeI', e)}
         />
       </section>
       
-      <!-- Weekly Pattern Section -->
-      <section 
-        on:click={() => selectPatternType('weekly')} on:keydown
-        class="pattern-section {patternType === 'weekly' ? 'active' : ''}"
+      <section on:click={() => selectPatternType('monthlyTypeII')} on:keydown
+        class="pattern-section {$monthlyInputSourceOfTruth === 'monthlyTypeII' ? 'active' : ''}"
       >
         <WeeklyPattern 
-          rrStr={template?.rrStr || ''}
-          on:update={handlePatternUpdate}
+          rrStr={template.rrStr || ''}
+          on:update={e => updateState('monthlyTypeII', e)}
         />
       </section>
     </div>

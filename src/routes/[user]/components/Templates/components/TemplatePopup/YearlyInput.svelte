@@ -1,13 +1,11 @@
 <script>
   import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
-  import { createEventDispatcher } from 'svelte'
+  import { inputStates } from './store.js'
 
-  const dispatch = createEventDispatcher()
   export let template
 
   let selectedMMDD = ''
   let selectedYear = ''
-  let isEditingPeriodicity = false
 
   $: {
     if (template && template.rrStr) {
@@ -19,14 +17,10 @@
     }
   }
 
-  // Track whether we're editing (changes have been made)
   $: {
     const currentRRule = createRRuleFromDate(selectedMMDD)
-    isEditingPeriodicity = template && template.rrStr !== currentRRule && selectedMMDD !== ''
     
-    if (isEditingPeriodicity) {
-      dispatch('rruleChange', { rrStr: currentRRule })
-    }
+    inputStates.update(states => ({ ...states, yearly: currentRRule }))
   }
 
   function parseRRuleString(rrStr) {

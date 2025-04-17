@@ -1,21 +1,16 @@
 <script>
-  import { createEventDispatcher } from 'svelte'
-
-  export let template
+  import { inputStates } from './store.js'
 
   const days = [, 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] // ISO 8601 standard uses 1-7 for Mon-Sun
-  const dispatch = createEventDispatcher()
 
   // [1, 3, 7] means Mon, Tue & Sun are selected
-  let indices = template.rrStr ? toIndices(template.rrStr) : []
-  let isEditing = false
+  let indices = toIndices($inputStates.weekly)
 
   $: onDaySelect(indices)
 
   function onDaySelect () {
     const rrStr = toRRStr(indices)
-    isEditing = template.rrStr !== rrStr
-    dispatch('rruleChange', { rrStr })
+    inputStates.update(states => ({ ...states, weekly: rrStr }))
   }
   
   function toIndices (rrStr) {

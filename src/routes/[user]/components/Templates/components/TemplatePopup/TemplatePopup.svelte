@@ -15,20 +15,15 @@
   import RoundButton from '$lib/components/RoundButton.svelte'
   import { deleteFutureInstances, fillTaskInstances } from '$lib/store/templateInstances.js'
   import { DateTime } from 'luxon'
-
+  import { inputStates, monthlyInputSourceOfTruth, overallSourceOfTruth } from './store.js'
+  
   export let template
 
+  let pendingRRStr = ''
   let newName = '' 
   let isPopupOpen = false
   let activeTab = 'weekly'
   let iconsMenu = false
-
-  let weekRR = ''
-  let monthRR = ''
-  let yearRR = ''
-  
-  let hasUnsavedChanges = false
-  let pendingRRStr = ''
   
   const tabItems = [
     { label: 'Weekly', value: 'weekly' },
@@ -39,62 +34,111 @@
   $: template = $templates.find(t => t.id === $editingTemplateId)
 
   $: if (template) {
-    console.log('template =', template)
-    pendingRRStr = template.rrStr
     init()
   }
 
-  $: hasUnsavedChanges = template.rrStr !== pendingRRStr && pendingRRStr !== ''
+  // dangerous but works
+  // note: must be ordered before `handleNewInput()`
+  $: if (activeTab === 'monthly') {
+    overallSourceOfTruth.set($monthlyInputSourceOfTruth)
+  }
+
+  $: handleNewInput($inputStates, $overallSourceOfTruth)
+
+  $: hasUnsavedChanges = template.rrStr !== pendingRRStr
   
   onMount(async () => {
-    $doodleIcons = await Icon.getAvailable($user.uid)
+    $doodleIcons = await Icon.getAvailable($user.uid) 
   })
 
-  function handleTabChange (e) {
-    activeTab = e.detail.tab
-
-    if (activeTab === 'weekly') pendingRRStr = weekRR
-    else if (activeTab === 'monthly') pendingRRStr = monthRR
-    else if (activeTab === 'yearly') pendingRRStr = yearRR
+  function handleNewInput () {
+    pendingRRStr = $inputStates[$overallSourceOfTruth]
   }
 
-  function determineRecurrenceType(rrStr) {
-    const parsedData = parseRecurrenceString(rrStr)
-    activeTab = parsedData.type
-  }
+  function getSourceOfTruth (rrStr) {
+    if (!rrStr) {
+      return {
+        monthlyInput: 'monthlyTypeI',
+        overall: 'weekly'
+      }
+    }
 
-  const debouncedRenameTask = createDebouncedFunction(
-    (newVal) =>
-      updateTemplate({
-        templateID: template.id,
-        keyValueChanges: { name: newVal },
-        oldTemplate: template
-      }),
-    800
-  )
+    const rrLower = rrStr.toLowerCase()
+    let overall = 'weekly'
+    let monthlyInput = 'monthlyTypeI'
+
+    // Determine overall source of truth based on frequency
+    if (rrLower.includes('freq=monthly') || (!rrLower.includes('freq=') && rrLower.includes('bymonthday'))) {
+      overall = 'monthly'
+    } else if (rrLower.includes('freq=yearly') || (!rrLower.includes('freq=') && rrLower.includes('bymonth'))) {
+      overall = 'yearly'
+    }
+
+    // Determine monthly input source of truth
+    if (overall === 'monthly') {
+      // Type II is when we have both byday and either bysetpos or byweekno
+      // Example: "every first Monday of the month"
+      if (rrLower.includes('byday') && (rrLower.includes('bysetpos') || rrLower.includes('byweekno'))) {
+        monthlyInput = 'monthlyTypeII'
+      } else {
+        // Type I is when we have specific dates like "1st, 15th of each month"
+        monthlyInput = 'monthlyTypeI'
+      }
+    }
+
+    return {
+      monthlyInput, 
+      overall
+    }
+  }
 
   function init () {
     isPopupOpen = false
     newName = template.name
-    determineRecurrenceType(template.rrStr)
-    hasUnsavedChanges = false
+    activeTab = determineRecurrenceType(template.rrStr)
+
+    const { monthlyInput, overall } = getSourceOfTruth(template.rrStr)
+    monthlyInputSourceOfTruth.set(monthlyInput)
+    overallSourceOfTruth.set(overall)
+
+    inputStates.update(states => ({ ...states, [$overallSourceOfTruth]: template.rrStr }))
   }
 
-  function handleDelete() {
+  function handleTabChange (e) {
+    activeTab = e.detail.tab
+
+    if (activeTab === 'weekly') {
+      overallSourceOfTruth.set('weekly')
+    } 
+    else if (activeTab === 'monthly') {
+      // When switching to the monthly tab, use the current monthly input type
+      overallSourceOfTruth.set($monthlyInputSourceOfTruth)
+    } 
+    else if (activeTab === 'yearly') {
+      overallSourceOfTruth.set('yearly')
+    }
+  }
+
+  function determineRecurrenceType (rrStr) {
+    const parsedData = parseRecurrenceString(rrStr)
+    return parsedData.type
+  }
+
+  function handleDelete () {
     if (confirm('Are you sure you want to delete this template?')) {
       deleteTemplate({ templateID: template.id })
       isPopupOpen = false
     }
   }
 
-  function setIsPopupOpen({ newVal }) {
+  function setIsPopupOpen ({ newVal }) {
     isPopupOpen = newVal
     if (!newVal) {
       closeTemplateEditor()
     }
   }
 
-  async function handleSave() {
+  async function handleSave () {
     if (hasUnsavedChanges) {
       let previewSpan = 2*7
       if (activeTab === 'monthly') previewSpan = 2*30
@@ -119,6 +163,16 @@
       hasUnsavedChanges = false
     }
   }
+
+  const debouncedRenameTask = createDebouncedFunction(
+    (newVal) =>
+      updateTemplate({
+        templateID: template.id,
+        keyValueChanges: { name: newVal },
+        oldTemplate: template
+      }),
+    800
+  )
 </script>
 
 <slot {setIsPopupOpen}>
@@ -146,20 +200,11 @@
       <Tabs tabs={tabItems} bind:activeTab on:tabChange={handleTabChange} />
 
       {#if activeTab === 'weekly'}
-        <WeeklyInput {template} on:rruleChange={e => {
-          weekRR = e.detail.rrStr
-          pendingRRStr = weekRR
-        }} />
+        <WeeklyInput {template} />
       {:else if activeTab === 'monthly'}
-        <MonthlyInput {template} on:rruleChange={e => {
-          monthRR = e.detail.rrStr
-          pendingRRStr = monthRR
-        }} />
+        <MonthlyInput {template} />
       {:else if activeTab === 'yearly'}
-        <YearlyInput {template} on:rruleChange={e => {
-          yearRR = e.detail.rrStr
-          pendingRRStr = yearRR
-        }} />
+        <YearlyInput {template} />
       {/if}
     </div>
 
