@@ -1,6 +1,9 @@
 {#if $uniqueEvents}
   <div class="schedule-container">
-    <h1 class="title">Schedule</h1>
+    <div class="header">
+      <h1 class="title">Schedule</h1>
+      <SimpleToggle bind:checked={$user.hideRoutines} label="Exclude routines" />
+    </div>
     <div class="events-list">
       {#each Object.keys($uniqueEvents) as simpleDateISO}
         {#if $uniqueEvents[simpleDateISO]}
@@ -20,6 +23,7 @@
 
 <script>
   import ScheduleItem from './ScheduleItem.svelte'
+  import SimpleToggle from '$lib/components/SimpleToggle.svelte'
   import { collection, query, where, onSnapshot } from 'firebase/firestore'
   import { DateTime } from 'luxon'
   import { onDestroy } from 'svelte'
@@ -75,10 +79,19 @@
     padding: 16px;
   }
 
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 8px 0;
+    min-height: 32px;
+  }
+
   .title {
     font-size: 24px;
     color: #202124;
-    margin: 0 0 8px 0;
+    margin: 0;
+    line-height: 32px;
   }
 
   .events-list {
