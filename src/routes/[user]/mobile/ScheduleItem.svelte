@@ -1,6 +1,6 @@
 {#if tasksThisDay?.length}
   <div class="day-container">
-    <div class="day-header">
+    <div class="day-header" class:section-complete={completionState.all}>
       <div class="date-group">
         {#if isSpecialDay(simpleDateISO)}
           <span class="day-name">{getDayName(simpleDateISO)}</span>
@@ -14,7 +14,7 @@
     
     <!-- Icon tasks without start time -->
     {#if hasIconTasks}
-      <div class="icon-tasks">
+      <div class="icon-tasks" class:section-complete={completionState.icons}>
         {#each iconTasks as task}
           <div class="icon-task" class:completed={task.isDone}>
             <DoodleIcon iconTask={task} size={32} />
@@ -77,6 +77,27 @@
   $: iconTasks = tasksWithoutStartTime.filter(task => task.iconURL)
   $: regularTasks = [...tasksWithoutStartTime.filter(task => !task.iconURL), ...tasksWithStartTime]
   $: hasIconTasks = iconTasks.length > 0
+
+  // Encapsulated completion state management
+  function getCompletionState(tasks) {
+    const { iconTasks, regularTasks, allTasks } = tasks
+    
+    // Helper to safely check if all tasks in an array are done
+    const areAllDone = arr => arr.length > 0 && arr.every(task => task.isDone)
+    
+    return {
+      icons: areAllDone(iconTasks),
+      regular: areAllDone(regularTasks),
+      all: areAllDone(allTasks)
+    }
+  }
+
+  // Single reactive statement for all completion states
+  $: completionState = getCompletionState({
+    iconTasks,
+    regularTasks,
+    allTasks: tasksThisDay
+  })
 
   function isSpecialDay(dateStr) {
     const today = DateTime.now().toFormat('yyyy-MM-dd')
@@ -268,6 +289,25 @@
   }
 
   .task-item.completed .time {
+    color: #4caf50;
+    opacity: 0.7;
+  }
+
+  /* Completion state styles */
+  .task-item.completed,
+  .icon-tasks.section-complete,
+  .day-header.section-complete {
+    background: linear-gradient(to right, rgba(76, 175, 80, 0.06), transparent 50%);
+  }
+
+  /* Header completion state */
+  .day-header.section-complete .day-name,
+  .day-header.section-complete .date.bold {
+    color: #1e8e24;
+  }
+
+  .day-header.section-complete .date:not(.bold),
+  .day-header.section-complete .weekday {
     color: #4caf50;
     opacity: 0.7;
   }
