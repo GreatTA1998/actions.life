@@ -10,8 +10,8 @@
   import { trackHeight } from '/src/lib/utils/svelteActions.js'
   import { DateTime } from 'luxon'
   import { calEarliestHHMM } from './timestamps.js'
-  import { treesByDate, headerHeight } from './store.js'
-  import { setupCalListener } from './service.js'
+  import { headerHeight } from './store.js'
+  import { setupCalListener, treesByDate } from './service.js'
   import { onMount } from 'svelte'
 
   const TOTAL_COLUMNS = 365

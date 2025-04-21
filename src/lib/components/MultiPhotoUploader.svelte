@@ -89,7 +89,9 @@
       startTime: getTimeInHHMM({ dateClassObj }),
       startDateISO: DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd'),
       duration: durationForFullDisplay,
-      isDone: true // so the image isn't blurred
+      isDone: true, // so the image isn't blurred,
+      persistsOnList: false 
+      // TO-DO: use $user.defaultPhotoLayout
     }
 
     // Use the proper API to create the task

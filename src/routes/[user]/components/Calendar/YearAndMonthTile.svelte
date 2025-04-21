@@ -1,5 +1,6 @@
 <script>
-  import { headerExpanded, headerHeight, treesByDate, isCompact } from './store.js'
+  import { headerExpanded, headerHeight, isCompact } from './store.js'
+  import { treesByDate } from './service.js'
   import { WIDTHS } from '/src/lib/utils/constants.js'
 
   export let monthName
