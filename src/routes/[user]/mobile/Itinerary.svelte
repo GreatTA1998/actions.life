@@ -5,7 +5,7 @@
     <div class="events-list">
       {#each Object.keys($uniqueEvents) as simpleDateISO}
         {#if $uniqueEvents[simpleDateISO]}
-          <ScheduleViewDay 
+          <ItineraryItem 
             tasksThisDay={[
               ...$uniqueEvents[simpleDateISO].hasStartTime || [],
               ...($uniqueEvents[simpleDateISO].noStartTime?.hasIcon || []),
@@ -20,7 +20,7 @@
 {/if}
 
 <script>
-  import ScheduleViewDay from './ScheduleViewDay.svelte'
+  import ItineraryItem from './ItineraryItem.svelte'
   import { collection, query, where, onSnapshot } from 'firebase/firestore'
   import { DateTime } from 'luxon'
   import { onDestroy } from 'svelte'
