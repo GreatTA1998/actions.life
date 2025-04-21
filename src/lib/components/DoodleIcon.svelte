@@ -3,6 +3,7 @@
   import Task from '/src/lib/db/models/Task.js'
 
   export let iconTask
+  export let size = 32 // Default size for backward compatibility
 
   let timer
   let delay = 200
@@ -46,7 +47,7 @@
     src={iconTask.iconURL}
     class:clearly-visible={iconTask.isDone}
     class:task-not-done={!iconTask.isDone}
-    style="width: 32px; height: 32px; border: 0px solid blue; cursor: pointer;"
+    style="width: {size}px; height: {size}px; border: 0px solid blue; cursor: pointer;"
     class:radial-glow={iconTask.isDone}
     class="ios-3d-touch-disable unselectable"
     draggable="true"

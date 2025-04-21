@@ -17,7 +17,7 @@
       <div class="icon-tasks">
         {#each iconTasks as task}
           <div class="icon-task" class:completed={task.isDone}>
-            <img src={task.iconURL} alt="" on:click={() => toggleTask(task)}>
+            <DoodleIcon iconTask={task} size={32} />
           </div>
         {/each}
       </div>
@@ -31,11 +31,12 @@
           class:alert={task.alert} 
           class:completed={task.isDone}
           class:has-image={task.imageDownloadURL}
+          on:click={() => openTaskPopup(task)} on:keydown
         >
           <div class="task-content">
             <div class="task-indicator">
               {#if task.iconURL}
-                <img class="task-icon" src={task.iconURL} alt="" on:click={() => toggleTask(task)}>
+                <DoodleIcon iconTask={task} size={24} />
               {:else}
                 <Checkbox value={task.isDone} on:change={() => toggleTask(task)} />
               {/if}
@@ -60,8 +61,10 @@
 
 <script>
   import { DateTime } from 'luxon'
-  import { updateFirestoreDoc } from '$lib/db/helpers.js'
   import Checkbox from '$lib/components/Checkbox.svelte'
+  import { openTaskPopup } from '$lib/store'
+  import Task from '/src/lib/db/models/Task.js'
+  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   
   export let tasksThisDay
   export let simpleDateISO
@@ -103,8 +106,9 @@
   }
 
   async function toggleTask(task) {
-    await updateFirestoreDoc(`users/${task.uid}/tasks/${task.id}`, {
-      isDone: !task.isDone
+    await Task.update({ 
+      id: task.id,
+      keyValueChanges: { isDone: !task.isDone }
     })
   }
 </script>
@@ -169,16 +173,6 @@
     cursor: pointer;
   }
 
-  .icon-task img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-
-  .icon-task.completed img {
-    opacity: 0.6;
-  }
-
   .tasks-list {
     display: flex;
     flex-direction: column;
@@ -241,13 +235,6 @@
     background-position: center;
     border-radius: 4px;
     position: relative;
-  }
-
-  .task-icon {
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
-    cursor: pointer;
   }
 
   .task-icon-overlay {
