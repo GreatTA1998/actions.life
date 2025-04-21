@@ -69,8 +69,13 @@
   export let tasksThisDay
   export let simpleDateISO
 
-  $: iconTasks = tasksThisDay.filter(task => task.iconURL && !task.startTime)
-  $: regularTasks = tasksThisDay.filter(task => !task.iconURL || task.startTime)
+  // First split by whether they have a start time
+  $: tasksWithoutStartTime = tasksThisDay.filter(task => !task.startTime)
+  $: tasksWithStartTime = tasksThisDay.filter(task => task.startTime)
+
+  // Then split the no-start-time tasks by whether they have an icon
+  $: iconTasks = tasksWithoutStartTime.filter(task => task.iconURL)
+  $: regularTasks = [...tasksWithoutStartTime.filter(task => !task.iconURL), ...tasksWithStartTime]
   $: hasIconTasks = iconTasks.length > 0
 
   function isSpecialDay(dateStr) {
