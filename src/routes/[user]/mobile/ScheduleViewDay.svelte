@@ -1,121 +1,283 @@
-<div style="margin-bottom: 20px;">
-  <div style="font-size: 20px; margin-bottom: 6px; color: rgb(10, 10, 10); font-weight: 600;">  
-    {DateTime.fromISO(simpleDateISO).toFormat('LLLL d (ccc)')}
-  </div>
-
-  <div style="display: flex; flex-wrap: wrap;">
-    {#each tasksThisDay.noStartTime.hasIcon as iconTask}
-      <DoodleIcon
-        {iconTask}
-      />
-    {/each}
-  </div>
-
-  {#each tasksThisDay.noStartTime.noIcon as flexibleDayTask}
-    <button on:click={() => openTaskPopup(flexibleDayTask)} 
-      style="
-        width: var(--width-calendar-day-section); 
-        font-size: 12px; 
-        display: flex; 
-        flex-direction: column;
-        gap: 4px; margin-left: 4px; margin-right: 4px; margin-bottom: 4px;
-      "
-    >
-      <FlexibleDayTask task={flexibleDayTask}
-        fontSizeInPx={16}
-      />
-    </button>
-  {/each}
-
-  {#each tasksThisDay.hasStartTime as task, i}
-    {#if i === timeIndicatorPosition}
-      <div bind:this={CurrentDayIndicator} class="current-time-indicator-thin"></div>
-    {/if}
-
-    <div
-      on:click={() => openTaskPopup(task)} on:keydown
-      style="display: flex; align-items: center; flex-wrap: nowrap; padding: 2px;"
-    >
-      <div 
-        style="font-size: 16px; white-space: nowrap; text-overflow: ellipsis;"
-        class:grey-text={task.daysBeforeRepeating}
-        class:purple-text={!task.daysBeforeRepeating}
-      > 
-        <span class="scheduled-event">
-          {' ' + task.name + ' '}
-          <!-- 
-            Cannot use an inner class because the outer class "scheduled-event" will override
-            I can't believe it's this hard...
-          -->
-          <div style="color: rgb(0, 0, 0); font-weight: 400; margin-right: 4px;">
-            {getAmPmTime(task.startTime)}
-          </div> 
-        </span>
+{#if tasksThisDay?.length}
+  <div class="day-container">
+    <div class="day-header">
+      <div class="date-group">
+        {#if isSpecialDay(simpleDateISO)}
+          <span class="day-name">{getDayName(simpleDateISO)}</span>
+          <span class="date">{formatDate(simpleDateISO)}</span>
+        {:else}
+          <span class="date bold">{formatDate(simpleDateISO)}</span>
+          <span class="weekday">{formatWeekday(simpleDateISO)}</span>
+        {/if}
       </div>
     </div>
-  {/each}
+    
+    <!-- Icon tasks without start time -->
+    {#if hasIconTasks}
+      <div class="icon-tasks">
+        {#each iconTasks as task}
+          <div class="icon-task" class:completed={task.isDone}>
+            <img src={task.iconURL} alt="" on:click={() => toggleTask(task)}>
+          </div>
+        {/each}
+      </div>
+    {/if}
 
-  {#if tasksThisDay.hasStartTime.length === findTimeIndicatorPosition()}
-    <div bind:this={CurrentDayIndicator} class="current-time-indicator-thin"></div>
-  {/if}
-</div>
+    <!-- Regular tasks -->
+    <div class="tasks-list">
+      {#each regularTasks as task}
+        <div class="task-item" 
+          class:highlight={task.highlight} 
+          class:alert={task.alert} 
+          class:completed={task.isDone}
+          class:has-image={task.imageDownloadURL}
+        >
+          <label class="checkbox-container">
+            {#if !task.iconURL}
+              <input type="checkbox" checked={task.isDone} on:change={() => toggleTask(task)}>
+            {/if}
+            <div class="task-content" on:click={() => task.iconURL ? toggleTask(task) : null}>
+              {#if task.imageDownloadURL}
+                <div class="task-image" style="background-image: url({task.imageDownloadURL})">
+                  {#if task.iconURL}
+                    <img class="task-icon-overlay" src={task.iconURL} alt="">
+                  {/if}
+                </div>
+              {:else if task.iconURL}
+                <img class="task-icon" src={task.iconURL} alt="">
+              {/if}
+              <span class="task-text">{task.name}</span>
+              {#if task.startTime}
+                <span class="time">{formatTime(task.startTime)}</span>
+              {/if}
+            </div>
+          </label>
+        </div>
+      {/each}
+    </div>
+  </div>
+{/if}
 
 <script>
   import { DateTime } from 'luxon'
-  import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
-  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
-  import { openTaskPopup } from '$lib/store'
-  import { createEventDispatcher } from 'svelte'
-
+  import { updateFirestoreDoc } from '$lib/db/helpers.js'
+  
   export let tasksThisDay
   export let simpleDateISO
 
-  let CurrentDayIndicator
-  const dispatch = createEventDispatcher()
+  $: iconTasks = tasksThisDay.filter(task => task.iconURL && !task.startTime)
+  $: regularTasks = tasksThisDay.filter(task => !task.iconURL || task.startTime)
+  $: hasIconTasks = iconTasks.length > 0
 
-  $: timeIndicatorPosition = findTimeIndicatorPosition()
-  
-  // auto-scroll exposes the white iOS spacing. Also now we display events from today onwards anyway, so no need to re-orient
-  // $: if (CurrentDayIndicator) {
-  //   CurrentDayIndicator.scrollIntoView({ behavior: 'instant', block: 'start' })
-  // }
-
-  function isToday () {
-    return DateTime.fromISO(simpleDateISO).toFormat('yyyy-MM-dd') === DateTime.now().toFormat('yyyy-MM-dd')
+  function isSpecialDay(dateStr) {
+    const today = DateTime.now().toFormat('yyyy-MM-dd')
+    const tomorrow = DateTime.now().plus({ days: 1 }).toFormat('yyyy-MM-dd')
+    const yesterday = DateTime.now().minus({ days: 1 }).toFormat('yyyy-MM-dd')
+    
+    return dateStr === today || dateStr === tomorrow || dateStr === yesterday
   }
 
-  function getAmPmTime (hhmm) {
-    const [hh, mm] = hhmm.split(':')
-    const dt = DateTime.fromObject({ hour: Number(hh), minutes: Number(mm) })
-    return dt.toFormat('h:mm a')
+  function getDayName(dateStr) {
+    const today = DateTime.now().toFormat('yyyy-MM-dd')
+    const tomorrow = DateTime.now().plus({ days: 1 }).toFormat('yyyy-MM-dd')
+    const yesterday = DateTime.now().minus({ days: 1 }).toFormat('yyyy-MM-dd')
+    
+    if (dateStr === today) return 'Today'
+    if (dateStr === tomorrow) return 'Tomorrow'
+    if (dateStr === yesterday) return 'Yesterday'
+    return DateTime.fromISO(dateStr).toFormat('EEE')
   }
 
-  // assumes events are sorted by `startTime
-  function findTimeIndicatorPosition () {
-    if (!isToday()) { return -1 }
+  function formatDate(dateStr) {
+    return DateTime.fromISO(dateStr).toFormat('MMM dd')
+  }
 
-    let idx = tasksThisDay.hasStartTime.findIndex(
-      event => event.startTime > DateTime.now().toFormat('HH:mm')
-    )
-    if (idx === -1) idx = tasksThisDay.hasStartTime.length
-    return idx
+  function formatWeekday(dateStr) {
+    return DateTime.fromISO(dateStr).toFormat('EEE')
+  }
+
+  function formatTime(time) {
+    if (!time) return ''
+    return DateTime.fromISO(time).toFormat('h:mma').toLowerCase()
+  }
+
+  async function toggleTask(task) {
+    await updateFirestoreDoc(`users/${task.uid}/tasks/${task.id}`, {
+      isDone: !task.isDone
+    })
   }
 </script>
 
 <style>
-  .current-time-indicator-thin {
-    border: 2px solid var(--location-indicator-color); 
-    border-radius: 0px;
-    width: 100%; 
-    margin-top: 8px; 
-    margin-bottom: 8px;
+  :global(body) {
+    background: #f1f3f4;
   }
 
-  .scheduled-event {
-    opacity: 0.7;
+  .day-container {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+  }
+
+  .day-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f3f4;
+    background: #fff;
+  }
+
+  .date-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .day-name {
+    color: #1a73e8;
+    font-weight: 600;
     font-size: 16px;
-    gap: 6px;
-    white-space: nowrap; text-overflow: ellipsis; 
-    font-weight: 400; display: flex;
+  }
+
+  .date {
+    color: #70757a;
+    font-size: 15px;
+  }
+
+  .date.bold {
+    color: #1a73e8;
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .weekday {
+    color: #70757a;
+    font-size: 15px;
+  }
+
+  .icon-tasks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f4;
+  }
+
+  .icon-task {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+  }
+
+  .icon-task img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .icon-task.completed img {
+    opacity: 0.6;
+  }
+
+  .tasks-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .task-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f3f4;
+    background: white;
+    min-height: 24px;
+  }
+
+  .task-item:last-child {
+    border-bottom: none;
+  }
+
+  .task-item.has-image {
+    padding: 16px;
+  }
+
+  .task-item.highlight {
+    background: #f8f9fe;
+  }
+
+  .task-item.alert {
+    background: #fef7f6;
+  }
+
+  .task-item.completed .task-text {
+    text-decoration: line-through;
+    color: #70757a;
+  }
+
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+    min-height: 24px;
+  }
+
+  .task-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 12px;
+    cursor: pointer;
+    min-height: 24px;
+  }
+
+  .task-image {
+    width: 48px;
+    height: 48px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+    position: relative;
+  }
+
+  .task-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  .task-icon-overlay {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .task-text {
+    flex: 1;
+    margin: 0 8px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .time {
+    color: #70757a;
+    font-size: 0.9em;
+    min-width: 60px;
+    text-align: right;
+  }
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    border-radius: 3px;
+    border: 2px solid #dadce0;
+    background: white;
+    cursor: pointer;
+  }
+
+  input[type="checkbox"]:checked {
+    background: #4285f4;
+    border-color: #4285f4;
   }
 </style>
