@@ -47,6 +47,15 @@
       </span>
     </button>
 
+    <button on:click={() => updateMode('Itinerary')}
+      class="ux-tab-item"
+      class:active-ux-tab={currentMode === 'Itinerary'}
+    >
+      <span class="material-symbols-outlined" style="font-size: 32px;">
+        upcoming
+      </span>
+    </button>
+
     <button on:click={() => updateMode('Archive')}
       class="ux-tab-item"
       class:active-ux-tab={currentMode === 'Archive'}
