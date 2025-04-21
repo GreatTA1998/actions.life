@@ -21,7 +21,7 @@
           </TodoList>
         </div>
       {:else if activeTabName === 'FUTURE_VIEW'}
-        <Itinerary on:task-duration-adjusted />
+        <Schedule on:task-duration-adjusted />
       {:else if activeTabName === 'CALENDAR_VIEW'}
         <Calendar />    
       {:else if activeTabName === 'AI_VIEW'}
@@ -64,7 +64,7 @@
             upcoming
           </span>
           <div class="nav-tab-desc">
-            Itinerary
+            Schedule
           </div>
         </div>
       </button>
@@ -87,7 +87,7 @@
   import Calendar from '../components/Calendar/Calendar.svelte'
   import TodoList from '../components/ListsArea/TodoList.svelte'
   import AI from '../components/AI/AI.svelte'
-  import Itinerary from './Itinerary.svelte'
+  import Schedule from './Schedule.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
 
   import { user, hasInitialScrolled, isTaskPopupOpen } from '/src/lib/store'

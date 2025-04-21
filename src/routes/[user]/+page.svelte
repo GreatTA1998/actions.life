@@ -7,7 +7,7 @@
   import NavbarContentLayout from '$lib/components/NavbarContentLayout.svelte'
   import SideBySideView from './components/SideBySideView/index.svelte'
   import TaskPopup from './components/TaskPopup/TaskPopup.svelte'
-  import Itinerary from './mobile/Itinerary.svelte'
+  import Schedule from './mobile/Schedule.svelte'
 
   import { onDestroy, onMount } from 'svelte'
   import { user, loadingTasks, showSnackbar, isTaskPopupOpen } from '/src/lib/store'
@@ -59,9 +59,9 @@
         <Archive />
       </div>
 
-      {#if currentMode === 'Itinerary'}
+      {#if currentMode === 'Schedule'}
         <div style="width: 100%; height: 100%;">
-          <Itinerary on:task-duration-adjusted />
+          <Schedule on:task-duration-adjusted />
         </div>
       {/if}
     </div>

@@ -32,26 +32,26 @@
           class:completed={task.isDone}
           class:has-image={task.imageDownloadURL}
         >
-          <label class="checkbox-container">
-            {#if !task.iconURL}
-              <input type="checkbox" checked={task.isDone} on:change={() => toggleTask(task)}>
-            {/if}
-            <div class="task-content" on:click={() => task.iconURL ? toggleTask(task) : null}>
-              {#if task.imageDownloadURL}
-                <div class="task-image" style="background-image: url({task.imageDownloadURL})">
-                  {#if task.iconURL}
-                    <img class="task-icon-overlay" src={task.iconURL} alt="">
-                  {/if}
-                </div>
-              {:else if task.iconURL}
-                <img class="task-icon" src={task.iconURL} alt="">
-              {/if}
-              <span class="task-text">{task.name}</span>
-              {#if task.startTime}
-                <span class="time">{formatTime(task.startTime)}</span>
+          <div class="task-content">
+            <div class="task-indicator">
+              {#if task.iconURL}
+                <img class="task-icon" src={task.iconURL} alt="" on:click={() => toggleTask(task)}>
+              {:else}
+                <Checkbox value={task.isDone} on:change={() => toggleTask(task)} />
               {/if}
             </div>
-          </label>
+            {#if task.imageDownloadURL}
+              <div class="task-image" style="background-image: url({task.imageDownloadURL})">
+                {#if task.iconURL}
+                  <img class="task-icon-overlay" src={task.iconURL} alt="">
+                {/if}
+              </div>
+            {/if}
+            <span class="task-text">{task.name}</span>
+            {#if task.startTime}
+              <span class="time">{formatTime(task.startTime)}</span>
+            {/if}
+          </div>
         </div>
       {/each}
     </div>
@@ -61,6 +61,7 @@
 <script>
   import { DateTime } from 'luxon'
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
+  import Checkbox from '$lib/components/Checkbox.svelte'
   
   export let tasksThisDay
   export let simpleDateISO
@@ -188,6 +189,11 @@
     border-bottom: 1px solid #f1f3f4;
     background: white;
     min-height: 24px;
+    cursor: pointer;
+  }
+
+  .task-item:active {
+    background: #f1f3f4;
   }
 
   .task-item:last-child {
@@ -211,21 +217,21 @@
     color: #70757a;
   }
 
-  .checkbox-container {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    cursor: pointer;
-    min-height: 24px;
-  }
-
   .task-content {
     display: flex;
     align-items: center;
     flex: 1;
-    gap: 12px;
-    cursor: pointer;
+    gap: 8px;
     min-height: 24px;
+  }
+
+  .task-indicator {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
   .task-image {
@@ -238,9 +244,10 @@
   }
 
   .task-icon {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
+    cursor: pointer;
   }
 
   .task-icon-overlay {
@@ -254,7 +261,6 @@
 
   .task-text {
     flex: 1;
-    margin: 0 8px;
     font-size: 14px;
     line-height: 20px;
   }
@@ -267,17 +273,59 @@
   }
 
   input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    margin: 0;
-    border-radius: 3px;
-    border: 2px solid #dadce0;
-    background: white;
+    position: absolute;
+    opacity: 0;
     cursor: pointer;
+    height: 0;
+    width: 0;
   }
 
-  input[type="checkbox"]:checked {
-    background: #4285f4;
-    border-color: #4285f4;
+  .checkbox-container {
+    position: relative;
+    padding-left: 25px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  .checkbox-container::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 18px;
+    width: 18px;
+    background-color: transparent;
+    border-radius: 15px;
+    border: 2px solid rgb(120, 120, 120);
+  }
+
+  .checkbox-container:hover::before {
+    background-color: #ccc;
+  }
+
+  input[type="checkbox"]:checked ~ .checkbox-container::before {
+    background-color: #509c13;
+  }
+
+  .checkbox-container::after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 4px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+
+  input[type="checkbox"]:checked ~ .checkbox-container::after {
+    display: block;
   }
 </style>

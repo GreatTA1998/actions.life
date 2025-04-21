@@ -1,11 +1,10 @@
 {#if $uniqueEvents}
   <div class="schedule-container">
-    <h1 class="title">Itinerary</h1>
-    <p class="description">High density view for everything scheduled</p>
+    <h1 class="title">Schedule</h1>
     <div class="events-list">
       {#each Object.keys($uniqueEvents) as simpleDateISO}
         {#if $uniqueEvents[simpleDateISO]}
-          <ItineraryItem 
+          <ScheduleItem 
             tasksThisDay={[
               ...$uniqueEvents[simpleDateISO].hasStartTime || [],
               ...($uniqueEvents[simpleDateISO].noStartTime?.hasIcon || []),
@@ -20,7 +19,7 @@
 {/if}
 
 <script>
-  import ItineraryItem from './ItineraryItem.svelte'
+  import ScheduleItem from './ScheduleItem.svelte'
   import { collection, query, where, onSnapshot } from 'firebase/firestore'
   import { DateTime } from 'luxon'
   import { onDestroy } from 'svelte'
@@ -33,14 +32,14 @@
   let futureTasks
 
   $: if ($user.uid) {
-    listenToItinerary($user.uid)
+    listenToItinerary($user.uid, $user.hideRoutines)
   }
 
   onDestroy(() => {
     if (unsub) unsub()
   })
 
-  async function listenToItinerary(uid) {
+  async function listenToItinerary(uid, hideRoutines = false) {
     if (unsub) {
       unsub()
       uniqueEvents.set(null)
@@ -70,6 +69,7 @@
   .schedule-container {
     display: flex;
     flex-direction: column;
+    row-gap: 16px;
     height: 100%;
     background: #f8f9fa;
     padding: 16px;
@@ -79,12 +79,6 @@
     font-size: 24px;
     color: #202124;
     margin: 0 0 8px 0;
-  }
-
-  .description {
-    color: #5f6368;
-    margin: 0 0 24px 0;
-    font-size: 14px;
   }
 
   .events-list {
