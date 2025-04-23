@@ -4,6 +4,26 @@ import { writeBatch, doc } from 'firebase/firestore'
 import { db } from '/src/lib/db/init.js'
 import { isValidISODate } from '/src/lib/db/models/Task.js'
 
+export async function migrateTemplates (uid, testRun = true) {
+  const templates = await getFirestoreCollection(`/users/${uid}/templates`)
+  const promises = []
+  for (const template of templates) {
+    if (template.imageDownloadURL === undefined) {
+      console.log("found undefined =", template.imageDownloadURL)
+
+      if (!testRun) {
+        promises.push(
+          updateFirestoreDoc(`/users/${uid}/templates/${template.id}`, { 
+            imageDownloadURL: '' 
+          })
+        )
+      }
+    }
+  }
+  await Promise.all(promises)
+}
+
+
 // DANGER, as once you fuck up startDateISOs, you can't get them back
 export async function fixInvalidStartDateISOs (uid, testRun = true) {
   console.log('testRun = ', testRun)

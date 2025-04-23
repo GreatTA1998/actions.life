@@ -1,25 +1,35 @@
 <script>
   import WeeklyInput from './WeeklyInput.svelte'
+  import MonthlyInput from './MonthlyInput.svelte'
   import YearlyInput from './YearlyInput.svelte'
   import PreviewChanges from './PreviewChanges.svelte'
-  import { user, doodleIcons } from '/src/lib/store'
-  import { updateTemplate, deleteTemplate, closeTemplateEditor, templates, editingTemplateId } from '../../store.js'
-  import Template from '$lib/db/models/Template.js'
-  import { onMount } from 'svelte'
-  import { createDebouncedFunction } from '/src/lib/utils/core.js'
+
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
-  import Icon from '/src/lib/db/models/Icon.js'
-  import MonthlyInput from './MonthlyInput.svelte'
-  import Tabs from '/src/lib/components/Tabs.svelte'
-  import { parseRecurrenceString } from '../../recurrenceParser.js'
+  import Tabs from '$lib/components/Tabs.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
-  import { deleteFutureInstances, fillTaskInstances } from '$lib/store/templateInstances.js'
+
+  import { 
+    activeTemplate, inputStates, monthlyInputSourceOfTruth, overallSourceOfTruth, 
+    pendingRRStr, deletingTasks, addingTasks, exceptions, getPreviewSpan
+  } from './store.js'
+  import { 
+    updateTemplate, deleteTemplate, 
+    closeTemplateEditor, templates, editingTemplateId 
+  } from '../../store.js'
+  import { user, doodleIcons } from '$lib/store'
+
+  import Template from '$lib/db/models/Template.js'
+  import Icon from '$lib/db/models/Icon.js'
+
+  import { createDebouncedFunction } from '$lib/utils/core.js'
+  import { parseRecurrenceString } from '../../recurrenceParser.js'
+
+  import { deleteFutureInstances, fillTaskInstances, createTaskInstance, instantiateTask } from '$lib/store/templateInstances.js'
   import { DateTime } from 'luxon'
-  import { inputStates, monthlyInputSourceOfTruth, overallSourceOfTruth } from './store.js'
-  
+  import { onMount } from 'svelte'
+
   export let template
 
-  let pendingRRStr = ''
   let newName = '' 
   let isPopupOpen = false
   let activeTab = 'weekly'
@@ -41,14 +51,49 @@
     overallSourceOfTruth.set($monthlyInputSourceOfTruth)
   }
   $: handleNewInput($inputStates, $overallSourceOfTruth)
-  $: hasUnsavedChanges = template.rrStr !== pendingRRStr
+  $: hasUnsavedChanges = template.rrStr !== $pendingRRStr
   
   onMount(async () => {
     $doodleIcons = await Icon.getAvailable($user.uid) 
   })
 
+  function init () {
+    activeTemplate.set(template) // used by ./store
+
+    isPopupOpen = false
+    newName = template.name
+    activeTab = determineRecurrenceType(template.rrStr)
+
+    const { monthlyInput, overall } = getSourceOfTruth(template.rrStr)
+    monthlyInputSourceOfTruth.set(monthlyInput)
+    overallSourceOfTruth.set(overall)
+
+    inputStates.update(states => ({ ...states, [$overallSourceOfTruth]: template.rrStr }))
+    pendingRRStr.set(template.rrStr)
+  }
+
   function handleNewInput () {
-    pendingRRStr = $inputStates[$overallSourceOfTruth]
+    pendingRRStr.set($inputStates[$overallSourceOfTruth])
+  }
+  
+  async function handleSave () {
+    if (hasUnsavedChanges) {
+      await Template.update({ userID: $user.uid, id: template.id, updates: { 
+        rrStr: $pendingRRStr, 
+        previewSpan: getPreviewSpan($pendingRRStr)
+      }})
+
+      for (const task of $deletingTasks) {
+        console.log('task to delete =', task)
+      }
+
+      for (const task of $addingTasks) {
+        console.log('task to add =', task)
+      }
+
+      hasUnsavedChanges = false
+      resetPreviewStates()
+    }
   }
 
   function getSourceOfTruth (rrStr) {
@@ -77,36 +122,15 @@
       }
     }
 
-    return {
-      monthlyInput, 
-      overall
-    }
-  }
-
-  function init () {
-    isPopupOpen = false
-    newName = template.name
-    activeTab = determineRecurrenceType(template.rrStr)
-
-    const { monthlyInput, overall } = getSourceOfTruth(template.rrStr)
-    monthlyInputSourceOfTruth.set(monthlyInput)
-    overallSourceOfTruth.set(overall)
-
-    inputStates.update(states => ({ ...states, [$overallSourceOfTruth]: template.rrStr }))
+    return { monthlyInput, overall }
   }
 
   function handleTabChange (e) {
     activeTab = e.detail.tab
 
-    if (activeTab === 'weekly') {
-      overallSourceOfTruth.set('weekly')
-    } 
-    else if (activeTab === 'monthly') {
-      overallSourceOfTruth.set($monthlyInputSourceOfTruth)
-    } 
-    else if (activeTab === 'yearly') {
-      overallSourceOfTruth.set('yearly')
-    }
+    if (activeTab === 'weekly') overallSourceOfTruth.set('weekly')
+    else if (activeTab === 'monthly') overallSourceOfTruth.set($monthlyInputSourceOfTruth)
+    else if (activeTab === 'yearly') overallSourceOfTruth.set('yearly')
   }
 
   function determineRecurrenceType (rrStr) {
@@ -125,32 +149,6 @@
     isPopupOpen = newVal
     if (!newVal) {
       closeTemplateEditor()
-    }
-  }
-
-  async function handleSave () {
-    if (hasUnsavedChanges) {
-      let previewSpan = 2*7
-      if (activeTab === 'monthly') previewSpan = 2*30
-      if (activeTab === 'yearly') previewSpan = 2*365
-
-      await Template.update({ 
-        userID: $user.uid, 
-        id: template.id, 
-        updates: { rrStr: pendingRRStr, previewSpan } 
-      })
-
-      // this await is VERY IMPORTANT, or you'll delete the filled tasks
-      // NOTE: potentially dangerous if user spent effort writing notes and putting photos on a future task
-      await deleteFutureInstances(template, $user.uid)
-
-      fillTaskInstances({ 
-        template, 
-        startISO: DateTime.now().toFormat('yyyy-MM-dd'), 
-        uid: $user.uid 
-      })
-
-      hasUnsavedChanges = false
     }
   }
 
@@ -203,10 +201,10 @@
     <div class="actions-container">
       {#if hasUnsavedChanges}
         <div style="display: flex; flex-direction: column; gap: 16px;">
-          <PreviewChanges {template} {pendingRRStr} />
+          <PreviewChanges {template} />
 
           <RoundButton on:click={handleSave} backgroundColor="rgb(0, 89, 125)" textColor="white">
-            Update routine & propogate to future tasks 
+            Propagate changes
           </RoundButton>
         </div>
       {/if}
@@ -219,8 +217,7 @@
 </div>
 
 <style>
-  .title-underline-input {
-    /* Refer to: https://stackoverflow.com/a/3131082/7812829 */
+  .title-underline-input { /* @see https://stackoverflow.com/a/3131082/7812829 */
     background: transparent;
     border: none;
     outline: none;
@@ -230,8 +227,7 @@
   }
 
   .detailed-card-popup {
-    /* safety */
-    max-height: 90vh;
+    max-height: 90vh; /* mobile safety, always be able to close the screen */
     min-width: 360px;
 
     width: 70%;

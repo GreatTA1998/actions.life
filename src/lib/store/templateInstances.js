@@ -41,19 +41,26 @@ export function getOccurrences ({ template, startISO, uid }) {
 
 export function fillTaskInstances ({ template, startISO, uid }) {
   for (const occurence of getOccurrences({ template, startISO, uid })) {
-    const startDateISO = DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd')
-    const newTaskObj = Task.schema.parse(template)
-    newTaskObj.templateID = template.id
-    newTaskObj.startDateISO = startDateISO // note: startDateISO gets overidden if merged with the spread operator with template properties
-    Task.create({
-      id: template.id + '_' + occurence.toISOString(), // be clear about format, 
-      newTaskObj
-    })
+    createTaskInstance({ template, occurence })
   }
 
   Template.update({ userID: uid, id: template.id, updates: {
     prevEndISO: DateTime.now().plus({ days: template.previewSpan }).toFormat('yyyy-MM-dd')
   }})
+}
+
+export function createTaskInstance ({ template, occurence }) {
+  Task.create({
+    id: template.id + '_' + occurence.toISOString(), // be clear about format, 
+    newTaskObj: instantiateTask({ template, occurence })
+  })
+}
+
+export function instantiateTask ({ template, occurence }) {
+  const newTaskObj = Task.schema.parse(template)
+  newTaskObj.templateID = template.id
+  newTaskObj.startDateISO = DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd')
+  return newTaskObj
 }
 
 export async function deleteFutureInstances (template, uid) {

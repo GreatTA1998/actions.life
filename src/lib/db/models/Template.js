@@ -2,7 +2,6 @@ import { z } from 'zod'
 import { db } from '/src/lib/db/init.js'
 import { updateFirestoreDoc } from '$lib/db/helpers.js'
 import { doc, getDocs, collection, query, setDoc, deleteDoc, where } from 'firebase/firestore'
-import Task from './Task.js'
 import { DateTime } from 'luxon'
 
 export const getPeriodFromCrontab = (crontab) => {
@@ -55,22 +54,12 @@ const Template = {
     return setDoc(docRef, newTemplate, { merge: true }) // `merge: true` matters for generating periodic tasks
   },
 
-  // THESE ARE THE ONLY TWO FUNCTIONS THAT UPDATE THE TEMPLATE
-  async update ({ userID, id, updates, newTemplate }) {
+  async update ({ userID, id, updates }) {
     return new Promise(async (resolve) => {
       const validatedChanges = Template.schema.partial().parse(updates)
       await updateFirestoreDoc(`/users/${userID}/templates/${id}`, validatedChanges)
       resolve()
     })
-
-    // this is `Task`, not `Template`
-    // note: these tasks need to be set with { merge: true }
-    return
-    Task.updateQuickTasks({ userID, templateID: id, updates })
-  },
-
-  async updateWithTasks ({ userID, id, updates, newTemplate }) {
-    // updateDoc(doc(db, "users", userID, 'templates', id), updates)
   },
   ////////////////////////////////
 

@@ -1,28 +1,42 @@
+<script>
+  import { deletingTasks, addingTasks, exceptions, activeTemplate } from './store.js'
+  import { DateTime } from 'luxon'
+  
+  export let template
+
+  $: activeTemplate.set(template)
+
+  function formatDate(dateStr) {
+    const dt = DateTime.fromISO(dateStr)
+    return dt.toFormat('MMM d ccc')
+  }
+</script>
+
 <div class="preview-changes-container">
   <div class="dates-container">
     <div class="dates-column">
       <div style="font-size: 12px;">
         The new periodicity will be continuously applied {(template.previewSpan || 'N/A')} days into the future, 
         with 
-        <span class="creation">{addingTasks.length} tasks immediately added</span> 
-
-        {#if deletingTasks?.length}
-          <span class="deletion">and {deletingTasks.length} tasks immediately deleted</span>
+        {#if $addingTasks.length}
+          <span class="creation">{$addingTasks.length} tasks immediately added</span>
         {/if}
-
-        {#if exceptions.length}
-          <span class="unchanged">and {exceptions.length} tasks unchanged</span>
+        {#if $deletingTasks.length}
+          {#if $addingTasks.length}and {/if}<span class="deletion">{$deletingTasks.length} tasks immediately deleted</span>
+        {/if}
+        {#if $exceptions.length}
+          {#if $addingTasks.length || $deletingTasks.length}and {/if}<span class="unchanged">{$exceptions.length} tasks unchanged</span>
         {/if}
       </div>
-      {#each addingTasks as occurence (occurence.toISOString())}
+      {#each $addingTasks as task (task.startDateISO)}
         <div class="date-item creation">
           <span class="icon">+</span>
-          {formatDate(DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd'))}
+          {task.startDateISO}
         </div>
       {/each}
 
-      {#if deletingTasks}
-        {#each deletingTasks as task}   
+      {#if $deletingTasks}
+        {#each $deletingTasks as task}   
           <div class="date-item deletion">
             <span class="icon">-</span>
             {formatDate(task.startDateISO)}
@@ -30,97 +44,16 @@
         {/each}
       {/if}
 
-      {#if exceptions.length}
-        {#each exceptions as task}
+      {#if $exceptions.length}
+        {#each $exceptions as task}
           <div class="date-item unchanged">
-            {formatDate(task.startDateISO)} {task[task.changedKey]}
+            {formatDate(task.startDateISO)}
           </div>
         {/each}
       {/if}
     </div>
   </div>
 </div>
-
-<script>
-  import { DateTime } from 'luxon'
-  import { db } from '$lib/db/init.js'
-  import { query, collection, where, getDocs } from 'firebase/firestore'
-  import { user } from '$lib/store'
-  import { getOccurrences } from '$lib/store/templateInstances.js'
-
-  export let template
-  export let pendingRRStr
-
-  let deletingTasks = null
-  let addingTasks = []
-  let exceptions = []
-
-  $: onRRStrChange(pendingRRStr, template.rrStr) 
-
-  function reset () {
-    deletingTasks = null
-    addingTasks = []
-  }
-
-  // there's a case where template.rrStr is undefined
-  async function onRRStrChange () {
-    if (pendingRRStr === template.rrStr) reset()
-    else {
-      deletingTasks = await getAffectedTasks()
-
-      for (const task of deletingTasks) {
-        for (const k of Object.keys(task)) {
-          if (['notes', 'duration', 'imageDownloadURL', 'iconURL'].includes(k)) {
-            if (task[k] !== template[k]) {
-              // if (!template.imageDownloadURL) template.imageDownloadURL = ''
-              console.log("difference found: ", k, task[k], template[k])
-              exceptions = [...exceptions, { ...task, changedKey: k }]
-            }
-          }
-        }
-      }
-      addingTasks = simulateChanges()  
-    }
-  }
-
-  // Simple one-liner to determine periodicity
-  const getPeriodicity = (rrStr) => rrStr?.toLowerCase().includes('freq=monthly') ? 'monthly' : rrStr?.toLowerCase().includes('freq=yearly') ? 'yearly' : 'weekly'
-
-  function formatDate(dateStr) {
-    const dt = DateTime.fromISO(dateStr)
-    return dt.toFormat('MMM d ccc')
-  }
-
-  function simulateChanges () {
-    if (!pendingRRStr) return []
-
-    const copy = {...template}
-    copy.rrStr = pendingRRStr
-    if (getPeriodicity(pendingRRStr) === 'monthly') {
-      copy.previewSpan = 2*31
-    } else if (getPeriodicity(pendingRRStr) === 'yearly') {
-      copy.previewSpan = 2*365
-    } else {
-      copy.previewSpan = 2*7
-    }
-
-    return getOccurrences({ 
-      template: copy, 
-      startISO: DateTime.now().toFormat('yyyy-MM-dd'), 
-      uid: $user.uid 
-    })
-  }
-
-  async function getAffectedTasks () {
-    const tasksQuery = query(
-      collection(db, 'users', $user.uid, 'tasks'),
-      where('templateID', '==', template.id),
-      where('startDateISO', '>=', DateTime.now().toFormat('yyyy-MM-dd'))
-    )
-    const tasksSnapshot = await getDocs(tasksQuery)
-    return tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}))
-  }
-</script>
 
 <style>
   .preview-changes-container {
