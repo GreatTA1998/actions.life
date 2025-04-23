@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { db } from '/src/lib/db/init.js'
 import { updateFirestoreDoc } from '$lib/db/helpers.js'
 import { doc, getDocs, collection, query, setDoc, deleteDoc, where } from 'firebase/firestore'
-import Task from '../Task.js'
+import Task from './Task.js'
 import { DateTime } from 'luxon'
 
 export const getPeriodFromCrontab = (crontab) => {
