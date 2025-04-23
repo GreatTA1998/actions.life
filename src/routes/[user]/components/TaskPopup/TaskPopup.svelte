@@ -89,13 +89,12 @@
 </script>
 
 {#if taskObject}
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="fullscreen-invisible-modular-popup-layer" on:click|self={closeTaskPopup} style="z-index: 10;">
+  <div class="fullscreen-invisible-modular-popup-layer" on:click|self={closeTaskPopup} on:keydown style="z-index: 10;">
     <div class="task-popup {journalLayout}-container" bind:this={PopupElem}>
       <div class="{journalLayout}">
         {#if taskObject.imageDownloadURL}
           <img src={taskObject.imageDownloadURL}
-            on:click|self={() => isViewingPhoto ? isViewingPhoto = false : ''} 
+            on:click|self={() => isViewingPhoto ? isViewingPhoto = false : ''} on:keydown
             bind:this={TaskImageElem}
             class:clear-image={isViewingPhoto}
             class="{journalLayout}-image"
@@ -134,22 +133,18 @@
             {#if $ancestralTree}
               <div class="tree-section" style="flex: 0 1 100%; min-width: 0; display: grid; row-gap: 12px;">
                 {#if $ancestralTree.children.length > 0}
-                  <div style="display: flex; align-items: center; width: fit-content; box-sizing: border-box;">
-                    <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
-                      class:selected={taskObject.childrenLayout === 'timeline'}
-                      class:unselected={taskObject.childrenLayout !== 'timeline'}
-                      style="padding: 2px 8px;"
+                  <div class="children-layout-options">
+                    <button on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
+                      class:active={taskObject.childrenLayout === 'timeline'}
                     >
                       Timeline
-                    </span>
+                    </button>
             
-                    <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
-                      class:selected={taskObject.childrenLayout === 'normal'}
-                      class:unselected={taskObject.childrenLayout !== 'normal'}
-                      style="padding: 2px 8px;"
+                    <button on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
+                      class:active={taskObject.childrenLayout === 'normal'}
                     >
                       Normal
-                    </span>
+                    </button>
                   </div>  
                 {/if}
                 
@@ -223,13 +218,21 @@
 {/if}
 
 <style>
-  .selected {
-    border-bottom: 2px solid rgb(255, 196, 87);
+  .children-layout-options {
+    display: flex; 
+    align-items: center; 
+    width: fit-content; 
   }
 
-  .unselected {
+  .children-layout-options button {
+    padding: 2px 8px;
     border-bottom: 2px solid lightgrey;
     color: lightgrey;
+  }
+
+  .children-layout-options button.active {
+    border-bottom: 2px solid black;
+    color: black;
   }
 
   .side-by-side {
