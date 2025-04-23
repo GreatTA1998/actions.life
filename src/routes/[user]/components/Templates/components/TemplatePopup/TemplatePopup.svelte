@@ -32,19 +32,15 @@
   ]
 
   $: template = $templates.find(t => t.id === $editingTemplateId)
-
   $: if (template) {
     init()
   }
 
-  // dangerous but works
-  // note: must be ordered before `handleNewInput()`
+  // dangerous but works. note: must be ordered before `handleNewInput()`
   $: if (activeTab === 'monthly') {
     overallSourceOfTruth.set($monthlyInputSourceOfTruth)
   }
-
   $: handleNewInput($inputStates, $overallSourceOfTruth)
-
   $: hasUnsavedChanges = template.rrStr !== pendingRRStr
   
   onMount(async () => {
@@ -67,21 +63,16 @@
     let overall = 'weekly'
     let monthlyInput = 'monthlyTypeI'
 
-    // Determine overall source of truth based on frequency
     if (rrLower.includes('freq=monthly') || (!rrLower.includes('freq=') && rrLower.includes('bymonthday'))) {
       overall = 'monthly'
     } else if (rrLower.includes('freq=yearly') || (!rrLower.includes('freq=') && rrLower.includes('bymonth'))) {
       overall = 'yearly'
     }
 
-    // Determine monthly input source of truth
     if (overall === 'monthly') {
-      // Type II is when we have both byday and either bysetpos or byweekno
-      // Example: "every first Monday of the month"
       if (rrLower.includes('byday') && (rrLower.includes('bysetpos') || rrLower.includes('byweekno'))) {
         monthlyInput = 'monthlyTypeII'
       } else {
-        // Type I is when we have specific dates like "1st, 15th of each month"
         monthlyInput = 'monthlyTypeI'
       }
     }
@@ -111,7 +102,6 @@
       overallSourceOfTruth.set('weekly')
     } 
     else if (activeTab === 'monthly') {
-      // When switching to the monthly tab, use the current monthly input type
       overallSourceOfTruth.set($monthlyInputSourceOfTruth)
     } 
     else if (activeTab === 'yearly') {
@@ -216,7 +206,7 @@
           <PreviewChanges {template} {pendingRRStr} />
 
           <RoundButton on:click={handleSave} backgroundColor="rgb(0, 89, 125)" textColor="white">
-            Save changes
+            Update routine & propogate to future tasks 
           </RoundButton>
         </div>
       {/if}

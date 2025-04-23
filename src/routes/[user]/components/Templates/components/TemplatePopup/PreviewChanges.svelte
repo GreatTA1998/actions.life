@@ -1,6 +1,26 @@
 <div class="preview-changes-container">
   <div class="dates-container">
     <div class="dates-column">
+      <div style="font-size: 12px;">
+        The new periodicity will be continuously applied {(template.previewSpan || 'N/A')} days into the future, 
+        with 
+        <span class="creation">{addingTasks.length} tasks immediately added</span> 
+
+        {#if deletingTasks?.length}
+          <span class="deletion">and {deletingTasks.length} tasks immediately deleted</span>
+        {/if}
+
+        {#if exceptions.length}
+          <span class="unchanged">and {exceptions.length} tasks unchanged</span>
+        {/if}
+      </div>
+      {#each addingTasks as occurence (occurence.toISOString())}
+        <div class="date-item creation">
+          <span class="icon">+</span>
+          {formatDate(DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd'))}
+        </div>
+      {/each}
+
       {#if deletingTasks}
         {#each deletingTasks as task}   
           <div class="date-item deletion">
@@ -9,19 +29,14 @@
           </div>
         {/each}
       {/if}
-    </div>
 
-    <div class="dates-column">
-      {#each addingTasks as occurence (occurence.toISOString())}
-        <div class="date-item creation">
-          <span class="icon">+</span>
-          {formatDate(DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd'))}
-        </div>
-      {/each}
-    </div>
-
-    <div>
-      Today is {DateTime.now().toFormat('yyyy-MM-dd')}. Repeats were handled until {template.prevEndISO}, will continuously maintain a {template.previewSpan || 2*7} day preview
+      {#if exceptions.length}
+        {#each exceptions as task}
+          <div class="date-item unchanged">
+            {formatDate(task.startDateISO)} {task[task.changedKey]}
+          </div>
+        {/each}
+      {/if}
     </div>
   </div>
 </div>
@@ -38,6 +53,7 @@
 
   let deletingTasks = null
   let addingTasks = []
+  let exceptions = []
 
   $: onRRStrChange(pendingRRStr, template.rrStr) 
 
@@ -51,6 +67,18 @@
     if (pendingRRStr === template.rrStr) reset()
     else {
       deletingTasks = await getAffectedTasks()
+
+      for (const task of deletingTasks) {
+        for (const k of Object.keys(task)) {
+          if (['notes', 'duration', 'imageDownloadURL', 'iconURL'].includes(k)) {
+            if (task[k] !== template[k]) {
+              // if (!template.imageDownloadURL) template.imageDownloadURL = ''
+              console.log("difference found: ", k, task[k], template[k])
+              exceptions = [...exceptions, { ...task, changedKey: k }]
+            }
+          }
+        }
+      }
       addingTasks = simulateChanges()  
     }
   }
@@ -60,7 +88,7 @@
 
   function formatDate(dateStr) {
     const dt = DateTime.fromISO(dateStr)
-    return dt.toFormat('yyyy MMM d ccc')
+    return dt.toFormat('MMM d ccc')
   }
 
   function simulateChanges () {
@@ -124,6 +152,10 @@
 
   .creation {
     color: #36a76b;
+  }
+
+  .unchanged {
+    color: darkblue;
   }
 
   .icon {

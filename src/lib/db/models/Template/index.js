@@ -1,25 +1,40 @@
 import { z } from 'zod'
 import { db } from '/src/lib/db/init.js'
 import { updateFirestoreDoc } from '$lib/db/helpers.js'
-import {
-  doc,
-  getDocs,
-  collection,
-  query,
-  setDoc,
-  updateDoc,
-  deleteDoc
-} from "firebase/firestore"
+import { doc, getDocs, collection, query, setDoc, deleteDoc, where } from 'firebase/firestore'
 import Task from '../Task.js'
-import { getPeriodFromCrontab, deleteFutureTasks, postFutureTasks, getTotalStats } from './utils.js'
+import { DateTime } from 'luxon'
+
+export const getPeriodFromCrontab = (crontab) => {
+  if (crontab === '') return 'quick'
+  const parts = crontab.split(' ')
+  if (parts.length !== 5) throw new Error('Invalid crontab format', crontab, parts)
+  const [minute, hour, dayOfMonth, month, dayOfWeek] = parts
+  if (dayOfMonth !== '*' && month !== '*' && dayOfWeek === '*') return 'yearly'
+  if (dayOfMonth !== '*' && month === '*' && dayOfWeek === '*') return 'monthly'
+  if (dayOfMonth === '*' && month === '*' && dayOfWeek !== '*') return 'weekly'
+  console.error('Invalid crontab format', crontab)
+  return 'unknown'
+}
+
+export const getTotalStats = async ({ userID, id }) => {
+  const q = query(
+    collection(db, "users", userID, "tasks"), 
+    where('templateID', '==', id), 
+    where('startDateISO', '<=', DateTime.now().toFormat('yyyy-MM-dd')), 
+    where('isDone', '==', true)
+  )
+  const snapshot = await getDocs(q)
+  const totalMinutesSpent = snapshot.docs.reduce((acc, doc) => acc + doc.data().duration, 0)
+  const totalTasksCompleted = snapshot.docs.length
+  return [totalTasksCompleted, totalMinutesSpent]
+}
 
 const Template = {
   schema: z.object({
     name: z.string(),
     orderValue: z.number().default(0),
     lastGeneratedTask: z.string().default(''),
-    crontab: z.string().default(''),
-    iconURL: z.string().default(''),
     tags: z.string().default(''),
     timeZone: z.string(),
     notes: z.string().default(''),
@@ -29,12 +44,14 @@ const Template = {
     isStarred: z.boolean().default(false),
     rrStr: z.string().default(''),
     previewSpan: z.number().default(2 * 7),
-    prevEndISO: z.string().default('')
+    prevEndISO: z.string().default(''),
+    imageDownloadURL: z.string().default(''),
+    iconURL: z.string().default(''),
   }),
 
   async create ({ userID, newTemplate, templateID }) {
     Template.schema.parse(newTemplate)
-    const docRef = doc(db, "users", userID, 'templates', templateID)
+    const docRef = doc(db, 'users', userID, 'templates', templateID)
     return setDoc(docRef, newTemplate, { merge: true }) // `merge: true` matters for generating periodic tasks
   },
 
@@ -53,11 +70,7 @@ const Template = {
   },
 
   async updateWithTasks ({ userID, id, updates, newTemplate }) {
-    updateDoc(doc(db, "users", userID, 'templates', id), updates)
-    if (newTemplate.crontab !== '0 0 0 * *' && newTemplate.crontab !== '0 0 * * 0') {
-      deleteFutureTasks({ userID, id })
-      postFutureTasks({ userID, id, newTemplate })
-    }
+    // updateDoc(doc(db, "users", userID, 'templates', id), updates)
   },
   ////////////////////////////////
 
@@ -81,7 +94,6 @@ const Template = {
   },
 
   async delete ({ userID, id }) {
-    // deleteFutureTasks({ userID, id })
     return deleteDoc(doc(db, "users", userID, "templates", id))
   },
 

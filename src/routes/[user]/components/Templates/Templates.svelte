@@ -5,10 +5,10 @@
   import { onMount } from 'svelte'
   import { user } from '/src/lib/store'
   import { templates, openTemplateEditor } from './store.js'
-  import { filterByType } from './utils.js'
   import { onSnapshot, collection } from 'firebase/firestore'
   import { db } from '/src/lib/db/init.js'
   import TemplatePopup from './components/TemplatePopup/TemplatePopup.svelte'
+  import { getPeriodFromCrontab } from '$lib/db/models/Template/index.js'
   import { editingTemplateId } from './store.js'
 
   let weeklyTasks = []
@@ -40,6 +40,11 @@
     )
     return () => unsub()
   })
+
+  function filterByType (tasks, type) {
+    return tasks.filter(task => getPeriodFromCrontab(task.crontab) === type)
+      .sort((a, b) => a.orderValue - b.orderValue)
+  }
 </script>
 
 <div style="padding: 48px; height: 100%; overflow-y: auto;">

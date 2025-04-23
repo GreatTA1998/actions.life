@@ -21,6 +21,7 @@ export function deleteTemplate({ templateID }) {
   closeTemplateEditor()
 }
 
+// deprecate updateTemplate
 export async function updateTemplate({ templateID, keyValueChanges, oldTemplate }) {
   const newTemplate = buildNewTemplate({ oldTemplate, keyValueChanges })
   Template.schema.parse(newTemplate)
