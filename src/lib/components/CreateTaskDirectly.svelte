@@ -1,6 +1,6 @@
 <script>
   import Task from '/src/lib/db/models/Task.js'
-  import Template from '/src/lib/db/models/Template'
+  import Template from '$lib/db/models/Template.js'
   import FormField from '$lib/components/FormField.svelte'
   import {
     getRandomID,

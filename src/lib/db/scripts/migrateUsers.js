@@ -3,7 +3,7 @@ import { getDocs, query, collection, doc, writeBatch, getDoc, setDoc, getCountFr
 import User from '../models/User.js';
 import Task from '../models/Task.js'
 import Icon from '../models/Icon.js'
-import Template from '../models/Template'
+import Template from '../models/Template.js'
 
 
 // only once

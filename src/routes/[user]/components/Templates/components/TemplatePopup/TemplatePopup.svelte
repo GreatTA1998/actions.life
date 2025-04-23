@@ -4,7 +4,7 @@
   import PreviewChanges from './PreviewChanges.svelte'
   import { user, doodleIcons } from '/src/lib/store'
   import { updateTemplate, deleteTemplate, closeTemplateEditor, templates, editingTemplateId } from '../../store.js'
-  import Template from '/src/lib/db/models/Template'
+  import Template from '$lib/db/models/Template.js'
   import { onMount } from 'svelte'
   import { createDebouncedFunction } from '/src/lib/utils/core.js'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'

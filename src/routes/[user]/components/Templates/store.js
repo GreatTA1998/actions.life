@@ -1,5 +1,5 @@
 import { writable, get } from 'svelte/store'
-import Template from '/src/lib/db/models/Template'
+import Template from '$lib/db/models/Template.js'
 import { user } from '/src/lib/store/userStore.js'
 import '/src/lib/store/themes'
 

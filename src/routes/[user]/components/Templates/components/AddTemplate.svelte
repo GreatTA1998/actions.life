@@ -3,7 +3,7 @@
   import { templates } from '../store.js'
   import RoundButton from '$lib/components/RoundButton.svelte'
   import { DateTime } from 'luxon'
-  import Template from '/src/lib/db/models/Template'
+  import Template from '$lib/db/models/Template.js'
   import { getRandomID } from '/src/lib/utils/core.js'
   export let defaultOrderValue = 1
   export let crontab

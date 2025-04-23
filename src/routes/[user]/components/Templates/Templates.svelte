@@ -8,7 +8,7 @@
   import { onSnapshot, collection } from 'firebase/firestore'
   import { db } from '/src/lib/db/init.js'
   import TemplatePopup from './components/TemplatePopup/TemplatePopup.svelte'
-  import { getPeriodFromCrontab } from '$lib/db/models/Template/index.js'
+  import { getPeriodFromCrontab } from '$lib/db/models/Template.js'
   import { editingTemplateId } from './store.js'
 
   let weeklyTasks = []
