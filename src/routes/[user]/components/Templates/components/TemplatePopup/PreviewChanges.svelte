@@ -4,6 +4,7 @@
     getPreviewSpan, pendingRRStr 
   } from './store.js'
   import PreviewChangesItem from './PreviewChangesItem.svelte'
+  import { DateTime } from 'luxon'
 
   function pluralize (count) {
     return count === 1 ? '' : 's'
@@ -13,8 +14,10 @@
 <div class="preview-changes-container">
   <div class="preview-header">
     {#if $pendingRRStr}
-      <div class="preview-title">Editing this routine will impact these tasks</div>
-      <div class="preview-subtitle">As each day goes by, new tasks will be generated as needed (preview window: {getPreviewSpan($pendingRRStr)} days)</div>
+      <div class="preview-title">Changing this routine would immediately affect these tasks</div>
+      <div class="preview-subtitle">
+        Today is {DateTime.now().toFormat('MMM d ccc')}
+      </div>
     {/if}
   </div>
 
@@ -53,6 +56,9 @@
       </div>
     {/if}
   </div>
+  <div class="preview-subtitle">
+    As each day goes by, new tasks will be auto-generated as needed (preview window: {getPreviewSpan($pendingRRStr)} days) 
+  </div>
 </div>
 
 <style>
@@ -71,8 +77,7 @@
   }
 
   .preview-subtitle {
-    font-size: 13px;
-    color: #6b7280;
+    font-size: 12px;
     margin-top: 4px;
   }
 
