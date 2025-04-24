@@ -2,6 +2,9 @@ import { writable, get, derived } from 'svelte/store'
 import { DateTime } from 'luxon'
 import { getOccurrences, instantiateTask } from '$lib/store/templateInstances.js'
 import { user } from '$lib/store'
+import { template } from '../../store.js'
+
+export const activeTab = writable('weekly')
 
 export const inputStates = writable({
   weekly: '',
@@ -13,11 +16,38 @@ export const inputStates = writable({
 export const monthlyInputSourceOfTruth = writable('')
 export const overallSourceOfTruth = writable('')
 export const pendingRRStr = writable('')
-export const activeTemplate = writable(null)
 
 export const deletingTasks = writable([])
 export const addingTasks = writable([])
 export const exceptions = writable([])
+
+export const hasUnsavedChanges = derived(
+  [template, pendingRRStr],
+  ([$template, $pendingRRStr]) => $template?.rrStr !== $pendingRRStr
+)
+
+derived([pendingRRStr], async ([currentRRStr], set) => {
+  if (!get(template)) return
+
+  resetPreviewStates()
+
+  if (currentRRStr === get(template).rrStr) {
+    return
+  }
+
+  const affectedTasks = await getAffectedTasks(get(template))
+  for (const task of affectedTasks) {
+    if (isException(task, get(template))) {
+      exceptions.update(current => [...current, task])
+    } else {
+      deletingTasks.update(current => [...current, task])
+    }
+  }
+
+  addingTasks.set(
+    simulateChanges(get(template), currentRRStr)
+  )
+}).subscribe(() => {})
 
 function getPeriodicity (rrStr) {
   if (!rrStr) return 'weekly'
@@ -56,11 +86,17 @@ export function simulateChanges (template, newRRStr) {
 }
 
 // flawed, should also handle changed dates that falls outside of the original schedule
+// for example, if it routine repeats MWF, but the task is scheduled for Thursday, it was modified
 export function isException(task, template) {
+  if (!task || !template) {
+    console.log("isException received null/undefined task or template", {task, template})
+    return false
+  }
+  
   for (const k of Object.keys(task)) {
-    if (['notes', 'duration', 'imageDownloadURL', 'iconURL'].includes(k)) { 
+    if (['notes', 'duration', 'imageDownloadURL', 'iconURL'].includes(k)) {      
       if (task[k] !== template[k]) { 
-        console.log("exception found =", task, k, task[k], template[k])
+        console.log("Exception found =", task.id, k, task[k], template[k])
         return true
       }
     }
@@ -75,28 +111,6 @@ export function getPreviewSpan ({ rrStr }) {
     default: return 7 * 2
   }
 }
-
-derived([pendingRRStr, activeTemplate], async ([currentRRStr, template], set) => {
-  if (!template || currentRRStr === template.rrStr) {
-    resetPreviewStates()
-    return
-  }
-  
-  resetPreviewStates()
-  const affectedTasks = await getAffectedTasks(template)
-  
-  for (const task of affectedTasks) {
-    if (isException(task, template)) {
-      exceptions.update(current => [...current, task])
-    } else {
-      deletingTasks.update(current => [...current, task])
-    }
-  }
-
-  addingTasks.set(
-    simulateChanges(template, currentRRStr)
-  )
-}).subscribe(() => {}) // Subscribe to activate the store
 
 async function getAffectedTasks (template) {
   const db = await import('$lib/db/init.js').then(m => m.db)

@@ -2,14 +2,13 @@
   import WeekRhythm from './WeekRhythm.svelte'
   import MonthRhythm from './MonthRhythm.svelte'
   import YearRhythm from './YearRhythm.svelte'
-  import { onMount } from 'svelte'
-  import { user } from '/src/lib/store'
-  import { templates, openTemplateEditor } from './store.js'
+  import { popup, template, templates, openTemplateEditor } from './store.js'
+  import { user } from '$lib/store'
   import { onSnapshot, collection } from 'firebase/firestore'
-  import { db } from '/src/lib/db/init.js'
+  import { db } from '$lib/db/init.js'
   import TemplatePopup from './components/TemplatePopup/TemplatePopup.svelte'
   import { getPeriodFromCrontab } from '$lib/db/models/Template.js'
-  import { editingTemplateId } from './store.js'
+  import { onMount } from 'svelte'
 
   let weeklyTasks = []
   let monthlyTasks = []
@@ -48,8 +47,8 @@
 </script>
 
 <div style="padding: 48px; height: 100%; overflow-y: auto;">
-  {#if $editingTemplateId}
-    <TemplatePopup template={$editingTemplateId} />
+  {#if $popup && $template}
+    <TemplatePopup />
   {/if}
 
   <div style="display: flex; width: 90vw; justify-content: space-between; gap: 48px;">

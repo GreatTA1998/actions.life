@@ -1,5 +1,4 @@
 // RRule utilities shared between pattern components
-
 export const weekdayToRRule = {
   monday: 'MO',
   tuesday: 'TU',

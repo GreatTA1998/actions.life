@@ -1,10 +1,17 @@
 <script>
   import { user, doodleIcons } from '/src/lib/store'
-  import { updateTemplate } from '/src/routes/[user]/components/Templates/store.js'
   import BasicWhiteboard from './BasicWhiteboard.svelte'
   import Icon from '/src/lib/db/models/Icon.js'
+  import { onMount } from 'svelte'
+
   export let template
 
+  onMount(async () => {
+    const temp = await Icon.getAvailable($user.uid) 
+    doodleIcons.set(temp)
+  })
+
+  // TO-DO: update and fix this
   function handleSelectIcon(iconURL = '') {
     updateTemplate({ templateID: template.id, keyValueChanges: { iconURL }, oldTemplate: template })
   }

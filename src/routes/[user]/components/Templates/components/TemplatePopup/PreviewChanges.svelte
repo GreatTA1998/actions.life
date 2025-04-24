@@ -1,82 +1,110 @@
 <script>
-  import { deletingTasks, addingTasks, exceptions, activeTemplate } from './store.js'
-  import { DateTime } from 'luxon'
-  
-  export let template
+  import { 
+    deletingTasks, addingTasks, exceptions, 
+    getPreviewSpan, pendingRRStr 
+  } from './store.js'
+  import PreviewChangesItem from './PreviewChangesItem.svelte'
 
-  $: activeTemplate.set(template)
-
-  function formatDate(dateStr) {
-    const dt = DateTime.fromISO(dateStr)
-    return dt.toFormat('MMM d ccc')
+  function pluralize (count) {
+    return count === 1 ? '' : 's'
   }
 </script>
 
 <div class="preview-changes-container">
-  <div class="dates-container">
-    <div class="dates-column">
-      <div style="font-size: 12px;">
-        The new periodicity will be continuously applied {(template.previewSpan || 'N/A')} days into the future, 
-        with 
-        {#if $addingTasks.length}
-          <span class="creation">{$addingTasks.length} tasks immediately added</span>
-        {/if}
-        {#if $deletingTasks.length}
-          {#if $addingTasks.length}and {/if}<span class="deletion">{$deletingTasks.length} tasks immediately deleted</span>
-        {/if}
-        {#if $exceptions.length}
-          {#if $addingTasks.length || $deletingTasks.length}and {/if}<span class="unchanged">{$exceptions.length} tasks unchanged</span>
-        {/if}
-      </div>
-      {#each $addingTasks as task (task.startDateISO)}
-        <div class="date-item creation">
-          <span class="icon">+</span>
-          {task.startDateISO}
+  <div class="preview-header">
+    {#if $pendingRRStr}
+      <div class="preview-title">Editing this routine will impact these tasks</div>
+      <div class="preview-subtitle">As each day goes by, new tasks will be generated as needed (preview window: {getPreviewSpan($pendingRRStr)} days)</div>
+    {/if}
+  </div>
+
+  <div class="columns-container">
+    {#if $addingTasks.length}
+      <div class="column">
+        <div class="column-title creation">{$addingTasks.length} addition{pluralize($addingTasks.length)}</div>
+        <div class="tasks-list">
+          {#each $addingTasks as task (task.startDateISO)}
+            <PreviewChangesItem {task} type="creation" />
+          {/each}
         </div>
-      {/each}
+      </div>
+    {/if}
 
-      {#if $deletingTasks}
-        {#each $deletingTasks as task}   
-          <div class="date-item deletion">
-            <span class="icon">-</span>
-            {formatDate(task.startDateISO)}
-          </div>
-        {/each}
-      {/if}
+    {#if $deletingTasks.length}
+      <div class="column">
+        <div class="column-title deletion">{$deletingTasks.length} deletion{pluralize($deletingTasks.length)}</div>
+        <div class="tasks-list">
+          {#each $deletingTasks as task}   
+            <PreviewChangesItem {task} type="deletion" />
+          {/each}
+        </div>
+      </div>
+    {/if}
 
-      {#if $exceptions.length}
-        {#each $exceptions as task}
-          <div class="date-item unchanged">
-            {formatDate(task.startDateISO)}
-          </div>
-        {/each}
-      {/if}
-    </div>
+    {#if $exceptions.length}
+      <div class="column">
+        <div class="column-title unchanged">{$exceptions.length} preserved</div>
+        <div class="preserved-note">These tasks have been modified and will not be affected by this change.</div>
+        <div class="tasks-list">
+          {#each $exceptions as task}
+            <PreviewChangesItem {task} type="unchanged" />
+          {/each}
+        </div>
+      </div>
+    {/if}
   </div>
 </div>
 
 <style>
   .preview-changes-container {
     margin-top: 16px;
-    width: fit-content;
+    width: 100%;
   }
 
-  .dates-container {
+  .preview-header {
+    margin-bottom: 16px;
+  }
+
+  .preview-title {
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .preview-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+
+  .columns-container {
     display: flex;
     gap: 16px;
+    margin-top: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    width: 100%;
   }
 
-  .dates-column {
+  .column {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    max-width: 33%;
   }
 
-  .date-item {
-    font-size: 12px;
+  .column-title {
+    font-weight: 600;
+    font-size: 14px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .tasks-list {
     display: flex;
-    align-items: center;
-    white-space: nowrap;
+    flex-direction: column;
+    gap: 6px;
   }
 
   .deletion {
@@ -91,9 +119,11 @@
     color: darkblue;
   }
 
-  .icon {
-    font-weight: bold;
-    margin-right: 6px;
-    min-width: 8px;
+  .preserved-note {
+    font-size: 11px;
+    margin-bottom: 8px;
+    font-style: italic;
+    opacity: 0.8;
+    line-height: 1.3;
   }
 </style>

@@ -1,58 +1,27 @@
-import { writable, get } from 'svelte/store'
-import Template from '$lib/db/models/Template.js'
-import { user } from '/src/lib/store/userStore.js'
-import '/src/lib/store/themes'
+import { writable, derived, get } from 'svelte/store'
 
+export const popup = writable(false)
+export const template = writable(null)
 export const templates = writable([])
 export const editingTemplateId = writable('')
 
 export function openTemplateEditor(templateId) {
   editingTemplateId.set(templateId)
+  popup.set(true)
 }
 
 export function closeTemplateEditor() {
-  editingTemplateId.set(null)
+  popup.set(false)
 }
 
-export function deleteTemplate({ templateID }) {
-  const currentUser = get(user)
-  Template.delete({ id: templateID, userID: currentUser.uid })
-  templates.update((templates) => templates.filter((template) => template.id !== templateID))
-  closeTemplateEditor()
-}
-
-// deprecate updateTemplate
-export async function updateTemplate({ templateID, keyValueChanges, oldTemplate }) {
-  const newTemplate = buildNewTemplate({ oldTemplate, keyValueChanges })
-  Template.schema.parse(newTemplate)
-  // TO-DO: rename `templates`
-  // replaces the item in the array with the new template
-  templates.update(templates => templates.map(template => template.id === templateID ? newTemplate : template))
- 
-  if (oldTemplate.crontab === '') {
-    Template.update({ 
-      id: templateID, 
-      newTemplate, 
-      updates: keyValueChanges, 
-      userID: get(user).uid 
-    })
+// Ensure template is updated when editingTemplateId changes
+derived([editingTemplateId, templates], ([$editingTemplateId, $templates]) => {
+  if ($editingTemplateId) {
+    const foundTemplate = $templates.find(t => t.id === $editingTemplateId)
+    if (foundTemplate) {
+      template.set(foundTemplate)
+    }
+  } else {
+    // Don't clear template when closing to prevent UI flicker
   }
-  else {
-    Template.updateWithTasks({
-      userID: get(user).uid,
-      id: templateID,
-      updates: keyValueChanges,
-      newTemplate
-    })
-  }
-}
-
-function buildNewTemplate({ oldTemplate, keyValueChanges }) {
-  const newTemplate = { ...oldTemplate, ...keyValueChanges }
-  delete newTemplate.id
-  delete newTemplate.userID
-  delete newTemplate.totalMinutesSpent
-  delete newTemplate.totalTasksCompleted
-  Template.schema.parse(newTemplate)
-  return newTemplate
-} 
+}).subscribe(() => {}) // Subscribe to activate the store
