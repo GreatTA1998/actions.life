@@ -1,8 +1,8 @@
 <script>
-  import BasePopup from './BasePopup.svelte'
   import PeriodicityInputs from './PeriodicityInputs.svelte'
   import PreviewChanges from './PreviewChanges.svelte'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
+  import BasePopup from '$lib/components/BasePopup.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
 
   import Template from '$lib/db/models/Template.js'

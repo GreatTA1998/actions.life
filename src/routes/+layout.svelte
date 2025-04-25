@@ -168,20 +168,6 @@
     user-select: none;
   }
 
-  /*
-    A full size invisible container to cover the entire screen for modularity purposes, 
-    not accidentally trigger click on other elements e.g. accidentally creating a new task on the calendar when you're just trying to exit
-  */
-  :global(.fullscreen-invisible-modular-popup-layer) {
-    width: 100vw; 
-    height: 100vh; 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    background: transparent; 
-    z-index: 2;
-  }
-
   /* Notion scrollbar styles */
   :global(::-webkit-scrollbar) {
     width: 6px;
