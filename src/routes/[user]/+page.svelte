@@ -26,10 +26,6 @@
 </script>
 
 {#if $user.uid}
-  {#if $isTaskPopupOpen}
-    <TaskPopup />
-  {/if}
-
   {#if $showSnackbar}
     <TheSnackbar>Email copied to clipboard successfully.</TheSnackbar>
   {/if}
@@ -66,4 +62,9 @@
       {/if}
     </div>
   </NavbarContentLayout>
+
+  <!-- put last so the click detection will be on top of the stacking order and not get intercepted by dropzones' stopPropagation -->
+  {#if $isTaskPopupOpen}
+    <TaskPopup />
+  {/if}
 {/if}
