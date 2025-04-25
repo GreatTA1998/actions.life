@@ -5,13 +5,15 @@
   import BasePopup from '$lib/components/BasePopup.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
 
-  import Template from '$lib/db/models/Template.js'
   import { 
     pendingRRStr, deletingTasks, addingTasks, getPreviewSpan,
     activeTab, hasUnsavedChanges, resetPreviewStates
   } from './store.js'
   import { template, closeTemplateEditor } from '../../store.js'
   import { user } from '$lib/store'
+
+  import Task from '$lib/db/models/Task'
+  import Template from '$lib/db/models/Template.js'
 
   import { createDebouncedFunction } from '$lib/utils/core.js'
 
@@ -20,10 +22,10 @@
   async function handleSave () {
     if ($hasUnsavedChanges) {
       for (const task of $deletingTasks) {
-        console.log('task to delete =', task)
+        Task.delete({ id: task.id, willConfirm: false })
       }
       for (const task of $addingTasks) {
-        console.log('task to add =', task)
+        Task.create({ id: task.id, newTaskObj: task})
       }
       Template.update({ userID: $user.uid, id: $template.id, updates: { 
         rrStr: $pendingRRStr, 

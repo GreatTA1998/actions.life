@@ -8,7 +8,7 @@ import { db } from '$lib/db/init.js'
 import { query, collection, where, getDocs } from 'firebase/firestore'
 
 // get around the CommonJS vs ES Module issue
-import rrule from 'rrule'
+import * as rrule from 'rrule'
 const { RRule } = rrule
 
 user.subscribe(async ($user) => {
