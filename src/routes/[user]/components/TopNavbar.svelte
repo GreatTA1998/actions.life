@@ -1,6 +1,5 @@
 <script>
-  import Settings from '../components/Settings/index.svelte'
-  import { hasInitialScrolled } from '/src/lib/store'
+  import { hasInitialScrolled, openSettings } from '$lib/store'
   import { createEventDispatcher } from 'svelte'
 
   export let currentMode
@@ -20,13 +19,11 @@
 </script>
 
 <div class="top-navbar">
-  <Settings let:setIsPopupOpen> 
-    <img on:click={() => setIsPopupOpen({ newVal: true })} on:keydown
-      src="/logo-no-bg.png"
-      style="width: 38px; height: 38px; margin-right: 6px; margin-left: -4px; cursor: pointer;"
-      alt=""
-    />
-  </Settings>
+  <img on:click={openSettings} on:keydown
+    src="/logo-no-bg.png"
+    style="width: 38px; height: 38px; margin-right: 6px; margin-left: -4px; cursor: pointer;"
+    alt=""
+  />
 
   <div class="day-week-toggle-segment">
     <button on:click={recalibrateToCalendar}

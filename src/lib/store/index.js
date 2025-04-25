@@ -28,6 +28,7 @@ export function updateCache (tasks) {
 
 export const clickedTaskID = writable('')
 export const isTaskPopupOpen = writable(false)
+export const settingsOpen = writable(false)
 export const ancestralTree = writable(null)
 
 let unsubAncestralTree = null
@@ -49,6 +50,14 @@ clickedTaskID.subscribe(async (taskID) => {
     console.error('Error in task tree subscription:', error)
   })
 })
+
+export function openSettings () {
+  settingsOpen.set(true)
+}
+
+export function closeSettings () {
+  settingsOpen.set(false)
+}
 
 export function openTaskPopup(task) {
   clickedTaskID.set(task.id)

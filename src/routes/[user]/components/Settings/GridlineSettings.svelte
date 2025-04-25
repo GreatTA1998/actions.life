@@ -9,7 +9,7 @@
   }
 
   function toggleGridlines () {
-    updateFirestoreDoc(`users/${$user.uid}`, { 
+    updateFirestoreDoc(`/users/${$user.uid}`, { 
       hasGridlines: !$user.hasGridlines 
     })
   }

@@ -1,5 +1,5 @@
 <script>
-  import { showSnackbar, user } from '/src/lib/store'
+  import { showSnackbar, user, closeSettings } from '/src/lib/store'
   import BasePopup from '$lib/components/BasePopup.svelte'
   import ColorSettings from './ColorSettings.svelte'
   import TimeRangeSettings from './TimeRangeSettings.svelte'
@@ -7,12 +7,6 @@
   import PhotoSettings from './PhotoSettings.svelte'
   import { getAuth, signOut } from 'firebase/auth'
   import { goto } from '$app/navigation'
-
-  let isPopupOpen = false
-
-  function setIsPopupOpen ({ newVal }) {
-    isPopupOpen = newVal
-  }
 
   function copyEmailToClipboard () {
     navigator.clipboard.writeText('elton@explanations.io')
@@ -29,67 +23,61 @@
   }
 </script>
 
-<slot {setIsPopupOpen}>
+<BasePopup on:click-outside={closeSettings} zIndex={6} padding={0}>
+  <div class="settings-container"> 
+    <div class="settings-header">Settings</div>
 
-</slot>
-
-{#if isPopupOpen}
-  <BasePopup on:click-outside={() => isPopupOpen = false} zIndex={6} padding={0}>
-    <div class="settings-container"> 
-      <div class="settings-header">App Settings</div>
-
-      <div class="settings-content">
-        <div class="settings-main">
-          <div class="settings-group">
-            <div class="settings-label">Theme</div>
-            <div class="color-options">
-              <ColorSettings />
-            </div>
-          </div>
-
-          <div class="settings-group">
-            <div class="settings-label">Calendar Hours</div>
-            <TimeRangeSettings />
-          </div>
-          
-          <div class="settings-group">
-            <div class="settings-label">Gridlines</div>
-            <GridlineSettings />
-          </div>
-
-          <div class="settings-group">
-            <div class="settings-label">Photos</div>
-            <PhotoSettings />
+    <div class="settings-content">
+      <div class="settings-main">
+        <div class="settings-group">
+          <div class="settings-label">Theme</div>
+          <div class="color-options">
+            <ColorSettings />
           </div>
         </div>
+
+        <div class="settings-group">
+          <div class="settings-label">Calendar Hours</div>
+          <TimeRangeSettings />
+        </div>
         
-        <div class="settings-side">
-          <div class="settings-group">
-            <div class="settings-label">Support</div>
-            <div class="settings-description">
-              My job is to fix issues you have quickly. I'm also hoping for advice on how to 
-              improve this calendar.
-            </div>
-            <div class="email-container">
-              <span class="material-symbols-outlined email-icon">mail</span>
-              <div class="email-address">elton@explanations.io</div>
-              <button on:click={copyEmailToClipboard} class="copy-button">
-                Copy
-              </button>
-            </div>
-          </div>
+        <div class="settings-group">
+          <div class="settings-label">Gridlines</div>
+          <GridlineSettings />
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-label">Photos</div>
+          <PhotoSettings />
         </div>
       </div>
       
-      <div class="footer">
-        <button on:click={handleLogoClick} class="logout-button">
-          <span class="material-symbols-outlined">logout</span>
-          <span>Log out</span>
-        </button>
+      <div class="settings-side">
+        <div class="settings-group">
+          <div class="settings-label">Support</div>
+          <div class="settings-description">
+            My job is to fix issues you have quickly. I'm also hoping for advice on how to 
+            improve this calendar.
+          </div>
+          <div class="email-container">
+            <span class="material-symbols-outlined email-icon">mail</span>
+            <div class="email-address">elton@explanations.io</div>
+            <button on:click={copyEmailToClipboard} class="copy-button">
+              Copy
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </BasePopup>
-{/if}
+    
+    <div class="footer">
+      <button on:click={handleLogoClick} class="logout-button">
+        <span class="material-symbols-outlined">logout</span>
+        <span>Log out</span>
+      </button>
+    </div>
+  </div>
+</BasePopup>
 
 <style>
   .settings-container {

@@ -7,7 +7,10 @@
   const dispatch = createEventDispatcher()
 </script>
 
-<div class="fullscreen-invisible-modular-layer" on:click|self={() => dispatch('click-outside')} on:keydown>
+<div class="fullscreen-invisible-modular-layer" 
+  on:click|self={() => dispatch('click-outside')} on:keydown 
+  style="z-index: {zIndex};"
+>
   <div class="detailed-card-popup" style="z-index: {zIndex}; padding: {padding}px">
     <slot> 
 
@@ -24,7 +27,6 @@
     top: 0; 
     left: 0; 
     background: transparent; 
-    z-index: 2;
   }
 
   .detailed-card-popup {

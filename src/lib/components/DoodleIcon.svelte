@@ -49,7 +49,7 @@
     class:task-not-done={!iconTask.isDone}
     style="width: {size}px; height: {size}px; border: 0px solid blue; cursor: pointer;"
     class:radial-glow={iconTask.isDone}
-    class="ios-3d-touch-disable unselectable"
+    class="ios-3d-touch-disable unselectable mobile-no-double-tap-zoom"
     draggable="true"
     on:dragstart|self={(e) => startDragMove(e, iconTask.id)}
   />
@@ -58,6 +58,10 @@
 <style>
   .ios-3d-touch-disable {
     -webkit-touch-callout: none;
+  }
+
+  .mobile-no-double-tap-zoom {
+    touch-action: manipulation; /* see https://x.com/JohnPhamous/status/1909293861547262141 */
   }
 
   .task-not-done {

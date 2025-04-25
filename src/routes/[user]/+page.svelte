@@ -7,10 +7,11 @@
   import NavbarContentLayout from '$lib/components/NavbarContentLayout.svelte'
   import SideBySideView from './components/SideBySideView/index.svelte'
   import TaskPopup from './components/TaskPopup/TaskPopup.svelte'
+  import Settings from './components/Settings/index.svelte'
   import Schedule from './mobile/Schedule.svelte'
 
   import { onDestroy, onMount } from 'svelte'
-  import { user, loadingTasks, showSnackbar, isTaskPopupOpen } from '/src/lib/store'
+  import { user, loadingTasks, showSnackbar, isTaskPopupOpen, settingsOpen } from '/src/lib/store'
 
   let currentMode = 'Week'
   let isShowingAI = false
@@ -38,7 +39,7 @@
       />
     </div>
 
-    <div slot="content" style="display: flex; flex-grow: 1; height: 100%;">
+    <div slot="content" class="new-stacking-context" style="display: flex; flex-grow: 1; height: 100%;">
       <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
         <SideBySideView />
 
@@ -47,7 +48,7 @@
         </div>
       </div>
 
-      <div style="display: {currentMode === 'Templates' ? 'block' : 'none'}; width: 100%; background: hsl(98, 40%, 96%);">
+      <div style="display: {currentMode === 'Templates' ? 'block' : 'none'}; width: 100%;">
         <Templates />
       </div>
 
@@ -63,8 +64,19 @@
     </div>
   </NavbarContentLayout>
 
-  <!-- put last so the click detection will be on top of the stacking order and not get intercepted by dropzones' stopPropagation -->
+  <!-- put popups last so they'll be on top of the stacking order and not get intercepted by dropzones' stopPropagation -->
   {#if $isTaskPopupOpen}
     <TaskPopup />
   {/if}
+
+  {#if $settingsOpen}
+    <Settings />
+  {/if}
 {/if}
+
+<style>
+  .new-stacking-context {
+    position: relative;
+    z-index: 1;
+  }
+</style>
