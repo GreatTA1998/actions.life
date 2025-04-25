@@ -3,10 +3,13 @@ import { updateCache } from '$lib/store'
 import { getFirestoreCollection } from '$lib/db/helpers.js'
 import Task from '$lib/db/models/Task.js'
 import Template from '$lib/db/models/Template.js'
-import { RRule } from 'rrule'
 import { DateTime } from 'luxon'
 import { db } from '$lib/db/init.js'
 import { query, collection, where, getDocs } from 'firebase/firestore'
+
+// get around the CommonJS vs ES Module issue
+import rrule from 'rrule'
+const { RRule } = rrule
 
 user.subscribe(async ($user) => {
   if ($user.uid) {
