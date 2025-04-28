@@ -200,6 +200,43 @@
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
   }
 
+  /* utility classes (inspired by Tailwind, but custom for my needs) */
+  :global(.absolute) {
+    position: absolute;
+  }
+
+  :global(.relative) {
+    position: relative;
+  }
+
+  :global(.sticky) {
+    position: sticky;
+  }
+
+  :global(.flexbox) {
+    display: flex;
+  }
+
+  :global(.grid) {
+    display: grid;
+  }
+
+  :global(.z-1) {
+    z-index: 1;
+  }
+
+  :global(.z-0) {
+    z-index: 0;
+  }
+
+  :global(.top-0) {
+    top: 0;
+  }
+
+  :global(.left-0) {
+    left: 0;
+  }
+
   /* Original layout.svelte styles */
   .invisible {
     visibility: hidden;

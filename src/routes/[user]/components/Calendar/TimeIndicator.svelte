@@ -26,11 +26,11 @@
   // NOTE: clicking home will us back to today's position
   // (alternative solution: pass a function directly into a store to be called `scrollToCurrentDay()`
   // https://svelte.dev/tutorial/update: "Scrolling is hard to achieve with purely a state-driven way"
-  $: if (!$hasInitialScrolled && CurrentTimeIndicator) {
-    requestAnimationFrame(() => {
-      scrollToTimeIndicator()
-    })
-  }
+  // $: if (!$hasInitialScrolled && CurrentTimeIndicator) {
+  //   requestAnimationFrame(() => {
+  //     scrollToTimeIndicator()
+  //   })
+  // }
 
   onMount(() => {
     updateTimeIndicator() 

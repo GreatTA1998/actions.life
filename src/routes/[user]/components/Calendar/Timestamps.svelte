@@ -2,6 +2,8 @@
   import { WIDTHS } from '/src/lib/utils/constants.js'
   import { timestamps, calEarliestHHMM, totalMinutes } from './timestamps.js'
   import { pixelsPerHour, headerHeight, isCompact } from './store.js'
+  
+  export let style
 
   let timestampsColumnWidth = $isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
 
@@ -20,14 +22,11 @@
   }
 </script>
 
-<div class="timestamps" style="
-  height: {$totalMinutes * ($pixelsPerHour / 60)}px;
-  --timestamps-column-width: {timestampsColumnWidth}px; 
-  margin-top: {$headerHeight}px;
-"
+<div class="timestamps {$$props.class}"
+  {style} style:width="{timestampsColumnWidth}px" 
 >
   {#each $timestamps as timestamp, i (i)}
-    <div class="absolute-timestamp" style="top: {getTopOffset(timestamp)}px;">
+    <div class="absolute timestamp" style="top: {getTopOffset(timestamp)}px;">
       {timestamp.substring(0, $isCompact ? 2 : 5)}
     </div>
   {/each}
@@ -35,17 +34,12 @@
 
 <style>
   .timestamps {
-    position: sticky;
-    left: 0;
-    top: 40px; /* Adjust based on your header height */
     background: var(--calendar-bg-color);
     z-index: 2;
     border-right: 1px solid lightgrey;
-    width: var(--timestamps-column-width);
   }
 
-  .absolute-timestamp {
-    position: absolute;
+  .timestamp {
     width: 100%; /* because <div> no longer fills to its parent's width if it's absolutely positioned  */
     text-align: center;
     color: #6d6d6d;

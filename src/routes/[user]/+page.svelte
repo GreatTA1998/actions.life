@@ -39,7 +39,7 @@
       />
     </div>
 
-    <div slot="content" class="new-stacking-context" style="display: flex; flex-grow: 1; height: 100%;">
+    <div slot="content" class="relative z-0 flexbox" style="flex-grow: 1; height: 100%;">
       <div style="display: {currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
         <SideBySideView />
 
@@ -73,10 +73,3 @@
     <Settings />
   {/if}
 {/if}
-
-<style>
-  .new-stacking-context {
-    position: relative;
-    z-index: 1;
-  }
-</style>

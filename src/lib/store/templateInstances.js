@@ -12,17 +12,17 @@ import * as rrule from 'rrule'
 const { RRule } = rrule
 
 user.subscribe(async ($user) => {
-  if ($user.uid) {
-    const templates = await getFirestoreCollection('/users/' + $user.uid + '/templates')
-    for (const template of templates) {
-      let prevEndISO = template.prevEndISO ? template.prevEndISO : DateTime.now().toFormat('yyyy-MM-dd')
-      fillTaskInstances({ 
-        template, 
-        startISO: prevEndISO, 
-        uid: $user.uid 
-      })
-    }
-  }
+  // if ($user.uid) {
+  //   const templates = await getFirestoreCollection('/users/' + $user.uid + '/templates')
+  //   for (const template of templates) {
+  //     let prevEndISO = template.prevEndISO ? template.prevEndISO : DateTime.now().toFormat('yyyy-MM-dd')
+  //     fillTaskInstances({ 
+  //       template, 
+  //       startISO: prevEndISO, 
+  //       uid: $user.uid 
+  //     })
+  //   }
+  // }
 })
 
 export function getOccurrences ({ template, startISO, uid }) {
