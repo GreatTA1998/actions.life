@@ -20,4 +20,3 @@ export function jumpToToday (node = document.getElementById('scroll-parent')) {
     behavior: 'instant'
   })
 }
-=
