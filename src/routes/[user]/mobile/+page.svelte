@@ -43,7 +43,6 @@
 
       <button class="bottom-nav-tab" 
         on:click={() => {
-          hasInitialScrolled.set(false)
           activeTabName = 'CALENDAR_VIEW'
         }}
         class:active-nav-tab={activeTabName === 'CALENDAR_VIEW'}
@@ -90,7 +89,7 @@
   import Schedule from './Schedule.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
 
-  import { user, hasInitialScrolled, isTaskPopupOpen } from '/src/lib/store'
+  import { user, isTaskPopupOpen } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
   import { onDestroy, onMount } from 'svelte'
 

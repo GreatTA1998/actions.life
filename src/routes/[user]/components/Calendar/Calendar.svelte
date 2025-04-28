@@ -7,19 +7,12 @@
 
   import { calEarliestHHMM, totalMinutes } from './timestamps.js'
   import { headerHeight, pixelsPerHour } from './store.js'
+  import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
   import { setupCalListener } from './service.js'
-
+  import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
-  import { hasInitialScrolled } from '$lib/store'
-
   import { onMount } from 'svelte'
-  import { DateTime } from 'luxon'
 
-  const TOTAL_COLUMNS = 365
-  const COLUMN_WIDTH = 200
-  const c = 4 // for "cushion"
-
-  let originDT = DateTime.now().startOf('day').minus({ days: TOTAL_COLUMNS / 2 })
   let renderedColumnDTs = []
   let renderedLeft = Infinity
   let renderedRight = -Infinity
@@ -44,34 +37,6 @@
     triggerLeft = viewportLeft - c
     triggerRight = viewportRight + c
   })
-
-  // TO-DO: refactor into a separate component
-  let scrollParent = null
-
-  $: if (!$hasInitialScrolled && scrollParent) {
-    scrollToCurrentTime()
-  }
-
-  function scrollToCurrentTime() {
-    console.log('scrollToCurrentTime()')
-    const now = DateTime.now()
-    const todayIndex = now.startOf('day').diff(originDT, 'days').days
-    const todayX = todayIndex * COLUMN_WIDTH
-    
-    const [hour, minute] = $calEarliestHHMM.split(':').map(Number)
-    const dayStart = now.set({ hour, minute })
-    const minutesSinceDayStart = now.diff(dayStart, 'minutes').minutes
-    const pixelsPerMinute = 1 // This value should match the one in TimeIndicator
-    const timeY = minutesSinceDayStart * pixelsPerMinute
-
-    scrollParent.scrollTo({
-      left: todayX - window.innerWidth / 2 + COLUMN_WIDTH / 2,
-      top: timeY, // - window.innerHeight / 2,
-      behavior: 'instant'
-    })
-    
-    hasInitialScrolled.set(true)
-  }
 
   function addFutureListener () {
     setupCalListener(
@@ -106,10 +71,10 @@
 <div class="relative z-0 grid" style="grid-template-rows: auto 1fr; height: 100%;">
   <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
 
-  <div class="relative" style:overflow="auto" on:scroll={e => scrollX = e.target.scrollLeft} id="scroll-parent" bind:this={scrollParent} >
+  <div class="relative" style:overflow="auto" use:jumpToToday on:scroll={e => scrollX = e.target.scrollLeft} id="scroll-parent">
     <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flexbox">
       <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {$totalMinutes * ($pixelsPerHour / 60)}px;"/>
-      
+
       {#if renderedColumnDTs[0]}
         <div class="absolute" style:left="{renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px">
           <div class="sticky top-0 z-1 flexbox" use:trackHeight={h => headerHeight.set(h)} style="box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);">

@@ -57,7 +57,7 @@
     {/if}
   </div>
   <div class="preview-subtitle">
-    As each day goes by, new tasks will be auto-generated as needed (preview window: {getPreviewSpan($pendingRRStr)} days) 
+    As each day goes by, new tasks will be auto-generated as needed (preview window: {getPreviewSpan({ rrStr:$pendingRRStr })} days) 
   </div>
 </div>
 

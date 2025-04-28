@@ -85,8 +85,6 @@ export const mostRecentlyCompletedTaskName = writable('')
 // 200/24 is the week view value
 export const appModePixelsPerHour = writable(200 / 24)
 
-export const hasInitialScrolled = writable(false)
-
 export const showSnackbar = writable(false)
 
 export const userInfoFromAuthProvider = writable({}) // test if the page data method works. If not, fallback to this solution for creating a mirror doc

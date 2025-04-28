@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store'
-import { HEIGHTS } from '/src/lib/utils/constants.js'
+import { HEIGHTS } from '$lib/utils/constants.js'
 
 export const calendarTasks = writable([]) // deprecate, but needs about 5 minutes of work
 export const treesByID = writable({})

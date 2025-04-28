@@ -1,6 +1,7 @@
 <script>
-  import { hasInitialScrolled, openSettings } from '$lib/store'
+  import { openSettings } from '$lib/store'
   import { createEventDispatcher } from 'svelte'
+  import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
 
   export let currentMode
 
@@ -8,7 +9,7 @@
 
   function recalibrateToCalendar () {
     if (currentMode === 'Week') {
-      hasInitialScrolled.set(false)
+      jumpToToday()
     }
     updateMode('Week')
   }
