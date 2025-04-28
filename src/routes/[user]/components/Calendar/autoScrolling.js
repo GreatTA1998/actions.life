@@ -1,7 +1,7 @@
-import { get } from 'svelte/store'
 import { calEarliestHHMM } from './timestamps.js'
 import { originDT, COLUMN_WIDTH } from './constants.js'
 import { DateTime } from 'luxon'
+import { get } from 'svelte/store'
 
 export function jumpToToday (node = document.getElementById('scroll-parent')) {
   const now = DateTime.now()

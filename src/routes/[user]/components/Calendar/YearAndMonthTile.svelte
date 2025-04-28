@@ -50,7 +50,7 @@
   }
 
   .mobile-compact {
-    font-size: 12px;
+    font-size: 15px;
     margin-top: 12px;
     margin-left: 0px;
     flex-direction: row;

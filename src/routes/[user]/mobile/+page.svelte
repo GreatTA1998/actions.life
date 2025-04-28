@@ -43,7 +43,10 @@
 
       <button class="bottom-nav-tab" 
         on:click={() => {
-          activeTabName = 'CALENDAR_VIEW'
+          if (activeTabName === 'CALENDAR_VIEW') jumpToToday()
+          else {
+            activeTabName = 'CALENDAR_VIEW'
+          }
         }}
         class:active-nav-tab={activeTabName === 'CALENDAR_VIEW'}
       >
@@ -89,6 +92,7 @@
   import Schedule from './Schedule.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
 
+  import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
   import { user, isTaskPopupOpen } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
   import { onDestroy, onMount } from 'svelte'
