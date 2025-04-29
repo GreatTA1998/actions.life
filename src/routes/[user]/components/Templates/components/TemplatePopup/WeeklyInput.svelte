@@ -1,16 +1,18 @@
 <script>
-  import { inputStates } from './store.js'
+  import { getContext } from 'svelte'
 
+  const inputStates = getContext('inputStates')
   const days = [, 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] // ISO 8601 standard uses 1-7 for Mon-Sun
 
-  // [1, 3, 7] means Mon, Tue & Sun are selected
-  let indices = toIndices($inputStates.weekly)
+  let indices = toIndices($inputStates.weekly) // [1, 3, 7] means Mon, Tue & Sun are selected
 
   $: onDaySelect(indices)
 
   function onDaySelect () {
-    const rrStr = toRRStr(indices)
-    inputStates.update(states => ({ ...states, weekly: rrStr }))
+    inputStates.update(states => ({ 
+      ...states, 
+      weekly: toRRStr(indices) 
+    }))
   }
   
   function toIndices (rrStr) {

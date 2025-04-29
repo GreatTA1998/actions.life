@@ -1,3 +1,8 @@
+export function getPeriodicity (rrStr) {
+  const parsedData = parseRecurrenceString(rrStr)
+  return parsedData.type
+}
+
 /**
  * Parses recurrence rule string (rrStr) to determine the recurrence type and extract relevant data
  * @param {string} rrStr - The recurrence rule string to parse

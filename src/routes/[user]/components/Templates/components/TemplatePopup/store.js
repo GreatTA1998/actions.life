@@ -1,37 +1,19 @@
-import { writable, get, derived } from 'svelte/store'
+import { writable, get } from 'svelte/store'
 import { DateTime } from 'luxon'
 import { getOccurrences, instantiateTask } from '$lib/store/templateInstances.js'
 import { user } from '$lib/store'
 import { template } from '../../store.js'
 
-export const activeTab = writable('weekly')
-
-export const inputStates = writable({
-  weekly: '',
-  monthlyTypeI: '',
-  monthlyTypeII: '',
-  yearly: ''
-})
-
-export const monthlyInputSourceOfTruth = writable('')
-export const overallSourceOfTruth = writable('')
-export const pendingRRStr = writable('')
-
 export const deletingTasks = writable([])
 export const addingTasks = writable([])
 export const exceptions = writable([])
 
-export const hasUnsavedChanges = derived(
-  [template, pendingRRStr],
-  ([$template, $pendingRRStr]) => $template?.rrStr !== $pendingRRStr
-)
-
-derived([pendingRRStr], async ([currentRRStr], set) => {
+export async function reactToRRStr (pendingRRStr) {
   if (!get(template)) return
 
   resetPreviewStates()
 
-  if (currentRRStr === get(template).rrStr) {
+  if (pendingRRStr === get(template).rrStr) {
     return
   }
 
@@ -45,9 +27,9 @@ derived([pendingRRStr], async ([currentRRStr], set) => {
   }
 
   addingTasks.set(
-    simulateChanges(get(template), currentRRStr)
+    simulateChanges(get(template), pendingRRStr)
   )
-}).subscribe(() => {})
+}
 
 function getPeriodicity (rrStr) {
   if (!rrStr) return 'weekly'

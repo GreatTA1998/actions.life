@@ -6,8 +6,8 @@
   import RoundButton from '$lib/components/RoundButton.svelte'
 
   import { 
-    pendingRRStr, deletingTasks, addingTasks, getPreviewSpan,
-    activeTab, hasUnsavedChanges, resetPreviewStates
+    reactToRRStr,
+    deletingTasks, addingTasks, getPreviewSpan, resetPreviewStates
   } from './store.js'
   import { template, closeTemplateEditor } from '../../store.js'
   import { user } from '$lib/store'
@@ -15,21 +15,25 @@
   import Task from '$lib/db/models/Task'
   import Template from '$lib/db/models/Template.js'
 
-  import { createDebouncedFunction } from '$lib/utils/core.js'
+  import { getRandomID, createDebouncedFunction } from '$lib/utils/core.js'
+  import { getPeriodicity } from '../../recurrenceParser.js'
 
+  let pendingRRStr = ''
   let iconsMenu = false
+
+  $: reactToRRStr(pendingRRStr) // TO-DO: make this explicit, it's a crucial detail to be exposed
   
   async function handleSave () {
-    if ($hasUnsavedChanges) {
+    if (pendingRRStr !== $template.rrStr) {
       for (const task of $deletingTasks) {
         Task.delete({ id: task.id, willConfirm: false })
       }
       for (const task of $addingTasks) {
-        Task.create({ id: task.id, newTaskObj: task})
+        Task.create({ id: getRandomID(), newTaskObj: task })
       }
       Template.update({ userID: $user.uid, id: $template.id, updates: { 
-        rrStr: $pendingRRStr, 
-        previewSpan: getPreviewSpan($pendingRRStr)
+        rrStr: pendingRRStr, 
+        previewSpan: getPreviewSpan(pendingRRStr)
       }})
       resetPreviewStates()
     }
@@ -45,7 +49,7 @@
 
 <BasePopup on:click-outside={closeTemplateEditor}>
   <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
-    {#if $template.iconURL && $activeTab === 'weekly'}
+    {#if $template.iconURL && getPeriodicity(pendingRRStr) === 'weekly'}
       <button on:click={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
         <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
       </button>
@@ -60,12 +64,15 @@
   {/if}
 
   <!-- <EditTime /> -->
-    
-  <PeriodicityInputs />
 
-  {#if $hasUnsavedChanges}
+  <PeriodicityInputs 
+    initialRRStr={$template.rrStr}
+    on:update-rr={e => pendingRRStr = e.detail}
+  />
+
+  {#if pendingRRStr !== $template.rrStr}
     <div class="changes-section">
-      <PreviewChanges />
+      <PreviewChanges {pendingRRStr}/>
 
       <div class="action-button-container">
         <RoundButton on:click={handleSave} backgroundColor="rgb(0, 89, 125)" textColor="white">

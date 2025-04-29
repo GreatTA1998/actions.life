@@ -1,27 +1,20 @@
 <script>
   import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
-  import { inputStates } from './store.js'
+  import { onMount } from 'svelte'
+  import { getContext } from 'svelte'
 
-  export let template
+  const inputStates = getContext('inputStates')
 
   let selectedMMDD = ''
   let selectedYear = ''
 
-  $: {
-    if (template && template.rrStr) {
-      const parsedDate = parseRRuleString(template.rrStr)
-      if (parsedDate) {
-        selectedMMDD = parsedDate.mmdd
-        selectedYear = parsedDate.year
-      }
+  onMount(() => {
+    const parsedDate = parseRRuleString($inputStates.yearly)
+    if (parsedDate) {
+      selectedMMDD = parsedDate.mmdd
+      selectedYear = parsedDate.year
     }
-  }
-
-  $: {
-    const currentRRule = createRRuleFromDate(selectedMMDD)
-    
-    inputStates.update(states => ({ ...states, yearly: currentRRule }))
-  }
+  })
 
   function parseRRuleString(rrStr) {
     if (!rrStr || !rrStr.includes('FREQ=YEARLY')) return null
@@ -47,17 +40,21 @@
     return `FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day}`
   }
 
-  function handleDateSelected(event) {
-    selectedMMDD = event.detail.selectedDate
-    selectedYear = event.detail.selectedYear
+  function handleDateSelected (e) {
+    selectedMMDD = e.detail.selectedDate
+    selectedYear = e.detail.selectedYear
+
+    inputStates.update(states => ({ 
+      ...states,
+      yearly: createRRuleFromDate(selectedMMDD), // NOTE: must be AFTER states, otherwise it gets overriden
+    }))
   }
 </script>
 
 <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
   <MyJSDatePicker
-    MMDD={selectedMMDD || '12/30'}
-    YYYY={selectedYear || '2005'}
-    placeholder="Nov 2"
+    MMDD={selectedMMDD || ''}
+    YYYY={selectedYear || ''}
     on:date-selected={handleDateSelected}
   />
   every year

@@ -1,14 +1,10 @@
 <script>
-  import { onMount, createEventDispatcher } from 'svelte'
+  import { createEventDispatcher } from 'svelte'
   import { weekdayToRRule, occurrenceToPosition, rruleToWeekday, positionToOccurrence } from './rruleUtils.js'
-  import { inputStates } from './store.js'
-  
-  const dispatch = createEventDispatcher()
-  
-  let rrStr = ''
-  let selectedWeekdays = []
-  let selectedOccurrences = new Set()
-  
+  import { getContext, onMount } from 'svelte'
+
+  const inputStates = getContext('inputStates')
+
   const weekOccurrences = [
     { id: 'first', label: '1st' },
     { id: 'second', label: '2nd' },
@@ -25,8 +21,10 @@
     { id: 'saturday', shortLabel: 'Sa' },
     { id: 'sunday', shortLabel: 'Su' }
   ]
-
-  $: parseRRuleString(rrStr)
+  const dispatch = createEventDispatcher()
+  
+  let selectedWeekdays = []
+  let selectedOccurrences = new Set()
 
   onMount(() => {
     // Set default selection if no RRSTR is present and store doesn't have a value
@@ -34,8 +32,24 @@
       selectedOccurrences.add('first')
       selectedOccurrences = selectedOccurrences
       dispatchChange()
+    } else {
+      parseRRuleString($inputStates.monthlyTypeII)
     }
   })
+
+  function dispatchChange() {
+    const pattern = {
+      type: 'weekly',
+      weekdays: selectedWeekdays,
+      occurrences: Array.from(selectedOccurrences).sort()
+    }
+    
+    const newRRuleStr = createRRuleString()
+    dispatch('update', { 
+      pattern,
+      rrStr: newRRuleStr
+    })
+  }
   
   function toggleOccurrence(occurrence) {
     if (selectedOccurrences.has(occurrence)) {
@@ -109,20 +123,6 @@
       return `FREQ=MONTHLY;BYDAY=${bydays.join(',')}`
     }
     return ''
-  }
-  
-  function dispatchChange() {
-    const pattern = {
-      type: 'weekly',
-      weekdays: selectedWeekdays,
-      occurrences: Array.from(selectedOccurrences).sort()
-    }
-    
-    const newRRuleStr = createRRuleString()
-    dispatch('update', { 
-      pattern,
-      rrStr: newRRuleStr
-    })
   }
 </script>
 

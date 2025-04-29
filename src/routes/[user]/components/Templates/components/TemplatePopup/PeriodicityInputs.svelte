@@ -1,99 +1,75 @@
 <script>
-  import Tabs from '$lib/components/Tabs.svelte'
+  // CORRECTNESS ARGUMENT: overallPointer & monthlyPointer are correct, inputStates are owned by each input component
   import WeeklyInput from './WeeklyInput.svelte'
   import MonthlyInput from './MonthlyInput.svelte'
   import YearlyInput from './YearlyInput.svelte'
-  import { 
-    activeTab,
-    inputStates, overallSourceOfTruth, monthlyInputSourceOfTruth, 
-    pendingRRStr 
-  } from './store.js'
-  import { template } from '../../store.js'
-  import { onMount } from 'svelte'
-  import { parseRecurrenceString } from '../../recurrenceParser.js'
+  import Tabs from '$lib/components/Tabs.svelte'
+  import { getPeriodicity } from '../../recurrenceParser.js'
+  import { onMount, setContext, createEventDispatcher } from 'svelte'
+  import { writable } from 'svelte/store'
 
-  const tabItems = [
-    { label: 'Weekly', value: 'weekly' },
-    { label: 'Monthly', value: 'monthly' },
-    { label: 'Yearly', value: 'yearly' }
-  ]
+  export let initialRRStr = ''
 
-  // dangerous but works. note: must be ordered before `handleNewInput()`
-  $: if ($activeTab === 'monthly') {
-    overallSourceOfTruth.set($monthlyInputSourceOfTruth)
-  }
-  $: handleNewInput($inputStates, $overallSourceOfTruth)
+  let overallPointer = 'weekly'
 
-  $: if ($template) {
-    pendingRRStr.set($template.rrStr || '')
-  }
+  let activeTab = 'weekly'
+  const tabItems = [{ label: 'Weekly', value: 'weekly' }, { label: 'Monthly', value: 'monthly' }, { label: 'Yearly', value: 'yearly' }]
+
+  const inputStates = writable({ 
+    weekly: '', // everything is `rrStr`
+    monthlyTypeI: '',
+    monthlyTypeII: '',
+    yearly: ''
+  })
+  const monthlyPointer = writable('monthlyTypeI')
+
+  setContext('inputStates', inputStates)
+  setContext('monthlyPointer', monthlyPointer)
+
+  let loaded = false // quickfix to prevent uninitialized input states / timing problems
+  const dispatch = createEventDispatcher()
+
+  $: overallPointer = activeInputChanged(activeTab, $monthlyPointer)
+  $: dispatch('update-rr', $inputStates[overallPointer])
 
   onMount(() => {
-    $activeTab = determineRecurrenceType($template.rrStr)
-    const { monthlyInput, overall } = getSourceOfTruth($template.rrStr)
-    monthlyInputSourceOfTruth.set(monthlyInput)
-    overallSourceOfTruth.set(overall)
-
-    inputStates.update(states => ({ ...states, [$overallSourceOfTruth]: $template.rrStr }))
-    pendingRRStr.set($template.rrStr)
+    activeTab = getPeriodicity(initialRRStr)
+    initPointers(initialRRStr)
+    inputStates.update(states => ({ ...states, [overallPointer]: initialRRStr }))
+    loaded = true
   })
 
-  function determineRecurrenceType (rrStr) {
-    const parsedData = parseRecurrenceString(rrStr)
-    return parsedData.type
+  function initPointers (rrStr) {
+    const rr = rrStr.toLowerCase()
+
+    if (rr.includes('freq=monthly')) {
+      if (rr.includes('bymonthday')) monthlyPointer.set('monthlyTypeI')
+      else if (rr.includes('byday')) monthlyPointer.set('monthlyTypeII') 
+
+      overallPointer = $monthlyPointer
+    } 
+    else if (rr.includes('freq=yearly')) {
+      overallPointer = 'yearly'
+    }
   }
 
-  function getSourceOfTruth (rrStr) {
-    if (!rrStr) {
-      return {
-        monthlyInput: 'monthlyTypeI',
-        overall: 'weekly'
-      }
-    }
-
-    const rrLower = rrStr.toLowerCase()
-    let overall = 'weekly'
-    let monthlyInput = 'monthlyTypeI'
-
-    if (rrLower.includes('freq=monthly') || (!rrLower.includes('freq=') && rrLower.includes('bymonthday'))) {
-      overall = 'monthly'
-    } else if (rrLower.includes('freq=yearly') || (!rrLower.includes('freq=') && rrLower.includes('bymonth'))) {
-      overall = 'yearly'
-    }
-
-    if (overall === 'monthly') {
-      if (rrLower.includes('byday') && (rrLower.includes('bysetpos') || rrLower.includes('byweekno'))) {
-        monthlyInput = 'monthlyTypeII'
-      } else {
-        monthlyInput = 'monthlyTypeI'
-      }
-    }
-
-    return { monthlyInput, overall }
-  }
-
-  function handleNewInput () {
-    pendingRRStr.set($inputStates[$overallSourceOfTruth])
-  }
-
-  function handleTabChange (e) {
-    const { tab } = e.detail
-    activeTab.set(tab)
-
-    if (tab === 'weekly') overallSourceOfTruth.set('weekly')
-    else if (tab === 'monthly') overallSourceOfTruth.set($monthlyInputSourceOfTruth)
-    else if (tab === 'yearly') overallSourceOfTruth.set('yearly')
+  function activeInputChanged () {
+    if (activeTab === 'weekly') return 'weekly'
+    else if (activeTab === 'monthly') return $monthlyPointer
+    else if (activeTab === 'yearly') return 'yearly'
   }
 </script>
 
-<div style="display: flex; flex-direction: column; margin-top: 24px;">
-  <Tabs tabs={tabItems} activeTab={$activeTab} on:tabChange={handleTabChange} />
+{#if loaded}
+  <div style="display: flex; flex-direction: column; margin-top: 24px;">
+    <Tabs tabs={tabItems} activeTab={activeTab} on:tabChange={e => activeTab = e.detail.tab}/>
 
-  {#if $activeTab === 'weekly'}
-    <WeeklyInput />
-  {:else if $activeTab === 'monthly'}
-    <MonthlyInput />
-  {:else if $activeTab === 'yearly'}
-    <YearlyInput template={$template} />
-  {/if}
-</div>
+    {#if activeTab === 'weekly'}
+      <WeeklyInput />
+    {:else if activeTab === 'monthly'}
+      <MonthlyInput />
+    {:else if activeTab === 'yearly'}
+      <YearlyInput />
+    {/if}
+  </div>
+{/if}

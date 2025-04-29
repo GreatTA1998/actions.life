@@ -52,7 +52,7 @@ const Task = {
     rootID: z.string().optional() // must be maintained
   }),
 
-  // Individual task operations
+  // danger: relies on `tasksCache`
   create: async ({ id, newTaskObj }) => {
     try {
       const validatedTask = Task.schema.parse(newTaskObj)
@@ -173,14 +173,6 @@ const Task = {
     }
 
     await batch.commit()
-  },
-
-  // Collection operations
-  updateQuickTasks: async ({ userID, templateID, updates }) => {
-    const q = query(collection(db, "users", userID, "tasks"), where("templateID", "==", templateID))
-    const snapshot = await getDocs(q)
-    const updatePromises = snapshot.docs.map(doc => updateDoc(doc.ref, updates))
-    return Promise.all(updatePromises)
   },
 
   listenToUnscheduled: (userUID, callback) => {

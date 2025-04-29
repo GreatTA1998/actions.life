@@ -1,7 +1,8 @@
 <script>
   import { createEventDispatcher, onMount } from 'svelte'
-  
-  export let rrStr = ''
+  import { getContext } from 'svelte'
+
+  const inputStates = getContext('inputStates')
   
   let selectedDays = new Set()
   let lastDaySelected = false
@@ -9,13 +10,20 @@
   const variableDays = [29, 30, 31]
   const dispatch = createEventDispatcher()
   
-  $: if (rrStr) parseRRuleString(rrStr)
   $: lastDaySelected = variableDays.every(day => selectedDays.has(day))
 
   onMount(() => {
-    if (rrStr) parseRRuleString(rrStr)
+    parseRRuleString($inputStates['monthlyTypeI'])
     selectedDays = selectedDays // Trigger reactivity
   })
+
+  function createRRuleString () {
+    if (selectedDays.size > 0) {
+      const days = Array.from(selectedDays).sort((a, b) => a - b)
+      return `FREQ=MONTHLY;BYMONTHDAY=${days.join(',')}`
+    }
+    return ''
+  }
   
   function toggleDay (day) {
     if (selectedDays.has(day)) {
@@ -56,14 +64,6 @@
     return false
   }
   
-  function createRRuleString () {
-    if (selectedDays.size > 0) {
-      const days = Array.from(selectedDays).sort((a, b) => a - b)
-      return `FREQ=MONTHLY;BYMONTHDAY=${days.join(',')}`
-    }
-    return ''
-  }
-  
   function dispatchChange () {
     const pattern = {
       type: 'specific',
@@ -102,10 +102,6 @@
     grid-template-columns: repeat(7, 1fr);
     gap: 2px;
     margin: 0 auto;
-
-    /* width: 284px; */
-     /* Fixed width for 7 columns of 38px + 2px gap */
-
     padding: 0.75rem;
     width: 100%;
   }

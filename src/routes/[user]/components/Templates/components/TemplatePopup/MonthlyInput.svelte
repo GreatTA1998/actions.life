@@ -1,10 +1,13 @@
 <script>
   import MonthlyInputI from './MonthlyInputI.svelte'
   import MonthlyInputII from './MonthlyInputII.svelte'
-  import { inputStates, monthlyInputSourceOfTruth } from './store.js'
+  import { getContext } from 'svelte' 
+
+  const inputStates = getContext('inputStates')
+  const monthlyPointer = getContext('monthlyPointer')
   
   function selectPatternType (type) {
-    monthlyInputSourceOfTruth.set(type)
+    monthlyPointer.set(type)
   }
 
   function updateState (type, e) {
@@ -16,7 +19,7 @@
   <div class="sections-container">
     <div class="options-row">
       <section on:click={() => selectPatternType('monthlyTypeI')} on:keydown
-        class="pattern-section {$monthlyInputSourceOfTruth === 'monthlyTypeI' ? 'active' : ''}"
+        class="pattern-section {$monthlyPointer === 'monthlyTypeI' ? 'active' : ''}"
       >
         <MonthlyInputI 
           on:update={e => updateState('monthlyTypeI', e)} 
@@ -24,7 +27,7 @@
       </section>
       
       <section on:click={() => selectPatternType('monthlyTypeII')} on:keydown
-        class="pattern-section {$monthlyInputSourceOfTruth === 'monthlyTypeII' ? 'active' : ''}"
+        class="pattern-section {$monthlyPointer === 'monthlyTypeII' ? 'active' : ''}"
       >
         <MonthlyInputII 
           on:update={e => updateState('monthlyTypeII', e)} 
