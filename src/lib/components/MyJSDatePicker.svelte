@@ -10,7 +10,7 @@
 
   export let MMDD
   export let YYYY
-  export let placeholder
+  export let placeholder = 'MM/dd'
 
   let AttachTarget
   const dispatch = createEventDispatcher()
