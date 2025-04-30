@@ -2,10 +2,11 @@
   import PeriodicityInputs from '../Templates/components/TemplatePopup/PeriodicityInputs.svelte';
   import Task from '/src/lib/db/models/Task.js'
 
-  export let taskObj
+  export let taskObject
 
   let isPopupOpen = false
   let pendingRRStr = ''
+
   $: console.log("pendingRRStr =", pendingRRStr)
 
   function togglePopup() {
@@ -13,15 +14,23 @@
   }
 </script>
 
-<button on:click|stopPropagation={togglePopup} class="action-button material-symbols-outlined">
-  autorenew
-</button>
 
-<!-- TO-DO: initial create is from this popup. Subseauent is preview + edit from the routines page -->
-{#if isPopupOpen}
-  <PeriodicityInputs initialRRStr="" on:update-rr={e => pendingRRStr = e.detail} />
+{#if taskObject.templateID}
+  <button class="action-button material-symbols-outlined">
+    autorenew
+  </button>
+
+  <u style="cursor: pointer;">Manage routine</u>
+{:else}
+  <button on:click|stopPropagation={togglePopup} class="action-button material-symbols-outlined">
+    autorenew
+  </button>
+
+  <!-- TO-DO: initial create is from this popup. Subseauent is preview + edit from the routines page -->
+  {#if isPopupOpen}
+    <PeriodicityInputs initialRRStr="" on:update-rr={e => pendingRRStr = e.detail} />
+  {/if}
 {/if}
-
 
 <style>
   .action-button {

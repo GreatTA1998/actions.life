@@ -124,7 +124,9 @@
 
 <div class="rhythm-container">
   {#if isWeeklyPattern}
-    <div class="weekly-text">{weeklyDescription}</div>
+    <div class="weekly-text">
+      {weeklyDescription}
+    </div>
   {:else}
     <div class="rhythm-line">
       {#each selectedDays as day}

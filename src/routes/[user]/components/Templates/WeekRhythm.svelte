@@ -13,7 +13,8 @@
       // Prioritize rrStr if available
       const parsed = parseRecurrenceString(rrStr)
       selectedDays = parsed.weeklyData.selectedDays
-    } else if (crontab) {
+    } 
+    else if (crontab) {
       // Fall back to crontab parsing
       try {
         const weekdaysPart = crontab?.split(' ')[4]
