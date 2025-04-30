@@ -1,6 +1,7 @@
 <script>
-  import { parseRecurrenceString } from './recurrenceParser.js'
+  import { parseMonthlyTypeI } from './recurrenceParser.js'
   import { rruleToWeekday, positionToOccurrence } from './components/TemplatePopup/rruleUtils.js'
+  import { crontabToState } from './crontab.js'
   
   export let crontab
   export let rrStr = null
@@ -33,21 +34,20 @@
         isWeeklyPattern = true
         weeklyDescription = createWeeklyDescription(rrStr)
         selectedDays = [] // No days to display in the line
-      } else {
-        // Regular monthly pattern
+      } 
+      else { // Regular monthly pattern
         isWeeklyPattern = false
-        const parsed = parseRecurrenceString(rrStr)
-        selectedDays = parsed.monthlyData.selectedDays
+        selectedDays = [...parseMonthlyTypeI(rrStr)]
+        console.log("selectedDays after parsing =", selectedDays)
       }
-    } else if (crontab) {
+    } 
+    else if (crontab) {
+      const result = crontabToState(crontab)
       isWeeklyPattern = false
-      // Fall back to crontab parsing
-      try {
-        selectedDays = crontab.split(' ')[2].split(',').map(Number).filter(d => !isNaN(d)).sort((a, b) => a - b)
-      } catch (e) {
-        selectedDays = []
-      }
-    } else {
+      selectedDays = result.selectedDays
+    } 
+    else {
+      console.log("unknown pattern")
       isWeeklyPattern = false
       selectedDays = []
     }

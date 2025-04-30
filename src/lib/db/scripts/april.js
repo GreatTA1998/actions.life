@@ -1,23 +1,49 @@
 import { getFirestoreCollection, updateFirestoreDoc } from '/src/lib/db/helpers.js'
 import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/todoService.js'
 import { writeBatch, doc } from 'firebase/firestore'
-import { db } from '/src/lib/db/init.js'
-import { isValidISODate } from '/src/lib/db/models/Task.js'
+import { db } from '$lib/db/init.js'
+import { isValidISODate } from '$lib/db/models/Task.js'
+import { getPeriod, crontabToState } from '/src/routes/[user]/components/Templates/crontab.js'
 
 export async function migrateTemplates (uid, testRun = true) {
   const templates = await getFirestoreCollection(`/users/${uid}/templates`)
   const promises = []
   for (const template of templates) {
+    const updateObj = {}
     if (template.imageDownloadURL === undefined) {
-      console.log("found undefined =", template.imageDownloadURL)
-
-      if (!testRun) {
-        promises.push(
-          updateFirestoreDoc(`/users/${uid}/templates/${template.id}`, { 
-            imageDownloadURL: '' 
-          })
-        )
+      updateObj.imageDownloadURL = ''
+    }
+    if (template.crontab) {
+      /**
+       * crontab era has 4 states: quick, weekly, monthly, yearly
+       * rrStr era wants to consolidate into: "weekly" (includes quick), monthly, yearly i.e. weekly includes quick
+       * 
+       * We need crontab --> state. state --> rrStr
+       */
+      console.log('crontab state =', crontabToState(template.crontab))
+      const period = getPeriod(template.crontab)
+      if (period === 'weekly') {
+        // note: some weekly tasks have NO DAYS selected
+        updateObj.rrStr = 'FREQ=WEEKLY;BYDAY=TU'
       }
+      else if (period === 'monthly') {
+        updateObj.rrStr = 'FREQ=MONTHLY;BYMONTHDAY=25'
+      }
+      else if (period === 'yearly') {
+        updateObj.rrStr = 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=3'
+      }
+      else {
+        console.log("unknown period =", period)
+        updateObj.rrStr = 'FREQ=WEEKLY;BYDAY=SA,SU'
+      }
+    }
+    // console.log("updateObj =", updateObj)
+    if (!testRun) {
+      promises.push(
+        updateFirestoreDoc(`/users/${uid}/templates/${template.id}`, { 
+          imageDownloadURL: '' 
+        })
+      )
     }
   }
   await Promise.all(promises)

@@ -1,4 +1,5 @@
 <script>
+  import { parseYearly } from '/src/routes/[user]/components/Templates/recurrenceParser.js'
   import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
   import { onMount } from 'svelte'
   import { getContext } from 'svelte'
@@ -9,29 +10,12 @@
   let selectedYear = ''
 
   onMount(() => {
-    const parsedDate = parseRRuleString($inputStates.yearly)
+    const parsedDate = parseYearly($inputStates.yearly)
     if (parsedDate) {
       selectedMMDD = parsedDate.mmdd
       selectedYear = parsedDate.year
     }
   })
-
-  function parseRRuleString(rrStr) {
-    if (!rrStr || !rrStr.includes('FREQ=YEARLY')) return null
-    
-    const bymonthdayMatch = rrStr.match(/BYMONTHDAY=(\d+)/)
-    const bymonthMatch = rrStr.match(/BYMONTH=(\d+)/)
-    
-    if (bymonthdayMatch && bymonthMatch) {
-      const day = parseInt(bymonthdayMatch[1])
-      const month = parseInt(bymonthMatch[1])
-      // Format as MM/DD
-      const mmdd = `${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}`
-      return { mmdd, year: new Date().getFullYear().toString() }
-    }
-    
-    return null
-  }
 
   function createRRuleFromDate(mmdd) {
     if (!mmdd) return ''

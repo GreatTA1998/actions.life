@@ -1,6 +1,7 @@
 <script>
+  import { parseMonthlyTypeII } from '/src/routes/[user]/components/Templates/recurrenceParser.js'
   import { createEventDispatcher } from 'svelte'
-  import { weekdayToRRule, occurrenceToPosition, rruleToWeekday, positionToOccurrence } from './rruleUtils.js'
+  import { weekdayToRRule, occurrenceToPosition } from './rruleUtils.js'
   import { getContext, onMount } from 'svelte'
 
   const inputStates = getContext('inputStates')
@@ -24,14 +25,14 @@
   const dispatch = createEventDispatcher()
   
   let selectedWeekdays = []
-  let selectedOccurrences = new Set()
+  let weekPos = new Set()
+
+  $: dispatchChange(weekPos, selectedWeekdays)
 
   onMount(() => {
-    // Set default selection if no RRSTR is present and store doesn't have a value
     if (!$inputStates.monthlyTypeII) {
-      selectedOccurrences.add('first')
-      selectedOccurrences = selectedOccurrences
-      dispatchChange()
+      weekPos.add('first')
+      weekPos = weekPos
     } else {
       parseRRuleString($inputStates.monthlyTypeII)
     }
@@ -41,7 +42,7 @@
     const pattern = {
       type: 'weekly',
       weekdays: selectedWeekdays,
-      occurrences: Array.from(selectedOccurrences).sort()
+      occurrences: Array.from(weekPos).sort()
     }
     
     const newRRuleStr = createRRuleString()
@@ -52,13 +53,9 @@
   }
   
   function toggleOccurrence(occurrence) {
-    if (selectedOccurrences.has(occurrence)) {
-      selectedOccurrences.delete(occurrence)
-    } else {
-      selectedOccurrences.add(occurrence)
-    }
-    selectedOccurrences = selectedOccurrences
-    dispatchChange()
+    if (weekPos.has(occurrence)) weekPos.delete(occurrence)
+    else weekPos.add(occurrence)
+    weekPos = weekPos
   }
   
   function toggleWeekday(weekdayId) {
@@ -67,54 +64,19 @@
     } else {
       selectedWeekdays = [...selectedWeekdays, weekdayId].sort()
     }
-    dispatchChange()
   }
   
-  function parseRRuleString(rrStr) {
-    if (!rrStr || !rrStr.includes('FREQ=MONTHLY') || !rrStr.includes('BYDAY=')) return false
-    
-    selectedOccurrences.clear()
-    selectedWeekdays = []
-    
-    const bydayMatch = rrStr.match(/BYDAY=([^;]*)/)
-    if (bydayMatch) {
-      const bydayParts = bydayMatch[1].split(',')
-      
-      const weekdaysFound = new Set()
-      
-      bydayParts.forEach(part => {
-        const posMatch = part.match(/([+\-]\d+)([A-Z]{2})/)
-        if (posMatch) {
-          const pos = posMatch[1]
-          const day = posMatch[2]
-          
-          // Convert position to occurrence id
-          const occId = positionToOccurrence[pos]
-          if (occId) {
-            selectedOccurrences.add(occId)
-          }
-          
-          // Add weekday to our selected weekdays
-          const weekdayId = rruleToWeekday[day]
-          if (weekdayId && !weekdaysFound.has(weekdayId)) {
-            weekdaysFound.add(weekdayId)
-            selectedWeekdays.push(weekdayId)
-          }
-        }
-      })
-      
-      selectedWeekdays.sort()
-      selectedOccurrences = selectedOccurrences
-      return true
-    }
-    return false
+  function parseRRuleString (rrStr) {
+    const result = parseMonthlyTypeII(rrStr)
+    weekPos = result.weekPos
+    selectedWeekdays = result.selectedWeekdays
   }
   
   function createRRuleString() {
-    if (selectedOccurrences.size > 0 && selectedWeekdays.length > 0) {
+    if (weekPos.size > 0 && selectedWeekdays.length > 0) {
       const bydays = []
       
-      for (const occ of Array.from(selectedOccurrences).sort()) {
+      for (const occ of Array.from(weekPos).sort()) {
         for (const weekday of selectedWeekdays) {
           bydays.push(`${occurrenceToPosition[occ]}${weekdayToRRule[weekday]}`)
         }
@@ -133,7 +95,7 @@
       <div class="occurrence-buttons">
         {#each weekOccurrences as occurrence}
           <button on:click={() => toggleOccurrence(occurrence.id)}
-            class="occurrence-button {selectedOccurrences.has(occurrence.id) ? 'selected' : ''}"
+            class="occurrence-button {weekPos.has(occurrence.id) ? 'selected' : ''}"
             title={occurrence.label}
           >
             {occurrence.label}

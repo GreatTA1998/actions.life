@@ -4,18 +4,6 @@ import { updateFirestoreDoc } from '$lib/db/helpers.js'
 import { doc, getDocs, collection, query, setDoc, deleteDoc, where } from 'firebase/firestore'
 import { DateTime } from 'luxon'
 
-export const getPeriodFromCrontab = (crontab) => {
-  if (crontab === '') return 'quick'
-  const parts = crontab.split(' ')
-  if (parts.length !== 5) throw new Error('Invalid crontab format', crontab, parts)
-  const [minute, hour, dayOfMonth, month, dayOfWeek] = parts
-  if (dayOfMonth !== '*' && month !== '*' && dayOfWeek === '*') return 'yearly'
-  if (dayOfMonth !== '*' && month === '*' && dayOfWeek === '*') return 'monthly'
-  if (dayOfMonth === '*' && month === '*' && dayOfWeek !== '*') return 'weekly'
-  console.error('Invalid crontab format', crontab)
-  return 'unknown'
-}
-
 export const getTotalStats = async ({ userID, id }) => {
   const q = query(
     collection(db, "users", userID, "tasks"), 
@@ -45,7 +33,7 @@ const Template = {
     previewSpan: z.number().default(2 * 7),
     prevEndISO: z.string().default(''),
     imageDownloadURL: z.string().default(''),
-    iconURL: z.string().default(''),
+    iconURL: z.string().default('')
   }),
 
   async create ({ userID, newTemplate, templateID }) {
@@ -84,9 +72,7 @@ const Template = {
 
   async delete ({ userID, id }) {
     return deleteDoc(doc(db, "users", userID, "templates", id))
-  },
-
-  getPeriodFromCrontab
+  }
 }
 
 export default Template 

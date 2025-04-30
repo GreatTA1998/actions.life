@@ -1,10 +1,11 @@
 <script>
   import { getContext } from 'svelte'
+  import { toWeeklyIndices } from '/src/routes/[user]/components/Templates/recurrenceParser.js'
 
   const inputStates = getContext('inputStates')
   const days = [, 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] // ISO 8601 standard uses 1-7 for Mon-Sun
 
-  let indices = toIndices($inputStates.weekly) // [1, 3, 7] means Mon, Tue & Sun are selected
+  let indices = toWeeklyIndices($inputStates.weekly) // [1, 3, 7] means Mon, Tue & Sun are selected
 
   $: onDaySelect(indices)
 
@@ -13,14 +14,6 @@
       ...states, 
       weekly: toRRStr(indices) 
     }))
-  }
-  
-  function toIndices (rrStr) {
-    const dayParts = rrStr?.match(/(?<=BYDAY=)[^;]*/) // BYDAY=TU,FR becomes TU,FR
-    if (!dayParts) return []
-    else {
-      return dayParts[0].split(',').map(day => days.indexOf(day))
-    }
   }
 
   function toRRStr (indices) {

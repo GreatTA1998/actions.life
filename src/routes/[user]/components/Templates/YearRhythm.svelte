@@ -1,5 +1,6 @@
 <script>
-  import { parseRecurrenceString, yearlyCrontabFromData } from './recurrenceParser.js'
+  import { crontabToState } from './crontab.js';
+  import { parseYearly } from './recurrenceParser.js'
   
   export let crontab
   export let rrStr = null
@@ -9,26 +10,14 @@
   let selectedDays = []
   let selectedMonths = []
 
-  // Parse data from either rrStr or crontab
   $: {
     if (rrStr) {
-      // Prioritize rrStr if available
-      const parsed = parseRecurrenceString(rrStr)
-      selectedMonths = parsed.yearlyData.selectedMonths
-      selectedDays = parsed.yearlyData.selectedDays
+      const { mmdd, year } = parseYearly(rrStr)
+      const [MM, dd] = mmdd.split('/')
+      selectedMonths = [MM]
+      selectedDays = [dd]
     } else if (crontab) {
-      // Fall back to crontab parsing
-      try {
-        const parts = crontab?.split(' ') || []
-        selectedDays = (parts[2] || '').split(',').filter(d => d).map(Number)
-        selectedMonths = (parts[3] || '').split(',').filter(m => m).map(Number)
-      } catch (e) {
-        selectedDays = []
-        selectedMonths = []
-      }
-    } else {
-      selectedDays = []
-      selectedMonths = []
+      ({ selectedMonths, selectedDays } = crontabToState(crontab))
     }
   }
 

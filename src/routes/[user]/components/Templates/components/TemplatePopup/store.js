@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { getOccurrences, instantiateTask } from '$lib/store/templateInstances.js'
 import { user } from '$lib/store'
 import { template } from '../../store.js'
+import { getPeriodicity } from '../../recurrenceParser.js'
 
 export const deletingTasks = writable([])
 export const addingTasks = writable([])
@@ -29,15 +30,6 @@ export async function reactToRRStr (pendingRRStr) {
   addingTasks.set(
     simulateChanges(get(template), pendingRRStr)
   )
-}
-
-function getPeriodicity (rrStr) {
-  if (!rrStr) return 'weekly'
-  
-  const lower = rrStr.toLowerCase()
-  if (lower.includes('freq=monthly')) return 'monthly'
-  if (lower.includes('freq=yearly')) return 'yearly'
-  return 'weekly'
 }
 
 export function resetPreviewStates() {

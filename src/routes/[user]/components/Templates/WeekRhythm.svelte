@@ -1,6 +1,7 @@
 <script>
-  import { parseRecurrenceString, weeklyCrontabFromSelectedDays } from './recurrenceParser.js'
-  
+  import { toWeeklyIndices } from './recurrenceParser.js'
+  import { crontabToState } from './crontab.js'
+
   const dayOfWeekSymbol = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
   export let crontab
@@ -10,34 +11,12 @@
   
   $: {
     if (rrStr) {
-      // Prioritize rrStr if available
-      const parsed = parseRecurrenceString(rrStr)
-      selectedDays = parsed.weeklyData.selectedDays
+      selectedDays = toWeeklyIndices(rrStr)
     } 
     else if (crontab) {
-      // Fall back to crontab parsing
-      try {
-        const weekdaysPart = crontab?.split(' ')[4]
-        if (weekdaysPart) {
-          // Convert from crontab format (1-7, where 1 is Monday, 7 is Sunday)
-          // to our format (0-6, where 0 is Sunday)
-          selectedDays = weekdaysPart.split(',')
-            .map(day => parseInt(day))
-            .map(day => day === 7 ? 0 : day)
-            .filter(day => !isNaN(day) && day >= 0 && day <= 6)
-        } else {
-          selectedDays = []
-        }
-      } catch (e) {
-        selectedDays = []
-      }
-    } else {
-      selectedDays = []
+      ({ selectedDays } = crontabToState(crontab))
     }
   }
-  
-  // Calculate effective crontab for visualization
-  $: effectiveCrontab = rrStr ? weeklyCrontabFromSelectedDays(selectedDays) : crontab
 </script>
 
 <div style="display: flex;">

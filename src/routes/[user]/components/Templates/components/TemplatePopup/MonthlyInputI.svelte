@@ -1,20 +1,18 @@
 <script>
-  import { createEventDispatcher, onMount } from 'svelte'
-  import { getContext } from 'svelte'
+  import { getContext, createEventDispatcher, onMount } from 'svelte'
+  import { parseMonthlyTypeI } from '/src/routes/[user]/components/Templates/recurrenceParser.js'
 
   const inputStates = getContext('inputStates')
-  
-  let selectedDays = new Set()
-  let lastDaySelected = false
-
   const variableDays = [29, 30, 31]
   const dispatch = createEventDispatcher()
   
+  let selectedDays = new Set()
+  
   $: lastDaySelected = variableDays.every(day => selectedDays.has(day))
-
+  $: dispatchChange(selectedDays)
+  
   onMount(() => {
-    parseRRuleString($inputStates['monthlyTypeI'])
-    selectedDays = selectedDays // Trigger reactivity
+    selectedDays = parseMonthlyTypeI($inputStates['monthlyTypeI'])
   })
 
   function createRRuleString () {
@@ -26,54 +24,24 @@
   }
   
   function toggleDay (day) {
-    if (selectedDays.has(day)) {
-      selectedDays.delete(day)
-    } else {
-      selectedDays.add(day)
-    }
-    
-    selectedDays = selectedDays // Trigger reactivity
-    dispatchChange()
+    if (selectedDays.has(day)) selectedDays.delete(day)
+    else selectedDays.add(day)
+    selectedDays = selectedDays
   }
   
   function toggleAllVariableDays () {
-    const areAllSelected = variableDays.every(day => selectedDays.has(day))
-    
-    if (areAllSelected) {
-      variableDays.forEach(day => selectedDays.delete(day))
-    } else {
-      variableDays.forEach(day => selectedDays.add(day))
-    }
-    
-    selectedDays = selectedDays // Trigger reactivity
-    dispatchChange()
-  }
-  
-  function parseRRuleString (rrStr) {
-    if (!rrStr || !rrStr.includes('FREQ=MONTHLY') || !rrStr.includes('BYMONTHDAY=')) return false
-    
-    selectedDays.clear()
-    
-    const bymonthdayMatch = rrStr.match(/BYMONTHDAY=([^;]*)/)
-    if (bymonthdayMatch) {
-      const days = bymonthdayMatch[1].split(',').map(Number)
-      days.forEach(day => selectedDays.add(day))
-      selectedDays = selectedDays // Trigger reactivity
-      return true
-    }
-    return false
+    if (lastDaySelected) variableDays.forEach(day => selectedDays.delete(day))
+    else variableDays.forEach(day => selectedDays.add(day))
+    selectedDays = selectedDays
   }
   
   function dispatchChange () {
-    const pattern = {
-      type: 'specific',
-      days: Array.from(selectedDays).sort((a, b) => a - b)
-    }
-    
-    const newRRuleStr = createRRuleString()
     dispatch('update', { 
-      pattern,
-      rrStr: newRRuleStr
+      pattern: {
+        type: 'specific',
+        days: Array.from(selectedDays).sort((a, b) => a - b)
+      },
+      rrStr: createRRuleString()
     })
   }
 </script>

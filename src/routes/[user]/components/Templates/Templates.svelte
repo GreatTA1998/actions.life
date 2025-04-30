@@ -7,7 +7,7 @@
   import { onSnapshot, collection } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
   import TemplatePopup from './components/TemplatePopup/TemplatePopup.svelte'
-  import { getPeriodFromCrontab } from '$lib/db/models/Template.js'
+  import { getPeriod } from '/src/routes/[user]/components/Templates/crontab.js'
   import { onMount } from 'svelte'
 
   let weeklyTasks = []
@@ -40,8 +40,9 @@
     return () => unsub()
   })
 
+  // this will need to be migrated to rrStr
   function filterByType (tasks, type) {
-    return tasks.filter(task => getPeriodFromCrontab(task.crontab) === type)
+    return tasks.filter(task => getPeriod(task.crontab) === type)
       .sort((a, b) => a.orderValue - b.orderValue)
   }
 </script>
@@ -111,11 +112,6 @@
     </div>
   </div>
 </div>
-
-<!-- <TemplateColumn templates={quickTasks} crontab="" />
-<TemplateColumn templates={[...quickTasks,...weeklyTasks]} crontab="0 0 * * 0" />
-<TemplateColumn templates={monthlyTasks} crontab="0 0 0 * *" />
-<TemplateColumn templates={yearlyTasks} crontab="0 0 0 0 *" /> -->
 
 <style>
   :root {
