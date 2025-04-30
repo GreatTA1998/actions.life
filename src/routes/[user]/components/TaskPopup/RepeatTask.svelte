@@ -1,34 +1,58 @@
 <script>
   import PeriodicityInputs from '../Templates/components/TemplatePopup/PeriodicityInputs.svelte';
-  import Task from '/src/lib/db/models/Task.js'
+  import RoundButton from '$lib/components/RoundButton.svelte';
+  import Template from '$lib/db/models/Template.js'
+  import { currentMode, closeTaskPopup } from '$lib/store'
+  import { openTemplateEditor } from '/src/routes/[user]/components/Templates/store.js'
 
   export let taskObject
 
-  let isPopupOpen = false
+  let isCreatingRoutine = false
   let pendingRRStr = ''
 
   $: console.log("pendingRRStr =", pendingRRStr)
 
-  function togglePopup() {
-    isPopupOpen = !isPopupOpen
+  function toggleCreate () {
+    isCreatingRoutine = !isCreatingRoutine
+  }
+
+  function redirectToRoutine () {
+    currentMode.set('Templates')
+    openTemplateEditor(taskObject.templateID)
+    closeTaskPopup()
+  }
+
+  function createRoutine () {
+    console.log("create routine")
+    Template.create({
+      newTemplate: {
+        ...taskObject,
+        rrStr: pendingRRStr
+      },
+      id: taskObject.id
+    })
   }
 </script>
 
-
 {#if taskObject.templateID}
-  <button class="action-button material-symbols-outlined">
+  <button on:click={redirectToRoutine} class="action-button material-symbols-outlined">
     autorenew
   </button>
 
-  <u style="cursor: pointer;">Manage routine</u>
+  <u on:click={redirectToRoutine} on:keydown style="cursor: pointer;">Manage routine</u>
 {:else}
-  <button on:click|stopPropagation={togglePopup} class="action-button material-symbols-outlined">
+  <button on:click|stopPropagation={toggleCreate} class="action-button material-symbols-outlined">
     autorenew
   </button>
 
-  <!-- TO-DO: initial create is from this popup. Subseauent is preview + edit from the routines page -->
-  {#if isPopupOpen}
+  {#if isCreatingRoutine}
     <PeriodicityInputs initialRRStr="" on:update-rr={e => pendingRRStr = e.detail} />
+
+    {#if pendingRRStr}
+      <RoundButton on:click={createRoutine} backgroundColor="rgb(0, 89, 125)" textColor="white">
+        Apply changes
+      </RoundButton>
+    {/if}
   {/if}
 {/if}
 

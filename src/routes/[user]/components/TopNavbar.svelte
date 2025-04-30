@@ -1,21 +1,19 @@
 <script>
-  import { openSettings } from '$lib/store'
+  import { openSettings, currentMode } from '$lib/store'
   import { createEventDispatcher } from 'svelte'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
-
-  export let currentMode
 
   const dispatch = createEventDispatcher()
 
   function recalibrateToCalendar () {
-    if (currentMode === 'Week') {
+    if ($currentMode === 'Week') {
       jumpToToday()
     }
     updateMode('Week')
   }
 
   function updateMode (newMode) {
-    dispatch('tab-click', newMode)
+    currentMode.set(newMode)
   }
 </script>
 
@@ -29,7 +27,7 @@
   <div class="day-week-toggle-segment">
     <button on:click={recalibrateToCalendar}
       class="ux-tab-item" 
-      class:active-ux-tab={currentMode === 'Week'}
+      class:active-ux-tab={$currentMode === 'Week'}
     >
       <span class="material-symbols-outlined" style="font-size: 32px;">
         house
@@ -38,7 +36,7 @@
 
     <button on:click={() => updateMode('Templates')}
       class="ux-tab-item"
-      class:active-ux-tab={currentMode === 'Templates'}
+      class:active-ux-tab={$currentMode === 'Templates'}
     >
       <span class="material-symbols-outlined" style="font-size: 32px;">
         autorenew
@@ -47,7 +45,7 @@
 
     <button on:click={() => updateMode('Schedule')}
       class="ux-tab-item"
-      class:active-ux-tab={currentMode === 'Schedule'}
+      class:active-ux-tab={$currentMode === 'Schedule'}
     >
       <span class="material-symbols-outlined" style="font-size: 32px;">
         upcoming
@@ -56,7 +54,7 @@
 
     <button on:click={() => updateMode('Archive')}
       class="ux-tab-item"
-      class:active-ux-tab={currentMode === 'Archive'}
+      class:active-ux-tab={$currentMode === 'Archive'}
     >
       <!-- archive -->
       <span class="material-symbols-outlined" style="font-size: 32px;">

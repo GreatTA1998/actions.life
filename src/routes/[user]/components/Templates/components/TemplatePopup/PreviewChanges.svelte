@@ -48,8 +48,8 @@
 
     {#if $exceptions.length}
       <div class="column">
-        <div class="column-title unchanged">{$exceptions.length} preserved</div>
-        <div class="preserved-note">These tasks have been modified and will not be affected by this change.</div>
+        <div class="column-title unchanged">{$exceptions.length} unchanged</div>
+        <div class="preserved-note">You've already edited these tasks so they will not be overridden.</div>
         <div class="tasks-list">
           {#each $exceptions as task}
             <PreviewChangesItem {task} type="unchanged" />

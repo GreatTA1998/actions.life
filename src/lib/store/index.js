@@ -11,6 +11,8 @@ export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes,
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
 
+export const currentMode = writable('Week')
+
 export const tasksCache = writable({})
 
 // NOTE: this must be called for every listener, otherwise unexpected code that relies on `tasksCache` will break

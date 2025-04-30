@@ -31,7 +31,7 @@
       for (const task of $addingTasks) {
         Task.create({ id: getRandomID(), newTaskObj: task })
       }
-      Template.update({ userID: $user.uid, id: $template.id, updates: { 
+      Template.update({ id: $template.id, updates: { 
         rrStr: pendingRRStr, 
         previewSpan: getPreviewSpan(pendingRRStr)
       }})
@@ -44,6 +44,12 @@
       // deleteTemplate({ templateID: $template.id })
       closeTemplateEditor()
     }
+  }
+
+  function formatTime(minutes) {
+    if (minutes < 60) return `${Math.round(minutes)} minutes`
+    const hours = Math.round(minutes / 60)
+    return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
   }
 </script>
 
@@ -58,6 +64,14 @@
     <!-- on:input={(e) => debouncedRenameTask(e.target.value)} -->
     <input value={$template.name} type="text" placeholder="Untitled" style="width: 100%; font-size: 24px;" class="title-underline-input" />
   </div>
+
+  {#await Template.getTotalStats({ id: $template.id })}
+    <div class="stats">Loading stats...</div>
+  {:then { minutesSpent, timesCompleted }}
+    <div class="stats">
+      Completed {timesCompleted} times, spent {formatTime(minutesSpent)}
+    </div>
+  {/await}
   
   {#if iconsMenu}
     <IconsDisplay />
@@ -115,7 +129,7 @@
 
   .action-button-container {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     margin-top: 16px;
   }
 
@@ -125,5 +139,12 @@
     right: 16px;
     border-radius: 50%;
     padding: 4px;
+  }
+
+  .stats {
+    color: #666;
+    font-size: 12px;
+    margin: 12px 0;
+    line-height: 1.4;
   }
 </style>

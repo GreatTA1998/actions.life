@@ -47,7 +47,7 @@ export function fillTaskInstances ({ template, startISO, uid }) {
     createTaskInstance({ template, occurence })
   }
 
-  Template.update({ userID: uid, id: template.id, updates: {
+  Template.update({ id: template.id, updates: {
     prevEndISO: DateTime.now().plus({ days: template.previewSpan }).toFormat('yyyy-MM-dd')
   }})
 }

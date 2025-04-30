@@ -4,10 +4,10 @@
   import YearRhythm from './YearRhythm.svelte'
   import { popup, template, templates, openTemplateEditor } from './store.js'
   import { user } from '$lib/store'
-  import { onSnapshot, collection } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
   import TemplatePopup from './components/TemplatePopup/TemplatePopup.svelte'
   import { getPeriod } from '/src/routes/[user]/components/Templates/crontab.js'
+  import { onSnapshot, collection } from 'firebase/firestore'
   import { onMount } from 'svelte'
 
   let weeklyTasks = []
@@ -25,6 +25,10 @@
       snapshot => {
         const result = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
         templates.set(result)
+
+        // rrStr
+        // yearly, monthly, then everything else (which we call "weekly")
+        // then for "weekly", divide into icon vs noIcon
 
         weeklyTasks = filterByType($templates, 'weekly')
         monthlyTasks = filterByType($templates, 'monthly')

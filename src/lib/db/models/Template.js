@@ -1,21 +1,10 @@
 import { z } from 'zod'
-import { db } from '/src/lib/db/init.js'
+import { db } from '$lib/db/init.js'
 import { updateFirestoreDoc } from '$lib/db/helpers.js'
+import { user } from '$lib/store'
 import { doc, getDocs, collection, query, setDoc, deleteDoc, where } from 'firebase/firestore'
 import { DateTime } from 'luxon'
-
-export const getTotalStats = async ({ userID, id }) => {
-  const q = query(
-    collection(db, "users", userID, "tasks"), 
-    where('templateID', '==', id), 
-    where('startDateISO', '<=', DateTime.now().toFormat('yyyy-MM-dd')), 
-    where('isDone', '==', true)
-  )
-  const snapshot = await getDocs(q)
-  const totalMinutesSpent = snapshot.docs.reduce((acc, doc) => acc + doc.data().duration, 0)
-  const totalTasksCompleted = snapshot.docs.length
-  return [totalTasksCompleted, totalMinutesSpent]
-}
+import { get } from 'svelte/store'
 
 const Template = {
   schema: z.object({
@@ -36,20 +25,23 @@ const Template = {
     iconURL: z.string().default('')
   }),
 
-  async create ({ userID, newTemplate, templateID }) {
+  async create ({ newTemplate, id }) {
     Template.schema.parse(newTemplate)
-    const docRef = doc(db, 'users', userID, 'templates', templateID)
+    const docRef = doc(db, `/users/${get(user).uid}/templates/${id}`)
     return setDoc(docRef, newTemplate, { merge: true }) // `merge: true` matters for generating periodic tasks
   },
 
-  async update ({ userID, id, updates }) {
+  async update ({ id, updates }) {
     return new Promise(async (resolve) => {
       const validatedChanges = Template.schema.partial().parse(updates)
-      await updateFirestoreDoc(`/users/${userID}/templates/${id}`, validatedChanges)
+      await updateFirestoreDoc(`/users/${get(user).uid}/templates/${id}`, validatedChanges)
       resolve()
     })
   },
-  ////////////////////////////////
+
+  async delete ({ userID, id }) {
+    alert('Not implemented yet')
+  },
 
   async getAll ({ userID, includeStats = true }) {
     const q = query(collection(db, "users", userID, "templates"))
@@ -59,19 +51,27 @@ const Template = {
       id: doc.id, 
       userID: doc.ref.parent.parent.id 
     }))
-    
-    if (!includeStats) return arraywithIds
-
-    for (const template of arraywithIds) {
-      const [totalTasksCompleted, totalMinutesSpent] = await getTotalStats({ userID, id: template.id })
-      template.totalTasksCompleted = totalTasksCompleted
-      template.totalMinutesSpent = totalMinutesSpent
-    }
     return arraywithIds
   },
 
-  async delete ({ userID, id }) {
-    return deleteDoc(doc(db, "users", userID, "templates", id))
+  async getTotalStats ({ id }) {
+    return new Promise(async (resolve) => {
+      const q = query(
+        collection(db, "users", get(user).uid, "tasks"), 
+        where('templateID', '==', id), 
+        where('startDateISO', '<=', DateTime.now().toFormat('yyyy-MM-dd')), 
+        where('isDone', '==', true)
+      )
+      const snapshot = await getDocs(q)
+      console.log("returning =", {
+        minutesSpent: snapshot.docs.reduce((acc, doc) => acc + doc.data().duration, 0),
+        timesCompleted: snapshot.docs.length
+      })
+      resolve({
+        minutesSpent: snapshot.docs.reduce((acc, doc) => acc + doc.data().duration, 0),
+        timesCompleted: snapshot.docs.length
+      })
+    })
   }
 }
 
