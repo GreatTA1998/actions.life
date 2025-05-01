@@ -21,7 +21,7 @@
           </TodoList>
         </div>
       {:else if activeTabName === 'FUTURE_VIEW'}
-        <ScheduleView on:task-duration-adjusted />
+        <Schedule on:task-duration-adjusted />
       {:else if activeTabName === 'CALENDAR_VIEW'}
         <Calendar />    
       {:else if activeTabName === 'AI_VIEW'}
@@ -43,8 +43,10 @@
 
       <button class="bottom-nav-tab" 
         on:click={() => {
-          hasInitialScrolled.set(false)
-          activeTabName = 'CALENDAR_VIEW'
+          if (activeTabName === 'CALENDAR_VIEW') jumpToToday()
+          else {
+            activeTabName = 'CALENDAR_VIEW'
+          }
         }}
         class:active-nav-tab={activeTabName === 'CALENDAR_VIEW'}
       >
@@ -64,7 +66,7 @@
             upcoming
           </span>
           <div class="nav-tab-desc">
-            Itinerary
+            Schedule
           </div>
         </div>
       </button>
@@ -87,10 +89,11 @@
   import Calendar from '../components/Calendar/Calendar.svelte'
   import TodoList from '../components/ListsArea/TodoList.svelte'
   import AI from '../components/AI/AI.svelte'
-  import ScheduleView from './ScheduleView.svelte'
+  import Schedule from './Schedule.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
 
-  import { user, hasInitialScrolled, isTaskPopupOpen } from '/src/lib/store'
+  import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
+  import { user, isTaskPopupOpen } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
   import { onDestroy, onMount } from 'svelte'
 

@@ -1,33 +1,31 @@
-<!-- `align-items: center` is a quickfix related to mystery height, probably from the invisible input -->
-<div style="display: flex; align-items: center;">
-  <span on:click={openFolderInput} class="material-symbols-outlined responsive-icon-size">
-    photo_library
-  </span>
+<div class="float-button" {style}>
+  <!-- `align-items: center` is a quickfix related to mystery height, probably from the invisible input -->
+  <div style="display: flex; align-items: center;">
+    <button on:click={openFolderInput} class="material-symbols-outlined responsive-icon-size">
+      photo_library
+    </button>
 
-  <input style="display: none;" 
-    bind:this={FolderInput}
-    on:change={(e) =>  handleFileChange(e)} 
-    multiple
-    type="file" 
-    accept="image/*" 
-  >
-</div>
+    <input style="display: none;" 
+      bind:this={FolderInput}
+      on:change={(e) =>  handleFileChange(e)} 
+      multiple
+      type="file" 
+      accept="image/*" 
+    >
+  </div>
+</div>  
 
 <script>
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
   import { getRandomID, getTimeInHHMM } from '/src/lib/utils/core.js'
-  import { user } from '/src/lib/store'
-  import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
   import Task from '/src/lib/db/models/Task.js'
+
+  export let style
 
   const storage = getStorage()
 
   let FolderInput
-
-  onMount(() => {
-
-  })
 
   function openFolderInput () {
     FolderInput.click()
@@ -100,13 +98,25 @@
 </script>
 
 <style>
+  .float-button {
+    position: absolute; 
+    right: 1vw; 
+    bottom: 1vw; 
+    z-index: 1; 
+    border: 1px solid lightgrey;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); 
+    height: 50px;
+    width: 50px;
+    border-radius: 30px;  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: hsl(98, 40%, 92%, 0.4);
+  }
+
   .responsive-icon-size {
     font-size: 34px;
-    /* clamp(1rem, 4vw, 1.5rem);   */
-    /* font-size: 24px;  */
-    cursor: pointer; 
     color: black;
     font-weight: 300;
-    /* rgb(120, 120, 120); */
   }
 </style>

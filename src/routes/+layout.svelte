@@ -10,8 +10,10 @@
   import { 
     migrateCalendarTasks,
     fixInvalidStartDateISOs,
-    migrateBasicProperties
+    migrateBasicProperties,
+    migrateTemplates
   } from '/src/lib/db/scripts/april.js'
+  import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
 
   let doingAuth = true
 
@@ -19,6 +21,7 @@
     window.fixInvalidStartDateISOs = fixInvalidStartDateISOs
     window.migrateBasicProperties = migrateBasicProperties
     window.migrateCalendarTasks = migrateCalendarTasks
+    window.migrateTemplates = migrateTemplates
 
     translateJSConstantsToCSSVariables()
 
@@ -50,26 +53,28 @@
   }
 </script>
 
-<!-- TO-DO: fix loader -->
-<!-- !(doingAuth || $loadingTasks) -->
-<div
-  id="loading-screen-logo-start"
-  style="z-index: 99999; background: white; width: 100vw; height: 100vh"
-  class="center"
-  class:invisible={!doingAuth}
->
-  <img
-    src="/logo-no-bg.png"
-    class="app-loading-logo elementToFadeInAndOut center"
-    alt="logo"
-    style="width: 48px; height: 48px;"
-  />
-</div>
-
 <div>
-  <slot>
+  <div
+    id="loading-screen-logo-start"
+    style="z-index: 99999; background: white; width: 100vw; height: 100vh"
+    class="center"
+    class:invisible={!doingAuth}
+  >
+    <img
+      src="/logo-no-bg.png"
+      class="app-loading-logo elementToFadeInAndOut center"
+      alt="logo"
+      style="width: 48px; height: 48px;"
+    />
+  </div>
 
-  </slot>
+  <div>
+    <slot>
+
+    </slot>
+  </div>
+
+  <TheSnackbar />
 </div>
 
 <style>
@@ -163,20 +168,6 @@
     user-select: none;
   }
 
-  /*
-    A full size invisible container to cover the entire screen for modularity purposes, 
-    not accidentally trigger click on other elements e.g. accidentally creating a new task on the calendar when you're just trying to exit
-  */
-  :global(.fullscreen-invisible-modular-popup-layer) {
-    width: 100vw; 
-    height: 100vh; 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    background: transparent; 
-    z-index: 2;
-  }
-
   /* Notion scrollbar styles */
   :global(::-webkit-scrollbar) {
     width: 6px;
@@ -207,6 +198,51 @@
 
   :global(.paper-shadow) {
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
+  }
+
+  /* utility classes (inspired by Tailwind, but custom for my needs) */
+  :global(.absolute) {
+    position: absolute;
+  }
+
+  :global(.relative) {
+    position: relative;
+  }
+
+  :global(.sticky) {
+    position: sticky;
+  }
+
+  :global(.flexbox) {
+    display: flex;
+  }
+
+  :global(.grid) {
+    display: grid;
+  }
+
+  :global(.z-1) {
+    z-index: 1;
+  }
+
+  :global(.z-0) {
+    z-index: 0;
+  }
+
+  :global(.top-0) {
+    top: 0;
+  }
+
+  :global(.left-0) {
+    left: 0;
+  }
+
+  :global(.text-left) {
+    text-align: left;
+  }
+
+  :global(.gap-0) {
+    gap: 0;
   }
 
   /* Original layout.svelte styles */

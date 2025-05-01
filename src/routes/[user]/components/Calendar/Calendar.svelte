@@ -1,24 +1,18 @@
 <script>
-  /** @see https://explanations.io/uRNISfkw0mE404Zn4GgH/ePfUWAU6CXL7leApJ9GP */
-
-  import TimestampLabels from './TimestampLabels.svelte'
+  import Timestamps from './Timestamps.svelte'
   import DayColumn from './DayColumn.svelte'
   import DayHeader from './DayHeader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
   import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
 
-  import { trackHeight } from '/src/lib/utils/svelteActions.js'
-  import { DateTime } from 'luxon'
-  import { calEarliestHHMM } from './timestamps.js'
-  import { headerHeight } from './store.js'
-  import { setupCalListener, treesByDate } from './service.js'
+  import { calEarliestHHMM, totalMinutes } from './timestamps.js'
+  import { headerHeight, pixelsPerHour } from './store.js'
+  import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
+  import { setupCalListener } from './service.js'
+  import { jumpToToday } from './autoScrolling.js'
+  import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount } from 'svelte'
 
-  const TOTAL_COLUMNS = 365
-  const COLUMN_WIDTH = 200
-  const c = 4 // stands for "cushion"
-
-  let originDT = DateTime.now().startOf('day').minus({ days: TOTAL_COLUMNS / 2 })
   let renderedColumnDTs = []
   let renderedLeft = Infinity
   let renderedRight = -Infinity
@@ -74,89 +68,44 @@
   }
 </script>
 
-<div class="cal-root">
-  <div class="float-button">
-    <MultiPhotoUploader />
-  </div>  
+<div class="relative z-0 grid" style="grid-template-rows: auto 1fr; height: 100%;">
+  <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
 
-  <YearAndMonthTile {viewportLeft} {originDT}/>
-
-  <div id="scroll-parent" on:scroll={e => scrollX = e.target.scrollLeft}>
-    <div class="scroll-content" style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px">
-      <TimestampLabels/>
+  <div class="relative" style:overflow="auto" use:jumpToToday on:scroll={e => scrollX = e.target.scrollLeft} id="scroll-parent">
+    <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flexbox">
+      <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {$totalMinutes * ($pixelsPerHour / 60)}px;"/>
 
       {#if renderedColumnDTs[0]}
-        <div style="position: absolute;" style:left={`${renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px`}>
-          <div use:trackHeight={h => headerHeight.set(h)} class="headers-flexbox">
+        <div class="absolute" style:left="{renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px">
+          <div class="sticky top-0 z-1 flexbox" use:trackHeight={h => headerHeight.set(h)} style="box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);">
             {#each renderedColumnDTs as dt (dt.toMillis())}
-              <DayHeader ISODate={dt.toFormat('yyyy-MM-dd')} />
+              <DayHeader {dt} />
             {/each}
           </div>
 
-          <div class="columns-flexbox">
+          <div class="flexbox pt-7">
             {#each renderedColumnDTs as dt (dt.toMillis())}
-              <DayColumn {dt}
-                scheduledTasks={$treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []}
-              />
+              <DayColumn {dt}/>
             {/each}
           </div>
         </div>
       {/if}
     </div>
   </div>
+
+  <MultiPhotoUploader style="position: absolute; right: 1vw; bottom: 1vw;"/>
 </div>
 
 <style>
-  .cal-root {
-    position: relative;
-    z-index: 0; /* otherwise it doesn't count as a stacking context */
-    display: grid; /* I vaguely remember I had to use grid so the children naturally take up 100% height */
-    grid-template-rows: auto 1fr;
-    height: 100%;
+  .pt-7 {
+    padding-top: 7px; /* timestamp has a height of 14px (despite a font size of 12px), note: this means the island and the massive-content will have a height difference of 7 px */
   }
 
   #scroll-parent {
-    position: relative;
-    overflow: auto;
-  }
-
-  #scroll-parent::-webkit-scrollbar { /* Hide scrollbar in Chrome, Safari and Opera */
-    display: none;
-  }
-
-  .scroll-content {
-    position: relative;
-    display: flex;
     background-color: var(--calendar-bg-color);
   }
 
-  .headers-flexbox {
-    display: flex;
-    position: sticky;
-    top: 0;
-    background: var(--calendar-bg-color);
-    z-index: 1;
-    box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);
-  }
-
-  .columns-flexbox {
-    display: flex;
-    padding-top: 7px; /* timestamp has a height of 14px (despite a font size of 12px) */
-  }
-
-  .float-button {
-    position: absolute; 
-    right: 1vw; 
-    bottom: 1vw; 
-    z-index: 1; 
-    border: 1px solid lightgrey;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); 
-    height: 50px;
-    width: 50px;
-    border-radius: 30px;  
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: hsl(98, 40%, 92%, 0.4);
+  #scroll-parent::-webkit-scrollbar { /* hide scrollbar in Chrome, Safari and Opera */
+    display: none;
   }
 </style>

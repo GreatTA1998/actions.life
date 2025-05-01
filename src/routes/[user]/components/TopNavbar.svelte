@@ -1,37 +1,33 @@
 <script>
-  import Settings from '../components/Settings/index.svelte'
-  import { hasInitialScrolled } from '/src/lib/store'
+  import { openSettings, currentMode } from '$lib/store'
   import { createEventDispatcher } from 'svelte'
-
-  export let currentMode
+  import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
 
   const dispatch = createEventDispatcher()
 
   function recalibrateToCalendar () {
-    if (currentMode === 'Week') {
-      hasInitialScrolled.set(false)
+    if ($currentMode === 'Week') {
+      jumpToToday()
     }
     updateMode('Week')
   }
 
   function updateMode (newMode) {
-    dispatch('tab-click', newMode)
+    currentMode.set(newMode)
   }
 </script>
 
 <div class="top-navbar">
-  <Settings let:setIsPopupOpen> 
-    <img on:click={() => setIsPopupOpen({ newVal: true })} on:keydown
-      src="/logo-no-bg.png"
-      style="width: 38px; height: 38px; margin-right: 6px; margin-left: -4px; cursor: pointer;"
-      alt=""
-    />
-  </Settings>
+  <img on:click={openSettings} on:keydown
+    src="/logo-no-bg.png"
+    style="width: 38px; height: 38px; margin-right: 6px; margin-left: -4px; cursor: pointer;"
+    alt=""
+  />
 
   <div class="day-week-toggle-segment">
     <button on:click={recalibrateToCalendar}
       class="ux-tab-item" 
-      class:active-ux-tab={currentMode === 'Week'}
+      class:active-ux-tab={$currentMode === 'Week'}
     >
       <span class="material-symbols-outlined" style="font-size: 32px;">
         house
@@ -40,16 +36,25 @@
 
     <button on:click={() => updateMode('Templates')}
       class="ux-tab-item"
-      class:active-ux-tab={currentMode === 'Templates'}
+      class:active-ux-tab={$currentMode === 'Templates'}
     >
       <span class="material-symbols-outlined" style="font-size: 32px;">
         autorenew
       </span>
     </button>
 
+    <button on:click={() => updateMode('Schedule')}
+      class="ux-tab-item"
+      class:active-ux-tab={$currentMode === 'Schedule'}
+    >
+      <span class="material-symbols-outlined" style="font-size: 32px;">
+        upcoming
+      </span>
+    </button>
+
     <button on:click={() => updateMode('Archive')}
       class="ux-tab-item"
-      class:active-ux-tab={currentMode === 'Archive'}
+      class:active-ux-tab={$currentMode === 'Archive'}
     >
       <!-- archive -->
       <span class="material-symbols-outlined" style="font-size: 32px;">

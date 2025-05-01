@@ -227,7 +227,7 @@
   .time-marker {
     position: absolute;
     left: calc(var(--timeline-left-margin) - 3px);
-    z-index: 3;
+    z-index: 1;
     pointer-events: none;
   }
   

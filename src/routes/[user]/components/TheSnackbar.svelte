@@ -1,116 +1,89 @@
-{#if !$isSnackbarHidden}
+{#if $snackbarState.isVisible}
   <div class="snack-wrap">
-    <div class="snackbar" style="display: flex; align-items: center;">
-      <slot>
-        <p>Root task completed.</p>
+    <div 
+      class="snackbar"
+      on:mouseenter={() => clearTimeout(timeoutId)} 
+      on:mouseleave={() => {
+        timeoutId = setTimeout(() => {
+          snackbarState.update(s => ({ ...s, isVisible: false }))
+        }, SNACKBAR_DURATION)
+      }}
+    >
+      <span class="message">{$snackbarState.message}</span>
 
-        <div style="margin-right: 2px; margin-left: auto;">
-
-        <a on:click={undoComplete}>Undo</a>
-
-        </div>
-      </slot>
+      {#if $snackbarState.undoAction}
+        <button on:click={handleUndo} class="undo-button">
+          Undo
+        </button>
+      {/if}
     </div>
   </div>
 {/if}
 
 <script>
-  import { createEventDispatcher } from "svelte"
-  import { mostRecentlyCompletedTaskID, isSnackbarHidden } from '/src/lib/store'
+  import { snackbarState, hideSnackbar, SNACKBAR_DURATION } from '/src/lib/store'
+  let timeoutId
 
-  $: if ($mostRecentlyCompletedTaskID) {
-    resetDisappearCountdown()
-  }
-
-  function resetDisappearCountdown () {
-    isSnackbarHidden.set(false)
-    clearTimeout(countdownID)
-    countdownID = setTimeout(() => {
-      isSnackbarHidden.set(true)
-    }, 5000)
-  }
-
-  let countdownID = ''
-
-  const dispatch = createEventDispatcher()
-
-  function undoComplete () {
-    dispatch('undo-task-completion')
+  function handleUndo() {
+    if ($snackbarState.undoAction) {
+      $snackbarState.undoAction()
+      hideSnackbar()
+    }
   }
 </script>
 
 <style>
-a {
-  flex: 1;
-  background-color: #323232;
-  color: #fff;
-  padding-top: 5px; 
-  padding-bottom: 5px;
-  padding-left: 6px;
-  padding-right: 6px;
-  text-align: center;
-  text-decoration: none;
-  transition: all 0.2s ease-out;
-  border: 1px solid #000;
-  font-size: 1rem;
-  height: 5px;
-}
+  .snack-wrap {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+  }
 
-a:hover,
-a:focus {
-  border: 1px solid #000;
-  background-color: #fff;
-  color: #323232;
-}
+  .snackbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 14px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 14px;
+    backdrop-filter: blur(8px);
+    min-width: 250px;
+    animation: fade-in 0.2s ease-out;
+  }
 
-.snack-wrap {
-  display:block;
-  position:fixed;
-  bottom:24px;
-  left: 50%;
-  right: 50%;
-  padding:0px;
+  .message {
+    font-weight: 500;
+  }
 
-  margin-left: -225px; 
-  /* half of width */
-  width: 450px;
+  .undo-button {
+    background: transparent;
+    color: #4A9EFF;
+    border: none;
+    padding: 4px 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: auto;
+    font-size: 14px;
+  }
 
-  z-index: 1;
-  border-radius: 8px;
-}
+  .undo-button:hover {
+    color: #7AB7FF;
+  }
 
-.snackbar {
-  display:block;
-  background:#222;
-  border:#f2f2f2;
-  padding:10px 40px 10px 20px;
-  color:#fff;
-  position:relative;
-  left:0px;
-  z-index:9;
-  border-radius: 16px;
-} 
-
-/* .animated {
-  animation-name: snackbar-show;
-  animation-duration: 1s;
-  animation-direction: forwards;
-  animation-timing-function: ease-in-out;
-  animation-delay:1s;
-  animation-fill-mode: forwards;
-} */
-/* .snackclose:checked~.snackbar, .snackclose:checked, .snackclose:checked+label {
-  animation-name: snackbar-hide;
-  animation-delay:0s;
-} */
-@keyframes snackbar-show {
-   0%{ bottom:-70px; }
-  90%, 95% {bottom:15px; }
-  92.5%, 100% {bottom:10px; }
-} 
-/* @keyframes snackbar-hide {
-   0%, 7.5% {bottom:10px; }
-  5%,10% {bottom:15px; }
-  100% {bottom:-70px; }
-} */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 </style>

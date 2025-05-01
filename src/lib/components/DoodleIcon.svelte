@@ -3,6 +3,7 @@
   import Task from '/src/lib/db/models/Task.js'
 
   export let iconTask
+  export let size = 32 // Default size for backward compatibility
 
   let timer
   let delay = 200
@@ -46,9 +47,9 @@
     src={iconTask.iconURL}
     class:clearly-visible={iconTask.isDone}
     class:task-not-done={!iconTask.isDone}
-    style="width: 32px; height: 32px; border: 0px solid blue; cursor: pointer;"
+    style="width: {size}px; height: {size}px; border: 0px solid blue; cursor: pointer;"
     class:radial-glow={iconTask.isDone}
-    class="ios-3d-touch-disable unselectable"
+    class="ios-3d-touch-disable unselectable mobile-no-double-tap-zoom"
     draggable="true"
     on:dragstart|self={(e) => startDragMove(e, iconTask.id)}
   />
@@ -57,6 +58,10 @@
 <style>
   .ios-3d-touch-disable {
     -webkit-touch-callout: none;
+  }
+
+  .mobile-no-double-tap-zoom {
+    touch-action: manipulation; /* see https://x.com/JohnPhamous/status/1909293861547262141 */
   }
 
   .task-not-done {

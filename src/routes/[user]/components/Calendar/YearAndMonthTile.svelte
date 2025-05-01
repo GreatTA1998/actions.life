@@ -1,11 +1,12 @@
 <script>
-  import { headerExpanded, headerHeight, isCompact } from './store.js'
+  import { headerExpanded, isCompact } from './store.js'
   import { treesByDate } from './service.js'
-  import { WIDTHS } from '/src/lib/utils/constants.js'
+  import { WIDTHS } from '$lib/utils/constants.js'
 
   export let monthName
   export let viewportLeft
   export let originDT
+  export let height
 
   let exactWidth = $isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
 
@@ -14,7 +15,7 @@
 </script>
 
 <div class="corner-label" style="
-  height: {$headerHeight}px; 
+  height: {height}px; 
   --timestamps-column-width: {exactWidth}px;
 ">
   <div style="display: flex; justify-content: center;"
@@ -50,7 +51,7 @@
   }
 
   .mobile-compact {
-    font-size: 12px;
+    font-size: 15px;
     margin-top: 12px;
     margin-left: 0px;
     flex-direction: row;

@@ -1,13 +1,17 @@
-import { writable, get } from 'svelte/store'
+import { db } from '/src/lib/db/init.js' // not initialize db first will cause permission errors
+
 import './themes'
+import './templateInstances'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { db } from '/src/lib/db/init.js'
 import { user } from './userStore.js'
 import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/todoService.js'
+import { writable, get } from 'svelte/store'
 
 export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from '/src/routes/[user]/components/Calendar/timestamps.js'
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
+
+export const currentMode = writable('Week')
 
 export const tasksCache = writable({})
 
@@ -26,6 +30,7 @@ export function updateCache (tasks) {
 
 export const clickedTaskID = writable('')
 export const isTaskPopupOpen = writable(false)
+export const settingsOpen = writable(false)
 export const ancestralTree = writable(null)
 
 let unsubAncestralTree = null
@@ -47,6 +52,14 @@ clickedTaskID.subscribe(async (taskID) => {
     console.error('Error in task tree subscription:', error)
   })
 })
+
+export function openSettings () {
+  settingsOpen.set(true)
+}
+
+export function closeSettings () {
+  settingsOpen.set(false)
+}
 
 export function openTaskPopup(task) {
   clickedTaskID.set(task.id)
@@ -74,8 +87,6 @@ export const mostRecentlyCompletedTaskName = writable('')
 // 200/24 is the week view value
 export const appModePixelsPerHour = writable(200 / 24)
 
-export const hasInitialScrolled = writable(false)
-
 export const showSnackbar = writable(false)
 
 export const userInfoFromAuthProvider = writable({}) // test if the page data method works. If not, fallback to this solution for creating a mirror doc
@@ -87,3 +98,35 @@ export const inclusiveWeekTodo = writable([])
 export const todoMemoryTree = writable(null)
 
 export const uniqueEvents = writable(null)
+
+// New snackbar store for undo operations
+export const snackbarState = writable({
+  isVisible: false,
+  message: '',
+  undoAction: null
+})
+
+export const SNACKBAR_DURATION = 5000
+let timeoutId = null
+
+export function showUndoSnackbar(message, undoAction) {
+  // Clear any existing timeout
+  if (timeoutId) clearTimeout(timeoutId)
+  
+  // Show new snackbar
+  snackbarState.set({
+    isVisible: true,
+    message,
+    undoAction
+  })
+
+  // Set new timeout
+  timeoutId = setTimeout(() => {
+    snackbarState.update(s => ({ ...s, isVisible: false }))
+  }, SNACKBAR_DURATION)
+}
+
+export function hideSnackbar() {
+  if (timeoutId) clearTimeout(timeoutId)
+  snackbarState.update(s => ({ ...s, isVisible: false }))
+}

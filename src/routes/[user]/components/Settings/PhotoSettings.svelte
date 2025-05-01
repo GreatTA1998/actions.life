@@ -20,84 +20,106 @@
       }
     }
   }
+
+  // Helper function to get readable layout name
+  function getReadableLayoutName(layout) {
+    const names = {
+      'side-by-side': 'Side By Side',
+      'top-and-below': 'Top And Below',
+      'full-photo': 'Full Photo'
+    };
+    return names[layout] || layout.replace(/-/g, ' ');
+  }
+
+  // Get description text for the selected layout
+  function getLayoutDescription(layout) {
+    if (layout === PhotoLayout.SIDE_BY_SIDE.value) {
+      return "Photo appears beside notes and details";
+    } else if (layout === PhotoLayout.TOP_AND_BELOW.value) {
+      return "Photo appears above notes and details";
+    } else if (layout === PhotoLayout.FULL_PHOTO.value) {
+      return "Photo takes up the entire card with minimal UI";
+    }
+    return "";
+  }
 </script>
 
-<div class="photo-settings-container">
-  <h3>Default Layout for Photos</h3>
-  
+<div class="photo-settings">
   <div class="layout-options">
     {#each photoLayoutOptions as layout}
-      <button on:click={() => updateDefaultPhotoLayout(layout)}
-        class="layout-option {$defaultPhotoLayout === layout ? 'selected' : ''}"
+      <button 
+        on:click={() => updateDefaultPhotoLayout(layout)}
+        class="layout-option"
+        class:active={$defaultPhotoLayout === layout}
       >
-        <div class="layout-icon material-symbols-outlined">
+        <span class="material-symbols-outlined layout-icon">
           {getIconForLayout(layout)}
-        </div>
-        <div class="layout-label">
-          {layout.replace(/-/g, ' ')}
-        </div>
+        </span>
+        <span class="layout-name">
+          {getReadableLayoutName(layout)}
+        </span>
       </button>
     {/each}
   </div>
-  
+
   <div class="layout-description">
-    {#if $defaultPhotoLayout === PhotoLayout.SIDE_BY_SIDE.value}
-      Photo appears beside notes and details
-    {:else if $defaultPhotoLayout === PhotoLayout.TOP_AND_BELOW.value}
-      Photo appears above notes and details
-    {:else if $defaultPhotoLayout === PhotoLayout.FULL_PHOTO.value}
-      Photo takes up the entire card with minimal UI
-    {/if}
+    {getLayoutDescription($defaultPhotoLayout)}
   </div>
 </div>
 
 <style>
-  .photo-settings-container {
-    padding: 16px;
-  }
-  
-  h3 {
-    margin-top: 0;
-    margin-bottom: 16px;
+  .photo-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
   
   .layout-options {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
   }
   
   .layout-option {
+    height: 80px;
+    background: #f8f8f8;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
-    cursor: pointer;
-    padding: 12px;
-    border-radius: 8px;
-    transition: background-color 0.2s;
+    justify-content: center;
+    padding: 8px;
+    transition: all 0.15s ease;
   }
   
   .layout-option:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background: #f0f0f0;
   }
   
-  .layout-option.selected {
-    background-color: rgba(0, 0, 0, 0.1);
+  .layout-option.active {
+    border-color: #6b6b6b;
+    background: white;
   }
   
   .layout-icon {
-    font-size: 32px;
+    font-size: 24px;
+    color: #555;
     margin-bottom: 8px;
   }
   
-  .layout-label {
-    text-transform: capitalize;
-    font-size: 14px;
+  .layout-name {
+    font-size: 12px;
+    color: #555;
+    font-weight: 500;
+    text-align: center;
   }
   
   .layout-description {
-    font-size: 14px;
-    color: #666;
-    margin-top: 8px;
+    font-size: 12px;
+    color: #777;
+    margin-top: 4px;
   }
 </style>

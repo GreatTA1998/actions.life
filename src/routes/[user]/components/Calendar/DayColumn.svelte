@@ -5,27 +5,29 @@
   import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import TimeIndicator from "./TimeIndicator.svelte"
 
-  import { DateTime } from "luxon"
-  import { getHHMM } from '/src/lib/utils/core.js'
+  import { DateTime } from 'luxon'
+  import { getHHMM } from '$lib/utils/core.js'
 
   import {
     user,
     grabOffset, activeDragItem,
-    timestamps, getMinutesDiff, calEarliestHHMM, totalMinutes, calLastHHMM, calSnapInterval
-  } from '/src/lib/store'
+    timestamps, totalMinutes, calLastHHMM, calSnapInterval
+  } from '$lib/store'
   import { pixelsPerHour } from './store.js'
-  import Task from '/src/lib/db/models/Task.js'
+  import { treesByDate } from './service.js'
+  import Task from '$lib/db/models/Task.js'
 
   import { onMount, onDestroy } from "svelte"
 
   export let dt
-  export let scheduledTasks = []
 
   let OverallContainer
   let isDirectlyCreatingTask = false
   let formFieldTopPadding = 40
   let yPosition
   let pixelsPerMinute = $pixelsPerHour / 60
+
+  $: scheduledTasks = $treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []
 
   // TO-DO: deprecate with luxon, but requires re-working <CreateTaskDirectly> perhaps with portals
   $: resultantDateClassObject = getResultantDateClassObject(yPosition)

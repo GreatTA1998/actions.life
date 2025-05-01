@@ -1,5 +1,9 @@
 <script>
-  import { onMount } from 'svelte'
+  import PhotoUpload from './PhotoUpload.svelte'
+  import RepeatTask from './RepeatTask.svelte'
+  import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
+  import UXFormTextArea from './UXFormTextArea.svelte'
+  import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
   import { 
     tasksCache,
     defaultPhotoLayout, 
@@ -7,19 +11,15 @@
     getIconForLayout,
     clickedTaskID, closeTaskPopup, ancestralTree
   } from '/src/lib/store'
-  import { createDebouncedFunction } from '/src/lib/utils/core.js'
-  import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
-  import UXFormTextArea from './UXFormTextArea.svelte'
+  import { createDebouncedFunction } from '$lib/utils/core.js'
   import Checkbox from '$lib/components/Checkbox.svelte'
+  import BasePopup from '$lib/components/BasePopup.svelte'
   import SharePhotoButton from '$lib/components/SharePhotoButton.svelte'
-  import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
-  import PhotoUpload from './PhotoUpload.svelte'
-  import Task from '/src/lib/db/models/Task.js'
+  import Task from '$lib/db/models/Task.js'
+  import { onMount } from 'svelte'
 
   let TaskImageElem
   let PopupElem
-
-  let isViewingPhoto = false
   let fullPhotoWidth, fullPhotoHeight 
   
   const debouncedUpdate = createDebouncedFunction(
@@ -28,6 +28,7 @@
   )
 
   $: taskObject = $tasksCache[$clickedTaskID]
+  $: console.log("taskObject =", taskObject)
 
   $: journalLayout = taskObject?.photoLayout || $defaultPhotoLayout
   
@@ -40,7 +41,6 @@
     if (taskObject.imageDownloadURL) {
       computePhotoFullDisplaySize()
     }
-    console.log("taskObject =", taskObject)
   })
 
   function handleDelete () {
@@ -88,15 +88,12 @@
 </script>
 
 {#if taskObject}
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="fullscreen-invisible-modular-popup-layer" on:click|self={closeTaskPopup} style="z-index: 10;">
-    <div class="task-popup {journalLayout}-container" bind:this={PopupElem}>
-      <div class="{journalLayout}">
+  <BasePopup on:click-outside={closeTaskPopup} zIndex={4} padding={0}>
+    <div class="{journalLayout}-container" bind:this={PopupElem}>
+      <div class={journalLayout}>
         {#if taskObject.imageDownloadURL}
-          <img src={taskObject.imageDownloadURL}
-            on:click|self={() => isViewingPhoto ? isViewingPhoto = false : ''} 
-            bind:this={TaskImageElem}
-            class:clear-image={isViewingPhoto}
+          <img bind:this={TaskImageElem}
+            src={taskObject.imageDownloadURL}
             class="{journalLayout}-image"
             alt="Task"
           >
@@ -110,8 +107,7 @@
                 zoom={1.2}
               />
             {/if}
-            <input 
-              value={taskObject.name}
+            <input value={taskObject.name}
               on:input={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
               placeholder="Untitled"
               type="text" 
@@ -121,8 +117,8 @@
 
           <StartTimeDurationNotify {taskObject} />
 
-          <div class="notes-tree-container" style="width: 100%; display: flex; flex-wrap: wrap; gap: 12px;">
-            <div class="notes-section" style="flex: 999 1 100%; min-width: 0;">
+          <div class="notes-tree-container">
+            <div class="notes">
               <UXFormTextArea value={taskObject.notes}
                 on:input={e => debouncedUpdate($clickedTaskID, { notes: e.detail })}
                 fieldLabel=""
@@ -131,24 +127,20 @@
             </div>
 
             {#if $ancestralTree}
-              <div class="tree-section" style="flex: 0 1 100%; min-width: 0; display: grid; row-gap: 12px;">
+              <div class="ancestral-tree">
                 {#if $ancestralTree.children.length > 0}
-                  <div style="display: flex; align-items: center; width: fit-content; box-sizing: border-box;">
-                    <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
-                      class:selected={taskObject.childrenLayout === 'timeline'}
-                      class:unselected={taskObject.childrenLayout !== 'timeline'}
-                      style="padding: 2px 8px;"
+                  <div class="children-layout-options">
+                    <button on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'timeline' } })}
+                      class:active={taskObject.childrenLayout === 'timeline'}
                     >
                       Timeline
-                    </span>
+                    </button>
             
-                    <span on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
-                      class:selected={taskObject.childrenLayout === 'normal'}
-                      class:unselected={taskObject.childrenLayout !== 'normal'}
-                      style="padding: 2px 8px;"
+                    <button on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { childrenLayout: 'normal' } })}
+                      class:active={taskObject.childrenLayout === 'normal'}
                     >
                       Normal
-                    </span>
+                    </button>
                   </div>  
                 {/if}
                 
@@ -182,47 +174,64 @@
 
             <PhotoUpload {taskObject}/>
 
-            <button on:click={async () => {
-              await Task.archiveTree({ id: taskObject.id })
-              closeTaskPopup()
-            }}
-            >
-              <span class="material-symbols-outlined" style="font-size: 22px; padding: 4px; font-weight: 600">
-                inventory_2
-              </span>
-              <span class="tooltip">Archive this task and all its children</span>
-            </button>
+            <RepeatTask {taskObject}/>
 
-            <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined">
-              delete
-              <span class="tooltip">Delete this task and all its children</span>
-            </button>
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
+              {#if !taskObject.isArchived}
+                <button 
+                  on:click={async () => {
+                    await Task.archiveTree({ id: taskObject.id })
+                    closeTaskPopup()
+                  }} 
+                  class="material-symbols-outlined action-button"
+                  style="font-size: 22px;"
+                >
+                  inventory_2
+                  <span class="tooltip">Archive this task and all its children</span>
+                </button>
+              {:else}
+                <button on:click={async () => Task.unarchiveTree({ id: taskObject.id })} class="action-button" style="background-color: black; color: white;">
+                  <span class="material-symbols-outlined" style="font-size: 22px;">
+                    inventory_2
+                  </span>
+                </button>
+              {/if}
+
+              <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined action-button">
+                delete
+                <span class="tooltip">Delete this task and all its children</span>
+              </button>
+            </div>
           </div>
         </div>
         <!-- task details container -->
       </div>
       <!-- padding container -->
     </div>
-    <!-- task-popup -->
-  </div>
-  <!-- modular invisible layer -->
+  </BasePopup>
 {/if}
 
 <style>
-  .selected {
-    border-bottom: 2px solid rgb(255, 196, 87);
+  .children-layout-options {
+    display: flex; 
+    align-items: center; 
+    width: fit-content; 
   }
 
-  .unselected {
+  .children-layout-options button {
+    padding: 2px 8px;
     border-bottom: 2px solid lightgrey;
     color: lightgrey;
   }
 
+  .children-layout-options button.active {
+    border-bottom: 2px solid black;
+    color: black;
+  }
+
   .side-by-side {
     display: flex;
-    
-    /* remember the caveat that align-items causes stretching by default */
-    align-items: flex-start; 
+    align-items: flex-start; /* remember the caveat that align-items causes stretching by default */
   }
 
   .side-by-side-container {
@@ -271,10 +280,7 @@
   }
 
   .delete-button {
-    margin-left: auto; 
-    right: 0px; 
     border-radius: 24px; 
-    padding: 4px;
   }
 
   ::-webkit-scrollbar {
@@ -284,44 +290,30 @@
   }
 
   .blurred-image {
-    filter: blur(6px) brightness(1.0) contrast(1.0) saturate(1.0);  z-index: -1;
+    filter: blur(6px) brightness(1.0) contrast(1.0) saturate(1.0);  
+    z-index: -1;
   }
 
   .clear-image {
     z-index: 1;
   }
 
-  .task-popup {
-    position: fixed;
-    width: 100%;
-    max-height: 90dvh;
-    font-size: 14px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 4;    
-    border-radius: 24px;
-    background-color: white;
-    box-shadow: 0px 0px 0px 9999px rgba(0, 0, 0, 0.5);
-    overflow-y: auto;
+  .notes-tree-container {
+    width: 100%; 
+    display: flex; 
+    justify-content: space-between;
+    flex-wrap: wrap; 
+    gap: 12px;
   }
 
-  @media (min-width: 768px) {
-    .task-popup {
-      width: 70%;
-    }
+  .notes {
+    flex: 1 1 400px; 
+  }
 
-    :global(.task-popup .notes-tree-container) {
-      flex-wrap: nowrap !important;
-    }
-
-    :global(.task-popup .notes-section) {
-      flex: 999 1 400px !important;
-    }
-
-    :global(.task-popup .tree-section) {
-      flex: 0 1 200px !important;
-    }
+  .ancestral-tree {
+    flex: 1 1 160px;
+    display: grid; 
+    row-gap: 12px;
   }
 
   /* Refer to: https://stackoverflow.com/a/3131082/7812829 */
@@ -363,5 +355,22 @@
 
   .delete-button:hover .tooltip {
     visibility: visible;
+  }
+
+  .action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+
+  .action-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .delete-button:hover {
+    color: #d32f2f;
   }
 </style>

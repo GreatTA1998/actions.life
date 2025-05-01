@@ -1,22 +1,22 @@
 <script>
-  import MinimalisticInput from "./MinimalisticInput.svelte"
-  import MyJSDatePicker from "./MyJSDatePicker.svelte";
-  import MyTimePicker from "./MyTimePicker.svelte";
-  import { DateTime } from "luxon";
-  import Task from '/src/lib/db/models/Task.js'
+  import MinimalisticInput from './MinimalisticInput.svelte'
+  import MyTimePicker from './MyTimePicker.svelte'
+  import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
+  import Task from '$lib/db/models/Task.js'
+  import { DateTime } from 'luxon'
 
-  export let taskObject;
+  export let taskObject
 
   let newStartMMDD = getLegacyMMDD(taskObject.startDateISO) 
   let newStartYYYY = taskObject.startDateISO ? taskObject.startDateISO.split('-')[0] : ''
 
-  let internalStartTime = taskObject.startTime;
+  let internalStartTime = taskObject.startTime
 
   function getLegacyMMDD (simpleISO) {
     if (!simpleISO) return 
     else {
-      const [YYYY, MM, DD] = simpleISO.split('-')
-      return MM + '/' + DD
+      const [yyyy, MM, dd] = simpleISO.split('-')
+      return MM + '/' + dd
     }
   }
 
@@ -49,7 +49,6 @@
       <MyJSDatePicker
         MMDD={newStartMMDD}
         YYYY={newStartYYYY}
-        placeholder="Nov 2"
         on:date-selected={e => { 
           newStartMMDD = e.detail.selectedDate
           newStartYYYY = e.detail.selectedYear
@@ -62,7 +61,7 @@
       />
 
       <MyTimePicker
-        placeholder="HH:MM"
+        placeholder="hh:mm"
         pattern="[0-9]{2}:[0-9]{2}"
         value={internalStartTime}
         on:input={(e) => handleChanges("startTime", e.detail.typedHHMM)}

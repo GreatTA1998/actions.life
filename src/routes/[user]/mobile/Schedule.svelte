@@ -1,19 +1,18 @@
 {#if $uniqueEvents}
   <div class="schedule-container">
-    <ToggleSwitch
-      label="Display scheduled routines too"
-      isChecked={$user.includeRoutinesInEvents}
-      on:change={async (e) => {
-        const newValue = e.detail.checked
-        updateFirestoreDoc(`users/${$user.uid}`, { includeRoutinesInEvents: newValue })
-      }}
-    />
-
+    <div class="header">
+      <h1 class="title">Schedule</h1>
+      <SimpleToggle bind:checked={$user.hideRoutines} label="Exclude routines" />
+    </div>
     <div class="events-list">
       {#each Object.keys($uniqueEvents) as simpleDateISO}
         {#if $uniqueEvents[simpleDateISO]}
-          <ScheduleViewDay 
-            tasksThisDay={$uniqueEvents[simpleDateISO]} 
+          <ScheduleItem 
+            tasksThisDay={[
+              ...$uniqueEvents[simpleDateISO].hasStartTime || [],
+              ...($uniqueEvents[simpleDateISO].noStartTime?.hasIcon || []),
+              ...($uniqueEvents[simpleDateISO].noStartTime?.noIcon || [])
+            ]} 
             {simpleDateISO}
           />
         {/if}
@@ -23,14 +22,13 @@
 {/if}
 
 <script>
-  import ScheduleViewDay from './ScheduleViewDay.svelte'
-  import ToggleSwitch from '$lib/components/ToggleSwitch.svelte'
+  import ScheduleItem from './ScheduleItem.svelte'
+  import SimpleToggle from '$lib/components/SimpleToggle.svelte'
   import { collection, query, where, onSnapshot } from 'firebase/firestore'
   import { DateTime } from 'luxon'
   import { onDestroy } from 'svelte'
   import { organizeToGroups } from '/src/routes/[user]/components/Calendar/service.js'
   import { db } from '$lib/db/init.js'  
-  import { updateFirestoreDoc } from '$lib/db/helpers.js'
   import { uniqueEvents, user } from '$lib/store'
   import { updateCache } from '$lib/store'
 
@@ -38,16 +36,14 @@
   let futureTasks
 
   $: if ($user.uid) {
-    // NOTE: currently triggers twice...but usable for now
-    listenToItinerary($user.uid, !$user.includeRoutinesInEvents)
+    listenToItinerary($user.uid, $user.hideRoutines)
   }
 
   onDestroy(() => {
     if (unsub) unsub()
   })
 
-  //  - listen to date range, suffices for startDateISO because children will be fetched on popup rendering unlike calendar view
-  async function listenToItinerary (uid, hideRoutines = false) {
+  async function listenToItinerary(uid, hideRoutines = false) {
     if (unsub) {
       unsub()
       uniqueEvents.set(null)
@@ -62,12 +58,13 @@
     unsub = onSnapshot(q, snapshot => {
       futureTasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
       updateCache(futureTasks)
+
       if (hideRoutines) {
         futureTasks = futureTasks.filter(task => task.templateID === '')
       }
-      uniqueEvents.set(
-        organizeToGroups(futureTasks)
-      )
+      const organized = organizeToGroups(futureTasks)
+
+      uniqueEvents.set(organized)
     })
   }
 </script>
@@ -76,15 +73,30 @@
   .schedule-container {
     display: flex;
     flex-direction: column;
+    row-gap: 16px;
     height: 100%;
-    background: #f5f5f5;
+    background: #f8f9fa;
+    padding: 16px;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 8px 0;
+    min-height: 32px;
+  }
+
+  .title {
+    font-size: 24px;
+    color: #202124;
+    margin: 0;
+    line-height: 32px;
   }
 
   .events-list {
-    padding: 24px;
     display: flex;
     flex-direction: column;
-    row-gap: 12px;
-    flex: 1;
+    gap: 24px;
   }
 </style>

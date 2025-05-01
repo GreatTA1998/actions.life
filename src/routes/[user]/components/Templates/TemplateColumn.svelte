@@ -1,18 +1,14 @@
 <script>
   import AddTemplate from './components/AddTemplate.svelte'
   import SimpleDropzone from '$lib/components/SimpleDropzone.svelte'
-  import EditTemplatePopup from './components/EditTemplatePopup/EditTemplatePopup.svelte'
-  import { updateTemplate } from './store.js'
+  import { updateTemplate, openTemplateEditor } from './store.js'
   import { getDisplayLength } from './utils.js'
-  import Template from '/src/lib/db/models/Template'
   
   export let templates
   export let crontab
 
   let draggedTemplate
   const templateWidthInPx = 180
-  const dayOfWeekSymbol = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-
 
   function handleDrop(newOrderValue) {
     updateTemplate({
@@ -42,39 +38,24 @@
       />
     {/if}
 
-    <EditTemplatePopup let:setIsPopupOpen {template}>
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div
-        on:click={() => setIsPopupOpen({ newVal: true })}
-        style="display: flex; align-items: center; cursor: pointer;"
-        draggable="true"
-        on:dragstart|self={(e) => (draggedTemplate = template)}
-      >
-        {#if template.iconURL}
-          <!-- svelte-ignore a11y-missing-attribute -->
-          <img src={template.iconURL} style="width: 60px; height: 60px;" />
-        {:else}
-          <div style="width: 60px; height: 60px" />
-        {/if}
+    <div 
+      on:click={() => openTemplateEditor(template.id)} on:keydown
+      on:dragstart|self={(e) => (draggedTemplate = template)}
+      draggable="true"
+      style="display: flex; align-items: center; cursor: pointer;"
+    >
+      {#if template.iconURL}
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <img src={template.iconURL} style="width: 60px; height: 60px;" />
+      {:else}
+        <div style="width: 60px; height: 60px" />
+      {/if}
 
-        <div style="width: {templateWidthInPx}px;">
-          <div style="font-size: 16px; font-color: rgb(120, 120, 120)">
-            {template.name}
-          </div>
-          {#if Template.getPeriodFromCrontab(template.crontab)==="weekly"}
-          <div style="display: flex; margin-top: 4px;">
-            {#each dayOfWeekSymbol as _, i}
-              <div
-                class="day-of-week-circle"
-                class:highlighted={template.crontab
-                  .split(' ')[4]
-                  .split(',')
-                  .includes((i + 1).toString())}
-              ></div>
-            {/each}
-          </div>
-          {/if}
-          {#if template.totalTasksCompleted}
+      <div style="width: {templateWidthInPx}px;">
+        <div style="font-size: 16px; font-color: rgb(120, 120, 120)">
+          {template.name}
+        </div>
+        {#if template.totalTasksCompleted}
           <div style="margin-left: 8px;">
             <div
               style="display: flex; align-items: center; margin-top: 8px;
@@ -96,12 +77,8 @@
             {Math.round((template.totalMinutesSpent / 60) * 10) / 10} hr            </div>
           </div>
         {/if}
-        </div>
-
-        <!-- Time spent statistics -->
-       
       </div>
-    </EditTemplatePopup>
+    </div>
 
     {#if i === templates.length - 1}
       <SimpleDropzone
@@ -112,23 +89,3 @@
     {/if}
   {/each}
 </div>
-
-<style src="./Column.css">
-  .day-of-week-circle {
-    border-radius: 2px;
-    background-color: rgb(223, 223, 223);
-    width: 4px;
-    height: 4px;
-    margin: 4px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: 1px solid rgb(111, 111, 111);
-  }
-
-  .highlighted {
-    background-color: orange;
-    border: none;
-  }
-</style>

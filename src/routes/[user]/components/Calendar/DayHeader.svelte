@@ -10,7 +10,9 @@
   import { treesByDate } from './service.js'
   import { headerExpanded, isCompact } from './store.js'
 
-  export let ISODate
+  export let dt 
+
+  $: ISODate = dt.toFormat('yyyy-MM-dd')
 
   let isDirectlyCreatingTask = false
 
@@ -41,24 +43,21 @@
   }
 </script>
 
-<div class="day-header sticky-day-of-week-abbreviation"
+<div class="day-header"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
   on:click|self={() => (isDirectlyCreatingTask = true)} on:keydown
   on:dragover={(e) => dragover_handler(e)}
   on:drop={(e) => drop_handler(e, ISODate)}
 >
   <div class="compact-horizontal unselectable">
-    <div
-      class="center-flex day-name-label"
+    <div class="center-flex day-name-label"
       class:active-day-name={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
     >
       {DateTime.fromISO(ISODate).toFormat('ccc')}
     </div>
 
     <div class="center-flex" style="font-size: 16px; font-weight: 300">
-      <div
-        class="center-flex"
-        style="padding: 0px 0px; width: 28px;"
+      <div class="center-flex" style="padding: 0px 0px; width: 28px;"
         class:active-date-number={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
       >
         {DateTime.fromISO(ISODate).toFormat('dd')}
@@ -122,12 +121,6 @@
     width: var(--width-calendar-day-section);
     padding-top: var(--main-content-top-margin);
     padding-bottom: 18px;
-  }
-
-  .sticky-day-of-week-abbreviation {
-    position: sticky;
-    top: 0px;
-    z-index: 1;
 
     font-size: 1.4em;
     background-color: var(--calendar-bg-color);

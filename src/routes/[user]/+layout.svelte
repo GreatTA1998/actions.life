@@ -9,7 +9,6 @@
 
   $: userID = $page.params.user
 
-  // fetch everything needed in parallel
   onMount(() => {
     listenToUserDoc(userID)
   })

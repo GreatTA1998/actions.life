@@ -25,14 +25,14 @@
       >
         <!-- {taskObj.orderValue}  -->
         {taskObj.name}
-        
-        {#if taskObj.startDateISO}
-          <span class="schedule-badge">
-            {DateTime.fromISO(taskObj.startDateISO).toRelative()}
-            {taskObj.startTime}
-          </span>
-        {/if}
       </div>
+
+      {#if taskObj.startDateISO}
+        <span class="schedule-badge">
+          {DateTime.fromISO(taskObj.startDateISO).toRelative()}
+          {taskObj.startTime}
+        </span>
+      {/if}
     </div>
 
     <div on:click={() => isTypingNewSubtask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px; font-size: {isLargeFont ? '48px' : ''}">
