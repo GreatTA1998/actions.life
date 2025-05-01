@@ -1,6 +1,1 @@
-## To run the website locally
-
-```bash
-npm install
-npm run dev
-```
+## To run the website locally (not ready)

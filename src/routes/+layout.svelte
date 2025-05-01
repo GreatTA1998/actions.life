@@ -1,16 +1,29 @@
 <script>
-  import '/src/app.css'
-  import { db } from '../back-end/firestoreConnection'
-  import { user, loadingTasks } from '../store/index.js'
+  import '$lib/db/init.js'
+  import { user, userInfoFromAuthProvider } from '$lib/store'
+  import posthog from 'posthog-js'
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
-  import { doc, setDoc, onSnapshot } from 'firebase/firestore'
   import { onMount } from 'svelte'
-  import posthog from 'posthog-js'
-  let unsubUserSnapListener = null
+  import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
+  import { 
+    migrateCalendarTasks,
+    fixInvalidStartDateISOs,
+    migrateBasicProperties,
+    migrateTemplates
+  } from '/src/lib/db/scripts/april.js'
+  import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
+
   let doingAuth = true
 
   onMount(() => {
+    window.fixInvalidStartDateISOs = fixInvalidStartDateISOs
+    window.migrateBasicProperties = migrateBasicProperties
+    window.migrateCalendarTasks = migrateCalendarTasks
+    window.migrateTemplates = migrateTemplates
+
+    translateJSConstantsToCSSVariables()
+
     // fetching user takes around 300 - 500 ms
     onAuthStateChanged(getAuth(), async (resultUser) => {
       if (!resultUser) {
@@ -24,64 +37,214 @@
         })
       } else {
         goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
-        user.set({
-          phoneNumber: resultUser.phoneNumber || '',
-          uid: resultUser.uid
-        })
-        // handle the snapshot listener
-        const ref = doc(db, '/users/' + resultUser.uid)
-        unsubUserSnapListener = onSnapshot(ref, async (snap) => {
-          if (!snap.exists()) {
-            initializeNewFirestoreUser(ref, resultUser)
-          } else {
-            user.set({ ...snap.data() }) // augment with id, path, etc. when needed in the future
-          }
+
+        userInfoFromAuthProvider.set({
+          email: resultUser.email,
+          uid: resultUser.uid 
         })
       }
       doingAuth = false
     })
   })
 
-  function isMobile() {
+  function isMobile () {
     return window.innerWidth <= 768 // You can adjust the width threshold as needed
-  }
-
-  async function initializeNewFirestoreUser(ref, resultUser) {
-    return await setDoc(
-      ref,
-      {
-        uid: resultUser.uid,
-        phoneNumber: resultUser.phoneNumber || '',
-        email: resultUser.email || ''
-        // allTasks: []
-      },
-      { merge: true }
-    ).catch((err) => console.error('error in initializeNewFirestoreUser', err))
   }
 </script>
 
-<div
-  id="loading-screen-logo-start"
-  style="z-index: 99999; background: white; width: 100vw; height: 100vh"
-  class="center"
-  class:invisible={!(
-    doingAuth || $loadingTasks
-  )}
->
-  <img
-    src="/trueoutput-square-nobg.png"
-    class="app-loading-logo elementToFadeInAndOut center"
-    alt="logo"
-    style="width: 48px; height: 48px;"
-  />
-</div>
-
 <div>
-  <slot></slot>
-   <!-- <h1>Website out for maintenance</h1> -->
+  <div
+    id="loading-screen-logo-start"
+    style="z-index: 99999; background: white; width: 100vw; height: 100vh"
+    class="center"
+    class:invisible={!doingAuth}
+  >
+    <img
+      src="/logo-no-bg.png"
+      class="app-loading-logo elementToFadeInAndOut center"
+      alt="logo"
+      style="width: 48px; height: 48px;"
+    />
+  </div>
+
+  <div>
+    <slot>
+
+    </slot>
+  </div>
+
+  <TheSnackbar />
 </div>
 
 <style>
+  :global(:root) {
+    --accent-color: rgb(92, 101, 22);
+    --base-color: rgb(0, 89, 125);
+    --sub-color: rgb(172, 160, 78);
+
+    --logo-twig-color: #b34f1b;
+    --location-indicator-color: var(--logo-twig-color);
+    --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */
+    --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
+    --calendar-section-left-spacing: 2vw;
+  }
+
+  :global(*) {
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* prevent accidental going back page */
+  /* https://stackoverflow.com/questions/30636930/disable-web-page-navigation-on-swipeback-and-forward?rq=1 */
+  :global(html, body) {
+    overscroll-behavior-x: none;
+  }
+
+  /* adding body { height: 100% } and remove html, body { overflow: hidden} at least allows you to scroll the page back up from the mystery white space, whereas
+  before the problem would happen AND you cannot scroll back up*/
+  :global(body) {
+    margin: 0;
+    height: 100%;
+  }
+
+  /* Reset button's default styling */
+  :global(button) {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    outline: inherit;
+    text-align: center;
+
+    /* Fix for Safari/iOS */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  :global(.simple-flex) {
+    display: flex;
+    align-items: center;
+  }
+
+  :global(.new-task-icon) {  
+    font-weight: 100;
+    color: var(--task-action-subtle-color);
+    font-size: 30px; 
+    line-height: 0.3;
+    margin-left: 4px; 
+    cursor: pointer;  
+  }
+
+  /* NOTE: must have a explicitly set width */
+  :global(.truncate-to-one-line) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Reused between some components */
+  :global(.reset-textarea) {
+    border: none;
+    overflow: auto;
+    outline: none;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    resize: none; /*remove the resize handle on the bottom right*/
+  }
+
+  :global(.unselectable) {
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+  }
+
+  /* Notion scrollbar styles */
+  :global(::-webkit-scrollbar) {
+    width: 6px;
+    height: 6px;
+    background: transparent;
+  }
+  :global(::-webkit-scrollbar-thumb) {
+    background: #D3D1CB;
+  }
+  :global(::-webkit-scrollbar-track) {
+    background: #EDECE9;
+  }
+
+  /* https://uxmovement.substack.com/p/how-to-use-surface-elevation-to-elevate
+    We base low, medium and high elevation on this essay.
+  */
+  :global(.core-shadow) {
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1)
+  }
+
+  :global(.cast-shadow) {
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  :global(.cast-shadow-max) {
+    box-shadow: 0px 18px 36px rgba(0, 0, 0, 0.08);
+  }
+
+  :global(.paper-shadow) {
+    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
+  }
+
+  /* utility classes (inspired by Tailwind, but custom for my needs) */
+  :global(.absolute) {
+    position: absolute;
+  }
+
+  :global(.relative) {
+    position: relative;
+  }
+
+  :global(.sticky) {
+    position: sticky;
+  }
+
+  :global(.flexbox) {
+    display: flex;
+  }
+
+  :global(.grid) {
+    display: grid;
+  }
+
+  :global(.z-1) {
+    z-index: 1;
+  }
+
+  :global(.z-0) {
+    z-index: 0;
+  }
+
+  :global(.top-0) {
+    top: 0;
+  }
+
+  :global(.left-0) {
+    left: 0;
+  }
+
+  :global(.text-left) {
+    text-align: left;
+  }
+
+  :global(.gap-0) {
+    gap: 0;
+  }
+
+  /* Original layout.svelte styles */
   .invisible {
     visibility: hidden;
   }
