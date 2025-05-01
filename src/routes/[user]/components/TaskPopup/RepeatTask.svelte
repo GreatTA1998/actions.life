@@ -2,6 +2,7 @@
   import PeriodicityInputs from '../Templates/components/TemplatePopup/PeriodicityInputs.svelte';
   import RoundButton from '$lib/components/RoundButton.svelte';
   import Template from '$lib/db/models/Template.js'
+  import Task from '$lib/db/models/Task.js'
   import { currentMode, closeTaskPopup } from '$lib/store'
   import { openTemplateEditor } from '/src/routes/[user]/components/Templates/store.js'
 
@@ -25,11 +26,18 @@
   function createRoutine () {
     console.log("create routine")
     Template.create({
+      id: taskObject.id,
       newTemplate: {
         ...taskObject,
         rrStr: pendingRRStr
-      },
-      id: taskObject.id
+      }
+    })
+
+    Task.update({
+      id: taskObject.id,
+      keyValueChanges: {
+        templateID: taskObject.id
+      }
     })
   }
 </script>
