@@ -9,14 +9,14 @@ import { get } from 'svelte/store'
 const Template = {
   schema: z.object({
     name: z.string(),
+    duration: z.number().default(0),
+    startTime: z.string().default(''),
     orderValue: z.number().default(0),
     lastGeneratedTask: z.string().default(''),
     tags: z.string().default(''),
     timeZone: z.string(),
     notes: z.string().default(''),
     notify: z.string().default(''),
-    duration: z.number().default(0),
-    startTime: z.string().default(''),
     isStarred: z.boolean().default(false),
     imageDownloadURL: z.string().default(''),
     iconURL: z.string().default(''),

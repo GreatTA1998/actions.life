@@ -8,7 +8,10 @@
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
   import BasePopup from '$lib/components/BasePopup.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
-  
+  import MyTimePicker from '$lib/components/MyTimePicker.svelte'
+  import MinimalisticInput from '$lib/components/MinimalisticInput.svelte'
+  import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
+
   import { getPeriodicity, getPreviewSpan, generateDates} from '$lib/utils/rrule.js'
   import { instantiateTask, isException } from './instances.js'
   import { template, closeTemplateEditor } from '../../store.js'
@@ -22,18 +25,14 @@
   import { collection, query, where, getDocs } from 'firebase/firestore'
   import { DateTime } from 'luxon'
 
+  const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
+
   let pendingRRStr = ''
   let iconsMenu = false
 
   let deletingTasks = []
   let addingTasks = []
   let exceptions = []
-
-  function resetPreviewStates() {
-    deletingTasks = []
-    addingTasks = []
-    exceptions = []
-  }
 
   $: reactToRRStr(pendingRRStr) // TO-DO: make this explicit, it's a crucial detail to be exposed
 
@@ -112,6 +111,23 @@
     const hours = Math.round(minutes / 60)
     return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
   }
+
+  function instantUpdate (key, value) {
+    if (typeof Number(value) !== "number") return
+
+    Template.update({
+      id: $template.id,
+      updates: {
+        [key]: value
+      }
+    })
+  }
+
+  function resetPreviewStates() {
+    deletingTasks = []
+    addingTasks = []
+    exceptions = []
+  }
 </script>
 
 <BasePopup on:click-outside={closeTemplateEditor}>
@@ -122,23 +138,46 @@
       </button>
     {/if}
 
-    <!-- on:input={(e) => debouncedRenameTask(e.target.value)} -->
-    <input value={$template.name} type="text" placeholder="Untitled" style="width: 100%; font-size: 24px;" class="title-underline-input" />
+    <input value={$template.name} 
+      on:input={e => debouncedUpdate('name', e.target.value)}
+      type="text" placeholder="Untitled" style="width: 100%; font-size: 24px;" class="title-underline-input"
+    />
   </div>
 
-  {#await Template.getTotalStats({ id: $template.id })}
-    <div class="stats">Loading stats...</div>
-  {:then { minutesSpent, timesCompleted }}
-    <div class="stats">
-      Completed {timesCompleted} times, spent {formatTime(minutesSpent)}
-    </div>
-  {/await}
+  <div class="flexbox" style="align-items: center">
+    {#await Template.getTotalStats({ id: $template.id })}
+      <div class="stats">Loading stats...</div>
+    {:then { minutesSpent, timesCompleted }}
+      <div class="stats">
+        Completed {timesCompleted} times, spent {formatTime(minutesSpent)}
+      </div>
+    {/await}
+  </div>
   
   {#if iconsMenu}
     <IconsDisplay />
   {/if}
 
-  <!-- <EditTime /> -->
+  <div style="display: flex; gap: 8px; align-items: start;">
+    <div style="flex: 1 1 400px;">
+      <UXFormTextArea value={$template.notes}
+        on:input={e => debouncedUpdate('notes', e.detail)}
+        fieldLabel=""
+        placeholder="Notes..."
+      />
+    </div>
+
+    <div class="flexbox" style="column-gap: 8px; align-items: center; justify-content: center;">
+      <MyTimePicker value={$template.startTime}
+        on:input={e => debouncedUpdate('startTime', e.detail.typedHHMM)}
+        on:time-selected={e => instantUpdate('startTime', e.detail.selectedHHMM)}
+      />
+      <MinimalisticInput
+        value={Math.round($template.duration)}
+        on:input={e => instantUpdate("duration", Number(e.target.value))}
+      />   
+    </div>
+  </div>
 
   <PeriodicityInputs 
     initialRRStr={$template.rrStr}

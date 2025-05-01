@@ -10,7 +10,7 @@ export function isException(task, template) {
   }
   
   for (const k of Object.keys(task)) {
-    if (['notes', 'duration', 'imageDownloadURL', 'iconURL'].includes(k)) {      
+    if (['notes', 'imageDownloadURL', 'iconURL'].includes(k)) {      
       if (task[k] !== template[k]) { 
         console.log("Exception found =", task.id, k, task[k], template[k])
         return true
