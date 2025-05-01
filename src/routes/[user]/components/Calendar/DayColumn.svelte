@@ -11,9 +11,10 @@
   import {
     user,
     grabOffset, activeDragItem,
-    timestamps, getMinutesDiff, calEarliestHHMM, totalMinutes, calLastHHMM, calSnapInterval
-  } from '/src/lib/store'
-  import { pixelsPerHour, treesByDate } from './store.js'
+    timestamps, totalMinutes, calLastHHMM, calSnapInterval
+  } from '$lib/store'
+  import { pixelsPerHour } from './store.js'
+  import { treesByDate } from './service.js'
   import Task from '$lib/db/models/Task.js'
 
   import { onMount, onDestroy } from "svelte"
