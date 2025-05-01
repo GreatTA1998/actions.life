@@ -2,8 +2,6 @@
   import { createEventDispatcher, tick } from 'svelte'
 
   export let value = ''
-  export let placeholder;
-  export let pattern;
 
   $: if (isMenuDisplayed) {
     tick().then(() => {
@@ -39,10 +37,9 @@
 </script>
 
 <div>
-  <input
-    {value}
-    placeholder={placeholder}
-    pattern={pattern}
+  <input {value}
+    placeholder='hh:mm'
+    pattern='[0-9]{2}:[0-9]{2}'
     on:input={(e) => dispatch('input', { typedHHMM: e.target.value })}
     on:click={() => (isMenuDisplayed = !isMenuDisplayed)}
     on:focusout={() => {
@@ -59,14 +56,11 @@
       <div class="my-grid">
         {#each hourChoices as hourChoice}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div
-            on:click={() => selectTime(hourChoice)}
+          <div on:click={() => selectTime(hourChoice)}
             class="time-option"
-            class:selected={Number(hourChoice.split(':')[0]) ===
-              new Date().getHours()}
+            class:selected={Number(hourChoice.split(':')[0]) === new Date().getHours()}
             class:highlighted-option={value === hourChoice}
-            class:closest-to-current-time={Number(hourChoice.split(':')[0]) ===
-              new Date().getHours()}
+            class:closest-to-current-time={Number(hourChoice.split(':')[0]) === new Date().getHours()}
           >
             {hourChoice}
           </div>

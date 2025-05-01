@@ -1,6 +1,5 @@
 <script>
-  import { parseMonthlyTypeI } from './recurrenceParser.js'
-  import { rruleToWeekday, positionToOccurrence } from './components/TemplatePopup/rruleUtils.js'
+  import { rruleToWeekday, positionToOccurrence, parseMonthlyTypeI } from '$lib/utils/rrule.js'
 
   export let rrStr = null
   

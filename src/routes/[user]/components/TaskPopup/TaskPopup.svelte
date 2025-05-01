@@ -2,8 +2,11 @@
   import PhotoUpload from './PhotoUpload.svelte'
   import RepeatTask from './RepeatTask.svelte'
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
-  import UXFormTextArea from './UXFormTextArea.svelte'
   import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
+  import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
+  import Checkbox from '$lib/components/Checkbox.svelte'
+  import BasePopup from '$lib/components/BasePopup.svelte'
+  import SharePhotoButton from '$lib/components/SharePhotoButton.svelte'
   import { 
     tasksCache,
     defaultPhotoLayout, 
@@ -12,9 +15,6 @@
     clickedTaskID, closeTaskPopup, ancestralTree
   } from '/src/lib/store'
   import { createDebouncedFunction } from '$lib/utils/core.js'
-  import Checkbox from '$lib/components/Checkbox.svelte'
-  import BasePopup from '$lib/components/BasePopup.svelte'
-  import SharePhotoButton from '$lib/components/SharePhotoButton.svelte'
   import Task from '$lib/db/models/Task.js'
   import { onMount } from 'svelte'
 
@@ -118,7 +118,7 @@
           <StartTimeDurationNotify {taskObject} />
 
           <div class="notes-tree-container">
-            <div class="notes">
+            <div style="flex: 1 1 400px;">
               <UXFormTextArea value={taskObject.notes}
                 on:input={e => debouncedUpdate($clickedTaskID, { notes: e.detail })}
                 fieldLabel=""
@@ -304,10 +304,6 @@
     justify-content: space-between;
     flex-wrap: wrap; 
     gap: 12px;
-  }
-
-  .notes {
-    flex: 1 1 400px; 
   }
 
   .ancestral-tree {

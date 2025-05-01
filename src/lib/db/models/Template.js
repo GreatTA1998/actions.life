@@ -9,20 +9,20 @@ import { get } from 'svelte/store'
 const Template = {
   schema: z.object({
     name: z.string(),
+    duration: z.number().default(0),
+    startTime: z.string().default(''),
     orderValue: z.number().default(0),
     lastGeneratedTask: z.string().default(''),
     tags: z.string().default(''),
     timeZone: z.string(),
     notes: z.string().default(''),
     notify: z.string().default(''),
-    duration: z.number().default(0),
-    startTime: z.string().default(''),
     isStarred: z.boolean().default(false),
+    imageDownloadURL: z.string().default(''),
+    iconURL: z.string().default(''),
     rrStr: z.string().default(''),
     previewSpan: z.number().default(2 * 7),
-    prevEndISO: z.string().default(''),
-    imageDownloadURL: z.string().default(''),
-    iconURL: z.string().default('')
+    prevEndISO: z.string().default('')
   }),
 
   async create ({ newTemplate, id }) {

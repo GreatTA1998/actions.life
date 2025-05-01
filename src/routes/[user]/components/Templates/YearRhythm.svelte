@@ -1,5 +1,5 @@
 <script>
-  import { parseYearly } from './recurrenceParser.js'
+  import { parseYearly } from '$lib/utils/rrule.js'
   
   export let rrStr = null
 

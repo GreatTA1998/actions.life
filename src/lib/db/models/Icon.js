@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { collection, getDocs, query, where, or, deleteDoc, doc, updateDoc, setDoc } from 'firebase/firestore'
-import { db } from '/src/lib/db/init.js'
+import { db } from '$lib/db/init.js'
 import { getStorage, ref, getDownloadURL, uploadString, deleteObject } from 'firebase/storage'
 
 const Icon = {

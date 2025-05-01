@@ -1,10 +1,11 @@
 <script>
-  import { 
-    deletingTasks, addingTasks, exceptions, 
-    getPreviewSpan 
-  } from './store.js'
+  import { getPreviewSpan } from '$lib/utils/rrule.js'
   import PreviewChangesItem from './PreviewChangesItem.svelte'
   import { DateTime } from 'luxon'
+
+  export let addingTasks
+  export let deletingTasks
+  export let exceptions
 
   export let pendingRRStr = ''
 
@@ -24,34 +25,34 @@
   </div>
 
   <div class="columns-container">
-    {#if $addingTasks.length}
+    {#if addingTasks.length}
       <div class="column">
-        <div class="column-title creation">{$addingTasks.length} addition{pluralize($addingTasks.length)}</div>
+        <div class="column-title creation">{addingTasks.length} addition{pluralize(addingTasks.length)}</div>
         <div class="tasks-list">
-          {#each $addingTasks as task (task.startDateISO)}
+          {#each addingTasks as task (task.startDateISO)}
             <PreviewChangesItem {task} type="creation" />
           {/each}
         </div>
       </div>
     {/if}
 
-    {#if $deletingTasks.length}
+    {#if deletingTasks.length}
       <div class="column">
-        <div class="column-title deletion">{$deletingTasks.length} deletion{pluralize($deletingTasks.length)}</div>
+        <div class="column-title deletion">{deletingTasks.length} deletion{pluralize(deletingTasks.length)}</div>
         <div class="tasks-list">
-          {#each $deletingTasks as task}   
+          {#each deletingTasks as task}   
             <PreviewChangesItem {task} type="deletion" />
           {/each}
         </div>
       </div>
     {/if}
 
-    {#if $exceptions.length}
+    {#if exceptions.length}
       <div class="column">
-        <div class="column-title unchanged">{$exceptions.length} unchanged</div>
+        <div class="column-title unchanged">{exceptions.length} unchanged</div>
         <div class="preserved-note">You've already edited these tasks so they will not be overridden.</div>
         <div class="tasks-list">
-          {#each $exceptions as task}
+          {#each exceptions as task}
             <PreviewChangesItem {task} type="unchanged" />
           {/each}
         </div>
@@ -59,7 +60,7 @@
     {/if}
   </div>
   <div class="preview-subtitle">
-    As each day goes by, new tasks will be auto-generated as needed (preview window: {getPreviewSpan({ rrStr:pendingRRStr })} days) 
+    As each day goes by, new tasks will be auto-generated as needed (preview window: {getPreviewSpan({ rrStr: pendingRRStr })} days) 
   </div>
 </div>
 

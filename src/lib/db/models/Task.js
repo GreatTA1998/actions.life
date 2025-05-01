@@ -1,16 +1,15 @@
 import { z } from 'zod'
-import { deleteImage } from '/src/lib/db/helpers.js'
+import { deleteImage } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
-import { user, tasksCache } from '/src/lib/store/index.js'
+import { user, tasksCache } from '$lib/store/index.js'
 import { 
   writeBatch, getDocs, increment, 
   collection, query, where, 
   updateDoc, onSnapshot, doc 
 } from 'firebase/firestore'
-import { db } from '/src/lib/db/init.js'
-import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion } from './treeISOs.js'
-import { getTreeNodes } from './treeISOs.js'
-import { showUndoSnackbar } from '/src/lib/store'
+import { db } from '$lib/db/init.js'
+import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion, getTreeNodes } from './treeISOs.js'
+import { showUndoSnackbar } from '$lib/store'
 
 export function isValidISODate (dateStr) {
   if (dateStr === '') return true
