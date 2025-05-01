@@ -1,8 +1,6 @@
 <script>
-  import { crontabToState } from './crontab.js';
   import { parseYearly } from './recurrenceParser.js'
   
-  export let crontab
   export let rrStr = null
 
   const monthAbbrev = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
@@ -16,8 +14,6 @@
       const [MM, dd] = mmdd.split('/')
       selectedMonths = [MM]
       selectedDays = [dd]
-    } else if (crontab) {
-      ({ selectedMonths, selectedDays } = crontabToState(crontab))
     }
   }
 

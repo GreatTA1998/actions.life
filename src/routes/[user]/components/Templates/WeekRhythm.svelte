@@ -1,35 +1,25 @@
 <script>
   import { toWeeklyIndices } from './recurrenceParser.js'
-  import { crontabToState } from './crontab.js'
 
-  const dayOfWeekSymbol = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+  const dayOfWeekSymbol = [, 'M', 'T', 'W', 'T', 'F', 'S', 'S']
 
-  export let crontab
   export let rrStr = null
   
   let selectedDays = []
   
-  $: {
-    if (rrStr) {
-      selectedDays = toWeeklyIndices(rrStr)
-    } 
-    else if (crontab) {
-      ({ selectedDays } = crontabToState(crontab))
-    }
-  }
+  $: selectedDays = toWeeklyIndices(rrStr)
 </script>
 
 <div style="display: flex;">
   {#each dayOfWeekSymbol as _, i}
-    <div
-      class="day-of-week-circle"
-      class:highlighted={selectedDays.includes(i)}
-    ></div>
+    {#if i !== 0}
+      <div class="circle" class:highlighted={selectedDays.includes(i)}></div>
+    {/if}
   {/each}
 </div>
 
 <style>
-  .day-of-week-circle {
+  .circle {
     border-radius: 50%;
     background-color: rgb(223, 223, 223);
     width: 6px;

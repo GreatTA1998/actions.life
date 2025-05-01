@@ -63,10 +63,6 @@ const Template = {
         where('isDone', '==', true)
       )
       const snapshot = await getDocs(q)
-      console.log("returning =", {
-        minutesSpent: snapshot.docs.reduce((acc, doc) => acc + doc.data().duration, 0),
-        timesCompleted: snapshot.docs.length
-      })
       resolve({
         minutesSpent: snapshot.docs.reduce((acc, doc) => acc + doc.data().duration, 0),
         timesCompleted: snapshot.docs.length

@@ -2,22 +2,19 @@
   import WeekRhythm from './WeekRhythm.svelte'
   import MonthRhythm from './MonthRhythm.svelte'
   import YearRhythm from './YearRhythm.svelte'
+  import { getPeriodicity } from './recurrenceParser.js'
   import { popup, template, templates, openTemplateEditor } from './store.js'
   import { user } from '$lib/store'
   import { db } from '$lib/db/init.js'
   import TemplatePopup from './components/TemplatePopup/TemplatePopup.svelte'
-  import { getPeriod } from '/src/routes/[user]/components/Templates/crontab.js'
   import { onSnapshot, collection } from 'firebase/firestore'
   import { onMount } from 'svelte'
 
-  let weeklyTasks = []
-  let monthlyTasks = []
-  let yearlyTasks = []
-  let quickTasks = []
-
-  let frequentRoutines = []
-  let iconHabits = []
-  let noIconHabits = []
+  let yearly = []
+  let monthly = []
+  let weekly = []
+  let iconRoutines = []
+  let noIconRoutines = []
 
   onMount(() => {
     const unsub = onSnapshot(
@@ -26,45 +23,33 @@
         const result = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
         templates.set(result)
 
-        // rrStr
-        // yearly, monthly, then everything else (which we call "weekly")
-        // then for "weekly", divide into icon vs noIcon
-
-        weeklyTasks = filterByType($templates, 'weekly')
-        monthlyTasks = filterByType($templates, 'monthly')
-
-        frequentRoutines = [...quickTasks, ...weeklyTasks]
-        iconHabits = frequentRoutines.filter(task => task.iconURL)
-        noIconHabits = frequentRoutines.filter(task => !task.iconURL)
-
-        yearlyTasks = filterByType($templates, 'yearly')
-        quickTasks = filterByType($templates, 'quick')
+        yearly = filterByType($templates, 'yearly')
+        monthly = filterByType($templates, 'monthly')
+        weekly = filterByType($templates, 'weekly')
+        iconRoutines = weekly.filter(routine => routine.iconURL)
+        noIconRoutines = weekly.filter(routine => !routine.iconURL)
       }
     )
     return () => unsub()
   })
 
-  // this will need to be migrated to rrStr
-  function filterByType (tasks, type) {
-    return tasks.filter(task => getPeriod(task.crontab) === type)
+  function filterByType (routines, type) {
+    return routines
+      .filter(routine => getPeriodicity(routine.rrStr) === type)
       .sort((a, b) => a.orderValue - b.orderValue)
   }
 </script>
 
 <div style="padding: 48px; height: 100%; overflow-y: auto;">
-  {#if $popup && $template}
-    <TemplatePopup />
-  {/if}
-
   <div style="display: flex; width: 90vw; justify-content: space-between; gap: 48px;">
     <div style="display: flex; gap: 16px; flex-wrap: wrap; max-width: 480px; align-content: flex-start;">
       <span class="my-header">
         WEEKLY
       </span>
-      {#each iconHabits as habit}
-        <button on:click={() => openTemplateEditor(habit.id)} class="grid gap-0 text-left">
-          <img src={habit.iconURL} alt="icon" style="width: 60px; height: 60px;" />
-          <WeekRhythm crontab={habit.crontab} rrStr={habit.rrStr} />
+      {#each iconRoutines as routine (routine.id)}
+        <button on:click={() => openTemplateEditor(routine.id)} class="grid gap-0 text-left">
+          <img src={routine.iconURL} alt="icon" style="width: 60px; height: 60px;" />
+          <WeekRhythm rrStr={routine.rrStr} />
         </button>
       {/each}
     </div>
@@ -73,10 +58,10 @@
       <div style="height: 0px;">
 
       </div>
-      {#each noIconHabits as habit}
-        <button on:click={() => openTemplateEditor(habit.id)} class="grid gap-0 text-left">
-          <div class="truncate-to-one-line">{habit.name}</div>
-          <WeekRhythm crontab={habit.crontab} rrStr={habit.rrStr} />
+      {#each noIconRoutines as routine (routine.id)}
+        <button on:click={() => openTemplateEditor(routine.id)} class="grid gap-0 text-left">
+          <div class="truncate-to-one-line">{routine.name}</div>
+          <WeekRhythm rrStr={routine.rrStr} />
         </button>
       {/each}
     </div>
@@ -87,10 +72,10 @@
       </span>
 
       <div style="margin-left: 24px; margin-top: 24px; display: grid; gap: 24px; align-items: start; grid-auto-rows: min-content; max-width: 300px;">
-        {#each monthlyTasks as task}
-          <button on:click={() => openTemplateEditor(task.id)} class="grid gap-0 text-left">
-            <div class="truncate-to-one-line">{task.name}</div>
-            <MonthRhythm crontab={task.crontab} rrStr={task.rrStr} />
+        {#each monthly as routine (routine.id)}
+          <button on:click={() => openTemplateEditor(routine.id)} class="grid gap-0 text-left">
+            <div class="truncate-to-one-line">{routine.name}</div>
+            <MonthRhythm rrStr={routine.rrStr} />
           </button>
         {/each}
       </div>
@@ -102,15 +87,19 @@
       </span>
 
       <div style="margin-left: 24px; margin-top: 24px; display: grid; gap: 24px; align-items: start; grid-auto-rows: min-content;">
-        {#each yearlyTasks as task}
-          <button on:click={() => openTemplateEditor(task.id)} class="grid gap-0 text-left">
-            <div class="truncate-to-one-line">{task.name}</div>
-            <YearRhythm crontab={task.crontab} rrStr={task.rrStr} />
+        {#each yearly as routine (routine.id)}
+          <button on:click={() => openTemplateEditor(routine.id)} class="grid gap-0 text-left">
+            <div class="truncate-to-one-line">{routine.name}</div>
+            <YearRhythm rrStr={routine.rrStr} />
           </button>
         {/each}
       </div>
     </div>
   </div>
+
+  {#if $popup && $template}
+    <TemplatePopup />
+  {/if}
 </div>
 
 <style>
