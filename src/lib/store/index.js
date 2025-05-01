@@ -72,7 +72,7 @@ export function closeTaskPopup() {
 }
 
 export const todoTasks = writable(null)
-export { calendarTasks, treesByDate } from '/src/routes/[user]/components/Calendar/store.js'
+
 export const loadingTasks = writable(true)
 
 export const doodleIcons = writable([])

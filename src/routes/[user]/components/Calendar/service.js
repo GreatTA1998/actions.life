@@ -1,14 +1,16 @@
 /** Handles everything data-related for <Calendar/>, from snapshot listeners to tree building. */
-import { treesByDate, treesByID } from './store.js'
 import { updateCache } from '/src/lib/store'
 import { DateTime } from 'luxon'
 import { pureNumericalHourForm } from '/src/lib/utils/core.js'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '/src/lib/db/init'
 import { page } from '$app/stores'
-import { get } from 'svelte/store'
+import { get, writable } from 'svelte/store'
 
 const listeners = {}
+
+export const treesByID = writable({})
+export const treesByDate = writable({})
 
 export function setupCalListener (leftDT, rightDT) {  
   const leftISO = leftDT.toFormat('yyyy-MM-dd')

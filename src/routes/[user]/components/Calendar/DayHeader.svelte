@@ -2,10 +2,13 @@
   import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
-  import { activeDragItem } from '/src/lib/store'
-  import { headerExpanded, isCompact, treesByDate } from './store.js'
+
+  import Task from '$lib/db/models/Task.js'
+  import { activeDragItem } from '$lib/store'
   import { DateTime } from 'luxon'
-  import Task from '/src/lib/db/models/Task.js'
+
+  import { treesByDate } from './service.js'
+  import { headerExpanded, isCompact } from './store.js'
 
   export let dt 
 
