@@ -1,55 +1,61 @@
 import { user } from './userStore.js'
 import { updateCache } from '$lib/store'
-import { getFirestoreCollection } from '$lib/db/helpers.js'
+import { getFirestoreCollection, updateFirestoreDoc } from '$lib/db/helpers.js'
 import Task from '$lib/db/models/Task.js'
 import Template from '$lib/db/models/Template.js'
 import { DateTime } from 'luxon'
 import { db } from '$lib/db/init.js'
 import { query, collection, where, getDocs } from 'firebase/firestore'
+import { getPreviewSpan } from '/src/routes/[user]/components/Templates/components/TemplatePopup/store.js'
 
 // get around the CommonJS vs ES Module issue
 import * as rrule from 'rrule'
 const { RRule } = rrule
 
 user.subscribe(async ($user) => {
-  // if ($user.uid) {
-  //   const templates = await getFirestoreCollection('/users/' + $user.uid + '/templates')
-  //   for (const template of templates) {
-  //     let prevEndISO = template.prevEndISO ? template.prevEndISO : DateTime.now().toFormat('yyyy-MM-dd')
-  //     fillTaskInstances({ 
-  //       template, 
-  //       startISO: prevEndISO, 
-  //       uid: $user.uid 
-  //     })
-  //   }
-  // }
+  if ($user.uid) {
+    if ($user.lastRanRoutines !== DateTime.now().toFormat('yyyy-MM-dd')) {
+      console.log("auto-generating routines")
+      
+      const templates = await getFirestoreCollection('/users/' + $user.uid + '/templates')
+      for (const template of templates) {
+        fillTaskInstances({ 
+          template, 
+          startISO: template.prevEndISO || DateTime.now().toFormat('yyyy-MM-dd'),
+          uid: $user.uid 
+        })
+      }
+      // not safe as it doesn't await, but good enough for now.
+      updateFirestoreDoc(`/users/${$user.uid}`, { 
+        lastRanRoutines: DateTime.now().toFormat('yyyy-MM-dd') 
+      })
+    }
+  }
 })
 
-export function getOccurrences ({ template, startISO, uid }) {
-  if (!template.rrStr) return []
-  
-  let { rrStr, previewSpan } = template
-  if (!previewSpan) previewSpan = 2*7
-  
-  const start = new Date(startISO)
-  const end = DateTime.now().plus({ days: previewSpan }).toJSDate()
-  const occurences = RRule.fromString(rrStr).between(
-    start,
-    end,
-    false // excludes start date
-  )
-  // console.log('start, end, occurences =', start, end, occurences)
-  return occurences
-}
-
-export function fillTaskInstances ({ template, startISO, uid }) {
-  for (const occurence of getOccurrences({ template, startISO, uid })) {
-    createTaskInstance({ template, occurence })
+export function fillTaskInstances ({ template, startISO }) {
+  for (const occurence of generateDates({ rrStr: template.rrStr, startISO, previewSpan: template.previewSpan  })) {
+    createTaskInstance({ template, occurence }) // note the single `r` in occurence
   }
 
   Template.update({ id: template.id, updates: {
     prevEndISO: DateTime.now().plus({ days: template.previewSpan }).toFormat('yyyy-MM-dd')
   }})
+}
+
+export function generateDates ({ rrStr, startISO, previewSpan }) {
+  if (!rrStr) return []
+  
+  if (!previewSpan) previewSpan = getPreviewSpan(rrStr)
+  console.log("rrStr =", rrStr)
+  console.log('new Date(startISO) =', new Date(startISO))
+  console.log('previewSpan =', previewSpan)
+
+  return RRule.fromString(rrStr).between(
+    new Date(startISO),
+    DateTime.now().plus({ days: previewSpan }).toJSDate(),
+    false // excludes start date
+  )
 }
 
 export function createTaskInstance ({ template, occurence }) {

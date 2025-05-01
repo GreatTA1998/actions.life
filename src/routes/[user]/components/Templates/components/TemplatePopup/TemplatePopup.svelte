@@ -1,15 +1,17 @@
 <script>
+  // Correctness argument: 
+  //   - the preview arrays use the same source of truth as the actual delete / addition operations
+  //   - auto-generating (prevEndISO || today) + previewSpan (getOccurence uses rrule strings)
+
   import PeriodicityInputs from './PeriodicityInputs.svelte'
   import PreviewChanges from './PreviewChanges.svelte'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
   import BasePopup from '$lib/components/BasePopup.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
 
-  import { 
-    reactToRRStr,
-    deletingTasks, addingTasks, getPreviewSpan, resetPreviewStates
-  } from './store.js'
+  import { getPreviewSpan, isException } from './store.js'
   import { template, closeTemplateEditor } from '../../store.js'
+  import { generateDates, instantiateTask } from '$lib/store/templateInstances.js'
   import { user } from '$lib/store'
 
   import Task from '$lib/db/models/Task'
@@ -17,26 +19,85 @@
 
   import { getRandomID, createDebouncedFunction } from '$lib/utils/core.js'
   import { getPeriodicity } from '../../recurrenceParser.js'
+  import { db } from '$lib/db/init.js'
+  import { collection, query, where, getDocs } from 'firebase/firestore'
+  import { DateTime } from 'luxon'
 
   let pendingRRStr = ''
   let iconsMenu = false
 
+  let deletingTasks = []
+  let addingTasks = []
+  let exceptions = []
+
+  function resetPreviewStates() {
+    deletingTasks = []
+    addingTasks = []
+    exceptions = []
+  }
+
   $: reactToRRStr(pendingRRStr) // TO-DO: make this explicit, it's a crucial detail to be exposed
+
+  async function reactToRRStr (pendingRRStr) {
+    if (!$template) return
+
+    resetPreviewStates()
+
+    if (pendingRRStr === $template.rrStr) {
+      return
+    }
+
+    const affectedTasks = await getAffectedTasks($template)
+    for (const task of affectedTasks) {
+      if (isException(task, $template)) exceptions = [...exceptions, task]
+      else deletingTasks = [...deletingTasks, task]
+    }
+
+    addingTasks = simulateChanges(pendingRRStr)
+  }
+
+  function simulateChanges (newRRStr) {
+    if (!newRRStr) return []
+    const JSDates = generateDates({ 
+      rrStr: newRRStr,
+      previewSpan: getPreviewSpan(newRRStr),
+      startISO: DateTime.now().toFormat('yyyy-MM-dd') // always from today, as this is a Routine EDIT
+    })
+
+    const newTasks = []
+    for (const JSDate of JSDates) {
+      newTasks.push(
+        instantiateTask({ template: $template, occurence: JSDate })
+      )
+    }
+    return newTasks
+  }
   
   async function handleSave () {
-    if (pendingRRStr !== $template.rrStr) {
-      for (const task of $deletingTasks) {
-        Task.delete({ id: task.id, willConfirm: false })
-      }
-      for (const task of $addingTasks) {
-        Task.create({ id: getRandomID(), newTaskObj: task })
-      }
-      Template.update({ id: $template.id, updates: { 
-        rrStr: pendingRRStr, 
-        previewSpan: getPreviewSpan(pendingRRStr)
-      }})
-      resetPreviewStates()
+    if (pendingRRStr === $template.rrStr) return
+
+    for (const task of deletingTasks) {
+      Task.delete({ id: task.id, willConfirm: false })
     }
+    for (const task of addingTasks) {
+      Task.create({ id: getRandomID(), newTaskObj: task })
+    }
+    Template.update({ id: $template.id, updates: { 
+      rrStr: pendingRRStr, 
+      previewSpan: getPreviewSpan(pendingRRStr),
+      prevEndISO: DateTime.now().plus({ days: getPreviewSpan(pendingRRStr) }).toFormat('yyyy-MM-dd')
+    }})
+    resetPreviewStates()
+  }
+
+  async function getAffectedTasks (template) {
+    const tasksQuery = query(
+      collection(db, 'users', $user.uid, 'tasks'),
+      where('templateID', '==', template.id),
+      where('startDateISO', '>=', DateTime.now().toFormat('yyyy-MM-dd'))
+    )
+    const tasksSnapshot = await getDocs(tasksQuery)
+    return tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}))
   }
 
   function handleDelete () {
@@ -86,7 +147,7 @@
 
   {#if pendingRRStr !== $template.rrStr}
     <div class="changes-section">
-      <PreviewChanges {pendingRRStr}/>
+      <PreviewChanges {pendingRRStr} {addingTasks} {deletingTasks} {exceptions}/>
 
       <div class="action-button-container">
         <RoundButton on:click={handleSave} backgroundColor="rgb(0, 89, 125)" textColor="white">
