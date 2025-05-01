@@ -120,7 +120,7 @@
       <Dropzone {...renderDropzone($trees.length)} />
     </div>
 
-    <div on:click={() => bottomInput = true} on:keydown class="new-task-icon" style="margin-bottom: 6px;">
+    <div on:click={() => bottomInput = true} on:keydown class="new-task-icon" style="width: 32px; height: 32px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; font-size: 24px;">
       +
     </div>
 

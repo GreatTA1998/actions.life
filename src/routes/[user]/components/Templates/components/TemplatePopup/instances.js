@@ -41,6 +41,7 @@ export function instantiateTask ({ template, occurence }) {
   const newTaskObj = Task.schema.parse(template)
   newTaskObj.templateID = template.id
   newTaskObj.startDateISO = DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd')
+  newTaskObj.persistsOnList = false
   return newTaskObj
 }
 
