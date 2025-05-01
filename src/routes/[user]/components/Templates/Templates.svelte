@@ -62,10 +62,10 @@
         WEEKLY
       </span>
       {#each iconHabits as habit}
-        <div on:click={() => openTemplateEditor(habit.id)} on:keydown style="cursor: pointer;">
+        <button on:click={() => openTemplateEditor(habit.id)} class="grid gap-0 text-left">
           <img src={habit.iconURL} alt="icon" style="width: 60px; height: 60px;" />
           <WeekRhythm crontab={habit.crontab} rrStr={habit.rrStr} />
-        </div>
+        </button>
       {/each}
     </div>
 
@@ -74,10 +74,10 @@
 
       </div>
       {#each noIconHabits as habit}
-        <div on:click={() => openTemplateEditor(habit.id)} on:keydown style="display: grid; gap: 2px; cursor: pointer;">
+        <button on:click={() => openTemplateEditor(habit.id)} class="grid gap-0 text-left">
           <div class="truncate-to-one-line">{habit.name}</div>
           <WeekRhythm crontab={habit.crontab} rrStr={habit.rrStr} />
-        </div>
+        </button>
       {/each}
     </div>
 
@@ -88,12 +88,10 @@
 
       <div style="margin-left: 24px; margin-top: 24px; display: grid; gap: 24px; align-items: start; grid-auto-rows: min-content; max-width: 300px;">
         {#each monthlyTasks as task}
-          <div on:click={() => openTemplateEditor(task.id)} on:keydown 
-            style="display: grid; gap: 0px; cursor: pointer;"
-          >
+          <button on:click={() => openTemplateEditor(task.id)} class="grid gap-0 text-left">
             <div class="truncate-to-one-line">{task.name}</div>
             <MonthRhythm crontab={task.crontab} rrStr={task.rrStr} />
-          </div>
+          </button>
         {/each}
       </div>
     </div>
@@ -105,12 +103,10 @@
 
       <div style="margin-left: 24px; margin-top: 24px; display: grid; gap: 24px; align-items: start; grid-auto-rows: min-content;">
         {#each yearlyTasks as task}
-          <div on:click={() => openTemplateEditor(task.id)} on:keydown 
-            style="display: grid; gap: 0px; cursor: pointer;"
-          >
+          <button on:click={() => openTemplateEditor(task.id)} class="grid gap-0 text-left">
             <div class="truncate-to-one-line">{task.name}</div>
             <YearRhythm crontab={task.crontab} rrStr={task.rrStr} />
-          </div>
+          </button>
         {/each}
       </div>
     </div>

@@ -237,6 +237,14 @@
     left: 0;
   }
 
+  :global(.text-left) {
+    text-align: left;
+  }
+
+  :global(.gap-0) {
+    gap: 0;
+  }
+
   /* Original layout.svelte styles */
   .invisible {
     visibility: hidden;
