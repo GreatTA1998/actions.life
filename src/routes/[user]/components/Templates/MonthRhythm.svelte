@@ -89,6 +89,13 @@
     
     if (positions.length === 0 || !weekday) return 'Not scheduled'
     
+    // Sort positions based on their numeric value
+    positions.sort((a, b) => {
+      const aNum = parseInt(a)
+      const bNum = parseInt(b)
+      return aNum - bNum
+    })
+    
     // Format the positions with proper conjunction
     let positionsText
     if (positions.length === 1) {
