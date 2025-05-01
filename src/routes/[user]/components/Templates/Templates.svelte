@@ -2,7 +2,7 @@
   import WeekRhythm from './WeekRhythm.svelte'
   import MonthRhythm from './MonthRhythm.svelte'
   import YearRhythm from './YearRhythm.svelte'
-  import { getPeriodicity } from './recurrenceParser.js'
+  import { getPeriodicity } from '$lib/utils/rrule.js'
   import { popup, template, templates, openTemplateEditor } from './store.js'
   import { user } from '$lib/store'
   import { db } from '$lib/db/init.js'

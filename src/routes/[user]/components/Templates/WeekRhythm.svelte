@@ -1,5 +1,5 @@
 <script>
-  import { toWeeklyIndices } from './recurrenceParser.js'
+  import { toWeeklyIndices } from '$lib/utils/rrule.js'
 
   const dayOfWeekSymbol = [, 'M', 'T', 'W', 'T', 'F', 'S', 'S']
 

@@ -1,11 +1,11 @@
 <script>
-  import Task from '/src/lib/db/models/Task.js'
+  import Task from '$lib/db/models/Task.js'
   import Template from '$lib/db/models/Template.js'
   import FormField from '$lib/components/FormField.svelte'
   import {
     getRandomID,
-  } from '/src/lib/utils/core.js'
-  import { user } from '/src/lib/store'
+  } from '$lib/utils/core.js'
+  import { user } from '$lib/store'
   import { onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
 

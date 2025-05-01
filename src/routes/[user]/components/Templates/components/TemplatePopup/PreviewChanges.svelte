@@ -1,5 +1,5 @@
 <script>
-  import { getPreviewSpan } from './store.js'
+  import { getPreviewSpan } from '$lib/utils/rrule.js'
   import PreviewChangesItem from './PreviewChangesItem.svelte'
   import { DateTime } from 'luxon'
 

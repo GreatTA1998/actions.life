@@ -1,6 +1,6 @@
 <script>
   import { getContext } from 'svelte'
-  import { toWeeklyIndices } from '/src/routes/[user]/components/Templates/recurrenceParser.js'
+  import { toWeeklyIndices } from '$lib/utils/rrule.js'
 
   const inputStates = getContext('inputStates')
   const days = [, 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] // ISO 8601 standard uses 1-7 for Mon-Sun

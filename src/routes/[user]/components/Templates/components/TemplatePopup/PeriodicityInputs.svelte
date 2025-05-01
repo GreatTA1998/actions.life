@@ -4,7 +4,7 @@
   import MonthlyInput from './MonthlyInput.svelte'
   import YearlyInput from './YearlyInput.svelte'
   import Tabs from '$lib/components/Tabs.svelte'
-  import { getPeriodicity } from '../../recurrenceParser.js'
+  import { getPeriodicity } from '$lib/utils/rrule.js'
   import { onMount, setContext, createEventDispatcher } from 'svelte'
   import { writable } from 'svelte/store'
 

@@ -1,9 +1,31 @@
-import { rruleToWeekday, positionToOccurrence } from './components/TemplatePopup/rruleUtils.js'
+import { DateTime } from 'luxon'
+
+// get around the CommonJS vs ES Module issue
+import * as rrule from 'rrule'
+const { RRule } = rrule
+
+export function generateDates ({ rrStr, startISO, previewSpan }) {
+  if (!rrStr) return []
+
+  return RRule.fromString(rrStr).between(
+    new Date(startISO),
+    DateTime.now().plus({ days: previewSpan }).toJSDate(),
+    false // excludes start date
+  )
+}
+
+export function getPreviewSpan ({ rrStr }) {
+  const kind = getPeriodicity(rrStr)
+
+  if (kind === 'yearly') return 365 * 2
+  else if (kind === 'monthly') return 31 * 2
+  else return 7 * 2
+}
 
 export function getPeriodicity (rrStr) {
   if (!rrStr) return 'weekly'
-  
   const lower = rrStr.toLowerCase()
+
   if (lower.includes('freq=monthly')) return 'monthly'
   if (lower.includes('freq=yearly')) return 'yearly'
   else {
@@ -89,3 +111,31 @@ export function parseYearly (rrStr) {
     return { mmdd, year: new Date().getFullYear().toString() }
   }
 }
+
+export const weekdayToRRule = {
+  monday: 'MO',
+  tuesday: 'TU',
+  wednesday: 'WE',
+  thursday: 'TH',
+  friday: 'FR',
+  saturday: 'SA',
+  sunday: 'SU'
+}
+
+export const occurrenceToPosition = {
+  first: '+1',
+  second: '+2',
+  third: '+3',
+  fourth: '+4'
+}
+
+export const positionToOccurrence = {
+  '+1': 'first',
+  '+2': 'second',
+  '+3': 'third',
+  '+4': 'fourth'
+}
+
+export const rruleToWeekday = Object.fromEntries(
+  Object.entries(weekdayToRRule).map(([key, value]) => [value, key])
+) 

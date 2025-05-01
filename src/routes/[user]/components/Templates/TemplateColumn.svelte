@@ -1,3 +1,5 @@
+<!-- re-use the re-ordering logic before deleting this file -->
+
 <script>
   import AddTemplate from './components/AddTemplate.svelte'
   import SimpleDropzone from '$lib/components/SimpleDropzone.svelte'

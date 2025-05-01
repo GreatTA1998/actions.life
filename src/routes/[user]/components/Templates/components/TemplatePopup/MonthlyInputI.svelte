@@ -1,6 +1,6 @@
 <script>
   import { getContext, createEventDispatcher, onMount } from 'svelte'
-  import { parseMonthlyTypeI } from '/src/routes/[user]/components/Templates/recurrenceParser.js'
+  import { parseMonthlyTypeI } from '$lib/utils/rrule.js'
 
   const inputStates = getContext('inputStates')
   const variableDays = [29, 30, 31]

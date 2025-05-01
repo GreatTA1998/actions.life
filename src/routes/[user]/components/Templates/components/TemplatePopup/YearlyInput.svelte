@@ -1,5 +1,5 @@
 <script>
-  import { parseYearly } from '/src/routes/[user]/components/Templates/recurrenceParser.js'
+  import { parseYearly } from '$lib/utils/rrule.js'
   import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
   import { onMount } from 'svelte'
   import { getContext } from 'svelte'

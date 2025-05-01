@@ -8,17 +8,16 @@
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
   import BasePopup from '$lib/components/BasePopup.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
-
-  import { getPreviewSpan, isException } from './store.js'
+  
+  import { getPeriodicity, getPreviewSpan, generateDates} from '$lib/utils/rrule.js'
+  import { instantiateTask, isException } from './instances.js'
   import { template, closeTemplateEditor } from '../../store.js'
-  import { generateDates, instantiateTask } from '$lib/store/templateInstances.js'
   import { user } from '$lib/store'
 
   import Task from '$lib/db/models/Task'
   import Template from '$lib/db/models/Template.js'
 
   import { getRandomID, createDebouncedFunction } from '$lib/utils/core.js'
-  import { getPeriodicity } from '../../recurrenceParser.js'
   import { db } from '$lib/db/init.js'
   import { collection, query, where, getDocs } from 'firebase/firestore'
   import { DateTime } from 'luxon'
@@ -58,9 +57,10 @@
 
   function simulateChanges (newRRStr) {
     if (!newRRStr) return []
+
     const JSDates = generateDates({ 
       rrStr: newRRStr,
-      previewSpan: getPreviewSpan(newRRStr),
+      previewSpan: getPreviewSpan({ rrStr: newRRStr}),
       startISO: DateTime.now().toFormat('yyyy-MM-dd') // always from today, as this is a Routine EDIT
     })
 
