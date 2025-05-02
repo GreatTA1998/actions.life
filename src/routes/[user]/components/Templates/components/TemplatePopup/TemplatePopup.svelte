@@ -119,9 +119,11 @@
 
 <BasePopup on:click-outside={closeTemplateEditor}>
   <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
-    {#if $template.iconURL && getPeriodicity(pendingRRStr) === 'weekly'}
+    {#if getPeriodicity(pendingRRStr) === 'weekly'}
       <button on:click={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
-        <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
+        {#if $template.iconURL}
+          <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
+        {/if}
       </button>
     {/if}
 

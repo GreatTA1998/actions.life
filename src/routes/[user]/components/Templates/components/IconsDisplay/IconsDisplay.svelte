@@ -1,19 +1,18 @@
 <script>
-  import { user, doodleIcons } from '$lib/store'
   import BasicWhiteboard from './BasicWhiteboard.svelte'
   import Icon from '$lib/db/models/Icon.js'
   import Template from '$lib/db/models/Template.js'
+  import { template } from '../../store.js'
+  import { user, doodleIcons } from '$lib/store'
   import { onMount } from 'svelte'
-
-  export let template
 
   onMount(async () => {
     const temp = await Icon.getAvailable($user.uid) 
     doodleIcons.set(temp)
   })
 
-  function handleSelectIcon(iconURL = '') {
-    Template.update({ id: template.id, updates: { iconURL } })
+  function handleSelectIcon (iconURL = '') {
+    Template.update({ id: $template.id, updates: { iconURL } })
   }
 
   function handleDeleteIcon({ id, url }) {
@@ -31,10 +30,10 @@
         <!-- svelte-ignore a11y-missing-attribute -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <img
-          on:click={() => handleSelectIcon(template.iconURL === doodleIcon.url ? '' : doodleIcon.url)}
+          on:click={() => handleSelectIcon($template.iconURL === doodleIcon.url ? '' : doodleIcon.url)}
           src={doodleIcon.url}
           style="width: 48px; height: 48px; cursor: pointer;"
-          class:orange-border={template.iconURL === doodleIcon.url}
+          class:orange-border={$template.iconURL === doodleIcon.url}
         />
         {#if doodleIcon.createdBy === $user.uid}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
