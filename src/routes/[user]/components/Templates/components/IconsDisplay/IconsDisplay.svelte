@@ -1,7 +1,8 @@
 <script>
-  import { user, doodleIcons } from '/src/lib/store'
+  import { user, doodleIcons } from '$lib/store'
   import BasicWhiteboard from './BasicWhiteboard.svelte'
-  import Icon from '/src/lib/db/models/Icon.js'
+  import Icon from '$lib/db/models/Icon.js'
+  import Template from '$lib/db/models/Template.js'
   import { onMount } from 'svelte'
 
   export let template
@@ -11,9 +12,8 @@
     doodleIcons.set(temp)
   })
 
-  // TO-DO: update and fix this
   function handleSelectIcon(iconURL = '') {
-    updateTemplate({ templateID: template.id, keyValueChanges: { iconURL }, oldTemplate: template })
+    Template.update({ id: template.id, updates: { iconURL } })
   }
 
   function handleDeleteIcon({ id, url }) {

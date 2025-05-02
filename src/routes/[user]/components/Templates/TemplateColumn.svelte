@@ -1,29 +1,25 @@
 <!-- re-use the re-ordering logic before deleting this file -->
 
 <script>
-  import AddTemplate from './components/AddTemplate.svelte'
   import SimpleDropzone from '$lib/components/SimpleDropzone.svelte'
-  import { updateTemplate, openTemplateEditor } from './store.js'
+  import Template from '$lib/db/models/Template.js'
+  import { openTemplateEditor } from './store.js'
   import { getDisplayLength } from './utils.js'
   
   export let templates
-  export let crontab
 
   let draggedTemplate
   const templateWidthInPx = 180
 
-  function handleDrop(newOrderValue) {
-    updateTemplate({
-      templateID: draggedTemplate.id,
-      keyValueChanges: { orderValue: newOrderValue },
-      oldTemplate: templates.find(template => template.id === draggedTemplate.id)
+  function handleDrop (newOrderValue) {
+    Template.update({
+      id: draggedTemplate.id,
+      updates: { orderValue: newOrderValue }
     })
   }
 </script>
 
 <div>
-  <AddTemplate {crontab} defaultOrderValue={templates.length} />
-
   {#each templates as template, i (template.id)}
     {#if i === 0}
       <SimpleDropzone
