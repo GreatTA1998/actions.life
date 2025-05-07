@@ -2,16 +2,14 @@
   import { onMount } from 'svelte'
   import { formatDate } from '/src/lib/utils/core.js'
   
-  // Props
   export let imageURL = ''
   export let date = ''
   export let notes = ''
   export let showDownload = false
   export let buttonSize = '32px'
   export let iconSize = '22px'
-  export let lightTheme = false
+  export let lightTheme = true
   
-  // State
   let shareSupported = false
   
   onMount(() => {
@@ -19,9 +17,7 @@
     shareSupported = !!navigator.share
   })
   
-  // Share a photo
   async function sharePhoto(event) {
-    // Stop the click from propagating to the parent
     event.stopPropagation()
     
     if (!imageURL) return
@@ -45,9 +41,7 @@
     }
   }
   
-  // Download a photo
   function downloadPhoto(event) {
-    // Stop the click from propagating to the parent
     event.stopPropagation()
     
     if (!imageURL) return
