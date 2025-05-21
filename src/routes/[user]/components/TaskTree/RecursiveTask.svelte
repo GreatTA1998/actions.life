@@ -29,15 +29,14 @@
 
       {#if taskObj.startDateISO}
         <span class="schedule-badge">
-          {DateTime.fromISO(taskObj.startDateISO).toRelative()}
-          {taskObj.startTime}
+          {DateTime.fromISO(taskObj.startDateISO + (taskObj.startTime ? 'T' + taskObj.startTime : '')).toRelative()}
         </span>
       {/if}
     </div>
 
-    <div on:click={() => isTypingNewSubtask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px; font-size: {isLargeFont ? '48px' : ''}">
-      +
-    </div>
+    <TaskMenu {taskObj} 
+      on:subtask-add={() => isTypingNewSubtask = true } 
+    />
   </div>
 
   {#if taskObj.childrenLayout === 'timeline' && taskObj.children.length > 0}
@@ -130,6 +129,7 @@
   import Checkbox from '$lib/components/Checkbox.svelte'
   import Dropzone from './Dropzone.svelte'
   import TimelineRenderer from './TimelineRenderer.svelte'
+  import TaskMenu from './TaskMenu.svelte'
   import { 
     getRandomID, 
     getRandomColor,

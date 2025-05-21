@@ -135,7 +135,6 @@
     color: var(--task-action-subtle-color);
     font-size: 30px; 
     line-height: 0.3;
-    margin-left: 4px; 
     cursor: pointer;  
   }
 
