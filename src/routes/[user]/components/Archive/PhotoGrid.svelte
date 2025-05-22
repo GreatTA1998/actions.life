@@ -124,7 +124,7 @@
 </script>
 
 <div class="section">
-  <MultiPhotoUploader style="position: absolute; right: 1vw; bottom: 1vw;"/>
+  <MultiPhotoUploader style="position: absolute; right: 1vw; top: 1vw;"/>
 
   <div class="month-selector">
     {#each Array.from({ length: 3 }) as _, yearIndex}
@@ -201,6 +201,7 @@
 <style>
   .section {
     margin-bottom: 20px;
+    position: relative;
   }
 
   .month-selector {

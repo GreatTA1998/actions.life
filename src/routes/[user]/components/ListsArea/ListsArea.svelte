@@ -22,8 +22,7 @@
 
 <style>
   .todo-list-container {
-    /* width: 100%; will cause the strange shifting out of screen bug*/
     height: 100%;
-    font-size: 2em;
+    /* width: 100%; would cause the strange shifting out of screen bug*/
   }
 </style>

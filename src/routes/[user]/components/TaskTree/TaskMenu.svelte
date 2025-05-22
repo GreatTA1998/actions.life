@@ -5,14 +5,15 @@
   import { createEventDispatcher } from 'svelte'
 
   export let taskObj
-  export let isLargeFont = false  
 
   const dispatch = createEventDispatcher()
 </script>
 
 <BaseMenu let:toggle={toggle} let:close={close}>
-  <div on:click={toggle} on:keydown class="new-task-icon" style="font-size: {isLargeFont ? '48px' : ''}">
-    <span class="material-symbols-outlined" style="font-weight: 200;">more_vert</span>
+  <div style="line-height: 0; max-height: 16px; overflow: visible; display: flex; align-items: center;">
+    <button on:click={toggle} class="material-symbols-outlined menu-icon" style="font-size: 24px;">
+      more_vert
+    </button>
   </div>
 
   <div slot="content" style="padding: 12px; display: flex; flex-direction: column; row-gap: 8px;">
@@ -49,6 +50,11 @@
 </BaseMenu>
 
 <style>
+  .menu-icon {
+    font-weight: 200;
+    color: var(--task-action-subtle-color);
+  }
+
   .m-item {
     text-align: left;
     font-size: 16px;
