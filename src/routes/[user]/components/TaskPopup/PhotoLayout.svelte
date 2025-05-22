@@ -81,6 +81,10 @@
 </div>
 
 <style>
+  img {
+    cursor: pointer;
+  }
+
   .children-layout-options {
     display: flex; 
     align-items: center; 
