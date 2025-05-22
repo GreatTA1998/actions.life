@@ -1,5 +1,6 @@
 <script>
   import BaseMenu from '$lib/components/BaseMenu.svelte'
+  import ToggleGroup from '$lib/components/ToggleGroup.svelte'
   import Task from '$lib/db/models/Task.js'
   import { createEventDispatcher } from 'svelte'
 
@@ -24,18 +25,10 @@
 
     <div class="menu-divider"></div>
 
-    <div class="toggle-group">
-      <button
-        class="toggle-btn"
-        class:active={taskObj.childrenLayout === 'normal'}
-        on:click={() => { Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: 'normal' } }) }}
-      >Normal</button>
-      <button
-        class="toggle-btn"
-        class:active={taskObj.childrenLayout === 'timeline'}
-        on:click={() => { Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: 'timeline' } }) }}
-      >Timeline</button>
-    </div>
+    <ToggleGroup on:select={e => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: e.detail.value }})}
+      options={[{ text: 'normal', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
+      activeValue={taskObj.childrenLayout} 
+    />
 
     <button class="m-item" disabled style="opacity: 0.5;">
       <span class="material-symbols-outlined" style="font-size: 22px;">
@@ -64,39 +57,6 @@
     display: flex;
     align-items: center;
     column-gap: 6px;
-  }
-
-  .toggle-group {
-    display: flex;
-    background: #f6f6f7;
-    border-radius: 6px;
-    padding: 2px;
-    gap: 0;
-    margin: 4px 0;
-  }
-
-  .toggle-btn {
-    flex: 1;
-    padding: 6px 0;
-    border: none;
-    background: transparent;
-    color: #6e6e7a;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 400;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .toggle-btn.active {
-    background: #e3e6ee;
-    color: #1a1a1a;
-    font-weight: 500;
-  }
-
-  .toggle-btn:not(.active):hover {
-    background: #ececf0;
-    color: #444;
   }
 
   .menu-divider {

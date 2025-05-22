@@ -1,15 +1,13 @@
 <script>
-  import PhotoUpload from './PhotoUpload.svelte'
-  import SharePhotoButton from '$lib/components/SharePhotoButton.svelte'
-  import Task from '$lib/db/models/Task.js'
-  import { defaultPhotoLayout, photoLayoutOptions, getIconForLayout } from '$lib/store'
+  import { defaultPhotoLayout } from '$lib/store'
   import { onMount } from 'svelte'
+  import PhotoMenuActions from './PhotoMenuActions.svelte'
+  import PopoverMenu from '$lib/components/PopoverMenu.svelte'
 
   export let taskObject
 
   let PopupElem, TaskImageElem
   let fullPhotoWidth, fullPhotoHeight 
-  let menu = false
 
   $: journalLayout = taskObject?.photoLayout || $defaultPhotoLayout
 
@@ -41,12 +39,10 @@
       const viewportWidth = marginFactor * window.innerWidth
 
       const { naturalWidth, naturalHeight } = TaskImageElem
-
       const imageAspectRatio = naturalWidth / naturalHeight
       const viewportAspectRatio = viewportWidth / viewportHeight
 
       let maxWidth, maxHeight
-
       if (imageAspectRatio > viewportAspectRatio) { // Image is wider than the viewport, so scale based on width
         maxWidth = viewportWidth
         maxHeight = Math.floor(viewportWidth / imageAspectRatio)
@@ -64,38 +60,17 @@
 <div class="{journalLayout}-container" bind:this={PopupElem}>
   <div class={journalLayout}>
     {#if taskObject.imageDownloadURL}
-      <div style="position: relative;">
-        <img bind:this={TaskImageElem}
-          src={taskObject.imageDownloadURL}
+      <PopoverMenu let:toggle={toggle}>
+        <img on:click={toggle} on:keydown
           class="{journalLayout}-image"
+          bind:this={TaskImageElem}
+          src={taskObject.imageDownloadURL}
           alt="Task"
         >
-        <button on:click={() => menu = !menu} style="position: absolute; bottom: 4px; right: 4px; color: white; font-weight: 800; border-radius: 50%; padding: 4px; border: none; cursor: pointer;" class="material-symbols-outlined">
-          more_vert
-        </button>
-
-        {#if menu}
-          {#if taskObject.imageDownloadURL}
-          <div style="display: flex; column-gap: 6px;">
-            {#each photoLayoutOptions as layout}
-              <button on:click={() => Task.update({ id: taskObject.id, keyValueChanges: { photoLayout: layout }})} class="material-symbols-outlined">
-                {getIconForLayout(layout)}
-              </button>
-            {/each}
-          </div>
-        
-          <SharePhotoButton 
-            imageURL={taskObject.imageDownloadURL}
-            date={taskObject.startDateISO}
-            notes={taskObject.notes}
-          />
-        {/if}
-
-        <PhotoUpload {taskObject}/>
-      {/if}
-
-
-      </div>
+        <div slot="content">
+          <PhotoMenuActions {taskObject}/>
+        </div>
+      </PopoverMenu>
     {/if}
     <div class="{journalLayout}-details" style="align-self: stretch; flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; row-gap: 2px;">
       <slot>
@@ -118,8 +93,7 @@
   }
 
   .side-by-side-container {
-    /* ideally height is determined by the image, and the side overflows */
-    height: fit-content;
+    height: fit-content; /* ideally height is determined by the image, and the side overflows */
     overflow-y: hidden;
   }
 

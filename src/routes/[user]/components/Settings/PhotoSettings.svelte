@@ -1,7 +1,7 @@
 <script>
-  import { PhotoLayout, photoLayoutOptions, getIconForLayout, defaultPhotoLayout } from '/src/lib/store';
-  import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
-  import { user } from '/src/lib/store';
+  import { PhotoLayout, photoLayoutOptions, getIconForLayout, defaultPhotoLayout } from '$lib/store/photoLayout.js'
+  import { updateFirestoreDoc } from '$lib/db/helpers.js'
+  import { user } from '$lib/store'
 
   // Function to update user's default photo layout preference
   async function updateDefaultPhotoLayout(layoutValue) {    

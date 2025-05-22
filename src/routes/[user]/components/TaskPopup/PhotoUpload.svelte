@@ -1,29 +1,20 @@
-{#if !taskObject.imageDownloadURL}
-  <span class="circle-outline-button material-symbols-outlined"  
-    on:click={() => FolderInput.click()} 
-  >
-    add_photo_alternate
-  </span>
+<button class="circle-outline-button material-symbols-outlined"  
+  on:click={() => FolderInput.click()} 
+>
+  add_photo_alternate
+</button>
 
-  <input style="display: none;" 
-    bind:this={FolderInput}
-    on:change={(e) => handleFileChange(e)} 
-    type="file" 
-    accept="image/*" 
-  >
-{:else}
-  <span class="circle-outline-button material-symbols-outlined" 
-    on:click={() => confirmDeletePhoto(taskObject.imageFullPath)}
-  >
-    no_photography
-  </span>
-{/if}
+<input style="display: none;" 
+  bind:this={FolderInput}
+  on:change={(e) => handleFileChange(e)} 
+  type="file" 
+  accept="image/*" 
+>
 
 <script>
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
   import { getRandomID, getTimeInHHMM } from '/src/lib/utils/core.js'
   import { DateTime } from 'luxon'
-  import { deleteImage } from '/src/lib/db/helpers.js'
   import Task from '/src/lib/db/models/Task.js'
 
   export let taskObject
@@ -101,20 +92,6 @@
       const snapshot = await uploadBytes(storageRef, blobFile)
       resolve(snapshot)
     })
-  }
-
-  function confirmDeletePhoto (imageFullPath) {
-    if (confirm('Are you sure you want to delete the photo?')) {
-      deleteImage({ imageFullPath })
-
-      Task.update({ 
-        id: taskObject.id,
-        keyValueChanges: {
-          imageDownloadURL: '',
-          imageFullPath: ''
-        }
-      })
-    }
   }
 </script>
 

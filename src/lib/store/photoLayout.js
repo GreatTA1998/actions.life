@@ -1,7 +1,6 @@
 import { writable } from 'svelte/store'
 import { user } from './userStore.js'
 
-// Define layout options as an enum-like object with built-in metadata
 export const PhotoLayout = {
   SIDE_BY_SIDE: {
     value: 'side-by-side',
@@ -17,8 +16,7 @@ export const PhotoLayout = {
   }
 }
 
-// Create an array of layout values for iteration
-export const photoLayoutOptions = Object.values(PhotoLayout).map(layout => layout.value)
+export const photoLayoutOptions = Object.values(PhotoLayout)
 
 export const defaultPhotoLayout = writable(PhotoLayout.SIDE_BY_SIDE.value)
 
