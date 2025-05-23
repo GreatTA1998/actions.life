@@ -54,7 +54,7 @@
       collection(db, `/users/${uid}/tasks`),
       where('startDateISO', '>=', today.toFormat('yyyy-MM-dd')),
       where('startDateISO', '<=', today.plus({ years: 2 }).toFormat('yyyy-MM-dd'))
-    )
+    ) // NOTE: the schedule deviates from the calendar because it doesn't use `treeISOs`
     unsub = onSnapshot(q, snapshot => {
       futureTasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
       updateCache(futureTasks)
