@@ -3,15 +3,13 @@
   import { treesByDate } from './service.js'
   import { WIDTHS } from '$lib/utils/constants.js'
 
-  export let monthName
   export let viewportLeft
   export let originDT
   export let height
 
   let exactWidth = $isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
 
-  $: monthName = viewportLeft ? originDT.plus({ days: viewportLeft }).toFormat('LLL') : ''
-  $: yearName = viewportLeft ? originDT.plus({ days: viewportLeft }).toFormat('yyyy') : ''
+  $: currentDT = viewportLeft ? originDT.plus({ days: viewportLeft }) : originDT
 </script>
 
 <div class="corner-label" style="
@@ -23,12 +21,16 @@
     class:desktop-descriptive={!$isCompact}
   >
     <div style="color: rgb(0, 0, 0); font-weight: 400; display: inline-block;">
-      {monthName}
+      {#if !$isCompact}
+        {currentDT.toFormat('LLL')}
+      {:else}
+        {currentDT.toFormat('M')}
+      {/if}
     </div>
 
     {#if !$isCompact}
       <div style="font-weight: 200; margin-top: 2px; display: inline-block;">
-        {yearName}
+        {currentDT.toFormat('yyyy')}
       </div>
     {/if}
   </div>
@@ -52,7 +54,7 @@
 
   .mobile-compact {
     font-size: 15px;
-    margin-top: 12px;
+    margin-top: 8px; /* consistent with calendar headers */
     margin-left: 0px;
     flex-direction: row;
   }
