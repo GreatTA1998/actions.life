@@ -1,6 +1,7 @@
 import { z } from 'zod'
+import { getAffectedInstances } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
 import { db } from '$lib/db/init.js'
-import { updateFirestoreDoc } from '$lib/db/helpers.js'
+import { updateFirestoreDoc, deleteFirestoreDoc } from '$lib/db/helpers.js'
 import { user } from '$lib/store'
 import { doc, getDocs, collection, query, setDoc, deleteDoc, where } from 'firebase/firestore'
 import { DateTime } from 'luxon'
@@ -39,8 +40,16 @@ const Template = {
     })
   },
 
-  async delete ({ userID, id }) {
-    alert('Not implemented yet')
+  async delete ({ id }) {
+    const futureInstances = await getAffectedInstances({ id })
+    if (futureInstances.length > 0) {
+      if (confirm(`There are ${futureInstances.length} future instances of this template. Delete them also?`)) {
+        for (const instance of futureInstances) {
+          deleteFirestoreDoc(`/users/${get(user).uid}/tasks/${instance.id}`)
+        }
+      }
+    }
+    deleteFirestoreDoc(`/users/${get(user).uid}/templates/${id}`)
   },
 
   async getAll ({ userID, includeStats = true }) {

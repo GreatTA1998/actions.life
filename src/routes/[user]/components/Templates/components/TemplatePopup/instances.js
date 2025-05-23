@@ -1,9 +1,15 @@
 import Task from '$lib/db/models/Task.js'
+import Template from '$lib/db/models/Template.js'
 import { DateTime } from 'luxon'
+import { generateDates } from '$lib/utils/rrule.js'
+import { db } from '$lib/db/init.js'
+import { collection, query, where, getDocs } from 'firebase/firestore'
+import { user } from '$lib/store'
+import { get } from 'svelte/store'
 
 // flawed, should also handle changed dates that falls outside of the original schedule
 // for example, if it routine repeats MWF, but the task is scheduled for Thursday, it was modified
-export function isException(task, template) {
+export function isException (task, template) {
   if (!task || !template) {
     console.log("isException received null/undefined task or template", {task, template})
     return false
@@ -43,6 +49,16 @@ export function instantiateTask ({ template, occurence }) {
   newTaskObj.startDateISO = DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd')
   newTaskObj.persistsOnList = false
   return newTaskObj
+}
+
+export async function getAffectedInstances (template) {
+  const tasksQuery = query(
+    collection(db, 'users', get(user).uid, 'tasks'),
+    where('templateID', '==', template.id),
+    where('startDateISO', '>=', DateTime.now().toFormat('yyyy-MM-dd'))
+  )
+  const tasksSnapshot = await getDocs(tasksQuery)
+  return tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}))
 }
 
 export async function deleteFutureInstances (template, uid) {

@@ -13,16 +13,13 @@
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
 
   import { getPeriodicity, getPreviewSpan, generateDates} from '$lib/utils/rrule.js'
-  import { instantiateTask, isException } from './instances.js'
+  import { instantiateTask, isException, getAffectedInstances } from './instances.js'
   import { template, closeTemplateEditor } from '../../store.js'
-  import { user } from '$lib/store'
 
   import Task from '$lib/db/models/Task'
   import Template from '$lib/db/models/Template.js'
 
   import { getRandomID, createDebouncedFunction } from '$lib/utils/core.js'
-  import { db } from '$lib/db/init.js'
-  import { collection, query, where, getDocs } from 'firebase/firestore'
   import { DateTime } from 'luxon'
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
@@ -45,7 +42,7 @@
       return
     }
 
-    const affectedTasks = await getAffectedTasks($template)
+    const affectedTasks = await getAffectedInstances($template)
     for (const task of affectedTasks) {
       if (isException(task, $template)) exceptions = [...exceptions, task]
       else deletingTasks = [...deletingTasks, task]
@@ -89,19 +86,9 @@
     resetPreviewStates()
   }
 
-  async function getAffectedTasks (template) {
-    const tasksQuery = query(
-      collection(db, 'users', $user.uid, 'tasks'),
-      where('templateID', '==', template.id),
-      where('startDateISO', '>=', DateTime.now().toFormat('yyyy-MM-dd'))
-    )
-    const tasksSnapshot = await getDocs(tasksQuery)
-    return tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}))
-  }
-
   function handleDelete () {
-    if (confirm('Are you sure you want to delete this template?')) {
-      // deleteTemplate({ templateID: $template.id })
+    if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {
+      Template.delete({ id: $template.id })
       closeTemplateEditor()
     }
   }
@@ -132,9 +119,11 @@
 
 <BasePopup on:click-outside={closeTemplateEditor}>
   <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
-    {#if $template.iconURL && getPeriodicity(pendingRRStr) === 'weekly'}
+    {#if getPeriodicity(pendingRRStr) === 'weekly'}
       <button on:click={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
-        <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
+        {#if $template.iconURL}
+          <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
+        {/if}
       </button>
     {/if}
 

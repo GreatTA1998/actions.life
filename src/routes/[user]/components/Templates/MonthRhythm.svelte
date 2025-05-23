@@ -25,25 +25,16 @@
   }
   
   $: {
-    if (rrStr) {
-      // Check if this is a weekly pattern (BYDAY with position numbers)
-      if (rrStr.includes('FREQ=MONTHLY') && rrStr.includes('BYDAY=')) {
-        isWeeklyPattern = true
-        weeklyDescription = createWeeklyDescription(rrStr)
-        selectedDays = [] // No days to display in the line
-      } 
-      else { // Regular monthly pattern
-        isWeeklyPattern = false
-        selectedDays = [...parseMonthlyTypeI(rrStr)]
-        console.log("selectedDays after parsing =", selectedDays)
-      }
+    if (rrStr.includes('FREQ=MONTHLY') && rrStr.includes('BYDAY=')) {
+      isWeeklyPattern = true
+      weeklyDescription = createWeeklyDescription(rrStr)
+      selectedDays = [] // No days to display in the line
     } 
     else {
-      console.log("unknown pattern")
       isWeeklyPattern = false
-      selectedDays = []
+      selectedDays = [...parseMonthlyTypeI(rrStr)]
     }
-  }
+  } 
   
   // Format days for display (e.g., "5th, 20th")
   $: daysText = selectedDays.length > 0 
@@ -129,10 +120,7 @@
   {:else}
     <div class="rhythm-line">
       {#each selectedDays as day}
-        <div 
-          class="day-marker"
-          style="left: calc({day / 31 * 100}%)"
-        ></div>
+        <div class="day-marker" style="left: calc({day / 31 * 100}%)"></div>
       {/each}
     </div>
     <div class="days-text">{daysText}</div>
