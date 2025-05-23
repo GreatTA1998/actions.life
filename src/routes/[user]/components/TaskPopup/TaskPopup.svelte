@@ -23,7 +23,15 @@
   $: console.log("taskObject =", taskObject)
 
   function handleDelete () {
-    Task.delete({ ...taskObject })
+    if (taskObject.imageDownloadURL && !confirm("Are you sure you want to delete this task and its image?")) {
+      return
+    }
+    if (taskObject.notes && !confirm("Are you sure you want to delete this task and its notes?")) {
+      return
+    }
+    Task.delete({ 
+      id: taskObject.id
+    })
     closeTaskPopup()
   }
 </script>

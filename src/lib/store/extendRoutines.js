@@ -17,6 +17,8 @@ user.subscribe(async ($user) => {
         })
       }
       // not safe as it doesn't await, but good enough for now.
+      // also there doesn't seem to be a way to prevent duplicate generations e.g. multiple tabs etc.
+      // so we handle it by locking the ID in `createTaskInstance`
       updateFirestoreDoc(`/users/${$user.uid}`, { 
         lastRanRoutines: DateTime.now().toFormat('yyyy-MM-dd') 
       })
