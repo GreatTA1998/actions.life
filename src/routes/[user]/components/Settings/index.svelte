@@ -1,10 +1,10 @@
 <script>
-  import { showSnackbar, user, closeSettings } from '/src/lib/store'
-  import BasePopup from '$lib/components/BasePopup.svelte'
   import ColorSettings from './ColorSettings.svelte'
   import TimeRangeSettings from './TimeRangeSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
+  import BasePopup from '$lib/components/BasePopup.svelte'
+  import { showSnackbar, closeSettings } from '$lib/store'
   import { getAuth, signOut } from 'firebase/auth'
   import { goto } from '$app/navigation'
 
@@ -47,7 +47,7 @@
         </div>
 
         <div class="settings-group">
-          <div class="settings-label">Photos</div>
+          <div class="settings-label">Default Photo Layout</div>
           <PhotoSettings />
         </div>
       </div>

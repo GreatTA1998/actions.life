@@ -1,4 +1,5 @@
 <script>
+  import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
   import { formatDate } from '/src/lib/utils/core.js'
   import { user, updateCache, openTaskPopup } from '/src/lib/store/index.js'
   import { onMount, onDestroy} from 'svelte'
@@ -123,6 +124,8 @@
 </script>
 
 <div class="section">
+  <MultiPhotoUploader style="position: absolute; right: 1vw; top: 1vw;"/>
+
   <div class="month-selector">
     {#each Array.from({ length: 3 }) as _, yearIndex}
       {@const year = DateTime.now().minus({ years: yearIndex })}
@@ -198,6 +201,7 @@
 <style>
   .section {
     margin-bottom: 20px;
+    position: relative;
   }
 
   .month-selector {

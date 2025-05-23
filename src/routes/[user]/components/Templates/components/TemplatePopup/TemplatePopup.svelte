@@ -73,7 +73,7 @@
     if (pendingRRStr === $template.rrStr) return
 
     for (const task of deletingTasks) {
-      Task.delete({ id: task.id, willConfirm: false })
+      Task.delete({ id: task.id })
     }
     for (const task of addingTasks) {
       Task.create({ id: getRandomID(), newTaskObj: task })

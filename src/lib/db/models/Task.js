@@ -60,7 +60,7 @@ const Task = {
       const result = await maintainTreeISOsForCreate({ task: validatedTask, batch })
       let treeISOs = []
   
-      // BACKWARDS COMPATIBILITY CODE HERE
+      // for backwards compatibility
       if (result && typeof result === 'object' && Array.isArray(result.treeISOs)) {
         treeISOs = result.treeISOs
       } 
@@ -82,9 +82,9 @@ const Task = {
       }
 
       batch.set(doc(db, `users/${uid}/tasks/${id}`), { 
+        ...validatedTask,
         treeISOs, 
-        rootID, 
-        ...validatedTask 
+        rootID
       })
       batch.commit()
     } 
@@ -113,26 +113,25 @@ const Task = {
     }
   },
 
-  delete: async ({ id, willConfirm = true }) => {
+  delete: async ({ id }) => {
     return new Promise(async (resolve) => {
       const taskObj = get(tasksCache)[id]
-      const tasksToDelete = await getTreeNodes(taskObj)
+      const treeNodes = await getTreeNodes(taskObj)
 
-      if (!willConfirm || confirm(`${tasksToDelete.length} task${tasksToDelete.length > 1 ? 's' : ''} will be deleted. Are you sure?`)) {
-        const { uid } = get(user)
-        const batch = writeBatch(db)
-    
-        for (const taskObj of tasksToDelete) {
-          const { imageFullPath, id } = taskObj
-          if (imageFullPath) deleteImage({ imageFullPath })
-          batch.delete(doc(db, `/users/${uid}/tasks/${id}`))
-        }
-        await handleTreeISOsForDeletion({ tasksToDelete, batch })
-    
-        await batch.commit()
-
-        resolve(tasksToDelete)
+      // warning: need a way to disable this confirmation when we support sub-tasks for routines
+      if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} tasks in this tree?`)) {
+        return resolve([])
       }
+
+      const batch = writeBatch(db)
+      for (const node of treeNodes) {
+        if (node.imageFullPath) deleteImage(node)
+        batch.delete(doc(db, `/users/${get(user).uid}/tasks/${node.id}`))
+      }
+      await handleTreeISOsForDeletion({ batch, tasksToDelete: treeNodes }) // modifies `batch` before commiting
+      await batch.commit()
+
+      resolve(treeNodes)
     })
   },
 

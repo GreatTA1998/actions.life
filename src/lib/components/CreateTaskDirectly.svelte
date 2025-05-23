@@ -44,7 +44,7 @@
         isDone: false,
         startDateISO: DateTime.fromJSDate(resultantDateClassObject).toFormat('yyyy-MM-dd'),
         startTime: newTaskStartTime,
-        persistsOnList: false,
+        persistsOnList: false
       }
     })
     dispatch('reset') // we reset here because this function can get called directly by clicking the search resul

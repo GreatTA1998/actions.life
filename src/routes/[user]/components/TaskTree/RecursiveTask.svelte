@@ -1,51 +1,46 @@
 <div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
   <div draggable="true"
     on:dragstart|self={(e) => dragstart_handler(e, taskObj.id)}
-    style="display: flex; align-items: center; opacity: {taskObj.isDone ? '0.6' : '1'};"
+    style="
+      display: flex; align-items: center; opacity: {taskObj.isDone ? '0.6' : '1'};
+      font-size: {depthAdjustedFontSize};
+    "
+    class="task-row-container"
   >
-    <div class="task-row-container" style="font-size: {depthAdjustedFontSize};">   
-      {#if willShowCheckbox && taskObj.childrenLayout !== 'timeline'}
-        <div style="margin-left: 2px; margin-right: 4px;">
-          <Checkbox 
-            value={taskObj.isDone}
-            on:change={(e) => handleCheckboxChange(e)}
-          />
-        </div>
-      {:else}
-        <slot>
-
-        </slot>
-
-        <div style="margin-right: 6px;"></div>
-      {/if}
-
-      <div on:click={() => openTaskPopup(taskObj)} on:keydown
-        class="task-name truncate-to-one-line" 
-        class:cross-out-todo={taskObj.isDone} 
-      >
-        <!-- {taskObj.orderValue}  -->
-        {taskObj.name}
+    {#if willShowCheckbox && taskObj.childrenLayout !== 'timeline'}
+      <div style="margin-left: 2px; margin-right: 4px;">
+        <Checkbox 
+          value={taskObj.isDone}
+          on:change={(e) => handleCheckboxChange(e)}
+        />
       </div>
+    {:else}
+      <slot/>
 
-      {#if taskObj.startDateISO}
-        <span class="schedule-badge">
-          {DateTime.fromISO(taskObj.startDateISO).toRelative()}
-          {taskObj.startTime}
-        </span>
-      {/if}
-    </div>
+      <div style="margin-right: 6px;"></div>
+    {/if}
 
-    <div on:click={() => isTypingNewSubtask = true} on:keydown class="new-task-icon" style="margin-bottom: 6px; font-size: {isLargeFont ? '48px' : ''}">
-      +
-    </div>
+    <button on:click={() => openTaskPopup(taskObj)} class="task-name truncate-to-one-line" class:cross-out-todo={taskObj.isDone}>
+      {taskObj.name}
+    </button>
+
+    {#if taskObj.startDateISO}
+      <span class="schedule-badge">
+        {DateTime.fromISO(taskObj.startDateISO + (taskObj.startTime ? 'T' + taskObj.startTime : '')).toRelative()}
+      </span>
+    {/if}
+
+    <TaskMenu {taskObj} 
+      on:subtask-add={() => isTypingNewSubtask = true } 
+    />
   </div>
 
   {#if taskObj.childrenLayout === 'timeline' && taskObj.children.length > 0}
     <TimelineRenderer
       children={taskObj.children}
-      depth={depth}
       parentID={taskObj.id}
-      ancestorRoomIDs={ancestorRoomIDs}
+      {depth}
+      {ancestorRoomIDs}
       {isLargeFont}
       {colorForDebugging}
     />
@@ -130,6 +125,7 @@
   import Checkbox from '$lib/components/Checkbox.svelte'
   import Dropzone from './Dropzone.svelte'
   import TimelineRenderer from './TimelineRenderer.svelte'
+  import TaskMenu from './TaskMenu.svelte'
   import { 
     getRandomID, 
     getRandomColor,
@@ -227,9 +223,6 @@
 
 <style>
   .task-name {
-    margin-top: -1px; 
-    margin-left: 0px; 
-    cursor: pointer; 
     min-width: 16px; 
     min-height: 16px;
   }
@@ -239,16 +232,13 @@
     bottom: -18px;
   }
 
-  /* min-width and height to make it easy to delete legacy tasks with no titles */
   .task-row-container {
-    min-width: 30px; 
+    min-width: 30px; /* min-width and height to make it easy to delete legacy tasks with no titles */
     max-width: 320px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     color: rgb(80, 80, 80);
-    display: flex;
-    align-items: center;
   }
 
   .cross-out-todo {

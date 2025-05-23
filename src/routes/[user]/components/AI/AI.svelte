@@ -76,7 +76,7 @@
     {/each}
 
     {#if loading}
-      (robot starts thinking...)
+      (The robot starts thinking...)
     {/if}
   </div>
 
@@ -85,6 +85,7 @@
       type="text"
       placeholder="Type your message..."
       bind:value={state.currentInput}
+      on:keydown={(e) => e.key === 'Enter' && addMessage()}
     />
 
     <button on:click={addMessage} class="submit-button">

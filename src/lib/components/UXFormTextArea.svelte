@@ -23,7 +23,7 @@
       on:focusout={() => isFocused = false}
       {placeholder}
       resetDefaultStyling={true}
-      numberOfInitialRowsIfEmpty={2}
+      numberOfInitialRowsIfEmpty={3}
     />
   </div>
 </div>
