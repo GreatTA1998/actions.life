@@ -2,7 +2,7 @@
   <div draggable="true"
     on:dragstart|self={(e) => dragstart_handler(e, taskObj.id)}
     style="
-      display: flex; align-items: center; opacity: {taskObj.isDone ? '0.6' : '1'};
+      display: flex; align-items: center;
       font-size: {depthAdjustedFontSize};
     "
     class="task-row-container"
@@ -20,7 +20,7 @@
       <div style="margin-right: 6px;"></div>
     {/if}
 
-    <button on:click={() => openTaskPopup(taskObj)} class="task-name truncate-to-one-line" class:cross-out-todo={taskObj.isDone}>
+    <button on:click={() => openTaskPopup(taskObj)} class="task-name truncate-to-one-line" class:done-task={taskObj.isDone}>
       {taskObj.name}
     </button>
 
@@ -31,7 +31,7 @@
       </span>
     {/if}
 
-    {#if taskObj.startDateISO}
+    {#if taskObj.startDateISO >= DateTime.now().toFormat('yyyy-MM-dd')}
       <span class="schedule-badge">
         {DateTime.fromISO(taskObj.startDateISO + (taskObj.startTime ? 'T' + taskObj.startTime : '')).toRelative()}
       </span>
@@ -252,8 +252,11 @@
     color: rgb(80, 80, 80);
   }
 
-  .cross-out-todo {
-    text-decoration: line-through;
+  .done-task {
+    background: linear-gradient(to right, rgba(76, 175, 80, 0.04), transparent 50%);
+    color: #388e3c;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
   }
 
   .schedule-badge {

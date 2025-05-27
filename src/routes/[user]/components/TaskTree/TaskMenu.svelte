@@ -26,11 +26,6 @@
 
     <div class="menu-divider"></div>
 
-    <ToggleGroup on:select={e => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: e.detail.value }})}
-      options={[{ text: 'normal', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
-      activeValue={taskObj.childrenLayout} 
-    />
-
     <button class="m-item" on:click={() => { 
       Task.update({ 
         id: taskObj.id, 
@@ -43,6 +38,11 @@
       </span>
       {taskObj.isCollapsed ? 'Expand' : 'Collapse'}
     </button>
+
+    <ToggleGroup on:select={e => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: e.detail.value }})}
+      options={[{ text: 'normal', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
+      activeValue={taskObj.childrenLayout} 
+    />
 
     <div class="menu-divider"></div>
 
