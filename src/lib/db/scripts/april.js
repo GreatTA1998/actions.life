@@ -9,6 +9,18 @@ import { getPeriod, crontabToState } from '/src/routes/[user]/components/Templat
 // 1. Run script
 // 2. Add to schema
 
+// how to abstract the counting & the test run safety mechanism?
+export async function migrateAllUsers (testRun = true) {
+  const users = await getFirestoreCollection('/users')
+  for (const user of users) {
+    console.log("migrating user =", user.uid)
+
+    if (!testRun) {
+      migrateCollapseExpand(user.uid, false)
+    }
+  }
+}
+
 export async function migrateCollapseExpand (uid, testRun = true) {
   const tasks = await getFirestoreCollection(`/users/${uid}/tasks`)
   let count = 0
