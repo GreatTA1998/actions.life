@@ -31,11 +31,11 @@
       </button>
     {/if}
 
-    <!-- {#if taskObj.startDateISO >= DateTime.now().toFormat('yyyy-MM-dd')}
+    {#if upcomingThisWeek(taskObj)}
       <span class="schedule-badge">
         {DateTime.fromISO(taskObj.startDateISO + (taskObj.startTime ? 'T' + taskObj.startTime : '')).toRelative()}
       </span>
-    {/if} -->
+    {/if}
 
     <TaskMenu {taskObj} 
       on:subtask-add={() => isTypingNewSubtask = true } 
@@ -172,6 +172,12 @@
   }
   
   $: depthAdjustedFontWeight = 400 - (depth * 0) + (200 * Math.max(1 - depth, 0))
+  
+  function upcomingThisWeek ({ startDateISO, startTime }) {
+    const d1 = DateTime.fromISO(startDateISO + (startTime ? 'T' + startTime : ''))
+    const d2 = DateTime.now()
+    return d1.toMillis() > d2.toMillis() && d1.diff(d2, 'days').days < 7
+  }
 
   function handleCheckboxChange (e) {
     Task.update({
