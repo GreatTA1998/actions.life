@@ -5,6 +5,8 @@
   export let position = { x: 0, y: 0 }
   export let zIndex = 3
 
+  let menuElement
+
   function toggle (e) {
     if (!isOpen) open (e) 
     else close()
@@ -18,6 +20,25 @@
   function close () {
     isOpen = false
   }
+
+  function getAdjustedPosition (basePosition, menuElement) {
+    if (!menuElement) return basePosition
+
+    const rect = menuElement.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    
+    let { x, y } = basePosition
+
+    if (x > viewportWidth - rect.width) x = viewportWidth - rect.width
+    if (x < 0) x = 0
+    if (y + rect.height > viewportHeight) y = viewportHeight - rect.height
+    if (y < 0) y = 0
+    
+    return { x, y }
+  }
+
+  $: adjustedPosition = getAdjustedPosition(position, menuElement)
 </script>
 
 <div>
@@ -27,7 +48,11 @@
 
   {#if isOpen}
     <ModularLayer {zIndex} on:click-outside={close}>
-      <div class="card" style="position: fixed; left: {position.x}px; top: {position.y}px; transform: translateX(-100%);">
+      <div 
+        bind:this={menuElement}
+        class="card" 
+        style="position: fixed; left: {adjustedPosition.x}px; top: {adjustedPosition.y}px;"
+      >
         <slot name="content">
 
         </slot>
