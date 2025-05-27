@@ -52,7 +52,23 @@
         {isLargeFont}
         {colorForDebugging}
       />
-  
+    {/if}
+
+    {#if isTypingNewSubtask}  
+      <FormField
+        fieldLabel="Task Name"
+        value={newSubtaskStringValue}
+        on:input={(e) => newSubtaskStringValue = e.detail.value}
+        on:focus-out={() => {
+          if (newSubtaskStringValue === '') {
+            isTypingNewSubtask = false
+          }
+        }}
+        on:task-entered={e => createTimelineStep(e)}
+      />
+    {/if}
+  {:else}
+    <div style="margin-left: {WIDTHS.SUBTASK_LEFT_MARGIN}px;">
       {#if isTypingNewSubtask}  
         <FormField
           fieldLabel="Task Name"
@@ -63,27 +79,11 @@
               isTypingNewSubtask = false
             }
           }}
-          on:task-entered={e => createTimelineStep(e)}
+          on:task-entered={(e) => onEnter(e)}
         />
       {/if}
-    {/if}
-  {:else}
-    <div style="margin-left: {WIDTHS.SUBTASK_LEFT_MARGIN}px;">
-      {#if !taskObj.isCollapsed}
-        {#if isTypingNewSubtask}  
-          <FormField
-            fieldLabel="Task Name"
-            value={newSubtaskStringValue}
-            on:input={(e) => newSubtaskStringValue = e.detail.value}
-            on:focus-out={() => {
-              if (newSubtaskStringValue === '') {
-                isTypingNewSubtask = false
-              }
-            }}
-            on:task-entered={(e) => onEnter(e)}
-          />
-        {/if}
 
+      {#if !taskObj.isCollapsed}
         <div class:ghost-negative={n === 0} 
           style="
             width: 235px;
