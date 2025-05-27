@@ -16,7 +16,7 @@
     </button>
   </div>
 
-  <div slot="content" style="padding: 12px; display: flex; flex-direction: column; row-gap: 8px;">
+  <div slot="content" style="z-index: 1000; padding: 12px; display: flex; flex-direction: column; row-gap: 8px;">
     <button class="m-item" on:click={() => { dispatch('subtask-add'); close(); }}>
       <span class="material-symbols-outlined" style="font-size: 22px;">
         add
@@ -25,7 +25,7 @@
     </button>
 
     <div class="menu-divider"></div>
-
+    
     <button class="m-item" on:click={() => { 
       Task.update({ 
         id: taskObj.id, 
@@ -74,7 +74,7 @@
   .menu-divider {
     height: 1px;
     background: #ececf0;
-    margin: 8px 0;
+    margin: 4px 0;
     border: none;
   }
 </style>

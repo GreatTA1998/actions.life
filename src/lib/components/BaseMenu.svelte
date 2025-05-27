@@ -27,7 +27,7 @@
 
   {#if isOpen}
     <ModularLayer {zIndex} on:click-outside={close}>
-      <div class="card" style="position: fixed; left: {position.x}px; top: {position.y}px;">
+      <div class="card" style="position: fixed; left: {position.x}px; top: {position.y}px; transform: translateX(-100%);">
         <slot name="content">
 
         </slot>
