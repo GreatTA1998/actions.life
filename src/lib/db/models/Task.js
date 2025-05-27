@@ -44,6 +44,7 @@ const Task = {
     persistsOnList: z.boolean().default(true),
     childrenLayout: z.string().default('normal'), // 'normal' or 'timeline'
     photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'thumbnail'
+    isCollapsed: z.boolean().default(false),
 
     orderValue: z.number().optional(), // must be maintained
 

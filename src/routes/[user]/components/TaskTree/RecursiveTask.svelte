@@ -24,6 +24,13 @@
       {taskObj.name}
     </button>
 
+    {#if taskObj.isCollapsed && taskObj.children.length > 0}
+      <span class="subtask-progress-badge">
+        <span class="material-symbols-outlined" style="font-size: 16px;">check_circle</span>
+        {taskObj.children.filter(child => child.isDone).length}/{taskObj.children.length}
+      </span>
+    {/if}
+
     {#if taskObj.startDateISO}
       <span class="schedule-badge">
         {DateTime.fromISO(taskObj.startDateISO + (taskObj.startTime ? 'T' + taskObj.startTime : '')).toRelative()}
@@ -36,30 +43,16 @@
   </div>
 
   {#if taskObj.childrenLayout === 'timeline' && taskObj.children.length > 0}
-    <TimelineRenderer
-      children={taskObj.children}
-      parentID={taskObj.id}
-      {depth}
-      {ancestorRoomIDs}
-      {isLargeFont}
-      {colorForDebugging}
-    />
-
-    {#if isTypingNewSubtask}  
-      <FormField
-        fieldLabel="Task Name"
-        value={newSubtaskStringValue}
-        on:input={(e) => newSubtaskStringValue = e.detail.value}
-        on:focus-out={() => {
-          if (newSubtaskStringValue === '') {
-            isTypingNewSubtask = false
-          }
-        }}
-        on:task-entered={e => createTimelineStep(e)}
+    {#if !taskObj.isCollapsed}
+      <TimelineRenderer
+        children={taskObj.children}
+        parentID={taskObj.id}
+        {depth}
+        {ancestorRoomIDs}
+        {isLargeFont}
+        {colorForDebugging}
       />
-    {/if}
-  {:else}
-    <div style="margin-left: {WIDTHS.SUBTASK_LEFT_MARGIN}px;">
+  
       {#if isTypingNewSubtask}  
         <FormField
           fieldLabel="Task Name"
@@ -70,51 +63,69 @@
               isTypingNewSubtask = false
             }
           }}
-          on:task-entered={(e) => onEnter(e)}
+          on:task-entered={e => createTimelineStep(e)}
         />
       {/if}
+    {/if}
+  {:else}
+    <div style="margin-left: {WIDTHS.SUBTASK_LEFT_MARGIN}px;">
+      {#if !taskObj.isCollapsed}
+        {#if isTypingNewSubtask}  
+          <FormField
+            fieldLabel="Task Name"
+            value={newSubtaskStringValue}
+            on:input={(e) => newSubtaskStringValue = e.detail.value}
+            on:focus-out={() => {
+              if (newSubtaskStringValue === '') {
+                isTypingNewSubtask = false
+              }
+            }}
+            on:task-entered={(e) => onEnter(e)}
+          />
+        {/if}
 
-      <div class:ghost-negative={n === 0} 
-        style="
-          width: 235px;
-          left: {WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
-          z-index: {depth};
-        "
-      >
-        <Dropzone
-          ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
-          roomsInThisLevel={taskObj.children}
-          idxInThisLevel={0}
-          parentID={taskObj.id}
-          {colorForDebugging}
-        /> 
-      </div>
-
-      {#each taskObj.children as subtaskObj, i (subtaskObj.id)}
-        <RecursiveTask 
-          taskObj={subtaskObj}
-          depth={depth+1}
-          willShowCheckbox
-          ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
-          {isLargeFont}
-        /> 
-
-        <div class:ghost-negative={i === n - 1} 
+        <div class:ghost-negative={n === 0} 
           style="
-            left: {WIDTHS.SUBTASK_LEFT_MARGIN + WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
-            z-index: {depth};
             width: 235px;
+            left: {WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
+            z-index: {depth};
           "
         >
           <Dropzone
             ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
             roomsInThisLevel={taskObj.children}
-            idxInThisLevel={i + 1}
+            idxInThisLevel={0}
             parentID={taskObj.id}
             {colorForDebugging}
           /> 
         </div>
-      {/each}
+
+        {#each taskObj.children as subtaskObj, i (subtaskObj.id)}
+          <RecursiveTask 
+            taskObj={subtaskObj}
+            depth={depth+1}
+            willShowCheckbox
+            ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
+            {isLargeFont}
+          /> 
+
+          <div class:ghost-negative={i === n - 1} 
+            style="
+              left: {WIDTHS.SUBTASK_LEFT_MARGIN + WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
+              z-index: {depth};
+              width: 235px;
+            "
+          >
+            <Dropzone
+              ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
+              roomsInThisLevel={taskObj.children}
+              idxInThisLevel={i + 1}
+              parentID={taskObj.id}
+              {colorForDebugging}
+            /> 
+          </div>
+        {/each}
+      {/if}
     </div>
   {/if}
 </div>
@@ -254,5 +265,18 @@
     color: #666;
     font-size: 0.85em;
     font-weight: normal;
+  }
+
+  .subtask-progress-badge {
+    margin-left: 6px;
+    display: flex;
+    align-items: center;
+    column-gap: 2px;
+    color: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    background: none;
+    border-radius: 0;
+    padding: 0;
   }
 </style> 

@@ -10,7 +10,8 @@
     migrateCalendarTasks,
     fixInvalidStartDateISOs,
     migrateBasicProperties,
-    migrateTemplates
+    migrateTemplates,
+    migrateCollapseExpand
   } from '/src/lib/db/scripts/april.js'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
 
@@ -21,6 +22,7 @@
     window.migrateBasicProperties = migrateBasicProperties
     window.migrateCalendarTasks = migrateCalendarTasks
     window.migrateTemplates = migrateTemplates
+    window.migrateCollapseExpand = migrateCollapseExpand
 
     translateJSConstantsToCSSVariables()
 

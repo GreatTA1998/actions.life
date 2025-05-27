@@ -5,6 +5,27 @@ import { db } from '$lib/db/init.js'
 import { isValidISODate } from '$lib/db/models/Task.js'
 import { getPeriod, crontabToState } from '/src/routes/[user]/components/Templates/crontab.js'
 
+// CHECKLIST FOR ADDING A NEW PROPERTY
+// 1. Run script
+// 2. Add to schema
+
+export async function migrateCollapseExpand (uid, testRun = true) {
+  const tasks = await getFirestoreCollection(`/users/${uid}/tasks`)
+  let count = 0
+  for (const task of tasks) {
+    if (task.isCollapsed === undefined) {
+      count += 1
+      console.log('undefined, initialize to ')
+      if (!testRun) {
+        updateFirestoreDoc(`/users/${uid}/tasks/${task.id}`, {
+          isCollapsed: false
+        })
+      }
+    }
+  }
+  console.log("successfully migrated", count, "tasks")
+}
+
 export async function migrateTemplates (uid, testRun = true) {
   const templates = await getFirestoreCollection(`/users/${uid}/templates`)
   const promises = []

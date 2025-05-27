@@ -44,7 +44,7 @@
       </div>
 
       <div style="display: {$currentMode === 'Archive' ? 'flex' : 'none'}; flex-grow: 1; height: 100%;">
-        <Archive {isShowingAI} />
+        <Archive />
 
         <div style="display: {isShowingAI ? 'block' : 'none'}; flex: 0 0 320px;">
           <AI />

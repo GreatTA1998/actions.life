@@ -31,11 +31,17 @@
       activeValue={taskObj.childrenLayout} 
     />
 
-    <button class="m-item" disabled style="opacity: 0.5;">
+    <button class="m-item" on:click={() => { 
+      Task.update({ 
+        id: taskObj.id, 
+        keyValueChanges: { isCollapsed: !taskObj.isCollapsed }
+      }); 
+      close(); 
+    }}>
       <span class="material-symbols-outlined" style="font-size: 22px;">
-        expand_less
+        {taskObj.isCollapsed ? 'expand_more' : 'expand_less'}
       </span>
-      Collapse (coming soon)
+      {taskObj.isCollapsed ? 'Expand' : 'Collapse'}
     </button>
 
     <div class="menu-divider"></div>
