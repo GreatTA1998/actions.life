@@ -25,18 +25,17 @@
     </button>
 
     {#if taskObj.isCollapsed && taskObj.children.length > 0}
-      <button class="subtask-progress-badge" on:click={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: false } })}>
-        <span class="material-symbols-outlined" style="font-size: 16px;">check_circle</span>
-        {taskObj.children.filter(child => child.isDone).length}/
-        {taskObj.children.length}
+      <button class="subtask-progress-badge" on:click={() => openTaskPopup(taskObj)}>
+        <span class="material-symbols-outlined" style="font-size: 12px;">check_circle</span>
+        {taskObj.children.filter(child => child.isDone).length}/{taskObj.children.length}
       </button>
     {/if}
 
-    {#if taskObj.startDateISO >= DateTime.now().toFormat('yyyy-MM-dd')}
+    <!-- {#if taskObj.startDateISO >= DateTime.now().toFormat('yyyy-MM-dd')}
       <span class="schedule-badge">
         {DateTime.fromISO(taskObj.startDateISO + (taskObj.startTime ? 'T' + taskObj.startTime : '')).toRelative()}
       </span>
-    {/if}
+    {/if} -->
 
     <TaskMenu {taskObj} 
       on:subtask-add={() => isTypingNewSubtask = true } 
@@ -277,7 +276,7 @@
     align-items: center;
     column-gap: 2px;
     color: inherit;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
     background: none;
     border-radius: 0;
