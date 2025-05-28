@@ -1,3 +1,4 @@
+import Task from './Task.js'
 import { z } from 'zod'
 import { getAffectedInstances } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
 import { db } from '$lib/db/init.js'
@@ -38,6 +39,14 @@ const Template = {
       await updateFirestoreDoc(`/users/${get(user).uid}/templates/${id}`, validatedChanges)
       resolve()
     })
+  },
+
+  async updateItselfAndFutureInstances ({ id, updates }) {
+    this.update({ id, updates })
+    const futureInstances = await getAffectedInstances({ id })
+    for (const instance of futureInstances) {
+      Task.update({ id: instance.id, keyValueChanges: updates })
+    }
   },
 
   async delete ({ id }) {

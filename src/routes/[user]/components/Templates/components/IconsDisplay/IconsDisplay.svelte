@@ -1,9 +1,7 @@
 <script>
-  import { getAffectedInstances } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
   import BasicWhiteboard from './BasicWhiteboard.svelte'
   import Icon from '$lib/db/models/Icon.js'
   import Template from '$lib/db/models/Template.js'
-  import Task from '$lib/db/models/Task.js'
   import { template } from '../../store.js'
   import { user, doodleIcons } from '$lib/store'
   import { onMount } from 'svelte'
@@ -14,11 +12,7 @@
   })
 
   async function handleSelectIcon (iconURL = '') {
-    Template.update({ id: $template.id, updates: { iconURL } })
-    const futureInstances = await getAffectedInstances({ id: $template.id })
-    for (const instance of futureInstances) {
-      Task.update({ id: instance.id, keyValueChanges: { iconURL } }) // yes...`keyValueChanges` is inconsistent with `updates`
-    }
+    Template.updateItselfAndFutureInstances({ id: $template.id, updates: { iconURL } })
   }
 
   function handleDeleteIcon({ id, url }) {

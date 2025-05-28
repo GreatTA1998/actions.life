@@ -28,7 +28,7 @@
   }
 
   function instantUpdate (key, value) {
-    Template.update({ id: $template.id, updates: {
+    Template.updateItselfAndFutureInstances({ id: $template.id, updates: {
       [key]: value
     }})
   }
