@@ -5,8 +5,9 @@ import { DateTime } from 'luxon'
 
 user.subscribe(async ($user) => {
   if ($user.uid) {
-    if ($user.lastRanRoutines !== DateTime.now().toFormat('yyyy-MM-dd')) {
-      console.log("auto-generating routines")
+    // <= is important, because an iPad that's on a different timezone and a laptop will cause an infinite loop
+    if ($user.lastRanRoutines <= DateTime.now().toFormat('yyyy-MM-dd')) { 
+      console.log("auto-generating routines, $user.lastRanRoutines =", $user.lastRanRoutines)
 
       const templates = await getFirestoreCollection('/users/' + $user.uid + '/templates')
       for (const template of templates) {
