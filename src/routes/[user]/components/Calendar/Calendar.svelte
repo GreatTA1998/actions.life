@@ -3,7 +3,6 @@
   import DayColumn from './DayColumn.svelte'
   import DayHeader from './DayHeader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
-  import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
 
   import { calEarliestHHMM, totalMinutes } from './timestamps.js'
   import { headerHeight, pixelsPerHour } from './store.js'
@@ -92,8 +91,6 @@
       {/if}
     </div>
   </div>
-
-  <MultiPhotoUploader style="position: absolute; right: 1vw; bottom: 1vw;"/>
 </div>
 
 <style>

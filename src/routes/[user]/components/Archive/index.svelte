@@ -6,14 +6,15 @@
   import { onMount, onDestroy } from 'svelte'
   import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
   import { db } from '/src/lib/db/init'
+  import { createEventDispatcher } from 'svelte'
 
   let sidebarOpen = true
   let routines = null
   let selectedRoutineID = ''
   let routineInstances = null
-  let photoTasks = null
   let isViewingPhotos = true
   let unsub
+  const dispatch = createEventDispatcher()
 
   $: if (selectedRoutineID) {
     listenToInstances()
@@ -109,10 +110,6 @@
   </nav>
   
   <main class="main-content">
-    <!-- <div style="opacity: 0.5; font-size: 14px;">
-      Archive
-    </div> -->
-
     {#if isViewingPhotos && !selectedRoutineID}
       <PhotoGrid />
     {:else if selectedRoutineID}

@@ -43,31 +43,23 @@
       </span>
     </button>
 
-    <button on:click={() => updateMode('Schedule')}
-      class="ux-tab-item"
-      class:active-ux-tab={$currentMode === 'Schedule'}
-    >
-      <span class="material-symbols-outlined" style="font-size: 32px;">
-        upcoming
-      </span>
-    </button>
-
     <button on:click={() => updateMode('Archive')}
       class="ux-tab-item"
       class:active-ux-tab={$currentMode === 'Archive'}
     >
-      <!-- archive -->
       <span class="material-symbols-outlined" style="font-size: 32px;">
         search_insights
       </span>
     </button>
   </div>
 
-  <div style="display: flex; gap: 28px; align-items: center;">
-    <button on:click={() => dispatch('robot-click')} class="material-symbols-outlined" style="font-size: 28px; cursor: pointer;">
-      smart_toy
-    </button>
-  </div>
+  {#if $currentMode === 'Archive'}
+    <div style="display: flex; gap: 28px; align-items: center;">
+      <button on:click={() => dispatch('robot-click')} class="material-symbols-outlined" style="font-size: 28px; cursor: pointer;">
+        smart_toy
+      </button>
+    </div>
+  {/if}
 </div>
 
 <style>

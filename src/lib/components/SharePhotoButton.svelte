@@ -2,16 +2,10 @@
   import { onMount } from 'svelte'
   import { formatDate } from '/src/lib/utils/core.js'
   
-  // Props
   export let imageURL = ''
   export let date = ''
   export let notes = ''
-  export let showDownload = false
-  export let buttonSize = '32px'
-  export let iconSize = '22px'
-  export let lightTheme = false
   
-  // State
   let shareSupported = false
   
   onMount(() => {
@@ -19,9 +13,7 @@
     shareSupported = !!navigator.share
   })
   
-  // Share a photo
   async function sharePhoto(event) {
-    // Stop the click from propagating to the parent
     event.stopPropagation()
     
     if (!imageURL) return
@@ -45,9 +37,7 @@
     }
   }
   
-  // Download a photo
   function downloadPhoto(event) {
-    // Stop the click from propagating to the parent
     event.stopPropagation()
     
     if (!imageURL) return
@@ -62,51 +52,46 @@
   }
 </script>
 
-<div class="photo-actions">
+<div>
   <button 
-    class="photo-action-button" 
-    class:light-theme={lightTheme}
+    class="photo-row-action"
     on:click={sharePhoto}
     title="Share photo"
-    style="width: {buttonSize}; height: {buttonSize};"
   >
-    <span class="material-symbols-outlined" style="font-size: {iconSize};">
-      ios_share
-    </span>
+    <span class="material-symbols-outlined">ios_share</span>
+    <span class="photo-row-label">Share</span>
   </button>
-  
-  {#if showDownload}
-    <button 
-      class="photo-action-button"
-      class:light-theme={lightTheme} 
-      on:click={downloadPhoto}
-      title="Download photo"
-      style="width: {buttonSize}; height: {buttonSize};"
-    >
-      <span class="material-symbols-outlined" style="font-size: {iconSize};">download</span>
-    </button>
-  {/if}
 </div>
 
 <style>
-  .photo-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-  }
-  
-  .photo-action-button {
-    border: none;
-    border-radius: 50%;
+  .photo-row-action {
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .photo-action-button.light-theme {
+    gap: 4px;
+    background: none;
+    border: none;
     color: #333;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: 400;
+    width: 100%;
+    justify-content: flex-start;
+    box-sizing: border-box;
+  }
+
+  .photo-row-action .material-symbols-outlined {
+    font-size: 18px;
+  }
+
+  .photo-row-label {
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  .photo-row-action:hover {
+    background: rgba(0,0,0,0.05);
   }
 </style> 

@@ -6,21 +6,12 @@
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
-  import { 
-    migrateCalendarTasks,
-    fixInvalidStartDateISOs,
-    migrateBasicProperties,
-    migrateTemplates
-  } from '/src/lib/db/scripts/april.js'
+  import { } from '$lib/db/scripts/april.js'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
 
   let doingAuth = true
 
   onMount(() => {
-    window.fixInvalidStartDateISOs = fixInvalidStartDateISOs
-    window.migrateBasicProperties = migrateBasicProperties
-    window.migrateCalendarTasks = migrateCalendarTasks
-    window.migrateTemplates = migrateTemplates
 
     translateJSConstantsToCSSVariables()
 
@@ -135,7 +126,6 @@
     color: var(--task-action-subtle-color);
     font-size: 30px; 
     line-height: 0.3;
-    margin-left: 4px; 
     cursor: pointer;  
   }
 

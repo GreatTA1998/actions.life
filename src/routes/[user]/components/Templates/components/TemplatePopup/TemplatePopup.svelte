@@ -1,90 +1,18 @@
 <script>
-  // Correctness argument: 
-  //   - the preview arrays use the same source of truth as the actual delete / addition operations
-  //   - auto-generating (prevEndISO || today) + previewSpan (getOccurence uses rrule strings)
-
-  import PeriodicityInputs from './PeriodicityInputs.svelte'
-  import PreviewChanges from './PreviewChanges.svelte'
+  import PeriodicityEditor from './PeriodicityEditor.svelte'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
   import BasePopup from '$lib/components/BasePopup.svelte'
-  import RoundButton from '$lib/components/RoundButton.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import MinimalisticInput from '$lib/components/MinimalisticInput.svelte'
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
-
-  import { getPeriodicity, getPreviewSpan, generateDates} from '$lib/utils/rrule.js'
-  import { instantiateTask, isException, getAffectedInstances } from './instances.js'
+  import { getPeriodicity } from '$lib/utils/rrule.js'
   import { template, closeTemplateEditor } from '../../store.js'
-
-  import Task from '$lib/db/models/Task'
+  import { createDebouncedFunction } from '$lib/utils/core.js'
   import Template from '$lib/db/models/Template.js'
-
-  import { getRandomID, createDebouncedFunction } from '$lib/utils/core.js'
-  import { DateTime } from 'luxon'
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 
-  let pendingRRStr = ''
   let iconsMenu = false
-
-  let deletingTasks = []
-  let addingTasks = []
-  let exceptions = []
-
-  $: reactToRRStr(pendingRRStr) // TO-DO: make this explicit, it's a crucial detail to be exposed
-
-  async function reactToRRStr (pendingRRStr) {
-    if (!$template) return
-
-    resetPreviewStates()
-
-    if (pendingRRStr === $template.rrStr) {
-      return
-    }
-
-    const affectedTasks = await getAffectedInstances($template)
-    for (const task of affectedTasks) {
-      if (isException(task, $template)) exceptions = [...exceptions, task]
-      else deletingTasks = [...deletingTasks, task]
-    }
-
-    addingTasks = simulateChanges(pendingRRStr)
-  }
-
-  function simulateChanges (newRRStr) {
-    if (!newRRStr) return []
-
-    const JSDates = generateDates({ 
-      rrStr: newRRStr,
-      previewSpan: getPreviewSpan({ rrStr: newRRStr}),
-      startISO: DateTime.now().toFormat('yyyy-MM-dd') // always from today, as this is a Routine EDIT
-    })
-
-    const newTasks = []
-    for (const JSDate of JSDates) {
-      newTasks.push(
-        instantiateTask({ template: $template, occurence: JSDate })
-      )
-    }
-    return newTasks
-  }
-  
-  async function handleSave () {
-    if (pendingRRStr === $template.rrStr) return
-
-    for (const task of deletingTasks) {
-      Task.delete({ id: task.id, willConfirm: false })
-    }
-    for (const task of addingTasks) {
-      Task.create({ id: getRandomID(), newTaskObj: task })
-    }
-    Template.update({ id: $template.id, updates: { 
-      rrStr: pendingRRStr, 
-      previewSpan: getPreviewSpan(pendingRRStr),
-      prevEndISO: DateTime.now().plus({ days: getPreviewSpan(pendingRRStr) }).toFormat('yyyy-MM-dd')
-    }})
-    resetPreviewStates()
-  }
 
   function handleDelete () {
     if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {
@@ -100,26 +28,15 @@
   }
 
   function instantUpdate (key, value) {
-    if (typeof Number(value) !== "number") return
-
-    Template.update({
-      id: $template.id,
-      updates: {
-        [key]: value
-      }
-    })
-  }
-
-  function resetPreviewStates() {
-    deletingTasks = []
-    addingTasks = []
-    exceptions = []
+    Template.updateItselfAndFutureInstances({ id: $template.id, updates: {
+      [key]: value
+    }})
   }
 </script>
 
 <BasePopup on:click-outside={closeTemplateEditor}>
   <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
-    {#if getPeriodicity(pendingRRStr) === 'weekly'}
+    {#if getPeriodicity($template.rrStr) === 'weekly'}
       <button on:click={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
         {#if $template.iconURL}
           <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
@@ -168,22 +85,7 @@
     </div>
   </div>
 
-  <PeriodicityInputs 
-    initialRRStr={$template.rrStr}
-    on:update-rr={e => pendingRRStr = e.detail}
-  />
-
-  {#if pendingRRStr !== $template.rrStr}
-    <div class="changes-section">
-      <PreviewChanges {pendingRRStr} {addingTasks} {deletingTasks} {exceptions}/>
-
-      <div class="action-button-container">
-        <RoundButton on:click={handleSave} backgroundColor="rgb(0, 89, 125)" textColor="white">
-          Apply changes
-        </RoundButton>
-      </div>
-    </div>
-  {/if}
+  <PeriodicityEditor routine={$template} />
 
   <button on:click|stopPropagation={handleDelete} class="material-symbols-outlined delete-button">
     delete
@@ -209,17 +111,6 @@
   
   .icon-container.active {
     box-shadow: 0 2px 8px rgba(90, 179, 39, 0.5);
-  }
-
-  .changes-section {
-    margin-top: 24px;
-    width: 100%;
-  }
-
-  .action-button-container {
-    display: flex;
-    justify-content: flex-start;
-    margin-top: 16px;
   }
 
   .delete-button {

@@ -8,12 +8,11 @@
   import SideBySideView from './components/SideBySideView/index.svelte'
   import TaskPopup from './components/TaskPopup/TaskPopup.svelte'
   import Settings from './components/Settings/index.svelte'
-  import Schedule from './mobile/Schedule.svelte'
 
   import { onDestroy, onMount } from 'svelte'
   import { user, loadingTasks, currentMode, showSnackbar, isTaskPopupOpen, settingsOpen } from '$lib/store'
 
-  let isShowingAI = false
+  let isShowingAI = true
   let unsub
 
   onMount(() => {
@@ -36,27 +35,21 @@
     </div>
 
     <div slot="content" class="relative z-0 flexbox" style="flex-grow: 1; height: 100%;">
-      <div style="display: {$currentMode === 'Week' ? 'flex' : 'none'}; width: 100%;">
+      <div style="display: {$currentMode === 'Week' ? 'block' : 'none'}; width: 100%;">
         <SideBySideView />
-
-        <div style="display: {isShowingAI ? 'block' : 'none'}; flex: 0 0 320px;">
-          <AI />
-        </div>
       </div>
 
       <div style="display: {$currentMode === 'Templates' ? 'block' : 'none'}; width: 100%;">
         <Templates />
       </div>
 
-      <div style="display: {$currentMode === 'Archive' ? 'block' : 'none'}; width: 100%; height: 100%;">
+      <div style="display: {$currentMode === 'Archive' ? 'flex' : 'none'}; flex-grow: 1; height: 100%;">
         <Archive />
-      </div>
 
-      {#if $currentMode === 'Schedule'}
-        <div style="width: 100%; height: 100%;">
-          <Schedule on:task-duration-adjusted />
+        <div style="display: {isShowingAI ? 'block' : 'none'}; flex: 0 0 320px;">
+          <AI />
         </div>
-      {/if}
+      </div>
     </div>
   </NavbarContentLayout>
 

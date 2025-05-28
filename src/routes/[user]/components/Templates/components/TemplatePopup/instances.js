@@ -38,7 +38,9 @@ export function fillTaskInstances ({ template, startISO }) {
 
 export function createTaskInstance ({ template, occurence }) {
   Task.create({
-    id: template.id + '_' + occurence.toISOString(), // be clear about format, 
+    // ensure idempotence, with deterministic IDs
+    // assumes the recurrence is at the resolution of days
+    id: template.id + '_' + DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd'),
     newTaskObj: instantiateTask({ template, occurence })
   })
 }
@@ -75,7 +77,7 @@ export async function deleteFutureInstances (template, uid) {
     const promises = []
     for (const task of tasks) {
       promises.push(
-        Task.delete({ id: task.id, willConfirm: false })
+        Task.delete({ id: task.id })
       )
     }
     await Promise.all(promises)

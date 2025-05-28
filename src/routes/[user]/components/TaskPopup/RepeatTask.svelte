@@ -1,17 +1,11 @@
 <script>
-  import PeriodicityInputs from '../Templates/components/TemplatePopup/PeriodicityInputs.svelte';
-  import RoundButton from '$lib/components/RoundButton.svelte';
-  import Template from '$lib/db/models/Template.js'
-  import Task from '$lib/db/models/Task.js'
   import { currentMode, closeTaskPopup } from '$lib/store'
   import { openTemplateEditor } from '/src/routes/[user]/components/Templates/store.js'
+  import PeriodicityEditor from '/src/routes/[user]/components/Templates/components/TemplatePopup/PeriodicityEditor.svelte'
 
   export let taskObject
 
   let isCreatingRoutine = false
-  let pendingRRStr = ''
-
-  $: console.log("pendingRRStr =", pendingRRStr)
 
   function toggleCreate () {
     isCreatingRoutine = !isCreatingRoutine
@@ -21,24 +15,6 @@
     currentMode.set('Templates')
     openTemplateEditor(taskObject.templateID)
     closeTaskPopup()
-  }
-
-  function createRoutine () {
-    console.log("create routine")
-    Template.create({
-      id: taskObject.id,
-      newTemplate: {
-        ...taskObject,
-        rrStr: pendingRRStr
-      }
-    })
-
-    Task.update({
-      id: taskObject.id,
-      keyValueChanges: {
-        templateID: taskObject.id
-      }
-    })
   }
 </script>
 
@@ -54,13 +30,7 @@
   </button>
 
   {#if isCreatingRoutine}
-    <PeriodicityInputs initialRRStr="" on:update-rr={e => pendingRRStr = e.detail} />
-
-    {#if pendingRRStr}
-      <RoundButton on:click={createRoutine} backgroundColor="rgb(0, 89, 125)" textColor="white">
-        Apply changes
-      </RoundButton>
-    {/if}
+    <PeriodicityEditor isCreating routine={{ ...taskObject, rrStr: '' }} />
   {/if}
 {/if}
 
