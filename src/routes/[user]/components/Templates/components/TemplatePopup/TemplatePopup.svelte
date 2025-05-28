@@ -7,8 +7,8 @@
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
   import { getPeriodicity } from '$lib/utils/rrule.js'
   import { template, closeTemplateEditor } from '../../store.js'
-  import Template from '$lib/db/models/Template.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
+  import Template from '$lib/db/models/Template.js'
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 
@@ -28,14 +28,9 @@
   }
 
   function instantUpdate (key, value) {
-    if (typeof Number(value) !== "number") return
-
-    Template.update({
-      id: $template.id,
-      updates: {
-        [key]: value
-      }
-    })
+    Template.update({ id: $template.id, updates: {
+      [key]: value
+    }})
   }
 </script>
 
@@ -90,7 +85,7 @@
     </div>
   </div>
 
-  <PeriodicityEditor routine={$template}/>
+  <PeriodicityEditor routine={$template} />
 
   <button on:click|stopPropagation={handleDelete} class="material-symbols-outlined delete-button">
     delete
