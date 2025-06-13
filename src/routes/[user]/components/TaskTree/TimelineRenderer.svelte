@@ -1,5 +1,6 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
+  import TaskProvider from '../../../../lib/components/TaskProvider.svelte'
   import Dropzone from './Dropzone.svelte'
   import { WIDTHS } from '/src/lib/utils/constants.js'
   import { DateTime } from 'luxon'
@@ -128,7 +129,8 @@
 </script>
 
 <div class="timeline-container" bind:this={timelineContainerRef}>
-  {#if sortedTasks.length > 0}
+  <TaskProvider>
+    {#if sortedTasks.length > 0}
     <div class="timeline-line"></div>
     
     {#if showTimeMarker}
@@ -178,6 +180,7 @@
       />
     </div>
   {/each}
+  </TaskProvider>
 </div>
 
 <style>

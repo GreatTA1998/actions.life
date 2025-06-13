@@ -141,10 +141,16 @@
     getRandomID, 
     getRandomColor,
   } from '/src/lib/utils/core.js'
-  import { activeDragItem, openTaskPopup } from '/src/lib/store'
-  import Task from '/src/lib/db/models/Task.js'
   import { WIDTHS } from '/src/lib/utils/constants.js'
   import { DateTime } from 'luxon'
+  import { getContext } from 'svelte'
+  import { activeDragItem as defaultDragItem, openTaskPopup as defaultPopupHandler } from '/src/lib/store'
+  import DefaultTask from '/src/lib/db/models/Task.js'
+
+  // Get dependencies from context, with fallbacks for backward compatibility
+  const Task = getContext('taskService') || DefaultTask
+  const activeDragItem = getContext('dragStore') || defaultDragItem
+  const openTaskPopup = getContext('popupHandler') || defaultPopupHandler
 
   export let taskObj
   export let depth 

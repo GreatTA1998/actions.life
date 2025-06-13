@@ -1,6 +1,7 @@
 <script>
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
+  import TaskProvider from '../../../../lib/components/TaskProvider.svelte'
   import FormField from '$lib/components/FormField.svelte'
   import { getRandomID } from '/src/lib/utils/core.js'
   import { HEIGHTS } from '/src/lib/utils/constants.js'
@@ -83,6 +84,7 @@
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
 <div style={$$props.style}>
   {#if $trees}
+    <TaskProvider>
     {#if topInput}
       <FormField fieldLabel="Task Name"
         value={newTaskName}
@@ -135,6 +137,7 @@
       />
       <div style="margin-bottom: 8px;"></div>
     {/if}
+    </TaskProvider>
   {/if}
 
   <slot {startTypingNewTask}>
