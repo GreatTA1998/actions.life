@@ -94,10 +94,9 @@
 
       <div class="feature-explanation">
         <p>
-          Many habits take less than a minute to complete, yet showing them on the calendar causes clutter.
+          Many impactful habits take less than 1 minute, but clutter up the calendar when tracked
           <br><br>
-          By drawing your own icons that you understand, you can fit 6 in the space of 1, while increasing readability.
-
+          By drawing your own icons that you understand, you can fit 6 in the space of 1, so they're easy-to-understand.
         </p>
       </div>
     </div>

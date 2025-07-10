@@ -4,7 +4,7 @@
 
 <div style="display: flex; align-items: center; justify-content: space-between;">
   <div class="hero-section" style="display: flex; flex-direction: column; row-gap: 16px;">
-    <div class="hero-title">Coordinate multiple life priorities onto one calendar</div>
+    <div class="hero-title">Coordinate multiple life priorities on one calendar</div>
 
     <div style="display: flex; flex-wrap: wrap;">
       <div class="secondary-description">

@@ -46,7 +46,7 @@
   // Simple milestone-based data that makes timeline view obviously better
   let demoTaskData = {
     id: 'demo-root',
-    name: 'Running',
+    name: 'Walk the Camino de Santiago',
     isDone: false,
     isCollapsed: false,
     startDateISO: '2024-01-01',
@@ -72,19 +72,10 @@
       },
       {
         id: 'demo-4',
-        name: 'Boston Marathon',
+        name: 'End of trail',
         isDone: false,
         isCollapsed: false,
         startDateISO: '2024-04-15',
-        childrenLayout: 'normal',
-        children: []
-      },
-      {
-        id: 'demo-5',
-        name: 'Chicago Marathon',
-        isDone: false,
-        isCollapsed: false,
-        startDateISO: '2025-10-13',
         childrenLayout: 'normal',
         children: []
       }
@@ -140,11 +131,11 @@
     <div class="controls-panel">
       <div class="benefits-explanation">
         <p>
-          Most calendars lock us into rigid timeframes: week, month, year. But our most important endeavors often span arbitrary, incompatible timeframes.
+          Calendars usually lock us into rigid timeframes: week, month, year etc. But important things often span arbitrary timeframes.
           <br><br>
-          In actions.life, timelines are a first-class construct—an alternative display mode to task trees. They allow long-term priorities to be coordinated together without leaving the calendar page.
+          Here, timelines are first-class constructs, so long-term priorities can be coordinated together without leaving the page.
           <br><br>
-          Timelines put deadlines in perspective, connect day-to-day tasks to larger goals, and fundamentally encourages us to think on the long-horizon.
+          Besides from keeping track of deadlines, timelines rewire us to fundamentally think on longer time horizons.
         </p>
       </div>
     </div>
