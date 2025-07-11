@@ -1,8 +1,10 @@
 <!-- !!!!!!!CURRENTLY NOT USED!!!!!!!!! -->
 <script>
   import { user } from "../../store";
-  import Task from "../../db/Task";
   import text from "./text";
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   // TOUCH THIS AND THE WORLD WILL BURN WAHAHAHA !!!!
   let state = {

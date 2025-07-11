@@ -5,11 +5,13 @@
   import FormField from '$lib/components/FormField.svelte'
   import { getRandomID } from '/src/lib/utils/core.js'
   import { HEIGHTS } from '/src/lib/utils/constants.js'
-  import Task from '/src/lib/db/models/Task.js'
   import { DateTime } from 'luxon'
   import { onMount, createEventDispatcher } from 'svelte'
   import { user } from '$lib/store'
   import { trees, listenToTasks } from './service.js'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let willShowCheckbox = true
   export let isLargeFont = false

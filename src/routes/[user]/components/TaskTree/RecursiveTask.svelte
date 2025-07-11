@@ -1,3 +1,109 @@
+<script>
+  import RecursiveTask from './RecursiveTask.svelte'
+  import Dropzone from './Dropzone.svelte'
+  import FormField from '$lib/components/FormField.svelte'
+  import Checkbox from '$lib/components/Checkbox.svelte'
+  import TimelineRenderer from './TimelineRenderer.svelte'
+  import TaskMenu from './TaskMenu.svelte'
+  import { getRandomID, getRandomColor } from '$lib/utils/core.js'
+  import { WIDTHS } from '$lib/utils/constants.js'
+  import { DateTime } from 'luxon'
+  import { getContext } from 'svelte'
+
+  const { Task, activeDragItem, openTaskPopup } = getContext('app')
+
+  export let taskObj
+  export let depth 
+  export let willShowCheckbox = true
+  export let ancestorRoomIDs = [] // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
+  export let isLargeFont = false
+
+  let newSubtaskStringValue = ''
+  let isTypingNewSubtask = false
+  let depthAdjustedFontSize
+  const colorForDebugging = getRandomColor()
+
+  $: n = taskObj.children.length 
+
+  $: if (depth >= 0) {
+    switch (depth) {
+      case 0:
+        if (isLargeFont) depthAdjustedFontSize = '32px'
+        else depthAdjustedFontSize = '16px'
+        break
+      default: 
+        if (isLargeFont) depthAdjustedFontSize = '28px'
+        else depthAdjustedFontSize = '14px'
+    }
+  }
+  
+  $: depthAdjustedFontWeight = 400 - (depth * 0) + (200 * Math.max(1 - depth, 0))
+  
+  function upcomingThisWeek ({ startDateISO, startTime }) {
+    const d1 = DateTime.fromISO(startDateISO + (startTime ? 'T' + startTime : ''))
+    const d2 = DateTime.now()
+    return d1.toMillis() > d2.toMillis() && d1.diff(d2, 'days').days < 7
+  }
+
+  function handleCheckboxChange (e) {
+    Task.update({
+      id: taskObj.id,
+      keyValueChanges: { isDone: e.target.checked }
+    })
+  }
+
+  function dragstart_handler (e, id) {
+    e.dataTransfer.setData("text/plain", id)
+    activeDragItem.set({ 
+      kind: 'room', 
+      ...taskObj 
+    })
+  }
+
+  function onEnter (e) {
+    if (newSubtaskStringValue === '') {
+      isTypingNewSubtask = false
+    }
+    else {
+      createSubtask(newSubtaskStringValue)
+      newSubtaskStringValue = ''
+    } 
+  }
+
+  function createTimelineStep (e) {
+    if (newSubtaskStringValue === '') {
+      isTypingNewSubtask = false
+    }
+    else {
+      Task.create({
+        id: getRandomID(),
+        newTaskObj: {
+          name: newSubtaskStringValue,
+          parentID: taskObj.id,
+          childrenLayout: 'normal'
+          // we purposely don't set `orderValue`,  so it'll be added to the end of the timeline sequentially
+        }
+      })
+      newSubtaskStringValue = ''
+    } 
+  }
+
+  function createSubtask (name) {
+    const newTaskObj = {
+      name,
+      parentID: taskObj.id, 
+      childrenLayout: 'normal'
+    }
+
+    if (taskObj.children.length > 0) {
+      newTaskObj.orderValue = (taskObj.children[0].orderValue) / 1.1
+    } 
+    // Task.create(), by default, initializes `$user.maxOrderValue`
+
+    Task.create({ id: getRandomID(), newTaskObj })
+  }
+</script>
+
 <div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
   <div draggable="true"
     on:dragstart|self={(e) => dragstart_handler(e, taskObj.id)}
@@ -129,120 +235,6 @@
     </div>
   {/if}
 </div>
-
-<script>
-  import FormField from '$lib/components/FormField.svelte'
-  import RecursiveTask from './RecursiveTask.svelte'
-  import Checkbox from '$lib/components/Checkbox.svelte'
-  import Dropzone from './Dropzone.svelte'
-  import TimelineRenderer from './TimelineRenderer.svelte'
-  import TaskMenu from './TaskMenu.svelte'
-  import { 
-    getRandomID, 
-    getRandomColor,
-  } from '/src/lib/utils/core.js'
-  import { WIDTHS } from '/src/lib/utils/constants.js'
-  import { DateTime } from 'luxon'
-  import { getContext } from 'svelte'
-  import { activeDragItem as defaultDragItem, openTaskPopup as defaultPopupHandler } from '/src/lib/store'
-  import DefaultTask from '/src/lib/db/models/Task.js'
-
-  // Get dependencies from context, with fallbacks for backward compatibility
-  const Task = getContext('taskService') || DefaultTask
-  const activeDragItem = getContext('dragStore') || defaultDragItem
-  const openTaskPopup = getContext('popupHandler') || defaultPopupHandler
-
-  export let taskObj
-  export let depth 
-  export let willShowCheckbox = true
-  export let ancestorRoomIDs = [] // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
-  export let isLargeFont = false
-
-  let newSubtaskStringValue = ''
-  let isTypingNewSubtask = false
-  let depthAdjustedFontSize
-  const colorForDebugging = getRandomColor()
-
-  $: n = taskObj.children.length 
-
-  $: if (depth >= 0) {
-    switch (depth) {
-      case 0:
-        if (isLargeFont) depthAdjustedFontSize = '32px'
-        else depthAdjustedFontSize = '16px'
-        break
-      default: 
-        if (isLargeFont) depthAdjustedFontSize = '28px'
-        else depthAdjustedFontSize = '14px'
-    }
-  }
-  
-  $: depthAdjustedFontWeight = 400 - (depth * 0) + (200 * Math.max(1 - depth, 0))
-  
-  function upcomingThisWeek ({ startDateISO, startTime }) {
-    const d1 = DateTime.fromISO(startDateISO + (startTime ? 'T' + startTime : ''))
-    const d2 = DateTime.now()
-    return d1.toMillis() > d2.toMillis() && d1.diff(d2, 'days').days < 7
-  }
-
-  function handleCheckboxChange (e) {
-    Task.update({
-      id: taskObj.id,
-      keyValueChanges: { isDone: e.target.checked }
-    })
-  }
-
-  function dragstart_handler (e, id) {
-    e.dataTransfer.setData("text/plain", id)
-    activeDragItem.set({ 
-      kind: 'room', 
-      ...taskObj 
-    })
-  }
-
-  function onEnter (e) {
-    if (newSubtaskStringValue === '') {
-      isTypingNewSubtask = false
-    }
-    else {
-      createSubtask(newSubtaskStringValue)
-      newSubtaskStringValue = ''
-    } 
-  }
-
-  function createTimelineStep (e) {
-    if (newSubtaskStringValue === '') {
-      isTypingNewSubtask = false
-    }
-    else {
-      Task.create({
-        id: getRandomID(),
-        newTaskObj: {
-          name: newSubtaskStringValue,
-          parentID: taskObj.id,
-          childrenLayout: 'normal'
-          // we purposely don't set `orderValue`,  so it'll be added to the end of the timeline sequentially
-        }
-      })
-      newSubtaskStringValue = ''
-    } 
-  }
-
-  function createSubtask (name) {
-    const newTaskObj = {
-      name,
-      parentID: taskObj.id, 
-      childrenLayout: 'normal'
-    }
-
-    if (taskObj.children.length > 0) {
-      newTaskObj.orderValue = (taskObj.children[0].orderValue) / 1.1
-    } 
-    // Task.create(), by default, initializes `$user.maxOrderValue`
-
-    Task.create({ id: getRandomID(), newTaskObj })
-  }
-</script>
 
 <style>
   .task-name {

@@ -2,8 +2,10 @@
   import MinimalisticInput from '$lib/components/MinimalisticInput.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
-  import Task from '$lib/db/models/Task.js'
   import { DateTime } from 'luxon'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let taskObject
 

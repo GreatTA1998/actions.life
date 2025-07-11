@@ -15,9 +15,10 @@
   } from '$lib/store'
   import { pixelsPerHour } from './store.js'
   import { treesByDate } from './service.js'
-  import Task from '$lib/db/models/Task.js'
-
   import { onMount, onDestroy } from "svelte"
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let dt
 

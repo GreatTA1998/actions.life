@@ -48,8 +48,8 @@
 
 <div class="demo-section">
   <div class="demo-header">
-    <h2>Small Habits</h2>
-    <p class="demo-hint">Double-click any habit to mark it complete</p>
+    <h2>Double-click any habit icon</h2>
+    <p class="demo-hint">to mark it as complete</p>
   </div>
   
   <div class="demo-layout">
@@ -83,15 +83,6 @@
 
     <!-- Right: Interactive demo + explanation -->
     <div class="demo-panel">
-      <!-- <div class="featured-demo">
-        <div class="demo-target">
-          <TaskProvider taskService={mockTaskService}>
-            <DoodleIcon iconTask={featuredHabit} size={64} />
-          </TaskProvider>
-        </div>
-        <span class="demo-hint">Try double-clicking →</span>
-      </div> -->
-
       <div class="feature-explanation">
         <p>
           Many impactful habits take less than 1 minute, but clutter up the calendar when tracked
@@ -122,8 +113,6 @@
     color: #1a1a1a;
     letter-spacing: -0.01em;
   }
-
-
 
   .demo-layout {
     display: grid;

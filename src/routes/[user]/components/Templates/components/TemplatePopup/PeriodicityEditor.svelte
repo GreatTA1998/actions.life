@@ -2,12 +2,14 @@
   import PeriodicityInputs from './PeriodicityInputs.svelte'
   import PreviewChanges from './PreviewChanges.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
-  import Task from '$lib/db/models/Task'
   import Template from '$lib/db/models/Template.js'
   import { getPreviewSpan, generateDates} from '$lib/utils/rrule.js'
   import { instantiateTask, isException, getAffectedInstances } from './instances.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let routine
   export let isCreating = false

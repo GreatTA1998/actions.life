@@ -10,14 +10,6 @@
 
   const demoInstances = [
     {
-      id: '1',
-      startDateISO: '2024-03-15',
-      startTime: '07:30',
-      duration: 45,
-      notes: 'Beautiful morning run along the river. Felt energized and focused throughout.',
-      imageDownloadURL: 'https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=800&auto=format&fit=crop&q=60'
-    },
-    {
       id: '2',
       startDateISO: '2024-03-14',
       startTime: '07:45',
@@ -87,47 +79,23 @@
 
 <div class="vision-section" in:fade={{ duration: 400 }}>
   <div class="vision-content">
-    <div class="demo-header">
-      <h2>Archive</h2>
+    <!-- <div class="demo-header">
+      <h2>Summary</h2>
       <p class="demo-hint">Get a wholistic log of what you've done to drive behavior change</p>
-    </div>
+    </div> -->
+
+
+    <!-- Show a quick GIF of how the components interface with each other. 5 seconds perhaps -->
 
     <div class="vision-main">
-      <div class="archive-demo">
-        <h3>Running</h3>
-        <div class="journal-entries">
-          {#each demoInstances as instance, i (instance.id)}
-            {@const gap = calculateGap(instance.startDateISO, demoInstances[i + 1]?.startDateISO)}
-            <div class="entry-wrapper" data-gap={gap.type}>
-              <div class="journal-entry">
-                <div class="journal-entry-header">
-                  <div class="date-time">
-                    <span class="date">{formatDate(instance.startDateISO)}</span>
-                    <span class="time">{formatTime(instance.startTime)}</span>
-                  </div>
-                  <div class="duration">{formatDuration(instance.duration)}</div>
-                </div>
-                <div class="journal-entry-notes">
-                  {#if instance.imageDownloadURL}
-                    <img src={instance.imageDownloadURL} alt="Activity" />
-                  {/if}
-                  {instance.notes}
-                </div>
-              </div>
-              
-              {#if demoInstances[i + 1]}
-                <div class="time-gap-container">
-                  <div class="time-gap-label">
-                    {formatTimeGap(instance.startDateISO, demoInstances[i + 1].startDateISO)}
-                  </div>
-                </div>
-              {/if}
-            </div>
-          {/each}
-        </div>
-      </div>
-
       <div class="vision-narrative">
+        (Show a quick GIF of how the components interface with each other. 5 seconds perhaps. Clearly explain how it all fits together, and 
+        the overall vision for the app (in simple terms). 
+        
+        Don't introduce any more features, use the past updates hierarchy for the user
+        to explore new features they're interested in learning about in relation to the history of the app.)
+        <br><br>
+        
         Initially, actions.life helps you organize complex plans. Over time, it becomes a structured log of your life.
         <br><br>
         The archive is designed for retrieval and reflection. Search for "hiking training," and you'll find every relevant entry—timed, contextualized, and connected.

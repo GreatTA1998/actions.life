@@ -1,7 +1,9 @@
 <script>
   import { setContext } from 'svelte'
   import { activeDragItem, openTaskPopup } from '/src/lib/store'
-  import Task from '/src/lib/db/models/Task.js'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   // Allow overriding for demo, default to real implementations
   export let taskService = Task

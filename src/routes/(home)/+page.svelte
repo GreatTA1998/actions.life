@@ -11,14 +11,7 @@
   import TabNavigation from './components/TabNavigation.svelte'
   import FeatureShowcase from './components/FeatureShowcase.svelte'
   import VisionSection from './components/VisionSection.svelte'
-
-  let isSoundOff = true
-  let isPlaying = false
-  let hasMobilePlayButtonAlready = true
-
-  onMount(() => {
-    
-  })
+  import DemoContextProvider from '$lib/components/DemoContextProvider.svelte'
 
   let currentIdx = 0
 
@@ -79,14 +72,6 @@
       `
     }
   ]
-
-  function handleTabClick(index) {
-    currentIdx = index
-  }
-
-  function getRandomInt(max) {
-    return Math.floor(Math.random() * max)
-  }
 </script>
 
 {#if hasFetchedUser}
@@ -123,31 +108,21 @@
       class="home-page-background"
     >
       <div style="width: 100%; min-width: 200px; border-radius: 10px; margin-top: 100px; display: flex; flex-direction: column; gap: 120px;">
-        <HeroSection />
+        <DemoContextProvider>
+          <HeroSection />
 
-        <TimelineDemo />
+          <TimelineDemo />
 
-        <HabitDemo />
+          <HabitDemo />
 
-        <JournalDemo />
+          <JournalDemo />
 
-        <VisionSection />
+          <VisionSection />
 
-        <AppDetailsSection />
+          <AppDetailsSection />
 
-        <UpdateLogSection />
-
-        <!-- <TabNavigation 
-          {currentIdx} 
-          onTabClick={handleTabClick}
-        /> -->
-
-        <!-- <FeatureShowcase 
-          currentFeature={fourAbilities[currentIdx]}
-          bind:isPlaying
-          bind:hasMobilePlayButtonAlready
-          bind:isSoundOff
-        /> -->
+          <UpdateLogSection />
+        </DemoContextProvider>
       </div>
     </div>
   </NavbarContentLayout>

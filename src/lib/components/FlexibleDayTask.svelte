@@ -46,7 +46,9 @@
   // Assumes `task` is hydrated
   import { grabOffset, activeDragItem, openTaskPopup } from '/src/lib/store'
   import Checkbox from './Checkbox.svelte'
-  import Task from '/src/lib/db/models/Task.js'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let task = null
   export let pixelsPerHour = null

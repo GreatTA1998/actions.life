@@ -8,41 +8,6 @@
   
   let isTimelineView = false
 
-  // Create mock dependencies for demo
-  const mockTaskService = {
-    update: ({ id, keyValueChanges }) => {
-      console.log('Demo: Would update task', id, 'with', keyValueChanges)
-      // Update the demo data for visual feedback
-      updateDemoTask(id, keyValueChanges)
-    },
-    create: ({ id, newTaskObj }) => {
-      console.log('Demo: Would create task', id, newTaskObj)
-    }
-  }
-
-  const mockDragStore = writable(null)
-  
-  const mockPopupHandler = (task) => {
-    console.log('Demo: Would open popup for task:', task.name)
-  }
-
-  function updateDemoTask(id, changes) {
-    function updateTaskRecursive(task) {
-      if (task.id === id) {
-        Object.assign(task, changes)
-        return true
-      }
-      for (let child of task.children) {
-        if (updateTaskRecursive(child)) return true
-      }
-      return false
-    }
-    
-    updateTaskRecursive(demoTaskData)
-    // Trigger reactivity
-    demoTaskData = { ...demoTaskData }
-  }
-
   // Simple milestone-based data that makes timeline view obviously better
   let demoTaskData = {
     id: 'demo-root',
@@ -96,8 +61,8 @@
 
 <div class="demo-section">
   <div class="demo-header">
-    <h2>Long-term timelines</h2>
-    <p class="demo-hint">Every task tree can be displayed as a timeline</p>
+    <h2>Toggle the timeline switch</h2>
+    <p class="demo-hint">to put things into perspective</p>
   </div>
   
   <div class="demo-layout">
@@ -113,29 +78,23 @@
         />
       </div>
       
-      <TaskProvider 
-        taskService={mockTaskService}
-        dragStore={mockDragStore}
-        popupHandler={mockPopupHandler}
-      >
-        <RecursiveTask 
-          taskObj={demoTaskData}
-          depth={0}
-          willShowCheckbox={true}
-          ancestorRoomIDs={[]}
-          isLargeFont={false}
-        />
-      </TaskProvider>
+      <RecursiveTask 
+        taskObj={demoTaskData}
+        depth={0}
+        willShowCheckbox
+        ancestorRoomIDs={[]}
+        isLargeFont={false}
+      />
     </div>
 
     <div class="controls-panel">
       <div class="benefits-explanation">
         <p>
-          Calendars usually lock us into rigid timeframes: week, month, year etc. But important things often span arbitrary timeframes.
+          Calendars usually have rigid timeframes: week, month, year etc. But important things often span arbitrary timeframes.
           <br><br>
-          Here, timelines are first-class constructs, so long-term priorities can be coordinated together without leaving the page.
+          Here, timelines are first-class constructs, so everything can be coordinated together without leaving the page.
           <br><br>
-          Besides from keeping track of deadlines, timelines rewire us to fundamentally think on longer time horizons.
+          Besides from keeping track of deadlines, timelines rewire us to think on longer time horizons.
         </p>
       </div>
     </div>

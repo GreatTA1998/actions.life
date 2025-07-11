@@ -8,7 +8,8 @@
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { } from '$lib/db/scripts/april.js'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
-
+  import AppContextProvider from '$lib/components/AppContextProvider.svelte'
+  
   let doingAuth = true
 
   onMount(() => {
@@ -59,9 +60,11 @@
   </div>
 
   <div>
-    <slot>
+    <AppContextProvider>
+      <slot>
 
-    </slot>
+      </slot>
+    </AppContextProvider>
   </div>
 
   <TheSnackbar />

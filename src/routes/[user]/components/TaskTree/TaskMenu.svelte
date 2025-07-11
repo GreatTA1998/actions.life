@@ -1,8 +1,10 @@
 <script>
   import BaseMenu from '$lib/components/BaseMenu.svelte'
   import ToggleGroup from '$lib/components/ToggleGroup.svelte'
-  import Task from '$lib/db/models/Task.js'
   import { createEventDispatcher } from 'svelte'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let taskObj
 
