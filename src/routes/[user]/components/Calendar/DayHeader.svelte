@@ -3,11 +3,10 @@
   import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
 
-  import { activeDragItem } from '$lib/store'
-  import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
+  const { Task, activeDragItem } = getContext('app')
+  import { DateTime } from 'luxon'
 
   import { treesByDate } from './service.js'
   import { headerExpanded, isCompact } from './store.js'

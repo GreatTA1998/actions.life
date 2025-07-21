@@ -15,13 +15,12 @@
 </div>
 
 <script>
-  import { user, activeDragItem } from '$lib/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '$lib/db/init'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
+  const { Task, activeDragItem, user } = getContext('app')
 
   export let ancestorRoomIDs
   export let roomsInThisLevel

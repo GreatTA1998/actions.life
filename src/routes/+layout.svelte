@@ -82,6 +82,7 @@
     --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
     --calendar-section-left-spacing: 2vw;
     --offwhite-bg: rgb(250, 250, 250);
+    --fine-control-color: rgb(120, 120, 120);
   }
 
   :global(*) {

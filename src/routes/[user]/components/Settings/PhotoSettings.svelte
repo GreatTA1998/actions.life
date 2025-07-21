@@ -2,7 +2,9 @@
   import ToggleGroup from '$lib/components/ToggleGroup.svelte'
   import { photoLayoutOptions, defaultPhotoLayout } from '$lib/store/photoLayout.js'
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
-  import { user } from '$lib/store'
+  import { getContext } from 'svelte'
+
+  const { user } = getContext('app')
 
   async function updateDefaultPhotoLayout (layoutValue) {    
     if ($user) {

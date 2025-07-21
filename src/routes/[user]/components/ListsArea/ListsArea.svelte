@@ -12,7 +12,7 @@
   `
 </script>
 
-<div class="todo-list-container">
+<div class="todo-list-container"> 
   <TodoList 
     listWidth="320px"
     willShowCheckbox={true} 

@@ -5,6 +5,7 @@
   import Checkbox from '$lib/components/Checkbox.svelte'
   import TimelineRenderer from './TimelineRenderer.svelte'
   import TaskMenu from './TaskMenu.svelte'
+  import TaskCaret from './TaskCaret.svelte'
   import { getRandomID, getRandomColor } from '$lib/utils/core.js'
   import { WIDTHS } from '$lib/utils/constants.js'
   import { DateTime } from 'luxon'
@@ -107,28 +108,31 @@
 <div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
   <div draggable="true"
     on:dragstart|self={(e) => dragstart_handler(e, taskObj.id)}
-    style="
-      display: flex; align-items: center;
-      font-size: {depthAdjustedFontSize};
-    "
+    style="font-size: {depthAdjustedFontSize};"
     class="task-row-container"
   >
-    {#if willShowCheckbox && taskObj.childrenLayout !== 'timeline'}
+    {#if willShowCheckbox}
       <div style="margin-left: 2px; margin-right: 4px;">
-        <Checkbox 
-          value={taskObj.isDone}
-          on:change={(e) => handleCheckboxChange(e)}
-        />
+        {#if taskObj.children.length === 0}
+          <Checkbox value={taskObj.isDone}
+            on:change={(e) => handleCheckboxChange(e)}
+            zoom={0.5}
+          />
+        {:else}
+          <TaskCaret isCollapsed={taskObj.isCollapsed}
+            onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
+          />
+        {/if}
       </div>
-    {:else}
-      <slot/>
-
-      <div style="margin-right: 6px;"></div>
     {/if}
 
     <button on:click={() => openTaskPopup(taskObj)} class="task-name truncate-to-one-line" class:done-task={taskObj.isDone}>
       {taskObj.name}
     </button>
+
+    <div style="margin-left: 6px;"></div>
+
+    <slot/>
 
     {#if taskObj.isCollapsed && taskObj.children.length > 0}
       <button class="subtask-progress-badge" on:click={() => openTaskPopup(taskObj)}>
@@ -157,6 +161,7 @@
         {ancestorRoomIDs}
         {isLargeFont}
         {colorForDebugging}
+        {willShowCheckbox}
       />
     {/if}
 
@@ -174,7 +179,7 @@
       />
     {/if}
   {:else}
-    <div style="margin-left: {WIDTHS.SUBTASK_LEFT_MARGIN}px;">
+    <div style="margin-left: {WIDTHS.INDENT_PER_LEVEL}px;">
       {#if isTypingNewSubtask}  
         <FormField
           fieldLabel="Task Name"
@@ -193,7 +198,7 @@
         <div class:ghost-negative={n === 0} 
           style="
             width: 235px;
-            left: {WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
+            left: {WIDTHS.INDENT_PER_LEVEL * (depth)}px;
             z-index: {depth};
           "
         >
@@ -210,14 +215,14 @@
           <RecursiveTask 
             taskObj={subtaskObj}
             depth={depth+1}
-            willShowCheckbox
+            {willShowCheckbox}
             ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
             {isLargeFont}
           /> 
 
           <div class:ghost-negative={i === n - 1} 
             style="
-              left: {WIDTHS.SUBTASK_LEFT_MARGIN + WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
+              left: {WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
               z-index: {depth};
               width: 235px;
             "
@@ -248,6 +253,8 @@
   }
 
   .task-row-container {
+    display: flex; 
+    align-items: center;
     min-width: 30px; /* min-width and height to make it easy to delete legacy tasks with no titles */
     max-width: 320px;
     white-space: nowrap;

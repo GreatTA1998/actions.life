@@ -10,7 +10,6 @@
 
   import {
     user,
-    grabOffset, activeDragItem,
     timestamps, totalMinutes, calLastHHMM, calSnapInterval
   } from '$lib/store'
   import { pixelsPerHour } from './store.js'
@@ -18,7 +17,7 @@
   import { onMount, onDestroy } from "svelte"
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
+  const { Task, activeDragItem, grabOffset } = getContext('app')
 
   export let dt
 

@@ -111,11 +111,12 @@
 <script>
   // Assumes `task` is hydrated
   import { getTrueY } from '/src/lib/utils/core.js'
-  import { activeDragItem, grabOffset, openTaskPopup } from '/src/lib/store'
   import Checkbox from './Checkbox.svelte'
   import { treesByID } from '/src/routes/[user]/components/Calendar/service.js'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
-  import Task from '/src/lib/db/models/Task.js'
+  import { getContext } from 'svelte'
+
+  const { Task, openTaskPopup, activeDragItem, grabOffset } = getContext('app')
 
   export let task = null
   export let hasCheckbox = false

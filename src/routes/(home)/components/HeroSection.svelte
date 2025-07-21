@@ -8,7 +8,7 @@
 
     <div style="display: flex; flex-wrap: wrap;">
       <div class="secondary-description">
-        On actions.life, small habits, long-term timelines and scheduled events all fit together into a single picture.
+        Habits, timelines and events all fit together into a single picture.
       </div>
     </div>
 

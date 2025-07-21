@@ -1,6 +1,5 @@
 <script>
   import DoodleIcon from '../../../lib/components/DoodleIcon.svelte'
-  import TaskProvider from '../../../lib/components/TaskProvider.svelte'
   import { DateTime } from 'luxon'
   import '../../../lib/styles/demo-shared.css'
 
@@ -69,25 +68,22 @@
         </div>
       </div>
 
-      <!-- Icon habits section -->
-      <TaskProvider taskService={mockTaskService}>
-        <div class="habits-area">
-          <div class="icon-habits">
-            {#each todayHabits as habit}
-              <DoodleIcon iconTask={habit} size={36} />
-            {/each}
-          </div>
+      <div class="habits-area">
+        <div class="icon-habits">
+          {#each todayHabits as habit}
+            <DoodleIcon iconTask={habit} size={36} />
+          {/each}
         </div>
-      </TaskProvider>
+      </div>
     </div>
 
     <!-- Right: Interactive demo + explanation -->
     <div class="demo-panel">
       <div class="feature-explanation">
         <p>
-          Many impactful habits take less than 1 minute, but clutter up the calendar when tracked
+          On most calendars, tracking small habits take up too much space, creating visual clutter.
           <br><br>
-          By drawing your own icons that you understand, you can fit 6 in the space of 1, so they're easy-to-understand.
+          In actions.life, you can display habits compactly with icons (or draw your own).
         </p>
       </div>
     </div>
@@ -188,22 +184,6 @@
     gap: 40px;
   }
 
-  .featured-demo {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    padding: 32px;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-  }
-
-  .demo-target {
-    flex-shrink: 0;
-  }
-
-
-
   .feature-explanation {
     max-width: 520px;
     margin: 0 auto;
@@ -227,12 +207,6 @@
     .day-column {
       max-width: 240px;
       margin: 0 auto;
-    }
-
-    .featured-demo {
-      flex-direction: column;
-      text-align: center;
-      gap: 16px;
     }
 
     .demo-hint {

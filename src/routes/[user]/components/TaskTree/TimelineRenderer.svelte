@@ -1,6 +1,5 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
-  import TaskProvider from '../../../../lib/components/TaskProvider.svelte'
   import Dropzone from './Dropzone.svelte'
   import { WIDTHS } from '/src/lib/utils/constants.js'
   import { DateTime } from 'luxon'
@@ -129,8 +128,7 @@
 </script>
 
 <div class="timeline-container" bind:this={timelineContainerRef}>
-  <TaskProvider>
-    {#if sortedTasks.length > 0}
+  {#if sortedTasks.length > 0}
     <div class="timeline-line"></div>
     
     {#if showTimeMarker}
@@ -149,7 +147,8 @@
   />
 
   {#each sortedTasks as child, i (child.id)}
-    <div class="timeline-item" style="margin-bottom: {spacings[i]}px; padding-left: 8px;">      
+    <!-- note the padding-left here -->
+    <div class="timeline-item" style="margin-bottom: {spacings[i]}px; padding-left: 0px;">      
       <RecursiveTask
         taskObj={child}
         depth={depth+1}
@@ -158,7 +157,8 @@
         ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
       >
         <div class="date-badge">
-          {formatDate(child.startDateISO)}
+          <div>{formatDate(child.startDateISO)}</div>
+          <!-- <div>{child.startDateISO}</div> -->
         </div>
       </RecursiveTask>
     </div>
@@ -167,7 +167,7 @@
       class:ghost-negative={i === sortedTasks.length - 1}
       style="
         width: 235px;
-        left: {WIDTHS.SUBTASK_LEFT_MARGIN + WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
+        left: {WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
         z-index: {depth};
       "
     >
@@ -180,7 +180,6 @@
       />
     </div>
   {/each}
-  </TaskProvider>
 </div>
 
 <style>

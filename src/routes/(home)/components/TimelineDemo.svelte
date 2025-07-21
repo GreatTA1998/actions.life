@@ -1,9 +1,6 @@
 <script>
   import RecursiveTask from '../../[user]/components/TaskTree/RecursiveTask.svelte'
-  import TaskProvider from '../../../lib/components/TaskProvider.svelte'
   import ToggleGroup from '../../../lib/components/ToggleGroup.svelte'
-  import { DateTime } from 'luxon'
-  import { writable } from 'svelte/store'
   import '../../../lib/styles/demo-shared.css'
   
   let isTimelineView = false

@@ -11,8 +11,7 @@ export const WIDTHS = Object.freeze({
   CALENDAR_LEFT_PADDING: 16,
   MOBILE_TIME_AXIS: 22,
   DESKTOP_TIME_AXIS: 64,
-  SUBTASK_LEFT_MARGIN: 32,
-  DROPZONE_LEFT_MARGIN: 32
+  INDENT_PER_LEVEL: 24, // unified for both subtasks and dropzones
 })
 
 export function translateJSConstantsToCSSVariables () {

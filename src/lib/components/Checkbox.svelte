@@ -41,7 +41,7 @@
     width: 25px;
     background-color: transparent;
     border-radius: 15px;
-    border: 2px solid rgb(120, 120, 120);
+    border: 2px solid var(--fine-control-color);
   }
 
   /* On mouse-over, add a grey background color */
