@@ -80,9 +80,10 @@
     --location-indicator-color: var(--logo-twig-color);
     --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */
     --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
+    --fine-control-color: rgb(120, 120, 120);
+
     --calendar-section-left-spacing: 2vw;
     --offwhite-bg: rgb(250, 250, 250);
-    --fine-control-color: rgb(120, 120, 120);
   }
 
   :global(*) {
