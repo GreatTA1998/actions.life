@@ -6,7 +6,7 @@
   export let timeMarkerTop
   export let squareHeight
 
-  const lineColor = 'var(--fine-control-color)'
+  const lineColor = 'rgb(240, 240, 240)' // 'var(--fine-control-color)'
   const lineWidth = 1
 </script>
 

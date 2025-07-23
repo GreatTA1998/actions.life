@@ -53,6 +53,11 @@
   }
 
   function updateScaleFactor () {    
+    // TO-DO: reset dayDiffs, margins etc. on reactivity changes, or there will be remnant data
+    // this is only a partial fix, it only leaves remnant margins when the last timeline node is deleted
+    dayDiffs = {}
+    margins = {}
+
     for (let i = 0; i <= sorted.length - 2; i++) {
       dayDiffs[i] = getDayDiff(i, i+1)
     }
@@ -71,7 +76,7 @@
     }
     pxPerDay = Math.max(...candidates, defaultPxPerDay)
 
-    for (let i = 0; i < sorted.length - 1; i++) {
+    for (let i = 0; i <= sorted.length - 2; i++) {
       margins[i] = computeMarginBottom(i)
     }
     margins = margins
