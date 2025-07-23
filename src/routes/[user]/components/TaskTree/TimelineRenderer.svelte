@@ -95,7 +95,14 @@
       } 
       else {
         timeMarkerTop = diff * pxPerDay  + squareHeight/2
+        // if (sorted[0].name === '2' && sorted[n-1].name === 'ew task') {
+        //   console.log('general case')
+        // }
       }
+
+      // if (sorted[0].name === '2' && sorted[n-1].name === 'ew task') {
+      //   console.log("timemarkerTop =", timeMarkerTop)
+      // }
     }
   } 
   
@@ -138,6 +145,9 @@
   {/if}
 
   <div style="position: relative;">
+    <!--
+     opacity creates a new stacking context, breaking the marker dot 
+     opacity: {child.startDateISO < DateTime.now().toFormat('yyyy-MM-dd') ? 0.6 : 1}; -->
     {#each sorted as child, i (child.id)}
       <div style="
         position: relative; display: flex; align-items: center;
