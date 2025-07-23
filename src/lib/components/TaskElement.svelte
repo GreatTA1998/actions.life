@@ -170,7 +170,6 @@
     --left-padding: 6px;
     --default-task-color: hsla(210, 20%, 36%, 0.6);
 
-    --experimental-black: hsla(0, 100%, 0%, 0.6);
     --experimental-purple: hsla(248, 53%, 58%, 0.6);
     --experimental-red: hsla(0, 100%, 50%, 0.6);
   }

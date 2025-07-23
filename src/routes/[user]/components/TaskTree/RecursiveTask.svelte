@@ -22,6 +22,7 @@
   let newSubtaskStringValue = ''
   let isTypingNewSubtask = false
   let depthAdjustedFontSize
+
   const colorForDebugging = getRandomColor()
 
   $: n = taskObj.children.length 
@@ -125,7 +126,7 @@
       <div style="position: relative; margin-left: 2px; margin-right: 4px;">
         <slot name="vertical-timeline"/>
 
-        <div style="background-color: white; position: relative;">
+        <div style="background-color: white; position: relative; padding-top: 2px; padding-bottom: 2px;">
           {#if taskObj.children.length === 0}
             <Checkbox value={taskObj.isDone}
               on:change={(e) => handleCheckboxChange(e)}
@@ -210,8 +211,8 @@
       {#if !taskObj.isCollapsed}
         <div class:ghost-negative={n === 0} 
           style="
-            width: 235px;
-            left: {WIDTHS.INDENT_PER_LEVEL * (depth)}px;
+            left: {WIDTHS.INDENT_PER_LEVEL}px;
+            width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
             z-index: {depth};
           "
         >
@@ -227,15 +228,27 @@
             {isLargeFont}
           /> 
 
-          <div class:ghost-negative={i === n - 1} 
-            style="
-              left: {WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
-              z-index: {depth};
-              width: 235px;
-            "
-          >
-            <Dropzone {...renderDropzone(i + 1)} /> 
-          </div>
+          {#if i === n - 1}
+            <!-- notice `left` is a constant, because it'll inherit the parent's cumulative left -->
+            <div class="ghost-negative"
+              style="
+                left: {WIDTHS.INDENT_PER_LEVEL}px;
+                width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+                z-index: {depth};
+              "
+            >
+              <Dropzone {...renderDropzone(i + 1)} /> 
+            </div>
+          {:else}
+            <div 
+              style="
+                width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+                z-index: {depth};
+              "
+            >
+              <Dropzone {...renderDropzone(i + 1)} /> 
+            </div>
+          {/if}
         {/each}
       {/if}
     </div>
@@ -250,7 +263,7 @@
 
   .ghost-negative {
     position: absolute; 
-    bottom: -18px;
+    bottom: calc(-1 * var(--heights-sub-dropzone))
   }
 
   .task-row-container {

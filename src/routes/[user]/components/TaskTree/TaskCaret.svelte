@@ -19,8 +19,8 @@
   }
 
   .caret-icon {
-    font-size: 22px;
+    font-size: 30px;
     color: var(--fine-control-color);
-    font-weight: 200;
+    font-weight: 100;
   }
 </style> 

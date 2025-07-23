@@ -1,6 +1,6 @@
 <div
   bind:this={ReorderDropzone} 
-  style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; border: 0px solid {colorForDebugging};" 
+  style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 0px solid {colorForDebugging};" 
   on:dragenter={() => {
     // quickfix as even if it's an invalid operation it's unintuitive to not see the drag area highlight
     if (!isInvalidReorderDrop() || true) {

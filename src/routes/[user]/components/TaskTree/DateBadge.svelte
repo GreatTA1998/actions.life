@@ -9,10 +9,17 @@
     return dt.diff(DateTime.now()).as('days') < 0
   }
 
-  function formatRelativeTime (dateStr) {
-    if (!dateStr) return 'unscheduled'
+  function isToday (iso) {
+    const dt = DateTime.fromISO(iso)
+    return dt.toFormat('yyyy-MM-dd') === DateTime.now().toFormat('yyyy-MM-dd')
+  }
 
-    const { days } = DateTime.fromISO(dateStr).diff(DateTime.now(), 'days')
+  function formatRelativeTime (dateStr) {
+    if (!dateStr) return 'no date'
+
+    const d1 = DateTime.now()
+    const d2 = DateTime.fromISO(dateStr)
+    const { days } = d2.diff(d1, 'days')
     const wrap = (text) => days < 0 ? `${text} ago` : `in ${text}`
     const d = Math.abs(days)
     
@@ -23,17 +30,22 @@
   } 
 </script>
 
-<button class="date-badge" class:faint={isPast(iso)} on:click on:keydown>
+<button class="date-badge" class:faint={(isPast(iso) && !isToday(iso))} on:click on:keydown>
   {formatRelativeTime(iso)}
 </button>
 
 <style>  
+  :global(:root) {
+    /* matches recursive task's text color */
+    --clear-color: rgb(80, 80, 80); 
+  }
+
   .date-badge {
     white-space: nowrap;
     flex-shrink: 0;
     font-size: 12px;
-    border: 1px solid black;
-    color: black;
+    background-color: var(--experimental-black);
+    color: white;
     padding: 2px 4px;
     border-radius: 6px;
     text-align: center;
@@ -42,7 +54,7 @@
   }
 
   .faint {
+    background-color: rgb(231, 231, 231);
     color: grey;
-    border: 1px solid grey;
   }
 </style>

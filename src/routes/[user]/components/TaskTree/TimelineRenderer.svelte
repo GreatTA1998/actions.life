@@ -17,19 +17,16 @@
   
   const { openTaskPopup } = getContext('app')
 
-  let dayDiffs = {}
-  let margins = {}
-  let contentHeights = {}
-
-  let pxPerDay = defaultPxPerDay
-
-  let timeMarkerTop = 0
-
   const defaultPxPerDay = 0.4
   const taskNameHeight = 30
   const dropzoneHeight = 16
   const squareHeight = 12.5
 
+  let dayDiffs = {}
+  let margins = {}
+  let contentHeights = {}
+  let pxPerDay = defaultPxPerDay
+  let timeMarkerTop = 0
   let sorted = []
   let scheduled = []
   let unscheduled = []
@@ -38,7 +35,7 @@
 
   // `contentHeights` will fire on mount, and on subsequent child expand/collapse
   // TO-DO: reduce the number of duplicate calls
-  $: if (contentHeights) updateScaleFactor()
+  $: if (sorted.length > 0) updateScaleFactor(contentHeights)
 
   function computeStateArrays () {
     scheduled = children.filter(c => c.startDateISO)
@@ -78,17 +75,30 @@
       margins[i] = computeMarginBottom(i)
     }
     margins = margins
-    // console.log('margins, nodes, scale factor =', margins, sorted.map(c => c.name), pxPerDay)
 
     // TO-DO: make this an explicit effect
     // compute the positioning of the time marker
-    if (sorted[0]) {
-      const diff = DateTime.now().diff(DateTime.fromISO(sorted[0].startDateISO)).as('days')
-      timeMarkerTop = diff * pxPerDay  + squareHeight/2
-      // actually, handle the edge case that today is at the start or the end of the timeline, if so, cap it at the border limit
+    const n = sorted.length
+    if (n > 0) {
+      const d1 = DateTime.now()
+      const d2 = DateTime.fromISO(sorted[0].startDateISO)
+      const diff = d1.diff(d2).as('days')
+      
+      if (diff < 0) timeMarkerTop = -6 // cap at the top border limit
+      
+      else if (DateTime.now().toFormat('yyyy-MM-dd') > sorted[n-1].startDateISO) {
+        let totalHeight = 0
+        for (let i = 0; i <= n - 2; i++) {
+          totalHeight += contentHeights[i] + dropzoneHeight + margins[i]
+        }
+        timeMarkerTop = totalHeight + squareHeight + 6 // 6 is the height of each stem
+      } 
+      else {
+        timeMarkerTop = diff * pxPerDay  + squareHeight/2
+      }
     }
   } 
-
+  
   function getDayDiff (i, j) {
     const iso1 = sorted[i].startDateISO
     const iso2 = sorted[j].startDateISO

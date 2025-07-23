@@ -83,6 +83,7 @@
     --fine-control-color: rgb(120, 120, 120);
 
     --calendar-section-left-spacing: 2vw;
+    --experimental-black: hsla(0, 100%, 0%, 0.6);
     --offwhite-bg: rgb(250, 250, 250);
   }
 
