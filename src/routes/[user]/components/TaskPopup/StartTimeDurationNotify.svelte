@@ -5,7 +5,7 @@
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
+  const { Task, willOpenDatePicker } = getContext('app')
 
   export let taskObject
 
@@ -44,6 +44,7 @@
   <div style="display: flex; align-items: start; gap: 16px;" class:half-invisible={!isScheduled(taskObject)}>
     <div style="display: flex; column-gap: 2px;">
       <MyJSDatePicker
+        willOpen={$willOpenDatePicker}
         MMDD={newStartMMDD}
         YYYY={newStartYYYY}
         on:date-selected={e => { 

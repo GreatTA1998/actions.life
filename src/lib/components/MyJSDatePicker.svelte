@@ -11,10 +11,25 @@
   export let MMDD
   export let YYYY
   export let placeholder = 'MM/dd'
+  export let willOpen = false
 
   let AttachTarget
   const dispatch = createEventDispatcher()
   let picker
+
+  // Exported function to programmatically show the datepicker
+  export function show () {
+    if (picker) {
+      picker.show()
+    }
+  }
+
+  // Exported function to programmatically hide the datepicker
+  export function hide () {
+    if (picker) {
+      picker.hide()
+    }
+  }
 
   onMount(async () => {
     const datepicker = await import('js-datepicker')
@@ -50,6 +65,10 @@
     // initialize the picker to today's date
     if (MMDD && YYYY) {
       picker.setDate(convertMMDDToDateClassObject(MMDD, YYYY), true)
+    }
+
+    if (willOpen) {
+      show()
     }
   })
 </script>

@@ -30,6 +30,7 @@ export function updateCache (tasks) {
 
 export const clickedTaskID = writable('')
 export const isTaskPopupOpen = writable(false)
+export const willOpenDatePicker = writable(false)
 export const settingsOpen = writable(false)
 export const ancestralTree = writable(null)
 
@@ -69,6 +70,7 @@ export function openTaskPopup(task) {
 export function closeTaskPopup() {
   isTaskPopupOpen.set(false)
   clickedTaskID.set('')
+  willOpenDatePicker.set(false)
 }
 
 export const todoTasks = writable(null)

@@ -15,7 +15,7 @@
   export let isLargeFont = false
   export let colorForDebugging
   
-  const { openTaskPopup } = getContext('app')
+  const { openTaskPopup, willOpenDatePicker } = getContext('app')
 
   const defaultPxPerDay = 0.4
   const taskNameHeight = 30
@@ -149,7 +149,10 @@
       >      
         <RecursiveTask {...renderTask(child, depth + 1)}>
           <div slot="info-badge">
-            <DateBadge iso={child.startDateISO} on:click={() => openTaskPopup(child)}/>
+            <DateBadge iso={child.startDateISO} on:click={() => {
+              willOpenDatePicker.set(true)
+              openTaskPopup(child)
+            }}/>
           </div>
 
           <div slot="vertical-timeline">
