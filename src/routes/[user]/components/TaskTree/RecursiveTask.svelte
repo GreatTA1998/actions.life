@@ -103,6 +103,16 @@
 
     Task.create({ id: getRandomID(), newTaskObj })
   }
+
+  function renderDropzone (idx) {
+    return {
+      ancestorRoomIDs: [taskObj.id, ...ancestorRoomIDs],
+      roomsInThisLevel: taskObj.children,
+      idxInThisLevel: idx,
+      parentID: taskObj.id,
+      colorForDebugging
+    }
+  }
 </script>
 
 <div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
@@ -112,17 +122,21 @@
     class="task-row-container"
   >
     {#if willShowCheckbox}
-      <div style="margin-left: 2px; margin-right: 4px;">
-        {#if taskObj.children.length === 0}
-          <Checkbox value={taskObj.isDone}
-            on:change={(e) => handleCheckboxChange(e)}
-            zoom={0.5}
-          />
-        {:else}
-          <TaskCaret isCollapsed={taskObj.isCollapsed}
-            onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
-          />
-        {/if}
+      <div style="position: relative; margin-left: 2px; margin-right: 4px;">
+        <slot name="vertical-timeline"/>
+
+        <div style="background-color: white; position: relative;">
+          {#if taskObj.children.length === 0}
+            <Checkbox value={taskObj.isDone}
+              on:change={(e) => handleCheckboxChange(e)}
+              zoom={0.5}
+            />
+          {:else}
+            <TaskCaret isCollapsed={taskObj.isCollapsed}
+              onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
+            />
+          {/if}
+        </div>
       </div>
     {/if}
 
@@ -132,7 +146,7 @@
 
     <div style="margin-left: 6px;"></div>
 
-    <slot/>
+    <slot name="info-badge"/>
 
     {#if taskObj.isCollapsed && taskObj.children.length > 0}
       <button class="subtask-progress-badge" on:click={() => openTaskPopup(taskObj)}>
@@ -161,7 +175,6 @@
         {ancestorRoomIDs}
         {isLargeFont}
         {colorForDebugging}
-        {willShowCheckbox}
       />
     {/if}
 
@@ -202,13 +215,7 @@
             z-index: {depth};
           "
         >
-          <Dropzone
-            ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
-            roomsInThisLevel={taskObj.children}
-            idxInThisLevel={0}
-            parentID={taskObj.id}
-            {colorForDebugging}
-          /> 
+          <Dropzone {...renderDropzone(0)} /> 
         </div>
 
         {#each taskObj.children as subtaskObj, i (subtaskObj.id)}
@@ -227,13 +234,7 @@
               width: 235px;
             "
           >
-            <Dropzone
-              ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
-              roomsInThisLevel={taskObj.children}
-              idxInThisLevel={i + 1}
-              parentID={taskObj.id}
-              {colorForDebugging}
-            /> 
+            <Dropzone {...renderDropzone(i + 1)} /> 
           </div>
         {/each}
       {/if}
@@ -258,7 +259,6 @@
     min-width: 30px; /* min-width and height to make it easy to delete legacy tasks with no titles */
     max-width: 320px;
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
     color: rgb(80, 80, 80);
   }

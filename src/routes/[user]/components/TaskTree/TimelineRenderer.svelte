@@ -1,9 +1,12 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
-  import { WIDTHS } from '/src/lib/utils/constants.js'
+  import DateBadge from './DateBadge.svelte'
+  import TimelineRendererVisuals from './TimelineRendererVisuals.svelte'
+  import { WIDTHS } from '$lib/utils/constants.js'
+  import { trackHeight } from '$lib/utils/svelteActions.js'
   import { DateTime } from 'luxon'
-  import { onMount } from 'svelte'
+  import { getContext } from 'svelte'
   
   export let children = []
   export let depth
@@ -12,385 +15,170 @@
   export let isLargeFont = false
   export let colorForDebugging
   
-  let currentTimePosition = 24
-  let showTimeMarker = false
-  let timelineContainerRef
-  let timelineLeftOffset = 15 // Default fallback, will be measured dynamically
-  
-  function measureCheckboxCenterPosition() {
-    if (!timelineContainerRef) return 15
-    
-    // Find the first checkbox or caret in the timeline
-    const firstTaskRow = timelineContainerRef.querySelector('.timeline-item .task-row-container')
-    if (!firstTaskRow) return 15
-    
-    // Look for checkbox or caret (both are in the first child div)
-    const checkboxOrCaretContainer = firstTaskRow.querySelector('div:first-child')
-    if (!checkboxOrCaretContainer) return 15
-    
-    // Get the center position of the checkbox/caret container
-    const containerRect = timelineContainerRef.getBoundingClientRect()
-    const checkboxRect = checkboxOrCaretContainer.getBoundingClientRect()
-    
-    // Calculate center point relative to timeline container
-    const checkboxCenter = (checkboxRect.left + checkboxRect.right) / 2
-    const containerLeft = containerRect.left
-    const relativeCenter = checkboxCenter - containerLeft
-    
-    return Math.max(8, relativeCenter) // Ensure minimum offset
-  }
-  
-  function formatRelativeTime(dateStr) {
-    if (!dateStr) return 'No date'
-    
-    const taskDate = DateTime.fromISO(dateStr)
-    const now = DateTime.now()
-    const diff = taskDate.diff(now)
-    const isPast = diff.as('milliseconds') < 0
-    
-    const absDays = Math.abs(diff.as('days'))
-    const absMonths = Math.abs(diff.as('months'))
-    const absYears = Math.abs(diff.as('years'))
-    
-    const prefix = isPast ? '' : 'in '
-    const suffix = isPast ? ' ago' : ''
-    
-    // Use days for anything under 45 days (more precise than "1-1.5 months")
-    if (absDays < 45) {
-      if (absDays < 1) return 'today'
-      if (absDays < 2) return `${prefix}1d${suffix}`
-      return `${prefix}${Math.floor(absDays)}d${suffix}`
-    }
-    
-    // Use months for most cases, but switch to years when it makes sense
-    if (absMonths < 11.5) {
-      if (absMonths < 2) return `${prefix}1mo${suffix}`
-      return `${prefix}${Math.floor(absMonths)}mo${suffix}`
-    }
-    
-    // Around 12 months, use "1 year" 
-    if (absMonths >= 11.5 && absMonths < 13) {
-      return `${prefix}1y${suffix}`
-    }
-    
-    // 13-17 months, use months for precision
-    if (absMonths < 18) {
-      return `${prefix}${Math.floor(absMonths)}mo${suffix}`
-    }
-    
-    // 18+ months, use years
-    if (absYears < 2) {
-      // More precise for 1-2 year range
-      if (absYears >= 1.5) return `${prefix}1.5y${suffix}`
-      return `${prefix}1y${suffix}`
-    }
-    
-    return `${prefix}${Math.floor(absYears)}y${suffix}`
+  const { openTaskPopup } = getContext('app')
+
+  let dayDiffs = {}
+  let margins = {}
+  let contentHeights = {}
+
+  let pxPerDay = defaultPxPerDay
+
+  let timeMarkerTop = 0
+
+  const defaultPxPerDay = 0.4
+  const taskNameHeight = 30
+  const dropzoneHeight = 16
+  const squareHeight = 12.5
+
+  let sorted = []
+  let scheduled = []
+  let unscheduled = []
+
+  $: computeStateArrays(children)
+
+  // `contentHeights` will fire on mount, and on subsequent child expand/collapse
+  // TO-DO: reduce the number of duplicate calls
+  $: if (contentHeights) updateScaleFactor()
+
+  function computeStateArrays () {
+    scheduled = children.filter(c => c.startDateISO)
+    sorted = [...scheduled].sort((a, b) => a.startDateISO.localeCompare(b.startDateISO))
+
+    unscheduled = children.filter(c => !c.startDateISO)
   }
 
-  function calculateTimePositions(tasks) {
-    // Sort tasks by date
-    const sortedTasks = [...tasks].sort((a, b) => {
-      if (!a.startDateISO) return 1
-      if (!b.startDateISO) return -1
-      return new Date(a.startDateISO) - new Date(b.startDateISO)
-    })
-    
-    // Calculate spacings between dated tasks
-    const spacings = Array(sortedTasks.length).fill(0)
-    const pxPerDay = 0.4
-    
-    for (let i = 0; i < sortedTasks.length - 1; i++) {
-      if (sortedTasks[i].startDateISO && sortedTasks[i+1].startDateISO) {
-        const current = new Date(sortedTasks[i].startDateISO)
-        const next = new Date(sortedTasks[i+1].startDateISO)
-        const daysDiff = Math.max(1, (next - current) / (24 * 60 * 60 * 1000))
-        spacings[i] = pxPerDay * daysDiff
-      }
+  function computeMarginBottom (i) {
+    if (i == sorted.length - 1) return 0
+    else {
+      const gap = dayDiffs[i] * pxPerDay
+      return Math.max(0, gap - contentHeights[i] - dropzoneHeight)
     }
-    
-    return { sortedTasks, spacings }
-  }
-  
-  function calculateTaskPositions() {
-    if (!timelineContainerRef) return []
-    
-    // Get only direct child timeline items, not nested ones
-    const items = Array.from(timelineContainerRef.children).filter(child => 
-      child.classList.contains('timeline-item')
-    )
-    const positions = []
-    const containerRect = timelineContainerRef.getBoundingClientRect()
-    
-    items.forEach((item) => {
-      // Allow items with minimal height (like collapsed items) to contribute
-      if (item.offsetHeight === 0 && item.offsetWidth === 0) return
-      
-      const rect = item.getBoundingClientRect()
-      const relativeTop = rect.top - containerRect.top
-      const relativeBottom = relativeTop + rect.height
-      
-      // Aggressive vertical proximity - allow timeline to "kebab" through task rows
-      // Only exclude items that are completely outside reasonable bounds
-      const tolerance = 50
-      if (relativeBottom > -tolerance && relativeTop < containerRect.height + tolerance) {
-        // Compress the task position to create spacing around the task center, avoiding symbols
-        const taskCenter = relativeTop + (rect.height / 2)
-        const tightSpacing = 8 // Enough space to avoid interfering with expand/collapse symbols
-        positions.push({
-          start: taskCenter - tightSpacing,
-          end: taskCenter + tightSpacing
-        })
-      }
-    })
-    
-    // Sort by position to ensure proper clipping
-    return positions.sort((a, b) => a.start - b.start)
   }
 
-  function updateTimeMarker() {
-    if (!timelineContainerRef || !sortedTasks.length) {
-      showTimeMarker = false
-      return
+  function updateScaleFactor () {    
+    for (let i = 0; i <= sorted.length - 2; i++) {
+      dayDiffs[i] = getDayDiff(i, i+1)
     }
-    
-    const today = DateTime.now().startOf('day')
-    const items = timelineContainerRef.querySelectorAll('.timeline-item')
-    
-    // Extract dates from tasks
-    const datedItems = sortedTasks
-      .map((task, index) => {
-        if (!task.startDateISO) return null
-        try {
-          return { 
-            index, 
-            date: DateTime.fromISO(task.startDateISO).startOf('day') 
-          }
-        } catch (e) {
-          return null
-        }
-      })
-      .filter(item => item !== null)
-    
-    if (!datedItems.length) {
-      // Show marker in middle of timeline even without dated items
-      if (taskPositions.length > 0) {
-        const midpoint = (taskPositions[0].start + taskPositions[taskPositions.length - 1].end) / 2
-        currentTimePosition = midpoint
-        showTimeMarker = true
-      } else {
-        showTimeMarker = false
-      }
-      return
-    }
-    
-    // Find closest dates before and after today
-    const before = datedItems
-      .filter(item => item.date < today)
-      .sort((a, b) => b.date.toMillis() - a.date.toMillis())[0]
-      
-    const after = datedItems
-      .filter(item => item.date > today)
-      .sort((a, b) => a.date.toMillis() - b.date.toMillis())[0]
-    
-    // Function to get vertical position at index
-    function getPosition(index) {
-      let pos = 24
-      for (let i = 0; i < index; i++) {
-        if (items[i]) {
-          pos += items[i].offsetHeight + (spacings[i] || 5)
+
+    let candidates = []
+    for (let i = 0; i <= sorted.length - 2; i++) {
+      if (dayDiffs[i] === null) continue
+      else {
+        const minVisualGap = contentHeights[i] + dropzoneHeight
+        if (defaultPxPerDay * dayDiffs[i] < minVisualGap) {
+          // note: dayDiffs of 0, 1 are treated as 2
+          const nonZeroDayDiff = Math.max(dayDiffs[i], 2) // note: 2 nodes with the same start date will have infinity scale factor, so it'll be handled as 1
+          candidates = [...candidates, (minVisualGap / nonZeroDayDiff)]
         }
       }
-      return pos
     }
-    
-    // Handle different position cases
-    if (!before && after) {
-      // Today is before all dates - position in pre-timeline segment
-      const firstTaskStart = taskPositions.length > 0 ? taskPositions[0].start : 24
-      const preTimelineStart = -4
-      const preTimelineEnd = firstTaskStart
-      const totalDays = after.date.diff(DateTime.now()).as('days')
-      const ratio = Math.min(0.8, Math.max(0.2, 1 / (totalDays + 1)))
-      currentTimePosition = preTimelineStart + (ratio * (preTimelineEnd - preTimelineStart))
-    } else if (before && !after) {
-      // Today is after all dates - position in post-timeline segment
-      const beforeItem = items[before.index]
-      const basePosition = getPosition(before.index) + (beforeItem?.offsetHeight || 0)
-      const daysSince = DateTime.now().diff(before.date).as('days')
-      const extensionRatio = Math.min(0.8, Math.max(0.2, daysSince / (daysSince + 7)))
-      currentTimePosition = basePosition + (extensionRatio * 12)
-    } else if (before && after) {
-      // Today is between two dates - interpolate position
-      const beforePos = getPosition(before.index) + (items[before.index]?.offsetHeight || 0)
-      const afterPos = getPosition(after.index)
-      
-      // Calculate day ratio
-      const totalDays = after.date.diff(before.date).as('days')
-      const elapsed = today.diff(before.date).as('days')
-      const ratio = Math.max(0, Math.min(1, totalDays > 0 ? elapsed / totalDays : 0))
-      
-      currentTimePosition = beforePos + (ratio * (afterPos - beforePos))
+    pxPerDay = Math.max(...candidates, defaultPxPerDay)
+
+    for (let i = 0; i < sorted.length - 1; i++) {
+      margins[i] = computeMarginBottom(i)
     }
-    
-    showTimeMarker = true
-  }
-  
-  // Calculate marker position once when mounted and when data changes
-  onMount(() => {
-    setTimeout(() => {
-      timelineLeftOffset = measureCheckboxCenterPosition()
-      updateTimeMarker()
-    }, 100)
-    
-    // Set up mutation observer to detect DOM changes (expand/collapse)
-    if (timelineContainerRef) {
-      const observer = new MutationObserver(() => {
-        timelineLeftOffset = measureCheckboxCenterPosition()
-        updateTaskPositions()
-      })
-      
-      observer.observe(timelineContainerRef, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'class']
-      })
-      
-      return () => observer.disconnect()
+    margins = margins
+    // console.log('margins, nodes, scale factor =', margins, sorted.map(c => c.name), pxPerDay)
+
+    // TO-DO: make this an explicit effect
+    // compute the positioning of the time marker
+    if (sorted[0]) {
+      const diff = DateTime.now().diff(DateTime.fromISO(sorted[0].startDateISO)).as('days')
+      timeMarkerTop = diff * pxPerDay  + squareHeight/2
+      // actually, handle the edge case that today is at the start or the end of the timeline, if so, cap it at the border limit
     }
-  })
-  
-  $: timelineData = calculateTimePositions(children)
-  $: sortedTasks = timelineData.sortedTasks
-  $: spacings = timelineData.spacings
-  $: if (sortedTasks && timelineContainerRef) setTimeout(() => {
-    timelineLeftOffset = measureCheckboxCenterPosition()
-    updateTimeMarker()
-  }, 100)
-  
-  // Timeline segment calculations
-  let taskPositions = []
-  let updateTimeout
-  
-  function updateTaskPositions() {
-    if (!timelineContainerRef) return
-    
-    // Debounce rapid updates
-    clearTimeout(updateTimeout)
-    updateTimeout = setTimeout(() => {
-      taskPositions = calculateTaskPositions()
-    }, 100)
+  } 
+
+  function getDayDiff (i, j) {
+    const iso1 = sorted[i].startDateISO
+    const iso2 = sorted[j].startDateISO
+
+    if (!iso1 || !iso2) return null 
+    else {
+      const dt1 = DateTime.fromISO(iso1)
+      const dt2 = DateTime.fromISO(iso2)
+      return dt2.diff(dt1).as('days')
+    }
   }
-  
-  // Update on data changes
-  $: if (sortedTasks && timelineContainerRef) {
-    updateTaskPositions()
+
+  function renderDropzone (idx, nodesThisLevel) {
+    return {
+      idxInThisLevel: idx,
+      ancestorRoomIDs: [parentID, ...ancestorRoomIDs],
+      roomsInThisLevel: nodesThisLevel,
+      parentID: parentID,
+      colorForDebugging,
+    }
   }
-  
-  // Update on mount and when container changes
-  $: if (timelineContainerRef) {
-    updateTaskPositions()
+
+  function renderTask (node, depth) {
+    return {
+      taskObj: node,
+      depth,
+      willShowCheckbox: true,
+      isLargeFont,
+      ancestorRoomIDs: [parentID, ...ancestorRoomIDs],
+    }
   }
 </script>
 
-  <div class="timeline-container" bind:this={timelineContainerRef}>
-  {#if sortedTasks.length > 0}
-    <!-- Pre-timeline segment - extends from parent level to first task -->
-    {#if taskPositions.length > 0}
-      {@const firstTaskStart = taskPositions[0].start}
-      {@const preTimelineHeight = Math.max(0, firstTaskStart + 4)}
-      {#if preTimelineHeight > 3}
-        <div 
-          class="timeline-segment" 
-          style="
-            top: 8px;
-            left: {timelineLeftOffset}px;
-            height: {preTimelineHeight - 14}px;
-          "
-        ></div>
-      {/if}
-    {/if}
-    
-    <!-- Create individual line segments between tasks -->
-    {#each taskPositions as position, i}
-      {#if i < taskPositions.length - 1}
-        {@const nextStart = taskPositions[i + 1].start}
-        {@const segmentStart = position.end}
-        {@const segmentHeight = Math.max(0, nextStart - segmentStart)}
-        {#if segmentHeight > 1}
-          <div 
-            class="timeline-segment" 
-            style="
-              top: {segmentStart}px;
-              left: {timelineLeftOffset}px;
-              height: {segmentHeight}px;
-            "
-          ></div>
-        {/if}
-      {/if}
-    {/each}
-    
-    <!-- Post-timeline segment - extends beyond last task -->
-    {#if taskPositions.length > 0}
-      {@const lastTaskEnd = taskPositions[taskPositions.length - 1].end}
-      {@const postTimelineHeight = 12}
-      <div 
-        class="timeline-segment" 
-        style="
-          top: {lastTaskEnd}px;
-          left: {timelineLeftOffset}px;
-          height: {postTimelineHeight - 6}px;
-        "
-      ></div>
-    {/if}
-    
-    {#if showTimeMarker}
-      <div class="time-marker" style="top: {currentTimePosition}px; left: {timelineLeftOffset}px;">
-        <div class="marker-dot"></div>
-      </div>
-    {/if}
+<div style="position: relative; margin-left: {WIDTHS.INDENT_PER_LEVEL}px;">  
+  {#if sorted.length > 0}
+    <Dropzone {...renderDropzone(0, sorted)} />
   {/if}
-  
-  <Dropzone
-    ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
-    roomsInThisLevel={children}
-    idxInThisLevel={0}
-    parentID={parentID}
-    {colorForDebugging}
-  />
 
-  {#each sortedTasks as child, i (child.id)}
-    <!-- note the padding-left here -->
-    <div class="timeline-item" style="margin-bottom: {spacings[i]}px; padding-left: {WIDTHS.INDENT_PER_LEVEL}px;">      
-      <RecursiveTask
-        taskObj={child}
-        depth={depth+1}
-        willShowCheckbox
-        {isLargeFont}
-        ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
+  <div style="position: relative;">
+    {#each sorted as child, i (child.id)}
+      <div style="
+        position: relative; display: flex; align-items: center;
+        margin-bottom: {margins[i]}px;"
+        use:trackHeight={h => { 
+          contentHeights[i] = h
+          contentHeights = contentHeights
+        }}
+      >      
+        <RecursiveTask {...renderTask(child, depth + 1)}>
+          <div slot="info-badge">
+            <DateBadge iso={child.startDateISO} on:click={() => openTaskPopup(child)}/>
+          </div>
+
+          <div slot="vertical-timeline">
+            <TimelineRendererVisuals {i} {sorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
+          </div>
+        </RecursiveTask>
+      </div>
+
+      <div class:ghost-negative={i === sorted.length - 1}
+        style="
+          width: 235px;
+          left: {WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+          z-index: {depth};"
       >
-        <div class="date-badge">
-          <div>{formatRelativeTime(child.startDateISO)}</div>
+        <Dropzone {...renderDropzone(i + 1, sorted)} />
+      </div>
+    {/each}
+  </div>
+
+  {#if unscheduled.length > 0}
+    <Dropzone {...renderDropzone(sorted.length, unscheduled)} />
+  {/if}
+
+  {#each unscheduled as child, i (child.id)}
+    <div style="position: relative; display: flex; align-items: center;">      
+      <RecursiveTask {...renderTask(child, depth + 1)}>
+        <div slot="info-badge">
+          <DateBadge iso={child.startDateISO} on:click={() => openTaskPopup(child)}/>
         </div>
       </RecursiveTask>
     </div>
 
-    <div 
-      class:ghost-negative={i === sortedTasks.length - 1}
+    <div class:ghost-negative={i === unscheduled.length - 1}
       style="
         width: 235px;
         left: {WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
-        z-index: {depth};
-      "
+        z-index: {depth};"
     >
-      <Dropzone
-        ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
-        roomsInThisLevel={children}
-        idxInThisLevel={i + 1}
-        parentID={parentID}
-        {colorForDebugging}
-      />
+      <Dropzone {...renderDropzone(i + 1, unscheduled)} />
     </div>
   {/each}
 </div>
@@ -399,57 +187,9 @@
   :root {
     --timeline-left-margin: 8px;
   }
-
-  .timeline-container {
-    position: relative;
-  }
-  
-  .timeline-segment {
-    position: absolute;
-    width: 1px;
-    background-color: #ddd;
-    z-index: 1;
-    pointer-events: none;
-  }
-  
-  .timeline-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    min-height: 30px;
-  }
-  
-
   
   .ghost-negative {
     position: absolute;
     bottom: -18px;
   }
-
-  .date-badge {
-    white-space: nowrap;
-    flex-shrink: 0;
-    font-size: 12px;
-    border: 1px solid black;
-    color: black;
-    padding: 2px 4px;
-    border-radius: 6px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-  }
-  
-  .time-marker {
-    position: absolute;
-    z-index: 2;
-    pointer-events: none;
-  }
-  
-  .marker-dot {
-    width: 2px;
-    height: 2px;
-    border-radius: 50%;
-    background-color: var(--location-indicator-color, #ff5722);
-    transform: translateX(-50%);
-  }
-</style> 
+</style>
