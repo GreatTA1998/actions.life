@@ -147,19 +147,19 @@
 
     <div style="margin-left: 6px;"></div>
 
-    <slot name="info-badge"/>
+    <slot name="info-badge">
+      {#if upcomingThisWeek(taskObj)}
+        <span class="schedule-badge">
+          {DateTime.fromISO(taskObj.startDateISO + (taskObj.startTime ? 'T' + taskObj.startTime : '')).toRelative()}
+        </span>
+      {/if}
+    </slot>
 
     {#if taskObj.isCollapsed && taskObj.children.length > 0}
       <button class="subtask-progress-badge" on:click={() => openTaskPopup(taskObj)}>
         <span class="material-symbols-outlined" style="font-size: 12px;">check_circle</span>
         {taskObj.children.filter(child => child.isDone).length}/{taskObj.children.length}
       </button>
-    {/if}
-
-    {#if upcomingThisWeek(taskObj)}
-      <span class="schedule-badge">
-        {DateTime.fromISO(taskObj.startDateISO + (taskObj.startTime ? 'T' + taskObj.startTime : '')).toRelative()}
-      </span>
     {/if}
 
     <TaskMenu {taskObj} 

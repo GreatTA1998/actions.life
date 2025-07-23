@@ -24,7 +24,7 @@
     const d = Math.abs(days)
     
     if (d < 1) return 'today'
-    else if (d < 60) return wrap(`${round(d)}d`)
+    else if (d < 28) return wrap(`${round(d)}d`)
     else if (d < 365) return wrap(`${round(d / 30)}mo`)
     else return wrap(`${round(d / 365)}y`)
   } 
