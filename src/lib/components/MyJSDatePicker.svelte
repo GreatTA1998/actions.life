@@ -14,22 +14,9 @@
   export let willOpen = false
 
   let AttachTarget
-  const dispatch = createEventDispatcher()
   let picker
 
-  // Exported function to programmatically show the datepicker
-  export function show () {
-    if (picker) {
-      picker.show()
-    }
-  }
-
-  // Exported function to programmatically hide the datepicker
-  export function hide () {
-    if (picker) {
-      picker.hide()
-    }
-  }
+  const dispatch = createEventDispatcher()
 
   onMount(async () => {
     const datepicker = await import('js-datepicker')
@@ -39,16 +26,16 @@
         if (date) {
           const newMMDD = getDateInMMDD(date)
           dispatch('date-selected', {
-            selectedDate: newMMDD,
-            selectedYear: date.getFullYear() // notice this is a Number
+            mmdd: newMMDD,
+            yyyy: date.getFullYear() // notice this is a Number
           })
         }
 
         // the 2nd click on the same date will cancel it
         else {
           dispatch('date-selected', {
-            selectedDate: '',
-            selectedYear: ''
+            mmdd: '',
+            yyyy: ''
           })
           // selecting a real date will close the datepicker,
           // but unselecting doesn't so we do it manually here
@@ -68,7 +55,7 @@
     }
 
     if (willOpen) {
-      show()
+      picker.show()
     }
   })
 </script>

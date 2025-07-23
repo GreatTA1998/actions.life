@@ -48,13 +48,12 @@
         MMDD={newStartMMDD}
         YYYY={newStartYYYY}
         on:date-selected={e => { 
-          newStartMMDD = e.detail.selectedDate
-          newStartYYYY = e.detail.selectedYear
+          const { mmdd, yyyy } = e.detail
           
-          const isoMMDD = newStartMMDD.replace('/', '-')
-          const YYYYMMDD = `${newStartYYYY}-${isoMMDD}`
-
-          handleChanges('startDateISO', YYYYMMDD)
+          if (!(mmdd && yyyy)) handleChanges('startDateISO', '')
+          else {
+            handleChanges('startDateISO', `${yyyy}-${mmdd.replace('/', '-')}`)
+          }
         }}
       />
 

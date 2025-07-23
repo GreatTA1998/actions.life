@@ -180,7 +180,10 @@
     <div style="position: relative; display: flex; align-items: center;">      
       <RecursiveTask {...renderTask(child, depth + 1)}>
         <div slot="info-badge">
-          <DateBadge iso={child.startDateISO} on:click={() => openTaskPopup(child)}/>
+          <DateBadge iso={child.startDateISO} on:click={() => {
+            willOpenDatePicker.set(true)
+            openTaskPopup(child)
+          }}/>
         </div>
       </RecursiveTask>
     </div>

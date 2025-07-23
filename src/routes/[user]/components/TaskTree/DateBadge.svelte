@@ -15,7 +15,7 @@
   }
 
   function formatRelativeTime (dateStr) {
-    if (!dateStr) return 'no date'
+    if (!dateStr) return 'select date'
 
     const d1 = DateTime.now()
     const d2 = DateTime.fromISO(dateStr)
@@ -30,7 +30,7 @@
   } 
 </script>
 
-<button class="date-badge" class:faint={(isPast(iso) && !isToday(iso))} on:click on:keydown>
+<button class="date-badge" class:faint={(isPast(iso) && !isToday(iso)) || !iso} on:click on:keydown>
   {formatRelativeTime(iso)}
 </button>
 
