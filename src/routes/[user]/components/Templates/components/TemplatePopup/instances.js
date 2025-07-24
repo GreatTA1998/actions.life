@@ -27,8 +27,8 @@ export function isException (task, template) {
 }
 
 export function fillTaskInstances ({ template, startISO }) {
-  for (const occurence of generateDates({ rrStr: template.rrStr, startISO, previewSpan: template.previewSpan  })) {
-    createTaskInstance({ template, occurence }) // note the single `r` in occurence
+  for (const occurrence of generateDates({ rrStr: template.rrStr, startISO, previewSpan: template.previewSpan  })) {
+    createTaskInstance({ template, occurrence }) // note the single `r` in occurrence
   }
 
   Template.update({ id: template.id, updates: {
@@ -36,19 +36,19 @@ export function fillTaskInstances ({ template, startISO }) {
   }})
 }
 
-export function createTaskInstance ({ template, occurence }) {
+export function createTaskInstance ({ template, occurrence }) {
   Task.create({
     // ensure idempotence, with deterministic IDs
     // assumes the recurrence is at the resolution of days
-    id: template.id + '_' + DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd'),
-    newTaskObj: instantiateTask({ template, occurence })
+    id: template.id + '_' + DateTime.fromJSDate(occurrence).toFormat('yyyy-MM-dd'),
+    newTaskObj: instantiateTask({ template, occurrence })
   })
 }
 
-export function instantiateTask ({ template, occurence }) {
+export function instantiateTask ({ template, occurrence }) {
   const newTaskObj = Task.schema.parse(template)
   newTaskObj.templateID = template.id
-  newTaskObj.startDateISO = DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd')
+  newTaskObj.startDateISO = DateTime.fromJSDate(occurrence).toFormat('yyyy-MM-dd')
   newTaskObj.persistsOnList = false
   return newTaskObj
 }

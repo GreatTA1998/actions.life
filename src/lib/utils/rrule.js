@@ -10,7 +10,7 @@ export function generateDates ({ rrStr, startISO, previewSpan }) {
   return RRule.fromString(rrStr).between(
     new Date(startISO),
     DateTime.now().plus({ days: previewSpan }).toJSDate(),
-    false // excludes start date
+    false // excludes start date (and also end date?)
   )
 }
 

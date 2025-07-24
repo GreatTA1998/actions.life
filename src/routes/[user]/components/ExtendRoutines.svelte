@@ -1,0 +1,58 @@
+<script>
+  import { getFirestoreCollection, updateFirestoreDoc } from '$lib/db/helpers.js'
+  import { createTaskInstance } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
+  import { DateTime } from 'luxon'
+  import { getContext, onMount } from 'svelte'
+
+  // get around the CommonJS vs ES Module issue
+  import * as rrule from 'rrule'
+  const { RRule } = rrule
+
+  const { user, Template } = getContext('app')
+  const { uid, lastRanRoutines } = $user
+
+  onMount(async () => {
+    // TRIGGERS BASED ON UTC TIME
+    // because it's a trigger that runs once in a device independent way, we can't rely on contradicting local times across devices, and must use UTC
+    // TO-DO: after the logic is stable, migrate a Cloud Function or server
+    const utc = DateTime.utc().toFormat('yyyy-MM-dd')
+    if (utc > lastRanRoutines) { 
+      updateFirestoreDoc(`/users/${uid}`, { lastRanRoutines: utc }) // we rely on indempotent IDs suffixed by yyyy-MM-dd to prevent duplicate generations
+
+      console.log("extending routines, lastRanRoutines =", lastRanRoutines)
+      const templates = await getFirestoreCollection('/users/' + uid + '/templates')
+
+      // LOCAL TIME (assumes user never changes timezones)
+      // from (prevEnd + 1) to (today + previewSpan)
+      for (const template of templates) {
+        const { rrStr, prevEndISO, previewSpan } = template
+        const localDT = DateTime.now()
+        const utcBuffer = 1 // the preview window might not update if it's a new day in local time but not in UTC
+        if (rrStr) { 
+          extendInstances({ 
+            startDT: DateTime.fromISO(prevEndISO).plus({ days: 1 }),
+            endDT: localDT.plus({ days: (previewSpan || 14) + utcBuffer }), // `previewSpan` is not always defined
+            rrStr,
+            template
+          })
+        }
+      }
+    }
+  })
+
+  function extendInstances ({ startDT, endDT, rrStr, template }) {
+    Template.update({ id: template.id, updates: { prevEndISO: endDT.toFormat('yyyy-MM-dd') }})
+    const matchingJSDates = getMatchingJSDates({ rrStr, endDT, startDT })
+    for (const jsDate of matchingJSDates) {
+      createTaskInstance({ template, occurrence: jsDate }) 
+    }
+  }
+
+  function getMatchingJSDates ({ startDT, endDT, rrStr }) {
+    return RRule.fromString(rrStr).between(
+      startDT.toJSDate(),
+      endDT.toJSDate(),
+      true // includes both startDT & endED
+    )
+  }
+</script>

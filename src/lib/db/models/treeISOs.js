@@ -123,7 +123,7 @@ export async function handleCrossTree ({ task, changes, batch }) {
       batch
     })
 
-    console.log('resolving cross tree')
+    // console.log('resolving cross tree')
     resolve()
   })
 }

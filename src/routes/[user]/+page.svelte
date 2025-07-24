@@ -8,6 +8,7 @@
   import SideBySideView from './components/SideBySideView/index.svelte'
   import TaskPopup from './components/TaskPopup/TaskPopup.svelte'
   import Settings from './components/Settings/index.svelte'
+  import ExtendRoutines from './components/ExtendRoutines.svelte'
 
   import { onDestroy, onMount } from 'svelte'
   import { user, loadingTasks, currentMode, showSnackbar, isTaskPopupOpen, settingsOpen } from '$lib/store'
@@ -25,6 +26,8 @@
 </script>
 
 {#if $user.uid}
+  <ExtendRoutines />
+
   {#if $showSnackbar}
     <TheSnackbar>Email copied to clipboard successfully.</TheSnackbar>
   {/if}
