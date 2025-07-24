@@ -26,7 +26,7 @@
         const localDT = DateTime.now()
         const utcBuffer = 1 // the preview window might not update if it's a new day in local time but not in UTC
         if (rrStr) { 
-          extendInstances({ 
+          extendRoutine({ 
             startDT: DateTime.fromISO(prevEndISO).plus({ days: 1 }),
             endDT: localDT.plus({ days: (previewSpan || 14) + utcBuffer }), // `previewSpan` is not always defined
             rrStr,
@@ -37,7 +37,7 @@
     }
   })
 
-  function extendInstances ({ startDT, endDT, rrStr, template }) {
+  function extendRoutine ({ startDT, endDT, rrStr, template }) {
     Template.update({ id: template.id, updates: { 
       prevEndISO: endDT.toFormat('yyyy-MM-dd') 
     }})
