@@ -1,12 +1,9 @@
 <script>
+  import { getMatchingJSDates } from '$lib/utils/rrule.js'
   import { getFirestoreCollection, updateFirestoreDoc } from '$lib/db/helpers.js'
   import { createTaskInstance } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
   import { DateTime } from 'luxon'
   import { getContext, onMount } from 'svelte'
-
-  // get around the CommonJS vs ES Module issue
-  import * as rrule from 'rrule'
-  const { RRule } = rrule
 
   const { user, Template } = getContext('app')
   const { uid, lastRanRoutines } = $user
@@ -41,18 +38,12 @@
   })
 
   function extendInstances ({ startDT, endDT, rrStr, template }) {
-    Template.update({ id: template.id, updates: { prevEndISO: endDT.toFormat('yyyy-MM-dd') }})
+    Template.update({ id: template.id, updates: { 
+      prevEndISO: endDT.toFormat('yyyy-MM-dd') 
+    }})
     const matchingJSDates = getMatchingJSDates({ rrStr, endDT, startDT })
     for (const jsDate of matchingJSDates) {
       createTaskInstance({ template, occurrence: jsDate }) 
     }
-  }
-
-  function getMatchingJSDates ({ startDT, endDT, rrStr }) {
-    return RRule.fromString(rrStr).between(
-      startDT.toJSDate(),
-      endDT.toJSDate(),
-      true // includes both startDT & endED
-    )
   }
 </script>

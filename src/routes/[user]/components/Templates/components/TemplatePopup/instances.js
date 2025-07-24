@@ -1,7 +1,5 @@
 import Task from '$lib/db/models/Task.js'
-import Template from '$lib/db/models/Template.js'
 import { DateTime } from 'luxon'
-import { generateDates } from '$lib/utils/rrule.js'
 import { db } from '$lib/db/init.js'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 import { user } from '$lib/store'
@@ -24,16 +22,6 @@ export function isException (task, template) {
     }
   }
   return false
-}
-
-export function fillTaskInstances ({ template, startISO }) {
-  for (const occurrence of generateDates({ rrStr: template.rrStr, startISO, previewSpan: template.previewSpan  })) {
-    createTaskInstance({ template, occurrence }) // note the single `r` in occurrence
-  }
-
-  Template.update({ id: template.id, updates: {
-    prevEndISO: DateTime.now().plus({ days: template.previewSpan }).toFormat('yyyy-MM-dd')
-  }})
 }
 
 export function createTaskInstance ({ template, occurrence }) {
