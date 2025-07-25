@@ -9,21 +9,6 @@
 
   export let taskObject
 
-  let newStartMMDD = getLegacyMMDD(taskObject.startDateISO) 
-  let newStartYYYY = taskObject.startDateISO ? taskObject.startDateISO.split('-')[0] : ''
-
-  function getLegacyMMDD (simpleISO) {
-    if (!simpleISO) return 
-    else {
-      const [yyyy, MM, dd] = simpleISO.split('-')
-      return MM + '/' + dd
-    }
-  }
-
-  function isScheduled (taskObj) {
-    return taskObj.startDate && taskObj.startTime && taskObj.startYYYY;
-  }
-
   function handleChanges (key, value, timeZone) {
     if (typeof Number(value) !== "number") return
 
@@ -40,31 +25,28 @@
   }
 </script>
 
-<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; row-gap: 24px; font-size: 1.2em;">
-  <div style="display: flex; align-items: start; gap: 16px;" class:half-invisible={!isScheduled(taskObject)}>
-    <div style="display: flex; column-gap: 2px;">
+<div style="display: flex; align-items: start; gap: 16px; font-size: 1.2em;">
+  <div style="display: flex; column-gap: 2px;">
+    <!-- quickfix, if it changes on every `taskObject` without id, the datepicker's node attachments would break for some reason -->
+    {#key taskObject.id}
       <MyJSDatePicker
+        startDateISO={taskObject.startDateISO}
         willOpen={$willOpenDatePicker}
-        MMDD={newStartMMDD}
-        YYYY={newStartYYYY}
         on:date-selected={e => { 
           const { mmdd, yyyy } = e.detail
-          
           if (!(mmdd && yyyy)) handleChanges('startDateISO', '')
-          else {
-            handleChanges('startDateISO', `${yyyy}-${mmdd.replace('/', '-')}`)
-          }
+          else handleChanges('startDateISO', `${yyyy}-${mmdd.replace('/', '-')}`)
         }}
       />
+    {/key}
 
-      <MyTimePicker value={taskObject.startTime}
-        on:input={e => handleChanges('startTime', e.detail.typedHHMM)}
-        on:time-selected={e => handleChanges('startTime', e.detail.selectedHHMM)}
-      />
-    </div>
-
-    <MinimalisticInput value={Math.round(taskObject.duration)}
-      on:input={e => handleChanges('duration', Number(e.target.value))}
+    <MyTimePicker value={taskObject.startTime}
+      on:input={e => handleChanges('startTime', e.detail.typedHHMM)}
+      on:time-selected={e => handleChanges('startTime', e.detail.selectedHHMM)}
     />
   </div>
+
+  <MinimalisticInput value={Math.round(taskObject.duration)}
+    on:input={e => handleChanges('duration', Number(e.target.value))}
+  />
 </div>

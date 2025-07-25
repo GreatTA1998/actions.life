@@ -1,19 +1,17 @@
 <script>
   import { parseYearly } from '$lib/utils/rrule.js'
   import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
-  import { onMount } from 'svelte'
-  import { getContext } from 'svelte'
+  import { onMount, getContext } from 'svelte'
 
   const inputStates = getContext('inputStates')
 
-  let selectedMMDD = ''
-  let selectedYear = ''
+  let selectedISO = ''
 
   onMount(() => {
     const parsedDate = parseYearly($inputStates.yearly)
     if (parsedDate) {
-      selectedMMDD = parsedDate.mmdd
-      selectedYear = parsedDate.year
+      const { mmdd, year } = parsedDate
+      selectedISO = `${year}-${mmdd.replace('/', '-')}`
     }
   })
 
@@ -25,20 +23,19 @@
   }
 
   function handleDateSelected (e) {
-    selectedMMDD = e.detail.selectedDate
-    selectedYear = e.detail.selectedYear
+    const { yyyy, mmdd } = e.detail
+    selectedISO = `${yyyy}-${mmdd.replace('/', '-')}`
 
     inputStates.update(states => ({ 
       ...states,
-      yearly: createRRuleFromDate(selectedMMDD), // NOTE: must be AFTER states, otherwise it gets overriden
+      yearly: createRRuleFromDate(mmdd), // NOTE: must be AFTER states, otherwise it gets overriden
     }))
   }
 </script>
 
 <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
   <MyJSDatePicker
-    MMDD={selectedMMDD || ''}
-    YYYY={selectedYear || ''}
+    startDateISO={selectedISO}
     on:date-selected={handleDateSelected}
   />
   every year

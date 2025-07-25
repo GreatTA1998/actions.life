@@ -74,6 +74,7 @@
         }
       }
     }
+
     pxPerDay = Math.max(...candidates, defaultPxPerDay)
 
     for (let i = 0; i <= sorted.length - 2; i++) {

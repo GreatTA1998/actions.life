@@ -1,13 +1,12 @@
 <script>
+  import { trees, listenToTasks } from './service.js'
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import FormField from '$lib/components/FormField.svelte'
-  import { getRandomID } from '/src/lib/utils/core.js'
-  import { HEIGHTS } from '/src/lib/utils/constants.js'
+  import { getRandomID } from '$lib/utils/core.js'
+  import { HEIGHTS } from '$lib/utils/constants.js'
+  import { getContext, onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
-  import { onMount, createEventDispatcher } from 'svelte'
-  import { trees, listenToTasks } from './service.js'
-  import { getContext } from 'svelte'
 
   const { Task, user } = getContext('app')
 
