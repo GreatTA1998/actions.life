@@ -106,8 +106,7 @@
     Task.update({ id: $activeDragItem.id, keyValueChanges: {
       parentID,
       orderValue: newVal,
-      startDateISO: '',
-      startTime: ''
+      persistsOnList: true // non-persistent tasks, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
     }})
 
     try {

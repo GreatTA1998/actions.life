@@ -60,7 +60,7 @@
       name: newTaskName,
       parentID: '',
       timeZone: DateTime.local().zoneName,
-      persistsOnList: false
+      persistsOnList: true
     }
     if (orderValue) {
       newTaskObj.orderValue = orderValue
