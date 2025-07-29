@@ -1,8 +1,3 @@
-<!-- 
-  Note, the HTML checkbox tick color literally cannot be changed, but it will be automatically white if it "decides" that our chosen background color is dark enough, 
-  or vice versa
- -->
-
 <div 
   on:click={() => openTaskPopup(task)}
   on:dragstart|self={(e) => startDragMove(e, task.id)} 

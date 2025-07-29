@@ -1,9 +1,3 @@
-<!-- 
-  mika blue color: '#0085FF'
-  experimental green: '#509c13'
-  Note, the HTML checkbox tick color literally cannot be changed, but it will be automatically white if it "decides" that our chosen background color is dark enough, 
-  or vice versa
- -->
 <div 
   on:click={() => openTaskPopup(task)}
   draggable="true" 
@@ -46,6 +40,7 @@
     {/if}
 
     {#if hasCheckbox && $treesByID[task.id].children.length === 0}
+      <!-- quickfix: it's hard to use flexbox for layouts due to all the if-else cases, so we temporarily use a 4px margin consistent with the to-do  -->
       <div style="margin-right: 4px;">
         <Checkbox
           value={task.isDone}
@@ -61,10 +56,14 @@
     {/if}
 
     {#if task.iconURL}
-      <!-- svelte-ignore a11y-missing-attribute -->
-      <img src={task.iconURL} style="pointer-events: none; width: 32px; height: 32px;">
+      <img src={task.iconURL} style="pointer-events: none; width: 32px; height: 32px;" alt="task icon">
     {:else}
-      <div class="task-name truncate-to-one-line unselectable" style="color: {isBulletPoint ? '' : 'white'}">
+      <div class="cal-task-name truncate-to-one-line unselectable" 
+        style="
+          color: {isBulletPoint ? 'black' : 'white'};
+          margin-top: -1px;
+        "
+      >
         {task.name}
       </div>
     {/if}
@@ -177,17 +176,7 @@
   .calendar-block {
     width: 100%;
     padding-top: var(--left-padding);
-    cursor: pointer;
     border-radius: var(--left-padding);
-  }
-
-  .task-name {
-    margin-top: -1px; 
-    margin-left: 4px; 
-    width: 100%;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer; 
-    color: rgb(0, 0, 0);
+    cursor: pointer;
   }
 </style>

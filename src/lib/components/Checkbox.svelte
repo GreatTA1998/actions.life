@@ -1,4 +1,8 @@
-<label style="zoom: {zoom}" on:click|stopPropagation class="container">
+<!-- 
+  Note, the HTML checkbox tick color literally cannot be changed, 
+  but it will be automatically white if it "decides" that our chosen background color is dark enough, and vice versa
+ -->
+<label style="zoom: {zoom}" on:click|stopPropagation class="container" on:keydown>
   <input type="checkbox" checked={value} on:change>
   <span class="checkmark"></span>
 </label>

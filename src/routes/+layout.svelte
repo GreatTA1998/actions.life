@@ -124,6 +124,14 @@
     -moz-appearance: none;
   }
 
+  /** calendar rectangle task styles */
+  :global(.cal-task-name) {
+    width: 100%;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer; 
+  }
+
   :global(.simple-flex) {
     display: flex;
     align-items: center;
