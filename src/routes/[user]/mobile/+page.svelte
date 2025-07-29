@@ -6,9 +6,14 @@
   <div class="grid-container">
     <main class="content-area">
       {#if activeTabName === 'TODO_VIEW'}
-        <div style="height: 100%; width: 100%; position: relative;">
+        <div style="
+          position: relative; 
+          height: 100%; 
+          width: 100%; 
+          padding: 0px 8px;"
+        >
           <TodoList style="background-color: transparent; padding-top: var(--main-content-top-margin);"
-            willShowCheckbox={false}
+            willShowCheckbox
             isLargeFont
             listWidth="100%"
             let:startTypingNewTask={startTypingNewTask}
