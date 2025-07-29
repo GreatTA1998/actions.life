@@ -8,6 +8,7 @@
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { } from '$lib/db/scripts/april.js'
   import AppContextProvider from '$lib/components/AppContextProvider.svelte'
+  import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
 
   let doingAuth = true
 
