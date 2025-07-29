@@ -1,9 +1,11 @@
 <script>
   import { photoLayoutOptions } from '$lib/store/photoLayout.js'
-  import Task from '$lib/db/models/Task.js'
   import SharePhotoButton from '$lib/components/SharePhotoButton.svelte'
   import PhotoRemove from './PhotoRemove.svelte'
   import ToggleGroup from '$lib/components/ToggleGroup.svelte'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let taskObject
 </script> 

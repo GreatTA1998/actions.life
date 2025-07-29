@@ -3,9 +3,11 @@
   import Icon from '$lib/db/models/Icon.js'
   import Template from '$lib/db/models/Template.js'
   import { template } from '../../store.js'
-  import { user, doodleIcons } from '$lib/store'
-  import { onMount } from 'svelte'
+  import { doodleIcons } from '$lib/store'
+  import { getContext } from 'svelte'
 
+  const { user } = getContext('app')
+  
   onMount(async () => {
     const temp = await Icon.getAvailable($user.uid) 
     doodleIcons.set(temp)

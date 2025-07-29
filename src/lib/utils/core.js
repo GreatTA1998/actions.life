@@ -1,21 +1,21 @@
-export function createDebouncedFunction(func, waitFor) {
-  let timeout;
+export function createDebouncedFunction (func, waitFor) {
+  let timeout
 
   const debouncedFn = (...args) => {
-    clearTimeout(timeout);
+    clearTimeout(timeout)
     timeout = setTimeout(() => {
-      func(...args);
-    }, waitFor);
-  };
+      func(...args)
+    }, waitFor)
+  }
 
   debouncedFn.cancel = () => {
-    clearTimeout(timeout);
-  };
+    clearTimeout(timeout)
+  }
 
-  return debouncedFn;
+  return debouncedFn
 }
 
-export function formatDate(dateStr) {
+export function formatDate (dateStr) {
   const date = new Date(dateStr)
   return date.toLocaleDateString('en-US', {
     // year: 'numeric',
@@ -29,7 +29,6 @@ export function pureNumericalHourForm (startTime) {
   const mm = startTime.slice(3, 5)
   return Number(hh) + (Number(mm) / 60)
 }
-
 
 export function round (value, precision) {
   var multiplier = Math.pow(10, precision || 0);
@@ -79,14 +78,6 @@ export function getHHMM (dateClassObj) {
 // now format to hh:mm format to be compatible with old API
 export function ensureTwoDigits (number) {
   return (number < 10 ? `0${number}` : `${number}`)
-}
-
-export function convertMMDDToDateClassObject (MMDD, yyyy = 2023, hhmm = '00:00') {
-  const [MM, DD] = MMDD.split('/')
-  const [hh, mm] = hhmm.split(':')
-
-  // new Date(year, monthIndex, day, hours, minutes)
-  return new Date(yyyy, MM - 1, DD, Number(hh), Number(mm))
 }
 
 export function twoDigits (number) {

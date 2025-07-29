@@ -1,5 +1,5 @@
 import { getFirestoreCollection, updateFirestoreDoc } from '/src/lib/db/helpers.js'
-import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/todoService.js'
+import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'
 import { writeBatch, doc } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { isValidISODate } from '$lib/db/models/Task.js'

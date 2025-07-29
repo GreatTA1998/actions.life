@@ -1,12 +1,9 @@
 import { writable } from 'svelte/store'
-import { db } from '/src/lib/db/init'
+import { db } from '$lib/db/init'
+import { updateCache } from '$lib/store'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { updateCache } from '/src/lib/store'
 
-// We'll need to fix this circular dependency later
-import { reconstructTreeInMemory } from './todoService.js'
-
-let persistTasks, nonPersistTasks
+let persistTasks
 
 export const trees = writable(null)
 
@@ -19,16 +16,9 @@ export function listenToTasks (uid) {
       updateCache(persistTasks)
     }
   )
-  setupListener(
-    query(tasksCollection, where('persistsOnList', '==', false), where('startDateISO', '==', ''), where('isArchived', '==', false)),
-    data => { 
-      nonPersistTasks = data 
-      updateCache(nonPersistTasks)
-    }
-  )
 } 
 
-function setupListener(ref, callback) {
+function setupListener (ref, callback) {
   onSnapshot(ref, snapshot => {
     const mappedData = snapshot.docs.map(doc => ({
       ...doc.data(), 
@@ -37,8 +27,8 @@ function setupListener(ref, callback) {
     
     callback(mappedData)
 
-    if (persistTasks && nonPersistTasks) {
-      buildTreeMap([...persistTasks, ...nonPersistTasks])
+    if (persistTasks) {
+      buildTreeMap(persistTasks)
     }
   })
 }
@@ -48,3 +38,29 @@ function buildTreeMap(tasks) {
   const result = reconstructTreeInMemory(tasks)
   trees.set(result)
 } 
+
+export function reconstructTreeInMemory (firestoreTaskDocs) {
+  const memoryTree = []
+
+  const memo = { '': [] }
+  for (const node of firestoreTaskDocs) {
+    if (!memo[node.parentID]) memo[node.parentID] = []
+    if (!memo[node.id]) memo[node.id] = []
+    memo[node.parentID].push(node)
+  }
+
+  const roots = memo[''].sort((a, b) => a.orderValue - b.orderValue)
+  for (const root of roots) {
+    extendTree(root, memo)
+    memoryTree.push(root)
+  }
+  return memoryTree
+}
+
+function extendTree(node, memo) {
+  node.children = memo[node.id]
+  node.children = node.children.sort((a, b) => a.orderValue - b.orderValue)
+  for (const child of node.children) {
+    extendTree(child, memo)
+  }
+}

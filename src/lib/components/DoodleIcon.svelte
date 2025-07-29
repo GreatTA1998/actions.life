@@ -1,6 +1,7 @@
 <script>
-  import { activeDragItem, grabOffset, openTaskPopup } from '/src/lib/store'
-  import Task from '/src/lib/db/models/Task.js'
+  import { getContext } from 'svelte'
+
+  const { activeDragItem, grabOffset, openTaskPopup, Task } = getContext('app')
 
   export let iconTask
   export let size = 32 // Default size for backward compatibility

@@ -1,8 +1,8 @@
 <div class="resize-handle">
   <!-- reason for handling touchstart: https://pqina.nl/blog/blocking-navigation-gestures-on-ios-13-4/ -->
   <div class="resize-fab" 
-    on:pointerdown|stopPropagation|preventDefault 
-    on:touchstart|stopPropagation|preventDefault
+    on:pointerdown|stopPropagation|preventDefault|nonpassive
+    on:touchstart|stopPropagation|preventDefault|nonpassive
   >
     <svg width="12" height="36" viewBox="0 0 12 36" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="6" width="0.5" height="24" fill="var(--grip-line-color)" />

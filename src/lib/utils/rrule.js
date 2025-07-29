@@ -4,13 +4,11 @@ import { DateTime } from 'luxon'
 import * as rrule from 'rrule'
 const { RRule } = rrule
 
-export function generateDates ({ rrStr, startISO, previewSpan }) {
-  if (!rrStr) return []
-
+export function getMatchingJSDates ({ startDT, endDT, rrStr }) {
   return RRule.fromString(rrStr).between(
-    new Date(startISO),
-    DateTime.now().plus({ days: previewSpan }).toJSDate(),
-    false // excludes start date
+    startDT.toJSDate(),
+    endDT.toJSDate(),
+    true // includes both startDT & endDT
   )
 }
 

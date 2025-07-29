@@ -2,12 +2,14 @@
   import PeriodicityInputs from './PeriodicityInputs.svelte'
   import PreviewChanges from './PreviewChanges.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
-  import Task from '$lib/db/models/Task'
   import Template from '$lib/db/models/Template.js'
-  import { getPreviewSpan, generateDates} from '$lib/utils/rrule.js'
+  import { getPreviewSpan, getMatchingJSDates } from '$lib/utils/rrule.js'
   import { instantiateTask, isException, getAffectedInstances } from './instances.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let routine
   export let isCreating = false
@@ -32,15 +34,17 @@
 
   function simulateChanges (newRRStr) {
     if (!newRRStr) return []
-    const JSDates = generateDates({ 
-      rrStr: newRRStr,
-      previewSpan: getPreviewSpan({ rrStr: newRRStr}),
-      startISO: DateTime.now().toFormat('yyyy-MM-dd') // always from today, as this is a Routine EDIT
+
+    const JSDates = getMatchingJSDates({
+      startDT: DateTime.now(),
+      endDT: DateTime.now().plus({ days: getPreviewSpan({ rrStr: newRRStr })}),
+      rrStr: newRRStr
     })
+
     const newTasks = []
     for (const JSDate of JSDates) {
       newTasks.push(
-        instantiateTask({ template: routine, occurence: JSDate })
+        instantiateTask({ template: routine, occurrence: JSDate })
       )
     }
     return newTasks

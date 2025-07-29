@@ -1,6 +1,8 @@
 <script>
-  import Task from '$lib/db/models/Task.js'
   import { deleteImage } from '$lib/db/helpers.js'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let taskObject
 

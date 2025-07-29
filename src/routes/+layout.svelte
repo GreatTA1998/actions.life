@@ -7,12 +7,12 @@
   import { onMount } from 'svelte'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { } from '$lib/db/scripts/april.js'
+  import AppContextProvider from '$lib/components/AppContextProvider.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
 
   let doingAuth = true
 
   onMount(() => {
-
     translateJSConstantsToCSSVariables()
 
     // fetching user takes around 300 - 500 ms
@@ -59,9 +59,11 @@
   </div>
 
   <div>
-    <slot>
+    <AppContextProvider>
+      <slot>
 
-    </slot>
+      </slot>
+    </AppContextProvider>
   </div>
 
   <TheSnackbar />
@@ -77,7 +79,11 @@
     --location-indicator-color: var(--logo-twig-color);
     --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */
     --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
+    --fine-control-color: rgb(120, 120, 120);
+
     --calendar-section-left-spacing: 2vw;
+    --experimental-black: hsla(0, 100%, 0%, 0.6);
+    --offwhite-bg: rgb(250, 250, 250);
   }
 
   :global(*) {
@@ -114,6 +120,14 @@
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+  }
+
+  /** calendar rectangle task styles */
+  :global(.cal-task-name) {
+    width: 100%;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer; 
   }
 
   :global(.simple-flex) {

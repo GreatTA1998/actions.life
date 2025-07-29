@@ -1,11 +1,11 @@
-<div class="sign-in-button"
+<button class="sign-in-button"
   on:click={signInWithGoogle}
 >
-  Sign in
+  Create your calendar
   <span class="material-symbols-outlined" style="font-size: 24px; margin-left: 4px;">
     arrow_right_alt
   </span>
-</div>
+</button>
 
 <script>
   import { getAuth, signInWithRedirect, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
@@ -47,14 +47,12 @@
 
 <style>
   .sign-in-button {
-    background: var(--logo-twig-color);
+    background: rgb(21, 92, 12);
     font-weight: 600;
     color: white;
     margin-bottom: 2px;
-    width: 208px;
-    padding-left: 8px;
-    padding-top: 6px;
-    padding-bottom: 6px;
+    width: fit-content;
+    padding: 6px 24px;
     border-radius: 24px;
     display: flex;
     justify-content: center;

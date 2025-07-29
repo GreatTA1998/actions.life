@@ -19,7 +19,9 @@
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
   import { getRandomID, getTimeInHHMM } from '/src/lib/utils/core.js'
   import { DateTime } from 'luxon'
-  import Task from '/src/lib/db/models/Task.js'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let style
 

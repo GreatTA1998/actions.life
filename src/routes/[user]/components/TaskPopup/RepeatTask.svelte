@@ -1,7 +1,10 @@
 <script>
-  import { currentMode, closeTaskPopup } from '$lib/store'
+  import { currentMode } from '$lib/store'
   import { openTemplateEditor } from '/src/routes/[user]/components/Templates/store.js'
   import PeriodicityEditor from '/src/routes/[user]/components/Templates/components/TemplatePopup/PeriodicityEditor.svelte'
+  import { getContext } from 'svelte'
+
+  const { closeTaskPopup } = getContext('app')
 
   export let taskObject
 

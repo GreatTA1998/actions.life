@@ -1,8 +1,3 @@
-<!-- 
-  Note, the HTML checkbox tick color literally cannot be changed, but it will be automatically white if it "decides" that our chosen background color is dark enough, 
-  or vice versa
- -->
-
 <div 
   on:click={() => openTaskPopup(task)}
   on:dragstart|self={(e) => startDragMove(e, task.id)} 
@@ -98,10 +93,11 @@
 <script>
   // Assumes `task` is hydrated
   import { getTrueY } from '/src/lib/utils/core.js'
-  import { grabOffset, activeDragItem, openTaskPopup } from '/src/lib/store'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
-  import Task from '/src/lib/db/models/Task.js'
+  import { getContext } from 'svelte'
+
+  const { Task,openTaskPopup, activeDragItem, grabOffset } = getContext('app')
 
   export let task = null
 

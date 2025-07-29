@@ -1,5 +1,4 @@
 <script>
-  import Task from '$lib/db/models/Task.js'
   import Template from '$lib/db/models/Template.js'
   import FormField from '$lib/components/FormField.svelte'
   import {
@@ -8,6 +7,9 @@
   import { user } from '$lib/store'
   import { onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let resultantDateClassObject
   export let newTaskStartTime = '' // hh:mm format

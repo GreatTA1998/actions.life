@@ -1,7 +1,5 @@
 import Task from '$lib/db/models/Task.js'
-import Template from '$lib/db/models/Template.js'
 import { DateTime } from 'luxon'
-import { generateDates } from '$lib/utils/rrule.js'
 import { db } from '$lib/db/init.js'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 import { user } from '$lib/store'
@@ -26,29 +24,19 @@ export function isException (task, template) {
   return false
 }
 
-export function fillTaskInstances ({ template, startISO }) {
-  for (const occurence of generateDates({ rrStr: template.rrStr, startISO, previewSpan: template.previewSpan  })) {
-    createTaskInstance({ template, occurence }) // note the single `r` in occurence
-  }
-
-  Template.update({ id: template.id, updates: {
-    prevEndISO: DateTime.now().plus({ days: template.previewSpan }).toFormat('yyyy-MM-dd')
-  }})
-}
-
-export function createTaskInstance ({ template, occurence }) {
+export function createTaskInstance ({ template, occurrence }) {
   Task.create({
     // ensure idempotence, with deterministic IDs
     // assumes the recurrence is at the resolution of days
-    id: template.id + '_' + DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd'),
-    newTaskObj: instantiateTask({ template, occurence })
+    id: template.id + '_' + DateTime.fromJSDate(occurrence).toFormat('yyyy-MM-dd'),
+    newTaskObj: instantiateTask({ template, occurrence })
   })
 }
 
-export function instantiateTask ({ template, occurence }) {
+export function instantiateTask ({ template, occurrence }) {
   const newTaskObj = Task.schema.parse(template)
   newTaskObj.templateID = template.id
-  newTaskObj.startDateISO = DateTime.fromJSDate(occurence).toFormat('yyyy-MM-dd')
+  newTaskObj.startDateISO = DateTime.fromJSDate(occurrence).toFormat('yyyy-MM-dd')
   newTaskObj.persistsOnList = false
   return newTaskObj
 }
