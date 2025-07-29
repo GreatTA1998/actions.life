@@ -7,14 +7,11 @@
   import { onMount } from 'svelte'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { } from '$lib/db/scripts/april.js'
-  import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import AppContextProvider from '$lib/components/AppContextProvider.svelte'
-  import { migratePersistsOnList } from '$lib/db/scripts/july.js'
-  
+
   let doingAuth = true
 
   onMount(() => {
-    window.migratePersistsOnList = migratePersistsOnList
     translateJSConstantsToCSSVariables()
 
     // fetching user takes around 300 - 500 ms

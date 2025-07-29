@@ -36,14 +36,14 @@
   let futureTasks
 
   $: if ($user.uid) {
-    listenToItinerary($user.uid, $user.hideRoutines)
+    listenToSchedule($user.uid, $user.hideRoutines)
   }
 
   onDestroy(() => {
     if (unsub) unsub()
   })
 
-  async function listenToItinerary(uid, hideRoutines = false) {
+  async function listenToSchedule (uid, hideRoutines = false) {
     if (unsub) {
       unsub()
       uniqueEvents.set(null)

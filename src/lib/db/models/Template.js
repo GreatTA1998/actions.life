@@ -54,6 +54,7 @@ const Template = {
     if (futureInstances.length > 0) {
       if (confirm(`There are ${futureInstances.length} future instances of this template. Delete them also?`)) {
         for (const instance of futureInstances) {
+          // NOTE: should use Task.delete() instead once we solve for the `tasksCache` bug
           deleteFirestoreDoc(`/users/${get(user).uid}/tasks/${instance.id}`)
         }
       }
