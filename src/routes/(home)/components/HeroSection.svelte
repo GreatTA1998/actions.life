@@ -4,11 +4,11 @@
 
 <div style="display: flex; align-items: center; justify-content: space-between;">
   <div class="hero-section" style="display: flex; flex-direction: column; row-gap: 16px;">
-    <div class="hero-title">Coordinate multiple life priorities on one calendar</div>
+    <div class="hero-title">Navigate multiple life priorities on one calendar</div>
 
     <div style="display: flex; flex-wrap: wrap;">
       <div class="secondary-description">
-        Habits, timelines and events all fit together into a single picture.
+        Put your habits, events and timelines in one place
       </div>
     </div>
 
@@ -18,7 +18,7 @@
   </div>
 
   <div style="width: 50%;">
-    <img src="/hero-image.png" alt="screenshot of actions.life" style="width: 100%; height: 100%; object-fit: cover;">
+    <img src="/white-home-screenshot.jpg" alt="screenshot of actions.life" style="width: 100%; height: 100%; object-fit: cover;">
   </div>
 </div>
 

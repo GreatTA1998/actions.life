@@ -58,8 +58,8 @@
 
 <div class="demo-section">
   <div class="demo-header">
-    <h2>Toggle the timeline switch</h2>
-    <p class="demo-hint">to put things into perspective</p>
+    <h2>Press the timeline button</h2>
+    <p class="demo-hint">to visualize time gaps between things</p>
   </div>
   
   <div class="demo-layout">
@@ -87,6 +87,8 @@
     <div class="controls-panel">
       <div class="benefits-explanation">
         <p>
+          We exist in different timelines at the same time.
+          <br><br>
           Calendars usually have rigid timeframes: week, month, year etc. But important things often span arbitrary timeframes.
           <br><br>
           Here, timelines are first-class constructs, so everything can be coordinated together without leaving the page.

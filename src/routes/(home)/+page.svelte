@@ -12,6 +12,7 @@
   import FeatureShowcase from './components/FeatureShowcase.svelte'
   import VisionSection from './components/VisionSection.svelte'
   import DemoContextProvider from '$lib/components/DemoContextProvider.svelte'
+  import ArtisticBackground from './components/ArtisticBackground.svelte'
 
   let currentIdx = 0
 
@@ -76,10 +77,11 @@
 
 {#if hasFetchedUser}
   <NavbarContentLayout>
+    <!-- background: linear-gradient(135deg, rgba(247, 240, 225, 0.9), rgba(200, 220, 210, 0.8)); backdrop-filter: blur(10px); -->
     <div
       slot="navbar"
       class="top-navbar transparent-glow-navbar"
-      style="background: rgb(250, 250, 250); border-bottom: 0px solid lightgrey; display: flex; align-items: center; height: 54px; padding-left: 2vw;"
+      style="background: none; border-bottom: 0px solid lightgrey; display: flex; align-items: center; height: 54px; padding-left: 2vw;"
     >
       <!-- svelte-ignore a11y-missing-attribute -->
       <img
@@ -107,6 +109,8 @@
       style="display: flex; flex-grow: 1; height: 100%; padding: 2.5%; padding-top: 2%;"
       class="home-page-background"
     >
+      <ArtisticBackground />
+      
       <div style="width: 100%; min-width: 200px; border-radius: 10px; margin-top: 100px; display: flex; flex-direction: column; gap: 120px;">
         <DemoContextProvider>
           <HeroSection />
@@ -130,12 +134,31 @@
 
 <style lang="scss">
   .home-page-background {
-    background-color: rgb(250, 250, 250);
+    background: linear-gradient(
+      135deg,
+      #f7f0e1 0%,
+      #e8f4f0 25%,
+      #d4e8e0 50%,
+      #c8dcd2 75%,
+      #bfd3c7 100%
+    );
+    position: relative;
+    overflow-x: hidden;
+  }
+
+
+
+  .home-page-background > * {
+    position: relative;
+    z-index: 1;
   }
 
   .transparent-glow-navbar {
-    background-color: rgba(150, 150, 150, 0.1);
+    background: linear-gradient(135deg, rgba(247, 240, 225, 0.9), rgba(200, 220, 210, 0.8));
     border-bottom: none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(180, 200, 190, 0.1);
   }
 
   .github-link {
@@ -151,13 +174,14 @@
   }
 
   .github-link:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(180, 200, 190, 0.15);
     transform: translateY(-1px);
   }
 
   .github-link svg {
     opacity: 0.7;
     transition: opacity 0.2s ease;
+    filter: sepia(20%) saturate(80%) hue-rotate(80deg);
   }
 
   .github-link:hover svg {
