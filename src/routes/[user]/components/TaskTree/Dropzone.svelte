@@ -1,6 +1,6 @@
 <div
   bind:this={ReorderDropzone} 
-  style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; border: 0px solid {colorForDebugging};" 
+  style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 0px solid {colorForDebugging};" 
   on:dragenter={() => {
     // quickfix as even if it's an invalid operation it's unintuitive to not see the drag area highlight
     if (!isInvalidReorderDrop() || true) {
@@ -15,11 +15,12 @@
 </div>
 
 <script>
-  import { user, activeDragItem } from '$lib/store'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import Task from '$lib/db/models/Task.js'
   import { HEIGHTS } from '$lib/utils/constants.js'
+  import { getContext } from 'svelte'
+
+  const { Task, activeDragItem, user } = getContext('app')
 
   export let ancestorRoomIDs
   export let roomsInThisLevel
@@ -105,8 +106,7 @@
     Task.update({ id: $activeDragItem.id, keyValueChanges: {
       parentID,
       orderValue: newVal,
-      startDateISO: '',
-      startTime: ''
+      persistsOnList: true // non-persistent tasks, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
     }})
 
     try {

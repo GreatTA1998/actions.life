@@ -4,11 +4,13 @@
   import YearRhythm from './YearRhythm.svelte'
   import { getPeriodicity } from '$lib/utils/rrule.js'
   import { popup, template, templates, openTemplateEditor } from './store.js'
-  import { user } from '$lib/store'
+  import { getContext } from 'svelte'
   import { db } from '$lib/db/init.js'
   import TemplatePopup from './components/TemplatePopup/TemplatePopup.svelte'
   import { onSnapshot, collection } from 'firebase/firestore'
   import { onMount } from 'svelte'
+
+  const { user } = getContext('app')
 
   let yearly = []
   let monthly = []

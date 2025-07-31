@@ -3,8 +3,7 @@ const functions = require('firebase-functions');
 const { getFirestore } = require('firebase-admin/firestore');
 const { DateTime } = require('luxon');
 
-async function checkNotify() {
-  const db = getFirestore('tokyo-db');
+async function checkNotify (db) {
   const usersSnapshot = await db
     .collection('users')
     .where('FCMTokens', '!=', [])

@@ -1,14 +1,14 @@
 <script>
+  import { trees, listenToTasks } from './service.js'
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import FormField from '$lib/components/FormField.svelte'
-  import { getRandomID } from '/src/lib/utils/core.js'
-  import { HEIGHTS } from '/src/lib/utils/constants.js'
-  import Task from '/src/lib/db/models/Task.js'
+  import { getRandomID } from '$lib/utils/core.js'
+  import { HEIGHTS } from '$lib/utils/constants.js'
+  import { getContext, onMount, createEventDispatcher } from 'svelte'
   import { DateTime } from 'luxon'
-  import { onMount, createEventDispatcher } from 'svelte'
-  import { user } from '$lib/store'
-  import { trees, listenToTasks } from './service.js'
+
+  const { Task, user } = getContext('app')
 
   export let willShowCheckbox = true
   export let isLargeFont = false
@@ -60,7 +60,7 @@
       name: newTaskName,
       parentID: '',
       timeZone: DateTime.local().zoneName,
-      persistsOnList: false
+      persistsOnList: true
     }
     if (orderValue) {
       newTaskObj.orderValue = orderValue

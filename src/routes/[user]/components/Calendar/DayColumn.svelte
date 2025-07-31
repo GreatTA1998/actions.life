@@ -10,14 +10,14 @@
 
   import {
     user,
-    grabOffset, activeDragItem,
     timestamps, totalMinutes, calLastHHMM, calSnapInterval
   } from '$lib/store'
   import { pixelsPerHour } from './store.js'
   import { treesByDate } from './service.js'
-  import Task from '$lib/db/models/Task.js'
-
   import { onMount, onDestroy } from "svelte"
+  import { getContext } from 'svelte'
+
+  const { Task, activeDragItem, grabOffset } = getContext('app')
 
   export let dt
 

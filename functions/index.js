@@ -13,6 +13,6 @@ exports.notifications = onSchedule(
     region: 'asia-northeast1', // Tokyo region
   },
   async (event) => {
-    await checkNotify();
+    await checkNotify(db);
   },
 )

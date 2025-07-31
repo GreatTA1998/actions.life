@@ -1,9 +1,12 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
-  import { WIDTHS } from '/src/lib/utils/constants.js'
+  import DateBadge from './DateBadge.svelte'
+  import TimelineRendererVisuals from './TimelineRendererVisuals.svelte'
+  import { WIDTHS } from '$lib/utils/constants.js'
+  import { trackHeight } from '$lib/utils/svelteActions.js'
   import { DateTime } from 'luxon'
-  import { onMount } from 'svelte'
+  import { getContext } from 'svelte'
   
   export let children = []
   export let depth
@@ -12,170 +15,202 @@
   export let isLargeFont = false
   export let colorForDebugging
   
-  let currentTimePosition = 24
-  let showTimeMarker = false
-  let timelineContainerRef
-  
-  function formatDate(dateStr) {
-    if (!dateStr) return 'No date'
-    return DateTime.fromISO(dateStr).toFormat("MMM d, yyyy")
+  const { openTaskPopup, willOpenDatePicker } = getContext('app')
+
+  const defaultPxPerDay = 0.4
+  const taskNameHeight = 30
+  const dropzoneHeight = 16
+  const squareHeight = 12.5
+
+  let dayDiffs = {}
+  let margins = {}
+  let contentHeights = {}
+  let pxPerDay = defaultPxPerDay
+  let timeMarkerTop = 0
+  let sorted = []
+  let scheduled = []
+  let unscheduled = []
+
+  $: computeStateArrays(children)
+
+  // `contentHeights` will fire on mount, and on subsequent child expand/collapse
+  // TO-DO: reduce the number of duplicate calls
+  $: if (sorted.length > 0) updateScaleFactor(contentHeights)
+
+  function computeStateArrays () {
+    scheduled = children.filter(c => c.startDateISO)
+    sorted = [...scheduled].sort((a, b) => a.startDateISO.localeCompare(b.startDateISO))
+
+    unscheduled = children.filter(c => !c.startDateISO)
   }
 
-  function calculateTimePositions(tasks) {
-    // Sort tasks by date
-    const sortedTasks = [...tasks].sort((a, b) => {
-      if (!a.startDateISO) return 1
-      if (!b.startDateISO) return -1
-      return new Date(a.startDateISO) - new Date(b.startDateISO)
-    })
-    
-    // Calculate spacings between dated tasks
-    const spacings = Array(sortedTasks.length).fill(0)
-    const pxPerDay = 0.4
-    
-    for (let i = 0; i < sortedTasks.length - 1; i++) {
-      if (sortedTasks[i].startDateISO && sortedTasks[i+1].startDateISO) {
-        const current = new Date(sortedTasks[i].startDateISO)
-        const next = new Date(sortedTasks[i+1].startDateISO)
-        const daysDiff = Math.max(1, (next - current) / (24 * 60 * 60 * 1000))
-        spacings[i] = pxPerDay * daysDiff
-      }
+  function computeMarginBottom (i) {
+    if (i == sorted.length - 1) return 0
+    else {
+      const gap = dayDiffs[i] * pxPerDay
+      return Math.max(0, gap - contentHeights[i] - dropzoneHeight)
     }
-    
-    return { sortedTasks, spacings }
   }
-  
-  function updateTimeMarker() {
-    if (!timelineContainerRef || !sortedTasks.length) {
-      showTimeMarker = false
-      return
+
+  function updateScaleFactor () {    
+    // TO-DO: reset dayDiffs, margins etc. on reactivity changes, or there will be remnant data
+    // this is only a partial fix, it only leaves remnant margins when the last timeline node is deleted
+    dayDiffs = {}
+    margins = {}
+
+    for (let i = 0; i <= sorted.length - 2; i++) {
+      dayDiffs[i] = getDayDiff(i, i+1)
     }
-    
-    const today = DateTime.now().startOf('day')
-    const items = timelineContainerRef.querySelectorAll('.timeline-item')
-    
-    // Extract dates from tasks
-    const datedItems = sortedTasks
-      .map((task, index) => {
-        if (!task.startDateISO) return null
-        try {
-          return { 
-            index, 
-            date: DateTime.fromISO(task.startDateISO).startOf('day') 
-          }
-        } catch (e) {
-          return null
-        }
-      })
-      .filter(item => item !== null)
-    
-    if (!datedItems.length) {
-      showTimeMarker = false
-      return
-    }
-    
-    // Find closest dates before and after today
-    const before = datedItems
-      .filter(item => item.date < today)
-      .sort((a, b) => b.date.toMillis() - a.date.toMillis())[0]
-      
-    const after = datedItems
-      .filter(item => item.date > today)
-      .sort((a, b) => a.date.toMillis() - b.date.toMillis())[0]
-    
-    // Function to get vertical position at index
-    function getPosition(index) {
-      let pos = 24
-      for (let i = 0; i < index; i++) {
-        if (items[i]) {
-          pos += items[i].offsetHeight + (spacings[i] || 5)
+
+    let candidates = []
+    for (let i = 0; i <= sorted.length - 2; i++) {
+      if (dayDiffs[i] === null) continue
+      else {
+        const minVisualGap = contentHeights[i] + dropzoneHeight
+        if (defaultPxPerDay * dayDiffs[i] < minVisualGap) {
+          // note: dayDiffs of 0, 1 are treated as 2
+          const nonZeroDayDiff = Math.max(dayDiffs[i], 2) // note: 2 nodes with the same start date will have infinity scale factor, so it'll be handled as 1
+          candidates = [...candidates, (minVisualGap / nonZeroDayDiff)]
         }
       }
-      return pos
     }
-    
-    // Handle different position cases
-    if (!before && after) {
-      // Today is before all dates
-      currentTimePosition = 24
-    } else if (before && !after) {
-      // Today is after all dates
-      const beforeItem = items[before.index]
-      currentTimePosition = getPosition(before.index) + (beforeItem?.offsetHeight || 0)
-    } else if (before && after) {
-      // Today is between two dates - interpolate position
-      const beforePos = getPosition(before.index) + (items[before.index]?.offsetHeight || 0)
-      const afterPos = getPosition(after.index)
-      
-      // Calculate day ratio
-      const totalDays = after.date.diff(before.date).as('days')
-      const elapsed = today.diff(before.date).as('days')
-      const ratio = Math.max(0, Math.min(1, totalDays > 0 ? elapsed / totalDays : 0))
-      
-      currentTimePosition = beforePos + (ratio * (afterPos - beforePos))
+
+    pxPerDay = Math.max(...candidates, defaultPxPerDay)
+
+    for (let i = 0; i <= sorted.length - 2; i++) {
+      margins[i] = computeMarginBottom(i)
     }
-    
-    showTimeMarker = true
+    margins = margins
+
+    // TO-DO: make this an explicit effect
+    // compute the positioning of the time marker
+    const n = sorted.length
+    if (n > 0) {
+      const d1 = DateTime.now()
+      const d2 = DateTime.fromISO(sorted[0].startDateISO)
+      const diff = d1.diff(d2).as('days')
+      
+      if (diff < 0) timeMarkerTop = -6 // cap at the top border limit
+      
+      else if (DateTime.now().toFormat('yyyy-MM-dd') > sorted[n-1].startDateISO) {
+        let totalHeight = 0
+        for (let i = 0; i <= n - 2; i++) {
+          totalHeight += contentHeights[i] + dropzoneHeight + margins[i]
+        }
+        timeMarkerTop = totalHeight + squareHeight + 6 // 6 is the height of each stem
+      } 
+      else {
+        timeMarkerTop = diff * pxPerDay  + squareHeight/2
+        // if (sorted[0].name === '2' && sorted[n-1].name === 'ew task') {
+        //   console.log('general case')
+        // }
+      }
+
+      // if (sorted[0].name === '2' && sorted[n-1].name === 'ew task') {
+      //   console.log("timemarkerTop =", timeMarkerTop)
+      // }
+    }
+  } 
+  
+  function getDayDiff (i, j) {
+    const iso1 = sorted[i].startDateISO
+    const iso2 = sorted[j].startDateISO
+
+    if (!iso1 || !iso2) return null 
+    else {
+      const dt1 = DateTime.fromISO(iso1)
+      const dt2 = DateTime.fromISO(iso2)
+      return dt2.diff(dt1).as('days')
+    }
   }
-  
-  // Calculate marker position once when mounted and when data changes
-  onMount(() => setTimeout(updateTimeMarker, 100))
-  
-  $: timelineData = calculateTimePositions(children)
-  $: sortedTasks = timelineData.sortedTasks
-  $: spacings = timelineData.spacings
-  $: if (sortedTasks && timelineContainerRef) setTimeout(updateTimeMarker, 100)
+
+  function renderDropzone (idx, nodesThisLevel) {
+    return {
+      idxInThisLevel: idx,
+      ancestorRoomIDs: [parentID, ...ancestorRoomIDs],
+      roomsInThisLevel: nodesThisLevel,
+      parentID: parentID,
+      colorForDebugging,
+    }
+  }
+
+  function renderTask (node, depth) {
+    return {
+      taskObj: node,
+      depth,
+      willShowCheckbox: true,
+      isLargeFont,
+      ancestorRoomIDs: [parentID, ...ancestorRoomIDs],
+    }
+  }
 </script>
 
-<div class="timeline-container" bind:this={timelineContainerRef}>
-  {#if sortedTasks.length > 0}
-    <div class="timeline-line"></div>
-    
-    {#if showTimeMarker}
-      <div class="time-marker" style="top: {currentTimePosition}px;">
-        <div class="marker-dot"></div>
-      </div>
-    {/if}
+<div style="position: relative; margin-left: {WIDTHS.INDENT_PER_LEVEL}px;">  
+  {#if sorted.length > 0}
+    <Dropzone {...renderDropzone(0, sorted)} />
   {/if}
-  
-  <Dropzone
-    ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
-    roomsInThisLevel={children}
-    idxInThisLevel={0}
-    parentID={parentID}
-    {colorForDebugging}
-  />
 
-  {#each sortedTasks as child, i (child.id)}
-    <div class="timeline-item" style="margin-bottom: {spacings[i]}px; padding-left: 8px;">      
-      <RecursiveTask
-        taskObj={child}
-        depth={depth+1}
-        willShowCheckbox={false}
-        {isLargeFont}
-        ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
+  <div style="position: relative;">
+    <!--
+     opacity creates a new stacking context, breaking the marker dot 
+     opacity: {child.startDateISO < DateTime.now().toFormat('yyyy-MM-dd') ? 0.6 : 1}; -->
+    {#each sorted as child, i (child.id)}
+      <div style="
+        position: relative; display: flex; align-items: center;
+        margin-bottom: {margins[i]}px;"
+        use:trackHeight={h => { 
+          contentHeights[i] = h
+          contentHeights = contentHeights
+        }}
+      >      
+        <RecursiveTask {...renderTask(child, depth + 1)}>
+          <div slot="info-badge">
+            <DateBadge iso={child.startDateISO} on:click={() => {
+              willOpenDatePicker.set(true)
+              openTaskPopup(child)
+            }}/>
+          </div>
+
+          <div slot="vertical-timeline">
+            <TimelineRendererVisuals {i} {sorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
+          </div>
+        </RecursiveTask>
+      </div>
+
+      <div class:ghost-negative={i === sorted.length - 1}
+        style="
+          width: 235px;
+          left: {WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+          z-index: {depth};"
       >
-        <div class="date-badge">
-          {formatDate(child.startDateISO)}
+        <Dropzone {...renderDropzone(i + 1, sorted)} />
+      </div>
+    {/each}
+  </div>
+
+  {#if unscheduled.length > 0}
+    <Dropzone {...renderDropzone(sorted.length, unscheduled)} />
+  {/if}
+
+  {#each unscheduled as child, i (child.id)}
+    <div style="position: relative; display: flex; align-items: center;">      
+      <RecursiveTask {...renderTask(child, depth + 1)}>
+        <div slot="info-badge">
+          <DateBadge iso={child.startDateISO} on:click={() => {
+            willOpenDatePicker.set(true)
+            openTaskPopup(child)
+          }}/>
         </div>
       </RecursiveTask>
     </div>
 
-    <div 
-      class:ghost-negative={i === sortedTasks.length - 1}
+    <div class:ghost-negative={i === unscheduled.length - 1}
       style="
         width: 235px;
-        left: {WIDTHS.SUBTASK_LEFT_MARGIN + WIDTHS.DROPZONE_LEFT_MARGIN * (depth)}px;
-        z-index: {depth};
-      "
+        left: {WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+        z-index: {depth};"
     >
-      <Dropzone
-        ancestorRoomIDs={[parentID, ...ancestorRoomIDs]}
-        roomsInThisLevel={children}
-        idxInThisLevel={i + 1}
-        parentID={parentID}
-        {colorForDebugging}
-      />
+      <Dropzone {...renderDropzone(i + 1, unscheduled)} />
     </div>
   {/each}
 </div>
@@ -184,57 +219,9 @@
   :root {
     --timeline-left-margin: 8px;
   }
-
-  .timeline-container {
-    position: relative;
-    padding-left: var(--timeline-left-margin);
-  }
-  
-  .timeline-line {
-    position: absolute;
-    top: 24px;
-    left: var(--timeline-left-margin);
-    width: 2px;
-    height: calc(100% - 48px);
-    background-color: #ddd;
-    z-index: 0;
-  }
-  
-  .timeline-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    min-height: 30px;
-  }
   
   .ghost-negative {
     position: absolute;
     bottom: -18px;
   }
-
-  .date-badge {
-    white-space: nowrap;
-    flex-shrink: 0;
-    font-size: 12px;
-    color: #666;
-    padding: 2px 4px;
-    border-radius: 3px;
-    border: 1px solid #ddd;
-    background-color: white;
-    text-align: center;
-  }
-  
-  .time-marker {
-    position: absolute;
-    left: calc(var(--timeline-left-margin) - 3px);
-    z-index: 1;
-    pointer-events: none;
-  }
-  
-  .marker-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--location-indicator-color, #ff5722);
-  }
-</style> 
+</style>

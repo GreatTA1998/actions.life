@@ -61,7 +61,9 @@
   import FormField from '$lib/components/FormField.svelte'
   import { openTaskPopup } from '/src/lib/store'
   import { getRandomID } from '/src/lib/utils/core.js'
-  import Task from '/src/lib/db/models/Task.js'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let node 
   export let originalPopupTask

@@ -63,9 +63,11 @@
   import { DateTime } from 'luxon'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import { openTaskPopup } from '$lib/store'
-  import Task from '/src/lib/db/models/Task.js'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
-  
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
+
   export let tasksThisDay
   export let simpleDateISO
 

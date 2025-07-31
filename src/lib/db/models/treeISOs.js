@@ -64,7 +64,7 @@ function hasChangedFamily ({ task, changes }) {
 
 export async function handleCrossTree ({ task, changes, batch }) {
   return new Promise(async (resolve) => {
-    console.log('handleCrossTree', task, changes)  
+    // console.log('handleCrossTree', task, changes)  
   
     let prevFamily, movedTree, newFamily
     const newParent = get(tasksCache)[changes.parentID]
@@ -75,17 +75,17 @@ export async function handleCrossTree ({ task, changes, batch }) {
       getRoot(task).then(root => getTreeNodes(root).then(nodes => prevFamily = nodes)),
       getRoot(newParent).then(root => getTreeNodes(root).then(nodes => newFamily = nodes))
     ])
-    console.log('resolved parallel =', prevFamily, movedTree, newFamily)
+    // console.log('resolved parallel =', prevFamily, movedTree, newFamily)
     
     // prev family
-    console.log('familyISOs before =', task.treeISOs)
+    // console.log('familyISOs before =', task.treeISOs)
     let prevFamilyISOs = [...task.treeISOs]
     for (const node of movedTree) {
       if (node.startDateISO) {
         prevFamilyISOs = removeOneInstance(prevFamilyISOs, node.startDateISO)
       } 
     }
-    console.log('familyISOs after =', prevFamilyISOs)
+    // console.log('familyISOs after =', prevFamilyISOs)
 
     batchUpdate({ nodes: prevFamily, treeISOs: prevFamilyISOs, batch })
   
@@ -96,11 +96,11 @@ export async function handleCrossTree ({ task, changes, batch }) {
 
     for (const node of movedTree) {
       if (node.startDateISO) {
-        console.log('pushing to new family', node.startDateISO)
+        // console.log('pushing to new family', node.startDateISO)
         newFamilyISOs.push(node.startDateISO)
       } 
     }
-    console.log('after pushing =', newFamilyISOs)
+    // console.log('after pushing =', newFamilyISOs)
 
     if (task.startDateISO !== changes.startDateISO) {
       newFamilyISOs = correctTreeISOs({ 
@@ -108,7 +108,7 @@ export async function handleCrossTree ({ task, changes, batch }) {
         newDate: changes.startDateISO, 
         array: newFamilyISOs 
       })
-      console.log('after correcting =', newFamilyISOs)
+      // console.log('after correcting =', newFamilyISOs)
     }
 
 
@@ -123,7 +123,7 @@ export async function handleCrossTree ({ task, changes, batch }) {
       batch
     })
 
-    console.log('resolving cross tree')
+    // console.log('resolving cross tree')
     resolve()
   })
 }
@@ -131,7 +131,7 @@ export async function handleCrossTree ({ task, changes, batch }) {
 export async function handleSameTree ({ task, changes, batch }) {
   return new Promise(async (resolve) => {
     if (!task.treeISOs) alert('This task has no treeISOs so operations will fail!')
-    console.log('handleSameTree', task, changes)
+    // console.log('handleSameTree', task, changes)
     const root = await getRoot(task)
     const treeNodes = await getTreeNodes(root)
     const result = batchUpdate({ 

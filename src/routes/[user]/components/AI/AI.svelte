@@ -1,9 +1,11 @@
 <script>
   import { user } from '/src/lib/store'
-  import Task from '/src/lib/db/models/Task.js'
   import text from './text'
   import GPT from './GPT.js'
   import { DateTime } from 'luxon'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   let TheChatInput
   let tasksJSON

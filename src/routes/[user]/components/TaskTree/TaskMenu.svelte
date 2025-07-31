@@ -1,8 +1,10 @@
 <script>
   import BaseMenu from '$lib/components/BaseMenu.svelte'
   import ToggleGroup from '$lib/components/ToggleGroup.svelte'
-  import Task from '$lib/db/models/Task.js'
   import { createEventDispatcher } from 'svelte'
+  import { getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   export let taskObj
 
@@ -25,20 +27,6 @@
     </button>
 
     <div class="menu-divider"></div>
-    
-    <button class="m-item" on:click={() => { 
-      Task.update({ 
-        id: taskObj.id, 
-        keyValueChanges: { isCollapsed: !taskObj.isCollapsed }
-      }); 
-      close(); 
-    }}>
-      <span class="material-symbols-outlined" style="font-size: 22px;">
-        {taskObj.isCollapsed ? 'expand_more' : 'expand_less'}
-      </span>
-      {taskObj.isCollapsed ? 'Expand' : 'Collapse'}
-    </button>
-
     <ToggleGroup on:select={e => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: e.detail.value }})}
       options={[{ text: 'normal', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
       activeValue={taskObj.childrenLayout} 
@@ -47,10 +35,10 @@
     <div class="menu-divider"></div>
 
     <button class="m-item" on:click={() => { Task.archiveTree({ id: taskObj.id }) }}>
-      <span class="material-symbols-outlined" style="font-size: 22px;">
+      <span class="material-symbols-outlined" style="font-size: 18px;">
         inventory_2
       </span>
-      Archive
+      archive
     </button>
   </div>
 </BaseMenu>
