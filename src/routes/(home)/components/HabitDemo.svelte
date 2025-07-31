@@ -1,46 +1,12 @@
 <script>
-  import DoodleIcon from '../../../lib/components/DoodleIcon.svelte'
+  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { DateTime } from 'luxon'
-  import '../../../lib/styles/demo-shared.css'
+  import '$lib/styles/demo-shared.css'
+  import { getContext } from 'svelte'
+  
+  const { memoryTree } = getContext('app')
 
-  // Create mock dependencies for habit demo
-  const mockTaskService = {
-    update: ({ id, keyValueChanges }) => {
-      console.log('Demo: Would update habit', id, 'with', keyValueChanges.isDone)
-      updateHabitCompletion(id, keyValueChanges.isDone)
-    }
-  }
-
-  function updateHabitCompletion(habitId, isDone) {
-    const habitIndex = todayHabits.findIndex(h => h.id === habitId)
-    if (habitIndex !== -1) {
-      todayHabits[habitIndex].isDone = isDone
-      // Update the featured habit if it matches
-      if (featuredHabit.id === habitId) {
-        featuredHabit.isDone = isDone
-      }
-      // Trigger reactivity
-      todayHabits = [...todayHabits]
-      featuredHabit = { ...featuredHabit }
-    }
-  }
-
-  // Define habit types with real Firebase icons
-  const habitTypes = [
-    { id: 'run', name: 'Morning Run', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FEPtvgSIsPkpznSIffOoa.png?alt=media&token=018a960d-1f76-47eb-a0fe-85c6a5423bd9' },
-    { id: 'stretch', name: 'Post-Run Stretch', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2F6w6I9VRWZLRWqphuLgFz.png?alt=media&token=ba68dd3b-83fe-4ed2-bc38-9a2888d31f1b' },
-    { id: 'hydrate', name: 'Hydration Check', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FhsCFkECSF4PcFt6MOcW0.png?alt=media&token=d4ed8987-9001-43bc-b48b-4f36caef6fb1' },
-    { id: 'nutrition', name: 'Track Nutrition', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2Fk49WsIjV1kQ2e6MW52BR.png?alt=media&token=0d44da5b-dfd7-4ff3-9971-3637b748c6be' }
-  ]
-
-  // Create today's habits - some completed, some not
-  let todayHabits = habitTypes.map((habitType, index) => ({
-    ...habitType,
-    isDone: index < 2 // First two habits are completed for demo
-  }))
-
-  // Featured habit for the right panel (the hydration check)
-  let featuredHabit = { ...todayHabits[2] } // Hydration habit
+  $: habits = $memoryTree.filter(t => t.iconURL)
 
   const today = DateTime.now()
 </script>
@@ -52,9 +18,7 @@
   </div>
   
   <div class="demo-layout">
-    <!-- Left: Authentic day column -->
     <div class="day-column">
-      <!-- Real DayHeader structure -->
       <div class="day-header">
         <div class="compact-horizontal">
           <div class="center-flex day-name-label active-day-name">
@@ -70,14 +34,13 @@
 
       <div class="habits-area">
         <div class="icon-habits">
-          {#each todayHabits as habit}
+          {#each habits as habit}
             <DoodleIcon iconTask={habit} size={36} />
           {/each}
         </div>
       </div>
     </div>
 
-    <!-- Right: Interactive demo + explanation -->
     <div class="demo-panel">
       <div class="feature-explanation">
         <p>

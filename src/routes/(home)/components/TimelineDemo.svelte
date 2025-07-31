@@ -1,59 +1,12 @@
 <script>
   import RecursiveTask from '../../[user]/components/TaskTree/RecursiveTask.svelte'
   import ToggleGroup from '../../../lib/components/ToggleGroup.svelte'
-  import '../../../lib/styles/demo-shared.css'
-  
-  let isTimelineView = false
+  import '$lib/styles/demo-shared.css'
+  import { getContext } from 'svelte'
 
-  // Simple milestone-based data that makes timeline view obviously better
-  let demoTaskData = {
-    id: 'demo-root',
-    name: 'Walk the Camino de Santiago',
-    isDone: false,
-    isCollapsed: false,
-    startDateISO: '2024-01-01',
-    childrenLayout: isTimelineView ? 'timeline' : 'normal',
-    children: [
-      {
-        id: 'demo-1',
-        name: 'Start training',
-        isDone: true,
-        isCollapsed: false,
-        startDateISO: '2024-01-01',
-        childrenLayout: 'normal',
-        children: []
-      },
-      {
-        id: 'demo-3',
-        name: 'Break 25:00 in 5K',
-        isDone: true,
-        isCollapsed: false,
-        startDateISO: '2024-04-01',
-        childrenLayout: 'normal',
-        children: []
-      },
-      {
-        id: 'demo-4',
-        name: 'End of trail',
-        isDone: false,
-        isCollapsed: false,
-        startDateISO: '2024-04-15',
-        childrenLayout: 'normal',
-        children: []
-      }
-    ]
-  }
+  const { memoryTree, Task } = getContext('app')
 
-  // Update childrenLayout when toggle changes
-  $: {
-    demoTaskData.childrenLayout = isTimelineView ? 'timeline' : 'normal'
-  }
-
-  function toggleView (newLayout) {
-    demoTaskData.childrenLayout = newLayout
-    isTimelineView = newLayout === 'timeline'
-    demoTaskData = { ...demoTaskData }
-  }
+  $: taskObj = $memoryTree[4]
 </script>
 
 <div class="demo-section">
@@ -70,13 +23,13 @@
             { text: 'normal', value: 'normal' }, 
             { text: 'timeline', value: 'timeline' }
           ]} 
-          activeValue={demoTaskData.childrenLayout}
-          on:select={e => toggleView(e.detail.value)}
+          activeValue={taskObj.childrenLayout}
+          on:select={e => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: e.detail.value } })}
         />
       </div>
       
       <RecursiveTask 
-        taskObj={demoTaskData}
+        taskObj={taskObj}
         depth={0}
         willShowCheckbox
         ancestorRoomIDs={[]}
@@ -91,7 +44,7 @@
           <br><br>
           Calendars usually have rigid timeframes: week, month, year etc. But important things often span arbitrary timeframes.
           <br><br>
-          Here, timelines are first-class constructs, so everything can be coordinated together without leaving the page.
+          Here, timelines are first-class constructs, so you can display task trees, timelines of different resolutions together.
           <br><br>
           Besides from keeping track of deadlines, timelines rewire us to think on longer time horizons.
         </p>

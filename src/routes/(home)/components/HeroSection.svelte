@@ -11,7 +11,7 @@
 
     <div style="display: flex; flex-wrap: wrap;">
       <div class="secondary-description">
-        See your events, habits and timelines together
+        See your events, habits and timelines altogether
       </div>
     </div>
 

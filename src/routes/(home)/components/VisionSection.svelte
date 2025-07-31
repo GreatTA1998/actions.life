@@ -87,7 +87,7 @@
 
     <!-- Show a quick GIF of how the components interface with each other. 5 seconds perhaps -->
 
-    <div class="vision-main">
+    <!-- <div class="vision-main">
       <div class="vision-narrative">
         (Show a quick GIF of how the components interface with each other. 5 seconds perhaps. Clearly explain how it all fits together, and 
         the overall vision for the app (in simple terms). 
@@ -102,7 +102,7 @@
         <br><br>
         Unlike siloed apps that track sleep in isolation, actions.life captures the surrounding context: meals, workouts, routines. 
       </div>
-    </div>
+    </div> -->
   </div>
 </div>
 
