@@ -106,12 +106,12 @@
 
     <div
       slot="content"
-      style="display: flex; flex-grow: 1; height: 100%; padding: 2.5%; padding-top: 2%;"
+      style="display: flex; flex-grow: 1; height: 100%; padding: 3%; padding-top: 2%;"
       class="home-page-background"
     >
       <ArtisticBackground />
       
-      <div style="width: 100%; min-width: 200px; border-radius: 10px; margin-top: 100px; display: flex; flex-direction: column; gap: 120px;">
+      <div style="width: 100%; min-width: 200px; border-radius: 10px; margin-top: 60px; display: flex; flex-direction: column; gap: 120px;">
         <DemoContextProvider>
           <HeroSection />
 
