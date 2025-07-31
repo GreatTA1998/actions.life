@@ -4,12 +4,12 @@
 
 <div class="details-section">
   <div class="section-header">
-    <h2>Limitations</h2>
+    <h2>Current limitations</h2>
   </div>
 
   <div class="linear-limitations-list">
     <div class="linear-limitation-row">
-      <span class="linear-limitation-title">Lacks calendar sharing</span>
+      <span class="linear-limitation-title">No calendar sharing (try TimeTree)</span>
       <span class="linear-limitation-desc"></span>
       <span class="linear-alt-icons">
         <span title="TimeTree" class="alt-app-icon">
@@ -18,7 +18,7 @@
       </span>
     </div>
     <div class="linear-limitation-row">
-      <span class="linear-limitation-title">Lacks integrations</span>
+      <span class="linear-limitation-title">No integrations (try Vim/Notion/Google/Apple calendar)</span>
       <span class="linear-limitation-desc"></span>
       <span class="linear-alt-icons">
         <span title="Notion" class="alt-app-icon">
