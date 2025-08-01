@@ -15,7 +15,11 @@ const User = {
     isSubscriber: z.boolean().default(false),
     phoneNumber: z.string().optional(),
     maxOrderValue: z.number().default(3),
-    uid: z.string()
+    uid: z.string(),
+
+    // missing properties from August 1
+    calendarTheme: z.string().default('offWhite'),
+    hasGridlines: z.boolean().default(true)
   }),
 
   update (userUID, keyValueChanges) {

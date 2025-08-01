@@ -17,6 +17,7 @@
   )
 
   $: taskObject = $tasksCache[$clickedTaskID]
+  $: console.log('taskObject =', taskObject)
 
   function handleDelete () {
     if (taskObject.imageDownloadURL && !confirm("Are you sure you want to delete this task and its image?")) {

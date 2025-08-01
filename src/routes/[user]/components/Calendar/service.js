@@ -1,9 +1,9 @@
 /** Handles everything data-related for <Calendar/>, from snapshot listeners to tree building. */
-import { updateCache } from '/src/lib/store'
+import { updateCache } from '$lib/store'
 import { DateTime } from 'luxon'
-import { pureNumericalHourForm } from '/src/lib/utils/core.js'
+import { pureNumericalHourForm } from '$lib/utils/core.js'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
-import { db } from '/src/lib/db/init'
+import { db } from '$lib/db/init'
 import { page } from '$app/stores'
 import { get, writable } from 'svelte/store'
 
@@ -69,20 +69,20 @@ function listenToRegion (dateISOs) {
 export function rebuildRegion (regionTasks, dateISOs) {
   updateCache(regionTasks)
 
-  // only the scheduled tasks are strictly within the reigion,
-  // as the query include tasks arbitrarily spread out over time
+  // create an array of all task trees (includes subtrees)
   const regionForest = constructForest(regionTasks)
+
+  // as the query includes tasks arbitrarily spread out over time (even outside of region)
+  // only include trees whose root is scheduled within the region
   const scheduledTrees = regionForest.filter(task => task.startDateISO)
-  const scheduledTreeGroups = organizeToGroups(scheduledTrees)
+
+  // date --> DayColumn's state
+  // divide into icon, noIcon, hasStartTime etc. the form that <DayColumn/> expects
+  const dayColumns = organizeToGroups(scheduledTrees)
   
   treesByDate.update(dict => {
-    // note tasks with dates outside the region will break it for some reason
-    for (const [date, treeGroups] of Object.entries(scheduledTreeGroups)) {
-      if (!dateISOs.includes(date)) {
-        // console.log('found a strange date, dateISOs =', date, dateISOs, treeGroups)
-        continue
-      }
-      dict[date] = treeGroups
+    for (const date of dateISOs) {
+      dict[date] = dayColumns[date] || emptyState()
     }
     return dict
   })
@@ -114,6 +114,7 @@ function constructForest (firestoreTaskDocs) {
 }
 
 export function organizeToGroups (forest) {
+  // in the future, consolidate all the dispersed emptyState() initializations here instead
   const dateToTasks = {}
   
   forest.forEach(tree => {
@@ -133,19 +134,15 @@ export function organizeToGroups (forest) {
 }
 
 function addTaskToDate (task, date, dateToTasks) {
-  if (!dateToTasks[date]) {
-    dateToTasks[date] = { 
-      hasStartTime: [], 
-      noStartTime: { 
-        hasIcon: [], 
-        noIcon: [] 
-      } 
-    }
-  }
+  if (!dateToTasks[date]) dateToTasks[date] = emptyState()
   
   if (task.startTime) dateToTasks[date].hasStartTime.push(task)
   else if (task.iconURL) dateToTasks[date].noStartTime.hasIcon.push(task)
   else dateToTasks[date].noStartTime.noIcon.push(task)
+}
+
+function emptyState () {
+  return { hasStartTime: [], noStartTime: { hasIcon: [], noIcon: [] } }
 }
 
 export default {

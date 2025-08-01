@@ -4,6 +4,7 @@
   import { user, userInfoFromAuthProvider } from '/src/lib/store'
   import { onMount, onDestroy } from 'svelte'
   import { page } from '$app/stores'
+  import User from '$lib/db/models/User.js'
 
   let unsub
 
@@ -25,16 +26,20 @@
         initializeNewFirestoreUser(ref, $userInfoFromAuthProvider)
       } else {
         user.set({ ...snap.data() })
+        console.log('$user =', $user)
       }
     })
   }
 
   async function initializeNewFirestoreUser (ref, authData) {
+    const userObj = User.schema.parse({
+      uid: authData.uid,
+      email: authData.email
+    })
+    console.log('userObj =', userObj)
+
     return await setDoc(ref,
-      {
-        uid: authData.uid,
-        email: authData.email || ''
-      },
+      userObj,
       { merge: true }
     ).catch((err) => console.error('error in initializeNewFirestoreUser', err))
   }
