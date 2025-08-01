@@ -10,16 +10,18 @@ import {
 
 const User = {
   schema: z.object({
-    FCMTokens: z.array(z.string()).default([]),
-    email: z.string().default(''),
+    email: z.string(),
     isSubscriber: z.boolean().default(false),
-    phoneNumber: z.string().optional(),
     maxOrderValue: z.number().default(3),
     uid: z.string(),
 
     // missing properties from August 1
     calendarTheme: z.string().default('offWhite'),
     hasGridlines: z.boolean().default(true)
+
+    // to deprecate
+    // FCMTokens: z.array(z.string()).default([]),
+    // phoneNumber: z.string().optional(),
   }),
 
   update (userUID, keyValueChanges) {

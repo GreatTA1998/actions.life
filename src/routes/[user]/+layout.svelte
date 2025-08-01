@@ -1,7 +1,7 @@
 <script>
   import { doc, onSnapshot, setDoc } from 'firebase/firestore'
-  import { db } from '/src/lib/db/init'
-  import { user, userInfoFromAuthProvider } from '/src/lib/store'
+  import { db } from '$lib/db/init'
+  import { user, userInfoFromAuthProvider } from '$lib/store'
   import { onMount, onDestroy } from 'svelte'
   import { page } from '$app/stores'
   import User from '$lib/db/models/User.js'
@@ -22,11 +22,9 @@
     const ref = doc(db, '/users/' + userID)
     unsub = onSnapshot(ref, async (snap) => {
       if (!snap.exists()) {
-        console.log('user does not exist, creating a new mirror doc')
         initializeNewFirestoreUser(ref, $userInfoFromAuthProvider)
       } else {
         user.set({ ...snap.data() })
-        console.log('$user =', $user)
       }
     })
   }
@@ -36,7 +34,6 @@
       uid: authData.uid,
       email: authData.email
     })
-    console.log('userObj =', userObj)
 
     return await setDoc(ref,
       userObj,
