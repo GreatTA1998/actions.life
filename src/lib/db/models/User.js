@@ -10,14 +10,23 @@ import {
 
 const User = {
   schema: z.object({
-    email: z.string(),
-    isSubscriber: z.boolean().default(false),
-    maxOrderValue: z.number().default(3),
     uid: z.string(),
+    email: z.string(),
+    maxOrderValue: z.number().default(3),
 
     // missing properties from August 1
     calendarTheme: z.string().default('offWhite'),
-    hasGridlines: z.boolean().default(true)
+    hasGridlines: z.boolean().default(true),
+
+    defaultPhotoLayout: z.string().default('side-by-side'),
+    calEarliestHHMM: z.string().default('06:00'),
+    calLastHHMM: z.string().default('00:00'),
+    calSnapInterval: z.number().default(5),
+    listAreaWidthRatio: z.number().default(0.0022295577727585616), // empirically determined from my account
+
+    // unused
+    // isSubscriber: z.boolean().default(false),
+    // includeRoutinesInEvents: z.boolean().default(false),
 
     // to deprecate
     // FCMTokens: z.array(z.string()).default([]),
