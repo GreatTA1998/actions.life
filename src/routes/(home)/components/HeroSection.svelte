@@ -7,11 +7,11 @@
     class="hero-texts"
     style="display: flex; flex-direction: column; row-gap: 16px;"
   >
-    <div class="hero-title">Navigate multiple life priorities on one calendar</div>
+    <div class="hero-title">A calendar that fits timelines, habits and events together</div>
 
     <div style="display: flex; flex-wrap: wrap;">
       <div class="secondary-description">
-        See your events, habits and timelines altogether
+        Focus on long-term dreams without neglecting short-term logistics
       </div>
     </div>
 
@@ -29,7 +29,7 @@
   .secondary-description {
     font-weight: 500;
     display: inline;
-    color: rgb(100, 100, 100);
+    color: rgb(0, 0, 0);
     font-size: 1.4vw;
     max-width: 800px;
     line-height: 1.3;
