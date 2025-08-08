@@ -1,5 +1,4 @@
 <script>
-  // Theme configurations with coordinated colors
   const themes = {
     solid: {
       name: 'Solid',
@@ -17,7 +16,7 @@
       },
       header: {
         background: '#09090b',
-        color: '#a1a1aa',
+        color: 'white',
         fontWeight: '600'
       },
       highlight: {
@@ -49,88 +48,44 @@
         background: 'rgba(139, 92, 246, 0.08)',
         color: '#7c3aed'
       }
-    },
-    minimal: {
-      name: 'Minimal',
-      table: {
-        background: 'transparent',
-        borderRadius: '0',
-        border: 'none',
-        boxShadow: 'none'
-      },
-      cell: {
-        background: 'transparent',
-        color: '#3f3f46',
-        borderColor: '#e4e4e7',
-        borderBottom: true,
-        hover: 'rgba(0, 0, 0, 0.02)'
-      },
-      header: {
-        background: 'transparent',
-        color: '#18181b',
-        fontWeight: '600',
-        borderBottom: '2px solid #18181b'
-      },
-      highlight: {
-        background: 'transparent',
-        color: '#7c3aed'
-      }
-    }
-  };
-
-  // Highlighting options for actions.life row
-  const highlightOptions = {
-    typography: {
-      name: 'Typography',
-      borderLeft: 'none',
-      background: 'transparent', 
-      fontWeight: '500',
-      letterSpacing: '0.01em'
-    },
-    background: {
-      name: 'Background',
-      borderLeft: 'none',
-      background: 'rgba(251, 191, 36, 0.05)',
-      fontWeight: 'inherit',
-      letterSpacing: 'normal'
-    }
-  };
-
-  let selectedTheme = 'solid';
-  let selectedHighlight = 'typography';
-  $: currentTheme = themes[selectedTheme];
-  $: currentHighlight = highlightOptions[selectedHighlight];
-  
-  // Track hover state for cells
-  let hoveredCell = null;
-
-  // Handle cell click to open primary product URL
-  function handleCellClick(product, cellIndex) {
-    if (cellIndex === 0 && product.primaryLogo) {
-      window.open(product.primaryLogo.url, '_blank', 'noopener,noreferrer');
     }
   }
 
-  // Handle keyboard events for accessibility
+  let selectedTheme = 'solid'
+  $: currentTheme = themes[selectedTheme];
+
+  const currentHighlight = {
+    name: 'Background',
+    background: 'rgba(251, 191, 36, 0.05)',
+    fontWeight: 'inherit'
+  }
+
+  let hoveredCell = null
+
+  function handleCellClick(product, cellIndex) {
+    if (cellIndex === 0 && product.primaryLogo) {
+      window.open(product.primaryLogo.url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
   function handleCellKeydown(event, product, cellIndex) {
     if ((event.key === 'Enter' || event.key === ' ') && cellIndex === 0 && product.primaryLogo) {
       event.preventDefault();
-      window.open(product.primaryLogo.url, '_blank', 'noopener,noreferrer');
+      window.open(product.primaryLogo.url, '_blank', 'noopener,noreferrer')
     }
   }
 
-  // Product data with logos and URLs
   const products = [
     {
-      name: 'Google Calendar',
+      name: 'Google',
       primaryLogo: { src: '/competitor_logos/gcal_favicon.ico', url: 'https://calendar.google.com', alt: 'Google Calendar' },
       secondaryLogos: [
-        { src: '/competitor_logos/icons8-apple-calendar-96.png', url: 'https://www.icloud.com/calendar', alt: 'Apple Calendar' },
-        { src: '/competitor_logos/icons8-outlook-calendar-96.png', url: 'https://outlook.live.com/calendar', alt: 'Microsoft Outlook' },
+        { src: '/competitor_logos/ical.png', url: 'https://www.icloud.com/calendar', alt: 'Apple Calendar' },
+        { src: '/competitor_logos/microsoft.ico', url: 'https://outlook.live.com/calendar', alt: 'Microsoft Outlook' },
         { src: '/competitor_logos/Cron-favicon-style2-07.svg', url: 'https://notion.so/product/calendar', alt: 'Notion Calendar' }
       ],
-      bestFor: 'Mature ecosystem with reliable integrations. 1B users.',
-      weakness: 'Gradual stagnation and feature bloat.'
+      bestFor: 'Integrates with everything',
+      weakness: 'Feature creep, legacy design'
     },
     {
       name: 'Todoist',
@@ -139,55 +94,68 @@
         { src: '/competitor_logos/ticktick.png', url: 'https://ticktick.com', alt: 'TickTick' },
         { src: '/competitor_logos/things3.ico', url: 'https://culturedcode.com/things', alt: 'Things 3' }
       ],
-      bestFor: 'Different views for everything. Clean context switching. Apple Design Award, 50M users.',
-      weakness: 'Requires navigating between multiple views—Today, Upcoming, Projects—which can make it harder to see the full picture at once.'
+      bestFor: 'Minimalistic, clean lists',
+      weakness: 'Fragments tasks across views, hard to see full picture'
     },
     {
       name: 'actions.life',
       primaryLogo: { src: '/logo-no-bg.png', url: 'https://actions.life', alt: 'Actions.life' },
       secondaryLogos: [],
-      bestFor: "See everything on a unified view, then focus on one thing if needed, 2 users.",
-      weakness: 'No notifications, meeting integrations and sharing.',
+      bestFor: "See everything on one page, each task tree is focusable",
+      weakness: 'No notifications, integrations and sharing yet',
       isHighlighted: true
     },
     {
       name: 'TimeTree',
       primaryLogo: { src: '/competitor_logos/timetree.ico', url: 'https://timetreeapp.com', alt: 'TimeTree' },
       secondaryLogos: [],
-      bestFor: 'Specialized for couples & families to share calendars. 45M users.',
-      weakness: 'Not much to offer for individuals.'
-    },
-    {
-      name: 'Motion',
-      primaryLogo: { src: '/competitor_logos/motion-svg.svg', url: 'https://usemotion.com', alt: 'Motion' },
-      secondaryLogos: [],
-      bestFor: 'Specialized for AI-assisted scheduling. 1M paying users.',
-      weakness: 'Hard to leverage for non-power users.'
+      bestFor: 'Easy for families to share calendars',
+      weakness: 'Basic calendar'
     },
     {
       name: 'Vimcal',
       primaryLogo: { src: '/competitor_logos/vimcal-favicon.png', url: 'https://vimcal.com', alt: 'Vimcal' },
       secondaryLogos: [],
-      bestFor: 'Specialized for meetings, efficient UX.',
-      weakness: 'Not much to offer outside of work.'
-    }
-  ];
+      bestFor: 'Specialized for high volumes of meetings',
+      weakness: 'Not for life planning'
+    },
+    {
+      name: 'Extended list of alternatives',
+      primaryLogo: { src: '', url: 'https://vimcal.com', alt: 'link' },
+      secondaryLogos: [],
+      bestFor: '',
+      weakness: ''
+    },
+    // {
+    //   name: 'Motion',
+    //   primaryLogo: { src: '/competitor_logos/motion-svg.svg', url: 'https://usemotion.com', alt: 'Motion' },
+    //   secondaryLogos: [],
+    //   bestFor: 'AI agents auto-manage your calendar',
+    //   weakness: ''
+    // },
+  ]
 
   // Convert to table format for easier grid rendering
   const tableData = [
-    ['Product', 'Unique Strengths', 'Weakness'],
+    ['Name', 'Unique Strengths', 'Weakness'],
     ...products.map(p => [p, p.bestFor, p.weakness])
-  ];
+  ]
 
 </script>
 
-<div class="table-container">
-  <div class="controls">
+<div>
+  <!-- <div class="demo-header" style="display: flex; width: 100%; justify-content: center; font-size: 24px; margin-bottom: 24px;">
+    <h2>
+      Comparison of calendar alternatives
+    </h2>
+  </div> -->
+
+  <!-- <div class="controls">
     <div class="style-toggle">
       <span class="toggle-label">Theme:</span>
       {#each Object.entries(themes) as [key, theme]}
-        <button 
-          class="toggle-btn" 
+        <button
+          class="toggle-btn"
           class:active={selectedTheme === key}
           on:click={() => selectedTheme = key}
         >
@@ -195,22 +163,9 @@
         </button>
       {/each}
     </div>
-    
-    <div class="highlight-toggle">
-      <span class="toggle-label">Highlight:</span>
-      {#each Object.entries(highlightOptions) as [key, option]}
-        <button 
-          class="toggle-btn" 
-          class:active={selectedHighlight === key}
-          on:click={() => selectedHighlight = key}
-        >
-          {option.name}
-        </button>
-      {/each}
-    </div>
-  </div>
-  
-  <div 
+  </div> -->
+
+  <div
     class="grid-table {selectedTheme}"
     style:background={currentTheme.table.background}
     style:border-radius={currentTheme.table.borderRadius}
@@ -222,68 +177,64 @@
     {#each tableData as row, rowIndex}
       {#each row as cell, cellIndex}
         {@const cellKey = `${rowIndex}-${cellIndex}`}
-        {@const isHighlighted = rowIndex > 0 && (cellIndex === 0 && cell.isHighlighted || cellIndex > 0 && tableData[rowIndex][0].isHighlighted)}
+        {@const isHighlighted = false}
+        <!-- {@const isHighlighted = rowIndex > 0 && (cellIndex === 0 && cell.isHighlighted || cellIndex > 0 && tableData[rowIndex][0].isHighlighted)} -->
         {@const isHovered = hoveredCell === cellKey}
-        <div 
-          class="grid-cell" 
+        <!-- style:background={rowIndex === 0 ? currentTheme.header.background : (isHighlighted ? currentHighlight.background : (isHovered ? currentTheme.cell.hover : currentTheme.cell.background))} -->
+        <div
+          class="grid-cell"
           class:header={rowIndex === 0}
           class:first-column={cellIndex === 0}
           class:highlight={rowIndex > 0 && cellIndex === 0 && cell.isHighlighted}
           class:highlight-column={rowIndex > 0 && cellIndex > 0 && tableData[rowIndex][0].isHighlighted}
-          style:background={rowIndex === 0 ? currentTheme.header.background : (isHighlighted ? currentHighlight.background : (isHovered ? currentTheme.cell.hover : currentTheme.cell.background))}
           style:color={rowIndex === 0 ? currentTheme.header.color : currentTheme.cell.color}
           style:font-weight={rowIndex === 0 ? currentTheme.header.fontWeight : (isHighlighted ? currentHighlight.fontWeight : 'inherit')}
-          style:letter-spacing={isHighlighted ? currentHighlight.letterSpacing : 'normal'}
-          style:border-left={isHighlighted ? currentHighlight.borderLeft : 'none'}
-          style:border-right={selectedTheme === 'minimal' ? 'none' : `1px solid ${currentTheme.cell.borderColor}`}
-          style:border-bottom={selectedTheme === 'minimal' && rowIndex === 0 ? currentTheme.header.borderBottom : (selectedTheme === 'minimal' ? `1px solid ${currentTheme.cell.borderColor}` : `1px solid ${currentTheme.cell.borderColor}`)}
+          style:border-right="1px solid {currentTheme.cell.borderColor}"
+          style:border-bottom="1px solid {currentTheme.cell.borderColor}"
           on:mouseenter={() => hoveredCell = cellKey}
           on:mouseleave={() => hoveredCell = null}
           on:click={() => handleCellClick(cell, cellIndex)}
           on:keydown={(e) => handleCellKeydown(e, cell, cellIndex)}
-          tabindex={rowIndex > 0 && cellIndex === 0 && cell.primaryLogo ? 0 : undefined}
           role={rowIndex > 0 && cellIndex === 0 && cell.primaryLogo ? 'button' : undefined}
         >
           {#if rowIndex === 0}
             <!-- Header row -->
             {cell}
           {:else if cellIndex === 0}
-            <!-- Product column with logo(s) -->
             <div class="product-cell-wrapper">
-              <!-- Row with primary product and secondary logos -->
               <div class="product-row">
-                <!-- Primary product with name and logo -->
                 <div class="primary-product">
-                  <a 
-                    href={cell.primaryLogo.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href={cell.primaryLogo.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     class="primary-product-link"
                     title={cell.primaryLogo.alt}
                   >
-                    <img 
-                      src={cell.primaryLogo.src} 
-                      alt={cell.primaryLogo.alt} 
-                      class="product-logo primary"
-                    />
-                    <span class="product-name">{cell.name}</span>
+                    {#if cell.primaryLogo.src}
+                      <img src={cell.primaryLogo.src} alt={cell.primaryLogo.alt}
+                        class="product-logo primary"
+                      />
+                    {/if}
+
+                    <span class="product-name">
+                      {cell.name}
+                    </span>
                   </a>
                 </div>
-                <!-- Secondary logos if any -->
+
                 {#if cell.secondaryLogos && cell.secondaryLogos.length > 0}
                   <div class="secondary-logos">
                     {#each cell.secondaryLogos as logo}
-                      <a 
-                        href={logo.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={logo.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         class="secondary-logo-link"
                         title={logo.alt}
                         on:click|stopPropagation
                       >
-                        <img 
-                          src={logo.src} 
-                          alt={logo.alt} 
+                        <img src={logo.src} alt={logo.alt}
                           class="product-logo secondary"
                         />
                       </a>
@@ -303,14 +254,18 @@
 </div>
 
 <style>
-  .table-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 48px 24px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  .demo-header {
+    text-align: center;
   }
 
-  /* Controls layout */
+  .demo-header h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: #171717;
+    letter-spacing: -0.01em;
+  }
+
   .controls {
     display: flex;
     flex-direction: column;
@@ -319,45 +274,6 @@
     align-items: center;
   }
 
-  .style-toggle,
-  .highlight-toggle {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .toggle-label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #6b7280;
-    margin-right: 8px;
-  }
-
-  .toggle-btn {
-    padding: 8px 16px;
-    border: 1px solid #e4e4e7;
-    background: transparent;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #71717a;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    font-family: inherit;
-  }
-
-  .toggle-btn:hover {
-    background: #fafafa;
-    color: #18181b;
-  }
-
-  .toggle-btn.active {
-    background: #18181b;
-    color: #ffffff;
-    border-color: #18181b;
-  }
-
-  /* Base grid setup */
   .grid-table {
     display: grid;
     grid-template-columns: 1.8fr 3fr 1.5fr;
@@ -366,7 +282,6 @@
     overflow: hidden;
   }
 
-  /* Base cell styling */
   .grid-cell {
     padding: 16px 20px;
     display: flex;
@@ -384,66 +299,11 @@
     padding: 14px 20px;
   }
 
-  .grid-cell.first-column {
-    font-weight: 500;
-  }
-
-  /* Highlight Actions.life row with subtle style */
-  .grid-cell.highlight,
-  .grid-cell.highlight-column {
-    font-weight: 500;
-  }
-
-  /* Grid borders handled entirely by inline styles */
-
-  /* Hover state */
-  .grid-cell:hover {
-    cursor: default;
-  }
-
-  /* Special handling for minimal theme */
-  .minimal .grid-cell {
-    border-right: none;
-    padding: 20px 0;
-  }
-
-  .minimal .grid-cell:nth-child(4n-3) {
-    padding-left: 0;
-  }
-
-  .minimal .grid-cell:nth-child(4n) {
-    padding-right: 0;
-  }
-
-  /* Responsive design */
   @media (max-width: 768px) {
-    .table-container {
-      padding: 32px 16px;
-    }
-    
-    .controls {
-      margin-bottom: 16px;
-    }
-    
-    .style-toggle,
-    .highlight-toggle {
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    
-    .toggle-label {
-      font-size: 13px;
-    }
-    
-    .toggle-btn {
-      padding: 6px 12px;
-      font-size: 12px;
-    }
-    
     .grid-table {
       font-size: 13px;
     }
-    
+
     .grid-cell {
       padding: 14px 16px;
     }
@@ -453,11 +313,11 @@
     }
   }
 
-  /* Product cell styles */
   .product-cell-wrapper {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 8px;
     height: 100%;
     width: 100%;
@@ -467,6 +327,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
     width: 100%;
   }
 
@@ -486,10 +348,6 @@
     flex: 1;
   }
 
-  .primary-product-link:hover {
-    opacity: 0.8;
-  }
-
   .product-logo {
     width: 20px;
     height: 20px;
@@ -505,22 +363,15 @@
     height: 24px;
   }
 
-  .primary-product-link:hover .product-logo {
-    filter: grayscale(0);
-    transform: scale(1.1);
-  }
-
   .product-name {
     font-weight: 500;
     font-size: 14px;
-    color: inherit;
   }
 
-  /* Secondary logos */
   .secondary-logos {
     display: flex;
     align-items: center;
-    gap: 6px; /* Clean spacing between logos */
+    gap: 6px;
     flex: 0 0 auto; /* Don't grow, don't shrink */
   }
 
@@ -531,18 +382,11 @@
     transition: transform 0.2s ease;
   }
 
-  .secondary-logo-link:hover {
-    transform: scale(1.15);
-  }
-
   .product-logo.secondary {
-    width: 18px;
-    height: 18px;
-    transition: filter 0.2s ease, transform 0.2s ease;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    width: 24px;
+    height: 24px;
     border-radius: 4px;
-    padding: 1px; /* Reduced from 2px to make logos bigger */
+    padding: 2px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
@@ -599,102 +443,6 @@
 
   /* Ensure logo column has enough space */
   .grid-table {
-    grid-template-columns: 1.8fr 3fr 1.5fr;
-  }
-
-  /* Dark mode support */
-  @media (prefers-color-scheme: dark) {
-    .table-container {
-      background: transparent;
-    }
-
-    .toggle-btn {
-      border-color: #27272a;
-      color: #a1a1aa;
-    }
-
-    .toggle-btn:hover {
-      background: #27272a;
-      color: #fafafa;
-    }
-
-    .toggle-btn.active {
-      background: #fafafa;
-      color: #18181b;
-      border-color: #fafafa;
-    }
-
-    .grid-cell {
-      color: #e4e4e7;
-    }
-
-    .grid-cell.header {
-      color: #a1a1aa;
-    }
-
-    /* Dark mode: Solid style */
-    .solid.grid-table {
-      background: #18181b;
-      border-color: #27272a;
-    }
-
-    .solid .grid-cell {
-      background: #18181b;
-      border-color: #27272a;
-    }
-
-    .solid .grid-cell.header {
-      background: #09090b;
-    }
-
-    .solid .grid-cell:hover {
-      background: #27272a;
-    }
-
-    .solid .grid-cell.highlight,
-    .solid .grid-cell.highlight-column {
-      background: #1e1b4b;
-    }
-
-    /* Dark mode: Translucent style */
-    .translucent.grid-table {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .translucent .grid-cell {
-      background: rgba(255, 255, 255, 0.02);
-      border-color: rgba(255, 255, 255, 0.08);
-    }
-
-    .translucent .grid-cell.header {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .translucent .grid-cell:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .translucent .grid-cell.highlight,
-    .translucent .grid-cell.highlight-column {
-      background: rgba(139, 92, 246, 0.15);
-    }
-
-    /* Dark mode: Minimal style */
-    .minimal .grid-cell {
-      border-color: #27272a;
-    }
-
-    .minimal .grid-cell.header {
-      border-bottom-color: #e4e4e7;
-    }
-
-    .minimal .grid-cell:hover {
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .minimal .grid-cell.highlight {
-      color: #a78bfa;
-    }
+    grid-template-columns: fit-content(500px) 3fr 2fr;
   }
 </style>

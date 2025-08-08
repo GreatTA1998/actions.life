@@ -8,7 +8,7 @@
     isStarred: true
   }
 
-  const demoInstances = [
+  const demoInstances = [ 
     {
       id: '2',
       startDateISO: '2024-03-14',
