@@ -18,7 +18,7 @@
       </span>
     </div>
     <div class="linear-limitation-row">
-      <span class="linear-limitation-title">No integrations (try Vim/Notion/Google/Apple calendar)</span>
+      <span class="linear-limitation-title">No integrations & notifications (try Vim/Notion/Google/Apple calendar)</span>
       <span class="linear-limitation-desc"></span>
       <span class="linear-alt-icons">
         <span title="Notion" class="alt-app-icon">

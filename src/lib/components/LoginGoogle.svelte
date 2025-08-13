@@ -48,9 +48,9 @@
 
 <style>
   .sign-in-button {
-    background: var(--logo-twig-color);
+    background: white;
+    color: var(--logo-twig-color);
     font-weight: 600;
-    color: white;
     margin-bottom: 2px;
     width: fit-content;
     padding: 6px 24px;
