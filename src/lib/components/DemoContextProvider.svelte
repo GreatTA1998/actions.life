@@ -1,5 +1,5 @@
 <slot>
-  
+
 </slot>
 
 <script>
@@ -7,7 +7,6 @@
   import { writable, derived } from 'svelte/store'
   import realTask from '$lib/db/models/Task.js'
   import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'
-    import { doc } from 'firebase/firestore';
 
   const isTaskPopupOpen = writable(false)
   const settingsOpen = writable(false)
@@ -25,7 +24,7 @@
     activeDragItem: writable(null),
     defaultPhotoLayout: writable('side-by-side'),
     openTaskPopup: (task) => console.log('Demo: Would open popup for:', task.name),
-    closeTaskPopup: () => { 
+    closeTaskPopup: () => {
       clickedTaskID.set('')
     },
     grabOffset: writable(0)
@@ -42,7 +41,7 @@
         }
         return docs
       })
-      
+
       console.log('Demo: Would update task', id, 'with', keyValueChanges)
 
       // cache related logic
@@ -54,7 +53,7 @@
       })
     },
     create: ({ id, newTaskObj }) => {
-      console.log('Demo: Would create task', id, newTaskObj)
+      firestoreDocs.update(docs => [...docs, { ...newTaskObj, id: newTaskObj.name }])
     },
     delete: ({ id }) => {
       console.log('Demo: Would delete task', id)
@@ -71,13 +70,13 @@
     init({ name: 'Post-Run Stretch', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2F6w6I9VRWZLRWqphuLgFz.png?alt=media&token=ba68dd3b-83fe-4ed2-bc38-9a2888d31f1b' }),
     init({ name: 'Hydration Check', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FhsCFkECSF4PcFt6MOcW0.png?alt=media&token=d4ed8987-9001-43bc-b48b-4f36caef6fb1' }),
     init({ name: 'Track Nutrition', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2Fk49WsIjV1kQ2e6MW52BR.png?alt=media&token=0d44da5b-dfd7-4ff3-9971-3637b748c6be' })
-  ]  
+  ]
 
   const timelineTasks = [
     init({
       name: 'Walk the Camino de Santiago',
       startDateISO: '2026-01-01'
-    }), 
+    }),
     init({
       name: 'Start training',
       startDateISO: '2025-08-31',
@@ -99,9 +98,9 @@
 
   const updateLogTasks = [
     init({ name: 'Update Log', childrenLayout: 'timeline' }),
-    init({ 
-      name: 'life-organizer.com', 
-      imageDownloadURL: '/life-organizer.com.jpg', 
+    init({
+      name: 'life-organizer.com',
+      imageDownloadURL: '/life-organizer.com.jpg',
       notes: "First prototype for a recursive task trees next to a calendar column",
       parentID: 'Update Log'
     }),
@@ -121,8 +120,11 @@
       parentID: 'Update Log'
     })
   ]
-  
+
   const tasks = [...habitTasks, ...timelineTasks, journalTask, ...updateLogTasks]
+
+  // IMPORTANT
+  // SET THE IDS MANUALLY HERE
   for (const task of tasks) {
     task.id = task.name
   }
