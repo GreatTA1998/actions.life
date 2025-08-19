@@ -25,7 +25,8 @@ const User = {
     listAreaWidthRatio: z.number().default(0.0022295577727585616), // empirically determined from my account
 
     // automation settings
-    photoUploadAutoArchive: z.boolean().default(false)
+    photoUploadAutoArchive: z.boolean().default(false),
+    photoCompressWhenAttachingToTask: z.boolean().default(false)
 
     // unused
     // isSubscriber: z.boolean().default(false),

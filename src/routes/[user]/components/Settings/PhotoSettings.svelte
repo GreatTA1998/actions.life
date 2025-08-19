@@ -19,9 +19,10 @@
     }
   }
 
-  function toggleAutoArchive () {
+  function toggle (fieldName) {
+    console.log('fieldName =', fieldName)
     updateFirestoreDoc(`/users/${$user.uid}`, { 
-      photoUploadAutoArchive: !!!$user.photoUploadAutoArchive 
+      [fieldName]: !!!$user[fieldName] 
     })
   }
 </script>
@@ -35,10 +36,14 @@
     />
   </div>
 
-  <CheckboxSquare 
+  <CheckboxSquare onClick={() => toggle('photoUploadAutoArchive')}
     value={$user.photoUploadAutoArchive}
-    onClick={toggleAutoArchive}
     label="Auto-archive task after uploading a photo"
+  />
+
+  <CheckboxSquare onClick={() => toggle('photoCompressWhenAttachingToTask')}
+    value={$user.photoCompressWhenAttachingToTask}
+    label="Lightly compress photo if it's a task attachment"
   />
 </div>
 

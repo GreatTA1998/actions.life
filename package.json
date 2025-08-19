@@ -24,6 +24,7 @@
   },
   "type": "module",
   "dependencies": {
+    "browser-image-compression": "^2.0.2",
     "firebase": "^9.6.5",
     "firebase-functions": "^6.0.1",
     "js-datepicker": "^5.18.2",

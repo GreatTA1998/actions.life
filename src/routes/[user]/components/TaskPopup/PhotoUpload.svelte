@@ -12,6 +12,7 @@
 >
 
 <script>
+  import { compressImage } from '$lib/utils/photoCompress.js'
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
   import { getRandomID, getTimeInHHMM } from '/src/lib/utils/core.js'
   import { DateTime } from 'luxon'
@@ -26,12 +27,15 @@
 
   async function handleFileChange (e) {
     const promises = []
-    for (const imageBlobFile of e.target.files) {
-      if (imageBlobFile) {
+    for (let image of e.target.files) { // in reality it's always one file due to the input limit
+      if (image) { // blob file
         const id = getRandomID()
+        if ($user.photoCompressWhenAttachingToTask) {
+          image = await compressImage(image)
+        }
         promises.push(
-          uploadImageBlobToFirebase(imageBlobFile, id).then(resultSnapshot => {
-            mergeImageWithTask(resultSnapshot, imageBlobFile, id)
+          uploadImageBlobToFirebase(image, id).then(resultSnapshot => {
+            mergeImageWithTask(resultSnapshot, image, id)
           })
         )
       }
