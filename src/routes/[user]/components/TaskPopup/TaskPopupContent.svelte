@@ -4,6 +4,7 @@
   import PhotoUpload from './PhotoUpload.svelte'
   import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
   import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
+  import PopoverSnackbar from '$lib/components/PopoverSnackbar.svelte'
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import { createDebouncedFunction } from '$lib/utils/core.js'
@@ -75,9 +76,40 @@
   <div style="margin-top: auto; margin-bottom: 0; display: flex; align-items: center; width: 100%; column-gap: 12px;">
     <RepeatTask {taskObject}/>
 
-    {#if !taskObject.imageDownloadURL}
-      <PhotoUpload {taskObject} />
-    {/if}
+    <PopoverSnackbar>
+      <div slot="button" let:open={open} let:close={close} let:setLoading={setLoading}>
+        {#if !taskObject.imageDownloadURL}
+          <PhotoUpload {taskObject} 
+            onUpload={() => {
+              open();
+              setLoading(true);
+            }} 
+            onFinished={() => {
+              close({ timeout: 5000 });
+              setLoading(false);
+            }}
+          />
+        {/if}
+      </div>
+
+      <div slot="custom-actions" let:close={close}
+        style="color: white; display: flex; justify-content: space-between; align-items: center; gap: 16px;"
+      >
+        How was it? 
+        <div style="display: flex; align-items: center; column-gap: 12px;">
+          {#each [': (', ': |', ': )'] as emotion}
+            <button on:click={() => {
+              Task.update({ id: taskObject.id, keyValueChanges: { notes: emotion + ' ' + taskObject.notes }});
+              close({ timeout: 0 });
+            }}
+             style="width: 32px; height: 32px; outline: 1px solid white; border-radius: 50%; transform: rotate(90deg)"
+            >
+              {emotion}
+            </button>
+          {/each}
+        </div>  
+      </div>
+    </PopoverSnackbar>
 
     <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
       <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined action-button">

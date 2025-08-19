@@ -47,7 +47,7 @@
         </div>
 
         <div class="settings-group">
-          <div class="settings-label">Default Photo Layout</div>
+          <div class="settings-label">Photos</div>
           <PhotoSettings />
         </div>
       </div>

@@ -24,6 +24,10 @@ const User = {
     calSnapInterval: z.number().default(5),
     listAreaWidthRatio: z.number().default(0.0022295577727585616), // empirically determined from my account
 
+    // automation settings
+    photoUploadAutoArchive: z.boolean().default(false),
+    photoCompressWhenAttachingToTask: z.boolean().default(false)
+
     // unused
     // isSubscriber: z.boolean().default(false),
     // includeRoutinesInEvents: z.boolean().default(false),
@@ -33,6 +37,7 @@ const User = {
     // phoneNumber: z.string().optional(),
   }),
 
+  // TO-DO: CRUD
   update (userUID, keyValueChanges) {
     return updateDoc(doc(db, "users", userUID), keyValueChanges)
       .catch((err) => console.error("error in User.update", err))

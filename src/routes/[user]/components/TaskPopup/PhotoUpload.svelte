@@ -12,32 +12,39 @@
 >
 
 <script>
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-  import { getRandomID, getTimeInHHMM } from '/src/lib/utils/core.js'
+  import { compressImage } from '$lib/utils/photoCompress.js'
+  import { getRandomID, getTimeInHHMM } from '$lib/utils/core.js'
+  import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
+  const { Task, user } = getContext('app')
 
+  export let onUpload
+  export let onFinished
   export let taskObject
-
+  
   let FolderInput
   const storage = getStorage()
 
   async function handleFileChange (e) {
+    onUpload()
     const promises = []
-    for (const imageBlobFile of e.target.files) {
-      if (imageBlobFile) {
+    for (let image of e.target.files) { // in reality it's always one file due to the input limit
+      if (image) { // blob file
         const id = getRandomID()
+        if ($user.photoCompressWhenAttachingToTask) {
+          image = await compressImage(image)
+        }
         promises.push(
-          uploadImageBlobToFirebase(imageBlobFile, id).then(resultSnapshot => {
-            mergeImageWithTask(resultSnapshot, imageBlobFile, id)
+          uploadImageBlobToFirebase(image, id).then(resultSnapshot => {
+            mergeImageWithTask(resultSnapshot, image, id)
           })
         )
       }
     }
     await Promise.all(promises)
-    alert('Photos successfully uploaded.')
+    onFinished()
   }
 
   async function mergeImageWithTask (resultSnapshot, imageBlobFile, id) {
@@ -77,6 +84,12 @@
       updateObj.startTime = getTimeInHHMM({ dateClassObj })
       updateObj.duration = durationForFullDisplay
     }
+
+    // user settings: automations 
+    if ($user.photoUploadAutoArchive) {
+      updateObj.isArchived = true
+    }
+
     try {
       Task.update({ 
         id: taskObject.id, 
