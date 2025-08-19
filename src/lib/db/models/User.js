@@ -37,6 +37,7 @@ const User = {
     // phoneNumber: z.string().optional(),
   }),
 
+  // TO-DO: CRUD
   update (userUID, keyValueChanges) {
     return updateDoc(doc(db, "users", userUID), keyValueChanges)
       .catch((err) => console.error("error in User.update", err))

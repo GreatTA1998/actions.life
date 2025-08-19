@@ -13,19 +13,22 @@
 
 <script>
   import { compressImage } from '$lib/utils/photoCompress.js'
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-  import { getRandomID, getTimeInHHMM } from '/src/lib/utils/core.js'
+  import { getRandomID, getTimeInHHMM } from '$lib/utils/core.js'
+  import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
   const { Task, user } = getContext('app')
 
+  export let onUpload
+  export let onFinished
   export let taskObject
-
+  
   let FolderInput
   const storage = getStorage()
 
   async function handleFileChange (e) {
+    onUpload()
     const promises = []
     for (let image of e.target.files) { // in reality it's always one file due to the input limit
       if (image) { // blob file
@@ -41,7 +44,7 @@
       }
     }
     await Promise.all(promises)
-    alert('Photos successfully uploaded.')
+    onFinished()
   }
 
   async function mergeImageWithTask (resultSnapshot, imageBlobFile, id) {
