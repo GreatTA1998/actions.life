@@ -1,6 +1,7 @@
 <script>
-  import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
-  import { user, calSnapInterval } from '/src/lib/store'
+  import { updateFirestoreDoc } from '$lib/db/helpers.js'
+  import { user, calSnapInterval } from '$lib/store'
+  import CheckboxSquare from '$lib/components/CheckboxSquare.svelte'
 
   const snapIntervals = [1, 5, 10, 15, 30]
 
@@ -16,17 +17,11 @@
 </script>
 
 <div class="gridlines-container">
-  <div class="toggle-container">
-    <label class="toggle-label">
-      <input 
-        type="checkbox" 
-        class="checkbox" 
-        checked={$user.hasGridlines}
-        on:click|stopPropagation={toggleGridlines}
-      >
-      <span class="checkbox-text">Show gridlines on calendar</span>
-    </label>
-  </div>
+  <CheckboxSquare 
+    value={$user.hasGridlines}
+    onClick={toggleGridlines}
+    label="Show gridlines on calendar"
+  />
 
   <div class="snap-settings">
     <div class="snap-label">Snap to interval</div>
@@ -52,27 +47,6 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-  }
-
-  .toggle-container {
-    margin-bottom: 4px;
-  }
-
-  .toggle-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-
-  .checkbox {
-    margin-right: 8px;
-    accent-color: #555;
-    cursor: pointer;
-  }
-
-  .checkbox-text {
-    font-size: 13px;
-    color: #555;
   }
 
   .snap-settings {

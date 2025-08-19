@@ -24,6 +24,9 @@ const User = {
     calSnapInterval: z.number().default(5),
     listAreaWidthRatio: z.number().default(0.0022295577727585616), // empirically determined from my account
 
+    // automation settings
+    photoUploadAutoArchive: z.boolean().default(false)
+
     // unused
     // isSubscriber: z.boolean().default(false),
     // includeRoutinesInEvents: z.boolean().default(false),

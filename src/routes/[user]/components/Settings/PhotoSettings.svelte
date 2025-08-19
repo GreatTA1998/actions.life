@@ -1,5 +1,6 @@
 <script>
   import ToggleGroup from '$lib/components/ToggleGroup.svelte'
+  import CheckboxSquare from '$lib/components/CheckboxSquare.svelte'
   import { photoLayoutOptions, defaultPhotoLayout } from '$lib/store/photoLayout.js'
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
   import { getContext } from 'svelte'
@@ -17,9 +18,15 @@
       }
     }
   }
+
+  function toggleAutoArchive () {
+    updateFirestoreDoc(`/users/${$user.uid}`, { 
+      photoUploadAutoArchive: !!!$user.photoUploadAutoArchive 
+    })
+  }
 </script>
 
-<div class="photo-settings">
+<div class="photo-settings">  
   <div class="layout-options">
     <ToggleGroup options={photoLayoutOptions} 
       on:select={e => updateDefaultPhotoLayout(e.detail.value)} 
@@ -27,6 +34,12 @@
       useIcons
     />
   </div>
+
+  <CheckboxSquare 
+    value={$user.photoUploadAutoArchive}
+    onClick={toggleAutoArchive}
+    label="Auto-archive task after uploading a photo"
+  />
 </div>
 
 <style>

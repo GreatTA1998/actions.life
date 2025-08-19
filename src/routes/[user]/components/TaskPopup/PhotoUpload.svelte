@@ -17,7 +17,7 @@
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
+  const { Task, user } = getContext('app')
 
   export let taskObject
 
@@ -77,6 +77,12 @@
       updateObj.startTime = getTimeInHHMM({ dateClassObj })
       updateObj.duration = durationForFullDisplay
     }
+
+    // user settings: automations 
+    if ($user.photoUploadAutoArchive) {
+      updateObj.isArchived = true
+    }
+
     try {
       Task.update({ 
         id: taskObject.id, 
