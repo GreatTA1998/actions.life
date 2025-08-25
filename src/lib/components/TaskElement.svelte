@@ -1,7 +1,7 @@
 <div 
-  on:click={() => openTaskPopup(task)}
+  onclick={() => openTaskPopup(task)}
   draggable="true" 
-  on:dragstart|self={(e) => startDragMove(e, task.id)} 
+  ondragstart={(e) => startDragMove(e, task.id)} 
   class="claude-draggable-item"
   class:calendar-block={!isBulletPoint}
   style="
@@ -18,8 +18,7 @@
     padding-right: var(--left-padding);
 
     display: flex; flex-direction: column;
-  " 
-  on:keydown={() => {}}
+  "
 >
   <!-- As long as this parent div is correctly sized, the duration adjusting area 
     will be positioned correctly (it's glued to the bottom of this parent div)
@@ -92,8 +91,8 @@
     -->
     <!-- on:drop preventDefault so that the calendar doesn't think we're scheduling a task -->
     <div draggable="true"
-      on:dragstart={(e) => startAdjustingDuration(e)}
-      on:dragend={(e) => adjustDuration(e, task)}
+      ondragstart={(e) => startAdjustingDuration(e)}
+      ondragend={(e) => adjustDuration(e, task)}
       style="
         cursor: ns-resize;
         position: absolute;
@@ -117,26 +116,27 @@
 
   const { Task, openTaskPopup, activeDragItem, grabOffset, draggedItem } = getContext('app')
 
-  export let task = null
-  export let hasCheckbox = false
+  let { 
+    task = null,
+    hasCheckbox = false,
+    fontSize = 1
+   } = $props()
 
-  export let fontSize = 1
-
-  $: height = ($pixelsPerHour / 60) * task.duration
-  $: isBulletPoint = height < 24 // 24px is exactly enough to not crop the checkbox and the task name
-
+  let height = $derived($pixelsPerHour / 60 * task.duration)
+  let isBulletPoint = $derived(height < 24) // 24px is exactly enough to not crop the checkbox and the task name
   let startY = 0
 
   function startDragMove (e, id) {
-    e.dataTransfer.setData("text/plain", id)
+    if (e.target !== e.currentTarget) return // effectively `click|self`
 
+    e.dataTransfer.setData("text/plain", id)
 
     const taskRect = e.target.getBoundingClientRect()
     const { top, left, width, height } = taskRect
 
     draggedItem.update(i => {
-      i.offsetX = e.clientY - top
-      i.offsetY = e.clientX - left
+      i.offsetX = e.clientX - left
+      i.offsetY = e.clientY - top
 
       i.x1 = e.clientX - i.offsetX
       i.y1 = e.clientY - i.offsetY

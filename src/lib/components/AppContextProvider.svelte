@@ -46,7 +46,7 @@
   }
 
   function ondrop (e) {
-    console.log('drop detected on app context')
+    console.log('drop detected, signal to the relevant dropzone to trigger the callback, via app context props e.g. hasDropped = true')
   }
 </script>
 

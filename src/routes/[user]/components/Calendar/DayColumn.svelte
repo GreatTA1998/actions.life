@@ -14,7 +14,7 @@
 
   let { dt } = $props()
 
-  let OverallContainer
+  let dayColumn
   let isDirectlyCreatingTask = $state(false)
   let yPosition = $state(null)
   let formFieldTopPadding = 40
@@ -23,16 +23,35 @@
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
   let newDT = $derived(getNewDT(yPosition))
 
-  $effect(() =>  {
-    console.log('draggedItem =', $draggedItem)
-    console.log("x1x2y1y2 =", $draggedItem.x1, $draggedItem.x2, $draggedItem.y1, $draggedItem.y2)
+  let intersecting = $state(false)
+  let previewTop = $state(null)
 
-    // if it's contained within the day column, then show the dropzone shadow
+  $effect(() => {
+    console.log('draggedItem =', $draggedItem) // triggers reactivity, don't know any other way for now in Svelte 5
+    requestAnimationFrame(checkIntersection)
   })
   
   onMount(async () => {})
 
   onDestroy(() => {})
+
+  function checkIntersection () {
+    const colRect = dayColumn.getBoundingClientRect()
+    const { x1, y1, x2, y2 } = $draggedItem
+    const dragWidth = x2 - x1
+    const horizOverlap = Math.max(0, Math.min(x2, colRect.right) - Math.max(x1, colRect.left))
+    const vertOverlap = Math.max(0, Math.min(y2, colRect.bottom) - Math.max(y1, colRect.top))
+
+    const THRESHOLD = 0.3
+    intersecting = (horizOverlap / dragWidth) >= THRESHOLD && vertOverlap > 0
+
+    const localTop = y1 + dayColumn.scrollTop - colRect.top
+    let resultDT = snapToNearestInterval(
+      dt.plus({ hours: localTop / $pixelsPerHour }),
+      $calSnapInterval
+    )
+    previewTop = getOffset({ dt1: dt, dt2: resultDT }) // for some reason, getOffset works well but localTop introduces a 1~2px inaccuracy
+  }
 
   function onclick (e) {
     if (e.target === e.currentTarget) { // equivalent to `click|self`. e.target := 1st node that detected the click, e.currentTarget := node that detected the event
@@ -44,9 +63,9 @@
   function getY (e) {
     return (
       e.clientY +
-      OverallContainer.scrollTop -
-      OverallContainer.getBoundingClientRect().top -
-      OverallContainer.style.paddingTop
+      dayColumn.scrollTop -
+      dayColumn.getBoundingClientRect().top -
+      dayColumn.style.paddingTop
     )
   }
 
@@ -71,14 +90,12 @@
     if (!id) return // it means we're adjusting the duration but it triggers a drop event, and a dragend event must be followed by a drop event
 
     e.preventDefault()
-    e.stopPropagation()
+    // e.stopPropagation()
 
-    const dropY = getY(e)
-    let resultDT = dt.plus({ 
-      hours: (dropY - $grabOffset) / $pixelsPerHour
-    })
-    
-    resultDT = snapToNearestInterval(resultDT, $calSnapInterval)
+    let resultDT = snapToNearestInterval(
+      dt.plus({ hours: (getY(e) - $grabOffset) / $pixelsPerHour }),
+      $calSnapInterval
+    )
 
     Task.update({ 
       id,
@@ -122,7 +139,7 @@
 </script>
 
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
-<div bind:this={OverallContainer} class="day-column unselectable"
+<div bind:this={dayColumn} class="day-column unselectable"
   style="height: {$totalMinutes * pixelsPerMinute}px;"
   class:grid-y={$user.hasGridlines}
   {ondrop}
@@ -162,6 +179,10 @@
     </div>
   {/each}
 
+  {#if intersecting && previewTop !== null}
+    <div class="task-absolute drop-preview" style="top: {previewTop}px; height: {$draggedItem.height}px;"></div>
+  {/if}
+
   {#if isDirectlyCreatingTask}
     <div id="calendar-direct-task-div" style="top: {yPosition - formFieldTopPadding}px;">
       <CreateTaskDirectly
@@ -194,6 +215,13 @@
     margin-left: auto;
     margin-right: auto;
     width: 94%;
+  }
+
+  .drop-preview {
+    background: rgba(100, 100, 255, 0.15);
+    border: 1px dashed rgba(100, 100, 255, 0.6);
+    border-radius: var(--left-padding);
+    pointer-events: none;
   }
 
   .my-helper-gridline {
