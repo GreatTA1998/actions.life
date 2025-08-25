@@ -4,6 +4,8 @@
   import Task from '$lib/db/models/Task.js'
   import Template from '$lib/db/models/Template.js'
 
+  let { children } = $props()
+
   setContext('app', {
     user,
     Task, 
@@ -19,6 +21,6 @@
   })
 </script>
 
-<slot>
-
-</slot>
+<div>
+  {@render children()}
+</div>
