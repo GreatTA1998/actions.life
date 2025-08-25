@@ -77,7 +77,7 @@
   }
 </script>
 
-<div class="vision-section" in:fade={{ duration: 400 }}>
+<div class="vision-section" in:fade|global={{ duration: 400 }}>
   <div class="vision-content">
     <!-- <div class="demo-header">
       <h2>Summary</h2>
