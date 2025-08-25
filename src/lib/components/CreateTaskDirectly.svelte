@@ -6,12 +6,11 @@
   } from '$lib/utils/core.js'
   import { user } from '$lib/store'
   import { onMount, createEventDispatcher } from 'svelte'
-  import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
 
-  export let resultantDateClassObject
+  export let startDateISO
   export let newTaskStartTime = '' // hh:mm format
 
   let allTemplates = null
@@ -44,7 +43,7 @@
         ...template,
         templateID: template.id,
         isDone: false,
-        startDateISO: DateTime.fromJSDate(resultantDateClassObject).toFormat('yyyy-MM-dd'),
+        startDateISO,
         startTime: newTaskStartTime,
         persistsOnList: false
       }
@@ -59,7 +58,7 @@
         id: getRandomID(),
         newTaskObj: {
           name: newTaskName,
-          startDateISO: DateTime.fromJSDate(resultantDateClassObject).toFormat('yyyy-MM-dd'),
+          startDateISO,
           startTime: newTaskStartTime,
           persistsOnList: false
         }

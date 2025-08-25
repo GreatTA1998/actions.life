@@ -90,7 +90,7 @@
     <div id="calendar-direct-task-div">
       <CreateTaskDirectly
         newTaskStartTime={''}
-        resultantDateClassObject={DateTime.fromISO(ISODate).toJSDate()}
+        startDateISO={ISODate}
         on:reset={() => (isDirectlyCreatingTask = false)}
       />
     </div>

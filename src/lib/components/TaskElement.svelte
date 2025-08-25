@@ -115,7 +115,7 @@
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
 
-  const { Task, openTaskPopup, activeDragItem, grabOffset } = getContext('app')
+  const { Task, openTaskPopup, activeDragItem, grabOffset, draggedItem } = getContext('app')
 
   export let task = null
   export let hasCheckbox = false
@@ -129,6 +129,26 @@
 
   function startDragMove (e, id) {
     e.dataTransfer.setData("text/plain", id)
+
+
+    const taskRect = e.target.getBoundingClientRect()
+    const { top, left, width, height } = taskRect
+
+    draggedItem.update(i => {
+      i.offsetX = e.clientY - top
+      i.offsetY = e.clientX - left
+
+      i.x1 = e.clientX - i.offsetX
+      i.y1 = e.clientY - i.offsetY
+
+      i.x2 = i.x1 + width
+      i.y2 = i.y1 + height
+
+      i.width = width
+      i.height = height
+
+      return i
+    })
 
     // record distance from the top of the element
     const rect = e.target.getBoundingClientRect()

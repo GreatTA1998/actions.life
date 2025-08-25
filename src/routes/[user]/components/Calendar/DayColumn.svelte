@@ -4,37 +4,42 @@
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
   import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import TimeIndicator from "./TimeIndicator.svelte"
-
   import { DateTime } from 'luxon'
-  import { getHHMM } from '$lib/utils/core.js'
-
-  import {
-    user,
-    timestamps, totalMinutes, calLastHHMM, calSnapInterval
-  } from '$lib/store'
+  import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
   import { pixelsPerHour } from './store.js'
   import { treesByDate } from './service.js'
-  import { onMount, onDestroy } from "svelte"
-  import { getContext } from 'svelte'
+  import { getContext, onMount, onDestroy } from 'svelte'
 
-  const { Task, activeDragItem, grabOffset } = getContext('app')
+  const { Task, activeDragItem, grabOffset, draggedItem } = getContext('app')
 
-  export let dt
+  let { dt } = $props()
 
   let OverallContainer
-  let isDirectlyCreatingTask = false
+  let isDirectlyCreatingTask = $state(false)
+  let yPosition = $state(null)
   let formFieldTopPadding = 40
-  let yPosition
   let pixelsPerMinute = $pixelsPerHour / 60
 
-  $: scheduledTasks = $treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []
+  let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
+  let newDT = $derived(getNewDT(yPosition))
 
-  // TO-DO: deprecate with luxon, but requires re-working <CreateTaskDirectly> perhaps with portals
-  $: resultantDateClassObject = getResultantDateClassObject(yPosition)
+  $effect(() =>  {
+    console.log('draggedItem =', $draggedItem)
+    console.log("x1x2y1y2 =", $draggedItem.x1, $draggedItem.x2, $draggedItem.y1, $draggedItem.y2)
 
+    // if it's contained within the day column, then show the dropzone shadow
+  })
+  
   onMount(async () => {})
 
   onDestroy(() => {})
+
+  function onclick (e) {
+    if (e.target === e.currentTarget) { // equivalent to `click|self`. e.target := 1st node that detected the click, e.currentTarget := node that detected the event
+      isDirectlyCreatingTask = true
+      yPosition = getY(e)
+    }
+  }
 
   function getY (e) {
     return (
@@ -55,13 +60,13 @@
     return ($pixelsPerHour/60) * minutesDiff 
   }
 
-  function dragover_handler(e) {
+  function ondragover (e) {
     e.preventDefault()
-    e.stopPropagation()
+    // e.stopPropagation()
     e.dataTransfer.dropEffect = "move"
   }
 
-  function drop_handler (e) {
+  function ondrop (e) {
     const id = e.dataTransfer.getData("text/plain")
     if (!id) return // it means we're adjusting the duration but it triggers a drop event, and a dragend event must be followed by a drop event
 
@@ -103,8 +108,7 @@
     }
   }
 
-  // TO-DO: deprecate with luxon
-  function getResultantDateClassObject (trueY) {
+  function getNewDT (trueY) {
     const calendarStartAsMs = dt.toMillis()
 
     const totalHoursDistance = trueY / $pixelsPerHour;
@@ -112,21 +116,18 @@
 
     // Add them together: https://stackoverflow.com/a/12795802/7812829
     const resultantTimeInMs = calendarStartAsMs + totalMsDistance
-    const resultantDateClassObject = new Date(resultantTimeInMs)
-    return resultantDateClassObject
+
+    return DateTime.fromMillis(resultantTimeInMs)
   }
 </script>
 
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
-<div bind:this={OverallContainer} class="overall-container unselectable"
+<div bind:this={OverallContainer} class="day-column unselectable"
   style="height: {$totalMinutes * pixelsPerMinute}px;"
   class:grid-y={$user.hasGridlines}
-  on:drop={e => drop_handler(e)}
-  on:dragover={e => dragover_handler(e)}
-  on:click|self={e => {
-    isDirectlyCreatingTask = true
-    yPosition = getY(e)
-  }} on:keydown
+  {ondrop}
+  {ondragover}
+  {onclick}
 >
   {#if $activeDragItem || $user.hasGridlines}
     {#each $timestamps as timestamp, i}
@@ -164,8 +165,8 @@
   {#if isDirectlyCreatingTask}
     <div id="calendar-direct-task-div" style="top: {yPosition - formFieldTopPadding}px;">
       <CreateTaskDirectly
-        newTaskStartTime={getHHMM(resultantDateClassObject)}
-        {resultantDateClassObject}
+        newTaskStartTime={newDT.toFormat('HH:mm')}
+        startDateISO={newDT.toFormat('yyyy-MM-dd')}
         on:reset={() => isDirectlyCreatingTask = false}
       />
     </div>
@@ -203,7 +204,7 @@
   }
 
   /* DO NOT REMOVE, BREAKS DRAG-AND-DROP AND DURATION ADJUSTMENT */
-  .overall-container {
+  .day-column {
     position: relative;
     overflow-x: hidden;
     width: var(--width-calendar-day-section);
