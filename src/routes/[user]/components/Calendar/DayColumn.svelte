@@ -1,4 +1,5 @@
 <script>
+  import { isOverlapping, emptyItem } from '$lib/utils/dragDrop.js'
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
@@ -27,12 +28,12 @@
   let previewTop = $state(null)
 
   $effect(() => {
-    console.log('draggedItem =', $draggedItem) // triggers reactivity, don't know any other way for now in Svelte 5
-    requestAnimationFrame(checkIntersection)
+    if ($draggedItem && $draggedItem.id) {
+      requestAnimationFrame(checkIntersection)
+    }
   })
 
   $effect(() => {
-    console.log('hasDropped, intersecting =', $hasDropped, intersecting)
     if ($hasDropped && intersecting) {
       performDrop()
     }
@@ -43,23 +44,24 @@
   onDestroy(() => {})
 
   function checkIntersection () {
-    const colRect = dayColumn.getBoundingClientRect()
-    const { x1, y1, x2, y2 } = $draggedItem
-    const dragWidth = x2 - x1
-    const horizOverlap = Math.max(0, Math.min(x2, colRect.right) - Math.max(x1, colRect.left))
-    const vertOverlap = Math.max(0, Math.min(y2, colRect.bottom) - Math.max(y1, colRect.top))
-
-    const THRESHOLD = 0.3
-    intersecting = (horizOverlap / dragWidth) >= THRESHOLD && vertOverlap > 0
-
-    const localTop = y1 + dayColumn.scrollTop - colRect.top
-    let resultDT = snapToNearestInterval(
-      dt.plus({ hours: localTop / $pixelsPerHour }),
-      $calSnapInterval
+    const dayColumnRect = dayColumn.getBoundingClientRect()
+    intersecting = isOverlapping(
+      $draggedItem, 
+      dayColumnRect,
+      0.3,
+      0
     )
-    previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
-    // for some reason, getOffset works well but localTop introduces a 1~2px inaccuracy
-    // this is because resultDT is AFTER snapping, whereas localTop is BEFORE snapping
+
+    if (intersecting) {
+      const localTop = $draggedItem.y1 + dayColumn.scrollTop - dayColumnRect.top
+      let resultDT = snapToNearestInterval(
+        dt.plus({ hours: localTop / $pixelsPerHour }),
+        $calSnapInterval
+      )
+      previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
+      // for some reason, getOffset works well but localTop introduces a 1~2px inaccuracy
+      // this is because resultDT is AFTER snapping, whereas localTop is BEFORE snapping
+    }
   }
 
   function onclick (e) {
@@ -108,18 +110,8 @@
     })
 
     hasDropped.set(false)
-    draggedItem.update(i => {
-      i.id = '' // TO-DO: do a proper reset
-      i.x1 = null
-      i.y1 = null
-      i.x2 = null
-      i.y2 = null
-      i.offsetX = null
-      i.offsetY = null
-      i.width = null
-      i.height = null
-      return i
-    })
+    draggedItem.set(emptyItem())
+    previewTop = null // quickfix
   }
 
   // Function to snap a DateTime to the nearest interval (in minutes)

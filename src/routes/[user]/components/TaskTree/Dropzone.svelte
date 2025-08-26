@@ -1,51 +1,69 @@
 <div
   bind:this={ReorderDropzone} 
-  style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 0px solid {colorForDebugging};" 
-  on:dragenter={() => {
-    // quickfix as even if it's an invalid operation it's unintuitive to not see the drag area highlight
-    if (!isInvalidReorderDrop() || true) {
-      ReorderDropzone.style.background = 'rgb(87, 172, 247)' 
-    }
-  }}
-  on:dragleave={() => ReorderDropzone.style.background = '' }
-  on:dragover={(e) => dragover_handler(e)}
-  on:drop|stopPropagation={(e) => onReorderDrop(e)}
->
-
-</div>
+  class:highlight={intersecting}
+  style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 1px solid {colorForDebugging};" 
+></div>
 
 <script>
+  import { isOverlapping } from '$lib/utils/dragDrop.js'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '$lib/db/init'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
-  const { Task, activeDragItem, user } = getContext('app')
+  const { Task, activeDragItem, user, draggedItem, hasDropped } = getContext('app')
 
-  export let ancestorRoomIDs
-  export let roomsInThisLevel
-  export let idxInThisLevel
-  export let parentID = ''
-  export let colorForDebugging = "red"
-  export let heightInPx = HEIGHTS.SUB_DROPZONE
+  let {
+    ancestorRoomIDs,
+    roomsInThisLevel,
+    idxInThisLevel,
+    parentID = '',
+    colorForDebugging = 'red',
+    heightInPx = HEIGHTS.SUB_DROPZONE
+  } = $props()
 
   let ReorderDropzone
   let batch = writeBatch(db)
+  let n = $derived(roomsInThisLevel.length)
+  let intersecting = $state(false)
 
-  $: n = roomsInThisLevel.length
+  $effect(() => {
+    if ($draggedItem) {
+      requestAnimationFrame(() => {
+        checkIntersection($draggedItem)
+      })
+    }
+  })
+
+  $effect(() => {
+    if ($hasDropped && intersecting) {
+      onReorderDrop()
+    }
+  })
+
+  function checkIntersection ({ x1, x2, y1, y2 }) {
+    const dropzoneRect = ReorderDropzone.getBoundingClientRect()
+    const overlapping = isOverlapping(
+      { x1, x2, y1, y2}, 
+      dropzoneRect,
+      0, 
+      0
+    )
+
+    // x1 comparison is an attempt to allow the user to specifically target nested dropzones
+    intersecting = overlapping && x1 > dropzoneRect.left 
+  }
 
   function isInvalidReorderDrop () {
-    return !['room'].includes($activeDragItem.kind) || ancestorRoomIDs.includes($activeDragItem.id)
+    return !['room'].includes($draggedItem.kind) || ancestorRoomIDs.includes($draggedItem.id)
   }
+ 
 
-  function dragover_handler (e) {
-    e.preventDefault()
-    e.stopPropagation()
-  }
+  // WARNIGN: STILL USES LEGACY `activeDragItem`
+  async function onReorderDrop () {
+    return
 
-  async function onReorderDrop (e) {
-    e.preventDefault()
-    e.stopPropagation()
+    // show red dropzone if it's invalid
     if (isInvalidReorderDrop()) {
       alert('A parent task cannot become its own descendant')
       return
@@ -54,29 +72,16 @@
 
     batch = writeBatch(db)
 
-    const data = e.dataTransfer.getData('text/plain')
-    const keyValuePairs = data.split(']')
-
-    const [key1, value1] = keyValuePairs[0].split(':')
-    const draggedRoomID = value1
-
-    // before updating `orderValue`, we update
-    // the counter showing how many subfolders a folder has
-    const droppedRoomDoc = roomsInThisLevel[idxInThisLevel]
-
     const initialNumericalDifference = 3
     let newVal 
 
     // TO-DO: need the last drop zone to be manually added
     const dropZoneIdx = idxInThisLevel
-    // copy `PopupRearrangeVideos` 
     if (dropZoneIdx === 0) {
       const topOfOrderDoc = roomsInThisLevel[0]
       if (topOfOrderDoc) {
-        // halve the value so it never gets to 0 
-        newVal = (topOfOrderDoc.orderValue || 3) / 1.1
-      } else {
-        // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
+        newVal = (topOfOrderDoc.orderValue || 3) / 1.1 // 1.1 slows down the approach to 0
+      } else { // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
         newVal = 3
       }
     }
@@ -111,9 +116,15 @@
 
     try {
       batch.commit() // for updating user's maxOrderValue
-      activeDragItem.set(null)
+      draggedItem.set(null)
     } catch (error) {
       alert('Error updating, please reload the page')
     }
   }
 </script>
+
+<style>
+  .highlight {
+    background-color: rgb(87, 172, 247);
+  }
+</style>
