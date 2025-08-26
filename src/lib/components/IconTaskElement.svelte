@@ -1,7 +1,6 @@
 <div 
-  on:click={() => openTaskPopup(task)}
-  on:dragstart|self={(e) => startDragMove(e, task.id)} 
-  draggable="true" 
+  onclick={() => openTaskPopup(task)}
+  ondragstart={e => startTaskDrag(e, task.id, { draggedItem, activeDragItem, grabOffset })} draggable="true" 
   class:calendar-block={!isBulletPoint}
   class:clear-border={!isBulletPoint}
   class:graph-paper-texture={!isBulletPoint && !task.imageDownloadURL}
@@ -19,8 +18,7 @@
     padding-right: var(--left-padding);
     display: flex; 
     flex-direction: column;
-  " 
-  on:keydown={() => {}}
+  "
 >
  <!-- As long as this parent div is correctly sized, the duration adjusting area 
    will be positioned correctly (it's glued to the bottom of this parent div)
@@ -45,10 +43,7 @@
     but retains its own font to differentiate it from the title -->
   </div>
 
-  <DoodleIcon
-    iconTask={task}
-    on:task-click
-  />
+  <DoodleIcon iconTask={task} />
  </div>
  <!-- End of task name flexbox -->
 
@@ -75,8 +70,8 @@
    -->
    <!-- on:drop preventDefault so that the calendar doesn't think we're scheduling a task -->
    <div draggable="true"
-     on:dragstart={(e) => startAdjustingDuration(e)}
-     on:dragend={(e) => adjustDuration(e, task)}
+     ondragstart={e => startAdjustingDuration(e)}
+     ondragend={e => adjustDuration(e, task)}
      style="
        cursor: ns-resize;
        position: absolute;
@@ -92,38 +87,22 @@
 
 <script>
   // Assumes `task` is hydrated
-  import { getTrueY } from '/src/lib/utils/core.js'
+  import { startTaskDrag } from '$lib/utils/dragDrop.js'
+  import { getTrueY } from '$lib/utils/core.js'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
 
-  const { Task,openTaskPopup, activeDragItem, grabOffset } = getContext('app')
-
-  export let task = null
-
-  export let fontSize = 1
-
+  const { Task,openTaskPopup, activeDragItem, grabOffset, draggedItem } = getContext('app')
   const iconMinPixelHeight = 32
 
-  $: height = ($pixelsPerHour / 60) * task.duration
-  $: isBulletPoint = height < iconMinPixelHeight
+  export let task = null
+  export let fontSize = 1
 
   let startY = 0
 
-  function startDragMove (e, id) {
-    e.dataTransfer.setData("text/plain", id)
-
-    // record distance from the top of the element
-    const rect = e.target.getBoundingClientRect()
-    const y = e.clientY - rect.top // y position within el ement
-
-    activeDragItem.set({
-      kind: 'room',
-      ...task
-    })
-
-    grabOffset.set(y)
-  }
+  $: height = ($pixelsPerHour / 60) * task.duration
+  $: isBulletPoint = height < iconMinPixelHeight
 
   function startAdjustingDuration (e) {
     startY = getTrueY(e)

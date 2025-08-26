@@ -8,9 +8,8 @@
   will be positioned correctly (it's glued to the bottom of this parent div)
   `min-height` prevents the parent from being super small when it's bullet point mode
 -->
-<div on:click={() => openTaskPopup(task)}
-  draggable="true" 
-  on:dragstart|self={(e) => startDragMove(e, task.id)} 
+<div onclick={() => openTaskPopup(task)}
+  ondragstart={e => startTaskDrag(e, task.id, { draggedItem, activeDragItem, grabOffset })} draggable="true" 
   use:lazyCallable={() => hasIntersected = true}
   class:calendar-block={true}
   style="
@@ -27,7 +26,6 @@
     background-position: center;
     background-repeat: no-repeat;
   "
-  on:keydown={() => {}}
 >
   <div style="display: flex; align-items: center; width: 100%; padding-top: 4px; padding-left: 6px;">
     {#if task.iconURL}
@@ -52,8 +50,8 @@
    -->
    <!-- on:drop preventDefault so that the calendar doesn't think we're scheduling a task -->
    <div draggable="true"
-     on:dragstart={(e) => startAdjustingDuration(e)}
-     on:dragend={(e) => adjustDuration(e, task)}
+     ondragstart={e => startAdjustingDuration(e)}
+     ondragend={e => adjustDuration(e, task)}
      style="
        cursor: ns-resize;
        position: absolute;
@@ -69,15 +67,15 @@
 
 <script>
  // Assumes `task` is hydrated
- import { getTrueY } from '/src/lib/utils/core.js'
+ import { startTaskDrag } from '$lib/utils/dragDrop.js'
+ import { getTrueY } from '$lib/utils/core.js'
  import { lazyCallable } from '/src/lib/utils/svelteActions.js'
  import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
  import { getContext } from 'svelte'
 
- const { Task,openTaskPopup, activeDragItem, grabOffset } = getContext('app')
+ const { Task,openTaskPopup, activeDragItem, grabOffset, draggedItem } = getContext('app')
 
  export let task = null
-
  export let fontSize = 1
 
  $: height = ($pixelsPerHour / 60) * task.duration
@@ -86,24 +84,9 @@
  let startY = 0
  let hasIntersected = false
 
- function startDragMove (e, id) {
-   e.dataTransfer.setData("text/plain", id)
-
-   // record distance from the top of the element
-   const rect = e.target.getBoundingClientRect()
-   const y = e.clientY - rect.top // y position within el ement
-
-   activeDragItem.set({
-    kind: 'room',
-    ...task
-   })
-
-   grabOffset.set(y)
- }
-
  function startAdjustingDuration (e) {
    startY = getTrueY(e)
- }
+ }  
 
  function adjustDuration (e, task) {
    // quickfix

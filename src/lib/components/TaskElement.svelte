@@ -1,7 +1,7 @@
 <div 
   onclick={() => openTaskPopup(task)}
+  ondragstart={e => startTaskDrag(e, task.id, { draggedItem, activeDragItem, grabOffset })} 
   draggable="true" 
-  ondragstart={(e) => startDragMove(e, task.id)} 
   class="claude-draggable-item"
   class:calendar-block={!isBulletPoint}
   style="
@@ -108,8 +108,9 @@
 
 <script>
   // Assumes `task` is hydrated
-  import { getTrueY } from '/src/lib/utils/core.js'
   import Checkbox from './Checkbox.svelte'
+  import { startTaskDrag } from '$lib/utils/dragDrop.js'
+  import { getTrueY } from '$lib/utils/core.js'
   import { treesByID } from '/src/routes/[user]/components/Calendar/service.js'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
@@ -125,42 +126,6 @@
   let height = $derived($pixelsPerHour / 60 * task.duration)
   let isBulletPoint = $derived(height < 24) // 24px is exactly enough to not crop the checkbox and the task name
   let startY = 0
-
-  function startDragMove (e, id) {
-    if (e.target !== e.currentTarget) return // effectively `click|self`
-
-    e.dataTransfer.setData("text/plain", id)
-
-    const taskRect = e.target.getBoundingClientRect()
-    const { top, left, width, height } = taskRect
-
-    draggedItem.update(i => {
-      i.offsetX = e.clientX - left
-      i.offsetY = e.clientY - top
-
-      i.x1 = e.clientX - i.offsetX
-      i.y1 = e.clientY - i.offsetY
-
-      i.x2 = i.x1 + width
-      i.y2 = i.y1 + height
-
-      i.width = width
-      i.height = height
-
-      return i
-    })
-
-    // record distance from the top of the element
-    const rect = e.target.getBoundingClientRect()
-    const y = e.clientY - rect.top // y position within el ement
-
-    activeDragItem.set({
-      kind: 'room',
-      ...task
-    })
-
-    grabOffset.set(y)
-  }
 
   function startAdjustingDuration (e) {
     startY = getTrueY(e)

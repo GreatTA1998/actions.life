@@ -41,8 +41,6 @@
 </script>
 
 <div style="position: relative;">
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-missing-attribute -->
   <img
     on:click|stopPropagation={handleSingleOrDoubleClick}
     src={iconTask.iconURL}
