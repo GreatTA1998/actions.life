@@ -15,22 +15,9 @@ export function startTaskDrag (e, id, { draggedItem, activeDragItem, grabOffset 
     i.offsetX = e.clientX - left
     i.offsetY = e.clientY - top
 
+    i.id = id
+
     return i
   })
-
   // TO-DO: include the whole task object otherwise treeISOs related logic will fail
-
-  // LEGACY CODE TO BE DEPRECATED SOON
-  e.dataTransfer.setData("text/plain", id)
-
-  // record distance from the top of the element
-  const rect = e.target.getBoundingClientRect()
-  const y = e.clientY - rect.top // y position within el ement
-
-  activeDragItem.set({
-    kind: 'room',
-    // ...task
-  })
-
-  grabOffset.set(y)
 }

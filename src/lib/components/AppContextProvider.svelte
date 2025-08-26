@@ -7,6 +7,7 @@
 
   let { children } = $props()
 
+  const hasDropped = writable(false)
   const draggedItem = writable({
     x1: null,
     y1: null,
@@ -30,11 +31,13 @@
     willOpenDatePicker,
     activeDragItem,
     grabOffset,
-    draggedItem
+    draggedItem,
+    hasDropped
   })
 
   function ondragover (e) {
-    console.log('update positioning =', e.clientX, e.clientY)
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move' // explicitly define a plain effect. Without it, Mac would show a green + icon which is distracting
 
     draggedItem.update(i => {
       i.x1 = e.clientX - i.offsetX
@@ -46,7 +49,7 @@
   }
 
   function ondrop (e) {
-    console.log('drop detected, signal to the relevant dropzone to trigger the callback, via app context props e.g. hasDropped = true')
+    hasDropped.set(true)
   }
 </script>
 

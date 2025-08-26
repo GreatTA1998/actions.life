@@ -5,12 +5,12 @@
   import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import TimeIndicator from "./TimeIndicator.svelte"
   import { DateTime } from 'luxon'
-  import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
   import { pixelsPerHour } from './store.js'
   import { treesByDate } from './service.js'
+  import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
   import { getContext, onMount, onDestroy } from 'svelte'
 
-  const { Task, activeDragItem, grabOffset, draggedItem } = getContext('app')
+  const { Task, draggedItem, hasDropped } = getContext('app')
 
   let { dt } = $props()
 
@@ -29,6 +29,13 @@
   $effect(() => {
     console.log('draggedItem =', $draggedItem) // triggers reactivity, don't know any other way for now in Svelte 5
     requestAnimationFrame(checkIntersection)
+  })
+
+  $effect(() => {
+    console.log('hasDropped, intersecting =', $hasDropped, intersecting)
+    if ($hasDropped && intersecting) {
+      performDrop()
+    }
   })
   
   onMount(async () => {})
@@ -50,7 +57,9 @@
       dt.plus({ hours: localTop / $pixelsPerHour }),
       $calSnapInterval
     )
-    previewTop = getOffset({ dt1: dt, dt2: resultDT }) // for some reason, getOffset works well but localTop introduces a 1~2px inaccuracy
+    previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
+    // for some reason, getOffset works well but localTop introduces a 1~2px inaccuracy
+    // this is because resultDT is AFTER snapping, whereas localTop is BEFORE snapping
   }
 
   function onclick (e) {
@@ -79,21 +88,14 @@
     return ($pixelsPerHour/60) * minutesDiff 
   }
 
-  function ondragover (e) {
-    e.preventDefault()
-    // e.stopPropagation()
-    e.dataTransfer.dropEffect = "move"
-  }
+  function performDrop () {
+    const { id, y1 } = $draggedItem
 
-  function ondrop (e) {
-    const id = e.dataTransfer.getData("text/plain")
-    if (!id) return // it means we're adjusting the duration but it triggers a drop event, and a dragend event must be followed by a drop event
-
-    e.preventDefault()
-    // e.stopPropagation()
+    const { top } = dayColumn.getBoundingClientRect()
+    const localTop = y1 - top + dayColumn.scrollTop
 
     let resultDT = snapToNearestInterval(
-      dt.plus({ hours: (getY(e) - $grabOffset) / $pixelsPerHour }),
+      dt.plus({ hours: localTop / $pixelsPerHour }),
       $calSnapInterval
     )
 
@@ -105,8 +107,11 @@
       }
     })
 
-    grabOffset.set(0)
-    activeDragItem.set(null)
+    hasDropped.set(false)
+    draggedItem.update(i => {
+      i.id = '' // TO-DO: do a proper reset
+      return i
+    })
   }
 
   // Function to snap a DateTime to the nearest interval (in minutes)
@@ -142,11 +147,9 @@
 <div bind:this={dayColumn} class="day-column unselectable"
   style="height: {$totalMinutes * pixelsPerMinute}px;"
   class:grid-y={$user.hasGridlines}
-  {ondrop}
-  {ondragover}
   {onclick}
 >
-  {#if $activeDragItem || $user.hasGridlines}
+  {#if $draggedItem.id || $user.hasGridlines}
     {#each $timestamps as timestamp, i}
       {#if i === $timestamps.length - 1 && timestamp === $calLastHHMM}
         <!-- Skip rendering the last gridline as it causes a 1px overflow from the container's bottom edge -->
