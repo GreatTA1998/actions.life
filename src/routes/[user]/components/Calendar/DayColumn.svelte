@@ -110,6 +110,14 @@
     hasDropped.set(false)
     draggedItem.update(i => {
       i.id = '' // TO-DO: do a proper reset
+      i.x1 = null
+      i.y1 = null
+      i.x2 = null
+      i.y2 = null
+      i.offsetX = null
+      i.offsetY = null
+      i.width = null
+      i.height = null
       return i
     })
   }
