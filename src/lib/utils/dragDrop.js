@@ -4,6 +4,8 @@ export function startTaskDrag (e, id, { draggedItem, activeDragItem }) {
 
   if (e.target !== e.currentTarget) return // effectively `click|self`
 
+  e.dataTransfer.setData("text/plain", id) // I suspect this line is necessary to activate drag
+
   const { top, left, width, height } = e.target.getBoundingClientRect()
   
   draggedItem.update(i => {
