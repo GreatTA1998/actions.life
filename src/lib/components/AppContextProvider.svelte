@@ -49,9 +49,7 @@
   }
 
   function ondrop (e) {
-    // prevent link redirect
-    e.preventDefault()
-    // e.stopPropagation() // prevents link redirect
+    e.preventDefault() // prevent the browser navigating to what it thinks is the newly dropped URL
     hasDropped.set(true)
   }
 </script>
