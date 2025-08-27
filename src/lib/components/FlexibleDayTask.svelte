@@ -56,7 +56,9 @@
 
   $: height = (pixelsPerHour / 60) * task.duration
   $: isBulletPoint = height < 20
+ 
 
+  // TO-DO: deprecate / unify
   function startDragMove (e, id) {
     e.dataTransfer.setData("text/plain", id)
 

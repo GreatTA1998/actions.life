@@ -36,8 +36,8 @@
   })
 
   function ondragover (e) {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault() // otherwise drop wouldn't fire? 
+    e.stopPropagation() // don't let the event propagate to children (at least that's my intention)
     e.dataTransfer.dropEffect = 'move' // explicitly define a plain effect. Without it, Mac would show a green + icon which is distracting
 
     draggedItem.update(i => {
@@ -50,6 +50,7 @@
   }
 
   function ondrop (e) {
+    e.preventDefault() // prevents link redirect
     hasDropped.set(true)
   }
 </script>
