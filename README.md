@@ -1,5 +1,5 @@
 ## Tech Stack
-actions.life is a SvelteKit web app backed by Firebase services, deployed on Vercel.
+actions.life is a SvelteKit PWA that interfaces with Firebase (Firestore, Storage, Functions), deployed via Vercel.
 
 ## Project Structure
 - [x] Entry Point – ```src/app.html```
@@ -10,3 +10,8 @@ actions.life is a SvelteKit web app backed by Firebase services, deployed on Ver
 - [x] Database Helpers – ```src/lib/db/helpers.js```
 - [x] Global State – ```src/lib/store/index.js```
 - [x] Local State – ```<localized within the folder of affected components>```
+
+## .env
+```
+VITE_PUBLIC_BROWSER_NAME=insert-value-here-without-quotation-marks-for-openai-api-key-from-web-dashboard
+```
