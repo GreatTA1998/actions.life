@@ -1,5 +1,6 @@
-export function startTaskDrag (e, id, { draggedItem, activeDragItem, grabOffset }) {
+export function startTaskDrag (e, id, { draggedItem, activeDragItem }) {
   e.preventDefault() // prevents mobile scroll, link redirect, etc.
+  e.stopPropagation()
 
   if (e.target !== e.currentTarget) return // effectively `click|self`
 

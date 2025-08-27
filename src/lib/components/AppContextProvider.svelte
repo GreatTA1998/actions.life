@@ -37,6 +37,7 @@
 
   function ondragover (e) {
     e.preventDefault()
+    e.stopPropagation()
     e.dataTransfer.dropEffect = 'move' // explicitly define a plain effect. Without it, Mac would show a green + icon which is distracting
 
     draggedItem.update(i => {
