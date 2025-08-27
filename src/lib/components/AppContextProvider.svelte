@@ -49,7 +49,9 @@
   }
 
   function ondrop (e) {
-    e.stopPropagation() // prevents link redirect
+    // prevent link redirect
+    e.preventDefault()
+    // e.stopPropagation() // prevents link redirect
     hasDropped.set(true)
   }
 </script>
