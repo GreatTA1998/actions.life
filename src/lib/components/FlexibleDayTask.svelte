@@ -10,8 +10,7 @@
     padding-left: {isBulletPoint ? '0px' : 'var(--left-padding)'};
     padding-right: var(--left-padding);
     display: flex; flex-direction: column;
-  " 
-  on:keydown={() => {}}
+  "
 >
  <!-- As long as this parent div is correctly sized, the duration adjusting area 
    will be positioned correctly (it's glued to the bottom of this parent div)

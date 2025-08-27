@@ -1,6 +1,6 @@
 export function startTaskDrag (e, id, { draggedItem, activeDragItem }) {
   // e.preventDefault() // do not call e.preventDefault(), otherwise drag doesn't even start
-  e.stopPropagation()
+  // e.stopPropagation()
 
   if (e.target !== e.currentTarget) return // effectively `click|self`
 
