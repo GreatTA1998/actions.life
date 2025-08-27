@@ -49,7 +49,7 @@
   }
 
   function ondrop (e) {
-    e.preventDefault() // prevent the browser navigating to what it thinks is the newly dropped URL
+    e.preventDefault() // prevent the browser navigating to what it thinks is the newly dropped URL. Note web.dev is WRONG using e.stopPropagation() here!
     hasDropped.set(true)
   }
 </script>

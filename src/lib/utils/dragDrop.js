@@ -1,10 +1,7 @@
 export function startTaskDrag (e, id, { draggedItem, activeDragItem }) {
-  // e.preventDefault() // do not call e.preventDefault(), otherwise drag doesn't even start
-  // e.stopPropagation()
-
   if (e.target !== e.currentTarget) return // effectively `click|self`
-
-  e.dataTransfer.setData("text/plain", id) // I suspect this line is necessary to activate drag
+  // don't preventDefault(), otherwise drag doesn't even start
+  e.dataTransfer.setData("text/plain", id) // without this iOS won't activate drag!
 
   const { top, left, width, height } = e.target.getBoundingClientRect()
   
