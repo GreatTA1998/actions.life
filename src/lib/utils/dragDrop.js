@@ -1,4 +1,6 @@
 export function startTaskDrag (e, id, { draggedItem, activeDragItem, grabOffset }) {
+  e.preventDefault() // prevents mobile scroll, link redirect, etc.
+
   if (e.target !== e.currentTarget) return // effectively `click|self`
 
   const { top, left, width, height } = e.target.getBoundingClientRect()
