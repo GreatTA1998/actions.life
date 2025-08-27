@@ -1,6 +1,7 @@
-export function startTaskDrag (e, id, { draggedItem, activeDragItem }) {
+export function startTaskDrag (e, id, { draggedItem }) {
   if (e.target !== e.currentTarget) return // effectively `click|self`
   // don't preventDefault(), otherwise drag doesn't even start
+  e.stopPropagation() // stops rare occasions where the entire UI gets dragged (which'd be scary)
   e.dataTransfer.setData("text/plain", id) // without this iOS won't activate drag!
 
   const { top, left, width, height } = e.target.getBoundingClientRect()
@@ -28,6 +29,21 @@ export function isOverlapping ({ x1, x2, y1, y2 }, { top, left, bottom, right },
   const hOverlap = Math.max(0, Math.min(x2, right) - Math.max(x1, left))
   const vOverlap = Math.max(0, Math.min(y2, bottom) - Math.max(y1, top))
   return hOverlap / (x2 - x1) > h_threshold && vOverlap / (y2 - y1) > v_threshold
+}
+
+export function getOverlapArea ({ x1, x2, y1, y2 }, { top, left, bottom, right }) {
+  const hOverlap = Math.max(0, Math.min(x2, right) - Math.max(x1, left))
+  const vOverlap = Math.max(0, Math.min(y2, bottom) - Math.max(y1, top))
+  return hOverlap * vOverlap
+}
+
+export function clip ({ x1, x2, y1, y2 }, { left, right, top, bottom }) {
+  return {
+    x1: Math.max(x1, left),
+    x2: Math.min(x2, right),
+    y1: Math.max(y1, top), 
+    y2: Math.min(y2, bottom)
+  }
 }
 
 export function emptyItem () {

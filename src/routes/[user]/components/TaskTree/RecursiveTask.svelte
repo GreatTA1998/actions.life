@@ -10,8 +10,9 @@
   import { WIDTHS } from '$lib/utils/constants.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
+  import { startTaskDrag } from '$lib/utils/dragDrop.js'
 
-  const { Task, activeDragItem, openTaskPopup } = getContext('app')
+  const { Task, draggedItem, openTaskPopup } = getContext('app')
 
   export let taskObj
   export let depth 
@@ -51,14 +52,6 @@
     Task.update({
       id: taskObj.id,
       keyValueChanges: { isDone: e.target.checked }
-    })
-  }
-
-  function dragstart_handler (e, id) {
-    e.dataTransfer.setData("text/plain", id)
-    activeDragItem.set({ 
-      kind: 'room', 
-      ...taskObj 
     })
   }
 
@@ -118,7 +111,7 @@
 
 <div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
   <div draggable="true"
-    on:dragstart|self={(e) => dragstart_handler(e, taskObj.id)}
+    on:dragstart|self={(e) => startTaskDrag(e, taskObj.id, { draggedItem })}
     style="font-size: {depthAdjustedFontSize};"
     class="task-row-container"
   >

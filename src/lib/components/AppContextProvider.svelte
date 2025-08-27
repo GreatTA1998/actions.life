@@ -7,7 +7,6 @@
 
   let { children } = $props()
 
-  const hasDropped = writable(false)
   const draggedItem = writable({
     x1: null,
     y1: null,
@@ -18,6 +17,11 @@
     kind: '',
     id: ''
   })
+  const matchedDropzones = writable({})
+  const bestDropzoneID = writable('')
+  const hasDropped = writable(false)
+  const scrollCalRect = writable(() => {})
+  const logicAreaRect = writable(() => {})
 
   setContext('app', {
     user,
@@ -32,7 +36,11 @@
     activeDragItem,
     grabOffset,
     draggedItem,
-    hasDropped
+    hasDropped,
+    matchedDropzones,
+    bestDropzoneID,
+    scrollCalRect,
+    logicAreaRect
   })
 
   function ondragover (e) {
@@ -46,11 +54,36 @@
       i.y2 = i.y1 + i.height
       return i
     })
+
+    bestDropzoneID.set(
+      resolveBest($matchedDropzones)
+    )
   }
 
   function ondrop (e) {
     e.preventDefault() // prevent the browser navigating to what it thinks is the newly dropped URL. Note web.dev is WRONG using e.stopPropagation() here!
+    bestDropzoneID.set(
+      resolveBest($matchedDropzones)
+    )
     hasDropped.set(true)
+  }
+
+  function resolveBest (dropzones) {
+    let maxOverlap = 0
+    let bestDropzoneID = ''
+    for (const [dropzoneID, { area, left }] of Object.entries(dropzones)) {
+      const overlap = area
+      if (overlap === maxOverlap) {
+        if (left > dropzones[bestDropzoneID].left) {
+          bestDropzoneID = dropzoneID
+        }
+      }
+      if (overlap > maxOverlap) {
+        maxOverlap = overlap
+        bestDropzoneID = dropzoneID
+      }
+    }
+    return bestDropzoneID
   }
 </script>
 

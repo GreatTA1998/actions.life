@@ -1,5 +1,5 @@
 <script>
-  import { isOverlapping, emptyItem } from '$lib/utils/dragDrop.js'
+  import { isOverlapping, getOverlapArea, emptyItem, clip } from '$lib/utils/dragDrop.js'
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
@@ -10,14 +10,16 @@
   import { treesByDate } from './service.js'
   import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
   import { getContext, onMount, onDestroy } from 'svelte'
+  import { WIDTHS } from '/src/lib/utils/constants.js' // quickfix
 
-  const { Task, draggedItem, hasDropped } = getContext('app')
+  const { Task, draggedItem, hasDropped, matchedDropzones, bestDropzoneID, scrollCalRect } = getContext('app')
 
   let { dt } = $props()
 
   let dayColumn
   let isDirectlyCreatingTask = $state(false)
   let yPosition = $state(null)
+  let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
   let formFieldTopPadding = 40
   let pixelsPerMinute = $pixelsPerHour / 60
 
@@ -34,7 +36,7 @@
   })
 
   $effect(() => {
-    if ($hasDropped && intersecting) {
+    if ($hasDropped && $bestDropzoneID === dropzoneID) {
       performDrop()
     }
   })
@@ -43,24 +45,62 @@
 
   onDestroy(() => {})
 
+  function realEffectiveArea () {
+    const { left, right, top, bottom } = $scrollCalRect()
+    return {
+      left: left + WIDTHS.DESKTOP_TIME_AXIS,
+      right,
+      top, // should also be clipped by DayHeader height
+      bottom
+    }
+  }
+
   function checkIntersection () {
+    const { x1, x2, y1, y2 } = clip($draggedItem, realEffectiveArea())
+
     const dayColumnRect = dayColumn.getBoundingClientRect()
     intersecting = isOverlapping(
-      $draggedItem, 
+      { x1, x2, y1, y2 }, 
       dayColumnRect,
       0.3,
       0
     )
 
     if (intersecting) {
-      const localTop = $draggedItem.y1 + dayColumn.scrollTop - dayColumnRect.top
-      let resultDT = snapToNearestInterval(
-        dt.plus({ hours: localTop / $pixelsPerHour }),
-        $calSnapInterval
-      )
-      previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
-      // for some reason, getOffset works well but localTop introduces a 1~2px inaccuracy
-      // this is because resultDT is AFTER snapping, whereas localTop is BEFORE snapping
+      // update context-wide state
+      const area = getOverlapArea({ x1, x2, y1, y2 }, dayColumnRect)
+      matchedDropzones.update(obj => {
+        obj[dropzoneID] = {
+          area,
+          left: dayColumnRect.left
+        }
+        return obj
+      })
+      
+      if ($bestDropzoneID === dropzoneID) { // show preview
+        const localTop = $draggedItem.y1 + dayColumn.scrollTop - dayColumnRect.top
+        let resultDT = snapToNearestInterval(
+          dt.plus({ hours: localTop / $pixelsPerHour }),
+          $calSnapInterval
+        )
+        previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
+        // for some reason, getOffset works well but localTop introduces a 1~2px inaccuracy
+        // this is because resultDT is AFTER snapping, whereas localTop is BEFORE snapping
+      }
+
+      else {
+        previewTop = null
+      }
+    }
+
+    else {
+      matchedDropzones.update(obj => {
+        delete obj[dropzoneID]
+        return obj
+      })
+
+      // quickfix, manually remove preview (both places are necessary for clearing the previews)
+      previewTop = null
     }
   }
 

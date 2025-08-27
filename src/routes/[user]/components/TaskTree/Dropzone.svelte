@@ -1,17 +1,21 @@
 <div
   bind:this={ReorderDropzone} 
-  class:highlight={intersecting}
+  class:highlight={$bestDropzoneID === dropzoneID}
   style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 1px solid {colorForDebugging};" 
 ></div>
 
 <script>
-  import { isOverlapping } from '$lib/utils/dragDrop.js'
+  import { isOverlapping, getOverlapArea, emptyItem, clip } from '$lib/utils/dragDrop.js'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '$lib/db/init'
   import { HEIGHTS } from '$lib/utils/constants.js'
+  import { getRandomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
-  const { Task, activeDragItem, user, draggedItem, hasDropped } = getContext('app')
+  const { 
+    Task, user, 
+    draggedItem, hasDropped, bestDropzoneID, matchedDropzones, logicAreaRect 
+  } = getContext('app')
 
   let {
     ancestorRoomIDs,
@@ -27,42 +31,59 @@
   let n = $derived(roomsInThisLevel.length)
   let intersecting = $state(false)
 
+  const dropzoneID = getRandomID()
+
   $effect(() => {
     if ($draggedItem) {
       requestAnimationFrame(() => {
-        checkIntersection($draggedItem)
+        checkIntersection(
+          clip(
+            $draggedItem, 
+            $logicAreaRect()
+          )
+        )
       })
     }
   })
 
   $effect(() => {
-    if ($hasDropped && intersecting) {
+    if ($hasDropped && $bestDropzoneID === dropzoneID) {
       onReorderDrop()
     }
   })
 
   function checkIntersection ({ x1, x2, y1, y2 }) {
     const dropzoneRect = ReorderDropzone.getBoundingClientRect()
-    const overlapping = isOverlapping(
-      { x1, x2, y1, y2}, 
-      dropzoneRect,
-      0, 
-      0
-    )
+    const overlapping = isOverlapping({ x1, x2, y1, y2 }, dropzoneRect, 0, 0)
 
     // x1 comparison is an attempt to allow the user to specifically target nested dropzones
-    intersecting = overlapping && x1 > dropzoneRect.left 
+    // document this change - the fact that left takes priority, but otherwise normal intersection should still work
+    // which makes it very easy for light users to use drag-drop but opens a door for advanced users
+    intersecting = overlapping // && x1 > dropzoneRect.left // rename to `qualify` or something
+    
+    if (intersecting) {
+      const area = getOverlapArea({ x1, x2, y1, y2 }, dropzoneRect)
+      matchedDropzones.update(obj => {
+        obj[dropzoneID] = {
+          area,
+          left: dropzoneRect.left
+        }
+        return obj
+      })
+    }
+    else {
+      matchedDropzones.update(obj => {
+        delete obj[dropzoneID]
+        return obj
+      })
+    }
   }
 
   function isInvalidReorderDrop () {
-    return !['room'].includes($draggedItem.kind) || ancestorRoomIDs.includes($draggedItem.id)
+    return ancestorRoomIDs.includes($draggedItem.id)
   }
  
-
-  // WARNIGN: STILL USES LEGACY `activeDragItem`
   async function onReorderDrop () {
-    return
-
     // show red dropzone if it's invalid
     if (isInvalidReorderDrop()) {
       alert('A parent task cannot become its own descendant')
@@ -108,15 +129,16 @@
       newVal = (order1 + order2) / 2
     }
     
-    Task.update({ id: $activeDragItem.id, keyValueChanges: {
+    Task.update({ id: $draggedItem.id, keyValueChanges: {
       parentID,
       orderValue: newVal,
       persistsOnList: true // non-persistent tasks, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
     }})
 
     try {
-      batch.commit() // for updating user's maxOrderValue
-      draggedItem.set(null)
+      await batch.commit() // for updating user's maxOrderValue
+      draggedItem.set(emptyItem())
+      hasDropped.set(false)
     } catch (error) {
       alert('Error updating, please reload the page')
     }
