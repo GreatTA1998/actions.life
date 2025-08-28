@@ -9,7 +9,8 @@
   `min-height` prevents the parent from being super small when it's bullet point mode
 -->
 <div onclick={() => openTaskPopup(task)}
-  ondragstart={e => startTaskDrag(e, task.id, { draggedItem, activeDragItem, grabOffset })} draggable="true" 
+  draggable="true" 
+  ondragstart={e => startTaskDrag(e, task.id, { draggedItem })}
   use:lazyCallable={() => hasIntersected = true}
   class:calendar-block={true}
   style="
@@ -66,16 +67,15 @@
 </div>
 
 <script>
- // Assumes `task` is hydrated
  import { startTaskDrag } from '$lib/utils/dragDrop.js'
  import { getTrueY } from '$lib/utils/core.js'
  import { lazyCallable } from '/src/lib/utils/svelteActions.js'
  import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
  import { getContext } from 'svelte'
 
- const { Task,openTaskPopup, activeDragItem, grabOffset, draggedItem } = getContext('app')
+ const { Task,openTaskPopup, draggedItem } = getContext('app')
 
- export let task = null
+ export let task = null // assumes `task` is hydrated
  export let fontSize = 1
 
  $: height = ($pixelsPerHour / 60) * task.duration

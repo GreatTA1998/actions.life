@@ -1,6 +1,6 @@
 <div on:click={() => openTaskPopup(task)}
   draggable="true" 
-  on:dragstart|self={(e) => startDragMove(e, task.id)} 
+  on:dragstart|self={(e) => startTaskDrag(e, task.id, { draggedItem })}
   class:calendar-block={!isBulletPoint}
   style="
     position: relative;
@@ -45,8 +45,9 @@
   // Assumes `task` is hydrated
   import { getContext } from 'svelte'
   import Checkbox from './Checkbox.svelte'
+  import { startTaskDrag } from '$lib/utils/dragDrop.js'
 
-  const { Task, openTaskPopup, activeDragItem, grabOffset } = getContext('app')
+  const { Task, openTaskPopup, draggedItem } = getContext('app')
 
   export let task = null
   export let pixelsPerHour = null
@@ -55,20 +56,6 @@
 
   $: height = (pixelsPerHour / 60) * task.duration
   $: isBulletPoint = height < 20
- 
-
-  // TO-DO: deprecate / unify
-  function startDragMove (e, id) {
-    e.dataTransfer.setData("text/plain", id)
-
-    const rect = e.target.getBoundingClientRect()
-    grabOffset.set(e.clientY - rect.top)
-
-    activeDragItem.set({
-      kind: 'room',
-      ...task
-    })
-  }
 </script> 
 
 <style>

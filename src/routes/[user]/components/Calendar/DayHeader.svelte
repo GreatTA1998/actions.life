@@ -2,53 +2,102 @@
   import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
-
-  import { getContext } from 'svelte'
-
-  const { Task, activeDragItem } = getContext('app')
-  import { DateTime } from 'luxon'
-
   import { treesByDate } from './service.js'
   import { headerExpanded, isCompact } from './store.js'
+  import { 
+    isOverlapping, getOverlapArea, clip,
+    emptyItem, 
+    dropPreviewCSS 
+  } from '$lib/utils/dragDrop.js'
+  import { WIDTHS } from '$lib/utils/constants.js'
+  import { getContext } from 'svelte'
+  import { DateTime } from 'luxon'
 
-  export let dt 
+  const { Task, draggedItem, hasDropped, bestDropzoneID, scrollCalRect, matchedDropzones } = getContext('app')
+  let { dt } = $props()
 
-  $: ISODate = dt.toFormat('yyyy-MM-dd')
+  let isDirectlyCreatingTask = $state(false)
+  let dayHeader = $state(null)
+  let intersecting = $state(false)
+  
+  let ISODate = $derived(dt.toFormat('yyyy-MM-dd'))
+  let dropzoneID = $derived('header: ' + dt.toFormat('yyyy-MM-dd'))
 
-  let isDirectlyCreatingTask = false
+  $effect(() => {
+    if ($draggedItem && $draggedItem.id) {
+      requestAnimationFrame(checkIntersection)
+    }
+  })
 
-  function dragover_handler(e) {
-    e.preventDefault()
-    e.stopPropagation()
-    e.dataTransfer.dropEffect = 'move'
+  $effect(() => {
+    if ($hasDropped && $bestDropzoneID === dropzoneID) {
+      drop_handler($draggedItem)
+    }
+  })
+
+  function checkIntersection () {
+    const { x1, x2, y1, y2 } = clip($draggedItem, realEffectiveArea())
+
+    const dayHeaderRect = dayHeader.getBoundingClientRect()
+    intersecting = isOverlapping(
+      { x1, x2, y1, y2 }, 
+      dayHeaderRect,
+      0,
+      0
+    )
+
+    if (intersecting) {
+      // update context-wide state
+      const area = getOverlapArea({ x1, x2, y1, y2 }, dayHeaderRect)
+      matchedDropzones.update(obj => {
+        obj[dropzoneID] = {
+          area,
+          left: dayHeaderRect.left
+        }
+        return obj
+      })
+    }
+
+    else {
+      matchedDropzones.update(obj => {
+        delete obj[dropzoneID]
+        return obj
+      })
+    }
   }
 
-  function drop_handler(e, ISODate) {
-    const id = e.dataTransfer.getData('text/plain')
-    if (!id) return // it means we're adjusting the duration but it triggers a drop event, and a dragend event must be followed by a drop event
+  function drop_handler ({ id }) {
+    Task.update({ id, keyValueChanges: {
+      startTime: '',
+      startDateISO: ISODate
+    }})
 
-    e.preventDefault()
-    e.stopPropagation()
+    // abstract into a resetDrag function?
+    hasDropped.set(false)
+    draggedItem.set(emptyItem())
+    matchedDropzones.set({})
+    bestDropzoneID.set('')
+  }
 
-    const dt = DateTime.fromISO(ISODate)
+  function onclick (e) {
+    if (e.target === e.currentTarget) {
+      isDirectlyCreatingTask = true
+    }
+  }
 
-    Task.update({
-      id,
-      keyValueChanges: {
-        startTime: '',
-        startDateISO: dt.toFormat('yyyy-MM-dd')
-      }
-    })
-
-    activeDragItem.set(null)
+  function realEffectiveArea () {
+    const { left, right, top, bottom } = $scrollCalRect()
+    return {
+      left: left + WIDTHS.DESKTOP_TIME_AXIS,  // left clipping is most important, everything else is inconsequential
+      right, top, bottom
+    }
   }
 </script>
 
-<div class="day-header"
+<div bind:this={dayHeader}
+  class="day-header"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
-  on:click|self={() => (isDirectlyCreatingTask = true)} on:keydown
-  on:dragover={(e) => dragover_handler(e)}
-  on:drop={(e) => drop_handler(e, ISODate)}
+  {onclick}
 >
   <div class="compact-horizontal unselectable">
     <div class="center-flex day-name-label"
@@ -81,6 +130,10 @@
               <FlexibleDayTask task={flexibleDayTask} />
             </div>
           {/each}
+          
+          {#if $bestDropzoneID === dropzoneID}
+            <div style="height: 12px; width: 100%; {dropPreviewCSS()}"></div>
+          {/if}
         </div>
       {/if}
     </div>

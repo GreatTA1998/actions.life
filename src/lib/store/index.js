@@ -92,9 +92,6 @@ export const showSnackbar = writable(false)
 
 export const userInfoFromAuthProvider = writable({}) // test if the page data method works. If not, fallback to this solution for creating a mirror doc
 
-export const activeDragItem = writable(null)
-export const grabOffset = writable(0)
-
 export const inclusiveWeekTodo = writable([])
 export const todoMemoryTree = writable(null)
 
@@ -107,6 +104,7 @@ export const snackbarState = writable({
   undoAction: null
 })
 
+// can't deprecate this until the undo snackbar is modernized with the Popover API
 export const SNACKBAR_DURATION = 5000
 let timeoutId = null
 

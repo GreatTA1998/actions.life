@@ -1,6 +1,6 @@
 <div 
   onclick={() => openTaskPopup(task)}
-  ondragstart={e => startTaskDrag(e, task.id, { draggedItem, activeDragItem, grabOffset })} draggable="true" 
+  ondragstart={e => startTaskDrag(e, task.id, { draggedItem })} draggable="true" 
   class:calendar-block={!isBulletPoint}
   class:clear-border={!isBulletPoint}
   class:graph-paper-texture={!isBulletPoint && !task.imageDownloadURL}
@@ -93,7 +93,7 @@
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
 
-  const { Task,openTaskPopup, activeDragItem, grabOffset, draggedItem } = getContext('app')
+  const { Task,openTaskPopup, draggedItem } = getContext('app')
   const iconMinPixelHeight = 32
 
   export let task = null

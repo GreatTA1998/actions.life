@@ -1,6 +1,6 @@
 <div 
   onclick={() => openTaskPopup(task)}
-  ondragstart={e => startTaskDrag(e, task.id, { draggedItem, activeDragItem, grabOffset })} 
+  ondragstart={e => startTaskDrag(e, task.id, { draggedItem })} 
   draggable="true" 
   class="claude-draggable-item"
   class:calendar-block={!isBulletPoint}
@@ -107,7 +107,6 @@
 </div>
 
 <script>
-  // Assumes `task` is hydrated
   import Checkbox from './Checkbox.svelte'
   import { startTaskDrag } from '$lib/utils/dragDrop.js'
   import { getTrueY } from '$lib/utils/core.js'
@@ -115,10 +114,10 @@
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
 
-  const { Task, openTaskPopup, activeDragItem, grabOffset, draggedItem } = getContext('app')
+  const { Task, openTaskPopup, draggedItem } = getContext('app')
 
   let { 
-    task = null,
+    task = null, // this component assumes `task` is hydrated
     hasCheckbox = false,
     fontSize = 1
    } = $props()
@@ -128,6 +127,7 @@
   let startY = 0
 
   function startAdjustingDuration (e) {
+    e.stopPropagation() // DragContext doesn't get involved, duration adjustment is fully handled within this component
     startY = getTrueY(e)
   }
 
@@ -144,8 +144,6 @@
         duration: Math.max(1, task.duration + durationChange)
       }
     })
-
-    activeDragItem.set(null)
   }
 </script> 
 

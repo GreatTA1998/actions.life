@@ -1,6 +1,6 @@
 export function startTaskDrag (e, id, { draggedItem }) {
   if (e.target !== e.currentTarget) return // effectively `click|self`
-  // don't preventDefault(), otherwise drag doesn't even start
+  // don't call preventDefault(), otherwise drag doesn't even start
   e.stopPropagation() // stops rare occasions where the entire UI gets dragged (which'd be scary)
   e.dataTransfer.setData("text/plain", id) // without this iOS won't activate drag!
 
@@ -58,4 +58,13 @@ export function emptyItem () {
     height: null,
     id: ''
   }
+}
+
+export function dropPreviewCSS () {
+  return `
+    background: rgba(100, 100, 255, 0.15);
+    border: 1px dashed rgba(100, 100, 255, 0.6);
+    border-radius: var(--left-padding);
+    pointer-events: none;
+  `
 }

@@ -1,10 +1,11 @@
 <script>
   import { getContext } from 'svelte'
+  import { startTaskDrag } from '$lib/utils/dragDrop.js'
 
-  const { activeDragItem, grabOffset, openTaskPopup, Task } = getContext('app')
+  const { openTaskPopup, Task, draggedItem } = getContext('app')
 
   export let iconTask
-  export let size = 32 // Default size for backward compatibility
+  export let size = 32 // default for backward compatibility
 
   let timer
   let delay = 200
@@ -29,15 +30,6 @@
       }, delay)
     }
   }
-
-  function startDragMove(e, id) {
-    e.dataTransfer.setData('text/plain', id)
-
-    const rect = e.target.getBoundingClientRect()
-    grabOffset.set(e.clientY - rect.top)
-
-    activeDragItem.set({ kind: 'room', ...iconTask })
-  }
 </script>
 
 <div style="position: relative;">
@@ -50,7 +42,7 @@
     class:radial-glow={iconTask.isDone}
     class="ios-3d-touch-disable unselectable mobile-no-double-tap-zoom"
     draggable="true"
-    on:dragstart|self={(e) => startDragMove(e, iconTask.id)}
+    on:dragstart|self={(e) => startTaskDrag(e, iconTask.id, { draggedItem })}
   />
 </div>
 

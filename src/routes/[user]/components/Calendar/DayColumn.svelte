@@ -1,16 +1,16 @@
 <script>
-  import { isOverlapping, getOverlapArea, emptyItem, clip } from '$lib/utils/dragDrop.js'
+  import { isOverlapping, getOverlapArea, emptyItem, clip, dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
   import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import TimeIndicator from "./TimeIndicator.svelte"
   import { DateTime } from 'luxon'
-  import { pixelsPerHour } from './store.js'
+  import { pixelsPerHour, headerHeight } from './store.js'
   import { treesByDate } from './service.js'
   import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
   import { getContext, onMount, onDestroy } from 'svelte'
-  import { WIDTHS } from '/src/lib/utils/constants.js' // quickfix
+  import { WIDTHS } from '$lib/utils/constants.js' // quickfix
 
   const { Task, draggedItem, hasDropped, matchedDropzones, bestDropzoneID, scrollCalRect } = getContext('app')
 
@@ -50,7 +50,7 @@
     return {
       left: left + WIDTHS.DESKTOP_TIME_AXIS,
       right,
-      top, // should also be clipped by DayHeader height
+      top: top + $headerHeight,
       bottom
     }
   }
@@ -216,7 +216,11 @@
   {/each}
 
   {#if intersecting && previewTop !== null}
-    <div class="task-absolute drop-preview" style="top: {previewTop}px; height: {$draggedItem.height}px;"></div>
+    <div class="task-absolute" style="
+      top: {previewTop}px; 
+      height: {$draggedItem.height}px;
+      {dropPreviewCSS()}
+    "></div>
   {/if}
 
   {#if isDirectlyCreatingTask}
@@ -251,13 +255,6 @@
     margin-left: auto;
     margin-right: auto;
     width: 94%;
-  }
-
-  .drop-preview {
-    background: rgba(100, 100, 255, 0.15);
-    border: 1px dashed rgba(100, 100, 255, 0.6);
-    border-radius: var(--left-padding);
-    pointer-events: none;
   }
 
   .my-helper-gridline {
