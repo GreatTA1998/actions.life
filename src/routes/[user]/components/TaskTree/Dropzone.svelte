@@ -1,7 +1,7 @@
 <div
   bind:this={ReorderDropzone} 
   class:highlight={$bestDropzoneID === dropzoneID}
-  style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 1px solid {colorForDebugging};" 
+  style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 0px solid {colorForDebugging};" 
 ></div>
 
 <script>
