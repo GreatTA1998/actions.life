@@ -1,6 +1,7 @@
 <div
   bind:this={ReorderDropzone} 
   class:highlight={$bestDropzoneID === dropzoneID}
+  class:error={$bestDropzoneID === dropzoneID && isInvalidDrop}
   style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 0px solid {colorForDebugging};" 
 ></div>
 
@@ -32,6 +33,8 @@
   let intersecting = $state(false)
 
   const dropzoneID = getRandomID()
+
+  let isInvalidDrop = $derived(ancestorRoomIDs.includes($draggedItem.id))
 
   $effect(() => {
     if ($draggedItem) {
@@ -78,15 +81,10 @@
       })
     }
   }
-
-  function isInvalidReorderDrop () {
-    return ancestorRoomIDs.includes($draggedItem.id)
-  }
  
   async function onReorderDrop () {
-    // show red dropzone if it's invalid
-    if (isInvalidReorderDrop()) {
-      alert('A parent task cannot become its own descendant')
+    if (isInvalidDrop) {
+      reset()
       return
     }
     ReorderDropzone.style.background = ''
@@ -137,16 +135,26 @@
 
     try {
       await batch.commit() // for updating user's maxOrderValue
-      draggedItem.set(emptyItem())
-      hasDropped.set(false)
+      reset()
     } catch (error) {
       alert('Error updating, please reload the page')
     }
+  }
+
+  function reset () {
+    matchedDropzones.set({})
+    bestDropzoneID.set('')
+    draggedItem.set(emptyItem())
+    hasDropped.set(false)
   }
 </script>
 
 <style>
   .highlight {
     background-color: rgb(87, 172, 247);
+  }
+
+  .error {
+    background-color: red;
   }
 </style>
