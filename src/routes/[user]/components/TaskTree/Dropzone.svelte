@@ -40,10 +40,7 @@
     if ($draggedItem) {
       requestAnimationFrame(() => {
         checkIntersection(
-          clip(
-            $draggedItem, 
-            $logicAreaRect()
-          )
+          $logicAreaRect() ? clip($draggedItem, $logicAreaRect()) : $draggedItem // quickfix as we don't have a common container between desktop mode and mobile mode
         )
       })
     }

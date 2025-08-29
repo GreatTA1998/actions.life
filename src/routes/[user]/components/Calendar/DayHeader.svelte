@@ -3,13 +3,12 @@
   import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { treesByDate } from './service.js'
-  import { headerExpanded, isCompact } from './store.js'
+  import { headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
   import { 
     isOverlapping, getOverlapArea, clip,
     emptyItem, 
     dropPreviewCSS 
   } from '$lib/utils/dragDrop.js'
-  import { WIDTHS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
@@ -87,7 +86,7 @@
   function realEffectiveArea () {
     const { left, right, top, bottom } = $scrollCalRect()
     return {
-      left: left + WIDTHS.DESKTOP_TIME_AXIS,  // left clipping is most important, everything else is inconsequential
+      left: left + $timestampsColumnWidth,  // left clipping is most important, everything else is inconsequential
       right, top, bottom
     }
   }

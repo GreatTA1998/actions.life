@@ -6,11 +6,10 @@
   import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import TimeIndicator from "./TimeIndicator.svelte"
   import { DateTime } from 'luxon'
-  import { pixelsPerHour, headerHeight } from './store.js'
+  import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate } from './service.js'
   import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
   import { getContext, onMount, onDestroy } from 'svelte'
-  import { WIDTHS } from '$lib/utils/constants.js' // quickfix
 
   const { Task, draggedItem, hasDropped, matchedDropzones, bestDropzoneID, scrollCalRect } = getContext('app')
 
@@ -48,7 +47,7 @@
   function realEffectiveArea () {
     const { left, right, top, bottom } = $scrollCalRect()
     return {
-      left: left + WIDTHS.DESKTOP_TIME_AXIS,
+      left: left + $timestampsColumnWidth, // potentially brittle for mobile mode
       right,
       top: top + $headerHeight,
       bottom
