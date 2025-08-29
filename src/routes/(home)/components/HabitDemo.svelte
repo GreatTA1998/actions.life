@@ -1,7 +1,6 @@
 <script>
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { DateTime } from 'luxon'
-  import '$lib/styles/demo-shared.css'
   import { getContext } from 'svelte'
   
   const { memoryTree } = getContext('app')
