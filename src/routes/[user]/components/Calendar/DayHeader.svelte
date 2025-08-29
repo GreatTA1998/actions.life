@@ -75,7 +75,6 @@
     // abstract into a resetDrag function?
     hasDropped.set(false)
     draggedItem.set(emptyItem())
-    matchedDropzones.set({})
     bestDropzoneID.set('')
   }
 

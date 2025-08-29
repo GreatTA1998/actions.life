@@ -130,7 +130,7 @@
     e.stopPropagation() // DragContext doesn't get involved, duration adjustment is fully handled within this component
     startY = getTrueY(e)
   }
-
+ 
   function adjustDuration (e, task) {
     const hoursPerPixel = 1 / $pixelsPerHour
     const minutesPerPixel = 60 * hoursPerPixel

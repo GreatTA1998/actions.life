@@ -49,25 +49,29 @@
     e.preventDefault() // otherwise drop is disallowed
     e.dataTransfer.dropEffect = 'move' // explicitly define a plain effect. Without it, Mac would show a green + icon which is distracting
 
-    draggedItem.update(i => {
-      i.x1 = e.clientX - i.offsetX
-      i.y1 = e.clientY - i.offsetY
-      i.x2 = i.x1 + i.width
-      i.y2 = i.y1 + i.height
-      return i
-    })
-
-    bestDropzoneID.set(
-      resolveBest($matchedDropzones)
-    )
+    if ($draggedItem.id) {
+      draggedItem.update(i => {
+        i.x1 = e.clientX - i.offsetX
+        i.y1 = e.clientY - i.offsetY
+        i.x2 = i.x1 + i.width
+        i.y2 = i.y1 + i.height
+        return i
+      })
+      bestDropzoneID.set(
+        resolveBest($matchedDropzones)
+      )
+    }
   }
 
   function ondrop (e) {
     e.preventDefault() // prevent the browser navigating to what it thinks is the newly dropped URL. Note web.dev is WRONG using e.stopPropagation() here!
-    bestDropzoneID.set(
-      resolveBest($matchedDropzones)
-    )
-    hasDropped.set(true)
+    
+    if ($draggedItem.id) {
+      bestDropzoneID.set(
+        resolveBest($matchedDropzones)
+      )
+      hasDropped.set(true)
+    }
   }
 
   function resolveBest (dropzones) {

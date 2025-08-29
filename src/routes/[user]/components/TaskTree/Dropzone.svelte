@@ -27,7 +27,7 @@
     heightInPx = HEIGHTS.SUB_DROPZONE
   } = $props()
 
-  let ReorderDropzone
+  let ReorderDropzone = $state(null)
   let batch = writeBatch(db)
   let n = $derived(roomsInThisLevel.length)
   let intersecting = $state(false)
@@ -135,14 +135,14 @@
 
     try {
       await batch.commit() // for updating user's maxOrderValue
-      reset()
     } catch (error) {
-      alert('Error updating, please reload the page')
+      alert('Error updating dragged task =' + error.message)
+    } finally {
+      reset()
     }
   }
 
   function reset () {
-    matchedDropzones.set({})
     bestDropzoneID.set('')
     draggedItem.set(emptyItem())
     hasDropped.set(false)
