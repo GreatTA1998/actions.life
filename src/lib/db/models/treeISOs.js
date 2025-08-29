@@ -12,7 +12,7 @@ export async function maintainTreeISOsForCreate ({ task, batch }) {
   
       if (task.startDateISO) {
         const root = await getRoot(parent)
-        const nodes = await getTreeNodes(root)
+        const nodes = await getSubtreeNodes(root)
         const result = batchUpdate({ 
           nodes, 
           rootID: root.id,
@@ -63,77 +63,47 @@ function hasChangedFamily ({ task, changes }) {
 }
 
 export async function handleCrossTree ({ task, changes, batch }) {
-  return new Promise(async (resolve) => {
-    // console.log('handleCrossTree', task, changes)  
+  let movedTree = [] // 1 or more nodes
+  let prevFamily = [] // 1 or more nodes
+  let newFamily = [] // 0 or more nodes
+  const newParent = get(tasksCache)[changes.parentID]
   
-    let prevFamily, movedTree, newFamily
-    const newParent = get(tasksCache)[changes.parentID]
-    
-    // Get all tree nodes in parallel
-    await Promise.all([
-      getTreeNodes(task).then(nodes => movedTree = nodes),
-      getRoot(task).then(root => getTreeNodes(root).then(nodes => prevFamily = nodes)),
-      getRoot(newParent).then(root => getTreeNodes(root).then(nodes => newFamily = nodes))
-    ])
-    // console.log('resolved parallel =', prevFamily, movedTree, newFamily)
-    
-    // prev family
-    // console.log('familyISOs before =', task.treeISOs)
-    let prevFamilyISOs = [...task.treeISOs]
-    for (const node of movedTree) {
-      if (node.startDateISO) {
-        prevFamilyISOs = removeOneInstance(prevFamilyISOs, node.startDateISO)
-      } 
-    }
-    // console.log('familyISOs after =', prevFamilyISOs)
-
-    batchUpdate({ nodes: prevFamily, treeISOs: prevFamilyISOs, batch })
+  await Promise.all([
+    getSubtreeNodes(task).then(nodes => movedTree = nodes),
+    getRoot(task).then(getSubtreeNodes).then(nodes => prevFamily = nodes),
+    getRoot(newParent).then(getSubtreeNodes).then(nodes => newFamily = nodes)
+  ])
   
-    // new family
-    let newFamilyISOs = newParent ? [...newParent.treeISOs] : []
-    const rootTask = await getRoot(newParent)
-    let newFamilyRootID = rootTask ? rootTask.id : task.id
-
-    for (const node of movedTree) {
-      if (node.startDateISO) {
-        // console.log('pushing to new family', node.startDateISO)
-        newFamilyISOs.push(node.startDateISO)
-      } 
+  let prevFamilyISOs = [...task.treeISOs]
+  for (const node of movedTree) {
+    if (node.startDateISO) {
+      prevFamilyISOs = removeOneInstance(prevFamilyISOs, node.startDateISO)
+    } 
+  }
+  batchUpdate({ nodes: prevFamily, treeISOs: prevFamilyISOs, batch })
+  
+  let newFamilyISOs = newParent ? [...newParent.treeISOs] : [] // moved node will start its own family
+  for (const node of movedTree) { // edge case: node's startDateISO can simultaneously change during this drag-drop
+    if (node.id === task.id) { // `movedTree` contains the outdated task `startDateISO`, so update it with the new changes
+      if (changes.startDateISO) node.startDateISO = changes.startDateISO
     }
-    // console.log('after pushing =', newFamilyISOs)
-
-    if (task.startDateISO !== changes.startDateISO) {
-      newFamilyISOs = correctTreeISOs({ 
-        prevDate: task.startDateISO, 
-        newDate: changes.startDateISO, 
-        array: newFamilyISOs 
-      })
-      // console.log('after correcting =', newFamilyISOs)
-    }
-
-
-    // no need to change `rootID`
-    batchUpdate({ nodes: newFamily, treeISOs: newFamilyISOs, batch })
-
-    // need to change `rootID` for the small tree to the new parent
-    batchUpdate({ 
-      nodes: movedTree, 
-      treeISOs: newFamilyISOs, 
-      rootID: newFamilyRootID,
-      batch
-    })
-
-    // console.log('resolving cross tree')
-    resolve()
+  }
+  for (const node of movedTree) {
+    if (node.startDateISO) newFamilyISOs.push(node.startDateISO)
+  } 
+  batchUpdate({ 
+    nodes: [...movedTree, ...newFamily], 
+    rootID: newFamily[0] ? newFamily[0].rootID : task.id, // moved node will start its own family
+    treeISOs: newFamilyISOs,
+    batch 
   })
 }
 
 export async function handleSameTree ({ task, changes, batch }) {
   return new Promise(async (resolve) => {
     if (!task.treeISOs) alert('This task has no treeISOs so operations will fail!')
-    // console.log('handleSameTree', task, changes)
     const root = await getRoot(task)
-    const treeNodes = await getTreeNodes(root)
+    const treeNodes = await getSubtreeNodes(root)
     const result = batchUpdate({ 
       nodes: treeNodes,
       treeISOs: correctTreeISOs({ 
@@ -180,35 +150,31 @@ export function getRoot (task) {
   })
 }
 
-export async function getTreeNodes (task) {
-  return new Promise(async (resolve) => {
-    if (task === undefined) {
-      resolve([])
-      return
-    }
-    const tasksSnapshot = await getDocs(
-      query(
-        collection(db, `/users/${get(user).uid}/tasks`),
-        where('rootID', '==', task.rootID)
-      )
-    )
-    const nodes = tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-    for (const node of nodes) {
-      get(tasksCache)[node.id] = node
-    }
+export async function getSubtreeNodes (task) {
+  if (task === undefined) return []
 
-    const result = [task]
-    helper(task, result)
-    
-    function helper (current, result) {
-      const children = nodes.filter(node => node.parentID === current.id)
-      result.push(...children)
-      for (const child of children) {
-        helper(child, result)
-      }
+  const tasksSnapshot = await getDocs(
+    query(
+      collection(db, `/users/${get(user).uid}/tasks`),
+      where('rootID', '==', task.rootID)
+    )
+  )
+  const nodes = tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  for (const node of nodes) {
+    get(tasksCache)[node.id] = node
+  }
+  
+  const result = [task]
+  helper(task, result)
+  
+  function helper (current, result) {
+    const children = nodes.filter(node => node.parentID === current.id)
+    result.push(...children)
+    for (const child of children) {
+      helper(child, result)
     }
-    resolve(result)
-  })
+  }
+  return result
 }
 
 export function removeOneInstance(array, item) {
@@ -258,7 +224,7 @@ export async function handleTreeISOsForDeletion({ tasksToDelete, batch }) {
     }
     
     // Get all nodes in the tree that will remain
-    const allTreeNodes = await getTreeNodes(root)
+    const allTreeNodes = await getSubtreeNodes(root)
     const remainingNodes = allTreeNodes.filter(node => 
       !tasksToRemove.some(task => task.id === node.id)
     )
