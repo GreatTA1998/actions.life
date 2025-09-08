@@ -58,6 +58,7 @@
       {max}
       on:input={handleInput}
       on:keyup={(e) => {
+        e.preventDefault()
         if (e.key === "Enter") {
           dispatch("task-entered", { taskName: value });
         }
