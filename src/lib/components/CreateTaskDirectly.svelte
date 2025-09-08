@@ -5,18 +5,18 @@
     getRandomID,
   } from '$lib/utils/core.js'
   import { user } from '$lib/store'
-  import { onMount, createEventDispatcher } from 'svelte'
+  import { onMount } from 'svelte'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
 
   export let startDateISO
   export let newTaskStartTime = '' // hh:mm format
+  export let onreset = () => {}
 
   let allTemplates = null
   let searchResults = []
   let newTaskName = ''
-  const dispatch = createEventDispatcher()
 
   onMount(async () => {
     const temp = await Template.getAll({ userID: $user.uid, includeStats: false })
@@ -48,23 +48,23 @@
         persistsOnList: false
       }
     })
-    dispatch('reset') // we reset here because this function can get called directly by clicking the search resul
+    onreset() // we reset here because this function can get called directly by clicking the search result
   }
 
   async function createNormalTask (e) {
     const newTaskName = e.detail.taskName
-    if (newTaskName !== '') {
+    if (true || newTaskName !== '') {
       Task.create({
         id: getRandomID(),
         newTaskObj: {
-          name: newTaskName,
+          name: newTaskName || 'untitled',
           startDateISO,
           startTime: newTaskStartTime,
           persistsOnList: false
         }
       })
     }
-    dispatch('reset')
+    onreset()
   }
 </script>
 
@@ -87,7 +87,7 @@
 {#if $user && newTaskName.length >= 1}
   <div class="core-shadow cast-shadow" style="background-color: white; padding: 6px; border-radius: 12px">
     {#each searchResults as template (template.id)}
-      <div on:click={() => createTaskFrom(template)} on:keydown
+      <div on:click={() => createTaskFrom(template)}
         class="autocomplete-option"
         class:option-highlight={searchResults.length === 1}
       >

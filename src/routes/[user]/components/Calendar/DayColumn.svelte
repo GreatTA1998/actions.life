@@ -228,7 +228,7 @@
       <CreateTaskDirectly
         newTaskStartTime={newDT.toFormat('HH:mm')}
         startDateISO={newDT.toFormat('yyyy-MM-dd')}
-        on:reset={() => isDirectlyCreatingTask = false}
+        onreset={() => isDirectlyCreatingTask = false}
       />
     </div>
   {/if}

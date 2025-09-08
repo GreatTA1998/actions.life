@@ -140,7 +140,7 @@
       <CreateTaskDirectly
         newTaskStartTime={''}
         startDateISO={ISODate}
-        on:reset={() => (isDirectlyCreatingTask = false)}
+        onreset={() => isDirectlyCreatingTask = false}
       />
     </div>
   {/if}
