@@ -32,6 +32,7 @@
   }
 
   function handleEnterKey (e) {
+    e.preventDefault()
     if (searchResults.length === 1) createTaskFrom(searchResults[0])
     else createNormalTask(e)
   }
