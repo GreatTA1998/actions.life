@@ -68,17 +68,18 @@
   }
 </script>
 
-<FormField
-  fieldLabel="Task Name"
-  value={newTaskName}
-  on:input={e => {
-    newTaskName = e.detail.value
-    searchTaskTemplates()
-  }}
-  on:focus-out={() => {
+<!--  on:focus-out={() => {
     if (newTaskName === '') {
       dispatch('reset')
     }
+  }} -->
+<FormField
+  fieldLabel="Task Name"
+  value={newTaskName}
+  placeholder="Press ENTER to finish"
+  on:input={e => {
+    newTaskName = e.detail.value
+    searchTaskTemplates()
   }}
   on:task-entered={e => handleEnterKey(e)}
 />
