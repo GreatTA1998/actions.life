@@ -33,6 +33,8 @@
 
   function handleEnterKey (e) {
     e.preventDefault()
+    e.stopPropagation()
+
     if (searchResults.length === 1) createTaskFrom(searchResults[0])
     else createNormalTask(e)
   }
