@@ -7,7 +7,7 @@
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
   import { getContext, onMount, tick } from 'svelte'
 
-  const { logicAreaRect } = getContext('app')
+  const { logicAreaRect } = getContext('drag-drop')
 
   let isResizing = false
   let startX = 0

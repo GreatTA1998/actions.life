@@ -108,13 +108,13 @@
 
 <script>
   import Checkbox from './Checkbox.svelte'
-  import { startTaskDrag } from '$lib/utils/dragDrop.js'
   import { getTrueY } from '$lib/utils/core.js'
   import { treesByID } from '/src/routes/[user]/components/Calendar/service.js'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
 
-  const { Task, openTaskPopup, draggedItem } = getContext('app')
+  const { Task, openTaskPopup } = getContext('app')
+  const { draggedItem, startTaskDrag } = getContext('drag-drop')
 
   let { 
     task = null, // this component assumes `task` is hydrated

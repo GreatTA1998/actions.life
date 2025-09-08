@@ -67,13 +67,13 @@
 </div>
 
 <script>
- import { startTaskDrag } from '$lib/utils/dragDrop.js'
  import { getTrueY } from '$lib/utils/core.js'
  import { lazyCallable } from '/src/lib/utils/svelteActions.js'
  import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
  import { getContext } from 'svelte'
 
- const { Task,openTaskPopup, draggedItem } = getContext('app')
+ const { Task, openTaskPopup} = getContext('app')
+ const { draggedItem, startTaskDrag } = getContext('drag-drop')
 
  export let task = null // assumes `task` is hydrated
  export let fontSize = 1

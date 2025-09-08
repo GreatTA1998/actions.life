@@ -87,13 +87,13 @@
 
 <script>
   // Assumes `task` is hydrated
-  import { startTaskDrag } from '$lib/utils/dragDrop.js'
   import { getTrueY } from '$lib/utils/core.js'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
 
-  const { Task,openTaskPopup, draggedItem } = getContext('app')
+  const { Task,openTaskPopup } = getContext('app')
+  const { startTaskDrag, draggedItem } = getContext('drag-drop')
   const iconMinPixelHeight = 32
 
   export let task = null

@@ -1,18 +1,19 @@
 <script>
-  import { isOverlapping, getOverlapArea, emptyItem, clip, dropPreviewCSS } from '$lib/utils/dragDrop.js'
+  import { isOverlapping, getOverlapArea, clip, dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
   import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
-  import TimeIndicator from "./TimeIndicator.svelte"
+  import TimeIndicator from './TimeIndicator.svelte'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate } from './service.js'
   import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
   import { getContext, onMount, onDestroy } from 'svelte'
 
-  const { Task, draggedItem, hasDropped, matchedDropzones, bestDropzoneID, scrollCalRect } = getContext('app')
-
+  const { Task } = getContext('app')
+  const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, scrollCalRect, resetDragDrop } = getContext('drag-drop')
+  
   let { dt } = $props()
 
   let dayColumn
@@ -148,8 +149,8 @@
       }
     })
 
-    hasDropped.set(false)
-    draggedItem.set(emptyItem())
+    resetDragDrop()
+    
     previewTop = null // quickfix
   }
 

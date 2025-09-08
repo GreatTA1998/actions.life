@@ -6,13 +6,14 @@
   import { headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
   import { 
     isOverlapping, getOverlapArea, clip,
-    emptyItem, 
     dropPreviewCSS 
   } from '$lib/utils/dragDrop.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
-  const { Task, draggedItem, hasDropped, bestDropzoneID, scrollCalRect, matchedDropzones } = getContext('app')
+  const { Task } = getContext('app')
+  const { draggedItem, hasDropped, bestDropzoneID, scrollCalRect, matchedDropzones, resetDragDrop } = getContext('drag-drop')
+  
   let { dt } = $props()
 
   let isDirectlyCreatingTask = $state(false)
@@ -71,10 +72,7 @@
       startDateISO: ISODate
     }})
 
-    // abstract into a resetDrag function?
-    hasDropped.set(false)
-    draggedItem.set(emptyItem())
-    bestDropzoneID.set('')
+    resetDragDrop()
   }
 
   function onclick (e) {

@@ -45,9 +45,9 @@
   // Assumes `task` is hydrated
   import { getContext } from 'svelte'
   import Checkbox from './Checkbox.svelte'
-  import { startTaskDrag } from '$lib/utils/dragDrop.js'
 
-  const { Task, openTaskPopup, draggedItem } = getContext('app')
+  const { Task, openTaskPopup } = getContext('app')
+  const { draggedItem, startTaskDrag } = getContext('drag-drop')
 
   export let task = null
   export let pixelsPerHour = null

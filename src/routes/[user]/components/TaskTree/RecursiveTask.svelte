@@ -10,9 +10,9 @@
   import { WIDTHS } from '$lib/utils/constants.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
-  import { startTaskDrag } from '$lib/utils/dragDrop.js'
 
-  const { Task, draggedItem, openTaskPopup } = getContext('app')
+  const { Task, openTaskPopup } = getContext('app')
+  const { startTaskDrag, draggedItem } = getContext('drag-drop')
 
   export let taskObj
   export let depth 

@@ -12,7 +12,8 @@
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'
 
-  const { scrollCalRect } = getContext('app')
+  const { scrollCalRect } = getContext('drag-drop') // quickfix
+
   let scrollParent
 
   let renderedColumnDTs = []

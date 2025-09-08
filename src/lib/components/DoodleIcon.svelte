@@ -1,8 +1,8 @@
 <script>
   import { getContext } from 'svelte'
-  import { startTaskDrag } from '$lib/utils/dragDrop.js'
 
-  const { openTaskPopup, Task, draggedItem } = getContext('app')
+  const { openTaskPopup, Task } = getContext('app')
+  const { draggedItem, startTaskDrag } = getContext('drag-drop')
 
   export let iconTask
   export let size = 32 // default for backward compatibility

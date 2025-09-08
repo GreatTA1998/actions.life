@@ -6,17 +6,15 @@
 ></div>
 
 <script>
-  import { isOverlapping, getOverlapArea, emptyItem, clip } from '$lib/utils/dragDrop.js'
+  import { isOverlapping, getOverlapArea, clip } from '$lib/utils/dragDrop.js'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '$lib/db/init'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
-  const { 
-    Task, user, 
-    draggedItem, hasDropped, bestDropzoneID, matchedDropzones, logicAreaRect 
-  } = getContext('app')
+  const { Task, user } = getContext('app')
+  const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
 
   let {
     ancestorRoomIDs,
@@ -53,6 +51,7 @@
   })
 
   function checkIntersection ({ x1, x2, y1, y2 }) {
+    console.log('x1, y1, x2, y2', x1, y1, x2, y2)
     const dropzoneRect = ReorderDropzone.getBoundingClientRect()
     const overlapping = isOverlapping({ x1, x2, y1, y2 }, dropzoneRect, 0, 0)
 
@@ -135,14 +134,8 @@
     } catch (error) {
       alert('Error updating dragged task =' + error.message)
     } finally {
-      reset()
+      resetDragDrop()
     }
-  }
-
-  function reset () {
-    bestDropzoneID.set('')
-    draggedItem.set(emptyItem())
-    hasDropped.set(false)
   }
 </script>
 
