@@ -32,12 +32,10 @@
   });
 </script>
 
-<!-- Based on UX newsletter, includes
-  - Infield top-aligned form labels
-
-  More info: https://uxmovement.substack.com/p/8-rules-for-switching-to-infield
+<!-- 
+  - Infield top-aligned form labels based on UX newsletter
+  @see https://uxmovement.substack.com/p/8-rules-for-switching-to-infield
 -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class="ux-form-field"
   on:click={() => InputElem.focus()}

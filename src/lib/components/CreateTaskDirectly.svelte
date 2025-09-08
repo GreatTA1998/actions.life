@@ -1,17 +1,15 @@
 <script>
   import Template from '$lib/db/models/Template.js'
-  import FormField from '$lib/components/FormField.svelte'
-  import {
-    getRandomID,
-  } from '$lib/utils/core.js'
+  import MyInput from '$lib/components/MyInput.svelte'
+  // import FormField from '$lib/components/FormField.svelte'
+  import { getRandomID } from '$lib/utils/core.js'
   import { user } from '$lib/store'
-  import { onMount } from 'svelte'
-  import { getContext } from 'svelte'
+  import { onMount, getContext } from 'svelte'
 
   const { Task } = getContext('app')
 
   export let startDateISO
-  export let newTaskStartTime = '' // hh:mm format
+  export let newTaskStartTime = ''
   export let onreset = () => {}
 
   let allTemplates = null
@@ -31,11 +29,15 @@
     )
   }
 
-  function handleEnterKey (e) {
-    e.preventDefault()
-    e.stopPropagation()
+  function oninput (e) {
+    newTaskName = e.target.value
+    searchTaskTemplates()
+  }
 
-    if (searchResults.length === 1) createTaskFrom(searchResults[0])
+  function onenter (e) {
+    if (searchResults.length === 1) {
+      createTaskFrom(searchResults[0])
+    } 
     else createNormalTask(e)
   }
 
@@ -54,13 +56,12 @@
     onreset() // we reset here because this function can get called directly by clicking the search result
   }
 
-  async function createNormalTask (e) {
-    const newTaskName = e.detail.taskName
+  async function createNormalTask () {
     if (newTaskName !== '') {
       Task.create({
         id: getRandomID(),
         newTaskObj: {
-          name: newTaskName || 'untitled',
+          name: newTaskName,
           startDateISO,
           startTime: newTaskStartTime,
           persistsOnList: false
@@ -76,17 +77,12 @@
       dispatch('reset')
     }
   }} -->
-<FormField
-  fieldLabel="Task Name"
-  value={newTaskName}
-  placeholder="Press ENTER to finish"
-  on:input={e => {
-    newTaskName = e.detail.value
-    searchTaskTemplates()
-  }}
-  on:task-entered={e => handleEnterKey(e)}
-/>
 
+<MyInput value={newTaskName}
+  {oninput}
+  {onenter}
+  placeholder="Press ENTER to finish"
+/>
 
 {#if $user && newTaskName.length >= 1}
   <div class="core-shadow cast-shadow" style="background-color: white; padding: 6px; border-radius: 12px">
