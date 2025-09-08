@@ -7,11 +7,11 @@
     class="hero-texts"
     style="display: flex; flex-direction: column; row-gap: 16px;"
   >
-    <div class="hero-title">A calendar that fits timelines, habits and events together</div>
+    <div class="hero-title">Designed for life, not meetings</div>
 
     <div style="display: flex; flex-wrap: wrap;">
       <div class="secondary-description">
-        Focus on long-term dreams without neglecting short-term logistics
+        Each task can branch into sub-tasks
       </div>
     </div>
 
@@ -26,6 +26,21 @@
 </div>
 
 <style lang="scss">
+  .hero-texts {
+    flex-basis: 40%;
+    flex-grow: 0;
+    max-width: 66ch;
+    text-wrap: pretty;
+  }
+
+  .hero-title {
+    color: rgb(20, 20, 20);
+    font-weight: 600;
+    max-width: 720px;
+    margin-left: -2px;
+    font-size: 3.4vw;
+  }
+
   .secondary-description {
     font-weight: 500;
     display: inline;
@@ -35,33 +50,14 @@
     line-height: 1.3;
   }
 
-  .hero-title {
-    color: rgb(20, 20, 20);
-    font-size: 2rem;
-    font-weight: 600;
-    max-width: 800px;
-  }
-
   img {
     width: 100%;
     height: auto;
   }
 
-  .hero-texts {
-    flex-basis: 50%;
-    flex-grow: 0;
-    max-width: 66ch;
-    text-wrap: pretty;
-  }
-
   .hero-screenshot {
     flex-basis: 50%;
     flex-grow: 1;
-  }
-
-  .hero-title {
-    margin-left: -2px;
-    font-size: 3vw;
   }
 
 
