@@ -1,7 +1,6 @@
 <script>
   import Template from '$lib/db/models/Template.js'
   import MyInput from '$lib/components/MyInput.svelte'
-  // import FormField from '$lib/components/FormField.svelte'
   import { getRandomID } from '$lib/utils/core.js'
   import { user } from '$lib/store'
   import { onMount, getContext } from 'svelte'
@@ -9,12 +8,12 @@
   const { Task } = getContext('app')
 
   export let startDateISO
-  export let newTaskStartTime = ''
-  export let onreset = () => {}
+  export let startTime = ''
+  export let onfocusout = () => {}
 
   let allTemplates = null
   let searchResults = []
-  let newTaskName = ''
+  let taskName = ''
 
   onMount(async () => {
     const temp = await Template.getAll({ userID: $user.uid, includeStats: false })
@@ -25,16 +24,16 @@
     if (allTemplates === null) return
 
     searchResults = allTemplates.filter(template => 
-      template.name.toLowerCase().includes(newTaskName.toLowerCase())
+      template.name.toLowerCase().includes(taskName.toLowerCase())
     )
   }
 
   function oninput (e) {
-    newTaskName = e.target.value
+    taskName = e.target.value
     searchTaskTemplates()
   }
 
-  function onenter (e) {
+  function onEnterPress (e) {
     if (searchResults.length === 1) {
       createTaskFrom(searchResults[0])
     } 
@@ -49,43 +48,37 @@
         templateID: template.id,
         isDone: false,
         startDateISO,
-        startTime: newTaskStartTime,
+        startTime,
         persistsOnList: false
       }
     })
-    onreset() // we reset here because this function can get called directly by clicking the search result
+    onfocusout() // we reset here because this function can get called directly by clicking the search result
   }
 
   async function createNormalTask () {
-    if (newTaskName !== '') {
+    if (taskName !== '') {
       Task.create({
         id: getRandomID(),
         newTaskObj: {
-          name: newTaskName,
+          name: taskName,
           startDateISO,
-          startTime: newTaskStartTime,
+          startTime,
           persistsOnList: false
         }
       })
     }
-    onreset()
+    onfocusout()
   }
 </script>
 
-<!--  on:focus-out={() => {
-    if (newTaskName === '') {
-      dispatch('reset')
-    }
-  }} -->
-
-<MyInput value={newTaskName}
+<MyInput value={taskName}
   {oninput}
-  {onenter}
-  placeholder="Press ENTER to finish"
+  {onEnterPress}
+  {onfocusout}
 />
 
-{#if $user && newTaskName.length >= 1}
-  <div class="core-shadow cast-shadow" style="background-color: white; padding: 6px; border-radius: 12px">
+{#if taskName.length >= 1}
+  <div class="core-shadow cast-shadow card">
     {#each searchResults as template (template.id)}
       <div on:click={() => createTaskFrom(template)}
         class="autocomplete-option"
@@ -104,6 +97,12 @@
 {/if}
 
 <style lang="scss">
+  .card {
+    background-color: white; 
+    padding: 6px; 
+    border-radius: 12px
+  }
+
   .autocomplete-option {
     padding-top: 12px;
     padding-bottom: 12px;

@@ -138,7 +138,6 @@
   {#if isDirectlyCreatingTask}
     <div id="calendar-direct-task-div">
       <CreateTaskDirectly
-        newTaskStartTime={''}
         startDateISO={ISODate}
         onreset={() => isDirectlyCreatingTask = false}
       />
@@ -148,6 +147,7 @@
 
 <style>
   #calendar-direct-task-div {
+    margin-top: 4px;
     width: 90%; 
     padding-left: 0px; 
     padding-right: 0px;

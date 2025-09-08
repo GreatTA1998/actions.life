@@ -1,10 +1,10 @@
 <script>
-  // TO-DO: 
+  // Spec:
   //   - auto-focus (or at least, ability to type text without double clicking)
-  //   - aligned properly
+  //   - center aligned
   import { onMount } from 'svelte'
 
-  let { value, onenter, oninput, placeholder } = $props()
+  let { value, onEnterPress, oninput, onfocusout, placeholder } = $props()
   let inputElem = $state(null)
 
   onMount(() => {
@@ -15,16 +15,27 @@
     e.preventDefault()
     e.stopPropagation()
     if (e.key === 'Enter') {
-      onenter(e)
+      onEnterPress(e)
     }
   }
 </script>
 
-<div style="outline: 2px solid red">
+<div style="display: flex; justify-content: center;">
   <input bind:this={inputElem}
     {placeholder}
     {value}
     {oninput}
     {onkeyup}
+    {onfocusout}
+    class="my-input"
   >
 </div>
+
+<style>
+  .my-input {
+    width: 94%;
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 16px;
+  }
+</style>

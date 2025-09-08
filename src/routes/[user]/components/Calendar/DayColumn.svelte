@@ -224,11 +224,11 @@
   {/if}
 
   {#if isDirectlyCreatingTask}
-    <div id="calendar-direct-task-div" style="top: {yPosition - formFieldTopPadding}px;">
+    <div id="calendar-direct-task-div" style="top: {yPosition}px;">
       <CreateTaskDirectly
-        newTaskStartTime={newDT.toFormat('HH:mm')}
+        startTime={newDT.toFormat('HH:mm')}
         startDateISO={newDT.toFormat('yyyy-MM-dd')}
-        onreset={() => isDirectlyCreatingTask = false}
+        onfocusout={() => isDirectlyCreatingTask = false}
       />
     </div>
   {/if}
