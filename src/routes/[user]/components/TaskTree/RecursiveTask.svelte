@@ -111,9 +111,9 @@
 
 <div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
   <div draggable="true"
-    on:dragstart|self={(e) => startTaskDrag(e, taskObj.id, { draggedItem })}
+    on:dragstart|self={e => startTaskDrag(e, taskObj.id, { draggedItem })}
     style="font-size: {depthAdjustedFontSize};"
-    class="task-row-container"
+    class="task-row-container unselectable"
   >
     {#if willShowCheckbox}
       <div style="position: relative; margin-left: 2px; margin-right: 4px;">
