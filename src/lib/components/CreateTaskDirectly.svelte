@@ -53,7 +53,7 @@
 
   async function createNormalTask (e) {
     const newTaskName = e.detail.taskName
-    if (true || newTaskName !== '') {
+    if (newTaskName !== '') {
       Task.create({
         id: getRandomID(),
         newTaskObj: {
