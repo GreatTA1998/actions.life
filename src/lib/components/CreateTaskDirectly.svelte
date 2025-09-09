@@ -1,23 +1,21 @@
 <script>
   import Template from '$lib/db/models/Template.js'
-  import FormField from '$lib/components/FormField.svelte'
-  import {
-    getRandomID,
-  } from '$lib/utils/core.js'
+  import MyInput from '$lib/components/MyInput.svelte'
+  import { getRandomID } from '$lib/utils/core.js'
   import { user } from '$lib/store'
-  import { onMount, createEventDispatcher } from 'svelte'
-  import { DateTime } from 'luxon'
-  import { getContext } from 'svelte'
+  import { onMount, getContext } from 'svelte'
 
   const { Task } = getContext('app')
 
-  export let resultantDateClassObject
-  export let newTaskStartTime = '' // hh:mm format
+  let { 
+    startDateISO = '', 
+    startTime = '', 
+    onExit = () => {} 
+  } = $props()
 
-  let allTemplates = null
-  let searchResults = []
-  let newTaskName = ''
-  const dispatch = createEventDispatcher()
+  let allTemplates = $state(null)
+  let searchResults = $state([])
+  let taskName = $state('')
 
   onMount(async () => {
     const temp = await Template.getAll({ userID: $user.uid, includeStats: false })
@@ -28,12 +26,19 @@
     if (allTemplates === null) return
 
     searchResults = allTemplates.filter(template => 
-      template.name.toLowerCase().includes(newTaskName.toLowerCase())
+      template.name.toLowerCase().includes(taskName.toLowerCase())
     )
   }
 
-  function handleEnterKey (e) {
-    if (searchResults.length === 1) createTaskFrom(searchResults[0])
+  function oninput (e) {
+    taskName = e.target.value
+    searchTaskTemplates()
+  }
+
+  function onEnterPress (e) {
+    if (searchResults.length === 1) {
+      createTaskFrom(searchResults[0])
+    } 
     else createNormalTask(e)
   }
 
@@ -42,53 +47,45 @@
       id: getRandomID(),
       newTaskObj: {
         ...template,
-        templateID: template.id,
-        isDone: false,
-        startDateISO: DateTime.fromJSDate(resultantDateClassObject).toFormat('yyyy-MM-dd'),
-        startTime: newTaskStartTime,
+        templateID: template.id, // necessary because templateID is not a property in `template`
+        startDateISO,
+        startTime,
         persistsOnList: false
       }
     })
-    dispatch('reset') // we reset here because this function can get called directly by clicking the search resul
+    onExit() // we reset here because this function can get called directly by clicking the search result
   }
 
-  async function createNormalTask (e) {
-    const newTaskName = e.detail.taskName
-    if (newTaskName !== '') {
+  async function createNormalTask () {
+    if (taskName !== '') {
       Task.create({
         id: getRandomID(),
         newTaskObj: {
-          name: newTaskName,
-          startDateISO: DateTime.fromJSDate(resultantDateClassObject).toFormat('yyyy-MM-dd'),
-          startTime: newTaskStartTime,
+          name: taskName,
+          startDateISO,
+          startTime,
           persistsOnList: false
         }
       })
     }
-    dispatch('reset')
+    onExit()
   }
 </script>
 
-<FormField
-  fieldLabel="Task Name"
-  value={newTaskName}
-  on:input={e => {
-    newTaskName = e.detail.value
-    searchTaskTemplates()
-  }}
-  on:focus-out={() => {
-    if (newTaskName === '') {
-      dispatch('reset')
+<MyInput value={taskName}
+  {oninput}
+  {onEnterPress}
+  onfocusout={() => {
+    if (taskName.length === 0) {
+      onExit()
     }
   }}
-  on:task-entered={e => handleEnterKey(e)}
 />
 
-
-{#if $user && newTaskName.length >= 1}
-  <div class="core-shadow cast-shadow" style="background-color: white; padding: 6px; border-radius: 12px">
+{#if taskName.length >= 1}
+  <div class="core-shadow cast-shadow card">
     {#each searchResults as template (template.id)}
-      <div on:click={() => createTaskFrom(template)} on:keydown
+      <div onclick={() => createTaskFrom(template)}
         class="autocomplete-option"
         class:option-highlight={searchResults.length === 1}
       >
@@ -105,6 +102,12 @@
 {/if}
 
 <style lang="scss">
+  .card {
+    background-color: white; 
+    padding: 6px; 
+    border-radius: 12px
+  }
+
   .autocomplete-option {
     padding-top: 12px;
     padding-bottom: 12px;

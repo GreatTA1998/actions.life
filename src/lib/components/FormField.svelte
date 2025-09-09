@@ -7,7 +7,9 @@
   export let pattern = "";
   export let placeholder = "";
   export let willAutofocus = true;
+  
   const dispatch = createEventDispatcher();
+  const formFieldTopPadding = 40
 
   function handleInput(event) {
     let newValue = event.target.value;
@@ -32,12 +34,10 @@
   });
 </script>
 
-<!-- Based on UX newsletter, includes
-  - Infield top-aligned form labels
-
-  More info: https://uxmovement.substack.com/p/8-rules-for-switching-to-infield
+<!-- 
+  - Infield top-aligned form labels based on UX newsletter
+  @see https://uxmovement.substack.com/p/8-rules-for-switching-to-infield
 -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class="ux-form-field"
   on:click={() => InputElem.focus()}
@@ -58,6 +58,7 @@
       {max}
       on:input={handleInput}
       on:keyup={(e) => {
+        e.preventDefault()
         if (e.key === "Enter") {
           dispatch("task-entered", { taskName: value });
         }

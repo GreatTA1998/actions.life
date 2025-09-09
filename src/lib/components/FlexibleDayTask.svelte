@@ -1,6 +1,6 @@
 <div on:click={() => openTaskPopup(task)}
   draggable="true" 
-  on:dragstart|self={(e) => startDragMove(e, task.id)} 
+  on:dragstart|self={(e) => startTaskDrag(e, task.id, { draggedItem })}
   class:calendar-block={!isBulletPoint}
   style="
     position: relative;
@@ -10,8 +10,7 @@
     padding-left: {isBulletPoint ? '0px' : 'var(--left-padding)'};
     padding-right: var(--left-padding);
     display: flex; flex-direction: column;
-  " 
-  on:keydown={() => {}}
+  "
 >
  <!-- As long as this parent div is correctly sized, the duration adjusting area 
    will be positioned correctly (it's glued to the bottom of this parent div)
@@ -47,7 +46,8 @@
   import { getContext } from 'svelte'
   import Checkbox from './Checkbox.svelte'
 
-  const { Task, openTaskPopup, activeDragItem, grabOffset } = getContext('app')
+  const { Task, openTaskPopup } = getContext('app')
+  const { draggedItem, startTaskDrag } = getContext('drag-drop')
 
   export let task = null
   export let pixelsPerHour = null
@@ -56,18 +56,6 @@
 
   $: height = (pixelsPerHour / 60) * task.duration
   $: isBulletPoint = height < 20
-
-  function startDragMove (e, id) {
-    e.dataTransfer.setData("text/plain", id)
-
-    const rect = e.target.getBoundingClientRect()
-    grabOffset.set(e.clientY - rect.top)
-
-    activeDragItem.set({
-      kind: 'room',
-      ...task
-    })
-  }
 </script> 
 
 <style>

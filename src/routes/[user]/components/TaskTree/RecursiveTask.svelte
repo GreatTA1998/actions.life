@@ -11,7 +11,8 @@
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
-  const { Task, activeDragItem, openTaskPopup } = getContext('app')
+  const { Task, openTaskPopup } = getContext('app')
+  const { startTaskDrag, draggedItem } = getContext('drag-drop')
 
   export let taskObj
   export let depth 
@@ -51,14 +52,6 @@
     Task.update({
       id: taskObj.id,
       keyValueChanges: { isDone: e.target.checked }
-    })
-  }
-
-  function dragstart_handler (e, id) {
-    e.dataTransfer.setData("text/plain", id)
-    activeDragItem.set({ 
-      kind: 'room', 
-      ...taskObj 
     })
   }
 
@@ -118,9 +111,9 @@
 
 <div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
   <div draggable="true"
-    on:dragstart|self={(e) => dragstart_handler(e, taskObj.id)}
+    on:dragstart|self={e => startTaskDrag(e, taskObj.id, { draggedItem })}
     style="font-size: {depthAdjustedFontSize};"
-    class="task-row-container"
+    class="task-row-container unselectable"
   >
     {#if willShowCheckbox}
       <div style="position: relative; margin-left: 2px; margin-right: 4px;">

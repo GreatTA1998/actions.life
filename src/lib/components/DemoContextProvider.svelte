@@ -21,13 +21,11 @@
   export const mockStores = {
     tasksCache: writable({}),
     user: writable({ uid: 'demo-user', maxOrderValue: 100 }),
-    activeDragItem: writable(null),
     defaultPhotoLayout: writable('side-by-side'),
     openTaskPopup: (task) => console.log('Demo: Would open popup for:', task.name),
     closeTaskPopup: () => {
       clickedTaskID.set('')
-    },
-    grabOffset: writable(0)
+    }
   }
 
   export const Task = {
@@ -141,7 +139,6 @@
     closeTaskPopup: mockStores.closeTaskPopup,
     ancestralTree: mockStores.ancestralTree,
     openTaskPopup: mockStores.openTaskPopup,
-    activeDragItem: mockStores.activeDragItem,
     memoryTree
   })
 </script>

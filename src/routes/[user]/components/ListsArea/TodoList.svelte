@@ -5,7 +5,7 @@
   import FormField from '$lib/components/FormField.svelte'
   import { getRandomID } from '$lib/utils/core.js'
   import { HEIGHTS } from '$lib/utils/constants.js'
-  import { getContext, onMount, createEventDispatcher } from 'svelte'
+  import { getContext, onMount } from 'svelte'
   import { DateTime } from 'luxon'
 
   const { Task, user } = getContext('app')
@@ -19,15 +19,12 @@
   let bottomInput = false
   let newTaskName = ''
 
-  const dispatch = createEventDispatcher()
-
   onMount(() => {
     listenToTasks($user.uid)
   })
   
   $: if (triggerNewTask && !bottomInput) {
     startTypingNewTask()
-    dispatch('newTaskTriggered')
   }
   
   function startTypingNewTask () {

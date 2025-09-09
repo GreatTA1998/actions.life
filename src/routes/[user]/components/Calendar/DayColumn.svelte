@@ -1,47 +1,121 @@
 <script>
+  import { isOverlapping, getOverlapArea, clip, dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
   import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
-  import TimeIndicator from "./TimeIndicator.svelte"
-
+  import TimeIndicator from './TimeIndicator.svelte'
   import { DateTime } from 'luxon'
-  import { getHHMM } from '$lib/utils/core.js'
-
-  import {
-    user,
-    timestamps, totalMinutes, calLastHHMM, calSnapInterval
-  } from '$lib/store'
-  import { pixelsPerHour } from './store.js'
+  import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate } from './service.js'
-  import { onMount, onDestroy } from "svelte"
-  import { getContext } from 'svelte'
+  import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
+  import { getContext, onMount, onDestroy } from 'svelte'
 
-  const { Task, activeDragItem, grabOffset } = getContext('app')
+  const { Task } = getContext('app')
+  const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, scrollCalRect, resetDragDrop } = getContext('drag-drop')
+  
+  let { dt } = $props()
 
-  export let dt
-
-  let OverallContainer
-  let isDirectlyCreatingTask = false
-  let formFieldTopPadding = 40
-  let yPosition
+  let dayColumn
+  let isDirectlyCreatingTask = $state(false)
+  let yPosition = $state(null)
+  let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
   let pixelsPerMinute = $pixelsPerHour / 60
 
-  $: scheduledTasks = $treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? []
+  let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
+  let newDT = $derived(getNewDT(yPosition))
 
-  // TO-DO: deprecate with luxon, but requires re-working <CreateTaskDirectly> perhaps with portals
-  $: resultantDateClassObject = getResultantDateClassObject(yPosition)
+  let intersecting = $state(false)
+  let previewTop = $state(null)
 
+  $effect(() => {
+    if ($draggedItem && $draggedItem.id) {
+      requestAnimationFrame(checkIntersection)
+    }
+  })
+
+  $effect(() => {
+    if ($hasDropped && $bestDropzoneID === dropzoneID) {
+      performDrop()
+    }
+  })
+  
   onMount(async () => {})
 
   onDestroy(() => {})
 
+  function realEffectiveArea () {
+    const { left, right, top, bottom } = $scrollCalRect()
+    return {
+      left: left + $timestampsColumnWidth, // potentially brittle for mobile mode
+      right,
+      top: top + $headerHeight,
+      bottom
+    }
+  }
+
+  function checkIntersection () {
+    const { x1, x2, y1, y2 } = clip($draggedItem, realEffectiveArea())
+
+    const dayColumnRect = dayColumn.getBoundingClientRect()
+    intersecting = isOverlapping(
+      { x1, x2, y1, y2 }, 
+      dayColumnRect,
+      0.3,
+      0
+    )
+
+    if (intersecting) {
+      // update context-wide state
+      const area = getOverlapArea({ x1, x2, y1, y2 }, dayColumnRect)
+      matchedDropzones.update(obj => {
+        obj[dropzoneID] = {
+          area,
+          left: dayColumnRect.left
+        }
+        return obj
+      })
+      
+      if ($bestDropzoneID === dropzoneID) { // show preview
+        const localTop = $draggedItem.y1 + dayColumn.scrollTop - dayColumnRect.top
+        let resultDT = snapToNearestInterval(
+          dt.plus({ hours: localTop / $pixelsPerHour }),
+          $calSnapInterval
+        )
+        previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
+        // for some reason, getOffset works well but localTop introduces a 1~2px inaccuracy
+        // this is because resultDT is AFTER snapping, whereas localTop is BEFORE snapping
+      }
+
+      else {
+        previewTop = null
+      }
+    }
+
+    else {
+      matchedDropzones.update(obj => {
+        delete obj[dropzoneID]
+        return obj
+      })
+
+      // quickfix, manually remove preview (both places are necessary for clearing the previews)
+      previewTop = null
+    }
+  }
+
+  function onclick (e) {
+    if (e.target === e.currentTarget) { // equivalent to `click|self`. e.target := 1st node that detected the click, e.currentTarget := node that detected the event
+      isDirectlyCreatingTask = true
+      yPosition = getY(e)
+    }
+  }
+
   function getY (e) {
     return (
       e.clientY +
-      OverallContainer.scrollTop -
-      OverallContainer.getBoundingClientRect().top -
-      OverallContainer.style.paddingTop
+      dayColumn.scrollTop -
+      dayColumn.getBoundingClientRect().top -
+      dayColumn.style.paddingTop
     )
   }
 
@@ -55,25 +129,16 @@
     return ($pixelsPerHour/60) * minutesDiff 
   }
 
-  function dragover_handler(e) {
-    e.preventDefault()
-    e.stopPropagation()
-    e.dataTransfer.dropEffect = "move"
-  }
+  function performDrop () {
+    const { id, y1 } = $draggedItem
 
-  function drop_handler (e) {
-    const id = e.dataTransfer.getData("text/plain")
-    if (!id) return // it means we're adjusting the duration but it triggers a drop event, and a dragend event must be followed by a drop event
+    const { top } = dayColumn.getBoundingClientRect()
+    const localTop = y1 - top + dayColumn.scrollTop
 
-    e.preventDefault()
-    e.stopPropagation()
-
-    const dropY = getY(e)
-    let resultDT = dt.plus({ 
-      hours: (dropY - $grabOffset) / $pixelsPerHour
-    })
-    
-    resultDT = snapToNearestInterval(resultDT, $calSnapInterval)
+    let resultDT = snapToNearestInterval(
+      dt.plus({ hours: localTop / $pixelsPerHour }),
+      $calSnapInterval
+    )
 
     Task.update({ 
       id,
@@ -83,8 +148,9 @@
       }
     })
 
-    grabOffset.set(0)
-    activeDragItem.set(null)
+    resetDragDrop()
+    
+    previewTop = null // quickfix
   }
 
   // Function to snap a DateTime to the nearest interval (in minutes)
@@ -103,8 +169,7 @@
     }
   }
 
-  // TO-DO: deprecate with luxon
-  function getResultantDateClassObject (trueY) {
+  function getNewDT (trueY) {
     const calendarStartAsMs = dt.toMillis()
 
     const totalHoursDistance = trueY / $pixelsPerHour;
@@ -112,23 +177,18 @@
 
     // Add them together: https://stackoverflow.com/a/12795802/7812829
     const resultantTimeInMs = calendarStartAsMs + totalMsDistance
-    const resultantDateClassObject = new Date(resultantTimeInMs)
-    return resultantDateClassObject
+
+    return DateTime.fromMillis(resultantTimeInMs)
   }
 </script>
 
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
-<div bind:this={OverallContainer} class="overall-container unselectable"
+<div bind:this={dayColumn} class="day-column unselectable"
   style="height: {$totalMinutes * pixelsPerMinute}px;"
   class:grid-y={$user.hasGridlines}
-  on:drop={e => drop_handler(e)}
-  on:dragover={e => dragover_handler(e)}
-  on:click|self={e => {
-    isDirectlyCreatingTask = true
-    yPosition = getY(e)
-  }} on:keydown
+  {onclick}
 >
-  {#if $activeDragItem || $user.hasGridlines}
+  {#if $draggedItem.id || $user.hasGridlines}
     {#each $timestamps as timestamp, i}
       {#if i === $timestamps.length - 1 && timestamp === $calLastHHMM}
         <!-- Skip rendering the last gridline as it causes a 1px overflow from the container's bottom edge -->
@@ -145,28 +205,29 @@
   {#each scheduledTasks as task, i (task.id)}
     <div class="task-absolute" style="top: {getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px;">
       {#if task.iconURL}
-        <IconTaskElement {task}
-          fontSize={0.8}
-        />
+        <IconTaskElement {task} fontSize={0.8} />
       {:else if task.imageDownloadURL}
-        <PhotoTaskElement {task}
-          fontSize={0.8}
-        />
+        <PhotoTaskElement {task} fontSize={0.8} />
       {:else}
-        <TaskElement {task}
-          fontSize={0.8}
-          hasCheckbox
-        />
+        <TaskElement {task} fontSize={0.8} hasCheckbox />
       {/if}
     </div>
   {/each}
 
+  {#if intersecting && previewTop !== null}
+    <div class="task-absolute" style="
+      top: {previewTop}px; 
+      height: {$draggedItem.height}px;
+      {dropPreviewCSS()}
+    "></div>
+  {/if}
+
   {#if isDirectlyCreatingTask}
-    <div id="calendar-direct-task-div" style="top: {yPosition - formFieldTopPadding}px;">
+    <div id="calendar-direct-task-div" style="top: {yPosition}px;">
       <CreateTaskDirectly
-        newTaskStartTime={getHHMM(resultantDateClassObject)}
-        {resultantDateClassObject}
-        on:reset={() => isDirectlyCreatingTask = false}
+        startTime={newDT.toFormat('HH:mm')}
+        startDateISO={newDT.toFormat('yyyy-MM-dd')}
+        onExit={() => isDirectlyCreatingTask = false}
       />
     </div>
   {/if}
@@ -203,7 +264,7 @@
   }
 
   /* DO NOT REMOVE, BREAKS DRAG-AND-DROP AND DURATION ADJUSTMENT */
-  .overall-container {
+  .day-column {
     position: relative;
     overflow-x: hidden;
     width: var(--width-calendar-day-section);

@@ -32,8 +32,7 @@
       <MyJSDatePicker
         startDateISO={taskObject.startDateISO}
         willOpen={$willOpenDatePicker}
-        on:date-selected={e => { 
-          const { mmdd, yyyy } = e.detail
+        ondateselected={({ mmdd, yyyy }) => { 
           if (!(mmdd && yyyy)) handleChanges('startDateISO', '')
           else handleChanges('startDateISO', `${yyyy}-${mmdd.replace('/', '-')}`)
         }}

@@ -8,7 +8,7 @@ import {
   updateDoc, onSnapshot, doc 
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
-import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion, getTreeNodes } from './treeISOs.js'
+import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
 import { showUndoSnackbar } from '$lib/store'
 
 export function isValidISODate (dateStr) {
@@ -117,7 +117,7 @@ const Task = {
   delete: async ({ id }) => {
     return new Promise(async (resolve) => {
       const taskObj = get(tasksCache)[id]
-      const treeNodes = await getTreeNodes(taskObj)
+      const treeNodes = await getSubtreeNodes(taskObj)
 
       // warning: need a way to disable this confirmation when we support sub-tasks for routines
       if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} tasks in this tree?`)) {
@@ -138,7 +138,7 @@ const Task = {
 
   archiveTree: async ({ id }) => {
     const taskObj = get(tasksCache)[id]
-    const tasks = await getTreeNodes(taskObj)
+    const tasks = await getSubtreeNodes(taskObj)
 
     const { uid } = get(user)
     const batch = writeBatch(db)
@@ -163,7 +163,7 @@ const Task = {
     const { uid } = get(user)
     const batch = writeBatch(db)
     const taskObj = get(tasksCache)[id]
-    const tasksToUnarchive = await getTreeNodes(taskObj)
+    const tasksToUnarchive = await getSubtreeNodes(taskObj)
 
     for (const task of tasksToUnarchive) {
       batch.update(doc(db, `/users/${uid}/tasks/${task.id}`), { 

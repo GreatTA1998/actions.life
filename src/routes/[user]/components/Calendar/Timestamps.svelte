@@ -1,11 +1,8 @@
 <script>
-  import { WIDTHS } from '/src/lib/utils/constants.js'
   import { timestamps, calEarliestHHMM, totalMinutes } from './timestamps.js'
-  import { pixelsPerHour, headerHeight, isCompact } from './store.js'
+  import { pixelsPerHour, headerHeight, isCompact, timestampsColumnWidth } from './store.js'
   
   export let style
-
-  let timestampsColumnWidth = $isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
 
   function getTopOffset (timestamp) {
     let origin = minutes($calEarliestHHMM)
@@ -23,7 +20,7 @@
 </script>
 
 <div class="timestamps {$$props.class}"
-  {style} style:width="{timestampsColumnWidth}px" 
+  {style} style:width="{$timestampsColumnWidth}px" 
 >
   {#each $timestamps as timestamp, i (i)}
     <div class="absolute timestamp" style="top: {getTopOffset(timestamp)}px;">

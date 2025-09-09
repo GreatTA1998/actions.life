@@ -22,8 +22,7 @@
     return `FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day}`
   }
 
-  function handleDateSelected (e) {
-    const { yyyy, mmdd } = e.detail
+  function handleDateSelected ({ yyyy, mmdd }) {
     selectedISO = `${yyyy}-${mmdd.replace('/', '-')}`
 
     inputStates.update(states => ({ 
@@ -36,7 +35,7 @@
 <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
   <MyJSDatePicker
     startDateISO={selectedISO}
-    on:date-selected={handleDateSelected}
+    ondateselected={handleDateSelected}
   />
   every year
 </div>

@@ -3,13 +3,23 @@
   import Calendar from '../Calendar/Calendar.svelte'
   import GripHandle from './GripHandle.svelte'
 
-  import { user } from '/src/lib/store'
-  import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
+  import { user } from '$lib/store'
+  import { updateFirestoreDoc } from '$lib/db/helpers.js'
+  import { getContext, onMount, tick } from 'svelte'
+
+  const { logicAreaRect } = getContext('drag-drop')
 
   let isResizing = false
   let startX = 0
   let startWidth = 0
   let listAreaWidth = getInitialWidth()
+
+  onMount(async () => {
+    await tick() // there's a danger that `style` isn't fully applied onMount
+    logicAreaRect.set(
+      () => document.querySelector('.side-by-side-container').getBoundingClientRect()
+    )
+  })
 
   function getInitialWidth () {
     if ($user.listAreaWidthRatio) {

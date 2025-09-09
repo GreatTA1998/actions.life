@@ -1,7 +1,6 @@
 <script>
   import RecursiveTask from '../../[user]/components/TaskTree/RecursiveTask.svelte'
   import ToggleGroup from '../../../lib/components/ToggleGroup.svelte'
-  import '$lib/styles/demo-shared.css'
   import { getContext } from 'svelte'
 
   const { memoryTree, Task } = getContext('app')

@@ -15,6 +15,17 @@ export function createDebouncedFunction (func, waitFor) {
   return debouncedFn
 }
 
+export function createThrottledFunction (func, waitFor) {
+  let last = 0
+  return (...args) => {
+    const now = Date.now()
+    if (now - last >= waitFor) {
+      last = now
+      func(...args)
+    }
+  }
+}
+
 export function formatDate (dateStr) {
   const date = new Date(dateStr)
   return date.toLocaleDateString('en-US', {
