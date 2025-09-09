@@ -7,7 +7,9 @@
   export let pattern = "";
   export let placeholder = "";
   export let willAutofocus = true;
+  
   const dispatch = createEventDispatcher();
+  const formFieldTopPadding = 40
 
   function handleInput(event) {
     let newValue = event.target.value;

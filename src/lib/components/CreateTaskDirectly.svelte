@@ -7,13 +7,15 @@
 
   const { Task } = getContext('app')
 
-  export let startDateISO
-  export let startTime = ''
-  export let onfocusout = () => {}
+  let { 
+    startDateISO = '', 
+    startTime = '', 
+    onExit = () => {} 
+  } = $props()
 
-  let allTemplates = null
-  let searchResults = []
-  let taskName = ''
+  let allTemplates = $state(null)
+  let searchResults = $state([])
+  let taskName = $state('')
 
   onMount(async () => {
     const temp = await Template.getAll({ userID: $user.uid, includeStats: false })
@@ -45,14 +47,13 @@
       id: getRandomID(),
       newTaskObj: {
         ...template,
-        templateID: template.id,
-        isDone: false,
+        templateID: template.id, // necessary because templateID is not a property in `template`
         startDateISO,
         startTime,
         persistsOnList: false
       }
     })
-    onfocusout() // we reset here because this function can get called directly by clicking the search result
+    onExit() // we reset here because this function can get called directly by clicking the search result
   }
 
   async function createNormalTask () {
@@ -67,20 +68,24 @@
         }
       })
     }
-    onfocusout()
+    onExit()
   }
 </script>
 
 <MyInput value={taskName}
   {oninput}
   {onEnterPress}
-  {onfocusout}
+  onfocusout={() => {
+    if (taskName.length === 0) {
+      onExit()
+    }
+  }}
 />
 
 {#if taskName.length >= 1}
   <div class="core-shadow cast-shadow card">
     {#each searchResults as template (template.id)}
-      <div on:click={() => createTaskFrom(template)}
+      <div onclick={() => createTaskFrom(template)}
         class="autocomplete-option"
         class:option-highlight={searchResults.length === 1}
       >

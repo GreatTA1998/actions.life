@@ -20,7 +20,6 @@
   let isDirectlyCreatingTask = $state(false)
   let yPosition = $state(null)
   let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
-  let formFieldTopPadding = 40
   let pixelsPerMinute = $pixelsPerHour / 60
 
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
@@ -228,7 +227,7 @@
       <CreateTaskDirectly
         startTime={newDT.toFormat('HH:mm')}
         startDateISO={newDT.toFormat('yyyy-MM-dd')}
-        onfocusout={() => isDirectlyCreatingTask = false}
+        onExit={() => isDirectlyCreatingTask = false}
       />
     </div>
   {/if}
