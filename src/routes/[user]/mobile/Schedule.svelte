@@ -1,102 +1,67 @@
 {#if $uniqueEvents}
-  <div class="schedule-container">
-    <div class="header">
-      <h1 class="title">Schedule</h1>
+  <div style="background: #f8f9fa; padding: 16px 0px;">
+    <div style="margin-left: 8px; margin-bottom: 8px;">
       <SimpleToggle bind:checked={$user.hideRoutines} label="Exclude routines" />
     </div>
-    <div class="events-list">
-      {#each Object.keys($uniqueEvents) as simpleDateISO}
-        {#if $uniqueEvents[simpleDateISO]}
-          <ScheduleItem 
-            tasksThisDay={[
-              ...$uniqueEvents[simpleDateISO].hasStartTime || [],
-              ...($uniqueEvents[simpleDateISO].noStartTime?.hasIcon || []),
-              ...($uniqueEvents[simpleDateISO].noStartTime?.noIcon || [])
-            ]} 
-            {simpleDateISO}
-          />
-        {/if}
+
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      {#each Object.keys($uniqueEvents) as iso, i}
+        <ScheduleGap {i} {iso} />
+
+        <ScheduleDay 
+          tasksThisDay={[
+            ...$uniqueEvents[iso].hasStartTime || [],
+            ...($uniqueEvents[iso].noStartTime?.hasIcon || []),
+            ...($uniqueEvents[iso].noStartTime?.noIcon || [])
+          ]} 
+          simpleDateISO={iso}
+        />
       {/each}
     </div>
   </div>
 {/if}
 
 <script>
-  import ScheduleItem from './ScheduleItem.svelte'
+  import ScheduleGap from './ScheduleGap.svelte'
+  import ScheduleDay from './ScheduleDay.svelte'
   import SimpleToggle from '$lib/components/SimpleToggle.svelte'
-  import { collection, query, where, onSnapshot } from 'firebase/firestore'
-  import { DateTime } from 'luxon'
-  import { onDestroy } from 'svelte'
   import { organizeToGroups } from '/src/routes/[user]/components/Calendar/service.js'
   import { db } from '$lib/db/init.js'  
-  import { uniqueEvents, user } from '$lib/store'
-  import { updateCache } from '$lib/store'
+  import { uniqueEvents, user, updateCache } from '$lib/store'
+  import { page } from '$app/stores'
+  import { collection, query, where, onSnapshot } from 'firebase/firestore'
+  import { DateTime } from 'luxon'
+  import { onMount, onDestroy } from 'svelte'
 
-  let unsub
-  let futureTasks
+  let userID = $derived($page.params.user)
+  let unsub = $state(() => {})
+  let tasks = $state(null)
+  let tasksNoRoutines = $derived(tasks ? tasks.filter(task => task.templateID === '') : null)
 
-  $: if ($user.uid) {
-    listenToSchedule($user.uid, $user.hideRoutines)
-  }
+  $effect(() => {
+    if (tasks && $user.uid) { // $user.uid checks for hydration
+      uniqueEvents.set(
+        organizeToGroups(
+          $user.hideRoutines ? tasksNoRoutines : tasks
+        )
+      ) 
+    }
+  })
+
+  onMount(() => {
+    const today = DateTime.now()
+    const q = query( // WARNING: unlike the calendar, schedule relies on startDateISO not treeISOs, so it doesn't fetch hierarchy currently
+      collection(db, `/users/${userID}/tasks`),
+      where('startDateISO', '>=', today.toFormat('yyyy-MM-dd')),
+      where('startDateISO', '<=', today.plus({ years: 2 }).toFormat('yyyy-MM-dd'))
+    ) 
+    unsub = onSnapshot(q, snapshot => {
+      tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      updateCache(tasks)
+    })
+  })
 
   onDestroy(() => {
     if (unsub) unsub()
   })
-
-  async function listenToSchedule (uid, hideRoutines = false) {
-    if (unsub) {
-      unsub()
-      uniqueEvents.set(null)
-    }
-
-    const today = DateTime.now()
-    const q = query(
-      collection(db, `/users/${uid}/tasks`),
-      where('startDateISO', '>=', today.toFormat('yyyy-MM-dd')),
-      where('startDateISO', '<=', today.plus({ years: 2 }).toFormat('yyyy-MM-dd'))
-    ) // NOTE: the schedule deviates from the calendar because it doesn't use `treeISOs`
-    unsub = onSnapshot(q, snapshot => {
-      futureTasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-      updateCache(futureTasks)
-
-      if (hideRoutines) {
-        futureTasks = futureTasks.filter(task => task.templateID === '')
-      }
-      const organized = organizeToGroups(futureTasks)
-
-      uniqueEvents.set(organized)
-    })
-  }
 </script>
-
-<style>
-  .schedule-container {
-    display: flex;
-    flex-direction: column;
-    row-gap: 16px;
-    height: 100%;
-    background: #f8f9fa;
-    padding: 16px;
-  }
-
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0 0 8px 0;
-    min-height: 32px;
-  }
-
-  .title {
-    font-size: 24px;
-    color: #202124;
-    margin: 0;
-    line-height: 32px;
-  }
-
-  .events-list {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-</style>
