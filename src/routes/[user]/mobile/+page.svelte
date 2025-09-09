@@ -29,6 +29,8 @@
         <Schedule on:task-duration-adjusted />
       {:else if activeTabName === 'CALENDAR_VIEW'}
         <Calendar />    
+      {:else if activeTabName === 'PHOTO_ARCHIVE'}
+        <PhotoGrid />
       {:else if activeTabName === 'AI_VIEW'}
         <AI />
       {/if}
@@ -41,7 +43,7 @@
             summarize
           </span>
           <div class="nav-tab-desc">
-            List
+            Lists
           </div>
         </div>
       </button>
@@ -60,7 +62,7 @@
             house
           </span>
           <div class="nav-tab-desc">
-            Calendar
+            Cal.
           </div>
         </div>
       </button>
@@ -71,7 +73,18 @@
             upcoming
           </span>
           <div class="nav-tab-desc">
-            Schedule
+            Sched.
+          </div>
+        </div>
+      </button>
+
+      <button class="bottom-nav-tab" on:click={() => activeTabName = 'PHOTO_ARCHIVE'} class:active-nav-tab={activeTabName === 'PHOTO_ARCHIVE'}>
+        <div style="text-align: center;">
+          <span class=" material-icons nav-tab-icon">
+            photo_library
+          </span>
+          <div class="nav-tab-desc">
+            Photos
           </div>
         </div>
       </button>
@@ -96,6 +109,7 @@
   import AI from '../components/AI/AI.svelte'
   import Schedule from './Schedule.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
+  import PhotoGrid from '../components/Archive/PhotoGrid.svelte'
 
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
   import { user, isTaskPopupOpen } from '/src/lib/store'

@@ -90,58 +90,60 @@
   }[dominantGapSize] || 1;
 </script>
 
-<h2 style="margin-top: 4px; display: flex; align-items: top;">
-  {#if selectedRoutine.iconURL}
-    <img src={selectedRoutine.iconURL} alt={selectedRoutine.name} />
-  {:else}
-    {selectedRoutine.name}
-  {/if}
+<div class="main-content">
+  <h2 style="margin-top: 4px; display: flex; align-items: top;">
+    {#if selectedRoutine.iconURL}
+      <img src={selectedRoutine.iconURL} alt={selectedRoutine.name} />
+    {:else}
+      {selectedRoutine.name}
+    {/if}
 
-  <button class:shining={selectedRoutine.isStarred} on:click={() => togglePinToFavorite(selectedRoutine)} 
-    style="margin-left: auto; margin-right: 16px; font-size: 36px;"
-    class:material-symbols-outlined={!selectedRoutine.isStarred}
-    class:material-icons={selectedRoutine.isStarred}
-    >
-    star
-  </button>
-</h2>
-
-<div class="journal-entries">
-  {#if routineInstances}
-    {#each routineInstances as instance, i (instance.id)}
-      {@const gap = calculateGap(instance.startDateISO, routineInstances[i + 1]?.startDateISO)}
-      <div on:click={() => openTaskPopup(instance)} on:keydown
-        class="entry-wrapper" 
-        data-gap={gap.type}
-        style="--gap-size: {calculateGapSize(gap.days)}px"
+    <button class:shining={selectedRoutine.isStarred} on:click={() => togglePinToFavorite(selectedRoutine)} 
+      style="margin-left: auto; margin-right: 16px; font-size: 36px;"
+      class:material-symbols-outlined={!selectedRoutine.isStarred}
+      class:material-icons={selectedRoutine.isStarred}
       >
-        <div class="journal-entry">
-          <div class="journal-entry-header">
-            <div class="date-time">
-              <span class="date">{formatDate(instance.startDateISO)}</span>
-              <span class="time">{formatTime(instance.startTime)}</span>
-            </div>
-            <div class="duration">{formatDuration(instance.duration)}</div>
-          </div>
-          <div class="journal-entry-notes">
-            {#if instance.imageDownloadURL}
-              <img src={instance.imageDownloadURL} alt="Task" style="height: 300px; width: auto;" />
-            {/if}
+      star
+    </button>
+  </h2>
 
-            {instance.notes || ''}
-          </div>
-        </div>
-        
-        {#if routineInstances[i + 1]}
-          <div class="time-gap-container">
-            <div class="time-gap-label">
-              {formatTimeGap(instance.startDateISO, routineInstances[i + 1].startDateISO)}
+  <div class="journal-entries">
+    {#if routineInstances}
+      {#each routineInstances as instance, i (instance.id)}
+        {@const gap = calculateGap(instance.startDateISO, routineInstances[i + 1]?.startDateISO)}
+        <div on:click={() => openTaskPopup(instance)} on:keydown
+          class="entry-wrapper" 
+          data-gap={gap.type}
+          style="--gap-size: {calculateGapSize(gap.days)}px"
+        >
+          <div class="journal-entry">
+            <div class="journal-entry-header">
+              <div class="date-time">
+                <span class="date">{formatDate(instance.startDateISO)}</span>
+                <span class="time">{formatTime(instance.startTime)}</span>
+              </div>
+              <div class="duration">{formatDuration(instance.duration)}</div>
+            </div>
+            <div class="journal-entry-notes">
+              {#if instance.imageDownloadURL}
+                <img src={instance.imageDownloadURL} alt="Task" style="height: 300px; width: auto;" />
+              {/if}
+
+              {instance.notes || ''}
             </div>
           </div>
-        {/if}
-      </div>
-    {/each}
-  {/if}
+          
+          {#if routineInstances[i + 1]}
+            <div class="time-gap-container">
+              <div class="time-gap-label">
+                {formatTimeGap(instance.startDateISO, routineInstances[i + 1].startDateISO)}
+              </div>
+            </div>
+          {/if}
+        </div>
+      {/each}
+    {/if}
+  </div>
 </div>
 
 <style>

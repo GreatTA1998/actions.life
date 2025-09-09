@@ -123,7 +123,7 @@
   }
 </script>
 
-<div class="section">
+<div class="main-content">
   <MultiPhotoUploader style="position: absolute; right: 1vw; top: 1vw;"/>
 
   <div class="month-selector">
@@ -199,11 +199,6 @@
 </div>
 
 <style>
-  .section {
-    margin-bottom: 20px;
-    position: relative;
-  }
-
   .month-selector {
     display: flex;
     flex-direction: column;

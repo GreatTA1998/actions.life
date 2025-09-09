@@ -166,6 +166,12 @@
     resize: none; /*remove the resize handle on the bottom right*/
   }
 
+  :global(.main-content) {
+    padding: 1rem;
+    overflow-y: auto;
+    height: 100%;
+  }
+
   :global(.unselectable) {
     -moz-user-select: -moz-none;
     -khtml-user-select: none;
