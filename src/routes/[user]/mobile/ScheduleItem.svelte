@@ -1,42 +1,30 @@
 {#if tasksThisDay?.length}
   <div class="day-container">
-    <div class="day-header" class:section-complete={completionState.all}>
-      <div class="date-group">
-        {#if isSpecialDay(simpleDateISO)}
-          <span class="day-name">{getDayName(simpleDateISO)}</span>
-          <span class="date">{formatDate(simpleDateISO)}</span>
-        {:else}
-          <span class="date bold">{formatDate(simpleDateISO)}</span>
-          <span class="weekday">{formatWeekday(simpleDateISO)}</span>
-        {/if}
-      </div>
-    </div>
+    <ScheduleItemDateHeader
+      iso={simpleDateISO} {completionState} 
+    />
     
-    <!-- Icon tasks without start time -->
     {#if hasIconTasks}
       <div class="icon-tasks" class:section-complete={completionState.icons}>
         {#each iconTasks as task}
-          <div class="icon-task" class:completed={task.isDone}>
-            <DoodleIcon iconTask={task} size={32} />
+          <div class:completed={task.isDone}>
+            <DoodleIcon iconTask={task} size={iconSize} />
           </div>
         {/each}
       </div>
     {/if}
 
-    <!-- Regular tasks -->
     <div class="tasks-list">
       {#each regularTasks as task}
-        <div class="task-item" 
-          class:highlight={task.highlight} 
-          class:alert={task.alert} 
+        <div on:click={() => openTaskPopup(task)}
+          class="task-item" 
           class:completed={task.isDone}
           class:has-image={task.imageDownloadURL}
-          on:click={() => openTaskPopup(task)} on:keydown
         >
           <div class="task-content">
             <div class="task-indicator">
               {#if task.iconURL}
-                <DoodleIcon iconTask={task} size={24} />
+                <DoodleIcon iconTask={task} size={iconSize} />
               {:else}
                 <Checkbox value={task.isDone} on:change={() => toggleTask(task)} />
               {/if}
@@ -48,9 +36,13 @@
                 {/if}
               </div>
             {/if}
-            <span class="task-text">{task.name}</span>
+            <span class="task-text truncate-to-one-line">
+              {task.name}
+            </span>
             {#if task.startTime}
-              <span class="time">{formatTime(task.startTime)}</span>
+              <span class="time">
+                {formatTime(task.startTime)}
+              </span>
             {/if}
           </div>
         </div>
@@ -60,16 +52,19 @@
 {/if}
 
 <script>
-  import { DateTime } from 'luxon'
+  import ScheduleItemDateHeader from './ScheduleItemDateHeader.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
-  import { openTaskPopup } from '$lib/store'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
+  import { openTaskPopup } from '$lib/store'
+  import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
 
   export let tasksThisDay
   export let simpleDateISO
+
+  const iconSize = 32
 
   // First split by whether they have a start time
   $: tasksWithoutStartTime = tasksThisDay.filter(task => !task.startTime)
@@ -101,33 +96,6 @@
     allTasks: tasksThisDay
   })
 
-  function isSpecialDay(dateStr) {
-    const today = DateTime.now().toFormat('yyyy-MM-dd')
-    const tomorrow = DateTime.now().plus({ days: 1 }).toFormat('yyyy-MM-dd')
-    const yesterday = DateTime.now().minus({ days: 1 }).toFormat('yyyy-MM-dd')
-    
-    return dateStr === today || dateStr === tomorrow || dateStr === yesterday
-  }
-
-  function getDayName(dateStr) {
-    const today = DateTime.now().toFormat('yyyy-MM-dd')
-    const tomorrow = DateTime.now().plus({ days: 1 }).toFormat('yyyy-MM-dd')
-    const yesterday = DateTime.now().minus({ days: 1 }).toFormat('yyyy-MM-dd')
-    
-    if (dateStr === today) return 'Today'
-    if (dateStr === tomorrow) return 'Tomorrow'
-    if (dateStr === yesterday) return 'Yesterday'
-    return DateTime.fromISO(dateStr).toFormat('EEE')
-  }
-
-  function formatDate(dateStr) {
-    return DateTime.fromISO(dateStr).toFormat('MMM dd')
-  }
-
-  function formatWeekday(dateStr) {
-    return DateTime.fromISO(dateStr).toFormat('EEE')
-  }
-
   function formatTime(time) {
     if (!time) return ''
     return DateTime.fromISO(time).toFormat('h:mma').toLowerCase()
@@ -148,43 +116,6 @@
 
   .day-container {
     background: white;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    overflow: hidden;
-  }
-
-  .day-header {
-    padding: 14px 16px;
-    border-bottom: 1px solid #f1f3f4;
-    background: #fff;
-  }
-
-  .date-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .day-name {
-    color: #1a73e8;
-    font-weight: 600;
-    font-size: 16px;
-  }
-
-  .date {
-    color: #70757a;
-    font-size: 15px;
-  }
-
-  .date.bold {
-    color: #1a73e8;
-    font-weight: 600;
-    font-size: 16px;
-  }
-
-  .weekday {
-    color: #70757a;
-    font-size: 15px;
   }
 
   .icon-tasks {
@@ -195,48 +126,21 @@
     border-bottom: 1px solid #f1f3f4;
   }
 
-  .icon-task {
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-  }
-
   .tasks-list {
     display: flex;
     flex-direction: column;
   }
 
   .task-item {
-    padding: 14px 16px;
+    padding: 12px 8px;
     border-bottom: 1px solid #f1f3f4;
     background: white;
     min-height: 24px;
     cursor: pointer;
   }
 
-
   .task-item:last-child {
     border-bottom: none;
-  }
-
-  .task-item.has-image {
-    padding: 16px;
-  }
-
-  .task-item.highlight {
-    background: #f8f9fe;
-  }
-
-  .task-item.alert {
-    background: #fef7f6;
-  }
-
-  .task-text {
-    flex: 1;
-    font-size: 14px;
-    line-height: 20px;
-    transition: all 0.2s ease;
-    color: #202124;
   }
 
   .task-item.completed {
@@ -248,11 +152,25 @@
   }
 
   .task-content {
+    font-size: 30px; /* set font-size here */
+
     display: flex;
     align-items: center;
     flex: 1;
     gap: 8px;
-    min-height: 24px;
+    /* min-height: 24px; */
+  }
+
+  .task-text {
+    flex: 1;
+    color: #202124;
+  }
+
+  .time {
+    color: #70757a;
+    min-width: 60px;
+    text-align: right;
+    transition: color 0.2s ease;
   }
 
   .task-indicator {
@@ -282,35 +200,13 @@
     object-fit: contain;
   }
 
-  .time {
-    color: #70757a;
-    font-size: 0.9em;
-    min-width: 60px;
-    text-align: right;
-    transition: color 0.2s ease;
-  }
-
   .task-item.completed .time {
     color: #4caf50;
     opacity: 0.7;
   }
 
-  /* Completion state styles */
   .task-item.completed,
-  .icon-tasks.section-complete,
-  .day-header.section-complete {
+  .icon-tasks.section-complete {
     background: linear-gradient(to right, rgba(76, 175, 80, 0.06), transparent 50%);
-  }
-
-  /* Header completion state */
-  .day-header.section-complete .day-name,
-  .day-header.section-complete .date.bold {
-    color: #1e8e24;
-  }
-
-  .day-header.section-complete .date:not(.bold),
-  .day-header.section-complete .weekday {
-    color: #4caf50;
-    opacity: 0.7;
   }
 </style>

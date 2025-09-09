@@ -38,7 +38,7 @@
     src={iconTask.iconURL}
     class:clearly-visible={iconTask.isDone}
     class:task-not-done={!iconTask.isDone}
-    style="width: {size}px; height: {size}px; border: 0px solid blue; cursor: pointer;"
+    style="display: block; width: {size}px; height: {size}px; border: 0px solid blue; cursor: pointer;"
     class:radial-glow={iconTask.isDone}
     class="ios-3d-touch-disable unselectable mobile-no-double-tap-zoom"
     draggable="true"

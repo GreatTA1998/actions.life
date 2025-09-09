@@ -4,6 +4,7 @@
       <h1 class="title">Schedule</h1>
       <SimpleToggle bind:checked={$user.hideRoutines} label="Exclude routines" />
     </div>
+
     <div class="events-list">
       {#each Object.keys($uniqueEvents) as simpleDateISO}
         {#if $uniqueEvents[simpleDateISO]}
@@ -76,7 +77,7 @@
     row-gap: 16px;
     height: 100%;
     background: #f8f9fa;
-    padding: 16px;
+    padding: 16px 0px;
   }
 
   .header {
