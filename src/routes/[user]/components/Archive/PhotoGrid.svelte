@@ -181,14 +181,19 @@
             loading="lazy"
           />
           <div class="photo-overlay">
-            <div class="photo-date">
-              {formatDate(task.startDateISO)}
-            </div>
-            {#if task.notes}
-              <div class="photo-caption">
-                {task.notes}
+            <div style="display: flex;">
+              <div class="photo-date truncate-to-one-line" style="font-size: 1rem; font-weight: 500;">
+                {task.name}
               </div>
-            {/if}
+
+              <div style="margin-left: auto; white-space: nowrap; font-weight: 300; font-size: 1rem;">
+                {formatDate(task.startDateISO)}
+              </div>
+            </div>
+    
+            <!-- <div class="photo-caption">
+              {task.notes}
+            </div> -->
           </div>
         </div>
       {/each}
@@ -329,26 +334,16 @@
     position: relative;
     aspect-ratio: 1;
     overflow: hidden;
-    border-radius: 8px;
+    border-radius: 12px;
     background: #f0f0f0;
     cursor: pointer;
     transition: transform 0.2s ease;
-  }
-  
-  .photo-grid-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   }
 
   .photo-grid-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .photo-grid-item:hover img {
-    transform: scale(1.05);
   }
 
   .photo-overlay {
@@ -362,12 +357,6 @@
     opacity: 1;
     display: flex;
     flex-direction: column;
-  }
-
-  .photo-date {
-    font-weight: 500;
-    margin-bottom: 6px;
-    font-size: 1rem;
   }
 
   .photo-caption {

@@ -139,7 +139,7 @@
     <div id="calendar-direct-task-div">
       <CreateTaskDirectly
         startDateISO={ISODate}
-        onreset={() => isDirectlyCreatingTask = false}
+        onExit={() => isDirectlyCreatingTask = false}
       />
     </div>
   {/if}
