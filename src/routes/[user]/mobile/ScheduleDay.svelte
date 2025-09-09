@@ -1,6 +1,6 @@
 {#if tasksThisDay?.length}
-  <div class="day-container">
-    <ScheduleItemDateHeader
+  <div class="day-container core-shadow cast-shadow">
+    <ScheduleDayHeader
       iso={simpleDateISO} {completionState} 
     />
     
@@ -52,7 +52,7 @@
 {/if}
 
 <script>
-  import ScheduleItemDateHeader from './ScheduleItemDateHeader.svelte'
+  import ScheduleDayHeader from './ScheduleDayHeader.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { openTaskPopup } from '$lib/store'
@@ -116,14 +116,14 @@
 
   .day-container {
     background: white;
+    /* border: 1px solid #f1f3f4; */
   }
 
   .icon-tasks {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 12px 16px;
-    border-bottom: 1px solid #f1f3f4;
+    padding: 12px 8px;
   }
 
   .tasks-list {
@@ -133,14 +133,10 @@
 
   .task-item {
     padding: 12px 8px;
-    border-bottom: 1px solid #f1f3f4;
+    border-top: 1px solid #f1f3f4;
     background: white;
     min-height: 24px;
     cursor: pointer;
-  }
-
-  .task-item:last-child {
-    border-bottom: none;
   }
 
   .task-item.completed {
@@ -158,7 +154,6 @@
     align-items: center;
     flex: 1;
     gap: 8px;
-    /* min-height: 24px; */
   }
 
   .task-text {
