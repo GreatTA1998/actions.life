@@ -4,11 +4,9 @@
 </script>
 
 <label class="toggle-switch">
-  <input type="checkbox" bind:checked>
+  <input type="checkbox" bind:checked style="margin: 0;">
   <span class="toggle-slider"></span>
-  {#if label}
-    <span class="toggle-label">{label}</span>
-  {/if}
+  <span class="toggle-label">{label}</span>
 </label>
 
 <style>
