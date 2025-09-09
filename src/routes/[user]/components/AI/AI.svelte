@@ -1,9 +1,10 @@
 <script>
-  import { user } from '/src/lib/store'
+  import { user } from '$lib/store'
   import text from './text'
   import GPT from './GPT.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
+  import Markdown from '$lib/components/Markdown.svelte'
 
   const { Task } = getContext('app')
 
@@ -23,6 +24,12 @@
     tasksJSON: '',
     DateRange: DefaultDateRange,
   }
+
+  let defaultQuestions = [
+    'Any unexpected insights about how I live?',
+    'What might I be neglecting in my life?',  
+    'What new progress have I made this month?'
+  ]
 
   const setState = (newState) => (state = newState)
 
@@ -68,11 +75,12 @@
     {#each state.chat as message}
       {#if message.role === "user"}
         <div class="message-class">
-          <strong>{message.role}:</strong> {message.content}
+          <strong>me:</strong> {message.content}
         </div>
       {:else if message.role === 'assistant'}
         <div>
-          <strong>robot:</strong> {message.content}
+          <strong>robot:</strong>
+          <Markdown content={message.content} />
         </div>
       {/if}
     {/each}
@@ -80,6 +88,14 @@
     {#if loading}
       (The robot starts thinking...)
     {/if}
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 4px;">
+    {#each defaultQuestions as question}
+      <div on:click={() => state.currentInput = question} class="rounded-tag">
+        {question}
+      </div>
+    {/each}
   </div>
 
   <div class="input-section">
@@ -105,13 +121,20 @@
     display: flex;
     flex-direction: column;
     background-color:  var(--navbar-bg-color);
+    padding: 8px;
   }
 
   .chat-box {
-    padding: 1vw;
     flex-grow: 1;
     overflow-y: scroll;
     white-space: pre-wrap;
+  }
+
+  .rounded-tag {
+    border-radius: 16px;
+    padding: 4px 8px;
+    background-color: #c6dbf5;
+    font-size: 16px;
   }
 
   .input-section {
