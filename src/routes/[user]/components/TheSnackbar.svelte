@@ -21,7 +21,7 @@
 {/if}
 
 <script>
-  import { snackbarState, hideSnackbar, SNACKBAR_DURATION } from '/src/lib/store'
+  import { snackbarState, hideSnackbar, SNACKBAR_DURATION } from '$lib/store'
   let timeoutId
 
   function handleUndo() {
