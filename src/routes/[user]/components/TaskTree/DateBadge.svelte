@@ -2,7 +2,7 @@
   import { DateTime } from 'luxon'
   import { round } from '$lib/utils/core.js'
 
-  export let iso
+  let { iso, onclick } = $props()
 
   function isPast (iso) {
     const dt = DateTime.fromISO(iso)
@@ -30,7 +30,7 @@
   } 
 </script>
 
-<button class="date-badge" class:faint={(isPast(iso) && !isToday(iso)) || !iso} on:click on:keydown>
+<button class="date-badge" class:faint={(isPast(iso) && !isToday(iso)) || !iso} {onclick}>
   {formatRelativeTime(iso)}
 </button>
 

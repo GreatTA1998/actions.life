@@ -160,17 +160,16 @@
     />
   </div>
 
-  {#if taskObj.childrenLayout === 'timeline' && taskObj.children.length > 0}
-    {#if !taskObj.isCollapsed}
-      <TimelineRenderer
-        children={taskObj.children}
-        parentID={taskObj.id}
-        {depth}
-        {ancestorRoomIDs}
-        {isLargeFont}
-        {colorForDebugging}
-      />
-    {/if}
+  {#if taskObj.childrenLayout === 'timeline'}
+    <TimelineRenderer
+      {taskObj}
+      children={taskObj.children}
+      parentID={taskObj.id}
+      {depth}
+      {ancestorRoomIDs}
+      {isLargeFont}
+      {colorForDebugging}
+    />
 
     {#if isTypingNewSubtask}  
       <FormField
@@ -252,11 +251,6 @@
   .task-name {
     min-width: 16px; 
     min-height: 16px;
-  }
-
-  .ghost-negative {
-    position: absolute; 
-    bottom: calc(-1 * var(--heights-sub-dropzone))
   }
 
   .task-row-container {

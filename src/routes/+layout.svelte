@@ -299,4 +299,9 @@
       border-radius: 40px;
     }
   }
+
+  :global(.ghost-negative) {
+    position: absolute;
+    bottom: calc(-1 * var(--heights-sub-dropzone))
+  }
 </style>
