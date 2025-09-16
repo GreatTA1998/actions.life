@@ -6,7 +6,8 @@ import {
   arrayUnion,
   collection,
   addDoc
-} from "firebase/firestore"
+} from 'firebase/firestore'
+import { updateFirestoreDoc } from '$lib/db/helpers.js'
 
 const User = {
   schema: z.object({
@@ -38,9 +39,14 @@ const User = {
   }),
 
   // TO-DO: CRUD
-  update (userUID, keyValueChanges) {
-    return updateDoc(doc(db, "users", userUID), keyValueChanges)
-      .catch((err) => console.error("error in User.update", err))
+  async update (userUID, keyValueChanges) {
+    try {
+      const validatedChanges = User.schema.partial().parse(keyValueChanges)
+      await updateFirestoreDoc(`/users/${userUID}`, validatedChanges)
+    } catch (error) {
+      console.error("error in User.update", error)
+      alert(`Error calling User.update: ${error.message}`)
+    }
   },
 
   addIconURL (userUID, name, url, hidden) {

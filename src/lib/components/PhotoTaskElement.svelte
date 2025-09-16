@@ -40,12 +40,6 @@
     {/if}
   </div>
 
-  <div style="flex-grow: 1; overflow: hidden; margin-left: var(--left-padding); margin-top: 6px;">
-    <div style="font-size: 12px; font-weight: 300; color: white;">
-      {task.notes || ''}
-    </div>
-  </div>
-
    <!-- 
      `1vw`: if it's too wide, it overlaps with the task name for short duration tasks 
    -->

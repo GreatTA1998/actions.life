@@ -13,7 +13,10 @@
   import { getRandomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
-  const { Task, user } = getContext('app')
+  const { 
+    Task, 
+    User, user 
+  } = getContext('app')
   const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
 
   let {
@@ -36,11 +39,9 @@
 
   $effect(() => {
     if ($draggedItem) {
-      requestAnimationFrame(() => {
-        checkIntersection(
-          $logicAreaRect() ? clip($draggedItem, $logicAreaRect()) : $draggedItem // quickfix as we don't have a common container between desktop mode and mobile mode
-        )
-      })
+      checkIntersection(
+        $logicAreaRect() ? clip($draggedItem, $logicAreaRect()) : $draggedItem // quickfix as we don't have a common container between desktop mode and mobile mode
+      )
     }
   })
 
@@ -51,7 +52,6 @@
   })
 
   function checkIntersection ({ x1, x2, y1, y2 }) {
-    console.log('x1, y1, x2, y2', x1, y1, x2, y2)
     const dropzoneRect = ReorderDropzone.getBoundingClientRect()
     const overlapping = isOverlapping({ x1, x2, y1, y2 }, dropzoneRect, 0, 0)
 
@@ -80,7 +80,7 @@
  
   async function onReorderDrop () {
     if (isInvalidDrop) {
-      reset()
+      resetDragDrop()
       return
     }
     ReorderDropzone.style.background = ''
@@ -106,11 +106,9 @@
       
       // keep track fo the highest possible maxOrdervalue for this $user
       if (!$user.maxOrderValue || $user.maxOrderValue < newVal) {
-        batch.update(
-          doc(db, `/users/${$user.uid}/`), {
-            maxOrderValue: increment(initialNumericalDifference)
-          }
-        )
+        User.update($user.uid, {
+          maxOrderValue: increment(initialNumericalDifference)
+        })
       }
 
       newVal = Math.max(newVal, $user.maxOrderValue)
@@ -129,13 +127,7 @@
       persistsOnList: true // non-persistent tasks, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
     }})
 
-    try {
-      await batch.commit() // for updating user's maxOrderValue
-    } catch (error) {
-      alert('Error updating dragged task =' + error.message)
-    } finally {
-      resetDragDrop()
-    }
+    resetDragDrop()
   }
 </script>
 

@@ -4,13 +4,12 @@
   import PeriodicityEditor from '/src/routes/[user]/components/Templates/components/TemplatePopup/PeriodicityEditor.svelte'
   import { getContext } from 'svelte'
 
-  const { closeTaskPopup } = getContext('app')
+  const { closeTaskPopup, user } = getContext('app')
+  let { taskObject } = $props()
+  let isCreatingRoutine = $state(false)
 
-  export let taskObject
-
-  let isCreatingRoutine = false
-
-  function toggleCreate () {
+  function toggleCreate (e) {
+    e.stopPropagation()
     isCreatingRoutine = !isCreatingRoutine
   }
 
@@ -22,13 +21,15 @@
 </script>
 
 {#if taskObject.templateID}
-  <button on:click={redirectToRoutine} class="action-button material-symbols-outlined">
+  <button onclick={redirectToRoutine} class="my-btn material-symbols-outlined">
     autorenew
-  </button>
+  </button> 
 
-  <u on:click={redirectToRoutine} on:keydown style="cursor: pointer;">Manage routine</u>
+  <u onclick={redirectToRoutine} style="cursor: pointer;">Manage routine</u>
 {:else}
-  <button on:click|stopPropagation={toggleCreate} class="action-button material-symbols-outlined">
+  <button onclick={toggleCreate} class="my-btn material-symbols-outlined" 
+    class:greyed-out={$user.uid === 'demo-user'} disabled={$user.uid === 'demo-user'}
+  >
     autorenew
   </button>
 
@@ -38,12 +39,16 @@
 {/if}
 
 <style>
-  .action-button {
+  .my-btn {
+    font-size: 23px;
     background: none;
     border: none;
-    cursor: pointer;
-    font-size: 23px;
     color: rgb(20, 20, 20);
     position: relative;
+  }
+
+  .greyed-out {
+    color: rgb(200, 200, 200);
+    cursor: default;
   }
 </style> 

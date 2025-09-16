@@ -8,24 +8,40 @@
   import realTask from '$lib/db/models/Task.js'
   import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'
 
-  const isTaskPopupOpen = writable(false)
-  const settingsOpen = writable(false)
-  const hasFetchedUser = writable(true)
-  const tasksCache = writable({})
   const clickedTaskID = writable('')
 
-  // completely local database
-  // but leverage the same API as the real database
+  const user = writable({
+    uid: 'demo-user',
+    maxOrderValue: 100
+  })
 
-  // Mock stores
-  export const mockStores = {
-    tasksCache: writable({}),
-    user: writable({ uid: 'demo-user', maxOrderValue: 100 }),
-    defaultPhotoLayout: writable('side-by-side'),
-    openTaskPopup: (task) => console.log('Demo: Would open popup for:', task.name),
-    closeTaskPopup: () => {
-      clickedTaskID.set('')
+  const User = {
+    update: (uid, kvChanges) => {
+      user.update(() => {
+        for (const k in kvChanges) {
+          user[k] = kvChanges[k]
+        }
+        return user
+      })
     }
+  }
+
+  function openTaskPopup (task) {
+    clickedTaskID.set(task.id)
+  }
+
+  function closeTaskPopup () {
+    clickedTaskID.set('')
+  }
+
+  function uploadMockPhoto ({ id }) {
+    Task.update({
+      id,
+      keyValueChanges: {
+        imageDownloadURL: '/optimized_camino.jpg',
+        notes: `Tired as hell but the scenery was great. Met some really great folks. [photo and notes for demo purposes]`
+      }
+    })
   }
 
   export const Task = {
@@ -53,6 +69,8 @@
     create: ({ id, newTaskObj }) => {
       firestoreDocs.update(docs => [...docs, { ...newTaskObj, id: newTaskObj.name }])
     },
+    // DANGER, SHOULD BE PROPERLY IMPLEMENTED, AND OTHER PARTS
+    // THAT REFERENCE SPECIFIC TASKS SHOULD USE ID TO BE MORE ROBUST
     delete: ({ id }) => {
       console.log('Demo: Would delete task', id)
     },
@@ -96,14 +114,16 @@
 
   const updateLogTasks = [
     init({ name: 'Update Log', childrenLayout: 'timeline' }),
-    init({
-      name: 'life-organizer.com',
-      imageDownloadURL: '/life-organizer.com.jpg',
+    init({ 
+      name: 'life-organizer.com', 
+      startDateISO: '2021-01-15',
+      imageDownloadURL: '/life-organizer.com.jpg', 
       notes: "First prototype for a recursive task trees next to a calendar column",
       parentID: 'Update Log'
     }),
     init({
       name: 'intentions.life',
+      startDateISO: '2024-01-15',
       notes: "Complete overhaul of the timeline visualization with better chronological organization.",
       parentID: 'Update Log'
     }),
@@ -113,7 +133,34 @@
       parentID: 'intentions.life'
     }),
     init({
+      name: 'Backend infrastructure overhaul',
+      notes: 'Joi schemas, multiple back-up firebase instances, fine-grained reactivity',
+      parentID: 'Maryus Martsalius'
+    }),
+    init({
+      name: 'Frontier features',
+      notes: 'AI can leverage the calendar logs for insights. The rest were UI mechanisms that were unusual but more natural.',
+      parentID: 'Maryus Martsalius'
+    }),
+    init({
+      name: 'AI',
+      parentID: 'Frontier features',
+      notes: 'Details to be added about the design process and trade-offs'
+    }),
+    init({
+      name: 'Infinite scroll',
+      parentID: 'Frontier features',
+      notes: 'Details to be added about the design process and trade-offs'
+    }),
+    
+    init({
+      name: 'Resizeable areas',
+      parentID: 'Frontier features',
+      notes: 'Details to be added about the design process and trade-offs'
+    }),
+    init({
       name: 'actions.life',
+      startDateISO: '2025-05-15',
       notes: 'Timelines as a first-class citizen, multi-lists',
       parentID: 'Update Log'
     })
@@ -128,17 +175,18 @@
   }
 
   const firestoreDocs = writable(tasks)
+  const tasksCache = derived(firestoreDocs, () => {
+    for (const task of $firestoreDocs) {
+      tasksCache[task.id] = task
+    }
+    return tasksCache
+  })
   const memoryTree = derived(firestoreDocs, () => reconstructTreeInMemory($firestoreDocs))
 
-  console.log("memoryTree =", $memoryTree)
-
   setContext('app', {
-    Task,
-    tasksCache,
-    clickedTaskID,
-    closeTaskPopup: mockStores.closeTaskPopup,
-    ancestralTree: mockStores.ancestralTree,
-    openTaskPopup: mockStores.openTaskPopup,
-    memoryTree
+    User, user,
+    Task, memoryTree,
+    tasksCache, clickedTaskID,
+    closeTaskPopup, openTaskPopup, uploadMockPhoto,
   })
 </script>

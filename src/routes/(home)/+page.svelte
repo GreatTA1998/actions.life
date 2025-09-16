@@ -11,6 +11,7 @@
   import VisionSection from './components/VisionSection.svelte'
   import ArtisticBackground from './components/ArtisticBackground.svelte'
   import TopNavbar from './components/TopNavbar.svelte'
+  import TaskPopup from '../[user]/components/TaskPopup/TaskPopup.svelte'
 </script>
 
 {#if hasFetchedUser}
@@ -39,6 +40,8 @@
           <!-- <AppDetailsSection /> -->
 
           <UpdateLogSection />
+
+          <TaskPopup />
         </DemoContextProvider>
       </div>
     </div>
