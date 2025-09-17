@@ -1,25 +1,22 @@
 <script>
   import BaseMenu from '$lib/components/BaseMenu.svelte'
   import ToggleGroup from '$lib/components/ToggleGroup.svelte'
-  import { createEventDispatcher } from 'svelte'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
 
-  export let taskObj
-
-  const dispatch = createEventDispatcher()
+  let { taskObj, onSubtaskAdd } = $props()
 </script>
 
 <BaseMenu let:toggle={toggle} let:close={close}>
   <div style="line-height: 0; max-height: 16px; overflow: visible; display: flex; align-items: center;">
-    <button on:click={toggle} class="material-symbols-outlined menu-icon" style="font-size: 24px;">
+    <button onclick={toggle} class="material-symbols-outlined menu-icon" style="font-size: 24px;">
       more_vert
     </button>
   </div>
 
   <div slot="content" style="z-index: 1000; padding: 12px; display: flex; flex-direction: column; row-gap: 8px;">
-    <button class="m-item" on:click={() => { dispatch('subtask-add'); close(); }}>
+    <button class="m-item" onclick={() => { onSubtaskAdd(); close(); }}>
       <span class="material-symbols-outlined" style="font-size: 22px;">
         add
       </span>
@@ -27,14 +24,14 @@
     </button>
 
     <div class="menu-divider"></div>
-    <ToggleGroup on:select={e => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: e.detail.value }})}
+    <ToggleGroup onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal }})}
       options={[{ text: 'normal', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
       activeValue={taskObj.childrenLayout} 
     />
 
     <div class="menu-divider"></div>
 
-    <button class="m-item" on:click={() => { Task.archiveTree({ id: taskObj.id }) }}>
+    <button class="m-item" onclick={() => { Task.archiveTree({ id: taskObj.id }) }}>
       <span class="material-symbols-outlined" style="font-size: 18px;">
         inventory_2
       </span>

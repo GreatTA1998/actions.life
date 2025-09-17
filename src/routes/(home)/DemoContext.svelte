@@ -1,15 +1,14 @@
-<slot>
-
-</slot>
+{@render children()}
 
 <script>
   import { setContext } from 'svelte'
-  import { writable, derived } from 'svelte/store'
+  import { writable } from 'svelte/store'
   import realTask from '$lib/db/models/Task.js'
   import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'
 
-  const clickedTaskID = writable('')
+  let { children } = $props()
 
+  const clickedTaskID = writable('')
   const user = writable({
     uid: 'demo-user',
     maxOrderValue: 100
@@ -26,53 +25,39 @@
     }
   }
 
-  function openTaskPopup (task) {
-    clickedTaskID.set(task.id)
-  }
-
-  function closeTaskPopup () {
-    clickedTaskID.set('')
-  }
-
-  function uploadMockPhoto ({ id }) {
-    Task.update({
-      id,
-      keyValueChanges: {
-        imageDownloadURL: '/optimized_camino.jpg',
-        notes: `Tired as hell but the scenery was great. Met some really great folks. [photo and notes for demo purposes]`
-      }
-    })
-  }
-
-  export const Task = {
+  const Task = {
     update: ({ id, keyValueChanges }) => {
       firestoreDocs.update(docs => {
+        // deep copies of everything
         for (let i = 0; i < docs.length; i++) {
           if (docs[i].id === id) {
-            console.log("docs[i] =", docs[i])
             docs[i] = { ...docs[i], ...keyValueChanges }
+          } else {
+            docs[i] = { ...docs[i] }
           }
         }
         return docs
       })
-
-      console.log('Demo: Would update task', id, 'with', keyValueChanges)
-
-      // cache related logic
-      mockStores.tasksCache.update(cache => {
-        if (cache[id]) {
-          cache[id] = { ...cache[id], ...keyValueChanges }
-        }
-        return cache
-      })
     },
     create: ({ id, newTaskObj }) => {
+      console.log('create task =', newTaskObj)
       firestoreDocs.update(docs => [...docs, { ...newTaskObj, id: newTaskObj.name }])
     },
     // DANGER, SHOULD BE PROPERLY IMPLEMENTED, AND OTHER PARTS
     // THAT REFERENCE SPECIFIC TASKS SHOULD USE ID TO BE MORE ROBUST
     delete: ({ id }) => {
-      console.log('Demo: Would delete task', id)
+      firestoreDocs.update(docs => {
+        // deep copies of everything
+        const temp = []
+        for (let i = 0; i < docs.length; i++) {
+          if (docs[i].id === id) {
+            continue
+          } else {
+            temp.push({ ...docs[i] })
+          }
+        }
+        return temp
+      })
     },
     archiveTree: ({ id }) => {
       console.log('Demo: Would archive tree', id)
@@ -82,10 +67,10 @@
   const init = realTask.schema.parse
 
   const habitTasks = [
-    init({ name: 'Morning Run', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FEPtvgSIsPkpznSIffOoa.png?alt=media&token=018a960d-1f76-47eb-a0fe-85c6a5423bd9' }),
-    init({ name: 'Post-Run Stretch', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2F6w6I9VRWZLRWqphuLgFz.png?alt=media&token=ba68dd3b-83fe-4ed2-bc38-9a2888d31f1b' }),
-    init({ name: 'Hydration Check', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FhsCFkECSF4PcFt6MOcW0.png?alt=media&token=d4ed8987-9001-43bc-b48b-4f36caef6fb1' }),
-    init({ name: 'Track Nutrition', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2Fk49WsIjV1kQ2e6MW52BR.png?alt=media&token=0d44da5b-dfd7-4ff3-9971-3637b748c6be' })
+    init({ name: 'Water the plant', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FEPtvgSIsPkpznSIffOoa.png?alt=media&token=018a960d-1f76-47eb-a0fe-85c6a5423bd9' }),
+    init({ name: 'Drink water', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2F6w6I9VRWZLRWqphuLgFz.png?alt=media&token=ba68dd3b-83fe-4ed2-bc38-9a2888d31f1b' }),
+    init({ name: 'Meditate', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FhsCFkECSF4PcFt6MOcW0.png?alt=media&token=d4ed8987-9001-43bc-b48b-4f36caef6fb1' }),
+    init({ name: 'Dry laundry', iconURL: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2Fk49WsIjV1kQ2e6MW52BR.png?alt=media&token=0d44da5b-dfd7-4ff3-9971-3637b748c6be' })
   ]
 
   const timelineTasks = [
@@ -101,16 +86,10 @@
     init({
       name: 'End of trail',
       startDateISO: '2026-08-31',
-      parentID: 'Walk the Camino de Santiago'
+      parentID: 'Walk the Camino de Santiago',
+      duration: 120
     })
   ]
-
-  const journalTask = init({
-    name: 'End of trail',
-    startTime: '07:00',
-    startDateISO: '2026-08-31',
-    duration: 120
-  })
 
   const updateLogTasks = [
     init({ name: 'Update Log', childrenLayout: 'timeline' }),
@@ -166,27 +145,43 @@
     })
   ]
 
-  const tasks = [...habitTasks, ...timelineTasks, journalTask, ...updateLogTasks]
+  const tasks = [...habitTasks, ...timelineTasks, ...updateLogTasks]
 
-  // IMPORTANT
-  // SET THE IDS MANUALLY HERE
-  for (const task of tasks) {
-    task.id = task.name
+  // set ids manually
+  for (let i = 0; i < tasks.length; i++) {
+    tasks[i].id = tasks[i].name
+    tasks[i].orderValue = i + 1
   }
 
   const firestoreDocs = writable(tasks)
-  const tasksCache = derived(firestoreDocs, () => {
-    for (const task of $firestoreDocs) {
-      tasksCache[task.id] = task
+  const tasksCache = writable({})
+  const memoryTree = writable([])
+
+  firestoreDocs.subscribe(docs => {
+    const temp = {}
+    for (const task of docs) {
+      temp[task.id] = task
     }
-    return tasksCache
+    tasksCache.set(temp)
+    memoryTree.set(reconstructTreeInMemory(docs))
   })
-  const memoryTree = derived(firestoreDocs, () => reconstructTreeInMemory($firestoreDocs))
 
   setContext('app', {
     User, user,
-    Task, memoryTree,
-    tasksCache, clickedTaskID,
-    closeTaskPopup, openTaskPopup, uploadMockPhoto,
+    Task,
+    tasksCache, 
+    memoryTree,
+    clickedTaskID,
+    closeTaskPopup: () => clickedTaskID.set(''),
+    openTaskPopup: (task) => clickedTaskID.set(task.id), 
+    uploadMockPhoto: ({ id }) =>{
+      Task.update({
+        id,
+        keyValueChanges: {
+          imageDownloadURL: '/optimized_camino.jpg',
+          notes: `Tired as hell but the scenery was great. Met some really great folks.`
+        }
+      })
+    }
   })
 </script>

@@ -7,7 +7,7 @@
 
 <script>
   import { isOverlapping, getOverlapArea, clip } from '$lib/utils/dragDrop.js'
-  import { increment, writeBatch, doc } from 'firebase/firestore'
+  import { writeBatch } from 'firebase/firestore'
   import { db } from '$lib/db/init'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
@@ -107,7 +107,7 @@
       // keep track fo the highest possible maxOrdervalue for this $user
       if (!$user.maxOrderValue || $user.maxOrderValue < newVal) {
         User.update($user.uid, {
-          maxOrderValue: increment(initialNumericalDifference)
+          maxOrderValue: ($user.maxOrderValue || 0) + initialNumericalDifference // don't rely on increment as it alarms zod
         })
       }
 

@@ -12,15 +12,6 @@
 
   let { children } = $props()
 
-  async function uploadImage ({ e, taskObject }) {
-    await singleUpload({ 
-      e,
-      taskObject,
-      willCompress: $user.photoCompressWhenAttachingToTask,
-      willArchive: $user.photoUploadAutoArchive,
-    })
-  }
-
   setContext('app', {
     User, user,
     Task, 
@@ -33,6 +24,15 @@
     uploadImage,
     willOpenDatePicker
   })
+
+  async function uploadImage ({ e, taskObject }) {
+    await singleUpload({ 
+      e,
+      taskObject,
+      willCompress: $user.photoCompressWhenAttachingToTask,
+      willArchive: $user.photoUploadAutoArchive,
+    })
+  }
 </script>
 
 {@render children()}

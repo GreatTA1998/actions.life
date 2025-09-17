@@ -5,7 +5,14 @@
 
   const { memoryTree, Task } = getContext('app')
 
-  $: taskObj = $memoryTree[4]
+  let taskObj = $derived.by(() => {
+    for (const tree of $memoryTree) {
+      if (tree.name === 'Walk the Camino de Santiago') {
+        return tree
+      }
+    }
+    return null
+  })
 </script>
 
 <div class="demo-section">
@@ -23,10 +30,10 @@
             { text: 'timeline', value: 'timeline' }
           ]} 
           activeValue={taskObj.childrenLayout}
-          on:select={e => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: e.detail.value } })}
+          onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal } })}
         />
       </div>
-      
+
       <RecursiveTask 
         taskObj={taskObj}
         depth={0}

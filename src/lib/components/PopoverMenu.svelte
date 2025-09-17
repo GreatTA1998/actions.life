@@ -1,4 +1,6 @@
 <script>
+  let { activator, content } = $props()
+
   let popoverElement
 
   async function toggle () {
@@ -14,17 +16,13 @@
   }
 </script>
 
-<slot {open} {close} {toggle}>
-
-</slot>
+{@render activator({ open, close, toggle })}
 
 <div bind:this={popoverElement}
   popover="auto" 
   class="card"
 >
-  <slot name="content">
-
-  </slot>
+  {@render content()}
 </div>
 
 <style>

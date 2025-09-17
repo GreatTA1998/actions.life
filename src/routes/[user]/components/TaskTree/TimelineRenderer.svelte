@@ -162,18 +162,22 @@
           contentHeights = contentHeights
         }}
       >      
-        <RecursiveTask {...renderTask(child, depth + 1)}>
-          <div slot="info-badge">
-            <DateBadge iso={child.startDateISO} onclick={() => {
-              willOpenDatePicker.set(true)
-              openTaskPopup(child)
-            }}/>
-          </div>
+        {#snippet infoBadge ()}
+          <DateBadge iso={child.startDateISO} onclick={() => {
+            willOpenDatePicker.set(true)
+            openTaskPopup(child)
+          }}/>
+        {/snippet}
 
-          <div slot="vertical-timeline">
-            <TimelineRendererVisuals {i} sorted={allSorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
-          </div>
-        </RecursiveTask>
+        {#snippet verticalTimeline ()}
+          <TimelineRendererVisuals {i} sorted={allSorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
+        {/snippet}
+
+        <RecursiveTask 
+          {...renderTask(child, depth + 1) }
+          {verticalTimeline}
+          {infoBadge} 
+        />
       </div>
 
       <div class:ghost-negative={i === allSorted.length - 1}

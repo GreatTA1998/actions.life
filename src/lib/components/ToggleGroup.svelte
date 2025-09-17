@@ -1,16 +1,15 @@
 <script>
-  import { createEventDispatcher } from 'svelte'
-
-  export let options = [] 
-  export let activeValue
-  export let useIcons = false
-
-  const dispatch = createEventDispatcher()
+  let {
+    onselect,
+    options = [],
+    activeValue,
+    useIcons = false // but used by photo layout settings
+  } = $props()
 </script>
 
 <div class="toggle-group">
   {#each options as option}
-    <button on:click={() => dispatch('select', option)} class="toggle-btn" class:active={option.value === activeValue}>
+    <button onclick={() => onselect(option.value)} class="toggle-btn" class:active={option.value === activeValue}>
       {#if useIcons}
         <span class="material-symbols-outlined">{option.icon}</span>
       {:else}

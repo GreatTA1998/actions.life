@@ -2,17 +2,18 @@
   import { deleteImage } from '$lib/db/helpers.js'
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
+  const { Task, user } = getContext('app')
 
-  export let taskObject
+  let { taskObject } = $props()
 
   function confirmDeletePhoto (imageFullPath) {
     if (confirm('Are you sure you want to delete the photo?')) {
-      deleteImage({ imageFullPath })
-
+      if ($user.uid !== 'demo-user') {
+        deleteImage({ imageFullPath })
+      }
       Task.update({ 
         id: taskObject.id,
-        keyValueChanges: {
+        keyValueChanges: { 
           imageDownloadURL: '',
           imageFullPath: ''
         }
@@ -21,8 +22,8 @@
   }
 </script>
 
-<button class="photo-row-action" 
-  on:click={() => confirmDeletePhoto(taskObject.imageFullPath)}
+<button onclick={() => confirmDeletePhoto(taskObject.imageFullPath)} 
+  class="photo-row-action" 
 >
   <span class="material-symbols-outlined">no_photography</span>
   <span class="photo-row-label">Remove photo</span>
@@ -46,13 +47,16 @@
     justify-content: flex-start;
     box-sizing: border-box;
   }
+
   .photo-row-action .material-symbols-outlined {
     font-size: 18px;
   }
+
   .photo-row-label {
     font-size: 14px;
     font-weight: 400;
   }
+
   .photo-row-action:hover {
     background: rgba(0,0,0,0.05);
   }

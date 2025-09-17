@@ -30,7 +30,7 @@
 <div class="photo-settings">  
   <div class="layout-options">
     <ToggleGroup options={photoLayoutOptions} 
-      on:select={e => updateDefaultPhotoLayout(e.detail.value)} 
+      onselect={e => updateDefaultPhotoLayout(e.detail.value)} 
       activeValue={$defaultPhotoLayout}
       useIcons
     />

@@ -4,9 +4,9 @@
   import { WIDTHS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
-  const { memoryTree } = getContext('app')
+  const { tasksCache } = getContext('app')
 
-  let journalTask = $derived($memoryTree.filter(task => task.name === 'End of trail')[0])
+  let journalTask = $derived($tasksCache['End of trail'])
 </script>
 
 <div class="demo-section">

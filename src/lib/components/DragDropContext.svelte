@@ -73,7 +73,6 @@
       i.y2 = i.y1 + i.height
       return i
     })
-    console.log("$matchedDropzones", $matchedDropzones)
     bestDropzoneID.set(
       resolveBest($matchedDropzones)
     )

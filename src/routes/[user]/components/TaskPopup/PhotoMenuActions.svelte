@@ -7,14 +7,14 @@
 
   const { Task } = getContext('app')
 
-  export let taskObject
+  let { taskObject } = $props()
 </script> 
 
 <div>
   <ToggleGroup 
     options={photoLayoutOptions} useIcons
     activeValue={taskObject.photoLayout} 
-    on:select={e => Task.update({ id: taskObject.id, keyValueChanges: { photoLayout: e.detail.value }})}
+    onselect={newVal => Task.update({ id: taskObject.id, keyValueChanges: { photoLayout: newVal }})}
   >
   </ToggleGroup>
 
