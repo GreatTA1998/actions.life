@@ -8,62 +8,59 @@
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
   
-  export let children = []
-  export let depth
-  export let parentID
-  export let ancestorRoomIDs = []
-  export let isLargeFont = false
-  export let colorForDebugging
+  let { 
+    taskObj,
+    children = [], 
+    depth, 
+    parentID, 
+    ancestorRoomIDs = [],
+    isLargeFont = false,
+    colorForDebugging 
+  } = $props()
   
   const { openTaskPopup, willOpenDatePicker } = getContext('app')
 
   const defaultPxPerDay = 0.4
-  const taskNameHeight = 30
   const dropzoneHeight = 16
   const squareHeight = 12.5
 
-  let dayDiffs = {}
-  let margins = {}
-  let contentHeights = {}
-  let pxPerDay = defaultPxPerDay
-  let timeMarkerTop = 0
-  let sorted = []
-  let scheduled = []
-  let unscheduled = []
-
-  $: computeStateArrays(children)
-
-  // `contentHeights` will fire on mount, and on subsequent child expand/collapse
-  // TO-DO: reduce the number of duplicate calls
-  $: if (sorted.length > 0) updateScaleFactor(contentHeights)
-
-  function computeStateArrays () {
-    scheduled = children.filter(c => c.startDateISO)
-    sorted = [...scheduled].sort((a, b) => a.startDateISO.localeCompare(b.startDateISO))
-
-    unscheduled = children.filter(c => !c.startDateISO)
-  }
-
-  function computeMarginBottom (i) {
-    if (i == sorted.length - 1) return 0
-    else {
-      const gap = dayDiffs[i] * pxPerDay
-      return Math.max(0, gap - contentHeights[i] - dropzoneHeight)
+  let allSorted = $derived(children.sort(chronologically))
+  let n = $derived(allSorted.length)
+  let contentHeights = $state({})
+  let { 
+    dayDiffs, 
+    margins, 
+    pxPerDay, 
+    timeMarkerTop 
+  } = $derived.by(() => {
+    if (allSorted.length > 0 && contentHeights) { // `contentHeights` will fire on mount, and on subsequent child expand/collapse, potentially duplicate calls
+      return computeTimelineVars(contentHeights)
     }
+    else {
+      return { dayDiffs: {}, margins: {}, pxPerDay: defaultPxPerDay, timeMarkerTop: 0 }
+    }
+  })
+
+  function chronologically (a, b) {
+    if (a.startDateISO && b.startDateISO) return a.startDateISO.localeCompare(b.startDateISO)
+    else if (a.startDateISO) return -1
+    else if (b.startDateISO) return 1
+    else return 0
   }
 
-  function updateScaleFactor () {    
-    // TO-DO: reset dayDiffs, margins etc. on reactivity changes, or there will be remnant data
-    // this is only a partial fix, it only leaves remnant margins when the last timeline node is deleted
-    dayDiffs = {}
-    margins = {}
+  function computeTimelineVars () {    
+    const dayDiffs = {}
+    const margins = {}
+    let timeMarkerTop = 0
+    let pxPerDay = defaultPxPerDay
 
-    for (let i = 0; i <= sorted.length - 2; i++) {
+    for (let i = 0; i <= allSorted.length - 2; i++) {
       dayDiffs[i] = getDayDiff(i, i+1)
     }
 
+    // compute scale factor
     let candidates = []
-    for (let i = 0; i <= sorted.length - 2; i++) {
+    for (let i = 0; i <= allSorted.length - 2; i++) {
       if (dayDiffs[i] === null) continue
       else {
         const minVisualGap = contentHeights[i] + dropzoneHeight
@@ -77,22 +74,24 @@
 
     pxPerDay = Math.max(...candidates, defaultPxPerDay)
 
-    for (let i = 0; i <= sorted.length - 2; i++) {
-      margins[i] = computeMarginBottom(i)
+    for (let i = 0; i <= allSorted.length - 2; i++) {
+      if (i == allSorted.length - 1) margins[i] = 0
+      else {
+        const gap = dayDiffs[i] * pxPerDay
+        margins[i] = Math.max(0, gap - contentHeights[i] - dropzoneHeight)
+      }
     }
-    margins = margins
 
-    // TO-DO: make this an explicit effect
-    // compute the positioning of the time marker
-    const n = sorted.length
+    // compute time marker
+    const n = allSorted.length
     if (n > 0) {
       const d1 = DateTime.now()
-      const d2 = DateTime.fromISO(sorted[0].startDateISO)
+      const d2 = DateTime.fromISO(allSorted[0].startDateISO)
       const diff = d1.diff(d2).as('days')
       
       if (diff < 0) timeMarkerTop = -6 // cap at the top border limit
       
-      else if (DateTime.now().toFormat('yyyy-MM-dd') > sorted[n-1].startDateISO) {
+      else if (DateTime.now().toFormat('yyyy-MM-dd') > allSorted[n-1].startDateISO) {
         let totalHeight = 0
         for (let i = 0; i <= n - 2; i++) {
           totalHeight += contentHeights[i] + dropzoneHeight + margins[i]
@@ -101,22 +100,17 @@
       } 
       else {
         timeMarkerTop = diff * pxPerDay  + squareHeight/2
-        // if (sorted[0].name === '2' && sorted[n-1].name === 'ew task') {
-        //   console.log('general case')
-        // }
       }
-
-      // if (sorted[0].name === '2' && sorted[n-1].name === 'ew task') {
-      //   console.log("timemarkerTop =", timeMarkerTop)
-      // }
     }
+
+    return { dayDiffs, margins, pxPerDay, timeMarkerTop }
   } 
   
   function getDayDiff (i, j) {
-    const iso1 = sorted[i].startDateISO
-    const iso2 = sorted[j].startDateISO
+    const iso1 = allSorted[i].startDateISO
+    const iso2 = allSorted[j].startDateISO
 
-    if (!iso1 || !iso2) return null 
+    if (!iso1 || !iso2) return 1 // was null
     else {
       const dt1 = DateTime.fromISO(iso1)
       const dt2 = DateTime.fromISO(iso2)
@@ -124,11 +118,11 @@
     }
   }
 
-  function renderDropzone (idx, nodesThisLevel) {
+  function renderDropzone (idx) {
     return {
       idxInThisLevel: idx,
       ancestorRoomIDs: [parentID, ...ancestorRoomIDs],
-      roomsInThisLevel: nodesThisLevel,
+      roomsInThisLevel: allSorted,
       parentID: parentID,
       colorForDebugging,
     }
@@ -145,83 +139,62 @@
   }
 </script>
 
-<div style="position: relative; margin-left: {WIDTHS.INDENT_PER_LEVEL}px;">  
-  {#if sorted.length > 0}
-    <Dropzone {...renderDropzone(0, sorted)} />
-  {/if}
+<div style="margin-left: {WIDTHS.INDENT_PER_LEVEL}px;">  
+  {#if !taskObj.isCollapsed}
+    <div class:ghost-negative={n === 0}  
+      style="
+        left: {WIDTHS.INDENT_PER_LEVEL}px;
+        width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px; 
+        z-index: {depth};
+      "
+    >
+      <Dropzone {...renderDropzone(0)} />
+    </div>
 
-  <div style="position: relative;">
-    <!--
-     opacity creates a new stacking context, breaking the marker dot 
-     opacity: {child.startDateISO < DateTime.now().toFormat('yyyy-MM-dd') ? 0.6 : 1}; -->
-    {#each sorted as child, i (child.id)}
+    {#each allSorted as child, i (child.id)}
       <div style="
-        position: relative; display: flex; align-items: center;
-        margin-bottom: {margins[i]}px;"
+          margin-bottom: {margins[i]}px;
+          position: relative;
+          display: flex; align-items: center;
+        "
         use:trackHeight={h => { 
           contentHeights[i] = h
           contentHeights = contentHeights
         }}
       >      
-        <RecursiveTask {...renderTask(child, depth + 1)}>
-          <div slot="info-badge">
-            <DateBadge iso={child.startDateISO} on:click={() => {
-              willOpenDatePicker.set(true)
-              openTaskPopup(child)
-            }}/>
-          </div>
-
-          <div slot="vertical-timeline">
-            <TimelineRendererVisuals {i} {sorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
-          </div>
-        </RecursiveTask>
-      </div>
-
-      <div class:ghost-negative={i === sorted.length - 1}
-        style="
-          width: 235px;
-          left: {WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
-          z-index: {depth};"
-      >
-        <Dropzone {...renderDropzone(i + 1, sorted)} />
-      </div>
-    {/each}
-  </div>
-
-  {#if unscheduled.length > 0}
-    <Dropzone {...renderDropzone(sorted.length, unscheduled)} />
-  {/if}
-
-  {#each unscheduled as child, i (child.id)}
-    <div style="position: relative; display: flex; align-items: center;">      
-      <RecursiveTask {...renderTask(child, depth + 1)}>
-        <div slot="info-badge">
-          <DateBadge iso={child.startDateISO} on:click={() => {
+        {#snippet infoBadge ()}
+          <DateBadge iso={child.startDateISO} onclick={() => {
             willOpenDatePicker.set(true)
             openTaskPopup(child)
           }}/>
-        </div>
-      </RecursiveTask>
-    </div>
+        {/snippet}
 
-    <div class:ghost-negative={i === unscheduled.length - 1}
-      style="
-        width: 235px;
-        left: {WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
-        z-index: {depth};"
-    >
-      <Dropzone {...renderDropzone(i + 1, unscheduled)} />
-    </div>
-  {/each}
+        {#snippet verticalTimeline ()}
+          <TimelineRendererVisuals {i} sorted={allSorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
+        {/snippet}
+
+        <RecursiveTask 
+          {...renderTask(child, depth + 1) }
+          {verticalTimeline}
+          {infoBadge} 
+        />
+      </div>
+
+      <div class:ghost-negative={i === allSorted.length - 1}
+        style="
+          left: {WIDTHS.INDENT_PER_LEVEL}px;
+          width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+          z-index: {depth};
+        "
+      >
+        <Dropzone {...renderDropzone(i + 1)} />
+      </div>
+    {/each}
+  {/if}
 </div>
 
 <style>
   :root {
     --timeline-left-margin: 8px;
-  }
-  
-  .ghost-negative {
-    position: absolute;
-    bottom: -18px;
   }
 </style>

@@ -5,7 +5,7 @@
   
   const { memoryTree } = getContext('app')
 
-  $: habits = $memoryTree.filter(t => t.iconURL)
+  let habits = $derived($memoryTree.filter(t => t.iconURL))
 
   const today = DateTime.now()
 </script>

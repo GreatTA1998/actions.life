@@ -1,5 +1,4 @@
 <script>
-  import UpdateLogContext from './UpdateLogContext.svelte'
   import UpdateLogTimelineAndPopup from './UpdateLogTimelineAndPopup.svelte'
 </script>
 
@@ -9,10 +8,8 @@
   <div class="section-header">
     <h2>History of Updates</h2>
   </div>
-
-  <UpdateLogContext>
-    <UpdateLogTimelineAndPopup />
-  </UpdateLogContext>
+  
+  <UpdateLogTimelineAndPopup />
 </div>
 
 <style>

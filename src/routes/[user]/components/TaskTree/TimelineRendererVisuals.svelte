@@ -1,10 +1,12 @@
 <script>
-  export let i
-  export let sorted
-  export let dayDiffs
-  export let pxPerDay
-  export let timeMarkerTop
-  export let squareHeight
+  let {
+    i,
+    sorted,
+    dayDiffs,
+    pxPerDay,
+    timeMarkerTop,
+    squareHeight
+  } = $props()
 
   const lineColor = 'rgb(240, 240, 240)' // 'var(--fine-control-color)'
   const lineWidth = 1

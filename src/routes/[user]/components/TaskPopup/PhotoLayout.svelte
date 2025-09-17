@@ -4,17 +4,20 @@
   import PhotoMenuActions from './PhotoMenuActions.svelte'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
 
-  export let taskObject
+  let { taskObject, children } = $props()
+  let journalLayout = $derived(taskObject?.photoLayout || $defaultPhotoLayout)
+  $effect(() => {
+    if (PopupElem) { // probably not necessary because $effect runs after mount
+      if (journalLayout === 'full-photo') setPopupToFullPhotoSize()
+      else resetPopupCSS()
+    }
+  })
 
-  let PopupElem, TaskImageElem
-  let fullPhotoWidth, fullPhotoHeight 
 
-  $: journalLayout = taskObject?.photoLayout || $defaultPhotoLayout
-
-  $: if (PopupElem) {
-    if (journalLayout === 'full-photo') setPopupToFullPhotoSize()
-    else resetPopupCSS()
-  }
+  let PopupElem = $state(null)
+  let TaskImageElem = $state(null)
+  let fullPhotoWidth = $state(0)
+  let fullPhotoHeight = $state(0)
 
   onMount(() => {
     if (taskObject.imageDownloadURL) {
@@ -60,22 +63,26 @@
 <div class="{journalLayout}-container" bind:this={PopupElem}>
   <div class={journalLayout}>
     {#if taskObject.imageDownloadURL}
-      <PopoverMenu let:toggle={toggle}>
-        <img on:click={toggle} on:keydown
+      {#snippet activator ({ open, close, toggle })}
+        <img onclick={toggle}
           class="{journalLayout}-image"
           bind:this={TaskImageElem}
           src={taskObject.imageDownloadURL}
           alt="Task"
         >
-        <div slot="content">
-          <PhotoMenuActions {taskObject}/>
-        </div>
-      </PopoverMenu>
+      {/snippet}
+
+      {#snippet content ()}
+        <PhotoMenuActions {taskObject} />
+      {/snippet}
+
+      <PopoverMenu 
+        {activator} 
+        {content} 
+      />
     {/if}
     <div class="{journalLayout}-details" style="align-self: stretch; flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; row-gap: 2px;">
-      <slot>
-
-      </slot>
+      {@render children()}
     </div>
   </div>
 </div>
