@@ -8,6 +8,7 @@
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { } from '$lib/db/scripts/april.js'
   import AppContextProvider from '$lib/components/AppContextProvider.svelte'
+  import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
 
   let doingAuth = true
@@ -60,9 +61,11 @@
 
   <div>
     <AppContextProvider>
-      <slot>
+      <DragDropContext>
+        <slot>
 
-      </slot>
+        </slot>
+      </DragDropContext>
     </AppContextProvider>
   </div>
 
@@ -161,6 +164,12 @@
     box-shadow: none;
 
     resize: none; /*remove the resize handle on the bottom right*/
+  }
+
+  :global(.main-content) {
+    padding: 1rem;
+    overflow-y: auto;
+    height: 100%;
   }
 
   :global(.unselectable) {

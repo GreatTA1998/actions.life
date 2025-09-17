@@ -1,24 +1,23 @@
 <script>
   import 'js-datepicker/dist/datepicker.min.css'
-  import { onMount, createEventDispatcher } from 'svelte'
+  import { onMount } from 'svelte'
   import { getDateInMMDD } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
 
   export let startDateISO
   export let willOpen = false
+  export let ondateselected
 
   let AttachTarget
   let picker
 
-  const dispatch = createEventDispatcher()
-
   onMount(async () => {
-    const datepicker = await import('js-datepicker')
+    const datepicker = await import('js-datepicker') // delete node_modules/.vite if it throws an error
     picker = initPicker(datepicker)
     if (startDateISO) {
       picker.setDate(
         DateTime.fromISO(startDateISO).toJSDate(),
-        true // what does `true` do? 
+        true // don't know what it does
       )
     }
     if (willOpen) picker.show()
@@ -29,14 +28,11 @@
       onSelect: (instance, date) => { // only triggers on user select, not on programmatic select
         if (date) {
           const newMMDD = getDateInMMDD(date)
-          dispatch('date-selected', {
-            mmdd: newMMDD,
-            yyyy: date.getFullYear() // this is a Number
-          })
+          ondateselected({ mmdd: newMMDD, yyyy: date.getFullYear() })
         }
 
-        else { // the 2nd click on a selected date will cancel it
-          dispatch('date-selected', { mmdd: '', yyyy: '' })
+        else { // the 2nd click on a selected date will unselect it
+          ondateselected({ mmdd: '', yyyy: '' })
           picker.hide() // selecting a real date will close the datepicker, but unselecting doesn't so we do it manually here
         }
       },

@@ -1,7 +1,7 @@
 <div 
-  on:click={() => openTaskPopup(task)}
+  onclick={() => openTaskPopup(task)}
+  ondragstart={e => startTaskDrag(e, task.id, { draggedItem })} 
   draggable="true" 
-  on:dragstart|self={(e) => startDragMove(e, task.id)} 
   class="claude-draggable-item"
   class:calendar-block={!isBulletPoint}
   style="
@@ -18,8 +18,7 @@
     padding-right: var(--left-padding);
 
     display: flex; flex-direction: column;
-  " 
-  on:keydown={() => {}}
+  "
 >
   <!-- As long as this parent div is correctly sized, the duration adjusting area 
     will be positioned correctly (it's glued to the bottom of this parent div)
@@ -92,8 +91,8 @@
     -->
     <!-- on:drop preventDefault so that the calendar doesn't think we're scheduling a task -->
     <div draggable="true"
-      on:dragstart={(e) => startAdjustingDuration(e)}
-      on:dragend={(e) => adjustDuration(e, task)}
+      ondragstart={(e) => startAdjustingDuration(e)}
+      ondragend={(e) => adjustDuration(e, task)}
       style="
         cursor: ns-resize;
         position: absolute;
@@ -108,44 +107,30 @@
 </div>
 
 <script>
-  // Assumes `task` is hydrated
-  import { getTrueY } from '/src/lib/utils/core.js'
   import Checkbox from './Checkbox.svelte'
+  import { getTrueY } from '$lib/utils/core.js'
   import { treesByID } from '/src/routes/[user]/components/Calendar/service.js'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
 
-  const { Task, openTaskPopup, activeDragItem, grabOffset } = getContext('app')
+  const { Task, openTaskPopup } = getContext('app')
+  const { draggedItem, startTaskDrag } = getContext('drag-drop')
 
-  export let task = null
-  export let hasCheckbox = false
+  let { 
+    task = null, // this component assumes `task` is hydrated
+    hasCheckbox = false,
+    fontSize = 1
+   } = $props()
 
-  export let fontSize = 1
-
-  $: height = ($pixelsPerHour / 60) * task.duration
-  $: isBulletPoint = height < 24 // 24px is exactly enough to not crop the checkbox and the task name
-
+  let height = $derived($pixelsPerHour / 60 * task.duration)
+  let isBulletPoint = $derived(height < 24) // 24px is exactly enough to not crop the checkbox and the task name
   let startY = 0
 
-  function startDragMove (e, id) {
-    e.dataTransfer.setData("text/plain", id)
-
-    // record distance from the top of the element
-    const rect = e.target.getBoundingClientRect()
-    const y = e.clientY - rect.top // y position within el ement
-
-    activeDragItem.set({
-      kind: 'room',
-      ...task
-    })
-
-    grabOffset.set(y)
-  }
-
   function startAdjustingDuration (e) {
+    e.stopPropagation() // DragContext doesn't get involved, duration adjustment is fully handled within this component
     startY = getTrueY(e)
   }
-
+ 
   function adjustDuration (e, task) {
     const hoursPerPixel = 1 / $pixelsPerHour
     const minutesPerPixel = 60 * hoursPerPixel
@@ -159,8 +144,6 @@
         duration: Math.max(1, task.duration + durationChange)
       }
     })
-
-    activeDragItem.set(null)
   }
 </script> 
 

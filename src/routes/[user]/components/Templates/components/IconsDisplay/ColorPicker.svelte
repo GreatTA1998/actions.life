@@ -25,7 +25,7 @@
   {#if showColorPicker}
 
     <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div class="overlay" on:click|self={close} transition:fade={{ duration: 200 }}>
+    <div class="overlay" on:click|self={close} transition:fade|global={{ duration: 200 }}>
       <div class="color-picker">
         <div class="color-display" style="background-color: {currentColor}"></div>
         <div class="sliders">

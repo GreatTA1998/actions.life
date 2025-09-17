@@ -16,9 +16,7 @@
   // Mock stores
   export const mockStores = {
     user: writable({ uid: 'demo-user', maxOrderValue: 100 }),
-    activeDragItem: writable(null),
-    defaultPhotoLayout: writable('side-by-side'),
-    grabOffset: writable(0)
+    defaultPhotoLayout: writable('side-by-side')
   }
 
   const init = realTask.schema.parse
@@ -135,7 +133,6 @@
     openTaskPopup: (task) => {
       clickedTaskID.set(task.id)
     },
-    activeDragItem: mockStores.activeDragItem,
     memoryTree
   })
 </script>

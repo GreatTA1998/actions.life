@@ -1,82 +1,102 @@
 <div
   bind:this={ReorderDropzone} 
+  class:highlight={$bestDropzoneID === dropzoneID}
+  class:error={$bestDropzoneID === dropzoneID && isInvalidDrop}
   style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 0px solid {colorForDebugging};" 
-  on:dragenter={() => {
-    // quickfix as even if it's an invalid operation it's unintuitive to not see the drag area highlight
-    if (!isInvalidReorderDrop() || true) {
-      ReorderDropzone.style.background = 'rgb(87, 172, 247)' 
-    }
-  }}
-  on:dragleave={() => ReorderDropzone.style.background = '' }
-  on:dragover={(e) => dragover_handler(e)}
-  on:drop|stopPropagation={(e) => onReorderDrop(e)}
->
-
-</div>
+></div>
 
 <script>
+  import { isOverlapping, getOverlapArea, clip } from '$lib/utils/dragDrop.js'
   import { increment, writeBatch, doc } from 'firebase/firestore'
   import { db } from '$lib/db/init'
   import { HEIGHTS } from '$lib/utils/constants.js'
+  import { getRandomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
-  const { Task, activeDragItem, user } = getContext('app')
+  const { Task, user } = getContext('app')
+  const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
 
-  export let ancestorRoomIDs
-  export let roomsInThisLevel
-  export let idxInThisLevel
-  export let parentID = ''
-  export let colorForDebugging = "red"
-  export let heightInPx = HEIGHTS.SUB_DROPZONE
+  let {
+    ancestorRoomIDs,
+    roomsInThisLevel,
+    idxInThisLevel,
+    parentID = '',
+    colorForDebugging = 'red',
+    heightInPx = HEIGHTS.SUB_DROPZONE
+  } = $props()
 
-  let ReorderDropzone
+  let ReorderDropzone = $state(null)
   let batch = writeBatch(db)
+  let n = $derived(roomsInThisLevel.length)
+  let intersecting = $state(false)
 
-  $: n = roomsInThisLevel.length
+  const dropzoneID = getRandomID()
 
-  function isInvalidReorderDrop () {
-    return !['room'].includes($activeDragItem.kind) || ancestorRoomIDs.includes($activeDragItem.id)
+  let isInvalidDrop = $derived(ancestorRoomIDs.includes($draggedItem.id))
+
+  $effect(() => {
+    if ($draggedItem) {
+      requestAnimationFrame(() => {
+        checkIntersection(
+          $logicAreaRect() ? clip($draggedItem, $logicAreaRect()) : $draggedItem // quickfix as we don't have a common container between desktop mode and mobile mode
+        )
+      })
+    }
+  })
+
+  $effect(() => {
+    if ($hasDropped && $bestDropzoneID === dropzoneID) {
+      onReorderDrop()
+    }
+  })
+
+  function checkIntersection ({ x1, x2, y1, y2 }) {
+    console.log('x1, y1, x2, y2', x1, y1, x2, y2)
+    const dropzoneRect = ReorderDropzone.getBoundingClientRect()
+    const overlapping = isOverlapping({ x1, x2, y1, y2 }, dropzoneRect, 0, 0)
+
+    // x1 comparison is an attempt to allow the user to specifically target nested dropzones
+    // document this change - the fact that left takes priority, but otherwise normal intersection should still work
+    // which makes it very easy for light users to use drag-drop but opens a door for advanced users
+    intersecting = overlapping // && x1 > dropzoneRect.left // rename to `qualify` or something
+    
+    if (intersecting) {
+      const area = getOverlapArea({ x1, x2, y1, y2 }, dropzoneRect)
+      matchedDropzones.update(obj => {
+        obj[dropzoneID] = {
+          area,
+          left: dropzoneRect.left
+        }
+        return obj
+      })
+    }
+    else {
+      matchedDropzones.update(obj => {
+        delete obj[dropzoneID]
+        return obj
+      })
+    }
   }
-
-  function dragover_handler (e) {
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
-  async function onReorderDrop (e) {
-    e.preventDefault()
-    e.stopPropagation()
-    if (isInvalidReorderDrop()) {
-      alert('A parent task cannot become its own descendant')
+ 
+  async function onReorderDrop () {
+    if (isInvalidDrop) {
+      reset()
       return
     }
     ReorderDropzone.style.background = ''
 
     batch = writeBatch(db)
 
-    const data = e.dataTransfer.getData('text/plain')
-    const keyValuePairs = data.split(']')
-
-    const [key1, value1] = keyValuePairs[0].split(':')
-    const draggedRoomID = value1
-
-    // before updating `orderValue`, we update
-    // the counter showing how many subfolders a folder has
-    const droppedRoomDoc = roomsInThisLevel[idxInThisLevel]
-
     const initialNumericalDifference = 3
     let newVal 
 
     // TO-DO: need the last drop zone to be manually added
     const dropZoneIdx = idxInThisLevel
-    // copy `PopupRearrangeVideos` 
     if (dropZoneIdx === 0) {
       const topOfOrderDoc = roomsInThisLevel[0]
       if (topOfOrderDoc) {
-        // halve the value so it never gets to 0 
-        newVal = (topOfOrderDoc.orderValue || 3) / 1.1
-      } else {
-        // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
+        newVal = (topOfOrderDoc.orderValue || 3) / 1.1 // 1.1 slows down the approach to 0
+      } else { // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
         newVal = 3
       }
     }
@@ -103,17 +123,28 @@
       newVal = (order1 + order2) / 2
     }
     
-    Task.update({ id: $activeDragItem.id, keyValueChanges: {
+    Task.update({ id: $draggedItem.id, keyValueChanges: {
       parentID,
       orderValue: newVal,
       persistsOnList: true // non-persistent tasks, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
     }})
 
     try {
-      batch.commit() // for updating user's maxOrderValue
-      activeDragItem.set(null)
+      await batch.commit() // for updating user's maxOrderValue
     } catch (error) {
-      alert('Error updating, please reload the page')
+      alert('Error updating dragged task =' + error.message)
+    } finally {
+      resetDragDrop()
     }
   }
 </script>
+
+<style>
+  .highlight {
+    background-color: rgb(87, 172, 247);
+  }
+
+  .error {
+    background-color: red;
+  }
+</style>
