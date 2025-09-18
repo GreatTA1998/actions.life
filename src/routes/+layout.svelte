@@ -304,4 +304,17 @@
     position: absolute;
     bottom: calc(-1 * var(--heights-sub-dropzone))
   }
+
+  :global(.benefits-explanation) {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0 0 0 0;
+  }
+
+  :global(.benefits-explanation p) {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #374151;
+  }
 </style>

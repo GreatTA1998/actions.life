@@ -107,7 +107,7 @@
       parentID: 'Update Log'
     }),
     init({
-      name: 'Maryus Martsalius',
+      name: 'Maryus Marsalius era',
       notes: 'Improved load times from O(n) with respect to # of tasks to constant, migrated legacy schemas to standardized schemas, daily back-ups, introduced AI, infinite scroll, resizeable areas...(to be updated)',
       parentID: 'intentions.life'
     }),
@@ -140,7 +140,7 @@
     init({
       name: 'actions.life',
       startDateISO: '2025-05-15',
-      notes: 'Timelines as a first-class citizen, multi-lists',
+      notes: 'Timelines as a first-class citizen, multi-lists, sweeping refactor and rearchitecture across the codebase, area-based drag-drop (deprecated pointer-based)',
       parentID: 'Update Log'
     })
   ]
@@ -179,7 +179,7 @@
         id,
         keyValueChanges: {
           imageDownloadURL: '/optimized_camino.jpg',
-          notes: `Tired as hell but the scenery was great. Met some really great folks.`
+          notes: `Tired as hell but the scenery was great. Met some really great people.`
         }
       })
     }
