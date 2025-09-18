@@ -7,8 +7,8 @@
   let { taskObject, children } = $props()
   let journalLayout = $derived(taskObject?.photoLayout || $defaultPhotoLayout)
   $effect(() => {
-    if (PopupElem) { // probably not necessary because $effect runs after mount
-      if (journalLayout === 'full-photo') setPopupToFullPhotoSize()
+    if (PopupElem) { // probably not needed because $effect runs after mount
+      if (journalLayout === 'full-photo' && taskObject.imageDownloadURL) setPopupToFullPhotoSize()
       else resetPopupCSS()
     }
   })
