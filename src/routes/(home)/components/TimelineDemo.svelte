@@ -5,13 +5,19 @@
 
   const { memoryTree, Task } = getContext('app')
 
-  $: taskObj = $memoryTree[4]
+  let taskObj = $derived.by(() => {
+    for (const tree of $memoryTree) {
+      if (tree.name === 'Walk the Camino de Santiago') {
+        return tree
+      }
+    }
+    return null
+  })
 </script>
 
 <div class="demo-section">
   <div class="demo-header">
-    <h2>Press the timeline button</h2>
-    <p class="demo-hint">to visualize time gaps between things</p>
+    <h2>Toggle between normal / timeline</h2>
   </div>
   
   <div class="demo-layout">
@@ -23,10 +29,10 @@
             { text: 'timeline', value: 'timeline' }
           ]} 
           activeValue={taskObj.childrenLayout}
-          on:select={e => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: e.detail.value } })}
+          onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal } })}
         />
       </div>
-      
+
       <RecursiveTask 
         taskObj={taskObj}
         depth={0}
@@ -39,13 +45,9 @@
     <div class="controls-panel">
       <div class="benefits-explanation">
         <p>
-          We exist in different timelines at the same time.
+          Calendars use fixed timeframes: week, month, and year. But important things often span arbitrary timeframes.
           <br><br>
-          Calendars usually have rigid timeframes: week, month, year etc. But important things often span arbitrary timeframes.
-          <br><br>
-          Here, timelines are first-class constructs, so you can display task trees, timelines of different resolutions together.
-          <br><br>
-          Besides from keeping track of deadlines, timelines rewire us to think on longer time horizons.
+          Timelines display tasks based on temporal distance. They rewire us to think on longer time horizons.
         </p>
       </div>
     </div>
@@ -93,19 +95,6 @@
   .controls-panel {
     display: flex;
     flex-direction: column;
-  }
-
-  .benefits-explanation {
-    max-width: 520px;
-    margin: 0 auto;
-    padding: 0 0 0 0;
-  }
-
-  .benefits-explanation p {
-    margin: 0;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #374151;
   }
 
   /* Mobile responsive */

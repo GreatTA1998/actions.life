@@ -11,7 +11,7 @@
 
     <div style="display: flex; flex-wrap: wrap;">
       <div class="secondary-description">
-        Each task can branch into sub-tasks
+        Put habits and to-do lists in the calendar
       </div>
     </div>
 

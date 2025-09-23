@@ -5,15 +5,14 @@
   
   const { memoryTree } = getContext('app')
 
-  $: habits = $memoryTree.filter(t => t.iconURL)
+  let habits = $derived($memoryTree.filter(t => t.iconURL))
 
   const today = DateTime.now()
 </script>
 
 <div class="demo-section">
   <div class="demo-header">
-    <h2>Double-click any habit icon</h2>
-    <p class="demo-hint">to mark it as complete</p>
+    <h2>Double-click any icon</h2>
   </div>
   
   <div class="demo-layout">
@@ -43,9 +42,9 @@
     <div class="demo-panel">
       <div class="feature-explanation">
         <p>
-          On most calendars, tracking small habits take up too much space, creating visual clutter.
+          Tracking small habits usually takes up too much space on the calendar.
           <br><br>
-          In actions.life, you can display habits compactly with icons (or draw your own).
+          Here you can display habits with compact, hand-drawn icons.
         </p>
       </div>
     </div>
@@ -169,11 +168,6 @@
     .day-column {
       max-width: 240px;
       margin: 0 auto;
-    }
-
-    .demo-hint {
-      order: -1;
-      margin-bottom: 8px;
     }
   }
 </style> 

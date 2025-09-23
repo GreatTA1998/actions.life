@@ -1,5 +1,6 @@
 <script>
   import '$lib/db/init.js'
+  import AppContext from './AppContext.svelte'
   import { user, userInfoFromAuthProvider } from '$lib/store'
   import posthog from 'posthog-js'
   import { goto } from '$app/navigation'
@@ -7,7 +8,6 @@
   import { onMount } from 'svelte'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { } from '$lib/db/scripts/april.js'
-  import AppContextProvider from '$lib/components/AppContextProvider.svelte'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
 
@@ -60,13 +60,13 @@
   </div>
 
   <div>
-    <AppContextProvider>
+    <AppContext>
       <DragDropContext>
         <slot>
 
         </slot>
       </DragDropContext>
-    </AppContextProvider>
+    </AppContext>
   </div>
 
   <TheSnackbar />
@@ -298,5 +298,23 @@
       height: 250px;
       border-radius: 40px;
     }
+  }
+
+  :global(.ghost-negative) {
+    position: absolute;
+    bottom: calc(-1 * var(--heights-sub-dropzone))
+  }
+
+  :global(.benefits-explanation) {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0 0 0 0;
+  }
+
+  :global(.benefits-explanation p) {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #374151;
   }
 </style>

@@ -84,8 +84,8 @@
         { src: '/competitor_logos/microsoft.ico', url: 'https://outlook.live.com/calendar', alt: 'Microsoft Outlook' },
         { src: '/competitor_logos/Cron-favicon-style2-07.svg', url: 'https://notion.so/product/calendar', alt: 'Notion Calendar' }
       ],
-      bestFor: 'Integrates with everything',
-      weakness: 'Feature creep, legacy design'
+      bestFor: 'Feature complete, integrates with everything',
+      weakness: 'Legacy features accumulate, without adapting to modern needs'
     },
     {
       name: 'Todoist',
@@ -94,15 +94,15 @@
         { src: '/competitor_logos/ticktick.png', url: 'https://ticktick.com', alt: 'TickTick' },
         { src: '/competitor_logos/things3.ico', url: 'https://culturedcode.com/things', alt: 'Things 3' }
       ],
-      bestFor: 'Minimalistic, clean lists',
-      weakness: 'Fragments tasks across views, hard to see full picture'
+      bestFor: 'Modern clean lists',
+      weakness: 'Fragmentation across views, hard to see the full picture'
     },
     {
       name: 'actions.life',
       primaryLogo: { src: '/logo-no-bg.png', url: 'https://actions.life', alt: 'Actions.life' },
       secondaryLogos: [],
-      bestFor: "See everything on one page, each task tree is focusable",
-      weakness: 'No notifications, integrations and sharing yet',
+      bestFor: "Everything in one view, each task tree is focusable",
+      weakness: 'Limited to solo use, with no notifications and integrations yet',
       isHighlighted: true
     },
     {

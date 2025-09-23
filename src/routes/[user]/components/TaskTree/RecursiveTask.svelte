@@ -14,21 +14,23 @@
   const { Task, openTaskPopup } = getContext('app')
   const { startTaskDrag, draggedItem } = getContext('drag-drop')
 
-  export let taskObj
-  export let depth 
-  export let willShowCheckbox = true
-  export let ancestorRoomIDs = [] // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
-  export let isLargeFont = false
-
-  let newSubtaskStringValue = ''
-  let isTypingNewSubtask = false
-  let depthAdjustedFontSize
+  let {
+    taskObj,
+    depth,
+    willShowCheckbox = true,
+    ancestorRoomIDs = [], // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
+    isLargeFont = false,
+    verticalTimeline,
+    infoBadge
+  } = $props()
 
   const colorForDebugging = getRandomColor()
 
-  $: n = taskObj.children.length 
-
-  $: if (depth >= 0) {
+  let newSubtaskStringValue = $state('')
+  let isTypingNewSubtask = $state(false)
+  let n = $derived(taskObj.children.length)
+  let depthAdjustedFontSize = $derived.by(() => {
+    let depthAdjustedFontSize = ''
     switch (depth) {
       case 0:
         if (isLargeFont) depthAdjustedFontSize = '32px'
@@ -38,9 +40,10 @@
         if (isLargeFont) depthAdjustedFontSize = '28px'
         else depthAdjustedFontSize = '14px'
     }
-  }
+    return depthAdjustedFontSize
+  })
   
-  $: depthAdjustedFontWeight = 400 - (depth * 0) + (200 * Math.max(1 - depth, 0))
+  let depthAdjustedFontWeight = $derived(400 - (depth * 0) + (200 * Math.max(1 - depth, 0)))
   
   function upcomingThisWeek ({ startDateISO, startTime }) {
     const d1 = DateTime.fromISO(startDateISO + (startTime ? 'T' + startTime : ''))
@@ -90,7 +93,7 @@
       childrenLayout: 'normal'
     }
 
-    if (taskObj.children.length > 0) {
+    if (n > 0) {
       newTaskObj.orderValue = (taskObj.children[0].orderValue) / 1.1
     } 
     // Task.create(), by default, initializes `$user.maxOrderValue`
@@ -111,16 +114,16 @@
 
 <div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
   <div draggable="true"
-    on:dragstart|self={e => startTaskDrag(e, taskObj.id, { draggedItem })}
+    ondragstart={e => startTaskDrag(e, taskObj.id, { draggedItem })}
     style="font-size: {depthAdjustedFontSize};"
     class="task-row-container unselectable"
   >
     {#if willShowCheckbox}
       <div style="position: relative; margin-left: 2px; margin-right: 4px;">
-        <slot name="vertical-timeline"/>
+        {@render verticalTimeline?.()}
 
         <div style="background-color: white; position: relative; padding-top: 2px; padding-bottom: 2px;">
-          {#if taskObj.children.length === 0}
+          {#if n === 0}
             <Checkbox value={taskObj.isDone}
               on:change={(e) => handleCheckboxChange(e)}
               zoom={0.5}
@@ -134,43 +137,44 @@
       </div>
     {/if}
 
-    <button on:click={() => openTaskPopup(taskObj)} class="task-name truncate-to-one-line" class:done-task={taskObj.isDone}>
+    <button onclick={() => openTaskPopup(taskObj)} class="task-name truncate-to-one-line" class:done-task={taskObj.isDone}>
       {taskObj.name}
     </button>
 
     <div style="margin-left: 6px;"></div>
 
-    <slot name="info-badge">
+    {#if infoBadge}
+      {@render infoBadge?.()}
+    {:else}
       {#if upcomingThisWeek(taskObj)}
         <span class="schedule-badge">
           {DateTime.fromISO(taskObj.startDateISO + (taskObj.startTime ? 'T' + taskObj.startTime : '')).toRelative()}
         </span>
       {/if}
-    </slot>
+    {/if}
 
-    {#if taskObj.isCollapsed && taskObj.children.length > 0}
-      <button class="subtask-progress-badge" on:click={() => openTaskPopup(taskObj)}>
+    {#if taskObj.isCollapsed && n > 0}
+      <button class="subtask-progress-badge" onclick={() => openTaskPopup(taskObj)}>
         <span class="material-symbols-outlined" style="font-size: 12px;">check_circle</span>
-        {taskObj.children.filter(child => child.isDone).length}/{taskObj.children.length}
+        {taskObj.children.filter(child => child.isDone).length}/{n}
       </button>
     {/if}
 
     <TaskMenu {taskObj} 
-      on:subtask-add={() => isTypingNewSubtask = true } 
+      onSubtaskAdd={() => isTypingNewSubtask = true } 
     />
   </div>
 
-  {#if taskObj.childrenLayout === 'timeline' && taskObj.children.length > 0}
-    {#if !taskObj.isCollapsed}
-      <TimelineRenderer
-        children={taskObj.children}
-        parentID={taskObj.id}
-        {depth}
-        {ancestorRoomIDs}
-        {isLargeFont}
-        {colorForDebugging}
-      />
-    {/if}
+  {#if taskObj.childrenLayout === 'timeline'}
+    <TimelineRenderer
+      {taskObj}
+      children={taskObj.children}
+      parentID={taskObj.id}
+      {depth}
+      {ancestorRoomIDs}
+      {isLargeFont}
+      {colorForDebugging}
+    />
 
     {#if isTypingNewSubtask}  
       <FormField
@@ -252,11 +256,6 @@
   .task-name {
     min-width: 16px; 
     min-height: 16px;
-  }
-
-  .ghost-negative {
-    position: absolute; 
-    bottom: calc(-1 * var(--heights-sub-dropzone))
   }
 
   .task-row-container {

@@ -81,7 +81,7 @@
   <div class="vision-content">
     <!-- <div class="demo-header">
       <h2>Summary</h2>
-      <p class="demo-hint">Get a wholistic log of what you've done to drive behavior change</p>
+      <p>Get a wholistic log of what you've done to drive behavior change</p>
     </div> -->
 
 
@@ -129,12 +129,6 @@
     font-weight: 600;
     color: #1a1a1a;
     letter-spacing: -0.01em;
-  }
-
-  .demo-hint {
-    font-size: 16px;
-    color: #6b7280;
-    margin: 0;
   }
 
   .vision-main {
