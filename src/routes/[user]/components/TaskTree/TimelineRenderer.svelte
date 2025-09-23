@@ -58,21 +58,20 @@
       dayDiffs[i] = getDayDiff(i, i+1)
     }
 
-    // compute scale factor
-    let candidates = []
-    for (let i = 0; i <= allSorted.length - 2; i++) {
-      if (dayDiffs[i] === null) continue
-      else {
-        const minVisualGap = contentHeights[i] + dropzoneHeight
-        if (defaultPxPerDay * dayDiffs[i] < minVisualGap) {
-          // note: dayDiffs of 0, 1 are treated as 2
-          const nonZeroDayDiff = Math.max(dayDiffs[i], 2) // note: 2 nodes with the same start date will have infinity scale factor, so it'll be handled as 1
-          candidates = [...candidates, (minVisualGap / nonZeroDayDiff)]
-        }
-      }
-    }
-
-    pxPerDay = Math.max(...candidates, defaultPxPerDay)
+    //// compute scale factor
+    // let candidates = []
+    // for (let i = 0; i <= allSorted.length - 2; i++) {
+    //   if (dayDiffs[i] === null) continue
+    //   else {
+    //     const minVisualGap = contentHeights[i] + dropzoneHeight
+    //     if (defaultPxPerDay * dayDiffs[i] < minVisualGap) {
+    //       // note: dayDiffs of 0, 1 are treated as 2
+    //       const nonZeroDayDiff = Math.max(dayDiffs[i], 2) // note: 2 nodes with the same start date will have infinity scale factor, so it'll be handled as 1
+    //       candidates = [...candidates, (minVisualGap / nonZeroDayDiff)]
+    //     }
+    //   }
+    // }
+    // pxPerDay = Math.max(...candidates, defaultPxPerDay)
 
     for (let i = 0; i <= allSorted.length - 2; i++) {
       if (i == allSorted.length - 1) margins[i] = 0
