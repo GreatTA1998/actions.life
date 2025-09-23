@@ -1,11 +1,16 @@
 <script>
   import ModularLayer from '$lib/components/ModularLayer.svelte'
 
-  export let isOpen = false
-  export let position = { x: 0, y: 0 }
-  export let zIndex = 3
+  let { 
+    activator, 
+    content, 
+    isOpen = false, 
+    position = { x: 0, y: 0}, 
+    zIndex = 3
+  } = $props()
 
-  let menuElement
+  let menuElement = $state(null)
+  let adjustedPosition = $derived(getAdjustedPosition(position, menuElement))
 
   function toggle (e) {
     if (!isOpen) open (e) 
@@ -37,14 +42,10 @@
     
     return { x, y }
   }
-
-  $: adjustedPosition = getAdjustedPosition(position, menuElement)
 </script>
 
 <div>
-  <slot {open} {close} {toggle}>
-
-  </slot>
+  {@render activator({ open, close, toggle })}
 
   {#if isOpen}
     <ModularLayer {zIndex} on:click-outside={close}>
@@ -53,9 +54,7 @@
         class="card" 
         style="position: fixed; left: {adjustedPosition.x}px; top: {adjustedPosition.y}px;"
       >
-        <slot name="content">
-
-        </slot>
+        {@render content({ close })}
       </div>
     </ModularLayer>
   {/if}

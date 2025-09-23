@@ -8,15 +8,22 @@
   let { taskObj, onSubtaskAdd } = $props()
 </script>
 
-<BaseMenu let:toggle={toggle} let:close={close}>
-  <div style="line-height: 0; max-height: 16px; overflow: visible; display: flex; align-items: center;">
+<BaseMenu 
+  {activator} 
+  {content} 
+/>
+
+{#snippet activator ({ toggle })} 
+  <div style="max-height: 16px; display: flex; align-items: center;">
     <button onclick={toggle} class="material-symbols-outlined menu-icon" style="font-size: 24px;">
       more_vert
     </button>
   </div>
+{/snippet}
 
+{#snippet content ({ close })} 
   <div slot="content" style="z-index: 1000; padding: 12px; display: flex; flex-direction: column; row-gap: 8px;">
-    <button class="m-item" onclick={() => { onSubtaskAdd(); close(); }}>
+    <button class="m-item" onclick={() => { console.log('clicked'); onSubtaskAdd(); close(); }}>
       <span class="material-symbols-outlined" style="font-size: 22px;">
         add
       </span>
@@ -38,7 +45,7 @@
       archive
     </button>
   </div>
-</BaseMenu>
+{/snippet}
 
 <style>
   .menu-icon {
