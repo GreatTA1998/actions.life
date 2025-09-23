@@ -1,18 +1,14 @@
 <script>
-  import { createEventDispatcher, tick } from 'svelte'
+  import { tick } from 'svelte'
 
-  export let value = ''
+  let { 
+    value = '', 
+    oninput = () => {},
+    onTimeSelected = () => {}
+  } = $props()
 
-  $: if (isMenuDisplayed) {
-    tick().then(() => {
-      scrollToSelected()
-    })
-  }
-
-  const dispatch = createEventDispatcher()
-  let isMenuDisplayed = false
-
-  const hourChoices = []
+  let isMenuDisplayed = $state(false)
+  const hourChoices = $state([])
   for (let i = 6; i < 24; i++) {
     let hh = i
     if (hh < 10) {
@@ -22,7 +18,13 @@
     hourChoices.push(hh + ':' + '30')
   }
 
-  function scrollToSelected() {
+  $effect(() => {
+    if (isMenuDisplayed) {
+      tick().then(scrollToSelected)
+    }
+  })
+
+  function scrollToSelected () {
     const elements = document.getElementsByClassName('selected')
     const el = elements[0]
     if (el) {
@@ -30,20 +32,25 @@
     }
   }
 
-  function selectTime(hourChoice) {
-    dispatch('time-selected', { selectedHHMM: hourChoice })
+  function selectTime (hhmm) {
+    console.log('selectTime')
+    onTimeSelected(hhmm)
     isMenuDisplayed = false
   }
 </script>
 
+<!-- re-write with popover API -->
 <div>
   <input {value}
     placeholder='hh:mm'
     pattern='[0-9]{2}:[0-9]{2}'
-    on:input={(e) => dispatch('input', { typedHHMM: e.target.value })}
-    on:click={() => (isMenuDisplayed = !isMenuDisplayed)}
-    on:focusout={() => {
-      setTimeout(() => (isMenuDisplayed = false), 500)
+    {oninput}
+    onclick={() => isMenuDisplayed = !isMenuDisplayed}
+    onfocusout={() => {
+      console.log('onfocusout')
+      setTimeout(() => {
+        isMenuDisplayed = false
+      }, 500)
     }}
     class="time-dropdown"
   />
@@ -51,18 +58,17 @@
   {#if isMenuDisplayed}
     <div
       class="core-shadow cast-shadow"
-      style="position: absolute; background: white; overflow-y: auto; overflow-x: hidden; width: fit-content;"
+      style="position: absolute; background: white; overflow-y: auto; width: fit-content;"
     >
       <div class="my-grid">
-        {#each hourChoices as hourChoice}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div on:click={() => selectTime(hourChoice)}
+        {#each hourChoices as hhmm}
+          <div onclick={() => selectTime(hhmm)}
             class="time-option"
-            class:selected={Number(hourChoice.split(':')[0]) === new Date().getHours()}
-            class:highlighted-option={value === hourChoice}
-            class:closest-to-current-time={Number(hourChoice.split(':')[0]) === new Date().getHours()}
+            class:selected={Number(hhmm.split(':')[0]) === new Date().getHours()}
+            class:highlighted-option={value === hhmm}
+            class:closest-to-current-time={Number(hhmm.split(':')[0]) === new Date().getHours()}
           >
-            {hourChoice}
+            {hhmm}
           </div>
         {/each}
       </div>
@@ -112,7 +118,6 @@
   }
 
   .closest-to-current-time {
-    // color: var(--logo-twig-color);
     border-top: 4 px solid var(--logo-twig-color);
   }
 

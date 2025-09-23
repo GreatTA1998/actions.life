@@ -75,8 +75,8 @@
 
     <div class="flexbox" style="column-gap: 8px; align-items: center; justify-content: center;">
       <MyTimePicker value={$template.startTime}
-        on:input={e => debouncedUpdate('startTime', e.detail.typedHHMM)}
-        on:time-selected={e => instantUpdate('startTime', e.detail.selectedHHMM)}
+        oninput={e => debouncedUpdate('startTime', e.target.value)}
+        onTimeSelected={hhmm => instantUpdate('startTime', hhmm)}
       />
       <MinimalisticInput
         value={Math.round($template.duration)}
