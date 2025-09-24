@@ -1,5 +1,7 @@
-import { DateTime } from "luxon"
-import OpenAI from "openai"
+import { DateTime } from 'luxon'
+import OpenAI from 'openai'
+import { systemPrompt } from './systemPrompt'
+
 const client = new OpenAI({
   apiKey: import.meta.env.VITE_PUBLIC_BROWSER_NAME,
   dangerouslyAllowBrowser: true,
@@ -9,7 +11,7 @@ async function chat(tasks, chat) {
   const messages = [
     {
       role: "system",
-      content: `Today is ${DateTime.now().toISODate()}. This is a JSON of user Tasks and events. analyse the data and share interesting and actionable insights into their lives. ${tasks}`,
+      content: `Today is ${DateTime.now().toISODate()}. ${systemPrompt}: ${tasks}`,
     },
     ...chat,
   ]

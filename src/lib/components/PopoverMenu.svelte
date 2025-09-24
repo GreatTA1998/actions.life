@@ -1,28 +1,29 @@
 <script>
-  let { activator, content } = $props()
+  let { activator, content, menuClasses = 'card', menuStyles } = $props()
 
-  let popoverElement
+  let popoverElem = $state(null)
 
   async function toggle () {
-    popoverElement.togglePopover()
+    popoverElem.togglePopover()
   }
 
   function open () {
-    popoverElement.showPopover()
+    popoverElem.showPopover()
   }
 
   function close () {
-    popoverElement.hidePopover()
+    popoverElem.hidePopover()
   }
 </script>
 
 {@render activator({ open, close, toggle })}
 
-<div bind:this={popoverElement}
+<div bind:this={popoverElem}
   popover="auto" 
-  class="card"
+  style={menuStyles}
+  class={menuClasses}
 >
-  {@render content()}
+  {@render content({ open, close, toggle })}
 </div>
 
 <style>

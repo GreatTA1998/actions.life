@@ -1,5 +1,6 @@
 <script>
   import { tick } from 'svelte'
+  import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
 
   let { 
     value = '', 
@@ -39,30 +40,32 @@
   }
 </script>
 
-<!-- re-write with popover API -->
 <div>
-  <input {value}
-    placeholder='hh:mm'
-    pattern='[0-9]{2}:[0-9]{2}'
-    {oninput}
-    onclick={() => isMenuDisplayed = !isMenuDisplayed}
-    onfocusout={() => {
-      console.log('onfocusout')
-      setTimeout(() => {
-        isMenuDisplayed = false
-      }, 500)
-    }}
-    class="time-dropdown"
+  <PopoverMenu 
+    {activator} 
+    {content}
+    menuStyles="width: fit-content; overflow-y: auto; background: white; height: 240px; padding: 0;"
+    menuClasses=""
   />
 
-  {#if isMenuDisplayed}
-    <div
+  {#snippet activator ({ open, close, toggle })}
+    <input {value}
+      placeholder='hh:mm'
+      pattern='[0-9]{2}:[0-9]{2}'
+      {oninput}
+      onclick={open}
+      class="time-dropdown"
+    />
+  {/snippet}
+
+  {#snippet content({ close })}
+    <!-- <div
       class="core-shadow cast-shadow"
       style="position: absolute; background: white; overflow-y: auto; width: fit-content;"
-    >
+    > -->
       <div class="my-grid">
         {#each hourChoices as hhmm}
-          <div onclick={() => selectTime(hhmm)}
+          <div onclick={() => { selectTime(hhmm); close(); }}
             class="time-option"
             class:selected={Number(hhmm.split(':')[0]) === new Date().getHours()}
             class:highlighted-option={value === hhmm}
@@ -72,8 +75,8 @@
           </div>
         {/each}
       </div>
-    </div>
-  {/if}
+    <!-- </div> -->
+  {/snippet}
 </div>
 
 <style lang="scss">
@@ -92,8 +95,8 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     width: fit-content;
-    overflow-y: auto;
-    height: 240px;
+    // overflow-y: auto;
+    // height: 240px;
   }
 
   .time-option {
@@ -105,7 +108,7 @@
     justify-content: center;
     width: 100%;
 
-    border: 1px solid lightgrey;
+    border: 1px solid rgb(0, 0, 0);
     border-radius: 0px;
   }
 
