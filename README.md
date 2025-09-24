@@ -13,5 +13,5 @@ actions.life is a SvelteKit PWA that interfaces with Firebase (Firestore, Storag
 
 ## .env
 ```
-VITE_PUBLIC_BROWSER_NAME=insert-value-here-without-quotation-marks-for-openai-api-key-from-web-dashboard
+OPENAI_API_KEY=from-web-dashboard
 ```
