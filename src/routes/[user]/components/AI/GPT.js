@@ -1,7 +1,7 @@
 import { DateTime } from "luxon"
 import OpenAI from "openai"
 const client = new OpenAI({
-  apiKey: import.meta.env.VITE_PUBLIC_BROWSER_NAME,
+  apiKey: import.meta.env.OPENAI_API_KEY,
   dangerouslyAllowBrowser: true,
 })
 
