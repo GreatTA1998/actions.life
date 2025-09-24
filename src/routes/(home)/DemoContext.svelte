@@ -94,52 +94,121 @@
   const updateLogTasks = [
     init({ name: 'Update Log', childrenLayout: 'timeline' }),
     init({ 
-      name: 'life-organizer.com', 
+      name: 'v0 - life-organizer.com', 
       startDateISO: '2021-01-15',
       imageDownloadURL: '/life-organizer.com.jpg', 
       notes: "First prototype for a recursive task trees next to a calendar column",
       parentID: 'Update Log'
     }),
     init({
-      name: 'intentions.life',
+      name: 'v1 - intentions.life (Maryus Martsyalis)',
       startDateISO: '2024-01-15',
-      notes: "Complete overhaul of the timeline visualization with better chronological organization.",
-      parentID: 'Update Log'
+      notes: "Dad and Maryus discussing their ideas about the app over hotpot in Shibuya.",
+      parentID: 'Update Log',
+      imageDownloadURL: '/dad-marius.jpeg',
+      duration: 90
     }),
     init({
-      name: 'Maryus Marsalius era',
-      notes: 'Improved load times from O(n) with respect to # of tasks to constant, migrated legacy schemas to standardized schemas, daily back-ups, introduced AI, infinite scroll, resizeable areas...(to be updated)',
-      parentID: 'intentions.life'
+      name: 'Rework infrastructure (1-5s faster load)',
+      notes: 'Core reliability and data model refactors.',
+      parentID: 'v1 - intentions.life (Maryus Martsyalis)',
+      isCollapsed: true
     }),
     init({
-      name: 'Backend infrastructure overhaul',
-      notes: 'Joi schemas, multiple back-up firebase instances, fine-grained reactivity',
-      parentID: 'Maryus Martsalius'
+      name: 'Backend-generated routines & templates (crontab → rrules)',
+      notes: 'Moved from crontab-based generation to robust rrule-driven scheduling.',
+      parentID: 'Rework infrastructure (1-5s faster load)'
     }),
     init({
-      name: 'Frontier features',
-      notes: 'AI can leverage the calendar logs for insights. The rest were UI mechanisms that were unusual but more natural.',
-      parentID: 'Maryus Martsalius'
+      name: 'Database back-ups',
+      notes: 'Automated, regular backups to protect user data.',
+      parentID: 'Rework infrastructure (1-5s faster load)'
     }),
     init({
-      name: 'AI',
-      parentID: 'Frontier features',
-      notes: 'Details to be added about the design process and trade-offs'
+      name: 'Icon migrations',
+      notes: 'Converted icon URLs to efficient, cached download links.',
+      parentID: 'Rework infrastructure (1-5s faster load)'
     }),
     init({
-      name: 'Infinite scroll',
-      parentID: 'Frontier features',
-      notes: 'Details to be added about the design process and trade-offs'
-    }),
-    
-    init({
-      name: 'Resizeable areas',
-      parentID: 'Frontier features',
-      notes: 'Details to be added about the design process and trade-offs'
+      name: 'Schemas and conversions (Joi → Zod)',
+      notes: 'Consolidated validation and conversion logic. Tracked as a timeline thread.',
+      childrenLayout: 'timeline',
+      parentID: 'Rework infrastructure (1-5s faster load)'
     }),
     init({
-      name: 'actions.life',
-      startDateISO: '2025-05-15',
+      name: 'Other improvements',
+      notes: 'Quality-of-life and stability fixes.',
+      parentID: 'v1 - intentions.life (Maryus Martsyalis)',
+      isCollapsed: true
+    }),
+    init({
+      name: 'Doodle drawing',
+      notes: 'Added freehand and mouse drawing support.',
+      parentID: 'Other improvements'
+    }),
+    init({
+      name: 'Tree deletion',
+      notes: '',
+      parentID: 'Other improvements'
+    }),
+    init({
+      name: 'Accessibility & loading fixes',
+      notes: 'Resolved Svelte a11y warnings and ensured loading screens show correctly.',
+      parentID: 'Other improvements'
+    }),
+    init({
+      name: 'AI robot',
+      notes: 'System prompt and favorited questions.',
+      parentID: 'Experimental designs',
+      isDone: true
+    }),
+    init({
+      name: 'Notifications',
+      notes: 'Firebase Messaging, FCM tokens, service workers. Deprecated on mobile browsers; email considered instead. Two large-scale PRs.',
+      parentID: 'v1 - intentions.life (Maryus Martsyalis)',
+      childrenLayout: 'timeline',
+      isCollapsed: true
+    }),
+    init({
+      name: 'Desktop support (Firebase Messaging)',
+      notes: 'Client registration, token lifecycle, and backend integration.',
+      parentID: 'Notifications',
+      startDateISO: '2024-09-01',
+    }),
+    init({
+      name: 'Deprecated (no mobile support)',
+      notes: '',
+      parentID: 'Notifications',
+      startDateISO: '2025-05-01'
+    }),
+    init({
+      name: 'Experimental designs',
+      notes: 'Pushing on interaction and layout paradigms.',
+      parentID: 'v1 - intentions.life (Maryus Martsyalis)',
+      isCollapsed: true,
+      isDone: true
+    }),
+    init({
+      name: 'Resizable area with physical griplines',
+      notes: 'Direct-manipulation resizing affordances.',
+      parentID: 'Experimental designs',
+      isDone: true
+    }),
+    init({
+      name: 'Infinite scroll calendar',
+      notes: 'Continuous timeline browsing.',
+      parentID: 'Experimental designs',
+      isDone: true
+    }),
+    init({
+      name: 'Journal photo layout options',
+      notes: 'Continuous timeline browsing.',
+      parentID: 'Experimental designs',
+      isDone: true
+    }),
+    init({
+      name: 'v2 - actions.life',
+      startDateISO: '2025-10-01',
       notes: 'Timelines as a first-class citizen, multi-lists, sweeping refactor and rearchitecture across the codebase, area-based drag-drop (deprecated pointer-based)',
       parentID: 'Update Log'
     })
