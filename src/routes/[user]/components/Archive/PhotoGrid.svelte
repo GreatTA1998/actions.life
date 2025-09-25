@@ -1,11 +1,10 @@
 <script>
   import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
-  import { formatDate } from '/src/lib/utils/core.js'
-  import { user, updateCache, openTaskPopup } from '/src/lib/store/index.js'
+  import { user, updateCache, openTaskPopup } from '$lib/store/index.js'
   import { onMount, onDestroy} from 'svelte'
   import { DateTime } from 'luxon'
   import { collection, query, where, onSnapshot } from 'firebase/firestore'
-  import { db } from '/src/lib/db/init.js'
+  import { db } from '$lib/db/init.js'
 
   let unsub
   let allPhotoTasks = []
@@ -187,7 +186,7 @@
               </div>
 
               <div style="margin-left: auto; white-space: nowrap; font-weight: 300; font-size: 1rem;">
-                {formatDate(task.startDateISO)}
+                {DateTime.fromISO(task.startDateISO).toFormat('MMM d, yyyy')}
               </div>
             </div>
     
