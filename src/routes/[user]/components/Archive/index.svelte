@@ -167,7 +167,7 @@
   .nav-item {
     padding: 4px 8px;
     background-color: #f5f5f5;
-    border-bottom: 1px solid lightgrey;
+    border-bottom: 1px solid var(--faint-color);
     display: flex; 
     align-items: center;
     column-gap: 4px;

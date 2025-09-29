@@ -149,12 +149,13 @@
   input[type=text] {
     background: transparent;
     border: none;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid var(--faint-color);
+    border-radius: 0px;
     outline: none;
     font-size: 23px;
     font-weight: 700;
     padding-left: 0px;
-    padding-bottom: 6px;
+    padding-bottom: 4px;
   }
 
   .material-symbols-outlined {

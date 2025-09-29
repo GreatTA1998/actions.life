@@ -105,7 +105,7 @@
     right: 1vw; 
     bottom: 1vw; 
     z-index: 1; 
-    border: 1px solid lightgrey;
+    border: 1px solid var(--faint-color);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); 
     height: 50px;
     width: 50px;

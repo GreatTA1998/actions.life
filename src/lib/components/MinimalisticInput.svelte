@@ -32,7 +32,7 @@
     transition: border-color 0.2s;
 
     font-size: 14px;
-    color: #808080;
+    color: var(--scheduled-info-color);
   }
 
   input:focus {
@@ -52,7 +52,7 @@
   .suffix {
     position: absolute;
     right: 12px;
-    color: #666;
+    color: var(--scheduled-info-color);
     font-size: 14px;
     pointer-events: none;
   }

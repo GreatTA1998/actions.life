@@ -44,8 +44,7 @@
   <PopoverMenu 
     {activator} 
     {content}
-    menuStyles="width: fit-content; overflow-y: auto; background: white; height: 240px; padding: 0;"
-    menuClasses=""
+    menuStyles="overflow-y: auto; height: 240px; margin: 0; padding: 0;"
   />
 
   {#snippet activator ({ open, close, toggle })}
@@ -59,23 +58,16 @@
   {/snippet}
 
   {#snippet content({ close })}
-    <!-- <div
-      class="core-shadow cast-shadow"
-      style="position: absolute; background: white; overflow-y: auto; width: fit-content;"
-    > -->
-      <div class="my-grid">
-        {#each hourChoices as hhmm}
-          <div onclick={() => { selectTime(hhmm); close(); }}
-            class="time-option"
-            class:selected={Number(hhmm.split(':')[0]) === new Date().getHours()}
-            class:highlighted-option={value === hhmm}
-            class:closest-to-current-time={Number(hhmm.split(':')[0]) === new Date().getHours()}
-          >
-            {hhmm}
-          </div>
-        {/each}
-      </div>
-    <!-- </div> -->
+    <div class="time-options-grid">
+      {#each hourChoices as hhmm}
+        <button onclick={() => { selectTime(hhmm); close(); }}
+          class="time-option"
+          class:highlighted-option={value === hhmm}
+        >
+          {hhmm}
+        </button>
+      {/each}
+    </div>
   {/snippet}
 </div>
 
@@ -85,52 +77,27 @@
     text-align: center; 
     height: 30px; 
     border-radius: 4px;
-    border: 0px solid lightgrey;
+    border: none;
 
     font-size: 14px;
-    color: #808080;
+    color: var(--scheduled-info-color);
   }
 
-  .my-grid {
+  .time-options-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    width: fit-content;
-    // overflow-y: auto;
-    // height: 240px;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 4px;
+    gap: 4px;
   }
 
   .time-option {
-    padding: 4px 8px;
-    font-size: 16px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-
-    border: 1px solid rgb(0, 0, 0);
-    border-radius: 0px;
-  }
-
-  .option-highlight {
-    background-color: rgb(240, 240, 240);
-  }
-
-  .time-option:hover {
-    @extend .option-highlight;
-  }
-
-  .closest-to-current-time {
-    border-top: 4 px solid var(--logo-twig-color);
+    padding: 6px 8px;
+    font-size: 14px;
+    color: #727272;
   }
 
   .highlighted-option {
-    background-color: rgb(37, 37, 37);
-    color: white;
+    color: var(--scheduled-info-color);
     font-weight: 600;
-  }
-
-  .invisible {
-    display: none;
   }
 </style>

@@ -33,7 +33,7 @@
   .timestamps {
     background: var(--calendar-bg-color);
     z-index: 2;
-    border-right: 1px solid lightgrey;
+    border-right: 1px solid var(--faint-color);
   }
 
   .timestamp {

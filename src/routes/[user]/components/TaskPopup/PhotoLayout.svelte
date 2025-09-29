@@ -63,6 +63,10 @@
 <div class="{journalLayout}-container" bind:this={PopupElem}>
   <div class={journalLayout}>
     {#if taskObject.imageDownloadURL}
+      <PopoverMenu 
+        {activator}
+        {content}
+      />
       {#snippet activator ({ open, close, toggle })}
         <img onclick={toggle}
           class="{journalLayout}-image"
@@ -75,11 +79,6 @@
       {#snippet content ()}
         <PhotoMenuActions {taskObject} />
       {/snippet}
-
-      <PopoverMenu 
-        {activator} 
-        {content} 
-      />
     {/if}
     <div class="{journalLayout}-details" style="align-self: stretch; flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; row-gap: 2px;">
       {@render children()}
