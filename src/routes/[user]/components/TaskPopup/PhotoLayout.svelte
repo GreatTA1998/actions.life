@@ -68,7 +68,7 @@
         {content}
       />
       {#snippet activator ({ open, close, toggle })}
-        <img onclick={toggle}
+        <img onclick={open}
           class="{journalLayout}-image"
           bind:this={TaskImageElem}
           src={taskObject.imageDownloadURL}

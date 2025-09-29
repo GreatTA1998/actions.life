@@ -44,7 +44,7 @@
   <PopoverMenu 
     {activator} 
     {content}
-    menuStyles="overflow-y: auto; height: 240px; margin: 0; padding: 0;"
+    menuStyles="overflow-y: auto; height: 240px;"
   />
 
   {#snippet activator ({ open, close, toggle })}

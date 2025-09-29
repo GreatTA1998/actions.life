@@ -41,7 +41,7 @@
 
 <div bind:this={popoverElem}
   popover="auto"
-  style='{menuStyles} left: {adjustedPosition.x}px; top: {adjustedPosition.y}px;'
+  style='{menuStyles} left: {adjustedPosition.x}px; top: {adjustedPosition.y}px; margin: 0; padding: 0;'
   class={menuClasses}
 >
   {@render content({ open, close, toggle })}
