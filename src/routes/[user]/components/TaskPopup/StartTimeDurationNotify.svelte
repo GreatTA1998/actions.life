@@ -46,6 +46,6 @@
   </div>
 
   <MinimalisticInput value={Math.round(taskObject.duration)}
-    on:input={e => handleChanges('duration', Number(e.target.value))}
+    oninput={e => handleChanges('duration', Number(e.target.value))}
   />
 </div>

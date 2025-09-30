@@ -80,7 +80,7 @@
       />
       <MinimalisticInput
         value={Math.round($template.duration)}
-        on:input={e => instantUpdate("duration", Number(e.target.value))}
+        oninput={e => instantUpdate("duration", Number(e.target.value))}
       />   
     </div>
   </div>
