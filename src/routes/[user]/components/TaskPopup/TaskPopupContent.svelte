@@ -38,12 +38,12 @@
   <div style="display: flex; align-items: center; column-gap: 12px;">
     {#if !taskObject.imageDownloadURL}
       <Checkbox value={taskObject.isDone}
-        on:change={e => Task.update({ id: taskObject.id, keyValueChanges: { isDone: e.target.checked }})}
+        onchange={e => Task.update({ id: taskObject.id, keyValueChanges: { isDone: e.target.checked }})}
         zoom={1.2}
       />
     {/if}
     <input value={taskObject.name}
-      on:input={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
+      oninput={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
       placeholder="Untitled"
       type="text" 
       style="width: 100%; box-sizing: border-box; font-size: 24px;"
@@ -55,7 +55,7 @@
   <div class="notes-tree-container">
     <div style="flex: 1 1 400px;">
       <UXFormTextArea value={taskObject.notes}
-        on:input={e => debouncedUpdate($clickedTaskID, { notes: e.detail })}
+        oninput={e => debouncedUpdate($clickedTaskID, { notes: e.target.value })}
         fieldLabel=""
         placeholder="Write notes here..."
       />
@@ -98,7 +98,7 @@
         How was it? 
         <div style="display: flex; align-items: center; column-gap: 12px;">
           {#each [': (', ': |', ': )'] as emotion}
-            <button on:click={() => {
+            <button onclick={() => {
               Task.update({ id: taskObject.id, keyValueChanges: { notes: emotion + ' ' + taskObject.notes }});
               close({ timeout: 0 });
             }}
@@ -112,7 +112,7 @@
     </PopoverSnackbar>
 
     <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
-      <button on:click|stopPropagation={handleDelete} class="delete-button material-symbols-outlined action-button">
+      <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button material-symbols-outlined action-button">
         delete
         <span class="tooltip">Delete this task and all its children</span>
       </button>

@@ -37,7 +37,7 @@
 <BasePopup on:click-outside={closeTemplateEditor}>
   <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
     {#if getPeriodicity($template.rrStr) === 'weekly'}
-      <button on:click={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
+      <button onclick={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
         {#if $template.iconURL}
           <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
         {/if}
@@ -45,7 +45,7 @@
     {/if}
 
     <input value={$template.name} 
-      on:input={e => debouncedUpdate('name', e.target.value)}
+      oninput={e => debouncedUpdate('name', e.target.value)}
       type="text" placeholder="Untitled" style="width: 100%; font-size: 24px;" class="title-underline-input"
     />
   </div>
@@ -67,7 +67,7 @@
   <div style="display: flex; gap: 8px; align-items: start;">
     <div style="flex: 1 1 400px;">
       <UXFormTextArea value={$template.notes}
-        on:input={e => debouncedUpdate('notes', e.detail)}
+        oninput={e => debouncedUpdate('notes', e.target.value)}
         fieldLabel=""
         placeholder="Notes..."
       />
@@ -87,7 +87,7 @@
 
   <PeriodicityEditor routine={$template} />
 
-  <button on:click|stopPropagation={handleDelete} class="material-symbols-outlined delete-button">
+  <button onclick={e => { e.stopPropagation(); handleDelete() }} class="material-symbols-outlined delete-button">
     delete
   </button>
 </BasePopup>

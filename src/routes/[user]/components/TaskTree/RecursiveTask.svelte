@@ -125,7 +125,7 @@
         <div style="background-color: white; position: relative; padding-top: 2px; padding-bottom: 2px;">
           {#if n === 0}
             <Checkbox value={taskObj.isDone}
-              on:change={(e) => handleCheckboxChange(e)}
+              onchange={e => handleCheckboxChange(e)}
               zoom={0.5}
             />
           {:else}

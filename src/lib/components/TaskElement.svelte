@@ -43,7 +43,7 @@
       <div style="margin-right: 4px;">
         <Checkbox
           value={task.isDone}
-          on:change={(e) => Task.update({
+          onchange={(e) => Task.update({
             id: task.id,
             keyValueChanges: {
               isDone: e.target.checked
