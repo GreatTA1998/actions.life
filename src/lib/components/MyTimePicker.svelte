@@ -1,6 +1,6 @@
 <script>
-  import { tick } from 'svelte'
   import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
+  import { tick } from 'svelte'
 
   let { 
     value = '', 
@@ -8,7 +8,6 @@
     onTimeSelected = () => {}
   } = $props()
 
-  let isMenuDisplayed = $state(false)
   const hourChoices = $state([])
   for (let i = 6; i < 24; i++) {
     let hh = i
@@ -18,26 +17,21 @@
     hourChoices.push(hh + ':' + '00')
     hourChoices.push(hh + ':' + '30')
   }
+ 
+  // // NOTE: won't work, probably use an action to trigger programmatic scroll
+  // $effect(() => {
+  //   tick().then(scrollToSelected)
+  // })
 
-  $effect(() => {
-    if (isMenuDisplayed) {
-      tick().then(scrollToSelected)
-    }
-  })
-
-  function scrollToSelected () {
-    const elements = document.getElementsByClassName('selected')
-    const el = elements[0]
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-  }
-
-  function selectTime (hhmm) {
-    console.log('selectTime')
-    onTimeSelected(hhmm)
-    isMenuDisplayed = false
-  }
+  // function scrollToSelected () {
+  //   console.log('scrollToSelected')
+  //   const elements = document.getElementsByClassName('highlighted-option')
+  //   const el = elements[0]
+  //   console.log('el', el)
+  //   if (el) {
+  //     el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  //   }
+  // }
 </script>
 
 <div>
@@ -60,7 +54,7 @@
   {#snippet content({ close })}
     <div class="time-options-grid">
       {#each hourChoices as hhmm}
-        <button onclick={() => { selectTime(hhmm); close(); }}
+        <button onclick={() => { onTimeSelected(hhmm); close(); }}
           class="time-option"
           class:highlighted-option={value === hhmm}
         >
