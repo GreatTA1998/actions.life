@@ -1,9 +1,13 @@
 <script>
   import { onMount } from 'svelte'
-  import { doodleIcons, user } from '/src/lib/store'
+  import { doodleIcons } from '/src/lib/store'
   import Icon from '/src/lib/db/models/Icon.js'
   import { getRandomID } from '/src/lib/utils/core.js'
   import ColorPicker from './ColorPicker.svelte'
+  import { getContext } from 'svelte'
+
+  const { user } = getContext('app')
+
   let colors = ['black', 'orange', 'red', 'lightblue', 'blue', 'green']
   let name = ''
   let tags = ''
@@ -22,7 +26,6 @@
     canvas = document.getElementById('whiteboard')
     ctx = canvas.getContext('2d')
   })
-
 
   function toggleColorPicker() {
     showColorPicker = !showColorPicker;
@@ -122,7 +125,6 @@
       style="display: flex; justify-content: space-around; margin-bottom: 8px; width: 240px;"
     >
       {#each colors as pencilColor}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div
           class:selected={color === pencilColor}
           class="color-circle"
@@ -130,7 +132,6 @@
           style="background-color: {pencilColor}"
         ></div>
       {/each}
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
       <div
         class="color-circle custom-color"
         class:selected={!colors.includes(color)}
@@ -183,4 +184,87 @@
 </div>
   <ColorPicker {showColorPicker} {handleColorChange} {toggleColorPicker} />
 
-<style src="./BasicWhiteboard.css"></style>
+<style>
+  #whiteboard {
+    border: 1px solid #000;
+    cursor: crosshair;
+  }
+
+  .color-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  }
+
+  .color-circle:hover {
+    transform: scale(1.05);
+  }
+  
+  .color-circle.selected {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), 0 0 0 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .input-container {
+    margin-left: 20px;
+    margin-top: 50px;
+    display: grid;
+    max-height: 100px;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .input-container label {
+    text-align: left;
+  }
+
+  .input-container input[type="text"] {
+    width: 100%;
+  }
+
+  .input-container input[type="checkbox"] {
+    justify-self: start;
+  }
+  button {
+    padding: 8px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background-color: #f8fafc;
+    color: #64748b; 
+  }
+
+  button:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
+  }
+
+  .save-button {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+  }
+
+  .save-button:hover {
+    background-color: #2563eb;
+    border-color: #2563eb;
+  }
+
+  .save-button:disabled {
+    background-color: #9ca3af;
+    border-color: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  .save-button:disabled:hover {
+    background-color: #9ca3af;
+    border-color: #9ca3af;
+  }
+</style>
