@@ -2,14 +2,13 @@
   Note, the HTML checkbox tick color literally cannot be changed, 
   but it will be automatically white if it "decides" that our chosen background color is dark enough, and vice versa
  -->
-<label style="zoom: {zoom}" on:click|stopPropagation class="container" on:keydown>
-  <input type="checkbox" checked={value} on:change>
+<label style="zoom: {zoom}" onclick={e => { e.stopPropagation(); onclick(); }} class="container">
+  <input type="checkbox" checked={value} {onchange}>
   <span class="checkmark"></span>
 </label>
 
 <script>
-  export let value
-  export let zoom = 0.6
+  let { onclick = () => {}, onchange, value, zoom = 0.6 } = $props()
 </script>
 
 <style>

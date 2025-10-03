@@ -69,7 +69,7 @@
     background: var(--calendar-bg-color);
 
     box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);
-    border-right: 1px solid lightgrey;
+    border-right: 1px solid var(--faint-color);
   }
 
   .collapse-arrow {

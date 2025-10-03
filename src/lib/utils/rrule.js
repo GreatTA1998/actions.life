@@ -1,14 +1,24 @@
 import { DateTime } from 'luxon'
-
 // get around the CommonJS vs ES Module issue
 import * as rrule from 'rrule'
 const { RRule } = rrule
 
 export function getMatchingJSDates ({ startDT, endDT, rrStr }) {
-  return RRule.fromString(rrStr).between(
-    startDT.toJSDate(),
-    endDT.toJSDate(),
+  const floatStart = startDT.setZone('UTC', { keepLocalTime: true })
+  const floatEnd = endDT.setZone('UTC', { keepLocalTime: true })
+
+  const jsDates = RRule.fromString(rrStr).between(
+    floatStart.toJSDate(),
+    floatEnd.toJSDate(),
     true // includes both startDT & endDT
+  )
+  
+  const { zoneName } = DateTime.local()
+  return jsDates.map(date => 
+    DateTime.fromJSDate(date).setZone(
+      zoneName, 
+      { keepLocalTime: true }
+    )
   )
 }
 

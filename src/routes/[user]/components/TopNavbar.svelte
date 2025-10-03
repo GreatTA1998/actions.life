@@ -70,7 +70,7 @@
     align-items: center; 
     padding-left: 2vw; 
     padding-right: 2vw;
-    border-bottom: 1px solid lightgrey;
+    border-bottom: 1px solid var(--faint-color);
     background-color: var(--navbar-bg-color);
 
     /* background holder has z-index 0 but somehow z-index 1 is not enough to cover it */

@@ -38,7 +38,7 @@
   <div class="content-wrapper">
     <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
       {#if getPeriodicity($template.rrStr) === 'weekly'}
-        <button on:click={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
+        <button onclick={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
           {#if $template.iconURL}
             <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
           {/if}
@@ -46,7 +46,7 @@
       {/if}
 
       <input value={$template.name} 
-        on:input={e => debouncedUpdate('name', e.target.value)}
+        oninput={e => debouncedUpdate('name', e.target.value)}
         type="text" placeholder="Untitled" style="width: 100%; font-size: 24px;" class="title-underline-input"
       />
     </div>
@@ -64,11 +64,11 @@
     {#if iconsMenu}
       <IconsDisplay />
     {/if}
-
+    
     <div style="display: flex; gap: 8px; align-items: start;">
       <div style="flex: 1 1 400px;">
         <UXFormTextArea value={$template.notes}
-          on:input={e => debouncedUpdate('notes', e.detail)}
+          oninput={e => debouncedUpdate('notes', e.target.value)}
           fieldLabel=""
           placeholder="Notes..."
         />
@@ -76,19 +76,19 @@
 
       <div class="flexbox" style="column-gap: 8px; align-items: center; justify-content: center;">
         <MyTimePicker value={$template.startTime}
-          on:input={e => debouncedUpdate('startTime', e.detail.typedHHMM)}
-          on:time-selected={e => instantUpdate('startTime', e.detail.selectedHHMM)}
+          oninput={e => debouncedUpdate('startTime', e.target.value)}
+          onTimeSelected={hhmm => instantUpdate('startTime', hhmm)}
         />
         <MinimalisticInput
           value={Math.round($template.duration)}
-          on:input={e => instantUpdate("duration", Number(e.target.value))}
+          oninput={e => instantUpdate("duration", Number(e.target.value))}
         />   
       </div>
     </div>
 
     <PeriodicityEditor routine={$template} />
 
-    <button on:click|stopPropagation={handleDelete} class="material-symbols-outlined delete-button">
+    <button onclick={e => { e.stopPropagation(); handleDelete() }} class="material-symbols-outlined delete-button">
       delete
     </button>
   </div>

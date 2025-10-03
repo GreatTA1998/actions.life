@@ -22,7 +22,7 @@
 {/snippet}
 
 {#snippet content ({ close })} 
-  <div slot="content" style="z-index: 1000; padding: 12px; display: flex; flex-direction: column; row-gap: 8px;">
+  <div style="z-index: 1000; padding: 12px; display: flex; flex-direction: column; row-gap: 8px;">
     <button class="m-item" onclick={() => { console.log('clicked'); onSubtaskAdd(); close(); }}>
       <span class="material-symbols-outlined" style="font-size: 22px;">
         add
@@ -31,6 +31,7 @@
     </button>
 
     <div class="menu-divider"></div>
+    
     <ToggleGroup onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal }})}
       options={[{ text: 'normal', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
       activeValue={taskObj.childrenLayout} 
