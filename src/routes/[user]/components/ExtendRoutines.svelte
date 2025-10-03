@@ -41,9 +41,9 @@
     Template.update({ id: template.id, updates: { 
       prevEndISO: endDT.toFormat('yyyy-MM-dd') 
     }})
-    const matchingJSDates = getMatchingJSDates({ rrStr, endDT, startDT })
-    for (const jsDate of matchingJSDates) {
-      createTaskInstance({ template, occurrence: jsDate }) 
+    const matchingDTs = getMatchingJSDates({ rrStr, endDT, startDT })
+    for (const dt of matchingDTs) {
+      createTaskInstance({ template, occurrence: dt.toJSDate() }) 
     }
   }
 </script>

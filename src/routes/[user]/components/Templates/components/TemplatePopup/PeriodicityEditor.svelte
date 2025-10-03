@@ -34,17 +34,16 @@
 
   function simulateChanges (newRRStr) {
     if (!newRRStr) return []
-
-    const JSDates = getMatchingJSDates({
+    const DTs = getMatchingJSDates({
       startDT: DateTime.now(),
       endDT: DateTime.now().plus({ days: getPreviewSpan({ rrStr: newRRStr })}),
       rrStr: newRRStr
     })
 
     const newTasks = []
-    for (const JSDate of JSDates) {
+    for (const dt of DTs) {
       newTasks.push(
-        instantiateTask({ template: routine, occurrence: JSDate })
+        instantiateTask({ template: routine, occurrence: dt.toJSDate() })
       )
     }
     return newTasks
