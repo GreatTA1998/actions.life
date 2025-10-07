@@ -22,7 +22,7 @@
 
 {#if taskObject.templateID}
   <button onclick={redirectToRoutine} class="my-btn material-symbols-outlined">
-    autorenew
+    repeat
   </button> 
 
   <u onclick={redirectToRoutine} style="cursor: pointer;">Manage routine</u>
@@ -30,7 +30,7 @@
   <button onclick={toggleCreate} class="my-btn material-symbols-outlined" 
     class:greyed-out={$user.uid === 'demo-user'} disabled={$user.uid === 'demo-user'}
   >
-    autorenew
+    repeat
   </button>
 
   {#if isCreatingRoutine}
@@ -40,11 +40,7 @@
 
 <style>
   .my-btn {
-    font-size: 23px;
-    background: none;
-    border: none;
     color: rgb(20, 20, 20);
-    position: relative;
   }
 
   .greyed-out {

@@ -1,4 +1,4 @@
-<button class="circle-outline-button material-symbols-outlined"  
+<button class="material-symbols-outlined"  
   {onclick}
 >
   add_photo_alternate
@@ -29,11 +29,3 @@
     onFinished()
   }
 </script>
-
-<style>
-  .circle-outline-button {
-    margin-left: 6px; 
-    border-radius: 24px; 
-    padding: 4px;
-  }
-</style>

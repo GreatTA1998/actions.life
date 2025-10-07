@@ -1,7 +1,9 @@
 <script>
-  let popover
-  let loading = false
-  let timeoutID = ''
+  let { activator, customActions } = $props()
+
+  let popover = $state(null)
+  let loading = $state(false)
+  let timeoutID = $state('')
 
   function open () {
     popover.showPopover()
@@ -20,21 +22,17 @@
   }
 </script>
 
+{@render activator({ open, close, setLoading })}
+
 <!-- hover should delay the autoclose -->
 <!-- warning, MUST NOT USE DISPLAY FLEX BECAUSE POPOVER USES DISPLAY NONE TO HIDE ITS STATE -->
-<div>
-  <slot name="button" {open} {close} {setLoading}>
-
-  </slot>
-  
-  <div popover="manual" bind:this={popover} 
-    style="position: fixed; top: auto; right: auto; bottom: 12px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 24px); margin: 0;"
-    class="snackbar-stylistic"
-    class:loading={loading}
-  >
-    <div style="status">
-      <slot name="custom-actions" {open} {close} {setLoading}></slot>
-    </div>
+<div popover="manual" bind:this={popover} 
+  style="position: fixed; top: auto; right: auto; bottom: 12px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 24px); margin: 0;"
+  class="snackbar-stylistic"
+  class:loading={loading}
+>
+  <div style="status">
+    {@render customActions({ open, close, setLoading })}
   </div>
 </div>
 
