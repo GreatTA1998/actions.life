@@ -144,7 +144,7 @@
       {#if infoBadge}
         {@render infoBadge()}
       {:else if taskObj.startDateISO}
-        <span class:overdue={taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
+        <span class:overdue={!taskObj.isDone && taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
           class="material-symbols-outlined" style="font-size: 12px;" 
         >
           calendar_today
