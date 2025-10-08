@@ -1,6 +1,7 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
+  import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
   import FormField from '$lib/components/FormField.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import TimelineRenderer from './TimelineRenderer.svelte'
@@ -44,12 +45,6 @@
   })
   
   let depthAdjustedFontWeight = $derived(400 - (depth * 0) + (200 * Math.max(1 - depth, 0)))
-  
-  function upcomingThisWeek ({ startDateISO, startTime }) {
-    const d1 = DateTime.fromISO(startDateISO + (startTime ? 'T' + startTime : ''))
-    const d2 = DateTime.now()
-    return d1.toMillis() > d2.toMillis() && d1.diff(d2, 'days').days < 7
-  }
 
   function handleCheckboxChange (e) {
     Task.update({
@@ -126,7 +121,6 @@
           {#if n === 0}
             <Checkbox value={taskObj.isDone}
               onchange={e => handleCheckboxChange(e)}
-              zoom={0.5}
             />
           {:else}
             <TaskCaret isCollapsed={taskObj.isCollapsed}
@@ -137,28 +131,30 @@
       </div>
     {/if}
 
-    <button onclick={() => openTaskPopup(taskObj)} class="task-name truncate-to-one-line" class:done-task={taskObj.isDone}>
+    <button onclick={() => openTaskPopup(taskObj)} 
+      class="task-name truncate-to-one-line" 
+      class:done-task={taskObj.isDone} 
+    >
       {taskObj.name}
     </button>
 
     <div style="margin-left: 6px;"></div>
 
-    {#if infoBadge}
-      {@render infoBadge?.()}
-    {:else}
-      {#if upcomingThisWeek(taskObj)}
-        <span class="schedule-badge">
-          {DateTime.fromISO(taskObj.startDateISO + (taskObj.startTime ? 'T' + taskObj.startTime : '')).toRelative()}
+    <div style="display: flex; align-items: center; column-gap: 4px;">
+      {#if infoBadge}
+        {@render infoBadge()}
+      {:else if taskObj.startDateISO}
+        <span class:overdue={taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
+          class="material-symbols-outlined" style="font-size: 12px;" 
+        >
+          calendar_today
         </span>
       {/if}
-    {/if}
 
-    {#if taskObj.isCollapsed && n > 0}
-      <button class="subtask-progress-badge" onclick={() => openTaskPopup(taskObj)}>
-        <span class="material-symbols-outlined" style="font-size: 12px;">check_circle</span>
-        {taskObj.children.filter(child => child.isDone).length}/{n}
-      </button>
-    {/if}
+      {#if taskObj.isCollapsed && n > 0}
+        <SubtaskCountIndicator {taskObj} onclick={() => openTaskPopup(taskObj)} />
+      {/if}
+    </div>
 
     <TaskMenu {taskObj} 
       onSubtaskAdd={() => isTypingNewSubtask = true } 
@@ -258,6 +254,10 @@
     min-height: 16px;
   }
 
+  .overdue {
+    color: red;
+  }
+
   .task-row-container {
     display: flex; 
     align-items: center;
@@ -272,29 +272,5 @@
     color: #388e3c;
     border-radius: 4px;
     transition: background 0.2s, color 0.2s;
-  }
-
-  .schedule-badge {
-    display: inline-block;
-    margin-left: 8px;
-    padding: 1px 6px;
-    border-radius: 4px;
-    background-color: #f0f0f0;
-    color: #666;
-    font-size: 0.85em;
-    font-weight: normal;
-  }
-
-  .subtask-progress-badge {
-    margin-left: 6px;
-    display: flex;
-    align-items: center;
-    column-gap: 2px;
-    color: inherit;
-    font-size: 12px;
-    font-weight: 400;
-    background: none;
-    border-radius: 0;
-    padding: 0;
   }
 </style> 

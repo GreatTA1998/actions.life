@@ -113,7 +113,7 @@
   }
 
   .side-by-side-details {
-    padding: 12px;
+    padding: 12px 16px;
     overflow-y: auto;
   }
 

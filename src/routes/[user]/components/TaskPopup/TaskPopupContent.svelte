@@ -6,7 +6,6 @@
   import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
   import PopoverSnackbar from '$lib/components/PopoverSnackbar.svelte'
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
-  import Checkbox from '$lib/components/Checkbox.svelte'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
@@ -36,12 +35,6 @@
 
 <PhotoLayout {taskObject}>
   <div style="display: flex; align-items: center; column-gap: 12px;">
-    {#if !taskObject.imageDownloadURL}
-      <Checkbox value={taskObject.isDone}
-        onchange={e => Task.update({ id: taskObject.id, keyValueChanges: { isDone: e.target.checked }})}
-        zoom={1.2}
-      />
-    {/if}
     <input value={taskObject.name}
       oninput={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
       placeholder="Untitled"

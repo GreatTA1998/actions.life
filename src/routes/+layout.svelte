@@ -84,6 +84,7 @@
     --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
     --fine-control-color: rgb(120, 120, 120);
     --scheduled-info-color: rgb(0, 0, 0);
+    --task-name-color: rgb(0, 0, 0);
 
     --calendar-section-left-spacing: 2vw;
     --experimental-black: hsla(0, 100%, 0%, 0.6);
@@ -127,11 +128,11 @@
     -moz-appearance: none;
   }
 
-  /** calendar rectangle task styles */
+  /** used in both <DayColumn/> and <FlexibleDayTask/> */
   :global(.cal-task-name) {
     width: 100%;
-    font-size: 14px;
     font-weight: 500;
+    font-size: 0.8rem;
     cursor: pointer; 
   }
 
