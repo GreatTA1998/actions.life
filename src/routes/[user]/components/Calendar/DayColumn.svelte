@@ -205,11 +205,11 @@
   {#each scheduledTasks as task, i (task.id)}
     <div class="task-absolute" style="top: {getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px;">
       {#if task.iconURL}
-        <IconTaskElement {task} fontSize={0.8} />
+        <IconTaskElement {task} />
       {:else if task.imageDownloadURL}
-        <PhotoTaskElement {task} fontSize={0.8} />
+        <PhotoTaskElement {task} />
       {:else}
-        <TaskElement {task} fontSize={0.8} hasCheckbox />
+        <TaskElement {task} />
       {/if}
     </div>
   {/each}
