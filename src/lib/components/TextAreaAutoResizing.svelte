@@ -3,12 +3,12 @@
   {placeholder}
   {readonly}
   bind:this={element} 
-  on:input={(e) => {
+  oninput={e => {
     auto_grow(element)
-    dispatch('input', e.target.value)
+    oninput(e)
   }}
-  on:focusin
-  on:focusout
+  {onfocusin}
+  {onfocusout}
   rows={numberOfInitialRowsIfEmpty}
   style="
     width: 100%;
@@ -16,26 +16,32 @@
    --fontSizeIncludeUnits: {fontSizeIncludeUnits};
   "
   class:reset-default-styling={resetDefaultStyling}
-/>
+></textarea>
 
 <script>
-  import { createEventDispatcher, onMount } from 'svelte'
+  import { onMount } from 'svelte'
 
-  export let value = ''
-  export let placeholder
-  export let readonly = false
-  export let nonFocusedPlaceholderOpacity = 0.6
-  export let numberOfInitialRowsIfEmpty = 1
-  export let fontSizeIncludeUnits = '1.4rem'
-  export let resetDefaultStyling = false
-  export let willTriggerFocus
+  let {
+    oninput,
+    onfocusin,
+    onfocusout,
+    onManuallyFocused = () => {},
+    value = '',
+    placeholder,
+    readonly = false,
+    nonFocusedPlaceholderOpacity = 0.6,
+    numberOfInitialRowsIfEmpty = 1,
+    fontSizeIncludeUnits = '1.4rem',
+    resetDefaultStyling = false,
+    willTriggerFocus
+  } = $props()
 
-  $: if (willTriggerFocus) {
-    element.focus()
-    dispatch("manually-focused")
-  }
-
-  const dispatch = createEventDispatcher()
+  $effect(() => {
+    if (willTriggerFocus) {
+      element.focus()
+      onManuallyFocused()
+    }
+  })
 
   onMount(() => {
     auto_grow(element)

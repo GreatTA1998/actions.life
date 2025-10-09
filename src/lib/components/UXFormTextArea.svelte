@@ -1,6 +1,5 @@
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div 
-  on:click={() => willTriggerFocus = true}
+  onclick={() => willTriggerFocus = true}
   class="ux-form-field"
   class:grey-border={!isFocused}
   class:blue-border={isFocused}
@@ -17,10 +16,10 @@
     <TextAreaAutoResizing
       {value}
       {willTriggerFocus}
-      on:input
-      on:manually-focused={() => willTriggerFocus = false}
-      on:focusin={() => isFocused = true}
-      on:focusout={() => isFocused = false}
+      {oninput}
+      onManuallyFocused={() => willTriggerFocus = false}
+      onfocusin={() => isFocused = true}
+      onfocusout={() => isFocused = false}
       {placeholder}
       resetDefaultStyling={true}
       numberOfInitialRowsIfEmpty={3}
@@ -29,15 +28,13 @@
 </div>
 
 <script>
-  export let fieldLabel = ''
-  export let placeholder
-  export let value = ''
+  let { oninput, fieldLabel = '', placeholder, value = '' } = $props()
 
   import TextAreaAutoResizing from '$lib/components/TextAreaAutoResizing.svelte'
   
   let InputElem
-  let willTriggerFocus = false
-  let isFocused = false
+  let willTriggerFocus = $state(false)
+  let isFocused = $state(false)
 
 </script>
 

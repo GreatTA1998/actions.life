@@ -4,7 +4,7 @@
   import Template from '$lib/db/models/Template.js'
   import { template } from '../../store.js'
   import { doodleIcons } from '$lib/store'
-  import { getContext } from 'svelte'
+  import { getContext, onMount } from 'svelte'
 
   const { user } = getContext('app')
   
@@ -25,30 +25,32 @@
   }
 </script>
 
-<div style="margin-top: 16px; display: flex; width: 100%; flex-wrap: wrap;">
-  {#if $doodleIcons}
-    {#each $doodleIcons as doodleIcon}
-      <div style="position: relative;">
-        <button on:click={() => handleSelectIcon($template.iconURL === doodleIcon.url ? '' : doodleIcon.url)}>
-          <img src={doodleIcon.url}
-            style="width: 48px; height: 48px;"
-            class:orange-border={$template.iconURL === doodleIcon.url}
-            alt="hand-drawn icon"
-          />
-        </button>
-
-        {#if doodleIcon.createdBy === $user.uid && $template.iconURL === doodleIcon.url}
-          <button on:click={() => handleDeleteIcon({ doodleIcon }) } class="delete">
-            <span class="material-symbols-outlined">delete</span>
+<div>
+  <div style="margin-top: 16px; display: flex; width: 100%; flex-wrap: wrap;">
+    {#if $doodleIcons}
+      {#each $doodleIcons as doodleIcon}
+        <div style="position: relative;">
+          <button onclick={() => handleSelectIcon($template.iconURL === doodleIcon.url ? '' : doodleIcon.url)}>
+            <img src={doodleIcon.url}
+              style="width: 48px; height: 48px;"
+              class:orange-border={$template.iconURL === doodleIcon.url}
+              alt="hand-drawn icon"
+            />
           </button>
-        {/if}
-      </div>
-    {/each}
-  {/if}
-</div>
 
-<div style="margin-top: 16px; display: flex; justify-content: center">
-  <BasicWhiteboard />
+          {#if doodleIcon.createdBy === $user.uid && $template.iconURL === doodleIcon.url}
+            <button onclick={() => handleDeleteIcon({ doodleIcon })} class="delete">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          {/if}
+        </div>
+      {/each}
+    {/if}
+  </div>
+
+  <div style="margin-top: 16px; display: flex; justify-content: center;">
+    <BasicWhiteboard />
+  </div>
 </div>
 
 <style>

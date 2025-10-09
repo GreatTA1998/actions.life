@@ -176,7 +176,7 @@
     align-items: center; 
     justify-content: space-between; 
     background-color: white;
-    border-top: 1px solid lightgrey;
+    border-top: 1px solid var(--faint-color);
   }
 
   .bottom-nav-tab {

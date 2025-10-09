@@ -5,7 +5,7 @@
   >
     <Checkbox 
       value={node.isDone} 
-      on:change={(e) => handleCheckboxChange(e)}
+      onchange={handleCheckboxChange}
       zoom={0.5}
     />
     

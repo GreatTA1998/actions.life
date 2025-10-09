@@ -5,7 +5,7 @@
     activator, 
     content, 
     isOpen = false, 
-    position = { x: 0, y: 0}, 
+    position = { x: 0, y: 0 }, 
     zIndex = 3
   } = $props()
 

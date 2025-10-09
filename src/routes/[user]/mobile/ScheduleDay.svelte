@@ -26,7 +26,7 @@
               {#if task.iconURL}
                 <DoodleIcon iconTask={task} size={iconSize} />
               {:else}
-                <Checkbox value={task.isDone} on:change={() => toggleTask(task)} />
+                <Checkbox value={task.isDone} onchange={() => toggleTask(task)} />
               {/if}
             </div>
             {#if task.imageDownloadURL}

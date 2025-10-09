@@ -7,7 +7,7 @@
 
   const { Task, willOpenDatePicker } = getContext('app')
 
-  export let taskObject
+  let { taskObject } = $props()
 
   function handleChanges (key, value, timeZone) {
     if (typeof Number(value) !== "number") return
@@ -40,12 +40,12 @@
     {/key}
 
     <MyTimePicker value={taskObject.startTime}
-      on:input={e => handleChanges('startTime', e.detail.typedHHMM)}
-      on:time-selected={e => handleChanges('startTime', e.detail.selectedHHMM)}
+      oninput={e => handleChanges('startTime', e.target.value)}
+      onTimeSelected={hhmm => handleChanges('startTime', hhmm)}
     />
   </div>
 
   <MinimalisticInput value={Math.round(taskObject.duration)}
-    on:input={e => handleChanges('duration', Number(e.target.value))}
+    oninput={e => handleChanges('duration', Number(e.target.value))}
   />
 </div>

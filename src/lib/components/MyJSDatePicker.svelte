@@ -65,7 +65,7 @@
     width: 64px;
 
     font-size: 14px;
-    color: #808080;
+    color: var(--scheduled-info-color);
   } 
 
   .my-date-field:focus {

@@ -39,6 +39,7 @@ clickedTaskID.subscribe(async (taskID) => {
   if (unsubAncestralTree) unsubAncestralTree()
   if (!taskID) return
 
+  // fetches all nodes belonging to the same rootID and constructs a single ancestral tree
   const task = get(tasksCache)[taskID]
   const tasksCollection = collection(db, `users/${get(user).uid}/tasks`)
   const q = query(tasksCollection, where('rootID', '==', task.rootID))
@@ -46,12 +47,29 @@ clickedTaskID.subscribe(async (taskID) => {
   unsubAncestralTree = onSnapshot(q, (snapshot) => {
     const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
     updateCache(tasks)
-    const memoryTrees = reconstructTreeInMemory(tasks) // TO-DO: tree singular is misleading
-    ancestralTree.set(memoryTrees[0])
+
+    const noImmediateSiblings = tasks.filter(t => (t.parentID === task.parentID && t.id === task.id) || t.parentID !== task.parentID)
+    const memoryTrees = reconstructTreeInMemory(noImmediateSiblings) // TO-DO: rename to reconstructTrees (plural)
+    ancestralTree.set(
+      findSubtree({ 
+        id: task.parentID || task.id, 
+        tree: memoryTrees[0]
+      })
+    )
   }, (error) => {
     console.error('Error in task tree subscription:', error)
   })
 })
+
+function findSubtree ({ tree, id }) {
+  if (tree.id === id) return tree
+  else {
+    for (const child of tree.children) {
+      const result = findSubtree({ tree: child, id })
+      if (result) return result
+    }
+  }
+}
 
 export function openSettings () {
   settingsOpen.set(true)

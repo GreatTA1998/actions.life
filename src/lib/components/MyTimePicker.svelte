@@ -1,18 +1,14 @@
 <script>
-  import { createEventDispatcher, tick } from 'svelte'
+  import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
+  import { tick } from 'svelte'
 
-  export let value = ''
+  let { 
+    value = '', 
+    oninput = () => {},
+    onTimeSelected = () => {}
+  } = $props()
 
-  $: if (isMenuDisplayed) {
-    tick().then(() => {
-      scrollToSelected()
-    })
-  }
-
-  const dispatch = createEventDispatcher()
-  let isMenuDisplayed = false
-
-  const hourChoices = []
+  const hourChoices = $state([])
   for (let i = 6; i < 24; i++) {
     let hh = i
     if (hh < 10) {
@@ -21,53 +17,52 @@
     hourChoices.push(hh + ':' + '00')
     hourChoices.push(hh + ':' + '30')
   }
+ 
+  // // NOTE: won't work, probably use an action to trigger programmatic scroll
+  // $effect(() => {
+  //   tick().then(scrollToSelected)
+  // })
 
-  function scrollToSelected() {
-    const elements = document.getElementsByClassName('selected')
-    const el = elements[0]
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-  }
-
-  function selectTime(hourChoice) {
-    dispatch('time-selected', { selectedHHMM: hourChoice })
-    isMenuDisplayed = false
-  }
+  // function scrollToSelected () {
+  //   console.log('scrollToSelected')
+  //   const elements = document.getElementsByClassName('highlighted-option')
+  //   const el = elements[0]
+  //   console.log('el', el)
+  //   if (el) {
+  //     el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  //   }
+  // }
 </script>
 
 <div>
-  <input {value}
-    placeholder='hh:mm'
-    pattern='[0-9]{2}:[0-9]{2}'
-    on:input={(e) => dispatch('input', { typedHHMM: e.target.value })}
-    on:click={() => (isMenuDisplayed = !isMenuDisplayed)}
-    on:focusout={() => {
-      setTimeout(() => (isMenuDisplayed = false), 500)
-    }}
-    class="time-dropdown"
+  <PopoverMenu 
+    {activator} 
+    {content}
+    menuStyles="overflow-y: auto; height: 240px;"
   />
 
-  {#if isMenuDisplayed}
-    <div
-      class="core-shadow cast-shadow"
-      style="position: absolute; background: white; overflow-y: auto; overflow-x: hidden; width: fit-content;"
-    >
-      <div class="my-grid">
-        {#each hourChoices as hourChoice}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div on:click={() => selectTime(hourChoice)}
-            class="time-option"
-            class:selected={Number(hourChoice.split(':')[0]) === new Date().getHours()}
-            class:highlighted-option={value === hourChoice}
-            class:closest-to-current-time={Number(hourChoice.split(':')[0]) === new Date().getHours()}
-          >
-            {hourChoice}
-          </div>
-        {/each}
-      </div>
+  {#snippet activator ({ open, close, toggle })}
+    <input {value}
+      placeholder='hh:mm'
+      pattern='[0-9]{2}:[0-9]{2}'
+      {oninput}
+      onclick={open}
+      class="time-dropdown"
+    />
+  {/snippet}
+
+  {#snippet content({ close })}
+    <div class="time-options-grid">
+      {#each hourChoices as hhmm}
+        <button onclick={() => { onTimeSelected(hhmm); close(); }}
+          class="time-option"
+          class:highlighted-option={value === hhmm}
+        >
+          {hhmm}
+        </button>
+      {/each}
     </div>
-  {/if}
+  {/snippet}
 </div>
 
 <style lang="scss">
@@ -76,53 +71,27 @@
     text-align: center; 
     height: 30px; 
     border-radius: 4px;
-    border: 0px solid lightgrey;
+    border: none;
 
     font-size: 14px;
-    color: #808080;
+    color: var(--scheduled-info-color);
   }
 
-  .my-grid {
+  .time-options-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    width: fit-content;
-    overflow-y: auto;
-    height: 240px;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 4px;
+    gap: 4px;
   }
 
   .time-option {
-    padding: 4px 8px;
-    font-size: 16px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-
-    border: 1px solid lightgrey;
-    border-radius: 0px;
-  }
-
-  .option-highlight {
-    background-color: rgb(240, 240, 240);
-  }
-
-  .time-option:hover {
-    @extend .option-highlight;
-  }
-
-  .closest-to-current-time {
-    // color: var(--logo-twig-color);
-    border-top: 4 px solid var(--logo-twig-color);
+    padding: 6px 8px;
+    font-size: 14px;
+    color: #727272;
   }
 
   .highlighted-option {
-    background-color: rgb(37, 37, 37);
-    color: white;
+    color: var(--scheduled-info-color);
     font-weight: 600;
-  }
-
-  .invisible {
-    display: none;
   }
 </style>
