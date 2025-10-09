@@ -1,25 +1,22 @@
 import { DateTime } from 'luxon'
-// get around the CommonJS vs ES Module issue
-import * as rrule from 'rrule'
+
+import * as rrule from 'rrule' // get around the CommonJS vs ES Module issue
 const { RRule } = rrule
 
-export function getMatchingJSDates ({ startDT, endDT, rrStr }) {
-  const floatStart = startDT.setZone('UTC', { keepLocalTime: true })
-  const floatEnd = endDT.setZone('UTC', { keepLocalTime: true })
+function debug (varName, dt) {
+  console.log(`${varName}: ${dt.toFormat('EEE MM-dd HH:mm')} ${dt.zoneName}`)
+}
 
+export function generateRecurrenceDTs ({ startDT, endDT, rrStr }) {
   const jsDates = RRule.fromString(rrStr).between(
-    floatStart.toJSDate(),
-    floatEnd.toJSDate(),
+    startDT.setZone('UTC', { keepLocalTime: true }).toJSDate(),
+    endDT.setZone('UTC', { keepLocalTime: true }).toJSDate(),
     true // includes both startDT & endDT
   )
-  
-  const { zoneName } = DateTime.local()
-  return jsDates.map(date => 
-    DateTime.fromJSDate(date).setZone(
-      zoneName, 
-      { keepLocalTime: true }
-    )
-  )
+  return jsDates.map(date => {
+    const dt = DateTime.fromJSDate(date)
+    return dt.set({ day: date.getDate() }) 
+  })
 }
 
 export function getPreviewSpan ({ rrStr }) {
