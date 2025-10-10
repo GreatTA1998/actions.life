@@ -1,5 +1,5 @@
 ## Tech Stack
-actions.life is a SvelteKit PWA that interfaces with Firebase (Firestore, Storage, Functions), deployed via Vercel.
+actions.life is a SvelteKit PWA with a Firebase backend (Firestore, Storage, Functions), deployed via Vercel.
 
 ## Project Structure
 - [x] Entry Point – ```src/app.html```
