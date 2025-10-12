@@ -27,20 +27,19 @@ window.onerror = (msg, src, line, col, error) => {
       `,
       toWho: 'elton@explanations.io'
     })
-    return true // don't crash app
   }
 }
-window.onunhandledrejection = (e) => {
+
+window.onunhandledrejection = (error) => {
   if (count === 0) {
     count += 1
     sendEmail({
       subject: 'window.onunhandledrejection triggered',
       content: `
-        message: ${e.reason?.message} \n
-        stack: ${e.reason?.stack}
+        message: ${error.reason?.message} \n
+        stack: ${error.reason?.stack}
       `,
       toWho: 'elton@explanations.io'
     })
-    e.preventDefault() // don't crash app
   }
 }
