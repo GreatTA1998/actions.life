@@ -87,7 +87,10 @@ const Task = {
         treeISOs, 
         rootID
       })
-      batch.commit()
+      
+      batch.commit() // for a snappier user experience we don't use `await` for now
+      
+      return validatedTask
     } 
     catch (error) {
       console.error('Error creating task:', error)

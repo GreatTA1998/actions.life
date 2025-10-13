@@ -180,6 +180,11 @@
 
     return DateTime.fromMillis(resultantTimeInMs)
   }
+
+  function shiftYPosition ({ duration }) {
+    const gapBetweenTasks = 30
+    yPosition += ($pixelsPerHour / 60) * duration + gapBetweenTasks
+  }
 </script>
 
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
@@ -228,6 +233,7 @@
         startTime={newDT.toFormat('HH:mm')}
         startDateISO={newDT.toFormat('yyyy-MM-dd')}
         onExit={() => isDirectlyCreatingTask = false}
+        onCreate={shiftYPosition}
       />
     </div>
   {/if}
