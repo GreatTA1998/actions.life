@@ -10,7 +10,7 @@
 -->
 <div onclick={() => openTaskPopup(task)}
   draggable="true" 
-  ondragstart={e => startTaskDrag(e, task.id, { draggedItem })}
+  ondragstart={e => startTaskDrag(e, task.id)}
   use:lazyCallable={() => hasIntersected = true}
   class:calendar-block={true}
   style="
@@ -67,7 +67,7 @@
  import { getContext } from 'svelte'
 
  const { Task, openTaskPopup} = getContext('app')
- const { draggedItem, startTaskDrag } = getContext('drag-drop')
+ const { startTaskDrag } = getContext('drag-drop')
 
  export let task = null // assumes `task` is hydrated
  export let fontSize = 1

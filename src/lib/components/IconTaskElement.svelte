@@ -1,6 +1,6 @@
 <div 
   onclick={() => openTaskPopup(task)}
-  ondragstart={e => startTaskDrag(e, task.id, { draggedItem })} draggable="true" 
+  ondragstart={e => startTaskDrag(e, task.id)} draggable="true" 
   class:calendar-block={!isBulletPoint}
   class:clear-border={!isBulletPoint}
   class:graph-paper-texture={!isBulletPoint && !task.imageDownloadURL}
@@ -83,7 +83,7 @@
   import { getContext } from 'svelte'
 
   const { Task,openTaskPopup } = getContext('app')
-  const { startTaskDrag, draggedItem } = getContext('drag-drop')
+  const { startTaskDrag } = getContext('drag-drop')
   const iconMinPixelHeight = 32
 
   let {

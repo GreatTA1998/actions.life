@@ -13,7 +13,7 @@
   import { getContext } from 'svelte'
 
   const { Task, openTaskPopup } = getContext('app')
-  const { startTaskDrag, draggedItem } = getContext('drag-drop')
+  const { startTaskDrag } = getContext('drag-drop')
 
   let {
     taskObj,
@@ -109,7 +109,7 @@
 
 <div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
   <div draggable="true"
-    ondragstart={e => startTaskDrag(e, taskObj.id, { draggedItem })}
+    ondragstart={e => startTaskDrag(e, taskObj.id)}
     style="font-size: {depthAdjustedFontSize};"
     class="task-row-container unselectable"
   >

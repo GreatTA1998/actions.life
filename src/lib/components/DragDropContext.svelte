@@ -15,7 +15,9 @@
   const scrollCalRect = writable(() => {})
   const logicAreaRect = writable(() => {})
 
-  const throttledPositionUpdate = createThrottledFunction(updateDraggedItemPosition, 1000/60)
+  const frameRate = 60
+  const oneThousandMs = 1000
+  const throttledPositionUpdate = createThrottledFunction(updateDraggedItemPosition, oneThousandMs/frameRate)
 
   setContext('drag-drop', {
     draggedItem,
@@ -28,7 +30,7 @@
     resetDragDrop
   })
 
-  function startTaskDrag (e, id, { draggedItem }) {
+  function startTaskDrag (e, id) {
     if (e.target !== e.currentTarget) return // effectively `click|self`
     // don't call preventDefault(), otherwise drag doesn't even start
     e.stopPropagation() // stops rare occasions where the entire UI gets dragged (which'd be scary)

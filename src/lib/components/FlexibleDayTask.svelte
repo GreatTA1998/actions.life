@@ -1,6 +1,6 @@
 <div 
   onclick={() => openTaskPopup(task)}
-  ondragstart={e => startTaskDrag(e, task.id, { draggedItem })}
+  ondragstart={e => startTaskDrag(e, task.id)}
   draggable="true" 
   style="opacity: {task.isDone ? '0.9' : '0.7'};"
 >
@@ -12,7 +12,7 @@
   import { getContext } from 'svelte'
 
   const { openTaskPopup } = getContext('app')
-  const { draggedItem, startTaskDrag } = getContext('drag-drop')
+  const { startTaskDrag } = getContext('drag-drop')
 
   let { task } = $props()
 </script> 

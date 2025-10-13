@@ -2,7 +2,7 @@
   import { getContext } from 'svelte'
 
   const { openTaskPopup, Task } = getContext('app')
-  const { draggedItem, startTaskDrag } = getContext('drag-drop')
+  const { startTaskDrag } = getContext('drag-drop')
 
   export let iconTask
   export let size = 32 // default for backward compatibility
@@ -42,7 +42,7 @@
     class:radial-glow={iconTask.isDone}
     class="ios-3d-touch-disable unselectable mobile-no-double-tap-zoom"
     draggable="true"
-    on:dragstart|self={(e) => startTaskDrag(e, iconTask.id, { draggedItem })}
+    on:dragstart|self={(e) => startTaskDrag(e, iconTask.id)}
   />
 </div>
 
