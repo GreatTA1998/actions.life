@@ -10,7 +10,7 @@
 -->
 <div onclick={() => openTaskPopup(task)}
   draggable="true" 
-  ondragstart={e => startTaskDrag(e, task.id)}
+  ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })}
   use:lazyCallable={() => hasIntersected = true}
   class:calendar-block={true}
   style="

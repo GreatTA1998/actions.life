@@ -1,6 +1,6 @@
 <div 
   onclick={() => openTaskPopup(task)}
-  ondragstart={e => startTaskDrag(e, task.id)} 
+  ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })} 
   draggable="true" 
   class="claude-draggable-item"
   class:calendar-block={!isBulletPoint}

@@ -42,7 +42,7 @@
     class:radial-glow={iconTask.isDone}
     class="ios-3d-touch-disable unselectable mobile-no-double-tap-zoom"
     draggable="true"
-    on:dragstart|self={(e) => startTaskDrag(e, iconTask.id)}
+    on:dragstart|self={e => startTaskDrag({ e, id: iconTask.id, isFromCal: true })}
   />
 </div>
 

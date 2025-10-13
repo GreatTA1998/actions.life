@@ -1,6 +1,6 @@
 <div 
   onclick={() => openTaskPopup(task)}
-  ondragstart={e => startTaskDrag(e, task.id)} draggable="true" 
+  ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })} draggable="true" 
   class:calendar-block={!isBulletPoint}
   class:clear-border={!isBulletPoint}
   class:graph-paper-texture={!isBulletPoint && !task.imageDownloadURL}

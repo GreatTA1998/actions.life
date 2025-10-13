@@ -30,7 +30,7 @@
     resetDragDrop
   })
 
-  function startTaskDrag (e, id) {
+  function startTaskDrag ({ e, id, isFromCal = false }) {
     if (e.target !== e.currentTarget) return // effectively `click|self`
     // don't call preventDefault(), otherwise drag doesn't even start
     e.stopPropagation() // stops rare occasions where the entire UI gets dragged (which'd be scary)
@@ -52,6 +52,7 @@
       i.offsetY = e.clientY - top
 
       i.id = id
+      i.isFromCal = isFromCal
 
       return i
     })

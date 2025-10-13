@@ -120,12 +120,22 @@
       const order2 = topNeighborDoc.orderValue || 3 + initialNumericalDifference
       newVal = (order1 + order2) / 2
     }
-    
-    Task.update({ id: $draggedItem.id, keyValueChanges: {
+
+    const keyValueChanges = {
       parentID,
       orderValue: newVal,
       persistsOnList: true // non-persistent tasks, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
-    }})
+    }
+
+    if ($draggedItem.isFromCal) {
+      keyValueChanges.startTime = ''
+      keyValueChanges.startDateISO = ''
+    }
+    
+    Task.update({ 
+      id: $draggedItem.id, 
+      keyValueChanges
+    })
 
     resetDragDrop()
   }
