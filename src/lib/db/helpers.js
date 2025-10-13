@@ -1,6 +1,6 @@
 import {
   doc, setDoc, getDoc, updateDoc, deleteDoc,
-  collection, getDocs, query, where
+  collection, getDocs, query, where, limit
 } from 'firebase/firestore'
 import { db } from './init'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
@@ -80,8 +80,28 @@ export function deleteFirestoreDoc (path) {
   })
 }
 
-export async function deleteImage ({ imageFullPath }) {
+async function countImageRefs (uid, collectionName, imageDownloadURL) {
+  const snapshot = await getDocs(
+    query(
+      collection(db, `/users/${uid}/${collectionName}`),
+      where('imageDownloadURL', '==', imageDownloadURL),
+      limit(2)
+    )
+  )
+  return snapshot.size
+}
+
+export async function releaseImage (uid, { imageFullPath, imageDownloadURL }) {
+  const [taskCount, templateCount] = await Promise.all([
+    countImageRefs(uid, 'tasks', imageDownloadURL),
+    countImageRefs(uid, 'templates', imageDownloadURL)
+  ])
+  if (taskCount + templateCount === 1) {
+    deleteImage({ imageFullPath })
+  }
+}
+
+async function deleteImage ({ imageFullPath }) {
   const storage = getStorage()
   await deleteObject(ref(storage, imageFullPath))
-  console.log('successfully deleted image', imageFullPath)
 } 

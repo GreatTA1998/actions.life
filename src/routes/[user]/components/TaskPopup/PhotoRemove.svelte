@@ -1,15 +1,15 @@
 <script>
-  import { deleteImage } from '$lib/db/helpers.js'
+  import { releaseImage } from '$lib/db/helpers.js'
   import { getContext } from 'svelte'
 
   const { Task, user } = getContext('app')
 
   let { taskObject } = $props()
 
-  function confirmDeletePhoto (imageFullPath) {
+  async function confirmDeletePhoto ({ imageFullPath, imageDownloadURL }) {
     if (confirm('Are you sure you want to delete the photo?')) {
       if ($user.uid !== 'demo-user') {
-        deleteImage({ imageFullPath })
+        await releaseImage($user.uid, { imageFullPath, imageDownloadURL })
       }
       Task.update({ 
         id: taskObject.id,
@@ -22,7 +22,7 @@
   }
 </script>
 
-<button onclick={() => confirmDeletePhoto(taskObject.imageFullPath)} 
+<button onclick={() => confirmDeletePhoto(taskObject)} 
   class="photo-row-action" 
 >
   <span class="material-symbols-outlined">no_photography</span>

@@ -16,7 +16,7 @@
 
   function handleDelete () {
     if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {
-      Template.delete({ id: $template.id })
+      Template.delete($template)
       closeTemplateEditor()
     }
   }
