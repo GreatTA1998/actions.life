@@ -145,7 +145,6 @@
       </div>
     </div>
 
-
     <canvas
       id="whiteboard"
       width="240"
@@ -169,14 +168,6 @@
   <div class="input-container">
     <label for="name">Name:</label>
     <input id="name" type="text" bind:value={name} placeholder="funny-moves" />
-
-    <label for="tags">Tags:</label>
-    <input
-      id="tags"
-      type="text"
-      bind:value={tags}
-      placeholder="e.g. funny, moves, doodle"
-    />
 
     <label for="public">Public:</label>
     <input id="public" type="checkbox" bind:checked={isShareable} />

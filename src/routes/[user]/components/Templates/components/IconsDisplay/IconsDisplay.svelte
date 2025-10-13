@@ -38,11 +38,11 @@
             />
           </button>
 
-          {#if doodleIcon.createdBy === $user.uid && $template.iconURL === doodleIcon.url}
+          <!-- {#if doodleIcon.createdBy === $user.uid && $template.iconURL === doodleIcon.url}
             <button onclick={() => handleDeleteIcon({ doodleIcon })} class="delete">
               <span class="material-symbols-outlined">delete</span>
             </button>
-          {/if}
+          {/if} -->
         </div>
       {/each}
     {/if}
