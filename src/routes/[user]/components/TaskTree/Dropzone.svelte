@@ -83,6 +83,15 @@
       resetDragDrop()
       return
     }
+    
+    const invalids = roomsInThisLevel.filter(task => !task.orderValue)
+    if (invalids.length > 0) {
+      const errorMessage = `${invalids.length} of the task(s) in the target list has no proper orderValue, aborting drop operation and sending error to the developer`
+      alert(errorMessage)
+      resetDragDrop()
+      throw new Error(errorMessage) // triggers window.onunhandledrejection which emails me
+    }
+
     ReorderDropzone.style.background = ''
 
     batch = writeBatch(db)
@@ -92,16 +101,13 @@
 
     const dropZoneIdx = idxInThisLevel
     if (dropZoneIdx === 0) {
-      const topOfOrderDoc = roomsInThisLevel[0]
-      if (topOfOrderDoc) {
-        newVal = (topOfOrderDoc.orderValue || GAP) / 1.1 // 1.1 slows down the approach to 0
-      } else { // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
-        newVal = GAP
-      }
+      const top = roomsInThisLevel[0]
+      if (top) newVal = top.orderValue / 1.1 // 1.1 slows down the approach to 0
+      else newVal = GAP // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
     }
     else if (dropZoneIdx === n) {
-      const bottomDoc = roomsInThisLevel[n-1] 
-      newVal = (bottomDoc.orderValue || GAP) + GAP
+      const bottom = roomsInThisLevel[n-1] 
+      newVal = bottom.orderValue + GAP
       if (newVal >= $user.maxOrderValue) {
         User.update($user.uid, {
           maxOrderValue: newVal + GAP
@@ -111,9 +117,7 @@
     else {
       const above = roomsInThisLevel[dropZoneIdx - 1]
       const below = roomsInThisLevel[dropZoneIdx]
-      const order1 = (above.orderValue || GAP) 
-      const order2 = (below.orderValue || GAP) + GAP
-      newVal = (order1 + order2) / 2
+      newVal = (above.orderValue + below.orderValue) / 2
     }
 
     const keyValueChanges = {
