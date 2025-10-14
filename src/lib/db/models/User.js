@@ -13,7 +13,7 @@ const User = {
   schema: z.object({
     uid: z.string(),
     email: z.string(),
-    maxOrderValue: z.number().default(3),
+    maxOrderValue: z.number().default(10),
 
     // missing properties from August 1
     calendarTheme: z.string().default('offWhite'),

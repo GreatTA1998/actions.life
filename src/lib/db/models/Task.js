@@ -156,7 +156,7 @@ const Task = {
     await batch.commit()
 
     showUndoSnackbar(
-      `Hiding ${tasks.length} task${tasks.length > 1 ? 's' : ''} from List Area`,
+      `Hiding ${tasks.length} task${tasks.length > 1 ? 's' : ''} from the list area`,
       () => Task.unarchiveTree({ id })
     )
 

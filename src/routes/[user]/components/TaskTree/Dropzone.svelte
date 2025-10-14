@@ -87,37 +87,32 @@
 
     batch = writeBatch(db)
 
-    const initialNumericalDifference = 3
+    const GAP = 1
     let newVal 
 
-    // TO-DO: need the last drop zone to be manually added
     const dropZoneIdx = idxInThisLevel
     if (dropZoneIdx === 0) {
       const topOfOrderDoc = roomsInThisLevel[0]
       if (topOfOrderDoc) {
-        newVal = (topOfOrderDoc.orderValue || 3) / 1.1 // 1.1 slows down the approach to 0
+        newVal = (topOfOrderDoc.orderValue || GAP) / 1.1 // 1.1 slows down the approach to 0
       } else { // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
-        newVal = 3
+        newVal = GAP
       }
     }
     else if (dropZoneIdx === n) {
-      const bottomOfOrderDoc = roomsInThisLevel[n-1]
-      newVal = (bottomOfOrderDoc.orderValue || 0) + initialNumericalDifference
-      
-      // keep track fo the highest possible maxOrdervalue for this $user
-      if (!$user.maxOrderValue || $user.maxOrderValue < newVal) {
+      const bottomDoc = roomsInThisLevel[n-1] 
+      newVal = (bottomDoc.orderValue || GAP) + GAP
+      if (newVal >= $user.maxOrderValue) {
         User.update($user.uid, {
-          maxOrderValue: ($user.maxOrderValue || 0) + initialNumericalDifference // don't rely on increment as it alarms zod
+          maxOrderValue: newVal + GAP
         })
       }
-
-      newVal = Math.max(newVal, $user.maxOrderValue)
     }
     else {
-      let topNeighborDoc = roomsInThisLevel[dropZoneIdx - 1]
-      let botNeighborDoc = roomsInThisLevel[dropZoneIdx]
-      const order1 = botNeighborDoc.orderValue || 3
-      const order2 = topNeighborDoc.orderValue || 3 + initialNumericalDifference
+      const above = roomsInThisLevel[dropZoneIdx - 1]
+      const below = roomsInThisLevel[dropZoneIdx]
+      const order1 = (above.orderValue || GAP) 
+      const order2 = (below.orderValue || GAP) + GAP
       newVal = (order1 + order2) / 2
     }
 
