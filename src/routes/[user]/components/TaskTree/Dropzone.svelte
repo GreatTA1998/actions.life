@@ -109,7 +109,7 @@
       const bottom = roomsInThisLevel[n-1] 
       newVal = bottom.orderValue + GAP
       if (newVal >= $user.maxOrderValue) {
-        User.update($user.uid, {
+        User.update({
           maxOrderValue: newVal + GAP
         })
       }

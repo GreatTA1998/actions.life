@@ -1,10 +1,13 @@
 <script>
-  export let checked = false
-  export let label = ''
+  let { 
+    checked = false, 
+    label = '',
+    onchange = () => {}
+  } = $props()
 </script>
 
 <label class="toggle-switch">
-  <input type="checkbox" bind:checked style="margin: 0;">
+  <input type="checkbox" {checked} {onchange} style="margin: 0;">
   <span class="toggle-slider"></span>
   <span class="toggle-label">{label}</span>
 </label>
