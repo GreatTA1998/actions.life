@@ -145,6 +145,10 @@
     width: 100%;
     position: fixed;
   }
+
+  :global(body) {
+    background: rgb(245, 245, 245); /* 240 > optimal > 220, previously #f1f3f4; */
+  }
   
   .grid-container {
     display: grid;

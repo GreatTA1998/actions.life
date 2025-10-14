@@ -1,10 +1,10 @@
 {#if $uniqueEvents}
-  <div style="background: #f8f9fa; padding: 16px 0px;">
+  <div style="padding: 16px 0px;">
     <div style="margin-left: 8px; margin-bottom: 8px;">
       <SimpleToggle bind:checked={$user.hideRoutines} label="Exclude routines" />
     </div>
 
-    <div style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 16px;">
       {#each Object.keys($uniqueEvents) as iso, i}
         <ScheduleGap {i} {iso} />
 
