@@ -3,7 +3,7 @@
   import PreviewChanges from './PreviewChanges.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
   import Template from '$lib/db/models/Template.js'
-  import { getPreviewSpan, getMatchingJSDates } from '$lib/utils/rrule.js'
+  import { getPreviewSpan, generateRecurrenceDTs } from '$lib/utils/rrule.js'
   import { instantiateTask, isException, getAffectedInstances } from './instances.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
@@ -34,7 +34,7 @@
 
   function simulateChanges (newRRStr) {
     if (!newRRStr) return []
-    const DTs = getMatchingJSDates({
+    const DTs = generateRecurrenceDTs({
       startDT: DateTime.now(),
       endDT: DateTime.now().plus({ days: getPreviewSpan({ rrStr: newRRStr })}),
       rrStr: newRRStr
@@ -43,7 +43,7 @@
     const newTasks = []
     for (const dt of DTs) {
       newTasks.push(
-        instantiateTask({ template: routine, occurrence: dt.toJSDate() })
+        instantiateTask({ template: routine, dt })
       )
     }
     return newTasks

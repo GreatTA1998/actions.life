@@ -60,10 +60,10 @@
 <style>
   .my-date-field {
     height: 30px;
-    border-radius: 4px;
-    border: 0px solid transparent;
     width: 64px;
-
+    padding: 2px; /* standardize: iOS and desktop defaults differ */
+    border: 0px solid transparent;
+    border-radius: 4px;
     font-size: 14px;
     color: var(--scheduled-info-color);
   } 

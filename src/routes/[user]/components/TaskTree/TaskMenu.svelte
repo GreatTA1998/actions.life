@@ -43,7 +43,7 @@
       <span class="material-symbols-outlined" style="font-size: 18px;">
         inventory_2
       </span>
-      archive
+      Hide from list
     </button>
   </div>
 {/snippet}

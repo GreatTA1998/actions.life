@@ -24,19 +24,19 @@ export function isException (task, template) {
   return false
 }
 
-export function createTaskInstance ({ template, occurrence }) {
+export function createTaskInstance ({ template, dt }) {
   Task.create({
     // ensure idempotence, with deterministic IDs
     // assumes the recurrence is at the resolution of days
-    id: template.id + '_' + DateTime.fromJSDate(occurrence).toFormat('yyyy-MM-dd'),
-    newTaskObj: instantiateTask({ template, occurrence })
+    id: template.id + '_' + dt.toFormat('yyyy-MM-dd'),
+    newTaskObj: instantiateTask({ template, dt })
   })
 }
 
-export function instantiateTask ({ template, occurrence }) {
+export function instantiateTask ({ template, dt }) {
   const newTaskObj = Task.schema.parse(template)
   newTaskObj.templateID = template.id
-  newTaskObj.startDateISO = DateTime.fromJSDate(occurrence).toFormat('yyyy-MM-dd')
+  newTaskObj.startDateISO = dt.toFormat('yyyy-MM-dd')
   newTaskObj.persistsOnList = false
   return newTaskObj
 }

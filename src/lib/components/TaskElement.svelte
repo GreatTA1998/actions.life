@@ -1,6 +1,6 @@
 <div 
   onclick={() => openTaskPopup(task)}
-  ondragstart={e => startTaskDrag(e, task.id, { draggedItem })} 
+  ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })} 
   draggable="true" 
   class="claude-draggable-item"
   class:calendar-block={!isBulletPoint}
@@ -84,7 +84,7 @@
   import { getContext } from 'svelte'
 
   const { Task, openTaskPopup } = getContext('app')
-  const { draggedItem, startTaskDrag } = getContext('drag-drop')
+  const { startTaskDrag } = getContext('drag-drop')
 
   let { 
     task = null, // this component assumes `task` is hydrated

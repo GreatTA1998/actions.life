@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { deleteImage } from '$lib/db/helpers.js'
+import { releaseImage } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
 import { user, tasksCache } from '$lib/store/index.js'
 import { 
@@ -87,7 +87,10 @@ const Task = {
         treeISOs, 
         rootID
       })
-      batch.commit()
+      
+      batch.commit() // for a snappier user experience we don't use `await` for now
+      
+      return validatedTask
     } 
     catch (error) {
       console.error('Error creating task:', error)
@@ -125,9 +128,10 @@ const Task = {
       }
 
       const batch = writeBatch(db)
+      const { uid } = get(user)
       for (const node of treeNodes) {
-        if (node.imageFullPath) deleteImage(node)
-        batch.delete(doc(db, `/users/${get(user).uid}/tasks/${node.id}`))
+        if (node.imageFullPath) releaseImage(uid, node)
+        batch.delete(doc(db, `/users/${uid}/tasks/${node.id}`))
       }
       await handleTreeISOsForDeletion({ batch, tasksToDelete: treeNodes }) // modifies `batch` before commiting
       await batch.commit()
@@ -152,7 +156,7 @@ const Task = {
     await batch.commit()
 
     showUndoSnackbar(
-      `${tasks.length} task${tasks.length > 1 ? 's' : ''} archived`,
+      `Hiding ${tasks.length} task${tasks.length > 1 ? 's' : ''} from the list area`,
       () => Task.unarchiveTree({ id })
     )
 

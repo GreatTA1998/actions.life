@@ -12,7 +12,6 @@
   const { Task, tasksCache, clickedTaskID, closeTaskPopup, ancestralTree } = getContext('app')
   
   let taskObject = $derived($tasksCache[$clickedTaskID])
-  $effect(() => console.log('taskObject =', taskObject))
 
   const debouncedUpdate = createDebouncedFunction(
     (id, keyValueChanges) => Task.update({ id, keyValueChanges }), 

@@ -120,9 +120,15 @@ export function organizeToGroups (forest) {
   forest.forEach(tree => {
     addTaskToDate(tree, tree.startDateISO, dateToTasks)
   })
-  
-  // Ensure consistent drag-behavior for overlapping tasks (later elements are "on top" due to HTML stacking order)
+
+  // note: mutates the data structure  
   for (const taskGroups of Object.values(dateToTasks)) {
+    // sort day-flexible text tasks by `orderValue`
+    if (taskGroups.noStartTime?.noIcon?.length > 0) {
+      taskGroups.noStartTime.noIcon.sort((a, b) => a.orderValue - b.orderValue)
+    }
+    
+    // sort scheduled tasks, ensure consistent drag-behavior for overlapping tasks (later elements are "on top" due to HTML stacking order)  
     if (taskGroups.hasStartTime?.length > 0) {
       taskGroups.hasStartTime.sort((a, b) => 
         pureNumericalHourForm(a.startTime) - pureNumericalHourForm(b.startTime)

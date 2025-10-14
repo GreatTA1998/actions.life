@@ -2,6 +2,9 @@ import { sveltekit } from '@sveltejs/kit/vite'
 import { SvelteKitPWA } from '@vite-pwa/sveltekit'
 
 export default {
+  server: {
+    allowedHosts: ['unwintry-supermorally-irena.ngrok-free.dev'] // for local iOS testing with ngrok
+  },
   plugins: [
     sveltekit(),
     SvelteKitPWA({
