@@ -33,7 +33,8 @@
 
 <style>
   .my-input {
-    width: 94%;
+    width: var(--width-within-column);
+    border-radius: var(--left-padding);
     padding-top: 0;
     padding-bottom: 0;
     font-size: 16px;

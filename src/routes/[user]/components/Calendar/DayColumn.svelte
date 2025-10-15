@@ -248,9 +248,8 @@
 <style lang="scss">
   #calendar-direct-task-div {
     position: absolute;
-    width: 98%; 
-    padding-left: 0px; 
-    padding-right: 0px;
+    width: 100%; 
+    padding: 0;
   }
 
   .task-absolute {
@@ -259,7 +258,7 @@
     right: 0;
     margin-left: auto;
     margin-right: auto;
-    width: 94%;
+    width: var(--width-within-column);
   }
 
   .my-helper-gridline {

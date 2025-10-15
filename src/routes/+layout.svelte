@@ -85,6 +85,8 @@
     --fine-control-color: rgb(120, 120, 120);
     --scheduled-info-color: rgb(0, 0, 0);
     --task-name-color: rgb(0, 0, 0);
+    --left-padding: 6px; /* only applies to TaskElement, PhotoTaskElement, IconTaskElement */ 
+    --width-within-column: 94%;
 
     --calendar-section-left-spacing: 2vw;
     --experimental-black: hsla(0, 100%, 0%, 0.6);
