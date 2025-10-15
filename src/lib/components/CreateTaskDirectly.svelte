@@ -84,6 +84,7 @@
       onExit()
     }
   }}
+  width="var(--width-within-column)"
 />
 
 {#if taskName.length >= 1}

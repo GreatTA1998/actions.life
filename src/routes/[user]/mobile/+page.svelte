@@ -12,18 +12,11 @@
           width: 100%; 
           padding: 0px 8px;"
         >
-          <TodoList style="background-color: transparent; padding-top: var(--main-content-top-margin);"
+          <TodoList cssStyle="background-color: transparent; padding-top: var(--main-content-top-margin);"
             willShowCheckbox
             isLargeFont
             listWidth="100%"
-            let:startTypingNewTask={startTypingNewTask}
-          >
-            <div on:click={startTypingNewTask} on:keydown class="fixed-round-button">
-              <span id="startButton" class="material-symbols-outlined" style="font-size: 48px; font-weight: 600;">
-                add
-              </span>
-            </div>
-          </TodoList>
+          />
         </div>
       {:else if activeTabName === 'FUTURE_VIEW'}
         <Schedule on:task-duration-adjusted />

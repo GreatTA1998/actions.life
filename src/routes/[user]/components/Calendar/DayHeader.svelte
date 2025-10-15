@@ -146,7 +146,7 @@
 <style>
   #calendar-direct-task-div {
     margin-top: 4px;
-    width: 90%; 
+    width: 100%; 
     padding-left: 0px; 
     padding-right: 0px;
   }

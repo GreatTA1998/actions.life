@@ -2,12 +2,11 @@
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
-  import FormField from '$lib/components/FormField.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import TimelineRenderer from './TimelineRenderer.svelte'
   import TaskMenu from './TaskMenu.svelte'
   import TaskCaret from './TaskCaret.svelte'
-  import { getRandomID, getRandomColor } from '$lib/utils/core.js'
+  import { getRandomColor } from '$lib/utils/core.js'
   import { WIDTHS } from '$lib/utils/constants.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
@@ -27,8 +26,6 @@
 
   const colorForDebugging = getRandomColor()
 
-  let newSubtaskStringValue = $state('')
-  let isTypingNewSubtask = $state(false)
   let n = $derived(taskObj.children.length)
   let depthAdjustedFontSize = $derived.by(() => {
     let depthAdjustedFontSize = ''
@@ -53,49 +50,6 @@
     })
   }
 
-  function onEnter (e) {
-    if (newSubtaskStringValue === '') {
-      isTypingNewSubtask = false
-    }
-    else {
-      createSubtask(newSubtaskStringValue)
-      newSubtaskStringValue = ''
-    } 
-  }
-
-  function createTimelineStep (e) {
-    if (newSubtaskStringValue === '') {
-      isTypingNewSubtask = false
-    }
-    else {
-      Task.create({
-        id: getRandomID(),
-        newTaskObj: {
-          name: newSubtaskStringValue,
-          parentID: taskObj.id,
-          childrenLayout: 'normal'
-          // we purposely don't set `orderValue`,  so it'll be added to the end of the timeline sequentially
-        }
-      })
-      newSubtaskStringValue = ''
-    } 
-  }
-
-  function createSubtask (name) {
-    const newTaskObj = {
-      name,
-      parentID: taskObj.id, 
-      childrenLayout: 'normal'
-    }
-
-    if (n > 0) {
-      newTaskObj.orderValue = (taskObj.children[0].orderValue) / 1.1
-    } 
-    // Task.create(), by default, initializes `$user.maxOrderValue`
-
-    Task.create({ id: getRandomID(), newTaskObj })
-  }
-
   function renderDropzone (idx) {
     return {
       ancestorRoomIDs: [taskObj.id, ...ancestorRoomIDs],
@@ -116,8 +70,8 @@
     {#if willShowCheckbox}
       <div style="position: relative; margin-left: 2px; margin-right: 4px;">
         {@render verticalTimeline?.()}
-
-        <div style="background-color: white; position: relative; padding-top: 2px; padding-bottom: 2px;">
+        
+        <div style="position: relative; padding-top: 2px; padding-bottom: 2px;">
           {#if n === 0}
             <Checkbox value={taskObj.isDone}
               onchange={e => handleCheckboxChange(e)}
@@ -156,9 +110,7 @@
       {/if}
     </div>
 
-    <TaskMenu {taskObj} 
-      onSubtaskAdd={() => isTypingNewSubtask = true } 
-    />
+    <TaskMenu {taskObj} />
   </div>
 
   {#if taskObj.childrenLayout === 'timeline'}
@@ -171,36 +123,8 @@
       {isLargeFont}
       {colorForDebugging}
     />
-
-    {#if isTypingNewSubtask}  
-      <FormField
-        fieldLabel="Task Name"
-        value={newSubtaskStringValue}
-        on:input={(e) => newSubtaskStringValue = e.detail.value}
-        on:focus-out={() => {
-          if (newSubtaskStringValue === '') {
-            isTypingNewSubtask = false
-          }
-        }}
-        on:task-entered={e => createTimelineStep(e)}
-      />
-    {/if}
   {:else}
     <div style="margin-left: {WIDTHS.INDENT_PER_LEVEL}px;">
-      {#if isTypingNewSubtask}  
-        <FormField
-          fieldLabel="Task Name"
-          value={newSubtaskStringValue}
-          on:input={(e) => newSubtaskStringValue = e.detail.value}
-          on:focus-out={() => {
-            if (newSubtaskStringValue === '') {
-              isTypingNewSubtask = false
-            }
-          }}
-          on:task-entered={(e) => onEnter(e)}
-        />
-      {/if}
-
       {#if !taskObj.isCollapsed}
         <div class:ghost-negative={n === 0} 
           style="

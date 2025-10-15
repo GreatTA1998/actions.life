@@ -17,7 +17,7 @@
   <TodoList 
     listWidth="320px"
     willShowCheckbox={true} 
-    style={wrappingColumnLayout}
+    cssStyle={wrappingColumnLayout}
   />
 </div>
 

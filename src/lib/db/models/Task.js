@@ -75,10 +75,14 @@ const Task = {
         rootID = parent?.rootID || id
       }
 
+      const k = 1
+      const { maxOrderValue } = get(user)
       if (!validatedTask.orderValue) {
-        validatedTask.orderValue = get(user).maxOrderValue + 1
+        validatedTask.orderValue = maxOrderValue + k
+      }
+      if (validatedTask.orderValue > maxOrderValue) {
         batch.update(doc(db, 'users', uid), { 
-          maxOrderValue: increment(2) 
+          maxOrderValue: validatedTask.orderValue + k
         })
       }
 

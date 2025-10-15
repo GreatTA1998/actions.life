@@ -2,68 +2,22 @@
   import { trees, listenToTasks } from './service.js'
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
-  import FormField from '$lib/components/FormField.svelte'
-  import { getRandomID } from '$lib/utils/core.js'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getContext, onMount } from 'svelte'
-  import { DateTime } from 'luxon'
 
-  const { Task, user } = getContext('app')
+  const { user } = getContext('app')
 
-  export let willShowCheckbox = true
-  export let isLargeFont = false
-  export let triggerNewTask = false
-  export let listWidth = '320px'
-
-  let topInput = false
-  let bottomInput = false
-  let newTaskName = ''
+  let {
+    willShowCheckbox = true,
+    isLargeFont = false,
+    cssStyle,
+    listWidth = '320px',
+    children
+  } = $props()
 
   onMount(() => {
     listenToTasks($user.uid)
   })
-  
-  $: if (triggerNewTask && !bottomInput) {
-    startTypingNewTask()
-  }
-  
-  function startTypingNewTask () {
-    topInput = true
-  }
-
-  function addTaskAbove () {
-    if (newTaskName === '') topInput = false
-
-    else {
-      createTask({ 
-        orderValue: $trees.length ? $trees[0].orderValue / 1.1 : undefined
-      })
-      newTaskName = ''
-      // we don't reset the input to allow for rapid consecutive inputs (double-tap ENTER to be done
-    }
-  }
-
-  function addTaskBelow (e) {
-    if (newTaskName === '') bottomInput = false
-
-    else {
-      createTask({ orderValue: undefined })
-      newTaskName = ''
-    }
-  }
-
-  function createTask ({ orderValue }) {
-    const newTaskObj = {
-      name: newTaskName,
-      parentID: '',
-      timeZone: DateTime.local().zoneName,
-      persistsOnList: true
-    }
-    if (orderValue) {
-      newTaskObj.orderValue = orderValue
-    }
-    Task.create({ newTaskObj, id: getRandomID() })
-  }
   
   function renderDropzone (idx) {
     return {
@@ -78,19 +32,8 @@
 </script>
 
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
-<div style={$$props.style}>
+<div style={cssStyle}>
   {#if $trees}
-    {#if topInput}
-      <FormField fieldLabel="Task Name"
-        value={newTaskName}
-        on:input={e => newTaskName = e.detail.value}
-        on:focus-out={() => {
-          if (newTaskName === '') topInput = false
-        }}
-        on:task-entered={e => addTaskAbove(e)}
-      />
-    {/if}
-
     {#each $trees as taskObj, i (taskObj.id)}
       <div style="width: {listWidth}">
         <div style="width: 235px;">
@@ -116,27 +59,9 @@
     <div style="width: 235px;">
       <Dropzone {...renderDropzone($trees.length)} />
     </div>
-
-    <div on:click={() => bottomInput = true} on:keydown class="new-task-icon" style="width: 32px; height: 32px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-      +
-    </div>
-
-    {#if bottomInput}
-      <FormField fieldLabel="Task Name"
-        value={newTaskName}
-        on:input={e => newTaskName = e.detail.value}
-        on:focus-out={() => {
-          if (newTaskName === '') bottomInput = false
-        }}
-        on:task-entered={e => addTaskBelow(e)}
-      />
-      <div style="margin-bottom: 8px;"></div>
-    {/if}
   {/if}
-
-  <slot {startTypingNewTask}>
-    
-  </slot>
+  
+  {@render children?.()}
 </div>
 
 <style>  
@@ -145,15 +70,5 @@
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-
-  .new-task-icon {
-    font-size: 24px;
-    color: #666;
-    transition: color 0.2s;
-  }
-  
-  .new-task-icon:hover {
-    color: #333;
   }
 </style>
