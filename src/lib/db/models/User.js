@@ -31,7 +31,8 @@ const User = {
     photoUploadAutoArchive: z.boolean().default(false),
     photoCompressWhenAttachingToTask: z.boolean().default(false),
 
-    hideRoutines: z.boolean().default(true)
+    hideRoutines: z.boolean().default(true), // for mobile's future view
+    lastRanRoutines: z.string().default('') // for autoExtend.js
 
     // unused
     // isSubscriber: z.boolean().default(false),
