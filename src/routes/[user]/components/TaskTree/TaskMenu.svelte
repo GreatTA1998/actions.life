@@ -33,7 +33,7 @@
     <div class="menu-divider"></div>
     
     <ToggleGroup onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal }})}
-      options={[{ text: 'normal', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
+      options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
       activeValue={taskObj.childrenLayout} 
     />
 

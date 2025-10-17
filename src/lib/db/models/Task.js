@@ -42,7 +42,7 @@ const Task = {
     tags: z.string().default(''),
     isArchived: z.boolean().default(false),
     persistsOnList: z.boolean().default(true),
-    childrenLayout: z.string().default('normal'), // 'normal' or 'timeline'
+    childrenLayout: z.string().default('normal'), // 'normal' (renaming to 'list' but requires proper migration) or 'timeline'
     photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'thumbnail'
     isCollapsed: z.boolean().default(false),
 
