@@ -3,7 +3,7 @@
   style="
     height: {heightInPx}px; 
     border-radius: var(--left-padding); 
-    outline: 1px solid {colorForDebugging};
+    outline: 0px solid {colorForDebugging};
     {$bestDropzoneID === dropzoneID ? dropPreviewCSS() : ''}
     {$bestDropzoneID === dropzoneID && isInvalidDrop ? 'background-color: red;' : ''}
   " 
@@ -22,7 +22,7 @@
     Task, 
     User, user 
   } = getContext('app')
-  
+
   const { 
     draggedItem, hasDropped, matchedDropzones, 
     bestDropzoneID, logicAreaRect, resetDragDrop 
