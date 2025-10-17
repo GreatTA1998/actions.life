@@ -1,8 +1,12 @@
 <div
   bind:this={ReorderDropzone} 
-  class:highlight={$bestDropzoneID === dropzoneID}
-  class:error={$bestDropzoneID === dropzoneID && isInvalidDrop}
-  style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 0px solid {colorForDebugging};" 
+  style="
+    height: {heightInPx}px; 
+    border-radius: var(--left-padding); 
+    outline: 1px solid {colorForDebugging};
+    {$bestDropzoneID === dropzoneID ? dropPreviewCSS() : ''}
+    {$bestDropzoneID === dropzoneID && isInvalidDrop ? 'background-color: red;' : ''}
+  " 
 ></div>
 
 <script>
@@ -11,13 +15,18 @@
   import { db } from '$lib/db/init'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
+  import { dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import { getContext } from 'svelte'
 
   const { 
     Task, 
     User, user 
   } = getContext('app')
-  const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
+  
+  const { 
+    draggedItem, hasDropped, matchedDropzones, 
+    bestDropzoneID, logicAreaRect, resetDragDrop 
+  } = getContext('drag-drop')
 
   let {
     ancestorRoomIDs,
@@ -92,8 +101,6 @@
       throw new Error(errorMessage) // triggers window.onunhandledrejection which emails me
     }
 
-    ReorderDropzone.style.background = ''
-
     batch = writeBatch(db)
 
     const GAP = 1
@@ -140,13 +147,3 @@
     resetDragDrop()
   }
 </script>
-
-<style>
-  .highlight {
-    background-color: rgb(87, 172, 247);
-  }
-
-  .error {
-    background-color: red;
-  }
-</style>

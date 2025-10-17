@@ -220,11 +220,14 @@
   {/each}
 
   {#if intersecting && previewTop !== null}
-    <div class="task-absolute" style="
-      top: {previewTop}px; 
-      height: {$draggedItem.height}px;
-      {dropPreviewCSS()}
-    "></div>
+    <div class="task-absolute" 
+      style="
+        top: {previewTop}px; 
+        height: {$draggedItem.height}px;
+        border-radius: var(--left-padding);
+        {dropPreviewCSS()}
+      "
+    ></div>
   {/if}
 
   {#if isDirectlyCreatingTask}
