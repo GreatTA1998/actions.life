@@ -3,9 +3,11 @@
     <MyInput value={taskName}
       oninput={e => taskName = e.target.value}
       onfocusout={() => {
-        if (taskName === '') {
+        console.log('onfocusout')
+        // if (taskName === '') {
+          isInputActive.set(false);
           clicked = false
-        }
+        // }
       }}
       onEnterPress={createTask}
       fontSize="{heightInPx * 3/4}px"
@@ -14,9 +16,23 @@
   </div>
 {:else}
   <div 
+    onpointerdown={e => {
+      console.log('onpointerdown, $isInputActive: ', $isInputActive)
+      if ($isInputActive) {
+        console.log('canCreate set to false')
+        canCreate.set(false)
+      }
+    }}
     onclick={e => {
-      e.stopPropagation(); 
-      clicked = true;
+      console.log('onclick, $canCreate: ', $canCreate)
+      if ($canCreate) {
+        e.stopPropagation(); 
+        clicked = true;
+        isInputActive.set(true);
+      }
+      else {
+        canCreate.set(true)
+      }
     }}
     bind:this={dropzoneElem} 
     class:highlight={$bestDropzoneID === dropzoneID}
@@ -36,6 +52,7 @@
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
+  import { canCreate, isInputActive } from '$lib/store'
 
   const { Task } = getContext('app')
   const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
