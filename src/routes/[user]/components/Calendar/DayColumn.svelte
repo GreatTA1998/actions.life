@@ -8,7 +8,7 @@
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate } from './service.js'
-  import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
+  import { user, isInputActive, canCreate, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
   import { getContext, onMount, onDestroy } from 'svelte'
 
   const { Task } = getContext('app')
@@ -105,8 +105,12 @@
 
   function onclick (e) {
     if (e.target === e.currentTarget) { // equivalent to `click|self`. e.target := 1st node that detected the click, e.currentTarget := node that detected the event
-      isDirectlyCreatingTask = true
-      yPosition = getY(e)
+      if ($canCreate) {
+        isDirectlyCreatingTask = true
+        yPosition = getY(e)
+        isInputActive.set(true)
+      }
+      else canCreate.set(true)
     }
   }
 
@@ -192,6 +196,7 @@
   style="height: {$totalMinutes * pixelsPerMinute}px;"
   class:grid-y={$user.hasGridlines}
   {onclick}
+  onpointerdown={() => { if ($isInputActive) canCreate.set(false) }}
 >
   {#if $draggedItem.id || $user.hasGridlines}
     {#each $timestamps as timestamp, i}

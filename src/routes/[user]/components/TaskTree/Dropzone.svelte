@@ -3,11 +3,8 @@
     <MyInput value={taskName}
       oninput={e => taskName = e.target.value}
       onfocusout={() => {
-        console.log('onfocusout')
-        // if (taskName === '') {
-          isInputActive.set(false);
-          clicked = false
-        // }
+        isInputActive.set(false);
+        clicked = false
       }}
       onEnterPress={createTask}
       fontSize="{heightInPx * 3/4}px"
@@ -16,23 +13,14 @@
   </div>
 {:else}
   <div 
-    onpointerdown={e => {
-      console.log('onpointerdown, $isInputActive: ', $isInputActive)
-      if ($isInputActive) {
-        console.log('canCreate set to false')
-        canCreate.set(false)
-      }
-    }}
+    onpointerdown={() => { if ($isInputActive) canCreate.set(false) }}
     onclick={e => {
-      console.log('onclick, $canCreate: ', $canCreate)
       if ($canCreate) {
         e.stopPropagation(); 
         clicked = true;
         isInputActive.set(true);
       }
-      else {
-        canCreate.set(true)
-      }
+      else canCreate.set(true)
     }}
     bind:this={dropzoneElem} 
     class:highlight={$bestDropzoneID === dropzoneID}

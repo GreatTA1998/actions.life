@@ -1,7 +1,7 @@
 <script>
   import MyInput from '$lib/components/MyInput.svelte'
   import { getRandomID } from '$lib/utils/core.js'
-  import { user } from '$lib/store'
+  import { user, isInputActive } from '$lib/store'
   import { onMount, getContext } from 'svelte'
 
   const { Task, Template } = getContext('app')
@@ -82,6 +82,7 @@
   onfocusout={() => {
     if (taskName.length === 0) {
       onExit()
+      isInputActive.set(false)
     }
   }}
   width="var(--width-within-column)"
