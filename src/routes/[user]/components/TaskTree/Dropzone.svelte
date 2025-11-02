@@ -1,5 +1,5 @@
 {#if clicked}
-  <div style="height: {heightInPx + 4}px;">
+  <div style="height: {remHeight}rem;">
     <MyInput value={taskName}
       oninput={e => taskName = e.target.value}
       onfocusout={() => {
@@ -7,7 +7,7 @@
         clicked = false
       }}
       onEnterPress={createTask}
-      fontSize="{heightInPx * 3/4}px"
+      fontSize="{remHeight * 3/4}rem"
       width="100%"
     />
   </div>
@@ -26,7 +26,7 @@
     class:highlight={$bestDropzoneID === dropzoneID}
     class:error={$bestDropzoneID === dropzoneID && isInvalidDrop}
     style="
-      height: {heightInPx}px; 
+      height: {remHeight}rem; 
       border-radius: var(--left-padding); 
       outline: 0px solid {colorForDebugging}; 
     "
@@ -50,7 +50,7 @@
     idxInThisLevel,
     parentID = '',
     colorForDebugging = 'red',
-    heightInPx = HEIGHTS.SUB_DROPZONE
+    remHeight = HEIGHTS.SUB_DROPZONE
   } = $props()
 
   let dropzoneElem = $state(null)
@@ -85,7 +85,7 @@
       }})
       taskName = ''
     }
-    clicked = false
+    else clicked = false
   }
 
   function checkIntersection ({ x1, x2, y1, y2 }) {

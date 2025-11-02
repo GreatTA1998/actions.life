@@ -1,7 +1,7 @@
 export const HEIGHTS = Object.freeze({
   MAIN_CONTENT_TOP_MARGIN: 20,
-  ROOT_DROPZONE: 24,
-  SUB_DROPZONE: 16,
+  ROOT_DROPZONE: 1.5, // 1.5rem = 24px
+  SUB_DROPZONE: 1, // 1rem = 16px
   NAVBAR: 54,
   CORNER_LABEL: 110,
 })

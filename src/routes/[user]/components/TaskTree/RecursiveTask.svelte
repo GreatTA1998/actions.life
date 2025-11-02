@@ -31,12 +31,12 @@
     let depthAdjustedFontSize = ''
     switch (depth) {
       case 0:
-        if (isLargeFont) depthAdjustedFontSize = '32px'
-        else depthAdjustedFontSize = '16px'
+        if (isLargeFont) depthAdjustedFontSize = '2rem' // 32px
+        else depthAdjustedFontSize = '1rem' // 16px
         break
-      default: 
-        if (isLargeFont) depthAdjustedFontSize = '28px'
-        else depthAdjustedFontSize = '14px'
+      default: // sub-task font size
+        if (isLargeFont) depthAdjustedFontSize = '1.75rem' // 28px
+        else depthAdjustedFontSize = '0.875rem' // 14px 
     }
     return depthAdjustedFontSize
   })

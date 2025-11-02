@@ -8,7 +8,7 @@
   import { getContext, onMount } from 'svelte'
   import { isInputActive, canCreate } from '$lib/store'
 
-  const heightInPx = HEIGHTS.ROOT_DROPZONE
+  const remHeight = HEIGHTS.ROOT_DROPZONE
 
   let clicked = $state(false)
   let taskName = $state('')
@@ -34,7 +34,7 @@
       roomsInThisLevel: $trees,
       parentID: '',
       colorForDebugging: "purple",
-      heightInPx: HEIGHTS.ROOT_DROPZONE
+      remHeight: HEIGHTS.ROOT_DROPZONE
     }
   }
 
@@ -102,7 +102,7 @@
         clicked = false
       }}
       onEnterPress={createTask}
-      fontSize="{heightInPx * 3/4}px"
+      fontSize="{remHeight * 3/4}rem"
       width="100%"
     />
   {/if}
