@@ -5,7 +5,7 @@
 
   const { tasksCache, clickedTaskID, closeTaskPopup } = getContext('app')
 
-  $: taskObject = $tasksCache[$clickedTaskID]
+  let taskObject = $derived($tasksCache[$clickedTaskID])
 </script>
 
 {#if taskObject}

@@ -1,11 +1,19 @@
 <script>
   import { trees, listenToTasks } from './service.js'
+  import MyInput from '$lib/components/MyInput.svelte'
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import { HEIGHTS } from '$lib/utils/constants.js'
+  import { getRandomID } from '$lib/utils/core.js'
   import { getContext, onMount } from 'svelte'
+  import { isInputActive, canCreate } from '$lib/store'
 
-  const { user } = getContext('app')
+  const heightInPx = HEIGHTS.ROOT_DROPZONE
+
+  let clicked = $state(false)
+  let taskName = $state('')
+
+  const { user, Task } = getContext('app')
 
   let {
     willShowCheckbox = true,
@@ -29,13 +37,38 @@
       heightInPx: HEIGHTS.ROOT_DROPZONE
     }
   }
+
+  function createTask () {
+    if (taskName !== '') {
+      Task.create({ id: getRandomID(), newTaskObj: {
+        name: taskName,
+        orderValue: $user.maxOrderValue + 1, // k = 1
+      }})
+      taskName = ''
+    }
+    else clicked = false
+  }
 </script>
 
 <!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
-<div style={cssStyle}>
+<div style={cssStyle} 
+  onpointerdown={(e) => { 
+    if (e.target !== e.currentTarget) return;
+    if ($isInputActive) canCreate.set(false); 
+  }}
+  onclick={e => {
+      if (e.target !== e.currentTarget) return;
+      if ($canCreate) {
+        clicked = true
+        isInputActive.set(true)
+      }
+      else canCreate.set(true)
+    }
+  }
+>
   {#if $trees}
     {#each $trees as taskObj, i (taskObj.id)}
-      <div style="width: {listWidth}">
+      <div style="width: {listWidth};">
         <div style="width: 235px;">
           <Dropzone {...renderDropzone(i)} />
         </div>
@@ -59,6 +92,19 @@
     <div style="width: 235px;">
       <Dropzone {...renderDropzone($trees.length)} />
     </div>
+  {/if}
+
+  {#if clicked}
+    <MyInput value={taskName}
+      oninput={e => taskName = e.target.value}
+      onfocusout={() => {
+        isInputActive.set(false);
+        clicked = false
+      }}
+      onEnterPress={createTask}
+      fontSize="{heightInPx * 3/4}px"
+      width="100%"
+    />
   {/if}
   
   {@render children?.()}

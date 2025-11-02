@@ -10,6 +10,7 @@
   } from '$lib/utils/dragDrop.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
+  import { isInputActive, canCreate } from '$lib/store'
 
   const { Task } = getContext('app')
   const { draggedItem, hasDropped, bestDropzoneID, scrollCalRect, matchedDropzones, resetDragDrop } = getContext('drag-drop')
@@ -75,12 +76,6 @@
     resetDragDrop()
   }
 
-  function onclick (e) {
-    if (e.target === e.currentTarget) {
-      isDirectlyCreatingTask = true
-    }
-  }
-
   function realEffectiveArea () {
     const { left, right, top, bottom } = $scrollCalRect()
     return {
@@ -93,7 +88,18 @@
 <div bind:this={dayHeader}
   class="day-header"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
-  {onclick}
+  onpointerdown={e => { 
+    if (e.target !== e.currentTarget) return;
+    if ($isInputActive) canCreate.set(false); 
+  }}
+  onclick={e => {
+    if (e.target !== e.currentTarget) return;
+    if ($canCreate) {
+      isDirectlyCreatingTask = true
+      isInputActive.set(true)
+    }
+    else canCreate.set(true)
+  }}
 >
   <div class="compact-horizontal unselectable">
     <div class="center-flex day-name-label"
