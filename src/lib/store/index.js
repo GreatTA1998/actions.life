@@ -151,3 +151,4 @@ export function hideSnackbar() {
 // global input
 export const isInputActive = writable(false)
 export const canCreate = writable(true) // temporary variable to act as the glue for $isInputActive
+export const activePopoverClose = writable(null) // function to close the currently active popover input

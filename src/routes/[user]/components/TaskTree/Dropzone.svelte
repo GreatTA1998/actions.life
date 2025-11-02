@@ -1,26 +1,21 @@
-{#if clicked}
-  <div style="height: {heightInPx + 4}px;">
-    <MyInput value={taskName}
-      oninput={e => taskName = e.target.value}
-      onfocusout={() => {
-        isInputActive.set(false);
-        clicked = false
-      }}
-      onEnterPress={createTask}
-      fontSize="{heightInPx * 3/4}px"
-      width="100%"
-    />
-  </div>
-{:else}
+<PopoverInput 
+  {activator}
+  {content}
+/>
+
+{#snippet activator({ open, close, toggle })}
   <div 
     onpointerdown={() => { if ($isInputActive) canCreate.set(false) }}
-    onclick={e => {
-      if ($canCreate) {
-        e.stopPropagation(); 
-        clicked = true;
-        isInputActive.set(true);
+    onclick={() => {
+      // If clicking on another dropzone while one is active, close the active one and don't open this one
+      if ($isInputActive && $activePopoverClose && $activePopoverClose !== close) {
+        $activePopoverClose()
+        isInputActive.set(false)
+        return
       }
-      else canCreate.set(true)
+      isInputActive.set(true)
+      clicked = true
+      open()
     }}
     bind:this={dropzoneElem} 
     class:highlight={$bestDropzoneID === dropzoneID}
@@ -28,19 +23,40 @@
     style="
       height: {heightInPx}px; 
       border-radius: var(--left-padding); 
-      outline: 0px solid {colorForDebugging}; 
+      outline: 1px solid {colorForDebugging}; 
       cursor: pointer;
     "
-  ></div>
-{/if}
+  ></div> 
+{/snippet}
+
+{#snippet content({ open, close, toggle })}
+  <div style="height: 100%; width: 100%; padding: 2px 4px; box-sizing: border-box; display: flex; align-items: center;">
+    <MyInput 
+      value={taskName}
+      oninput={e => taskName = e.target.value}
+      onfocusout={() => {
+        isInputActive.set(false);
+        clicked = false
+        close()
+      }}
+      onEnterPress={() => {
+        createTask()
+        close()
+      }}
+      fontSize="{heightInPx * 3/4}px"
+      width="100%"
+    />
+  </div>
+{/snippet}
 
 <script>
+  import PopoverInput from '$lib/components/PopoverInput.svelte'
   import MyInput from '$lib/components/MyInput.svelte'
   import { isOverlapping, getOverlapArea, clip } from '$lib/utils/dragDrop.js'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
-  import { canCreate, isInputActive } from '$lib/store'
+  import { canCreate, isInputActive, activePopoverClose } from '$lib/store'
 
   const { Task } = getContext('app')
   const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
