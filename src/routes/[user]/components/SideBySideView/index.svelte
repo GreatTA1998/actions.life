@@ -15,7 +15,7 @@
   let listAreaWidth = getInitialWidth()
 
   onMount(async () => {
-    await tick() // there's a danger that `style` isn't fully applied onMount
+    await tick() // there's a danger that `style` isn't fully applied during onMount
     logicAreaRect.set(
       () => document.querySelector('.side-by-side-container').getBoundingClientRect()
     )
