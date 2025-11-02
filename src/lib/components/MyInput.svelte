@@ -29,7 +29,7 @@
   }
 </script>
 
-<div style="display: flex; justify-content: center;">
+<div style="display: flex; justify-content: center; height: 100%;">
   <input bind:this={inputElem}
     {placeholder}
     {value}

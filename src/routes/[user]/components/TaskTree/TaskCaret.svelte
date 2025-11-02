@@ -22,5 +22,6 @@
     font-size: 30px;
     color: var(--fine-control-color);
     font-weight: 100;
+    pointer-events: none; /* without this, the touch area for this button is based on this large icon, not the small button that contains it */
   }
 </style> 
