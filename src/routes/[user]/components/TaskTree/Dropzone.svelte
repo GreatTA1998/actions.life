@@ -29,7 +29,6 @@
       height: {heightInPx}px; 
       border-radius: var(--left-padding); 
       outline: 0px solid {colorForDebugging}; 
-      cursor: pointer;
     "
   ></div>
 {/if}
