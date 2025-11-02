@@ -13,7 +13,6 @@
           padding: 0px 8px;"
         >
           <TodoList cssStyle="background-color: transparent; padding-top: var(--main-content-top-margin);"
-            willShowCheckbox
             isLargeFont
             listWidth="100%"
           />
@@ -205,21 +204,5 @@
 
   .nav-tab-icon {
     font-size: 24px;
-  }
-
-  .fixed-round-button {
-    position: fixed; 
-    bottom: 60px; 
-    right: 20px; 
-
-    height: 72px;
-    width: 72px;
-    border-radius: 36px;  
-    border: 4px solid black;
-
-    display: flex;
-    align-items: center;
-    justify-content: center; 
-    cursor: pointer;
   }
 </style>

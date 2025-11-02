@@ -1,9 +1,12 @@
 <script>
-  export let isCollapsed = false
-  export let onToggle = () => {}
+  let {
+    isCollapsed = false,
+    onToggle = () => {},
+    zoom = 1
+  } = $props()
 </script>
 
-<button class="caret-button" on:click={onToggle}>
+<button class="caret-button" onclick={onToggle} style="zoom: {zoom};">
   <span class="material-symbols-outlined caret-icon">
     {isCollapsed ? 'chevron_right' : 'expand_more'}
   </span>

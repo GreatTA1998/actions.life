@@ -5,8 +5,9 @@
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
-  import { getContext, onMount } from 'svelte'
+  import { getContext, setContext, onMount } from 'svelte'
   import { isInputActive, canCreate } from '$lib/store'
+  import { writable } from 'svelte/store'
 
   const remHeight = HEIGHTS.ROOT_DROPZONE
 
@@ -16,12 +17,15 @@
   const { user, Task } = getContext('app')
 
   let {
-    willShowCheckbox = true,
     isLargeFont = false,
     cssStyle,
     listWidth = '320px',
     children
   } = $props()
+
+  setContext('list', {
+    isLargeFont: writable(isLargeFont)
+  })
 
   onMount(() => {
     listenToTasks($user.uid)
@@ -34,7 +38,7 @@
       roomsInThisLevel: $trees,
       parentID: '',
       colorForDebugging: "purple",
-      remHeight: HEIGHTS.ROOT_DROPZONE
+      remHeight: HEIGHTS.ROOT_DROPZONE * (isLargeFont ? 2 : 1)
     }
   }
 
@@ -77,8 +81,6 @@
           <RecursiveTask {taskObj}
             depth={0}
             ancestorRoomIDs={['']}
-            {willShowCheckbox}
-            {isLargeFont}
           />
         </div>
 

@@ -14,7 +14,6 @@
     depth, 
     parentID, 
     ancestorRoomIDs = [],
-    isLargeFont = false,
     colorForDebugging 
   } = $props()
   
@@ -131,8 +130,6 @@
     return {
       taskObj: node,
       depth,
-      willShowCheckbox: true,
-      isLargeFont,
       ancestorRoomIDs: [parentID, ...ancestorRoomIDs],
     }
   }

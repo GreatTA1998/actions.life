@@ -13,13 +13,12 @@
 
   const { Task, openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
+  const { isLargeFont } = getContext('list')
 
   let {
     taskObj,
     depth,
-    willShowCheckbox = true,
     ancestorRoomIDs = [], // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
-    isLargeFont = false,
     verticalTimeline,
     infoBadge
   } = $props()
@@ -30,13 +29,11 @@
   let depthAdjustedFontSize = $derived.by(() => {
     let depthAdjustedFontSize = ''
     switch (depth) {
-      case 0:
-        if (isLargeFont) depthAdjustedFontSize = '2rem' // 32px
-        else depthAdjustedFontSize = '1rem' // 16px
+      case 0: // root font size
+        depthAdjustedFontSize = `${$isLargeFont ? 2 : 1}rem` // 32px or 16px
         break
-      default: // sub-task font size
-        if (isLargeFont) depthAdjustedFontSize = '1.75rem' // 28px
-        else depthAdjustedFontSize = '0.875rem' // 14px 
+      default: // sub font size
+        depthAdjustedFontSize = `${$isLargeFont ? 1.75 : 0.875}rem` // 28px or 14px 
     }
     return depthAdjustedFontSize
   })
@@ -67,23 +64,23 @@
     style="font-size: {depthAdjustedFontSize};"
     class="task-row-container unselectable"
   >
-    {#if willShowCheckbox}
-      <div style="position: relative; margin-left: 2px; margin-right: 4px;">
-        {@render verticalTimeline?.()}
-        
-        <div style="position: relative; padding-top: 2px; padding-bottom: 2px;">
-          {#if n === 0}
-            <Checkbox value={taskObj.isDone}
-              onchange={e => handleCheckboxChange(e)}
-            />
-          {:else}
-            <TaskCaret isCollapsed={taskObj.isCollapsed}
-              onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
-            />
-          {/if}
-        </div>
+    <div style="position: relative; margin-left: 2px; margin-right: 4px;">
+      {@render verticalTimeline?.()}
+      
+      <div style="position: relative; padding-top: 2px; padding-bottom: 2px;">
+        {#if n === 0}
+          <Checkbox value={taskObj.isDone}
+            onchange={e => handleCheckboxChange(e)}
+            zoom={$isLargeFont ? 1 : 0.5}
+          />
+        {:else}
+          <TaskCaret isCollapsed={taskObj.isCollapsed}
+            onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
+            zoom={$isLargeFont ? 2 : 1}
+          />
+        {/if}
       </div>
-    {/if}
+    </div>
 
     <button onclick={() => openTaskPopup(taskObj)} 
       class="task-name truncate-to-one-line" 
@@ -120,7 +117,6 @@
       parentID={taskObj.id}
       {depth}
       {ancestorRoomIDs}
-      {isLargeFont}
       {colorForDebugging}
     />
   {:else}
@@ -140,9 +136,7 @@
           <RecursiveTask 
             taskObj={subtaskObj}
             depth={depth+1}
-            {willShowCheckbox}
             ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
-            {isLargeFont}
           /> 
 
           {#if i === n - 1}

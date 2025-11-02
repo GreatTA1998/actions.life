@@ -43,6 +43,7 @@
 
   const { Task } = getContext('app')
   const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
+  const { isLargeFont } = getContext('list')
 
   let {
     ancestorRoomIDs,
@@ -50,7 +51,7 @@
     idxInThisLevel,
     parentID = '',
     colorForDebugging = 'red',
-    remHeight = HEIGHTS.SUB_DROPZONE
+    remHeight = HEIGHTS.SUB_DROPZONE * ($isLargeFont ? 2 : 1)
   } = $props()
 
   let dropzoneElem = $state(null)
