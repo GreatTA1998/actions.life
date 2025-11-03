@@ -23,12 +23,12 @@
       else canCreate.set(true)
     }}
     bind:this={dropzoneElem} 
-    class:highlight={$bestDropzoneID === dropzoneID}
-    class:error={$bestDropzoneID === dropzoneID && isInvalidDrop}
     style="
       height: {remHeight}rem; 
       border-radius: var(--left-padding); 
       outline: 0px solid {colorForDebugging}; 
+      {$bestDropzoneID === dropzoneID ? dropPreviewCSS() : ''}
+      {$bestDropzoneID === dropzoneID && isInvalidDrop ? 'background-color: red;' : ''}
     "
   ></div>
 {/if}
@@ -38,6 +38,7 @@
   import { isOverlapping, getOverlapArea, clip } from '$lib/utils/dragDrop.js'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
+  import { dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import { getContext } from 'svelte'
   import { canCreate, isInputActive } from '$lib/store'
 
@@ -175,13 +176,3 @@
     return newVal
   }
 </script>
-
-<style>
-  .highlight {
-    background-color: rgb(87, 172, 247);
-  }
-
-  .error {
-    background-color: red;
-  }
-</style>

@@ -1,4 +1,4 @@
-<div style="margin-bottom: 2px; font-size: 12px;">
+<div>
   <div 
     style="display: flex; align-items: center;" 
     class:accented-branch={node.id === originalPopupTask.id}
@@ -8,14 +8,10 @@
       onchange={handleCheckboxChange}
       zoom={0.5}
     />
-    
-    <!-- Yes, to-do list task nodes already have `rootAncestor` properties.
-      BUT once we open the popup <RecursiveBulletPoint/> is rendered on the `rootAncestor` tree, whose nodes
-      DO NOT have `rootAncestor` (see picture in OneNote)
-    -->
-    <div on:click={() => openTaskPopup(node)} on:keydown
+
+    <div on:click={() => openTaskPopup(node)}
       class:completed-task={node.isDone}
-      style="cursor: pointer; margin-left: 4px; margin-right: 4px;" class="truncate-to-one-line"
+      style="font-size: 0.75rem; cursor: pointer; margin-left: 4px; margin-right: 4px;" class="truncate-to-one-line"
     >
       {node.name}
     </div>
@@ -25,20 +21,16 @@
     </div>
   </div>
 
-  {#if node.daysBeforeRepeating}
-    (repeats every {node.daysBeforeRepeating} days)
-    (completed {node.completionCount || 0} times)
-    (missed {node.missedCount || 0} times)
-  {/if}
-
-  {#each node.children as child}
-    <div style="margin-left: 12px;">
-      <RecursiveBulletPoint 
-        node={child} 
-        {originalPopupTask}
-      />
+  {#if node.children.length > 0}
+    <div style="margin-top: 4px; padding-left: 12px; display: flex; flex-direction: column; row-gap: 4px;">
+      {#each node.children as child}
+        <RecursiveBulletPoint 
+          node={child} 
+          {originalPopupTask}
+        />
+      {/each}
     </div>
-  {/each}
+  {/if}
   
   {#if isTypingNewSubtask}
     <FormField

@@ -17,7 +17,7 @@
 
 <div class="demo-section">
   <div class="demo-header">
-    <h2>Toggle between normal / timeline</h2>
+    <h2>Toggle between list / timeline</h2>
   </div>
   
   <div class="demo-layout">
@@ -25,7 +25,7 @@
       <div style="width: 240px;">
         <ToggleGroup 
           options={[
-            { text: 'normal', value: 'normal' }, 
+            { text: 'list', value: 'normal' }, 
             { text: 'timeline', value: 'timeline' }
           ]} 
           activeValue={taskObj.childrenLayout}

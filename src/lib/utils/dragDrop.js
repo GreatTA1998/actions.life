@@ -23,9 +23,8 @@ export function clip ({ x1, x2, y1, y2 }, { left, right, top, bottom }) {
 
 export function dropPreviewCSS () {
   return `
-    background: rgba(100, 100, 255, 0.15);
+    background-color: rgba(100, 100, 255, 0.15);
     border: 1px dashed rgba(100, 100, 255, 0.6);
-    border-radius: var(--left-padding);
     pointer-events: none;
   `
 }
