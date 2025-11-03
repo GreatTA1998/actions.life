@@ -30,10 +30,10 @@
 <div class="day-header" class:section-complete={completionState.all}>
   {#if isSpecialDay(iso)}
     <span class="blue-bold">{dayName}</span>
-    <span class="grey">{MMMdd}</span>
+    <span class="black">{MMMdd}</span>
   {:else}
     <span class="blue-bold">{MMMdd}</span>
-    <span class="grey">{dayOfWeek}</span>
+    <span class="black">{dayOfWeek}</span>
   {/if}
 </div>
 
@@ -58,7 +58,7 @@
     font-weight: 600;
   }
 
-  .grey {
-    color: #70757a;
+  .black {
+    color: black;
   }
 </style>

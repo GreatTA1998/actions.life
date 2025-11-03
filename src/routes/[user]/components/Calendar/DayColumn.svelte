@@ -180,6 +180,11 @@
 
     return DateTime.fromMillis(resultantTimeInMs)
   }
+
+  function shiftYPosition ({ duration }) {
+    const gapBetweenTasks = 30
+    yPosition += ($pixelsPerHour / 60) * duration + gapBetweenTasks
+  }
 </script>
 
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
@@ -205,21 +210,24 @@
   {#each scheduledTasks as task, i (task.id)}
     <div class="task-absolute" style="top: {getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px;">
       {#if task.iconURL}
-        <IconTaskElement {task} fontSize={0.8} />
+        <IconTaskElement {task} />
       {:else if task.imageDownloadURL}
-        <PhotoTaskElement {task} fontSize={0.8} />
+        <PhotoTaskElement {task} />
       {:else}
-        <TaskElement {task} fontSize={0.8} hasCheckbox />
+        <TaskElement {task} />
       {/if}
     </div>
   {/each}
 
   {#if intersecting && previewTop !== null}
-    <div class="task-absolute" style="
-      top: {previewTop}px; 
-      height: {$draggedItem.height}px;
-      {dropPreviewCSS()}
-    "></div>
+    <div class="task-absolute" 
+      style="
+        top: {previewTop}px; 
+        height: {$draggedItem.height}px;
+        border-radius: var(--left-padding);
+        {dropPreviewCSS()}
+      "
+    ></div>
   {/if}
 
   {#if isDirectlyCreatingTask}
@@ -228,6 +236,7 @@
         startTime={newDT.toFormat('HH:mm')}
         startDateISO={newDT.toFormat('yyyy-MM-dd')}
         onExit={() => isDirectlyCreatingTask = false}
+        onCreate={shiftYPosition}
       />
     </div>
   {/if}

@@ -3,12 +3,21 @@
   but it will be automatically white if it "decides" that our chosen background color is dark enough, and vice versa
  -->
 <label style="zoom: {zoom}" onclick={e => { e.stopPropagation(); onclick(); }} class="container">
+  <!-- 
+    `checked` only hydrates the initial value 
+    use `e.target.checked`
+  -->
   <input type="checkbox" checked={value} {onchange}>
   <span class="checkmark"></span>
 </label>
 
 <script>
-  let { onclick = () => {}, onchange, value, zoom = 0.6 } = $props()
+  let { 
+    onclick = () => {}, 
+    onchange, 
+    value, 
+    zoom = 0.5 
+  } = $props()
 </script>
 
 <style>
@@ -16,8 +25,7 @@
     display: block;
     position: relative;
     cursor: pointer;
-    font-size: 30px;
-    /* was 22px */
+    font-size: 30px; /* was 22px */
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -35,7 +43,6 @@
     width: 0;
   }
 
-  /* Create a custom checkbox */
   .checkmark {
     position: absolute;
     top: 0;
@@ -45,11 +52,6 @@
     background-color: transparent;
     border-radius: 15px;
     border: 2px solid var(--fine-control-color);
-  }
-
-  /* On mouse-over, add a grey background color */
-  .container:hover input ~ .checkmark {
-    background-color: #ccc;
   }
 
   /* When the checkbox is checked, add a blue background */

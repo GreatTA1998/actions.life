@@ -84,8 +84,8 @@
         { src: '/competitor_logos/microsoft.ico', url: 'https://outlook.live.com/calendar', alt: 'Microsoft Outlook' },
         { src: '/competitor_logos/Cron-favicon-style2-07.svg', url: 'https://notion.so/product/calendar', alt: 'Notion Calendar' }
       ],
-      bestFor: 'Feature complete, integrates with everything',
-      weakness: 'Legacy features accumulate, without adapting to modern needs'
+      bestFor: 'Reliable. Feature complete. Integrates with everything',
+      weakness: 'Slow at improving, features accumulate, lack of breakthrough redesigns.'
     },
     {
       name: 'Todoist',

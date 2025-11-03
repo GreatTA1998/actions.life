@@ -10,6 +10,7 @@
   import ArtisticBackground from './components/ArtisticBackground.svelte'
   import TopNavbar from './components/TopNavbar.svelte'
   import TaskPopup from '../[user]/components/TaskPopup/TaskPopup.svelte'
+  import LoginGoogle from '$lib/components/LoginGoogle.svelte'
   // import AppDetailsSection from './components/AppDetailsSection.svelte'
   // import VisionSection from './components/VisionSection.svelte'
 </script>
@@ -38,6 +39,10 @@
         <ComparisonTable />
 
         <UpdateLogSection />
+
+        <div style="display: flex; width: 100%; height: 320px; justify-content: center; align-items: start">
+          <LoginGoogle />
+        </div>
 
         <TaskPopup />
         <!-- <VisionSection /> -->

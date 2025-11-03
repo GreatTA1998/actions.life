@@ -1,8 +1,12 @@
 <div
   bind:this={ReorderDropzone} 
-  class:highlight={$bestDropzoneID === dropzoneID}
-  class:error={$bestDropzoneID === dropzoneID && isInvalidDrop}
-  style="height: {heightInPx}px; border-radius: {heightInPx / 2}px; outline: 0px solid {colorForDebugging};" 
+  style="
+    height: {heightInPx}px; 
+    border-radius: var(--left-padding); 
+    outline: 0px solid {colorForDebugging};
+    {$bestDropzoneID === dropzoneID ? dropPreviewCSS() : ''}
+    {$bestDropzoneID === dropzoneID && isInvalidDrop ? 'background-color: red;' : ''}
+  " 
 ></div>
 
 <script>
@@ -11,13 +15,18 @@
   import { db } from '$lib/db/init'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
+  import { dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import { getContext } from 'svelte'
 
   const { 
     Task, 
     User, user 
   } = getContext('app')
-  const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
+
+  const { 
+    draggedItem, hasDropped, matchedDropzones, 
+    bestDropzoneID, logicAreaRect, resetDragDrop 
+  } = getContext('drag-drop')
 
   let {
     ancestorRoomIDs,
@@ -83,60 +92,58 @@
       resetDragDrop()
       return
     }
-    ReorderDropzone.style.background = ''
+    
+    const invalids = roomsInThisLevel.filter(task => !task.orderValue)
+    if (invalids.length > 0) {
+      const errorMessage = `${invalids.length} of the task(s) in the target list has no proper orderValue, aborting drop operation and sending error to the developer`
+      alert(errorMessage)
+      resetDragDrop()
+      throw new Error(errorMessage) // triggers window.onunhandledrejection which emails me
+    }
 
     batch = writeBatch(db)
 
-    const initialNumericalDifference = 3
+    const GAP = 1
     let newVal 
 
-    // TO-DO: need the last drop zone to be manually added
     const dropZoneIdx = idxInThisLevel
     if (dropZoneIdx === 0) {
-      const topOfOrderDoc = roomsInThisLevel[0]
-      if (topOfOrderDoc) {
-        newVal = (topOfOrderDoc.orderValue || 3) / 1.1 // 1.1 slows down the approach to 0
-      } else { // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
-        newVal = 3
-      }
+      const top = roomsInThisLevel[0]
+      if (top) newVal = top.orderValue / 1.1 // 1.1 slows down the approach to 0
+      else newVal = GAP // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
     }
     else if (dropZoneIdx === n) {
-      const bottomOfOrderDoc = roomsInThisLevel[n-1]
-      newVal = (bottomOfOrderDoc.orderValue || 0) + initialNumericalDifference
-      
-      // keep track fo the highest possible maxOrdervalue for this $user
-      if (!$user.maxOrderValue || $user.maxOrderValue < newVal) {
-        User.update($user.uid, {
-          maxOrderValue: ($user.maxOrderValue || 0) + initialNumericalDifference // don't rely on increment as it alarms zod
+      const bottom = roomsInThisLevel[n-1] 
+      newVal = bottom.orderValue + GAP
+      if (newVal >= $user.maxOrderValue) {
+        User.update({
+          maxOrderValue: newVal + GAP
         })
       }
-
-      newVal = Math.max(newVal, $user.maxOrderValue)
     }
     else {
-      let topNeighborDoc = roomsInThisLevel[dropZoneIdx - 1]
-      let botNeighborDoc = roomsInThisLevel[dropZoneIdx]
-      const order1 = botNeighborDoc.orderValue || 3
-      const order2 = topNeighborDoc.orderValue || 3 + initialNumericalDifference
-      newVal = (order1 + order2) / 2
+      const above = roomsInThisLevel[dropZoneIdx - 1]
+      const below = roomsInThisLevel[dropZoneIdx]
+      newVal = (above.orderValue + below.orderValue) / 2
     }
-    
-    Task.update({ id: $draggedItem.id, keyValueChanges: {
+
+    const keyValueChanges = {
       parentID,
       orderValue: newVal,
-      persistsOnList: true // non-persistent tasks, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
-    }})
+      persistsOnList: true, // non-persistent tasks, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
+      isArchived: false // otherwise dragging an archived calendar task to the list will cause it to disappear completely
+    }
+
+    if ($draggedItem.isFromCal) {
+      keyValueChanges.startTime = ''
+      keyValueChanges.startDateISO = ''
+    }
+    
+    Task.update({ 
+      id: $draggedItem.id, 
+      keyValueChanges
+    })
 
     resetDragDrop()
   }
 </script>
-
-<style>
-  .highlight {
-    background-color: rgb(87, 172, 247);
-  }
-
-  .error {
-    background-color: red;
-  }
-</style>

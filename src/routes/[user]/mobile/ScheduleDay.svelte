@@ -26,7 +26,7 @@
               {#if task.iconURL}
                 <DoodleIcon iconTask={task} size={iconSize} />
               {:else}
-                <Checkbox value={task.isDone} onchange={() => toggleTask(task)} />
+                <Checkbox value={task.isDone} onchange={() => toggleTask(task)} zoom={1.0} />
               {/if}
             </div>
             {#if task.imageDownloadURL}
@@ -98,7 +98,7 @@
 
   function formatTime(time) {
     if (!time) return ''
-    return DateTime.fromISO(time).toFormat('h:mma').toLowerCase()
+    return DateTime.fromISO(time).toFormat('H:mm').toLowerCase() // previously h:mma
   }
 
   async function toggleTask(task) {
@@ -110,13 +110,8 @@
 </script>
 
 <style>
-  :global(body) {
-    background: #f1f3f4;
-  }
-
   .day-container {
     background: white;
-    /* border: 1px solid #f1f3f4; */
   }
 
   .icon-tasks {
@@ -134,7 +129,6 @@
   .task-item {
     padding: 12px 8px;
     border-top: 1px solid #f1f3f4;
-    background: white;
     min-height: 24px;
     cursor: pointer;
   }

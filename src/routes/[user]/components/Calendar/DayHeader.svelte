@@ -120,11 +120,9 @@
           {/each}
         </div>
 
-        <div style="display: flex; flex-direction: column; row-gap: {$isCompact ? '4px' : '8px'};">
+        <div style="display: flex; flex-direction: column; row-gap: 4px; padding: 0px 4px;">
           {#each $treesByDate[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
-            <div class="flexible-day-task">
-              <FlexibleDayTask task={flexibleDayTask} />
-            </div>
+            <FlexibleDayTask task={flexibleDayTask} />
           {/each}
           
           {#if $bestDropzoneID === dropzoneID}
@@ -151,15 +149,6 @@
     width: 90%; 
     padding-left: 0px; 
     padding-right: 0px;
-  }
-
-  .flexible-day-task {
-    display: flex;
-    width: var(--width-calendar-day-section); 
-    gap: 4px; 
-
-    font-size: 12px; 
-    margin-top: 0px; margin-left: 4px; margin-right: 4px; 
   }
 
   .compact-horizontal {

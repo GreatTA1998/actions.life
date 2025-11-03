@@ -22,8 +22,6 @@
 
 <style>
   .time-gap {
-    padding: 6px 10px;
-    border-radius: 999px;
     font-size: 16px;
     text-align: center;
   }

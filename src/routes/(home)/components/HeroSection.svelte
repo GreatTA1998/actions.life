@@ -1,7 +1,3 @@
-<script>
-  import LoginGoogle from '$lib/components/LoginGoogle.svelte'
-</script>
-
 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
   <div 
     class="hero-texts"
@@ -13,10 +9,6 @@
       <div class="secondary-description">
         Put habits and to-do lists in the calendar
       </div>
-    </div>
-
-    <div>
-      <LoginGoogle />
     </div>
   </div>
 

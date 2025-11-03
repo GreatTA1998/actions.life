@@ -8,12 +8,14 @@ import {
   addDoc
 } from 'firebase/firestore'
 import { updateFirestoreDoc } from '$lib/db/helpers.js'
+import { user } from '$lib/store/index.js'
+import { get } from 'svelte/store'
 
 const User = {
   schema: z.object({
     uid: z.string(),
     email: z.string(),
-    maxOrderValue: z.number().default(3),
+    maxOrderValue: z.number().default(10),
 
     // missing properties from August 1
     calendarTheme: z.string().default('offWhite'),
@@ -27,7 +29,10 @@ const User = {
 
     // automation settings
     photoUploadAutoArchive: z.boolean().default(false),
-    photoCompressWhenAttachingToTask: z.boolean().default(false)
+    photoCompressWhenAttachingToTask: z.boolean().default(false),
+
+    hideRoutines: z.boolean().default(true), // for mobile's future view
+    lastRanRoutines: z.string().default('') // for autoExtend.js
 
     // unused
     // isSubscriber: z.boolean().default(false),
@@ -39,10 +44,11 @@ const User = {
   }),
 
   // TO-DO: CRUD
-  async update (userUID, keyValueChanges) {
+  async update (keyValueChanges) {
+    const { uid } = get(user)
     try {
       const validatedChanges = User.schema.partial().parse(keyValueChanges)
-      await updateFirestoreDoc(`/users/${userUID}`, validatedChanges)
+      await updateFirestoreDoc(`/users/${uid}`, validatedChanges)
     } catch (error) {
       console.error("error in User.update", error)
       alert(`Error calling User.update: ${error.message}`)

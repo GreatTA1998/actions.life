@@ -1,5 +1,5 @@
 <script>
-  import { getMatchingJSDates } from '$lib/utils/rrule.js'
+  import { generateRecurrenceDTs } from '$lib/utils/rrule.js'
   import { getFirestoreCollection, updateFirestoreDoc } from '$lib/db/helpers.js'
   import { createTaskInstance } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
   import { DateTime } from 'luxon'
@@ -41,9 +41,9 @@
     Template.update({ id: template.id, updates: { 
       prevEndISO: endDT.toFormat('yyyy-MM-dd') 
     }})
-    const matchingDTs = getMatchingJSDates({ rrStr, endDT, startDT })
+    const matchingDTs = generateRecurrenceDTs({ rrStr, endDT, startDT })
     for (const dt of matchingDTs) {
-      createTaskInstance({ template, occurrence: dt.toJSDate() }) 
+      createTaskInstance({ template, dt }) 
     }
   }
 </script>

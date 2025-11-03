@@ -1,16 +1,16 @@
 <script>
-  import Template from '$lib/db/models/Template.js'
   import MyInput from '$lib/components/MyInput.svelte'
   import { getRandomID } from '$lib/utils/core.js'
   import { user } from '$lib/store'
   import { onMount, getContext } from 'svelte'
 
-  const { Task } = getContext('app')
+  const { Task, Template } = getContext('app')
 
   let { 
     startDateISO = '', 
     startTime = '', 
-    onExit = () => {} 
+    onExit = () => {},
+    onCreate = () => {}
   } = $props()
 
   let allTemplates = $state(null)
@@ -36,14 +36,18 @@
   }
 
   function onEnterPress (e) {
-    if (searchResults.length === 1) {
-      createTaskFrom(searchResults[0])
-    } 
+    if (taskName === '') onExit()
+    else if (searchResults.length === 1) createTaskFrom(searchResults[0]) 
     else createNormalTask(e)
   }
 
-  function createTaskFrom (template) {
-    Task.create({
+  function handleClick (template) {
+    createTaskFrom(template)
+    onExit() // assumes the user is no longer consecutively adding tasks
+  }
+
+  async function createTaskFrom (template) {
+    const result = await Task.create({
       id: getRandomID(),
       newTaskObj: {
         ...template,
@@ -53,22 +57,22 @@
         persistsOnList: false
       }
     })
-    onExit() // we reset here because this function can get called directly by clicking the search result
+    onCreate(result)
+    taskName = ''
   }
 
   async function createNormalTask () {
-    if (taskName !== '') {
-      Task.create({
-        id: getRandomID(),
-        newTaskObj: {
-          name: taskName,
-          startDateISO,
-          startTime,
-          persistsOnList: false
-        }
-      })
-    }
-    onExit()
+    const result = await Task.create({
+      id: getRandomID(),
+      newTaskObj: {
+        name: taskName,
+        startDateISO,
+        startTime,
+        persistsOnList: false
+      }
+    })
+    onCreate(result)
+    taskName = ''
   }
 </script>
 
@@ -85,7 +89,7 @@
 {#if taskName.length >= 1}
   <div class="core-shadow cast-shadow card">
     {#each searchResults as template (template.id)}
-      <div onclick={() => createTaskFrom(template)}
+      <div onclick={() => handleClick(template)}
         class="autocomplete-option"
         class:option-highlight={searchResults.length === 1}
       >
