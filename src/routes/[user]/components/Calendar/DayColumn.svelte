@@ -271,6 +271,7 @@
     width: 100%;
     height: 1px;
     background-color: var(--grid-color);
+    pointer-events: none; /** otherwise it'll block clicks on the day column (deadzone) */
   }
 
   /* DO NOT REMOVE, BREAKS DRAG-AND-DROP AND DURATION ADJUSTMENT */

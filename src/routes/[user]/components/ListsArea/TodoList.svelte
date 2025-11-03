@@ -9,8 +9,6 @@
   import { isInputActive, canCreate } from '$lib/store'
   import { writable } from 'svelte/store'
 
-  const remHeight = HEIGHTS.ROOT_DROPZONE
-
   let clicked = $state(false)
   let taskName = $state('')
 
@@ -97,16 +95,18 @@
   {/if}
 
   {#if clicked}
-    <MyInput value={taskName}
-      oninput={e => taskName = e.target.value}
-      onfocusout={() => {
-        isInputActive.set(false);
-        clicked = false
-      }}
-      onEnterPress={createTask}
-      fontSize="{remHeight * 3/4}rem"
-      width="100%"
-    />
+    <div style="height: {HEIGHTS.ROOT_DROPZONE}rem;">
+      <MyInput value={taskName}
+        oninput={e => taskName = e.target.value}
+        onfocusout={() => {
+          isInputActive.set(false);
+          clicked = false
+        }}
+        onEnterPress={createTask}
+        fontSize="{HEIGHTS.ROOT_DROPZONE * 9/10}rem"
+        width="100%"
+      />
+    </div>
   {/if}
   
   {@render children?.()}
