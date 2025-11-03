@@ -15,7 +15,7 @@
 
 <style>
   .detailed-card-popup {
-    max-height: 90dvh; /* mobile safety, always be able to close the screen */
+    max-height: 80dvh; /* mobile safety, always be able to close the screen */
     min-width: 360px;
 
     width: 100%;

@@ -3,10 +3,16 @@
     <TaskPopup/>
   {/if}
 
+  {#if $settingsOpen}
+    <Settings />
+  {/if}
+
   <div class="grid-container">
     <main class="content-area">
       {#if activeTabName === 'CALENDAR_VIEW'}
         <TopBelowView />
+      {:else if activeTabName === 'DISCOVER_VIEW'}
+        <Discover />
       {:else if activeTabName === 'FUTURE_VIEW'}
         <Schedule on:task-duration-adjusted />
       {:else if activeTabName === 'PHOTO_ARCHIVE'}
@@ -17,6 +23,14 @@
     </main>
 
     <div class="floating-navbar">
+      <button class="nav-icon-button logo-button" 
+        on:click={toggleSettings}
+        aria-label="Settings"
+        title="Settings"
+      >
+        <img src="/logo-no-bg.png" alt="Logo" class="logo-img" />
+      </button>
+
       <button class="nav-icon-button" 
         on:click={() => {
           if (activeTabName === 'CALENDAR_VIEW') jumpToToday()
@@ -30,29 +44,17 @@
         <span class="material-symbols-outlined nav-icon">
           house
         </span>
-        <span class="nav-label">Home</span>
       </button>
 
-      <button class="nav-icon-button" on:click={() => activeTabName = 'FUTURE_VIEW'} class:active-nav-tab={activeTabName === 'FUTURE_VIEW'} aria-label="Schedule">
-        <span class="material-icons nav-icon">
-          upcoming
-        </span>
-        <span class="nav-label">Sched.</span>
-      </button>
-
-      <button class="nav-icon-button" on:click={() => activeTabName = 'PHOTO_ARCHIVE'} class:active-nav-tab={activeTabName === 'PHOTO_ARCHIVE'} aria-label="Photos">
-        <span class="material-icons nav-icon">
-          photo_library
-        </span>
-        <span class="nav-label">Photos</span>
-      </button>
-
-      <!-- <button class="nav-icon-button" on:click={() => activeTabName = 'AI_VIEW'} class:active-nav-tab={activeTabName === 'AI_VIEW'} aria-label="AI Assistant">
+      <button class="nav-icon-button" 
+        on:click={() => activeTabName = 'DISCOVER_VIEW'} 
+        class:active-nav-tab={activeTabName === 'DISCOVER_VIEW'} 
+        aria-label="Discover"
+      >
         <span class="material-symbols-outlined nav-icon">
-          smart_toy
+          manage_search
         </span>
-        <span class="nav-label">Robot</span>
-      </button> -->
+      </button>
     </div>
   </div>
 {/if}
@@ -63,9 +65,11 @@
   import Schedule from './Schedule.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
   import PhotoGrid from '../components/Archive/PhotoGrid.svelte'
+  import Discover from './Discover.svelte'
+  import Settings from '../components/Settings/index.svelte'
 
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
-  import { user, isTaskPopupOpen } from '/src/lib/store'
+  import { user, isTaskPopupOpen, openSettings, settingsOpen, toggleSettings } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
   import { onDestroy, onMount } from 'svelte'
 
@@ -132,7 +136,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding: 6px 5px;
+    padding: 6px 4px;
     border-radius: 16px;
     
     /* Simple translucent background */
@@ -159,21 +163,22 @@
 
   .active-nav-tab {
     color: var(--location-indicator-color);
+    color: black;
     font-weight: 500;
+    background-color: rgba(0, 0, 0, 0.05);
   }
 
   .nav-icon {
     font-size: 22px;
   }
 
-  .nav-label {
-    font-size: 10px;
-    font-weight: 500;
-    line-height: 1;
-    margin-top: 2px;
+  .logo-button {
+    padding: 4px 0;
   }
 
-  .active-nav-tab .nav-label {
-    color: var(--location-indicator-color);
+  .logo-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
   }
 </style>
