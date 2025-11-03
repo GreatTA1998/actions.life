@@ -16,8 +16,8 @@
       {/if}
     </main>
 
-    <div class="bottom-navbar">
-      <button class="bottom-nav-tab" 
+    <div class="floating-navbar">
+      <button class="nav-icon-button" 
         on:click={() => {
           if (activeTabName === 'CALENDAR_VIEW') jumpToToday()
           else {
@@ -25,49 +25,34 @@
           }
         }}
         class:active-nav-tab={activeTabName === 'CALENDAR_VIEW'}
+        aria-label="Calendar"
       >
-        <div style="text-align: center;">
-          <span class="material-symbols-outlined nav-tab-icon">
-            house
-          </span>
-          <div class="nav-tab-desc">
-            Cal.
-          </div>
-        </div>
+        <span class="material-symbols-outlined nav-icon">
+          house
+        </span>
+        <span class="nav-label">Home</span>
       </button>
 
-      <button class="bottom-nav-tab" on:click={() => activeTabName = 'FUTURE_VIEW'} class:active-nav-tab={activeTabName === 'FUTURE_VIEW'}>
-        <div style="text-align: center;">
-          <span class=" material-icons nav-tab-icon">
-            upcoming
-          </span>
-          <div class="nav-tab-desc">
-            Sched.
-          </div>
-        </div>
+      <button class="nav-icon-button" on:click={() => activeTabName = 'FUTURE_VIEW'} class:active-nav-tab={activeTabName === 'FUTURE_VIEW'} aria-label="Schedule">
+        <span class="material-icons nav-icon">
+          upcoming
+        </span>
+        <span class="nav-label">Sched.</span>
       </button>
 
-      <button class="bottom-nav-tab" on:click={() => activeTabName = 'PHOTO_ARCHIVE'} class:active-nav-tab={activeTabName === 'PHOTO_ARCHIVE'}>
-        <div style="text-align: center;">
-          <span class=" material-icons nav-tab-icon">
-            photo_library
-          </span>
-          <div class="nav-tab-desc">
-            Photos
-          </div>
-        </div>
+      <button class="nav-icon-button" on:click={() => activeTabName = 'PHOTO_ARCHIVE'} class:active-nav-tab={activeTabName === 'PHOTO_ARCHIVE'} aria-label="Photos">
+        <span class="material-icons nav-icon">
+          photo_library
+        </span>
+        <span class="nav-label">Photos</span>
       </button>
 
-      <button class="bottom-nav-tab" on:click={() => activeTabName = 'AI_VIEW'} class:active-nav-tab={activeTabName === 'AI_VIEW'}>
-        <div style="text-align: center;">
-          <span class=" material-symbols-outlined nav-tab-icon">
-            smart_toy
-          </span>
-          <div class="nav-tab-desc">
-            Robot
-          </div>
-        </div>
-      </button>
+      <!-- <button class="nav-icon-button" on:click={() => activeTabName = 'AI_VIEW'} class:active-nav-tab={activeTabName === 'AI_VIEW'} aria-label="AI Assistant">
+        <span class="material-symbols-outlined nav-icon">
+          smart_toy
+        </span>
+        <span class="nav-label">Robot</span>
+      </button> -->
     </div>
   </div>
 {/if}
@@ -101,10 +86,6 @@
 </svelte:head>
 
 <style>
-  :root {
-    --bottom-navbar-height: 48px;
-  }
-
   /* Prevent any scrolling on body */
   :global(body),
   :global(html) {
@@ -120,7 +101,7 @@
   
   .grid-container {
     display: grid;
-    grid-template-rows: minmax(0, 1fr) var(--bottom-navbar-height);
+    grid-template-rows: 1fr;
     height: 100vh;
     /* Support for iOS Safari */
     height: -webkit-fill-available;
@@ -128,6 +109,7 @@
     height: 100dvh;
     width: 100%;
     overflow: hidden;
+    position: relative;
   }
   
   .content-area {
@@ -139,46 +121,57 @@
     position: relative;
   }
 
-  .bottom-navbar {
-    grid-row: 2;
-    z-index: 3;
-    width: 100%; 
-    height: var(--bottom-navbar-height); 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    background-color: white;
-    border-top: 1px solid var(--faint-color);
+  .floating-navbar {
+    position: fixed;
+    top: 50%;
+    right: max(16px, env(safe-area-inset-right, 16px));
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 5px;
+    border-radius: 16px;
+    
+    /* Simple translucent background */
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
   }
 
-  .bottom-nav-tab {
-    display: flex; 
+  .nav-icon-button {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-
-    height: 100%;
-    flex-basis: 0;
-    flex-grow: 1;
-    flex-shrink: 1;
-
-    color: rgb(110, 110, 110);
-
-    padding-top: 4px;
-    padding-bottom: 4px;
+    width: 36px;
+    min-height: 56px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.7);
+    padding: 4px 0;
+    gap: 2px;
   }
 
   .active-nav-tab {
-    color: rgb(0, 0, 0);
+    color: var(--location-indicator-color);
     font-weight: 500;
-    border-top: 0px solid rgb(0, 0, 0);
   }
 
-  .nav-tab-desc {
-    font-size: 12px;
-    margin-top: -4px;
+  .nav-icon {
+    font-size: 22px;
   }
 
-  .nav-tab-icon {
-    font-size: 24px;
+  .nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .active-nav-tab .nav-label {
+    color: var(--location-indicator-color);
   }
 </style>

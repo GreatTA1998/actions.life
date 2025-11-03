@@ -114,7 +114,6 @@
     height: 100%;
     position: relative;
     overflow: hidden;
-    border: 4px solid red;
   }
   
   .calendar-container { /* THIS IS THE SCROLLING CONTAINER */
@@ -131,6 +130,7 @@
     width: 100%;
     overflow-y: auto;
     min-height: 48px;
+    padding: 0 8px;
   }
   
   .handle-wrapper {
