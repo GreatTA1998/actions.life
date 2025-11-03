@@ -1,5 +1,5 @@
 <script>
-  let { orientation = 'vertical' } = $props() // 'vertical' for horizontal resizing (side-by-side), 'horizontal' for vertical resizing (top-below)
+  export let orientation = 'vertical' // for horizontal resizing (side-by-side), 'horizontal' for vertical resizing (top-below)
 </script>
 
 <div class="resize-handle" class:horizontal={orientation === 'horizontal'}>
