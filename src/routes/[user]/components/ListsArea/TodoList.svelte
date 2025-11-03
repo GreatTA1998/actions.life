@@ -36,7 +36,7 @@
       roomsInThisLevel: $trees,
       parentID: '',
       colorForDebugging: "purple",
-      remHeight: HEIGHTS.ROOT_DROPZONE * (isLargeFont ? 2 : 1)
+      remHeight: HEIGHTS.ROOT_DROPZONE * (isLargeFont ? 1.5 : 1) // 1.5rem = 24px. Technically should be 2rem, but it's too sparse
     }
   }
 

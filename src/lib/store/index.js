@@ -79,6 +79,10 @@ export function closeSettings () {
   settingsOpen.set(false)
 }
 
+export function toggleSettings () {
+  settingsOpen.set(!get(settingsOpen))
+}
+
 export function openTaskPopup(task) {
   clickedTaskID.set(task.id)
   isTaskPopupOpen.set(true)

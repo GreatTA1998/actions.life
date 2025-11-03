@@ -13,8 +13,8 @@
   let loading = false
 
   const DefaultDateRange = {
-    startDate: DateTime.now().minus({ month: 2 }).toISODate(),
-    endDate: DateTime.now().plus({ month: 2 }).toISODate(),
+    startDate: DateTime.now().minus({ week: 1 }).toISODate(),
+    endDate: DateTime.now().plus({ week: 1 }).toISODate(),
   }
   
   let state = {
@@ -26,9 +26,8 @@
   }
 
   let defaultQuestions = [
-    'Any unexpected insights about how I live?',
-    'What might I be neglecting in my life?',  
-    'What new progress have I made this month?'
+    'What is an insight that could help me greatly?',
+    'What am I neglecting despite being busy?',  
   ]
 
   const setState = (newState) => (state = newState)
@@ -92,7 +91,16 @@
 
   <div style="display: flex; flex-direction: column; gap: 4px;">
     {#each defaultQuestions as question}
-      <div on:click={() => state.currentInput = question} class="rounded-tag">
+      <div 
+        on:click={() => { 
+          if (!loading) {
+            state.currentInput = question; 
+            addMessage(); 
+          }
+        }} 
+        class="rounded-tag"
+        class:disabled={loading}
+      >
         {question}
       </div>
     {/each}
@@ -134,7 +142,19 @@
     border-radius: 16px;
     padding: 4px 8px;
     background-color: #c6dbf5;
-    font-size: 16px;
+    font-size: 0.875rem;
+    width: fit-content;
+  }
+
+  .rounded-tag:hover:not(.disabled) {
+    background-color: #a8c5e8;
+  }
+
+  .rounded-tag.disabled {
+    opacity: 0.5;
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 
   .input-section {

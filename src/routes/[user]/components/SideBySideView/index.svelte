@@ -1,7 +1,7 @@
 <script>
   import ListsArea from '../ListsArea/ListsArea.svelte'
   import Calendar from '../Calendar/Calendar.svelte'
-  import GripHandle from './GripHandle.svelte'
+  import GripHandle from '$lib/components/GripHandle.svelte'
 
   import { user } from '$lib/store'
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
@@ -82,7 +82,7 @@
   </div>
   
   <div class="handle-wrapper">
-    <GripHandle on:pointerdown={handlePointerDown}/>
+    <GripHandle orientation="vertical" on:pointerdown={handlePointerDown}/>
   </div>
 
   <div class="calendar-container">

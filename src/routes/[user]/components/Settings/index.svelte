@@ -36,15 +36,15 @@
           </div>
         </div>
 
-        <div class="settings-group">
+        <!-- <div class="settings-group">
           <div class="settings-label">Calendar Hours</div>
           <TimeRangeSettings />
-        </div>
+        </div> -->
         
-        <div class="settings-group">
+        <!-- <div class="settings-group">
           <div class="settings-label">Gridlines</div>
           <GridlineSettings />
-        </div>
+        </div> -->
 
         <div class="settings-group">
           <div class="settings-label">Photos</div>

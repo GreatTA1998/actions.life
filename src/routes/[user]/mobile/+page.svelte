@@ -3,24 +3,18 @@
     <TaskPopup/>
   {/if}
 
+  {#if $settingsOpen}
+    <Settings />
+  {/if}
+
   <div class="grid-container">
     <main class="content-area">
-      {#if activeTabName === 'TODO_VIEW'}
-        <div style="
-          position: relative; 
-          height: 100%; 
-          width: 100%; 
-          padding: 0px 8px;"
-        >
-          <TodoList cssStyle="background-color: transparent; padding-top: var(--main-content-top-margin);"
-            isLargeFont
-            listWidth="100%"
-          />
-        </div>
+      {#if activeTabName === 'CALENDAR_VIEW'}
+        <TopBelowView />
+      {:else if activeTabName === 'DISCOVER_VIEW'}
+        <Discover />
       {:else if activeTabName === 'FUTURE_VIEW'}
         <Schedule on:task-duration-adjusted />
-      {:else if activeTabName === 'CALENDAR_VIEW'}
-        <Calendar />    
       {:else if activeTabName === 'PHOTO_ARCHIVE'}
         <PhotoGrid />
       {:else if activeTabName === 'AI_VIEW'}
@@ -28,19 +22,16 @@
       {/if}
     </main>
 
-    <div class="bottom-navbar">
-      <button on:click={() => activeTabName = 'TODO_VIEW'} class="bottom-nav-tab" class:active-nav-tab={activeTabName === 'TODO_VIEW'}>
-        <div style="text-align: center;">
-          <span class="material-symbols-outlined nav-tab-icon">
-            summarize
-          </span>
-          <div class="nav-tab-desc">
-            Lists
-          </div>
-        </div>
+    <div class="floating-navbar">
+      <button class="nav-icon-button logo-button" 
+        on:click={toggleSettings}
+        aria-label="Settings"
+        title="Settings"
+      >
+        <img src="/logo-no-bg.png" alt="Logo" class="logo-img" />
       </button>
 
-      <button class="bottom-nav-tab" 
+      <button class="nav-icon-button" 
         on:click={() => {
           if (activeTabName === 'CALENDAR_VIEW') jumpToToday()
           else {
@@ -48,63 +39,37 @@
           }
         }}
         class:active-nav-tab={activeTabName === 'CALENDAR_VIEW'}
+        aria-label="Calendar"
       >
-        <div style="text-align: center;">
-          <span class="material-symbols-outlined nav-tab-icon">
-            house
-          </span>
-          <div class="nav-tab-desc">
-            Cal.
-          </div>
-        </div>
+        <span class="material-symbols-outlined nav-icon">
+          house
+        </span>
       </button>
 
-      <button class="bottom-nav-tab" on:click={() => activeTabName = 'FUTURE_VIEW'} class:active-nav-tab={activeTabName === 'FUTURE_VIEW'}>
-        <div style="text-align: center;">
-          <span class=" material-icons nav-tab-icon">
-            upcoming
-          </span>
-          <div class="nav-tab-desc">
-            Sched.
-          </div>
-        </div>
-      </button>
-
-      <button class="bottom-nav-tab" on:click={() => activeTabName = 'PHOTO_ARCHIVE'} class:active-nav-tab={activeTabName === 'PHOTO_ARCHIVE'}>
-        <div style="text-align: center;">
-          <span class=" material-icons nav-tab-icon">
-            photo_library
-          </span>
-          <div class="nav-tab-desc">
-            Photos
-          </div>
-        </div>
-      </button>
-
-      <button class="bottom-nav-tab" on:click={() => activeTabName = 'AI_VIEW'} class:active-nav-tab={activeTabName === 'AI_VIEW'}>
-        <div style="text-align: center;">
-          <span class=" material-symbols-outlined nav-tab-icon">
-            smart_toy
-          </span>
-          <div class="nav-tab-desc">
-            Robot
-          </div>
-        </div>
+      <button class="nav-icon-button" 
+        on:click={() => activeTabName = 'DISCOVER_VIEW'} 
+        class:active-nav-tab={activeTabName === 'DISCOVER_VIEW'} 
+        aria-label="Discover"
+      >
+        <span class="material-symbols-outlined nav-icon">
+          manage_search
+        </span>
       </button>
     </div>
   </div>
 {/if}
 
 <script>
-  import Calendar from '../components/Calendar/Calendar.svelte'
-  import TodoList from '../components/ListsArea/TodoList.svelte'
+  import TopBelowView from '../components/TopBelowView/index.svelte'
   import AI from '../components/AI/AI.svelte'
   import Schedule from './Schedule.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
   import PhotoGrid from '../components/Archive/PhotoGrid.svelte'
+  import Discover from './Discover.svelte'
+  import Settings from '../components/Settings/index.svelte'
 
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
-  import { user, isTaskPopupOpen } from '/src/lib/store'
+  import { user, isTaskPopupOpen, openSettings, settingsOpen, toggleSettings } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
   import { onDestroy, onMount } from 'svelte'
 
@@ -125,10 +90,6 @@
 </svelte:head>
 
 <style>
-  :root {
-    --bottom-navbar-height: 48px;
-  }
-
   /* Prevent any scrolling on body */
   :global(body),
   :global(html) {
@@ -136,6 +97,7 @@
     height: 100%;
     width: 100%;
     position: fixed;
+    overscroll-behavior: none;
   }
 
   :global(body) {
@@ -144,7 +106,7 @@
   
   .grid-container {
     display: grid;
-    grid-template-rows: minmax(0, 1fr) var(--bottom-navbar-height);
+    grid-template-rows: 1fr;
     height: 100vh;
     /* Support for iOS Safari */
     height: -webkit-fill-available;
@@ -152,57 +114,71 @@
     height: 100dvh;
     width: 100%;
     overflow: hidden;
+    position: relative;
   }
   
   .content-area {
     grid-row: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     /* Critical for grid scrolling - allows content to be smaller than container */
     min-height: 0;
     position: relative;
   }
 
-  .bottom-navbar {
-    grid-row: 2;
-    z-index: 3;
-    width: 100%; 
-    height: var(--bottom-navbar-height); 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    background-color: white;
-    border-top: 1px solid var(--faint-color);
+  .floating-navbar {
+    position: fixed;
+    top: 50%;
+    right: max(16px, env(safe-area-inset-right, 16px));
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 4px;
+    border-radius: 16px;
+    
+    /* Simple translucent background */
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
   }
 
-  .bottom-nav-tab {
-    display: flex; 
+  .nav-icon-button {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-
-    height: 100%;
-    flex-basis: 0;
-    flex-grow: 1;
-    flex-shrink: 1;
-
-    color: rgb(110, 110, 110);
-
-    padding-top: 4px;
-    padding-bottom: 4px;
+    width: 36px;
+    min-height: 56px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.7);
+    padding: 4px 0;
+    gap: 2px;
   }
 
   .active-nav-tab {
-    color: rgb(0, 0, 0);
+    color: var(--location-indicator-color);
+    color: black;
     font-weight: 500;
-    border-top: 0px solid rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.05);
   }
 
-  .nav-tab-desc {
-    font-size: 12px;
-    margin-top: -4px;
+  .nav-icon {
+    font-size: 22px;
   }
 
-  .nav-tab-icon {
-    font-size: 24px;
+  .logo-button {
+    padding: 4px 0;
+  }
+
+  .logo-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
   }
 </style>
