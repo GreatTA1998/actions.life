@@ -14,7 +14,6 @@
       {taskObj}
       depth={0}
       ancestorRoomIDs={[]}
-      isLargeFont={false}
     />
   {/each}
 

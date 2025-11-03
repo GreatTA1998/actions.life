@@ -8,6 +8,10 @@
 
   let { children } = $props()
 
+  setContext('list', {
+    isLargeFont: writable(false)
+  })
+
   const clickedTaskID = writable('')
   const user = writable({
     uid: 'demo-user',
