@@ -5,22 +5,10 @@
 
   <div class="grid-container">
     <main class="content-area">
-      {#if activeTabName === 'TODO_VIEW'}
-        <div style="
-          position: relative; 
-          height: 100%; 
-          width: 100%; 
-          padding: 0px 8px;"
-        >
-          <TodoList cssStyle="background-color: transparent; padding-top: var(--main-content-top-margin);"
-            isLargeFont
-            listWidth="100%"
-          />
-        </div>
+      {#if activeTabName === 'CALENDAR_VIEW'}
+        <TopBelowView />
       {:else if activeTabName === 'FUTURE_VIEW'}
         <Schedule on:task-duration-adjusted />
-      {:else if activeTabName === 'CALENDAR_VIEW'}
-        <Calendar />    
       {:else if activeTabName === 'PHOTO_ARCHIVE'}
         <PhotoGrid />
       {:else if activeTabName === 'AI_VIEW'}
@@ -29,17 +17,6 @@
     </main>
 
     <div class="bottom-navbar">
-      <button on:click={() => activeTabName = 'TODO_VIEW'} class="bottom-nav-tab" class:active-nav-tab={activeTabName === 'TODO_VIEW'}>
-        <div style="text-align: center;">
-          <span class="material-symbols-outlined nav-tab-icon">
-            summarize
-          </span>
-          <div class="nav-tab-desc">
-            Lists
-          </div>
-        </div>
-      </button>
-
       <button class="bottom-nav-tab" 
         on:click={() => {
           if (activeTabName === 'CALENDAR_VIEW') jumpToToday()
@@ -96,8 +73,7 @@
 {/if}
 
 <script>
-  import Calendar from '../components/Calendar/Calendar.svelte'
-  import TodoList from '../components/ListsArea/TodoList.svelte'
+  import TopBelowView from '../components/TopBelowView/index.svelte'
   import AI from '../components/AI/AI.svelte'
   import Schedule from './Schedule.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'

@@ -26,6 +26,7 @@ const User = {
     calLastHHMM: z.string().default('00:00'),
     calSnapInterval: z.number().default(5),
     listAreaWidthRatio: z.number().default(0.0022295577727585616), // empirically determined from my account
+    listAreaHeightRatio: z.number().default(0.4), // for mobile top-below view, default to 40% of viewport height
 
     // automation settings
     photoUploadAutoArchive: z.boolean().default(false),

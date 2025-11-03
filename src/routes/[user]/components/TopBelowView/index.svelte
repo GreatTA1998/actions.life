@@ -1,5 +1,5 @@
 <script>
-  import ListsArea from '../ListsArea/ListsArea.svelte'
+  import TodoList from '../ListsArea/TodoList.svelte'
   import Calendar from '../Calendar/Calendar.svelte'
   import GripHandle from '$lib/components/GripHandle.svelte'
 
@@ -10,29 +10,39 @@
   const { logicAreaRect } = getContext('drag-drop')
 
   let isResizing = false
-  let startX = 0
-  let startWidth = 0
-  let listAreaWidth = getInitialWidth()
+  let startY = 0
+  let startHeight = 0
+  let containerHeight = 0
+  let listAreaHeight = 0
+  let containerElement
 
-  onMount(async () => {
-    await tick() // there's a danger that `style` isn't fully applied during onMount
-    logicAreaRect.set(
-      () => document.querySelector('.side-by-side-container').getBoundingClientRect()
-    )
-  })
+  function getContainerHeight () {
+    return containerElement?.getBoundingClientRect().height || window.innerHeight
+  }
 
-  function getInitialWidth () {
-    if ($user.listAreaWidthRatio) {
-      return ($user.listAreaWidthRatio * 100 * window.innerWidth)
+  function getInitialHeight () {
+    const height = getContainerHeight()
+    if ($user.listAreaHeightRatio && height > 0) {
+      return ($user.listAreaHeightRatio * 100 * height)
     } else {
-      return 360
+      // Default to ~40% of container height
+      return height * 0.4
     }
   }
 
+  onMount(async () => {
+    await tick() // there's a danger that `style` isn't fully applied during onMount
+    containerHeight = getContainerHeight()
+    listAreaHeight = getInitialHeight()
+    logicAreaRect.set(
+      () => document.querySelector('.top-below-container').getBoundingClientRect()
+    )
+  })
+
   function handlePointerDown (e) {
     isResizing = true
-    startX = e.clientX
-    startWidth = listAreaWidth
+    startY = e.clientY
+    startHeight = listAreaHeight
     
     window.addEventListener('pointermove', handlePointerMove)
     window.addEventListener('pointerup', handlePointerUp)
@@ -46,15 +56,17 @@
   function handlePointerMove (e) {
     if (!isResizing) return
 
-    const deltaX = e.clientX - startX
-    const newWidth = Math.max(
-      0, 
+    const deltaY = e.clientY - startY
+    const maxHeight = getContainerHeight()
+    const iPhoneHomeSwipeBuffer = 48
+    const newHeight = Math.max(
+      iPhoneHomeSwipeBuffer, 
       Math.min(
-        window.innerWidth, 
-        startWidth + deltaX
+        maxHeight, 
+        startHeight + deltaY
       )
     )
-    listAreaWidth = newWidth
+    listAreaHeight = newHeight
   }
 
   function handlePointerUp (e) {
@@ -70,37 +82,43 @@
       e.target.releasePointerCapture(e.pointerId)
     }
 
+    const containerHeight = getContainerHeight()
     updateFirestoreDoc(`/users/${$user.uid}`, {
-      listAreaWidthRatio: (listAreaWidth / window.innerWidth) / 100
+      listAreaHeightRatio: (listAreaHeight / containerHeight) / 100
     })
   }
 </script>
 
-<div class="side-by-side-container">
-  <div class="list-area-container" style="width: {listAreaWidth}px;">    
-    <ListsArea />
-  </div>
-  
-  <div class="handle-wrapper">
-    <GripHandle orientation="vertical" on:pointerdown={handlePointerDown}/>
+<div class="top-below-container" bind:this={containerElement}>
+  <div class="calendar-container" style="height: {listAreaHeight}px;">
+    <Calendar />
   </div>
 
-  <div class="calendar-container">
-    <Calendar />
+  <div class="handle-wrapper">
+    <GripHandle orientation="horizontal" on:pointerdown={handlePointerDown}/>
+  </div>
+
+  <div class="list-container">    
+    <TodoList cssStyle="background-color: transparent; padding-top: var(--main-content-top-margin);"
+      isLargeFont
+      listWidth="100%"
+    />
   </div>
 </div>
 
 <style>
-  .side-by-side-container {
+  .top-below-container {
     display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
     position: relative;
     overflow: hidden;
+    border: 4px solid red;
   }
   
-  .list-area-container { /* THIS IS THE SCROLLING CONTAINER */
-    height: 100%;
+  .calendar-container { /* THIS IS THE SCROLLING CONTAINER */
+    width: 100%;
     overflow-y: auto;
     scrollbar-width: none;
     background-color: var(--todo-list-bg-color, #f5f5f5);
@@ -108,20 +126,25 @@
     flex-shrink: 0;
   }
   
-  .calendar-container {
+  .list-container {
     flex-grow: 1;
-    height: 100%;
-    overflow: hidden;
+    width: 100%;
+    overflow-y: auto;
+    min-height: 48px;
   }
   
   .handle-wrapper {
     position: relative;
-    height: 100%;
+    width: 100%;
+    height: 12px; /* Minimal height - actual touch target is the 48px resize-fab */
     z-index: 1;
     display: flex;
     align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 
     /* this is magic for some reason, suddenly fixed everything without even needing e.preventDefault() */
     touch-action: none;
   }
-</style> 
+</style>
+
