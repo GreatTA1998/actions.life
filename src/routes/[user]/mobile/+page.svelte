@@ -93,6 +93,7 @@
     height: 100%;
     width: 100%;
     position: fixed;
+    overscroll-behavior: none;
   }
 
   :global(body) {
@@ -116,6 +117,7 @@
     grid-row: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     /* Critical for grid scrolling - allows content to be smaller than container */
     min-height: 0;
     position: relative;

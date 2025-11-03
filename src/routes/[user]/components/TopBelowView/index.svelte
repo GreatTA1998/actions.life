@@ -8,32 +8,34 @@
   import { getContext, onMount, tick } from 'svelte'
 
   const { logicAreaRect } = getContext('drag-drop')
+  
+  const HANDLE_HEIGHT = 12
+  const MIN_LIST_HEIGHT = 48 // Minimum height to avoid iOS home gesture conflict
+  const DEFAULT_CALENDAR_RATIO = 0.4
 
   let isResizing = false
   let startY = 0
-  let startHeight = 0
-  let containerHeight = 0
-  let listAreaHeight = 0
+  let startListHeight = 0
+  let calendarHeight = 0
   let containerElement
 
   function getContainerHeight () {
     return containerElement?.getBoundingClientRect().height || window.innerHeight
   }
 
-  function getInitialHeight () {
+  function getInitialCalendarHeight () {
     const height = getContainerHeight()
     if ($user.listAreaHeightRatio && height > 0) {
-      return ($user.listAreaHeightRatio * 100 * height)
-    } else {
-      // Default to ~40% of container height
-      return height * 0.4
+      return $user.listAreaHeightRatio * 100 * height
     }
+    return height * DEFAULT_CALENDAR_RATIO
   }
 
+  $: listAreaHeight = getContainerHeight() - calendarHeight - HANDLE_HEIGHT
+
   onMount(async () => {
-    await tick() // there's a danger that `style` isn't fully applied during onMount
-    containerHeight = getContainerHeight()
-    listAreaHeight = getInitialHeight()
+    await tick()
+    calendarHeight = getInitialCalendarHeight()
     logicAreaRect.set(
       () => document.querySelector('.top-below-container').getBoundingClientRect()
     )
@@ -42,7 +44,7 @@
   function handlePointerDown (e) {
     isResizing = true
     startY = e.clientY
-    startHeight = listAreaHeight
+    startListHeight = listAreaHeight
     
     window.addEventListener('pointermove', handlePointerMove)
     window.addEventListener('pointerup', handlePointerUp)
@@ -56,17 +58,16 @@
   function handlePointerMove (e) {
     if (!isResizing) return
 
-    const deltaY = e.clientY - startY
-    const maxHeight = getContainerHeight()
-    const iPhoneHomeSwipeBuffer = 48
-    const newHeight = Math.max(
-      iPhoneHomeSwipeBuffer, 
-      Math.min(
-        maxHeight, 
-        startHeight + deltaY
-      )
+    const deltaY = startY - e.clientY
+    const totalHeight = getContainerHeight()
+    const maxListHeight = totalHeight - HANDLE_HEIGHT
+    
+    const newListHeight = Math.max(
+      MIN_LIST_HEIGHT,
+      Math.min(maxListHeight, startListHeight + deltaY)
     )
-    listAreaHeight = newHeight
+    
+    calendarHeight = totalHeight - newListHeight - HANDLE_HEIGHT
   }
 
   function handlePointerUp (e) {
@@ -74,23 +75,21 @@
     
     window.removeEventListener('pointermove', handlePointerMove)
     window.removeEventListener('pointerup', handlePointerUp)
-    
     document.body.style.userSelect = ''
 
-    // Release pointer capture
     if (e.target.hasPointerCapture(e.pointerId)) {
       e.target.releasePointerCapture(e.pointerId)
     }
 
     const containerHeight = getContainerHeight()
     updateFirestoreDoc(`/users/${$user.uid}`, {
-      listAreaHeightRatio: (listAreaHeight / containerHeight) / 100
+      listAreaHeightRatio: (calendarHeight / containerHeight) / 100
     })
   }
 </script>
 
 <div class="top-below-container" bind:this={containerElement}>
-  <div class="calendar-container" style="height: {listAreaHeight}px;">
+  <div class="calendar-container" style="height: {calendarHeight}px;">
     <Calendar />
   </div>
 
@@ -98,7 +97,7 @@
     <GripHandle orientation="horizontal" on:pointerdown={handlePointerDown}/>
   </div>
 
-  <div class="list-container">    
+  <div class="list-container" style="height: {listAreaHeight}px;">    
     <TodoList cssStyle="background-color: transparent; padding-top: var(--main-content-top-margin);"
       isLargeFont
       listWidth="100%"
@@ -119,6 +118,7 @@
   .calendar-container { /* THIS IS THE SCROLLING CONTAINER */
     width: 100%;
     overflow-y: auto;
+    overscroll-behavior: contain;
     scrollbar-width: none;
     background-color: var(--todo-list-bg-color, #f5f5f5);
     position: relative;
@@ -126,24 +126,23 @@
   }
   
   .list-container {
-    flex-grow: 1;
     width: 100%;
     overflow-y: auto;
+    overscroll-behavior: contain;
     min-height: 48px;
     padding: 0 8px;
+    flex-shrink: 0;
   }
   
   .handle-wrapper {
     position: relative;
     width: 100%;
-    height: 12px; /* Minimal height - actual touch target is the 48px resize-fab */
+    height: 12px;
     z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-
-    /* this is magic for some reason, suddenly fixed everything without even needing e.preventDefault() */
     touch-action: none;
   }
 </style>
