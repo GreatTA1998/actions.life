@@ -11,16 +11,53 @@
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import pwaDebug from '$lib/utils/pwaDebug.js'
+  import { pwaInfo } from 'virtual:pwa-info'
+
+  $: webManifestLink = pwaInfo ? pwaInfo.webManifest.linkTag : ''
+  $: console.log('pwaInfo =', pwaInfo)
+  $: console.log('webManifestLink =', webManifestLink)
 
   let doingAuth = true
 
-  onMount(() => {
-    translateJSConstantsToCSSVariables()
-    
+  onMount(async () => {
+    translateJSConstantsToCSSVariables()    
+
     // Make PWA debug utility globally available in console
     if (typeof window !== 'undefined') {
       window.pwaDebug = pwaDebug
       console.log('🔍 PWA Debug available: window.pwaDebug()')
+      
+      // Automatically track load times on every page load
+      pwaDebug.autoTrackLoads()
+    }
+
+    // Register PWA service worker
+    if (pwaInfo) {
+      try {
+        const { registerSW } = await import('virtual:pwa-register')
+        console.log('registerSW imported:', registerSW)
+        registerSW({
+          immediate: true,
+          onRegistered(r) {
+            console.log(`SW Registered: ${r}`)
+            if (r) {
+              console.log('SW Registration object:', {
+                scope: r.scope,
+                active: r.active?.state,
+                installing: r.installing?.state,
+                waiting: r.waiting?.state
+              })
+            }
+          },
+          onRegisterError(error) {
+            console.error('SW registration error', error)
+          }
+        })
+      } catch (error) {
+        console.error('Failed to import or register service worker:', error)
+      }
+    } else {
+      console.warn('pwaInfo is not available - service worker will not be registered')
     }
 
     // fetching user takes around 300 - 500 ms
@@ -50,6 +87,10 @@
     return window.innerWidth <= 768 // You can adjust the width threshold as needed
   }
 </script>
+
+<svelte:head>
+  {@html webManifestLink}
+</svelte:head>
 
 <div>
   <div

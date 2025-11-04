@@ -8,6 +8,11 @@ export default {
   plugins: [
     sveltekit(),
     SvelteKitPWA({
+      strategies: 'generateSW',
+      devOptions: {
+        enabled: true, // Enable service workers in development mode
+        type: 'module'
+      },
       manifest: {
         name: 'actions.life',
         display: 'standalone', // display like a native mobile app without browser controls
@@ -24,7 +29,7 @@ export default {
             urlPattern: ({ request, sameOrigin }) => sameOrigin && request.mode === 'navigate',
             handler: 'StaleWhileRevalidate',
             options: {
-              networkTimeoutSeconds: 2,
+              // networkTimeoutSeconds: 2,
               cacheName: 'app-shell',
               matchOptions: { ignoreVary: true },
               expiration: { purgeOnQuotaError: true }

@@ -13,3 +13,4 @@ node_modules
 .cursor
 .cursor/*
 .vscode
+/dev-dist

@@ -6,6 +6,9 @@ const config = {
 	preprocess: vitePreprocess({ scss: true }),
 	kit: {
 		adapter: vercel(),
+		serviceWorker: {
+			register: false // Disable SvelteKit's service worker since we're using vite-pwa
+		}
 	},
 	compilerOptions: {
 		// disable all warnings coming from node_modules and all accessibility warnings

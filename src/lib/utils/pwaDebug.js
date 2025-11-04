@@ -658,18 +658,11 @@ pwaDebug.memory = async () => {
   console.log('\n📊 MEMORY & PERFORMANCE');
   console.log(separator);
   
-  if (memory.isIOS) {
-    console.log('📱 iOS Safari detected (Memory API unavailable)');
-  }
-  
   if (memory.available) {
     console.log('✓ Memory API Available (Chrome/Edge)');
     console.log(`  Used JS Heap:     ${memory.data.usedJSHeapSize}`);
     console.log(`  Total JS Heap:    ${memory.data.totalJSHeapSize}`);
     console.log(`  JS Heap Limit:    ${memory.data.jsHeapSizeLimit}`);
-  } else {
-    console.log('⚠ Memory API not available (iOS Safari)');
-    console.log('   Using proxy indicators below');
   }
   
   // DOM complexity (key iOS indicator)
@@ -1064,6 +1057,291 @@ pwaDebug.verifyAll = async () => {
   console.log(separator + '\n');
 
   return results;
+};
+
+/**
+ * Quick cache performance test
+ * Measures and compares load times before and after caching
+ */
+pwaDebug.testCacheSpeed = async () => {
+  console.log('\n🚀 CACHE SPEED TEST');
+  console.log('─'.repeat(60));
+  
+  // Measure current load
+  const navTiming = performance.getEntriesByType('navigation')[0];
+  if (!navTiming) {
+    console.log('⚠ Navigation timing not available');
+    return;
+  }
+  
+  const currentLoad = {
+    total: navTiming.loadEventEnd - navTiming.fetchStart,
+    domReady: navTiming.domContentLoadedEventEnd - navTiming.fetchStart,
+    response: navTiming.responseEnd - navTiming.fetchStart,
+    fromCache: navTiming.transferSize === 0,
+    transferSize: navTiming.transferSize,
+    timestamp: Date.now()
+  };
+  
+  console.log('\n📊 Current Page Load:');
+  console.log(`  Total: ${Math.round(currentLoad.total)}ms`);
+  console.log(`  DOM Ready: ${Math.round(currentLoad.domReady)}ms`);
+  console.log(`  Response: ${Math.round(currentLoad.response)}ms`);
+  console.log(`  Source: ${currentLoad.fromCache ? '✅ CACHE' : '🌐 NETWORK'}`);
+  console.log(`  Transfer Size: ${currentLoad.transferSize === 0 ? '0 B (cached)' : formatBytes(currentLoad.transferSize)}`);
+  
+  // Test cache directly
+  try {
+    const cacheNames = await caches.keys();
+    const appCache = cacheNames.find(name => name.includes('app-shell') || name.includes('workbox'));
+    
+    if (appCache) {
+      const cache = await caches.open(appCache);
+      const cachedResponse = await cache.match(window.location.href);
+      
+      if (cachedResponse) {
+        const start = performance.now();
+        await cachedResponse.clone().blob();
+        const cacheReadTime = performance.now() - start;
+        
+        console.log('\n⚡ Cache Performance:');
+        console.log(`  Cache read time: ${Math.round(cacheReadTime)}ms`);
+        
+        if (!currentLoad.fromCache && currentLoad.response > cacheReadTime) {
+          const speedup = currentLoad.response - cacheReadTime;
+          const percentFaster = Math.round((speedup / currentLoad.response) * 100);
+          console.log(`  🎯 Estimated speedup: ~${Math.round(speedup)}ms (${percentFaster}% faster)`);
+        }
+      }
+    }
+  } catch (e) {
+    console.log('⚠ Could not test cache:', e.message);
+  }
+  
+  console.log('\n💡 TIP: Compare this with a hard refresh (Cmd+Shift+R) to see network vs cache difference');
+  console.log('─'.repeat(60) + '\n');
+};
+
+/**
+ * Measure and store current page load performance
+ * Use this BEFORE a hard reload to capture baseline metrics
+ */
+pwaDebug.markLoadStart = () => {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    console.log('⚠ localStorage not available');
+    return;
+  }
+  
+  const navTiming = performance.getEntriesByType('navigation')[0];
+  if (!navTiming) {
+    console.log('⚠ Navigation timing not available yet. Wait for page to fully load.');
+    return;
+  }
+  
+  const metrics = {
+    total: navTiming.loadEventEnd - navTiming.fetchStart,
+    domReady: navTiming.domContentLoadedEventEnd - navTiming.fetchStart,
+    response: navTiming.responseEnd - navTiming.fetchStart,
+    fromCache: navTiming.transferSize === 0,
+    transferSize: navTiming.transferSize,
+    timestamp: Date.now(),
+    url: window.location.href
+  };
+  
+  // Store all previous measurements
+  const stored = localStorage.getItem('pwaSpeedTests');
+  const tests = stored ? JSON.parse(stored) : [];
+  tests.push(metrics);
+  
+  // Keep only last 10 tests
+  if (tests.length > 10) {
+    tests.shift();
+  }
+  
+  localStorage.setItem('pwaSpeedTests', JSON.stringify(tests));
+  
+  console.log('\n📌 Performance marked:');
+  console.log(`  Total: ${Math.round(metrics.total)}ms`);
+  console.log(`  Response: ${Math.round(metrics.response)}ms`);
+  console.log(`  Source: ${metrics.fromCache ? '✅ CACHE' : '🌐 NETWORK'}`);
+  console.log(`\n💡 Now do a hard reload (Cmd+Shift+R), then run: window.pwaDebug.compareLoads()`);
+};
+
+/**
+ * Compare current load with previous measurements
+ * Run this AFTER a hard reload to see the difference
+ */
+pwaDebug.compareLoads = () => {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    console.log('⚠ localStorage not available');
+    return;
+  }
+  
+  const navTiming = performance.getEntriesByType('navigation')[0];
+  if (!navTiming) {
+    console.log('⚠ Navigation timing not available yet. Wait for page to fully load.');
+    return;
+  }
+  
+  const currentLoad = {
+    total: navTiming.loadEventEnd - navTiming.fetchStart,
+    domReady: navTiming.domContentLoadedEventEnd - navTiming.fetchStart,
+    response: navTiming.responseEnd - navTiming.fetchStart,
+    fromCache: navTiming.transferSize === 0,
+    transferSize: navTiming.transferSize,
+    timestamp: Date.now()
+  };
+  
+  const stored = localStorage.getItem('pwaSpeedTests');
+  if (!stored) {
+    console.log('⚠ No previous measurements found. Run window.pwaDebug.markLoadStart() first.');
+    return;
+  }
+  
+  const tests = JSON.parse(stored);
+  const previous = tests[tests.length - 1];
+  
+  console.log('\n📊 LOAD TIME COMPARISON');
+  console.log('─'.repeat(60));
+  
+  console.log('\n🌐 Previous Load:');
+  console.log(`  Total: ${Math.round(previous.total)}ms`);
+  console.log(`  Response: ${Math.round(previous.response)}ms`);
+  console.log(`  Source: ${previous.fromCache ? '✅ CACHE' : '🌐 NETWORK'}`);
+  console.log(`  Transfer: ${previous.transferSize === 0 ? '0 B' : formatBytes(previous.transferSize)}`);
+  
+  console.log('\n📱 Current Load:');
+  console.log(`  Total: ${Math.round(currentLoad.total)}ms`);
+  console.log(`  Response: ${Math.round(currentLoad.response)}ms`);
+  console.log(`  Source: ${currentLoad.fromCache ? '✅ CACHE' : '🌐 NETWORK'}`);
+  console.log(`  Transfer: ${currentLoad.transferSize === 0 ? '0 B' : formatBytes(currentLoad.transferSize)}`);
+  
+  console.log('\n⚡ Performance Difference:');
+  const totalDiff = currentLoad.total - previous.total;
+  const responseDiff = currentLoad.response - previous.response;
+  const totalPercent = Math.round((Math.abs(totalDiff) / previous.total) * 100);
+  const responsePercent = Math.round((Math.abs(responseDiff) / previous.response) * 100);
+  
+  console.log(`  Total time: ${totalDiff > 0 ? '+' : ''}${Math.round(totalDiff)}ms (${totalPercent}% ${totalDiff < 0 ? 'faster' : 'slower'})`);
+  console.log(`  Response time: ${responseDiff > 0 ? '+' : ''}${Math.round(responseDiff)}ms (${responsePercent}% ${responseDiff < 0 ? 'faster' : 'slower'})`);
+  
+  if (currentLoad.fromCache && !previous.fromCache) {
+    console.log('\n✅ Cache is working! Current load served from cache.');
+  } else if (currentLoad.fromCache && previous.fromCache) {
+    console.log('\n✅ Both loads from cache. Compare with hard refresh (Cmd+Shift+R).');
+  } else if (!currentLoad.fromCache && previous.fromCache) {
+    console.log('\n⚠ Current load from network (hard refresh). Previous was cached.');
+  } else {
+    console.log('\n💡 Both loads from network. Cache may not be set up yet.');
+  }
+  
+  console.log('─'.repeat(60) + '\n');
+  
+  // Store current load for next comparison
+  tests.push(currentLoad);
+  if (tests.length > 10) {
+    tests.shift();
+  }
+  localStorage.setItem('pwaSpeedTests', JSON.stringify(tests));
+};
+
+/**
+ * Clear stored performance measurements
+ */
+pwaDebug.clearSpeedTests = () => {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('pwaSpeedTests');
+    console.log('✅ Cleared stored speed test data');
+  }
+};
+
+/**
+ * Automatically track and compare load times on every page load
+ * Call this once when the app loads, it will handle everything automatically
+ */
+pwaDebug.autoTrackLoads = () => {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return;
+  }
+
+  // Wait for page to fully load
+  const trackLoad = () => {
+    // Small delay to ensure navigation timing is complete
+    setTimeout(() => {
+      const navTiming = performance.getEntriesByType('navigation')[0];
+      if (!navTiming || navTiming.loadEventEnd === 0) {
+        // Not ready yet, try again
+        setTimeout(trackLoad, 100);
+        return;
+      }
+
+      const currentLoad = {
+        total: navTiming.loadEventEnd - navTiming.fetchStart,
+        domReady: navTiming.domContentLoadedEventEnd - navTiming.fetchStart,
+        response: navTiming.responseEnd - navTiming.fetchStart,
+        fromCache: navTiming.transferSize === 0,
+        transferSize: navTiming.transferSize,
+        timestamp: Date.now(),
+        url: window.location.href
+      };
+
+      // Get previous measurements
+      const stored = localStorage.getItem('pwaSpeedTests');
+      const tests = stored ? JSON.parse(stored) : [];
+      const previous = tests.length > 0 ? tests[tests.length - 1] : null;
+
+      // Store current load
+      tests.push(currentLoad);
+      if (tests.length > 20) {
+        tests.shift(); // Keep last 20 measurements
+      }
+      localStorage.setItem('pwaSpeedTests', JSON.stringify(tests));
+
+      // Compare with previous if available
+      if (previous && previous.url === currentLoad.url) {
+        const totalDiff = currentLoad.total - previous.total;
+        const responseDiff = currentLoad.response - previous.response;
+        const totalPercent = Math.round((Math.abs(totalDiff) / previous.total) * 100);
+        const responsePercent = Math.round((Math.abs(responseDiff) / previous.response) * 100);
+
+        console.log('\n⚡ AUTO LOAD TIME TRACKING');
+        console.log('─'.repeat(60));
+        console.log(`📱 Current Load: ${Math.round(currentLoad.total)}ms total, ${Math.round(currentLoad.response)}ms response`);
+        console.log(`   Source: ${currentLoad.fromCache ? '✅ CACHE' : '🌐 NETWORK'}`);
+        console.log(`📊 Previous Load: ${Math.round(previous.total)}ms total, ${Math.round(previous.response)}ms response`);
+        console.log(`   Source: ${previous.fromCache ? '✅ CACHE' : '🌐 NETWORK'}`);
+        
+        if (Math.abs(totalDiff) > 50) { // Only show if difference is significant
+          console.log(`\n⚡ Difference: ${totalDiff > 0 ? '+' : ''}${Math.round(totalDiff)}ms total (${totalPercent}% ${totalDiff < 0 ? 'faster' : 'slower'})`);
+          console.log(`   Response: ${responseDiff > 0 ? '+' : ''}${Math.round(responseDiff)}ms (${responsePercent}% ${responseDiff < 0 ? 'faster' : 'slower'})`);
+        }
+
+        if (currentLoad.fromCache && !previous.fromCache) {
+          console.log(`\n✅ Cache working! This load was served from cache.`);
+        } else if (!currentLoad.fromCache && previous.fromCache) {
+          console.log(`\n💡 Hard refresh detected - loaded from network.`);
+        }
+        console.log('─'.repeat(60) + '\n');
+      } else {
+        // First load or different URL
+        console.log('\n⚡ AUTO LOAD TIME TRACKING');
+        console.log('─'.repeat(60));
+        console.log(`📱 Load Time: ${Math.round(currentLoad.total)}ms total, ${Math.round(currentLoad.response)}ms response`);
+        console.log(`   Source: ${currentLoad.fromCache ? '✅ CACHE' : '🌐 NETWORK'}`);
+        if (!previous) {
+          console.log(`💡 Tracking started. Reload to see comparison.`);
+        }
+        console.log('─'.repeat(60) + '\n');
+      }
+    }, 100);
+  };
+
+  // Start tracking when DOM is ready
+  if (document.readyState === 'complete') {
+    trackLoad();
+  } else {
+    window.addEventListener('load', trackLoad, { once: true });
+  }
 };
 
 export default pwaDebug;
