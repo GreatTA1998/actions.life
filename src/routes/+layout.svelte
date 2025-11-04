@@ -10,11 +10,18 @@
   import { } from '$lib/db/scripts/april.js'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
+  import pwaDebug from '$lib/utils/pwaDebug.js'
 
   let doingAuth = true
 
   onMount(() => {
     translateJSConstantsToCSSVariables()
+    
+    // Make PWA debug utility globally available in console
+    if (typeof window !== 'undefined') {
+      window.pwaDebug = pwaDebug
+      console.log('🔍 PWA Debug available: window.pwaDebug()')
+    }
 
     // fetching user takes around 300 - 500 ms
     onAuthStateChanged(getAuth(), async (resultUser) => {
