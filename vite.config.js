@@ -17,12 +17,18 @@ export default {
         ]
       },
       workbox: {
-        navigationPreload: true, // fetches server and loads sw in parallel for first-time visitors, false by default because it consumes more memory
-        runtimeCaching: [ // cache every visited page for offline use (includes calendar page), off by default because it consumes more memory
+        navigationPreload: false, // reduce memory usage for longer suspension
+        cleanupOutdatedCaches: true,
+        runtimeCaching: [
           {
-            urlPattern: ({ request }) => request.mode === 'navigate',
-            handler: 'NetworkFirst',
-            options: { cacheName: 'html' }
+            urlPattern: ({ request, sameOrigin }) => sameOrigin && request.mode === 'navigate',
+            handler: 'StaleWhileRevalidate',
+            options: {
+              networkTimeoutSeconds: 2,
+              cacheName: 'app-shell',
+              matchOptions: { ignoreVary: true },
+              expiration: { purgeOnQuotaError: true }
+            }
           }
         ]
       }
