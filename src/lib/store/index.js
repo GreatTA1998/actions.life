@@ -11,6 +11,7 @@ export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout }
 export { user } from './userStore.js'
 
 export const currentMode = writable('Week')
+export const activeView = writable('CALENDAR')
 
 export const tasksCache = writable({})
 

@@ -48,7 +48,6 @@
   }
 </script>
 
-<!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
 <div style={cssStyle} 
   onpointerdown={(e) => { 
     if (e.target !== e.currentTarget) return;
@@ -111,7 +110,7 @@
 <style>  
   .list-container {
     padding: 0.5vw;
-    background-color: #fff;
+    background-color: var(--navbar-bg-color);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }

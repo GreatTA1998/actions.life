@@ -13,7 +13,7 @@
     min-height: {iconMinPixelHeight}px;
     font-size: {fontSize}rem;
     opacity: {task.isDone ? '0.9' : '0.7'};
-    background-color: {isBulletPoint ? '' : '#f8f8f2;'};
+    background-color: {isBulletPoint ? '' : 'var(--navbar-bg-color)'};
     padding-left: {isBulletPoint ? '0px' : 'var(--left-padding)'};
     padding-right: var(--left-padding);
     display: flex; 

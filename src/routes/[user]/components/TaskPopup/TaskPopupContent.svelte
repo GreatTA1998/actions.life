@@ -6,12 +6,16 @@
   import StartTimeDurationNotify from './StartTimeDurationNotify.svelte'
   import PopoverSnackbar from '$lib/components/PopoverSnackbar.svelte'
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
+  import TemplateEditor from './TemplateEditor.svelte'
+  import Checkbox from '$lib/components/Checkbox.svelte'
+  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
   const { Task, tasksCache, clickedTaskID, closeTaskPopup, ancestralTree } = getContext('app')
   
   let taskObject = $derived($tasksCache[$clickedTaskID])
+  let showTemplateEditor = $state(false)
 
   const debouncedUpdate = createDebouncedFunction(
     (id, keyValueChanges) => Task.update({ id, keyValueChanges }), 
@@ -30,10 +34,28 @@
     })
     closeTaskPopup()
   }
+
+  function toggleTemplateEditor () {
+    showTemplateEditor = !showTemplateEditor
+  }
 </script>
 
 <PhotoLayout {taskObject}>
   <div style="display: flex; align-items: center; column-gap: 12px;">
+    {#if taskObject.iconURL}
+      <DoodleIcon iconTask={taskObject} size={48} />
+    {:else}
+      <Checkbox
+        value={taskObject.isDone}
+        onchange={e => Task.update({
+          id: taskObject.id,
+          keyValueChanges: {
+            isDone: e.target.checked
+          }
+        })}
+        zoom={1}
+      />
+    {/if}
     <input value={taskObject.name}
       oninput={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
       placeholder="Untitled"
@@ -104,7 +126,7 @@
       </div>
     {/snippet}
 
-    <RepeatTask {taskObject}/>
+    <RepeatTask {taskObject} onToggleTemplateEditor={toggleTemplateEditor} isTemplateEditorOpen={showTemplateEditor}/>
 
     <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
       <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button material-symbols-outlined action-button">
@@ -113,6 +135,13 @@
       </button>
     </div>
   </div>
+
+  {#if taskObject.templateID && showTemplateEditor}
+    <div class="template-editor-section">
+      <h3 class="template-title">Routine Template</h3>
+      <TemplateEditor templateID={taskObject.templateID} />
+    </div>
+  {/if}
 </PhotoLayout>
 
 <style>
@@ -187,5 +216,19 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+  }
+
+  .template-editor-section {
+    margin-top: 24px;
+    padding: 20px;
+    background: rgba(0, 89, 125, 0.03);
+    border-radius: 8px;
+  }
+
+  .template-title {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: rgb(0, 89, 125);
   }
 </style>
