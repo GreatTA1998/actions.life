@@ -43,12 +43,6 @@
     }
   })
 
-  function formatTime(minutes) {
-    if (minutes < 60) return `${Math.round(minutes)} minutes`
-    const hours = Math.round(minutes / 60)
-    return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
-  }
-
   function instantUpdate (key, value) {
     if (!template) return
     Template.updateItselfAndFutureInstances({ id: template.id, updates: {
@@ -79,16 +73,6 @@
         oninput={e => debouncedUpdate('name', e.target.value)}
         type="text" placeholder="Untitled" style="width: 100%; font-size: 20px;" class="template-title-input"
       />
-    </div>
-
-    <div class="flexbox" style="align-items: center">
-      {#await Template.getTotalStats({ id: template.id })}
-        <div class="stats">Loading stats...</div>
-      {:then { minutesSpent, timesCompleted }}
-        <div class="stats">
-          Completed {timesCompleted} times, spent {formatTime(minutesSpent)}
-        </div>
-      {/await}
     </div>
     
     {#if iconsMenu}
@@ -168,13 +152,6 @@
   .delete-button:hover {
     background: rgba(0, 89, 125, 0.1);
     color: rgb(0, 89, 125);
-  }
-
-  .stats {
-    color: rgba(0, 89, 125, 0.7);
-    font-size: 12px;
-    margin: 8px 0;
-    line-height: 1.4;
   }
 
   .loading {

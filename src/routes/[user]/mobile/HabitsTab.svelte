@@ -6,25 +6,102 @@
   import ListenToDoc from '../components/Archive/ListenToDoc.svelte'
   import JournalEntries from '../components/Archive/JournalEntries.svelte'
   import BaseMenu from '$lib/components/BaseMenu.svelte'
+  import Template from '$lib/db/models/Template.js'
 
-  let routines = null
-  let selectedRoutineID = ''
-  let routineInstances = null
+  function formatTime(minutes) {
+    if (minutes < 60) return `${Math.round(minutes)} minutes`
+    const hours = Math.round(minutes / 60)
+    return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
+  }
+
+  let routines = $state(null)
+  let selectedRoutineID = $state('')
+  let routineInstances = $state(null)
   let unsub
+  let routineStats = $state(new Map())
 
-  $: if (selectedRoutineID) {
-    listenToInstances()
+  // Listen to instances when selectedRoutineID changes
+  $effect(() => {
+    // Clear instances if no routine is selected
+    if (!selectedRoutineID) {
+      routineInstances = null
+      return
+    }
+    
+    // Set up new listener for the selected routine
+    const ref = collection(db, '/users/' + $user.uid + '/tasks')
+    const q = query(
+      ref,
+      where('templateID', '==', selectedRoutineID),
+      orderBy('startDateISO', 'desc')
+    )
+    const currentUnsub = onSnapshot(q, (querySnapshot) => {
+      const temp = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+      temp.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
+      routineInstances = temp
+    })
+    unsub = currentUnsub
+    
+    // Return cleanup function - Svelte will call this automatically when effect re-runs or component unmounts
+    return () => {
+      currentUnsub()
+      if (unsub === currentUnsub) {
+        unsub = null
+      }
+    }
+  })
+
+  // Fetch stats once when routines are loaded
+  async function fetchAllStats() {
+    if (!routines) return
+    
+    const starredRoutines = routines.filter(r => r.isStarred && r.iconURL)
+    const allRoutines = [...starredRoutines, ...routines.filter(r => !r.isStarred && r.iconURL), ...routines.filter(r => !r.iconURL)]
+    
+    // Fetch stats for all routines in parallel
+    const statsPromises = allRoutines.map(routine => 
+      Template.getTotalStats({ id: routine.id })
+        .then(stats => ({ id: routine.id, stats }))
+        .catch(() => ({ id: routine.id, stats: { minutesSpent: 0, timesCompleted: 0 } }))
+    )
+    
+    const results = await Promise.all(statsPromises)
+    const newStats = new Map()
+    results.forEach(({ id, stats }) => {
+      newStats.set(id, stats)
+    })
+    routineStats = newStats
   }
 
-  $: if (routines) {
-    starredWithIcons = routines.filter(r => r.isStarred && r.iconURL)
-    unstarredWithIcons = routines.filter(r => !r.isStarred && r.iconURL)
-    textRoutines = routines.filter(r => !r.iconURL)
-  }
+  // Sort starred routines when routines or stats change
+  let starredWithIcons = $derived.by(() => {
+    if (!routines) return []
+    const starred = routines.filter(r => r.isStarred && r.iconURL)
+    
+    // Sort starred routines by duration (descending), then by frequency (descending)
+    return [...starred].sort((a, b) => {
+      const statsA = routineStats.get(a.id) || { minutesSpent: 0, timesCompleted: 0 }
+      const statsB = routineStats.get(b.id) || { minutesSpent: 0, timesCompleted: 0 }
+      
+      // Primary sort: duration (descending)
+      if (statsB.minutesSpent !== statsA.minutesSpent) {
+        return statsB.minutesSpent - statsA.minutesSpent
+      }
+      
+      // Secondary sort: frequency (descending)
+      return statsB.timesCompleted - statsA.timesCompleted
+    })
+  })
 
-  let starredWithIcons = []
-  let unstarredWithIcons = []
-  let textRoutines = []
+  let unstarredWithIcons = $derived.by(() => {
+    if (!routines) return []
+    return routines.filter(r => !r.isStarred && r.iconURL)
+  })
+
+  let textRoutines = $derived.by(() => {
+    if (!routines) return []
+    return routines.filter(r => !r.iconURL)
+  })
 
   onMount(async () => {
     listenToRoutines()
@@ -34,9 +111,11 @@
     if (unsub) unsub()
   })
 
+  let statsFetched = false
+
   async function listenToRoutines() {
     const ref = collection(db, '/users/' + $user.uid + '/templates')
-    onSnapshot(ref, (querySnapshot) => {
+    onSnapshot(ref, async (querySnapshot) => {
       const temp = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
       temp.sort((a, b) => {
         if (a.isStarred && !b.isStarred) return -1
@@ -44,23 +123,14 @@
         return (a.name || '').localeCompare(b.name || '')
       })
       routines = temp
+      // Fetch stats only once on initial load
+      if (!statsFetched && routines) {
+        statsFetched = true
+        await fetchAllStats()
+      }
     })
   }
 
-  async function listenToInstances() {
-    if (unsub) unsub()
-    const ref = collection(db, '/users/' + $user.uid + '/tasks')
-    const q = query(
-      ref,
-      where('templateID', '==', selectedRoutineID),
-      orderBy('startDateISO', 'desc')
-    )
-    unsub = onSnapshot(q, (querySnapshot) => {
-      const temp = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-      temp.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
-      routineInstances = temp
-    })
-  }
 
   function selectHabit(routineID) {
     selectedRoutineID = routineID
@@ -74,10 +144,18 @@
         <button 
           class="habit-item"
           class:selected={selectedRoutineID === routine.id}
-          on:click={() => selectHabit(routine.id)}
+          onclick={() => selectHabit(routine.id)}
         >
           <img src={routine.iconURL} alt={routine.name} class="habit-icon" title={routine.name} />
           <span class="star-icon material-icons">star</span>
+          {#if routineStats.has(routine.id)}
+            {@const stats = routineStats.get(routine.id)}
+            <div class="habit-stats">
+              Completed {stats.timesCompleted} times, spent {formatTime(stats.minutesSpent)}
+            </div>
+          {:else}
+            <div class="habit-stats">...</div>
+          {/if}
         </button>
       {/each}
       
@@ -90,7 +168,7 @@
   {#snippet activator({ toggle })}
     <button 
       class="habit-item more-button"
-      on:click={toggle}
+      onclick={toggle}
     >
       <span class="material-symbols-outlined more-icon">more_horiz</span>
     </button>
@@ -104,10 +182,20 @@
             <button 
               class="menu-item"
               class:selected={selectedRoutineID === routine.id}
-              on:click={() => { selectHabit(routine.id); close(); }}
+              onclick={() => { selectHabit(routine.id); close(); }}
             >
               <img src={routine.iconURL} alt={routine.name} class="menu-icon" />
-              <span class="menu-name">{routine.name}</span>
+              <div class="menu-item-content">
+                <span class="menu-name">{routine.name}</span>
+                {#if routineStats.has(routine.id)}
+                  {@const stats = routineStats.get(routine.id)}
+                  <span class="menu-stats">
+                    Completed {stats.timesCompleted} times, spent {formatTime(stats.minutesSpent)}
+                  </span>
+                {:else}
+                  <span class="menu-stats">...</span>
+                {/if}
+              </div>
             </button>
           {/each}
         </div>
@@ -122,12 +210,22 @@
             <button 
               class="menu-item"
               class:selected={selectedRoutineID === routine.id}
-              on:click={() => { selectHabit(routine.id); close(); }}
+              onclick={() => { selectHabit(routine.id); close(); }}
             >
               <div class="menu-icon-placeholder">
                 <span class="material-symbols-outlined">task</span>
               </div>
-              <span class="menu-name">{routine.name}</span>
+              <div class="menu-item-content">
+                <span class="menu-name">{routine.name}</span>
+                {#if routineStats.has(routine.id)}
+                  {@const stats = routineStats.get(routine.id)}
+                  <span class="menu-stats">
+                    Completed {stats.timesCompleted} times, spent {formatTime(stats.minutesSpent)}
+                  </span>
+                {:else}
+                  <span class="menu-stats">...</span>
+                {/if}
+              </div>
             </button>
           {/each}
         </div>
@@ -170,14 +268,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    aspect-ratio: 1;
+    justify-content: flex-start;
     padding: 4px;
     border: none;
     background: transparent;
     cursor: pointer;
     position: relative;
     border-radius: 6px;
+    min-height: 80px;
   }
 
   .habit-item:hover {
@@ -257,7 +355,7 @@
 
   .menu-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     padding: 12px;
     border: none;
@@ -266,6 +364,28 @@
     cursor: pointer;
     transition: all 0.15s;
     text-align: left;
+  }
+
+  .menu-item-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 4px;
+  }
+
+  .menu-stats {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+  }
+
+  .habit-stats {
+    font-size: 10px;
+    color: #666;
+    text-align: center;
+    margin-top: 4px;
+    line-height: 1.2;
+    padding: 0 2px;
   }
 
   .menu-item:hover {

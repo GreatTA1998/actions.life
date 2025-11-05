@@ -7,6 +7,8 @@
   import PopoverSnackbar from '$lib/components/PopoverSnackbar.svelte'
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
   import TemplateEditor from './TemplateEditor.svelte'
+  import Checkbox from '$lib/components/Checkbox.svelte'
+  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
@@ -40,6 +42,20 @@
 
 <PhotoLayout {taskObject}>
   <div style="display: flex; align-items: center; column-gap: 12px;">
+    {#if taskObject.iconURL}
+      <DoodleIcon iconTask={taskObject} size={48} />
+    {:else}
+      <Checkbox
+        value={taskObject.isDone}
+        onchange={e => Task.update({
+          id: taskObject.id,
+          keyValueChanges: {
+            isDone: e.target.checked
+          }
+        })}
+        zoom={1}
+      />
+    {/if}
     <input value={taskObject.name}
       oninput={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
       placeholder="Untitled"
@@ -205,7 +221,6 @@
   .template-editor-section {
     margin-top: 24px;
     padding: 20px;
-    border-top: 2px solid rgba(0, 89, 125, 0.3);
     background: rgba(0, 89, 125, 0.03);
     border-radius: 8px;
   }
