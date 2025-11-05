@@ -3,8 +3,9 @@
   import HabitsTab from './HabitsTab.svelte'
   import AI from '../components/AI/AI.svelte'
   import SearchTab from './SearchTab.svelte'
+  import ArchiveTab from './ArchiveTab.svelte'
 
-  let activeTab = 'date' // 'date', 'habits', 'ai', 'search'
+  let activeTab = 'date' // 'date', 'habits', 'ai', 'search', 'archive'
 </script>
 
 <div class="discover-container">
@@ -41,6 +42,13 @@
       >
         <span class="material-symbols-outlined">search</span>
       </button>
+      <button 
+        class="tab-button" 
+        class:active={activeTab === 'archive'}
+        onclick={() => activeTab = 'archive'}
+      >
+        <span class="material-symbols-outlined">archive</span>
+      </button>
     </div>
   </div>
 
@@ -55,6 +63,8 @@
       </div>
     {:else if activeTab === 'search'}
       <SearchTab />
+    {:else if activeTab === 'archive'}
+      <ArchiveTab />
     {/if}
   </div>
 </div>

@@ -1,6 +1,6 @@
 <script>
   import { user, openTaskPopup, updateCache } from '$lib/store'
-  import { collection, query, orderBy, limit, onSnapshot, getCountFromServer } from 'firebase/firestore'
+  import { collection, query, orderBy, limit, onSnapshot, getCountFromServer, where, getDocs } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
   import { DateTime } from 'luxon'
   import { onMount, onDestroy } from 'svelte'
@@ -11,12 +11,12 @@
   let keyword = ''
   let photosOnly = false
   let showArchived = false
-  let recentlyScheduledArchived = false
   let activeInList = false
   let dateRange = 'all' // 'all', 'week', 'month', 'year'
   let sortBy = 'newest' // 'newest', 'oldest', 'alphabetical', 'largest-trees'
-  let unsub
   let routinesUnsub
+  let searching = false
+  let snapshotCount = 0
 
   async function fetchTotalCount() {
     try {
@@ -28,25 +28,78 @@
     }
   }
 
-  onMount(() => {
-    fetchTotalCount()
-    const q = query(
-      collection(db, `users/${$user.uid}/tasks`),
-      orderBy('startDateISO', 'desc'),
-      limit(100)
-    )
-    unsub = onSnapshot(q, snapshot => {
+  async function performSearch() {
+    searching = true
+    try {
+      const whereClauses = []
+      
+      // Build Firestore query based on active filters
+      if (photosOnly) {
+        whereClauses.push(where('imageDownloadURL', '!=', ''))
+      }
+      
+      // Handle archived status - prioritize activeInList, then showArchived
+      if (activeInList) {
+        // activeInList requires non-archived items
+        whereClauses.push(where('persistsOnList', '==', true))
+        whereClauses.push(where('isArchived', '==', false))
+      } else if (showArchived) {
+        whereClauses.push(where('isArchived', '==', true))
+      } else {
+        // Default: exclude archived
+        whereClauses.push(where('isArchived', '==', false))
+      }
+      
+      // Date range filtering
+      if (dateRange !== 'all') {
+        const now = DateTime.now()
+        let rangeStart
+        if (dateRange === 'week') {
+          rangeStart = now.startOf('week').toISODate()
+        } else if (dateRange === 'month') {
+          rangeStart = now.startOf('month').toISODate()
+        } else if (dateRange === 'year') {
+          rangeStart = now.startOf('year').toISODate()
+        }
+        if (rangeStart) {
+          whereClauses.push(where('startDateISO', '>=', rangeStart))
+        }
+      }
+      
+      // Build query - note: orderBy requires startDateISO to exist or use a composite index
+      // For queries without startDateISO filter, we'll handle nulls in sorting
+      let q = query(
+        collection(db, `users/${$user.uid}/tasks`),
+        ...whereClauses,
+        orderBy('startDateISO', 'desc'),
+        limit(100)
+      )
+      console.log('q =', q)
+      
+      const snapshot = await getDocs(q)
+      snapshotCount = snapshot.docs.length
+      console.log('snapshot =', snapshotCount)
       allTasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
       updateCache(allTasks)
-    })
+    } catch (err) {
+      console.error('Error performing search:', err)
+      allTasks = []
+      snapshotCount = 0
+    } finally {
+      searching = false
+    }
+  }
 
+  onMount(() => {
+    fetchTotalCount()
     routinesUnsub = onSnapshot(collection(db, `users/${$user.uid}/templates`), snapshot => {
       routines = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
     })
+    // Run initial search to show default results
+    performSearch()
   })
 
   onDestroy(() => {
-    if (unsub) unsub()
     if (routinesUnsub) routinesUnsub()
   })
 
@@ -68,38 +121,18 @@
     return size
   }
 
+  // Only filter by keyword client-side (Firestore doesn't support text search)
+  // Match only task names, not notes or tags
   $: filtered = allTasks.filter(task => {
-    if (recentlyScheduledArchived) {
-      if (!task.isArchived || !task.startDateISO) return false
-    } else {
-      if (!showArchived && task.isArchived) return false
+    if (keyword.trim()) {
+      const lowerKeyword = keyword.toLowerCase()
+      return task.name?.toLowerCase().includes(lowerKeyword) || false
     }
-    
-    if (activeInList) {
-      if (!task.persistsOnList || task.isArchived) return false
-    }
-    
-    if (keyword && !task.name.toLowerCase().includes(keyword.toLowerCase()) && 
-        !task.notes?.toLowerCase().includes(keyword.toLowerCase()) &&
-        !task.tags?.toLowerCase().includes(keyword.toLowerCase())) return false
-    if (photosOnly && !task.imageDownloadURL) return false
-    
-    if (dateRange !== 'all' && task.startDateISO) {
-      const taskDate = DateTime.fromISO(task.startDateISO)
-      const now = DateTime.now()
-      if (dateRange === 'week' && taskDate < now.startOf('week')) return false
-      if (dateRange === 'month' && taskDate < now.startOf('month')) return false
-      if (dateRange === 'year' && taskDate < now.startOf('year')) return false
-    }
-    
     return true
   })
 
   $: sorted = (() => {
     const copy = [...filtered]
-    if (recentlyScheduledArchived) {
-      return copy.sort((a, b) => (b.startDateISO || '').localeCompare(a.startDateISO || ''))
-    }
     if (sortBy === 'newest') {
       return copy.sort((a, b) => (b.startDateISO || '').localeCompare(a.startDateISO || ''))
     }
@@ -122,9 +155,7 @@
     return copy
   })()
 
-  $: results = sorted.slice(0, 50)
-
-  $: activeListCandidates = allTasks.filter(task => task.persistsOnList && !task.isArchived)
+  $: results = sorted.slice(0, 100)
 
   $: firestoreQueryDebug = {
     collection: `users/${$user.uid}/tasks`,
@@ -151,22 +182,10 @@
       applied: appliedLabel(showArchived)
     },
     {
-      label: 'Recently scheduled archived',
-      enabled: recentlyScheduledArchived,
-      firestoreWhere: "where('isArchived', '==', true) & where('startDateISO', '!=', null)",
-      applied: appliedLabel(recentlyScheduledArchived)
-    },
-    {
       label: 'Active in list',
       enabled: activeInList,
       firestoreWhere: "where('persistsOnList', '==', true) & where('isArchived', '==', false)",
       applied: appliedLabel(activeInList)
-    },
-    {
-      label: 'Date range',
-      enabled: dateRange !== 'all',
-      firestoreWhere: "where('startDateISO', '>=', rangeStart) & where('startDateISO', '<=', rangeEnd)",
-      applied: dateRange !== 'all' ? 'client (post-fetch)' : 'inactive'
     },
     {
       label: 'Keyword',
@@ -176,28 +195,16 @@
     }
   ]
 
+  $: activeFilters = debugFilters.filter(filter => filter.enabled)
+
   $: debugMetrics = {
     totalCount,
     fetchedCount: allTasks.length,
     filteredCount: filtered.length,
-    resultsCount: results.length,
-    activeListCandidates: activeListCandidates.length,
-    filters: {
-      keyword,
-      photosOnly,
-      showArchived,
-      recentlyScheduledArchived,
-      activeInList,
-      dateRange,
-      sortBy
-    },
-    firestoreWhereActive: debugFilters
-      .filter(filter => filter.enabled && filter.firestoreWhere && filter.firestoreWhere !== 'N/A (requires text search)')
-      .map(filter => filter.firestoreWhere)
+    activeFilters: activeFilters.map(f => ({ label: f.label, firestoreWhere: f.firestoreWhere }))
   }
 
-  $: console.log('SearchTab filters', debugMetrics)
-  $: console.log('SearchTab Firestore query', { firestoreQueryDebug, debugFilters })
+  $: console.log('SearchTab active filters', debugMetrics)
 
   function formatDisplayDate(iso) {
     if (!iso) return ''
@@ -313,58 +320,55 @@
 </script>
 
 <div class="search-tab">
-  <input 
-    type="text" 
-    placeholder="Search tasks..."
-    bind:value={keyword}
-    class="search-input"
-  />
+  <div class="search-row">
+    <input 
+      type="text" 
+      placeholder="Search tasks..."
+      bind:value={keyword}
+      class="search-input"
+      onkeydown={(e) => e.key === 'Enter' && performSearch()}
+    />
+    <button 
+      class="search-button"
+      onclick={performSearch}
+      disabled={searching}
+    >
+      {searching ? '...' : 'Search'}
+    </button>
+  </div>
 
   <div class="filters">
     <label><input type="checkbox" bind:checked={photosOnly} /> Photos</label>
     <label><input type="checkbox" bind:checked={showArchived} /> Archived</label>
-    <label><input type="checkbox" bind:checked={recentlyScheduledArchived} /> Recently scheduled archived</label>
     <label><input type="checkbox" bind:checked={activeInList} /> Active in list</label>
-    <select bind:value={dateRange}>
-      <option value="all">All time</option>
-      <option value="week">This week</option>
-      <option value="month">This month</option>
-      <option value="year">This year</option>
-    </select>
-    <select bind:value={sortBy}>
-      <option value="newest">Newest</option>
-      <option value="oldest">Oldest</option>
-      <option value="alphabetical">A-Z</option>
-      <option value="largest-trees">Largest trees</option>
-    </select>
   </div>
 
-  <details class="debug-panel">
+  <details class="debug-panel" open>
     <summary>Debug filters</summary>
     <div class="debug-section">
       <h4>Summary</h4>
       <pre>{JSON.stringify(debugMetrics, null, 2)}</pre>
     </div>
     <div class="debug-section">
-      <h4>Firestore query</h4>
-      <pre>{JSON.stringify(firestoreQueryDebug, null, 2)}</pre>
-    </div>
-    <div class="debug-section">
-      <h4>Filter mapping</h4>
+      <h4>Active filters</h4>
       <ul class="debug-filter-list">
-        {#each debugFilters as filter (filter.label)}
+        {#each activeFilters as filter (filter.label)}
           <li>
             <span class="filter-name">{filter.label}</span>
-            <span class="filter-status">enabled: {filter.enabled ? 'yes' : 'no'}</span>
-            <span class="filter-where">firestore: {filter.firestoreWhere}</span>
-            <span class="filter-applied">applied: {filter.applied}</span>
+            <span class="filter-where">{filter.firestoreWhere}</span>
           </li>
         {/each}
       </ul>
     </div>
   </details>
 
-  <div class="results-count">{filtered.length} of {totalCount} tasks</div>
+  <div class="results-count">
+    {#if keyword.trim()}
+      {filtered.length} of {snapshotCount} tasks
+    {:else}
+      {snapshotCount} of {totalCount} tasks
+    {/if}
+  </div>
 
   <div class="results">
     {#if routineResults.length}
@@ -532,13 +536,53 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
   }
 
   .search-input {
+    flex: 1;
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .search-button {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+    min-width: 70px;
+  }
+
+  .search-button:hover:not(:disabled) {
+    background: #f5f5f5;
+    border-color: #bbb;
+  }
+
+  .search-button:active:not(:disabled) {
+    background: #ebebeb;
+  }
+
+  .search-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .filters {
@@ -546,19 +590,14 @@
     gap: 12px;
     flex-wrap: wrap;
     align-items: center;
+    width: 100%;
+    min-width: 0;
   }
 
   .filters label {
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 14px;
-  }
-
-  .filters select {
-    padding: 4px 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
     font-size: 14px;
   }
 
@@ -571,6 +610,8 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    width: 100%;
+    min-width: 0;
   }
 
   .debug-panel {
@@ -579,6 +620,10 @@
     border: 1px solid #e5e5e5;
     border-radius: 8px;
     padding: 8px 12px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .debug-panel summary {
@@ -595,6 +640,10 @@
     font-family: ui-monospace, SFMono-Regular, SFMono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     white-space: pre-wrap;
     word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .debug-section + .debug-section {
@@ -617,27 +666,37 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    width: 100%;
+    min-width: 0;
   }
 
   .debug-filter-list li {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    align-items: center;
+    gap: 12px;
     padding: 6px 8px;
     border: 1px dashed #dcdcdc;
     border-radius: 6px;
     background: #fff;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .debug-filter-list .filter-name {
     font-weight: 600;
     color: #333;
+    min-width: fit-content;
   }
 
-  .debug-filter-list .filter-status,
-  .debug-filter-list .filter-where,
-  .debug-filter-list .filter-applied {
+  .debug-filter-list .filter-where {
     color: #555;
+    font-family: ui-monospace, SFMono-Regular, SFMono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 11px;
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   .results-divider {

@@ -7,11 +7,9 @@
   import { goto } from '$app/navigation'
 
   function handleLogoClick() {
-    if (confirm('Log out and return to home page tutorials?')) {
-      const auth = getAuth()
-      signOut(auth).catch(console.error)
-      goto('/')
-    }
+    const auth = getAuth()
+    signOut(auth).catch(console.error)
+    goto('/')
   }
 </script>
 
@@ -49,7 +47,7 @@
   <div class="footer">
     <button on:click={handleLogoClick} class="logout-button">
       <span class="material-symbols-outlined">logout</span>
-      <span>Log out</span>
+      <span>Log out to home tutorials</span>
     </button>
   </div>
 </div>
