@@ -1,5 +1,5 @@
 <script>
-  import { activeView, toggleSettings } from '$lib/store'
+  import { activeView } from '$lib/store'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
 
   let { position = 'right' } = $props() // 'right' | 'bottom'
@@ -22,7 +22,8 @@
 >
   <button 
     class="nav-icon-button logo-button" 
-    onclick={toggleSettings}
+    class:active-nav-tab={$activeView === 'SETTINGS'}
+    onclick={() => activeView.set('SETTINGS')}
     aria-label="Settings"
     title="Settings"
   >
@@ -134,4 +135,3 @@
     object-fit: contain;
   }
 </style>
-

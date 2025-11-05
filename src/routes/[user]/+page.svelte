@@ -9,7 +9,7 @@
   import Discover from './mobile/Discover.svelte'
 
   import { onDestroy, onMount } from 'svelte'
-  import { user, loadingTasks, showSnackbar, isTaskPopupOpen, settingsOpen, activeView } from '$lib/store'
+  import { user, loadingTasks, showSnackbar, isTaskPopupOpen, activeView } from '$lib/store'
 
   let isShowingAI = true
   let unsub
@@ -38,6 +38,8 @@
         <SideBySideView />
       {:else if $activeView === 'DISCOVER'}
         <Discover />
+      {:else if $activeView === 'SETTINGS'}
+        <Settings />
       {/if}
     </div>
   </NavbarContentLayout>
@@ -47,9 +49,5 @@
   <!-- put popups last so they'll be on top of the stacking order and not get intercepted by dropzones' stopPropagation -->
   {#if $isTaskPopupOpen}
     <TaskPopup />
-  {/if}
-
-  {#if $settingsOpen}
-    <Settings />
   {/if}
 {/if}

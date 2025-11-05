@@ -3,16 +3,14 @@
     <TaskPopup/>
   {/if}
 
-  {#if $settingsOpen}
-    <Settings />
-  {/if}
-
   <div class="grid-container">
     <main class="content-area">
       {#if $activeView === 'CALENDAR'}
         <TopBelowView />
       {:else if $activeView === 'DISCOVER'}
         <Discover />
+      {:else if $activeView === 'SETTINGS'}
+        <Settings />
       {/if}
     </main>
 
@@ -30,7 +28,7 @@
   import Settings from '../components/Settings/index.svelte'
   import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
 
-  import { user, isTaskPopupOpen, settingsOpen, activeView } from '/src/lib/store'
+  import { user, isTaskPopupOpen, activeView } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
   import { onDestroy, onMount, setContext } from 'svelte'
   import { writable } from 'svelte/store'

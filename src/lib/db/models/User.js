@@ -22,7 +22,7 @@ const User = {
     hasGridlines: z.boolean().default(true),
 
     defaultPhotoLayout: z.string().default('side-by-side'),
-    calEarliestHHMM: z.string().default('06:00'),
+    calEarliestHHMM: z.string().default('00:00'),
     calLastHHMM: z.string().default('00:00'),
     calSnapInterval: z.number().default(5),
     listAreaWidthRatio: z.number().default(0.00223), // empirically determined from my account
