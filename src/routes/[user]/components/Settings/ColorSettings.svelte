@@ -40,8 +40,8 @@
   .color-button {
     border-radius: 8px;
     padding: 8px 12px;
-    width: 48px; 
-    height: 48px;
+    width: 24px; 
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
