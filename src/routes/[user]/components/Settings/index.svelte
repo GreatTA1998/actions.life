@@ -2,15 +2,9 @@
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
-  import { showSnackbar } from '$lib/store'
+  import EmailDraft from './EmailDraft.svelte'
   import { getAuth, signOut } from 'firebase/auth'
   import { goto } from '$app/navigation'
-
-  function copyEmailToClipboard () {
-    navigator.clipboard.writeText('elton@explanations.io')
-    showSnackbar.set(true)
-    setTimeout(() => showSnackbar.set(false), 3000)
-  }
 
   function handleLogoClick() {
     if (confirm('Log out and return to home page tutorials?')) {
@@ -26,9 +20,7 @@
     <div class="settings-main">
       <div class="settings-group">
         <div class="settings-label">Theme</div>
-        <div class="color-options">
-          <ColorSettings />
-        </div>
+        <ColorSettings />
       </div>
 
       <div class="settings-group">
@@ -48,13 +40,8 @@
           My job is to fix issues you have quickly. I'm also hoping for advice on how to 
           improve this calendar.
         </div>
-        <div class="email-container">
-          <span class="material-symbols-outlined email-icon">mail</span>
-          <div class="email-address">elton@explanations.io</div>
-          <button on:click={copyEmailToClipboard} class="copy-button">
-            Copy
-          </button>
-        </div>
+        
+        <EmailDraft />
       </div>
     </div>
   </div>
@@ -75,30 +62,53 @@
     height: 100%;
     color: #3d3d3d;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--navbar-bg-color);
+    background: var(--offwhite-bg);
     overflow-y: auto;
   }
 
   .settings-content {
     display: flex;
-    padding: 20px;
-    gap: 40px;
+    flex-direction: row;
+    padding: 48px 64px;
+    gap: 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
   }
 
   .settings-main {
-    flex: 2;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 48px;
   }
 
   .settings-side {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 48px;
     border-left: 1px solid #eaeaea;
-    padding-left: 40px;
+    padding-left: 64px;
+  }
+
+  @media (max-width: 768px) {
+    .settings-content {
+      flex-direction: column;
+      padding: 24px 20px;
+      gap: 48px;
+    }
+
+    .settings-side {
+      border-left: none;
+      padding-left: 0;
+      border-top: 1px solid #eaeaea;
+      padding-top: 48px;
+    }
+
+    .footer {
+      padding: 24px 20px;
+    }
   }
 
   .settings-group {
@@ -108,64 +118,28 @@
   }
 
   .settings-label {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
-    margin-bottom: 12px;
-    color: #6b6b6b;
+    margin-bottom: 16px;
+    color: #555;
+    letter-spacing: 0.1px;
   }
 
   .settings-description {
-    font-size: 13px;
-    color: #6b6b6b;
-    margin-bottom: 12px;
-    line-height: 1.4;
-  }
-
-  .color-options {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .email-container {
-    display: flex;
-    align-items: center;
-    margin-top: 4px;
-  }
-
-  .email-icon {
     font-size: 14px;
-    color: #6b6b6b;
-    margin-right: 8px;
-  }
-
-  .email-address {
-    font-size: 13px;
-    color: #6b6b6b;
-  }
-
-  .copy-button {
-    background: transparent;
-    border: 1px solid #6b6b6b;
-    color: #6b6b6b;
-    font-size: 12px;
-    font-weight: 500;
-    border-radius: 4px;
-    padding: 4px 10px;
-    margin-left: 12px;
-    cursor: pointer;
-  }
-
-  .copy-button:hover {
-    background: #f5f5f5;
+    color: #555;
+    margin-bottom: 24px;
+    line-height: 1.6;
   }
 
   .footer {
     display: flex;
     justify-content: flex-end;
-    padding: 16px 20px;
+    padding: 24px 64px;
     border-top: 1px solid #eaeaea;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
   }
 
   .logout-button {
