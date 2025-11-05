@@ -189,7 +189,7 @@
   <div class="calendar-header" bind:this={monthYearButtonRef}>
     <div class="month-year">
       <button class="month-button" on:click={(e) => { e.stopPropagation(); toggleMonthPicker(); }}>
-        {viewingMonth.toFormat('MMMM')}
+        {viewingMonth.toFormat('MMM')}
       </button>
       <button class="year-button" on:click={(e) => { e.stopPropagation(); toggleYearPicker(); }}>
         {viewingMonth.toFormat('yyyy')}
@@ -317,7 +317,6 @@
     cursor: pointer;
     padding: 0;
     border-radius: 0;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
     line-height: 1.1;
     letter-spacing: -0.8px;
@@ -335,7 +334,6 @@
     width: 0;
     height: 2px;
     background: var(--location-indicator-color, #00597d);
-    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .month-button:hover {
@@ -356,7 +354,6 @@
     cursor: pointer;
     padding: 0;
     border-radius: 0;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
     line-height: 1.1;
     letter-spacing: -0.8px;
@@ -374,7 +371,6 @@
     width: 0;
     height: 2px;
     background: var(--location-indicator-color, #00597d);
-    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .year-button:hover {
@@ -425,7 +421,6 @@
     font-size: 14px;
     color: #333;
     text-align: center;
-    transition: all 0.15s;
   }
 
   .picker-item:hover {
@@ -439,13 +434,19 @@
   }
 
   .calendar-grid {
-    margin-bottom: 12px;
+    --date-tab-day-size: 40px;
+    width: min(100%, calc(var(--date-tab-day-size) * 7));
+    margin: 0 auto 12px;
+  }
+
+  .day-header,
+  .calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, var(--date-tab-day-size));
+    justify-content: center;
   }
 
   .day-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0;
     margin-bottom: 2px;
   }
 
@@ -455,18 +456,13 @@
     font-weight: 600;
     color: #999;
     padding: 2px 0;
-  }
-
-  .calendar-days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0;
+    width: var(--date-tab-day-size);
   }
 
   .day-cell {
-    aspect-ratio: 1;
+    width: var(--date-tab-day-size);
+    height: var(--date-tab-day-size);
     border: none;
-    border-radius: 0;
     background: transparent;
     cursor: pointer;
     display: flex;
@@ -474,9 +470,7 @@
     align-items: center;
     justify-content: center;
     padding: 0;
-    transition: all 0.15s;
     position: relative;
-    min-height: 32px;
   }
 
   .day-cell.other-month {
@@ -484,21 +478,8 @@
     cursor: not-allowed;
   }
 
-  /* Today indicator - Linear/Notion style: small dot at top */
-  .day-cell.today:not(.selected)::after {
-    content: '';
-    position: absolute;
-    top: 3px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--location-indicator-color, #00597d);
-  }
-  
-  /* When today is selected, show dot above the ring */
-  .day-cell.today.selected::after {
+  /* Today indicator - dot at top */
+  .day-cell.today::after {
     content: '';
     position: absolute;
     top: 3px;
@@ -511,10 +492,9 @@
     z-index: 1;
   }
 
-  /* Selected state - Linear/Notion style: subtle ring and background */
+  /* Selected state - ring and background */
   .day-cell.selected {
     background: rgba(0, 89, 125, 0.08);
-    position: relative;
   }
 
   .day-cell.selected::before {
@@ -576,7 +556,6 @@
     border-radius: 8px;
     padding: 12px;
     cursor: pointer;
-    transition: all 0.2s;
     display: flex;
     gap: 12px;
   }

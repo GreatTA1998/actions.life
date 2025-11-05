@@ -2,8 +2,9 @@
   import DateTab from './DateTab.svelte'
   import HabitsTab from './HabitsTab.svelte'
   import AI from '../components/AI/AI.svelte'
+  import SearchTab from './SearchTab.svelte'
 
-  let activeTab = 'date' // 'date', 'habits', 'ai'
+  let activeTab = 'date' // 'date', 'habits', 'ai', 'search'
 </script>
 
 <div class="discover-container">
@@ -12,7 +13,7 @@
       <button 
         class="tab-button" 
         class:active={activeTab === 'date'}
-        on:click={() => activeTab = 'date'}
+        onclick={() => activeTab = 'date'}
       >
         <span class="material-symbols-outlined">calendar_month</span>
         <!-- <span>Date</span> -->
@@ -20,7 +21,7 @@
       <button 
         class="tab-button" 
         class:active={activeTab === 'habits'}
-        on:click={() => activeTab = 'habits'}
+        onclick={() => activeTab = 'habits'}
       >
         <span class="material-symbols-outlined">repeat</span>
         <!-- <span>Habits</span> -->
@@ -28,10 +29,17 @@
       <button 
         class="tab-button" 
         class:active={activeTab === 'ai'}
-        on:click={() => activeTab = 'ai'}
+        onclick={() => activeTab = 'ai'}
       >
         <span class="material-symbols-outlined">smart_toy</span>
         <!-- <span>AI</span> -->
+      </button>
+      <button 
+        class="tab-button" 
+        class:active={activeTab === 'search'}
+        onclick={() => activeTab = 'search'}
+      >
+        <span class="material-symbols-outlined">search</span>
       </button>
     </div>
   </div>
@@ -45,6 +53,8 @@
       <div style="height: 100%;">
         <AI />
       </div>
+    {:else if activeTab === 'search'}
+      <SearchTab />
     {/if}
   </div>
 </div>
