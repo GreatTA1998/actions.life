@@ -75,7 +75,7 @@
     height: 100%;
     color: #3d3d3d;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--navbar-bg-color, white);
+    background: var(--navbar-bg-color);
     overflow-y: auto;
   }
 
