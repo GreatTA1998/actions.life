@@ -1,6 +1,7 @@
 {@render children()}
 
 <script>
+  import { setContext } from 'svelte'
   import { writable } from 'svelte/store'
   import realTask from '$lib/db/models/Task.js'
   import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'

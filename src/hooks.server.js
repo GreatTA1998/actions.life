@@ -1,21 +1,14 @@
-import { sendEmail } from '$lib/utils/cloudFunctions.js'
-// import { redirect } from '@sveltejs/kit'
-
-let count = 0
+import { reportError } from '$lib/utils/errorReporting.js'
 
 export function handleError ({ event, error }) {
-  if (count === 0) {
-    count += 1
-    sendEmail({
-      subject: 'Svelte handleError triggered',
-      content: error.stack,
-      toWho: 'elton@explanations.io'
-    }) 
-  }
+  reportError({ 
+    subject: 'Svelte handleError triggered', 
+    content: event.url.pathname + '\n' + error.stack 
+  })
 }
 
 // enables iOS localhost / ngrok to work with Firebase auth
-export async function handle({ event, resolve }) {
+export async function handle ({ event, resolve }) {
   // Force ngrok URL in auth operations
   if (event.url.hostname.includes('ngrok')) {
     event.locals.authDomain = event.url.origin;
