@@ -9,53 +9,14 @@
 
   <div class="grid-container">
     <main class="content-area">
-      {#if activeTabName === 'CALENDAR_VIEW'}
+      {#if $activeView === 'CALENDAR'}
         <TopBelowView />
-      {:else if activeTabName === 'DISCOVER_VIEW'}
+      {:else if $activeView === 'DISCOVER'}
         <Discover />
-      {:else if activeTabName === 'FUTURE_VIEW'}
-        <Schedule on:task-duration-adjusted />
-      {:else if activeTabName === 'PHOTO_ARCHIVE'}
-        <PhotoGrid />
-      {:else if activeTabName === 'AI_VIEW'}
-        <AI />
       {/if}
     </main>
 
-    <div class="floating-navbar">
-      <button class="nav-icon-button logo-button" 
-        on:click={toggleSettings}
-        aria-label="Settings"
-        title="Settings"
-      >
-        <img src="/logo-no-bg.png" alt="Logo" class="logo-img" />
-      </button>
-
-      <button class="nav-icon-button" 
-        on:click={() => {
-          if (activeTabName === 'CALENDAR_VIEW') jumpToToday()
-          else {
-            activeTabName = 'CALENDAR_VIEW'
-          }
-        }}
-        class:active-nav-tab={activeTabName === 'CALENDAR_VIEW'}
-        aria-label="Calendar"
-      >
-        <span class="material-symbols-outlined nav-icon">
-          house
-        </span>
-      </button>
-
-      <button class="nav-icon-button" 
-        on:click={() => activeTabName = 'DISCOVER_VIEW'} 
-        class:active-nav-tab={activeTabName === 'DISCOVER_VIEW'} 
-        aria-label="Discover"
-      >
-        <span class="material-symbols-outlined nav-icon">
-          manage_search
-        </span>
-      </button>
-    </div>
+    <FloatingNavbar position="right" />
   </div>
 {/if}
 
@@ -67,14 +28,13 @@
   import PhotoGrid from '../components/Archive/PhotoGrid.svelte'
   import Discover from './Discover.svelte'
   import Settings from '../components/Settings/index.svelte'
+  import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
 
-  import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
-  import { user, isTaskPopupOpen, openSettings, settingsOpen, toggleSettings } from '/src/lib/store'
+  import { user, isTaskPopupOpen, settingsOpen, activeView } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
   import { onDestroy, onMount, setContext } from 'svelte'
   import { writable } from 'svelte/store'
 
-  let activeTabName = 'CALENDAR_VIEW' // probably the new user default, butthen persists the user's preference e.g. I prefer the to-do
   let unsub
 
   setContext('list', {
@@ -130,60 +90,5 @@
     /* Critical for grid scrolling - allows content to be smaller than container */
     min-height: 0;
     position: relative;
-  }
-
-  .floating-navbar {
-    position: fixed;
-    top: 50%;
-    right: max(16px, env(safe-area-inset-right, 16px));
-    transform: translateY(-50%);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 6px 4px;
-    border-radius: 16px;
-    
-    /* Simple translucent background */
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
-  }
-
-  .nav-icon-button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    min-height: 56px;
-    border: none;
-    background: transparent;
-    border-radius: 10px;
-    cursor: pointer;
-    color: rgba(0, 0, 0, 0.7);
-    padding: 4px 0;
-    gap: 2px;
-  }
-
-  .active-nav-tab {
-    color: var(--location-indicator-color);
-    color: black;
-    font-weight: 500;
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-
-  .nav-icon {
-    font-size: 22px;
-  }
-
-  .logo-button {
-    padding: 4px 0;
-  }
-
-  .logo-img {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
   }
 </style>
