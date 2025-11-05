@@ -1,11 +1,9 @@
 <script>
-  import { currentMode } from '$lib/store'
-  import { openTemplateEditor } from '/src/routes/[user]/components/Templates/store.js'
   import PeriodicityEditor from '/src/routes/[user]/components/Templates/components/TemplatePopup/PeriodicityEditor.svelte'
   import { getContext } from 'svelte'
 
-  const { closeTaskPopup, user } = getContext('app')
-  let { taskObject } = $props()
+  const { user } = getContext('app')
+  let { taskObject, onToggleTemplateEditor, isTemplateEditorOpen = false } = $props()
   let isCreatingRoutine = $state(false)
 
   function toggleCreate (e) {
@@ -13,19 +11,16 @@
     isCreatingRoutine = !isCreatingRoutine
   }
 
-  function redirectToRoutine () {
-    currentMode.set('Templates')
-    openTemplateEditor(taskObject.templateID)
-    closeTaskPopup()
+  function toggleTemplateEditor (e) {
+    e.stopPropagation()
+    onToggleTemplateEditor?.()
   }
 </script>
 
 {#if taskObject.templateID}
-  <button onclick={redirectToRoutine} class="my-btn material-symbols-outlined">
+  <button onclick={toggleTemplateEditor} class="my-btn material-symbols-outlined" class:active={isTemplateEditorOpen}>
     repeat
-  </button> 
-
-  <u onclick={redirectToRoutine} style="cursor: pointer;">Manage routine</u>
+  </button>
 {:else}
   <button onclick={toggleCreate} class="my-btn material-symbols-outlined" 
     class:greyed-out={$user.uid === 'demo-user'} disabled={$user.uid === 'demo-user'}
@@ -41,6 +36,11 @@
 <style>
   .my-btn {
     color: rgb(20, 20, 20);
+  }
+
+  .my-btn.active {
+    color: rgb(0, 89, 125);
+    background: rgba(0, 89, 125, 0.1);
   }
 
   .greyed-out {
