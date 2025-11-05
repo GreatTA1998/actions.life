@@ -13,17 +13,13 @@
   let taskName = $state('')
 
   const { user, Task } = getContext('app')
+  const { isLargeFont } = getContext('list')
 
   let {
-    isLargeFont = false,
     cssStyle,
     listWidth = '320px',
     children
   } = $props()
-
-  setContext('list', {
-    isLargeFont: writable(isLargeFont)
-  })
 
   onMount(() => {
     listenToTasks($user.uid)
@@ -36,7 +32,7 @@
       roomsInThisLevel: $trees,
       parentID: '',
       colorForDebugging: "purple",
-      remHeight: HEIGHTS.ROOT_DROPZONE * (isLargeFont ? 1.5 : 1) // 1.5rem = 24px. Technically should be 2rem, but it's too sparse
+      remHeight: HEIGHTS.ROOT_DROPZONE * ($isLargeFont ? 1.5 : 1) // 1.5rem = 24px. Technically should be 2rem, but it's too sparse
     }
   }
 

@@ -1,16 +1,11 @@
 {@render children()}
 
 <script>
-  import { setContext } from 'svelte'
   import { writable } from 'svelte/store'
   import realTask from '$lib/db/models/Task.js'
   import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'
 
   let { children } = $props()
-
-  setContext('list', {
-    isLargeFont: writable(false)
-  })
 
   const clickedTaskID = writable('')
   const user = writable({

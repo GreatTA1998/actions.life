@@ -71,10 +71,15 @@
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
   import { user, isTaskPopupOpen, openSettings, settingsOpen, toggleSettings } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
-  import { onDestroy, onMount } from 'svelte'
+  import { onDestroy, onMount, setContext } from 'svelte'
+  import { writable } from 'svelte/store'
 
   let activeTabName = 'CALENDAR_VIEW' // probably the new user default, butthen persists the user's preference e.g. I prefer the to-do
   let unsub
+
+  setContext('list', {
+    isLargeFont: writable(true)
+  })
 
   onMount(async () => {
     isCompact.set(true)
