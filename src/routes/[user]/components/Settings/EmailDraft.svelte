@@ -1,7 +1,7 @@
 <script>
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
   import { sendEmail } from '$lib/utils/cloudFunctions.js'
-  import { showUndoSnackbar } from '$lib/store'
+  import { showUndoSnackbar, user } from '$lib/store'
 
   let messageBody = ''
   let isSending = false
@@ -10,7 +10,7 @@
     if (!messageBody.trim() || isSending) return
 
     isSending = true
-    const fullMessage = `Hello,\n\n${messageBody}\n\nBest Regards`
+    const fullMessage = `Hello,\n\n${messageBody}\n\nBest Regards\n\n---\nFrom: ${$user.email}`
     
     try {
       await sendEmail({
