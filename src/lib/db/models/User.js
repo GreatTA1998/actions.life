@@ -24,7 +24,7 @@ const User = {
     defaultPhotoLayout: z.string().default('side-by-side'),
     calEarliestHHMM: z.string().default('00:00'),
     calLastHHMM: z.string().default('00:00'),
-    calSnapInterval: z.number().default(5),
+    calSnapInterval: z.number().default(1),
     listAreaWidthRatio: z.number().default(0.00223), // empirically determined from my account
     listAreaHeightRatio: z.number().default(0.004), // for mobile top-below view, default to 40% of viewport height
 
