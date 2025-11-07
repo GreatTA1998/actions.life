@@ -4,8 +4,7 @@
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
-  import { activateInput } from '$lib/utils/popoverInput.js'
-  import { getRandomID } from '$lib/utils/core.js'
+  import { activateInput } from '$lib/store/popoverInput.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate } from './service.js'
@@ -190,17 +189,14 @@
   onclick={e => {
     if (e.target === e.currentTarget) {
       yPosition = getY(e)
-      activateInput(anchorID, async (taskName) => {
-        const result = await Task.create({
-          id: getRandomID(),
-          newTaskObj: {
-            name: taskName,
-            startDateISO: newDT.toFormat('yyyy-MM-dd'),
-            startTime: newDT.toFormat('HH:mm'),
-            persistsOnList: false
-          }
-        })
-        shiftYPosition(result)
+      activateInput({
+        anchorID,
+        modifiers: { 
+          startDateISO: newDT.toFormat('yyyy-MM-dd'),
+          startTime: newDT.toFormat('HH:mm'),
+          persistsOnList: false
+        },
+        onCreate: shiftYPosition
       })
     }
   }}
@@ -242,7 +238,7 @@
     ></div>
   {/if}
 
-  <div style="anchor-name: {anchorID}; top: {yPosition}px; outline: 2px solid red;" 
+  <div style="anchor-name: {anchorID}; top: {yPosition}px;" 
     id="calendar-direct-task-div"
   >
 

@@ -11,7 +11,7 @@
   import { } from '$lib/db/scripts/april.js'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
-  import PopoverTeleporter from '$lib/components/PopoverTeleporter.svelte'
+  import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
 
   setContext('list', {
     isLargeFont: writable(false)
@@ -71,13 +71,13 @@
         <slot>
 
         </slot>
+
+        <ThePopoverInput />
+
+        <TheSnackbar />
       </DragDropContext>
     </AppContext>
   </div>
-
-  <PopoverTeleporter />
-
-  <TheSnackbar />
 </div>
 
 <style>

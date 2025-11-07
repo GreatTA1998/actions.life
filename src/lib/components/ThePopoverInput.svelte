@@ -1,6 +1,16 @@
 <script>
-  import { popoverTeleporter, globalInput, isInputActive, createFunc } from '$lib/store'
-  import { onMount } from 'svelte'
+  import PopoverInputDropdownMenu from '$lib/components/PopoverInputDropdownMenu.svelte'
+  import { 
+    popoverTeleporter, 
+    globalInput, 
+    isInputActive, 
+    callback,
+    overrideOptions
+  } from '$lib/store/popoverInput.js'
+  import { getRandomID } from '$lib/utils/core';
+  import { onMount, getContext } from 'svelte'
+
+  const { Task } = getContext('app')
 
   let inputElem = $state(null)
   let popoverElem = $state(null)
@@ -17,6 +27,17 @@
       isInputActive.set(false)
     }
   }
+
+  async function createTask (template = { name: value }) {
+    const result = await Task.create({
+      id: getRandomID(),
+      newTaskObj: {
+        ...template,
+        ...$overrideOptions // includes `persistsOnList`
+      }
+    })
+    $callback(result)
+  }
 </script>
   
 <div bind:this={popoverElem}
@@ -25,6 +46,13 @@
   class="my-popover"
   {ontoggle}
 >
+  <!-- 
+  <MyInput value={taskName}
+    {oninput}
+    {onEnterPress}
+    width="var(--width-within-column)"
+  />
+   -->
   <input bind:this={inputElem} 
     bind:value={value}
     onkeyup={e => {
@@ -35,12 +63,17 @@
           popoverElem.hidePopover()
         } 
         else {
-          $createFunc(value)
+          createTask({ name: value })
           value = ''
         }
       }
     }}
   >
+
+  <PopoverInputDropdownMenu 
+    taskName={value} 
+    onSelect={template => createTask(template)}
+  />
 </div>
 
 <style>

@@ -152,12 +152,3 @@ export function hideSnackbar() {
   if (timeoutId) clearTimeout(timeoutId)
   snackbarState.update(s => ({ ...s, isVisible: false }))
 }
-
-// global input
-export const isInputActive = writable(false)
-export const canCreate = writable(true) // temporary variable to act as the glue for $isInputActive
-
-// popover teleporter element
-export const popoverTeleporter = writable(null)
-export const globalInput = writable(null)
-export const createFunc = writable(() => {})

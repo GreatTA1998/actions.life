@@ -3,8 +3,7 @@
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import { HEIGHTS } from '$lib/utils/constants.js'
-  import { getRandomID } from '$lib/utils/core.js'
-  import { activateInput } from '$lib/utils/popoverInput.js'
+  import { activateInput } from '$lib/store/popoverInput.js'
   import { getContext, onMount } from 'svelte'
 
   const { user, Task } = getContext('app')
@@ -32,18 +31,14 @@
       remHeight: HEIGHTS.ROOT_DROPZONE * ($isLargeFont ? 2 : 1) // 1.5rem = 24px. Technically should be 2rem, but it's too sparse
     }
   }
-
-  function createTask (taskName) {
-    Task.create({ id: getRandomID(), newTaskObj: {
-      name: taskName,
-      orderValue: $user.maxOrderValue + 1, // k = 1
-    }})
-  }
 </script>
 
 <div onclick={e => {
     if (e.target === e.currentTarget) {
-      activateInput(anchorID, createTask)
+      activateInput({ 
+        anchorID, 
+        modifiers: { persistsOnList: true } 
+      })
     }
   }}
   style={cssStyle} 

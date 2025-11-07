@@ -1,5 +1,6 @@
 // needed for cmd + click (jump to definition) in the IDE
 {
+  "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
     "paths": {
       "$lib/*": ["./src/lib/*"]

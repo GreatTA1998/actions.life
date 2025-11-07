@@ -1,6 +1,13 @@
 <div 
   bind:this={dropzoneElem}
-  onclick={() => activateInput(anchorID)}
+  onclick={() => activateInput({
+    anchorID,
+    modifiers: {
+      persistsOnList: true,
+      orderValue: computeOrderValue(),
+      parentID
+    }
+  })}
   style="
     anchor-name: {anchorID};
     height: {remHeight}rem; 
@@ -12,7 +19,7 @@
 ></div>
 
 <script>
-  import { activateInput } from '$lib/utils/popoverInput.js'
+  import { activateInput } from '$lib/store/popoverInput.js'
   import { isOverlapping, getOverlapArea, clip } from '$lib/utils/dragDrop.js'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'

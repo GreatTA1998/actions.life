@@ -1,14 +1,13 @@
 <script>
   import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
-  import { activateInput } from '$lib/utils/popoverInput.js'
+  import { activateInput } from '$lib/store/popoverInput.js'
   import { treesByDate } from './service.js'
   import { headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
   import { 
     isOverlapping, getOverlapArea, clip,
     dropPreviewCSS 
   } from '$lib/utils/dragDrop.js'
-  import { getRandomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
@@ -91,14 +90,9 @@
   onclick={e => {
     e.stopPropagation()
     if (e.target !== e.currentTarget) return;
-    activateInput(anchorID, async (taskName) => {
-      Task.create({
-        id: getRandomID(),
-        newTaskObj: {
-          name: taskName,
-          startDateISO: ISODate,
-        }
-      })
+    activateInput({ 
+      anchorID, 
+      modifiers: { startDateISO: ISODate, persistsOnList: false }
     })
   }}
 >
