@@ -1,28 +1,28 @@
 <script>
-  import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
+  import { activateInput } from '$lib/utils/popoverInput.js'
   import { treesByDate } from './service.js'
   import { headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
   import { 
     isOverlapping, getOverlapArea, clip,
     dropPreviewCSS 
   } from '$lib/utils/dragDrop.js'
+  import { getRandomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
-  import { isInputActive, canCreate } from '$lib/store'
 
   const { Task } = getContext('app')
   const { draggedItem, hasDropped, bestDropzoneID, scrollCalRect, matchedDropzones, resetDragDrop } = getContext('drag-drop')
   
   let { dt } = $props()
 
-  let isDirectlyCreatingTask = $state(false)
   let dayHeader = $state(null)
   let intersecting = $state(false)
   
   let ISODate = $derived(dt.toFormat('yyyy-MM-dd'))
   let dropzoneID = $derived('header: ' + dt.toFormat('yyyy-MM-dd'))
+  let anchorID = $derived(`--day-header-${dt.toFormat('yyyy-MM-dd')}`)
 
   $effect(() => {
     if ($draggedItem && $draggedItem.id) {
@@ -88,17 +88,18 @@
 <div bind:this={dayHeader}
   class="day-header"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
-  onpointerdown={e => { 
-    if (e.target !== e.currentTarget) return;
-    if ($isInputActive) canCreate.set(false); 
-  }}
   onclick={e => {
+    e.stopPropagation()
     if (e.target !== e.currentTarget) return;
-    if ($canCreate) {
-      isDirectlyCreatingTask = true
-      isInputActive.set(true)
-    }
-    else canCreate.set(true)
+    activateInput(anchorID, async (taskName) => {
+      Task.create({
+        id: getRandomID(),
+        newTaskObj: {
+          name: taskName,
+          startDateISO: ISODate,
+        }
+      })
+    })
   }}
 >
   <div class="compact-horizontal unselectable">
@@ -139,18 +140,13 @@
     </div>
   {/if}
 
-  {#if isDirectlyCreatingTask}
-    <div id="calendar-direct-task-div">
-      <CreateTaskDirectly
-        startDateISO={ISODate}
-        onExit={() => isDirectlyCreatingTask = false}
-      />
-    </div>
-  {/if}
+  <div class="task-input" style="anchor-name: {anchorID};">
+
+  </div>
 </div>
 
 <style>
-  #calendar-direct-task-div {
+  .task-input {
     margin-top: 4px;
     width: 100%; 
     padding-left: 0px; 

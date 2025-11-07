@@ -11,6 +11,19 @@ import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
 import { showUndoSnackbar } from '$lib/store'
 
+function maintainOrderValue (validatedObj, batch) {
+  const { maxOrderValue, uid } = get(user)
+  if (!validatedObj.orderValue) {
+    validatedObj.orderValue = maxOrderValue + 1 // k = 1
+  }
+  const diff = validatedObj.orderValue - maxOrderValue
+  if (diff > 0) {
+    batch.update(doc(db, 'users', uid), { 
+      maxOrderValue: increment(diff)
+    })
+  }
+}
+
 export function isValidISODate (dateStr) {
   if (dateStr === '') return true
   const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/
@@ -75,16 +88,7 @@ const Task = {
         rootID = parent?.rootID || id
       }
 
-      const { maxOrderValue } = get(user)
-      if (!validatedTask.orderValue) {
-        validatedTask.orderValue = maxOrderValue + 1 // k = 1
-      }
-      const diff = validatedTask.orderValue - maxOrderValue
-      if (diff > 0) {
-        batch.update(doc(db, 'users', uid), { 
-          maxOrderValue: increment(diff)
-        })
-      }
+      maintainOrderValue(validatedTask, batch)
 
       batch.set(doc(db, `users/${uid}/tasks/${id}`), { 
         ...validatedTask,
@@ -107,6 +111,8 @@ const Task = {
     try {
       const batch = writeBatch(db)
       const validatedChanges = Task.schema.partial().parse(keyValueChanges)
+
+      maintainOrderValue(validatedChanges, batch)
       
       await maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
       batch.update(

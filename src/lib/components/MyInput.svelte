@@ -44,8 +44,6 @@
 <style>
   .my-input {
     border-radius: var(--left-padding);
-    padding-top: 0;
-    padding-bottom: 0;
     padding: 2px 4px;
   }
 </style>

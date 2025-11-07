@@ -3,12 +3,13 @@
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
-  import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
+  import { activateInput } from '$lib/utils/popoverInput.js'
+  import { getRandomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate } from './service.js'
-  import { user, isInputActive, canCreate, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
+  import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
   import { getContext, onMount, onDestroy } from 'svelte'
 
   const { Task } = getContext('app')
@@ -17,7 +18,6 @@
   let { dt } = $props()
 
   let dayColumn
-  let isDirectlyCreatingTask = $state(false)
   let yPosition = $state(null)
   let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
   let pixelsPerMinute = $pixelsPerHour / 60
@@ -27,6 +27,8 @@
 
   let intersecting = $state(false)
   let previewTop = $state(null)
+  
+  let anchorID = $derived(`--day-column-${dropzoneID}`)
 
   $effect(() => {
     if ($draggedItem && $draggedItem.id) {
@@ -100,17 +102,6 @@
 
       // quickfix, manually remove preview (both places are necessary for clearing the previews)
       previewTop = null
-    }
-  }
-
-  function onclick (e) {
-    if (e.target === e.currentTarget) { // equivalent to `click|self`. e.target := 1st node that detected the click, e.currentTarget := node that detected the event
-      if ($canCreate) {
-        isDirectlyCreatingTask = true
-        yPosition = getY(e)
-        isInputActive.set(true)
-      }
-      else canCreate.set(true)
     }
   }
 
@@ -191,12 +182,28 @@
   }
 </script>
 
+
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
 <div bind:this={dayColumn} class="day-column unselectable"
   style="height: {$totalMinutes * pixelsPerMinute}px;"
   class:grid-y={$user.hasGridlines}
-  {onclick}
-  onpointerdown={() => { if ($isInputActive) canCreate.set(false) }}
+  onclick={e => {
+    if (e.target === e.currentTarget) {
+      yPosition = getY(e)
+      activateInput(anchorID, async (taskName) => {
+        const result = await Task.create({
+          id: getRandomID(),
+          newTaskObj: {
+            name: taskName,
+            startDateISO: newDT.toFormat('yyyy-MM-dd'),
+            startTime: newDT.toFormat('HH:mm'),
+            persistsOnList: false
+          }
+        })
+        shiftYPosition(result)
+      })
+    }
+  }}
 >
   {#if $draggedItem.id || $user.hasGridlines}
     {#each $timestamps as timestamp, i}
@@ -235,16 +242,11 @@
     ></div>
   {/if}
 
-  {#if isDirectlyCreatingTask}
-    <div id="calendar-direct-task-div" style="top: {yPosition}px;">
-      <CreateTaskDirectly
-        startTime={newDT.toFormat('HH:mm')}
-        startDateISO={newDT.toFormat('yyyy-MM-dd')}
-        onExit={() => isDirectlyCreatingTask = false}
-        onCreate={shiftYPosition}
-      />
-    </div>
-  {/if}
+  <div style="anchor-name: {anchorID}; top: {yPosition}px; outline: 2px solid red;" 
+    id="calendar-direct-task-div"
+  >
+
+  </div>
 
   {#if dt.hasSame(DateTime.now(), 'day')}
     <TimeIndicator originDT={dt} 

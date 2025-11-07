@@ -1,46 +1,23 @@
-{#if clicked}
-  <div style="height: {remHeight}rem;">
-    <MyInput value={taskName}
-      oninput={e => taskName = e.target.value}
-      onfocusout={() => {
-        isInputActive.set(false);
-        clicked = false
-      }}
-      onEnterPress={createTask}
-      fontSize="{remHeight * 3/4}rem"
-      width="100%"
-    />
-  </div>
-{:else}
-  <div 
-    onpointerdown={() => { if ($isInputActive) canCreate.set(false) }}
-    onclick={e => {
-      if ($canCreate) {
-        e.stopPropagation(); 
-        clicked = true;
-        isInputActive.set(true);
-      }
-      else canCreate.set(true)
-    }}
-    bind:this={dropzoneElem} 
-    style="
-      height: {remHeight}rem; 
-      border-radius: var(--left-padding); 
-      outline: 0px solid {colorForDebugging}; 
-      {$bestDropzoneID === dropzoneID ? dropPreviewCSS() : ''}
-      {$bestDropzoneID === dropzoneID && isInvalidDrop ? 'background-color: red;' : ''}
-    "
-  ></div>
-{/if}
+<div 
+  bind:this={dropzoneElem}
+  onclick={() => activateInput(anchorID)}
+  style="
+    anchor-name: {anchorID};
+    height: {remHeight}rem; 
+    border-radius: var(--left-padding);
+    outline: 0px solid {colorForDebugging}; 
+    {$bestDropzoneID === dropzoneID ? dropPreviewCSS() : ''}
+    {$bestDropzoneID === dropzoneID && isInvalidDrop ? 'background-color: red;' : ''}
+  "
+></div>
 
 <script>
-  import MyInput from '$lib/components/MyInput.svelte'
+  import { activateInput } from '$lib/utils/popoverInput.js'
   import { isOverlapping, getOverlapArea, clip } from '$lib/utils/dragDrop.js'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import { getContext } from 'svelte'
-  import { canCreate, isInputActive } from '$lib/store'
 
   const { Task } = getContext('app')
   const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
@@ -57,9 +34,8 @@
 
   let dropzoneElem = $state(null)
   let n = $derived(roomsInThisLevel.length)
+  let anchorID = $derived(`--dropzone-${dropzoneID}`)
   let intersecting = $state(false)
-  let clicked = $state(false)
-  let taskName = $state('')
   const dropzoneID = getRandomID()
 
   let isInvalidDrop = $derived(ancestorRoomIDs.includes($draggedItem.id))
@@ -78,17 +54,6 @@
     }
   })
 
-  function createTask () {
-    if (taskName !== '') {
-      Task.create({ id: getRandomID(), newTaskObj: {
-        name: taskName,
-        orderValue: computeOrderValue(),
-        parentID
-      }})
-      taskName = ''
-    }
-    else clicked = false
-  }
 
   function checkIntersection ({ x1, x2, y1, y2 }) {
     const dropzoneRect = dropzoneElem.getBoundingClientRect()

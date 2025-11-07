@@ -1,16 +1,11 @@
 <script>
   import { trees, listenToTasks } from './service.js'
-  import MyInput from '$lib/components/MyInput.svelte'
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
-  import { getContext, setContext, onMount } from 'svelte'
-  import { isInputActive, canCreate } from '$lib/store'
-  import { writable } from 'svelte/store'
-
-  let clicked = $state(false)
-  let taskName = $state('')
+  import { activateInput } from '$lib/utils/popoverInput.js'
+  import { getContext, onMount } from 'svelte'
 
   const { user, Task } = getContext('app')
   const { isLargeFont } = getContext('list')
@@ -20,6 +15,8 @@
     listWidth = '320px',
     children
   } = $props()
+
+  const anchorID = '--dropzone-root-last'
 
   onMount(() => {
     listenToTasks($user.uid)
@@ -36,32 +33,20 @@
     }
   }
 
-  function createTask () {
-    if (taskName !== '') {
-      Task.create({ id: getRandomID(), newTaskObj: {
-        name: taskName,
-        orderValue: $user.maxOrderValue + 1, // k = 1
-      }})
-      taskName = ''
-    }
-    else clicked = false
+  function createTask (taskName) {
+    Task.create({ id: getRandomID(), newTaskObj: {
+      name: taskName,
+      orderValue: $user.maxOrderValue + 1, // k = 1
+    }})
   }
 </script>
 
-<div style={cssStyle} 
-  onpointerdown={(e) => { 
-    if (e.target !== e.currentTarget) return;
-    if ($isInputActive) canCreate.set(false); 
-  }}
-  onclick={e => {
-      if (e.target !== e.currentTarget) return;
-      if ($canCreate) {
-        clicked = true
-        isInputActive.set(true)
-      }
-      else canCreate.set(true)
+<div onclick={e => {
+    if (e.target === e.currentTarget) {
+      activateInput(anchorID, createTask)
     }
-  }
+  }}
+  style={cssStyle} 
 >
   {#if $trees}
     {#each $trees as taskObj, i (taskObj.id)}
@@ -88,21 +73,10 @@
       <Dropzone {...renderDropzone($trees.length)} />
     </div>
   {/if}
+  
+  <div style="anchor-name: {anchorID}; outline: 2px solid red;">
 
-  {#if clicked}
-    <div style="height: {HEIGHTS.ROOT_DROPZONE}rem;">
-      <MyInput value={taskName}
-        oninput={e => taskName = e.target.value}
-        onfocusout={() => {
-          isInputActive.set(false);
-          clicked = false
-        }}
-        onEnterPress={createTask}
-        fontSize="{HEIGHTS.ROOT_DROPZONE * 9/10}rem"
-        width="100%"
-      />
-    </div>
-  {/if}
+  </div>
   
   {@render children?.()}
 </div>
