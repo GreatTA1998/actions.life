@@ -1,13 +1,16 @@
 <div 
   bind:this={dropzoneElem}
-  onclick={() => activateInput({
-    anchorID,
-    modifiers: {
-      persistsOnList: true,
-      orderValue: computeOrderValue(),
-      parentID
-    }
-  })}
+  onclick={e => {
+    e.stopPropagation(); // since dropzones stack
+    activateInput({
+      anchorID,
+      modifiers: {
+        persistsOnList: true,
+        orderValue: computeOrderValue(),
+        parentID
+      }
+    })
+  }}
   id={anchorID}
   style="
     anchor-name: {anchorID};

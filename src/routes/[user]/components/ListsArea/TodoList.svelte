@@ -46,25 +46,24 @@
   {#if $trees}
     {#each $trees as taskObj, i (taskObj.id)}
       <div style="width: {listWidth};">
-        <div style="width: 235px;">
+        <div class="my-dz">
           <Dropzone {...renderDropzone(i)} />
         </div>
 
         <div class="list-container">
           <RecursiveTask {taskObj}
-            depth={0}
+            depth={1}
             ancestorRoomIDs={['']}
           />
         </div>
 
-        <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
-        <div style="position: absolute; width: 235px;">
+        <div style="position: absolute" class="my-dz"> <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
           <Dropzone {...renderDropzone(i+1)} />
         </div>
       </div>
     {/each}
 
-    <div style="width: 235px;">
+    <div class="my-dz">
       <Dropzone {...renderDropzone($trees.length)} />
     </div>
   {/if}
@@ -77,6 +76,11 @@
 </div>
 
 <style>  
+  .my-dz {
+    width: 235px;
+    z-index: 0;
+  }
+
   .list-container {
     padding: 0.5vw;
     background-color: var(--navbar-bg-color);

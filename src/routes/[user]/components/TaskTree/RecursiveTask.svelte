@@ -26,19 +26,16 @@
   const colorForDebugging = getRandomColor()
 
   let n = $derived(taskObj.children.length)
-  let depthAdjustedFontSize = $derived.by(() => {
-    let depthAdjustedFontSize = ''
-    switch (depth) {
-      case 0: // root font size
-        depthAdjustedFontSize = `${$isLargeFont ? 2 : 1}rem` // 32px or 16px
-        break
-      default: // sub font size
-        depthAdjustedFontSize = `${$isLargeFont ? 1.75 : 0.875}rem` // 28px or 14px 
-    }
-    return depthAdjustedFontSize
-  })
   
-  let depthAdjustedFontWeight = $derived(400 - (depth * 0) + (200 * Math.max(1 - depth, 0)))
+  let depthAdjustedFontSize = $derived.by(() => {
+    if (depth === 1) return `${$isLargeFont ? 2 : 1}rem` // 32px or 16px
+    else return `${$isLargeFont ? 1.75 : 0.875}rem` // 28px or 14px 
+  })
+
+  let depthAdjustedFontWeight = $derived.by(() => {
+    if (depth === 1) return 600
+    else return 400
+  })
 
   function handleCheckboxChange (e) {
     Task.update({
@@ -125,7 +122,7 @@
         <div class:ghost-negative={n === 0} 
           style="
             left: {WIDTHS.INDENT_PER_LEVEL}px;
-            width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+            width: {235 - WIDTHS.INDENT_PER_LEVEL * depth}px;
             z-index: {depth};
           "
         >
@@ -144,7 +141,7 @@
             <div class="ghost-negative"
               style="
                 left: {WIDTHS.INDENT_PER_LEVEL}px;
-                width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+                width: {235 - WIDTHS.INDENT_PER_LEVEL * depth}px;
                 z-index: {depth};
               "
             >
@@ -153,7 +150,7 @@
           {:else}
             <div 
               style="
-                width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+                width: {235 - WIDTHS.INDENT_PER_LEVEL * depth}px;
                 z-index: {depth};
               "
             >

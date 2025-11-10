@@ -112,7 +112,9 @@ const Task = {
       const batch = writeBatch(db)
       const validatedChanges = Task.schema.partial().parse(keyValueChanges)
 
-      maintainOrderValue(validatedChanges, batch)
+      if (validatedChanges.orderValue) {
+        maintainOrderValue(validatedChanges,batch)
+      }
       
       await maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
       batch.update(
