@@ -54,7 +54,8 @@
 <style>
   .floating-navbar {
     position: fixed;
-    z-index: 100;
+    z-index: 2;
+
     display: flex;
     gap: 4px;
     border-radius: 16px;
