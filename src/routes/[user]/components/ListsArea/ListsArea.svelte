@@ -2,6 +2,7 @@
   import TodoList from './TodoList.svelte'
 
   const wrappingColumnLayout = `
+    position: relative;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;

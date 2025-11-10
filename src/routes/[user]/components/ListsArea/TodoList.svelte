@@ -6,7 +6,7 @@
   import { activateInput } from '$lib/store/popoverInput.js'
   import { getContext, onMount } from 'svelte'
 
-  const { user, Task } = getContext('app')
+  const { user } = getContext('app')
   const { isLargeFont } = getContext('list')
 
   let {

@@ -99,7 +99,11 @@
 
   <div class="list-container" style="height: {listAreaHeight}px;">    
     <TodoList
-      cssStyle="background-color: transparent; padding-top: var(--main-content-top-margin);"
+      cssStyle="
+        position: relative;
+        background-color: transparent; 
+        padding-top: var(--main-content-top-margin);
+      "
       listWidth="100%"
     />
   </div>
