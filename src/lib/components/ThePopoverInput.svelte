@@ -104,7 +104,7 @@
   }
 
   input:focus {
-    outline: none; 
+    outline: none; /* goes off screen despite `box-sizing: border-box` */
     border: 2px solid #2757cf;
     border-radius: 4px;
   }
