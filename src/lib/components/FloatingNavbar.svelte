@@ -126,7 +126,6 @@
       flex-direction: column;
       width: 32px;
       min-height: 48px;
-      /* padding: 4px 0; */ /* deprecate if iOS doesn't need it */
       gap: 2px;
     }
     
