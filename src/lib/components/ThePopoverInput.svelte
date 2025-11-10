@@ -24,6 +24,7 @@
 
   function ontoggle (e) {
     if (e.newState === 'closed') {
+      alert('ontoggle, e.newState is closed')
       isInputActive.set(false)
     }
   }
