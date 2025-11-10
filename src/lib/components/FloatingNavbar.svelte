@@ -10,40 +10,35 @@
     if ($activeView === 'CALENDAR') {
       jumpToToday()
     } else {
-      activeView.set('CALENDAR')
+      changeTo('CALENDAR')
     }
+  }
+
+  function changeTo (view) {
+    activeView.set(view)
   }
 </script>
 
-<div 
-  class="floating-navbar"
-  class:bottom-position={isBottom}
-  class:right-position={!isBottom}
+<div class="floating-navbar" 
+  class:bot-nav={isBottom}
+  class:right-nav={!isBottom}
 >
-  <button 
-    class="nav-icon-button logo-button" 
-    class:active-nav-tab={$activeView === 'SETTINGS'}
-    onclick={() => activeView.set('SETTINGS')}
-    aria-label="Settings"
-    title="Settings"
+  <button onclick={() => changeTo('SETTINGS')}
+    class="my-btn logo-button" class:active={$activeView === 'SETTINGS'}
   >
     <img src="/logo-no-bg.png" alt="Logo" class="logo-img" />
   </button>
 
   <button onclick={onCalClick}
-    class="nav-icon-button" 
-    class:active-nav-tab={$activeView === 'CALENDAR'}
-    aria-label="Calendar"
+    class="my-btn" class:active={$activeView === 'CALENDAR'}
   >
     <span class="material-symbols-outlined nav-icon">
       house
     </span>
   </button>
 
-  <button onclick={() => activeView.set('DISCOVER')}
-    class="nav-icon-button" 
-    class:active-nav-tab={$activeView === 'DISCOVER'}
-    aria-label="Discover"
+  <button onclick={() => changeTo('DISCOVER')}
+    class="my-btn" class:active={$activeView === 'DISCOVER'}
   >
     <span class="material-symbols-outlined nav-icon">
       manage_search
@@ -52,87 +47,95 @@
 </div>
 
 <style>
+  :root {
+    --navbar-radius: 16px;
+    --desktop-padding: 2px;
+    --mobile-padding: 2px;
+  }
+
   .floating-navbar {
     position: fixed;
     z-index: 2;
 
     display: flex;
-    gap: 4px;
-    border-radius: 16px;
+    border-radius: var(--navbar-radius);
     
-    /* Simple translucent background */
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
   }
 
-  .bottom-position {
+  .bot-nav {
     bottom: max(16px, env(safe-area-inset-bottom, 16px));
     left: 50%;
     transform: translateX(-50%);
-    padding: 4px 8px;
+    padding: var(--desktop-padding);
     flex-direction: row;
+    gap: 4px;
   }
 
-  .right-position {
+  .right-nav {
     top: 50%;
     right: max(16px, env(safe-area-inset-right, 16px));
     transform: translateY(-50%);
-    padding: 6px 4px;
+    padding: var(--mobile-padding);
     flex-direction: column;
-  }
-
-  .nav-icon-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: transparent;
-    border-radius: 10px;
-    cursor: pointer;
-    color: rgba(0, 0, 0, 0.7);
-  }
-
-  .right-position .nav-icon-button {
-    flex-direction: column;
-    width: 36px;
-    min-height: 56px;
-    padding: 4px 0;
-    gap: 2px;
-  }
-
-  .bottom-position .nav-icon-button {
-    flex-direction: row;
-    width: 40px;
-    height: 40px;
-    min-height: 40px;
-    padding: 0 8px;
-    gap: 0;
-  }
-
-
-  .right-position .logo-button {
-    padding: 4px 0;
-  }
-
-  .bottom-position .logo-button {
-    padding: 0 8px;
-  }
-
-  .active-nav-tab {
-    color: var(--location-indicator-color);
-    color: black;
-    font-weight: 500;
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-
-  .nav-icon {
-    font-size: 22px;
+    gap: 4px;
   }
 
   .logo-img {
     width: 24px;
     height: 24px;
     object-fit: contain;
+  }
+
+  .my-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .active {
+    font-weight: 600;
+    background: rgba(180 180 180 / 0.2); /* start with 240 & 0 --> 120 (too opaque) --> 180 (decent) --> 210 (too faint) --> 195 (too faint) */
+  }
+
+  .bot-nav {
+    & .my-btn {
+      border-radius: calc(var(--navbar-radius) - var(--desktop-padding)); /* should be based on --navbar-radius */
+      flex-direction: row;
+      width: 40px;
+      height: 40px;
+      min-height: 40px;
+      padding: 0 8px;
+      gap: 0;
+    }
+
+    & .logo-button {
+      padding: 0 8px;
+    }
+
+    & .nav-icon {
+      font-size: 1.5rem;
+    }
+  }
+
+  .right-nav {
+    & .my-btn {
+      border-radius: calc(var(--navbar-radius) - var(--mobile-padding)); /* should be based on --navbar-radius */
+      flex-direction: column;
+      width: 32px;
+      min-height: 48px;
+      /* padding: 4px 0; */ /* deprecate if iOS doesn't need it */
+      gap: 2px;
+    }
+    
+    & .logo-button {
+      padding: 4px 0;
+    }
+
+    & .nav-icon {
+      font-size: 1.2rem;
+    }
   }
 </style>

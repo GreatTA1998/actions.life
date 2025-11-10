@@ -14,7 +14,6 @@
 
   let inputElem = $state(null)
   let popoverElem = $state(null)
-  let positionAnchor = $state('')
   let value = $state('')
   
   onMount(() => {
@@ -47,17 +46,9 @@
   
 <div bind:this={popoverElem}
   popover="auto"
-  style="position-anchor: {positionAnchor};"
   class="my-popover"
   {ontoggle}
 >
-  <!-- 
-  <MyInput value={taskName}
-    {oninput}
-    {onEnterPress}
-    width="var(--width-within-column)"
-  />
-   -->
   <input
     style="width: 100%; height: 100%;" 
     bind:this={inputElem} 
@@ -75,7 +66,7 @@
         }
       }
     }}
-    onblur={() => {
+    onblur={() => { // to detect iOS 26 keyboard exit via the "arrow" key 
       popoverElem.hidePopover()
     }}
   >
@@ -88,13 +79,10 @@
 
 <style>
   /* concepts: tethering, implicit/explicit anchor reference */
+  /* the anchor relationship is purely determined by popoverInput.js */
   .my-popover {
     position-area: center;
-    /* position-area: center span-right;/*
-    /* 
-      bottom: calc(anchor(top) + 20px);
-      justify-self: anchor-center; 
-    */
+
     margin: 0;
     inset: auto;
 
