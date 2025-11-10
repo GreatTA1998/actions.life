@@ -14,7 +14,7 @@
 
   let inputElem = $state(null)
   let popoverElem = $state(null)
-  let positionAnchor = $state('--dropzone-root-last') // for testing
+  let positionAnchor = $state('')
   let value = $state('')
   
   onMount(() => {

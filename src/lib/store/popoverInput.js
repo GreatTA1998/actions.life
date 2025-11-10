@@ -9,7 +9,9 @@ export const overrideOptions = writable({})
 export function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }) {
   overrideOptions.set(modifiers)
   callback.set(onCreate)
+
   if (get(isInputActive)) {
+    alert('another input is active, skipping')
     isInputActive.set(false)
   }
   else {
