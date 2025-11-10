@@ -76,7 +76,9 @@
         }
       }
     }}
-    onblur={() => popoverElem.hidePopover}
+    onblur={() => {
+      popoverElem.hidePopover()
+    }}
   >
 
   <PopoverInputDropdownMenu 
