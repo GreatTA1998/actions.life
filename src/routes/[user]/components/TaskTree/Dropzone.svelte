@@ -13,7 +13,7 @@
     anchor-name: {anchorID};
     height: {remHeight}rem; 
     border-radius: var(--left-padding);
-    outline: 0px solid {colorForDebugging}; 
+    border: 1px solid {colorForDebugging}; 
     {$bestDropzoneID === dropzoneID ? dropPreviewCSS() : ''}
     {$bestDropzoneID === dropzoneID && isInvalidDrop ? 'background-color: red;' : ''}
   "
