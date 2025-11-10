@@ -257,7 +257,7 @@
 <style lang="scss">
   .my-portal {
     position: absolute;
-    width: var(--width-within-column); 
+    width: 100%; /* quickfix: iOS centering is unreliable with --width-within-column */
     padding: 0;
     pointer-events: none;
   }

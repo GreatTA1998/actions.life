@@ -95,4 +95,10 @@
     background: transparent;
     overflow-y: hidden; /** Safari-specific fix */
   }
+
+  input:focus {
+    outline: none;
+    border: 2px solid #2757cf;
+    border-radius: 4px;
+  }
 </style>
