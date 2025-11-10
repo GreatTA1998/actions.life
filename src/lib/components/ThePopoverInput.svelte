@@ -53,7 +53,9 @@
     width="var(--width-within-column)"
   />
    -->
-  <input bind:this={inputElem} 
+  <input
+    style="width: 100%; height: 100%;" 
+    bind:this={inputElem} 
     bind:value={value}
     onkeyup={e => {
       e.preventDefault()
@@ -79,7 +81,8 @@
 <style>
   /* concepts: tethering, implicit/explicit anchor reference */
   .my-popover {
-    position-area: center span-right;
+    position-area: center;
+    /* position-area: center span-right;/*
     /* 
       bottom: calc(anchor(top) + 20px);
       justify-self: anchor-center; 

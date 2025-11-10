@@ -237,11 +237,14 @@
       "
     ></div>
   {/if}
+  
+  <div style="display: grid; place-items: center; width: 100%">
+    <div id={anchorID}
+      style="anchor-name: {anchorID}; top: {yPosition}px; height: {30 * pixelsPerMinute}px;" 
+      class="my-portal"
+    >
 
-  <div style="anchor-name: {anchorID}; top: {yPosition}px;" 
-    id="calendar-direct-task-div"
-  >
-
+    </div>
   </div>
 
   {#if dt.hasSame(DateTime.now(), 'day')}
@@ -252,10 +255,11 @@
 </div>
 
 <style lang="scss">
-  #calendar-direct-task-div {
+  .my-portal {
     position: absolute;
-    width: 100%; 
+    width: var(--width-within-column); 
     padding: 0;
+    pointer-events: none;
   }
 
   .task-absolute {

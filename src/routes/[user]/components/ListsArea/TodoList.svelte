@@ -69,7 +69,7 @@
     </div>
   {/if}
   
-  <div style="anchor-name: {anchorID}; outline: 2px solid red;">
+  <div style="anchor-name: {anchorID};" id={anchorID}>
 
   </div>
   

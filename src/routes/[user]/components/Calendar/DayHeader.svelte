@@ -134,7 +134,7 @@
     </div>
   {/if}
 
-  <div class="task-input" style="anchor-name: {anchorID};">
+  <div class="task-input" style="anchor-name: {anchorID};" id={anchorID}>
 
   </div>
 </div>
@@ -143,8 +143,10 @@
   .task-input {
     margin-top: 4px;
     width: 100%; 
+    height: 24px;
     padding-left: 0px; 
     padding-right: 0px;
+    pointer-events: none;
   }
 
   .compact-horizontal {

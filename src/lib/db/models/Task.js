@@ -5,7 +5,7 @@ import { user, tasksCache } from '$lib/store/index.js'
 import { 
   writeBatch, getDocs, increment, 
   collection, query, where, 
-  updateDoc, onSnapshot, doc 
+  onSnapshot, doc 
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
