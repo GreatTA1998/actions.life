@@ -27,7 +27,6 @@
       setTimeout(
         () => { 
           isInputActive.set(false)
-          alert('ontoggle, e.newState is closed')
         },
         300
       )
