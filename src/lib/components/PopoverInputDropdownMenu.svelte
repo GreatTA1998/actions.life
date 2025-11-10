@@ -33,9 +33,9 @@
 {#if taskName.length >= 1}
   <div class="core-shadow cast-shadow card">
     {#each searchResults as template (template.id)}
+      <!-- class:option-highlight={searchResults.length === 1 && searchResults[0].name.toLowerCase().split(' ').includes(taskName)} -->
       <div onclick={() => onSelect(template)}
         class="autocomplete-option"
-        class:option-highlight={searchResults.length === 1}
       >
         {#if template.iconURL}
           <img src={template.iconURL} style="width: 24px; height: 24px;" alt="template icon"/>

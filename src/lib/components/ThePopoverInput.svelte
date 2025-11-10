@@ -1,6 +1,7 @@
 <script>
   import PopoverInputDropdownMenu from '$lib/components/PopoverInputDropdownMenu.svelte'
   import { 
+    activeAnchorID,
     popoverTeleporter, 
     globalInput, 
     isInputActive, 
@@ -26,6 +27,7 @@
       setTimeout(
         () => { 
           isInputActive.set(false)
+          activeAnchorID.set('')
         },
         300
       )
@@ -70,15 +72,24 @@
       popoverElem.hidePopover()
     }}
   >
-
-  <PopoverInputDropdownMenu 
-    taskName={value} 
-    onSelect={template => createTask(template)}
-  />
 </div>
 
+{#if $activeAnchorID}
+  <div style="
+    position-anchor: {$activeAnchorID}; 
+    position: fixed; 
+    top: anchor(bottom); 
+    left: anchor(left);
+  "
+  >
+    <PopoverInputDropdownMenu 
+      taskName={value} 
+      onSelect={template => createTask(template)}
+    />
+  </div>
+{/if}
+
 <style>
-  /* concepts: tethering, implicit/explicit anchor reference */
   /* the anchor relationship is purely determined by popoverInput.js */
   .my-popover {
     position-area: center;

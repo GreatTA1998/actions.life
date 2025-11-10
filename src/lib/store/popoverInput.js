@@ -2,11 +2,13 @@ import { writable, get } from 'svelte/store'
 
 export const isInputActive = writable(false)
 export const popoverTeleporter = writable(null)
+export const activeAnchorID = writable('')
 export const globalInput = writable(null)
 export const callback = writable(() => {})
 export const overrideOptions = writable({})
 
 export function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }) {
+  activeAnchorID.set(anchorID)
   overrideOptions.set(modifiers)
   callback.set(onCreate)
 

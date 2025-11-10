@@ -97,12 +97,12 @@
 
   .active {
     font-weight: 600;
-    background: rgba(180 180 180 / 0.2); /* start with 240 & 0 --> 120 (too opaque) --> 180 (decent) --> 210 (too faint) --> 195 (too faint) */
+    background: rgba(180 180 180 / 0.2); /* 240, 0 --> 120 (too dark) --> 180 (decent) --> 210 (too faint) --> 195 (too faint) */
   }
 
   .bot-nav {
     & .my-btn {
-      border-radius: calc(var(--navbar-radius) - var(--desktop-padding)); /* should be based on --navbar-radius */
+      border-radius: calc(var(--navbar-radius) - var(--desktop-padding));
       flex-direction: row;
       width: 40px;
       height: 40px;
@@ -122,7 +122,7 @@
 
   .right-nav {
     & .my-btn {
-      border-radius: calc(var(--navbar-radius) - var(--mobile-padding)); /* should be based on --navbar-radius */
+      border-radius: calc(var(--navbar-radius) - var(--mobile-padding));
       flex-direction: column;
       width: 32px;
       min-height: 48px;
