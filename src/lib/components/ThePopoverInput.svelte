@@ -32,7 +32,7 @@
 
   function ontoggle (e) {
     if (e.newState === 'closed') {
-      menuPopover.hidePopover()
+      // menuPopover.hidePopover() causes the menu click to hide the entire popover and destroy everything
       setTimeout(
         () => { 
           isInputActive.set(false)
