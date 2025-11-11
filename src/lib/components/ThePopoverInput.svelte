@@ -16,6 +16,14 @@
   let inputElem = $state(null)
   let popoverElem = $state(null)
   let value = $state('')
+
+  let menuPopover = $state(null)
+
+  $effect(() => {
+    if ($activeAnchorID) {
+      menuPopover.showPopover()
+    }
+  })
   
   onMount(() => {
     popoverTeleporter.set(popoverElem)
@@ -75,12 +83,15 @@
 </div>
 
 {#if $activeAnchorID}
-  <div style="
+  <div bind:this={menuPopover} 
+    popover="manual" style="
     position-anchor: {$activeAnchorID}; 
     position: fixed; 
     top: anchor(bottom); 
     left: anchor(left);
-    z-index: 1000;
+    width: 48px;
+    height: 48px;
+    border: 2px solid green;
   "
   >
     <PopoverInputDropdownMenu 

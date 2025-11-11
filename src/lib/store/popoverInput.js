@@ -8,10 +8,6 @@ export const callback = writable(() => {})
 export const overrideOptions = writable({})
 
 export function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }) {
-  activeAnchorID.set(anchorID)
-  overrideOptions.set(modifiers)
-  callback.set(onCreate)
-
   if (get(isInputActive)) {
     isInputActive.set(false)
   }
@@ -19,7 +15,7 @@ export function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }
     const popover = get(popoverTeleporter)
     const input = get(globalInput)
 
-    // popover.style.positionAnchor = anchorID
+    popover.style.positionAnchor = anchorID
     const anchor = document.getElementById(anchorID)
     const rect = anchor.getBoundingClientRect()
     
@@ -28,6 +24,10 @@ export function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }
     popover.style.setProperty('height', `${rect.height}px`);
     popover.showPopover()
     input.focus()
+
     isInputActive.set(true)
+    activeAnchorID.set(anchorID)
+    callback.set(onCreate)
+    overrideOptions.set(modifiers)
   }
 }
