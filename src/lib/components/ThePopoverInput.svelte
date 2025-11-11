@@ -85,6 +85,10 @@
 {#if $activeAnchorID}
   <div bind:this={menuPopover} 
     popover="manual" style="
+
+    margin: 0;
+    inset: auto;
+
     position-anchor: {$activeAnchorID}; 
     position: fixed; 
     top: anchor(bottom); 
