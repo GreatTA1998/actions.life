@@ -19,7 +19,7 @@ export function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }
     const popover = get(popoverTeleporter)
     const input = get(globalInput)
 
-    popover.style.positionAnchor = anchorID
+    // popover.style.positionAnchor = anchorID
     const anchor = document.getElementById(anchorID)
     const rect = anchor.getBoundingClientRect()
     
