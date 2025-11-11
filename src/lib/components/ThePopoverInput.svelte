@@ -88,14 +88,13 @@
 
     margin: 0;
     inset: auto;
+    
+    border: none;
 
     position-anchor: {$activeAnchorID}; 
     position: fixed; 
     top: anchor(bottom); 
     left: anchor(left);
-    width: 48px;
-    height: 48px;
-    border: 2px solid green;
   "
   >
     <PopoverInputDropdownMenu 
