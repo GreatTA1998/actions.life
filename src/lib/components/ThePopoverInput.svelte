@@ -32,12 +32,13 @@
 
   function ontoggle (e) {
     if (e.newState === 'closed') {
+      menuPopover.hidePopover()
       setTimeout(
         () => { 
           isInputActive.set(false)
           activeAnchorID.set('')
         },
-        300
+        300 // genius, delay the reset (iOS ontoggle resolves before click)
       )
     }
   }
