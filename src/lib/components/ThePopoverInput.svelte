@@ -80,6 +80,7 @@
     position: fixed; 
     top: anchor(bottom); 
     left: anchor(left);
+    z-index: 1000;
   "
   >
     <PopoverInputDropdownMenu 

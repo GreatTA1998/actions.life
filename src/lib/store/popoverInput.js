@@ -21,7 +21,7 @@ export function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }
 
     popover.style.positionAnchor = anchorID
     const anchor = document.getElementById(anchorID)
-    const rect = anchor.getBoundingClientRect();
+    const rect = anchor.getBoundingClientRect()
     
     // use reliable JS to avoid using `width: anchor-size()` which is not widely supported
     popover.style.setProperty('width', `${rect.width}px`);
