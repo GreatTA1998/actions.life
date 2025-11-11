@@ -15,7 +15,7 @@
   // import VisionSection from './components/VisionSection.svelte'
 </script>
 
-{#if hasFetchedUser}
+{#if $hasFetchedUser}
   <div
     style="display: flex; flex-grow: 1; height: 100%; padding: 3%; padding-top: 2%;"
     class="home-page-background"

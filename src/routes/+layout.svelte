@@ -1,7 +1,7 @@
 <script>
   import '$lib/db/init.js'
   import AppContext from './AppContext.svelte'
-  import { user, userInfoFromAuthProvider } from '$lib/store'
+  import { user, userInfoFromAuthProvider, hasFetchedUser } from '$lib/store'
   import posthog from 'posthog-js'
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
@@ -17,13 +17,12 @@
     isLargeFont: writable(false)
   })
 
-  let doingAuth = true
-
   onMount(() => {
     translateJSConstantsToCSSVariables()
 
     // fetching user takes around 300 - 500 ms
     onAuthStateChanged(getAuth(), async (resultUser) => {
+      hasFetchedUser.set(true)
       if (!resultUser) {
         user.set({})
         goto('/')
@@ -41,7 +40,6 @@
           uid: resultUser.uid 
         })
       }
-      doingAuth = false
     })
   })
 
@@ -55,7 +53,7 @@
     id="loading-screen-logo-start"
     style="z-index: 99999; background: white; width: 100vw; height: 100vh"
     class="center"
-    class:invisible={!doingAuth}
+    class:invisible={$hasFetchedUser}
   >
     <img
       src="/logo-no-bg.png"
