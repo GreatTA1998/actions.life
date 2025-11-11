@@ -88,8 +88,9 @@
 
     margin: 0;
     inset: auto;
-    
-    border: none;
+
+    padding: 0; /* default is 4px, resulting in a 8x8 box */
+    border: none; /* default is black */
 
     position-anchor: {$activeAnchorID}; 
     position: fixed; 
