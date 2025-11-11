@@ -43,11 +43,11 @@
     remHeight = HEIGHTS.SUB_DROPZONE * ($isLargeFont ? 2 : 1)
   } = $props()
 
+  const dropzoneID = getRandomID()
   let dropzoneElem = $state(null)
   let n = $derived(roomsInThisLevel.length)
   let anchorID = $derived(`--dropzone-${dropzoneID}`)
   let intersecting = $state(false)
-  const dropzoneID = getRandomID()
 
   let isInvalidDrop = $derived(ancestorRoomIDs.includes($draggedItem.id))
 

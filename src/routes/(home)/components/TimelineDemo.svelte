@@ -35,7 +35,7 @@
 
       <RecursiveTask 
         taskObj={taskObj}
-        depth={0}
+        depth={1}
         ancestorRoomIDs={[]}
       />
     </div>
