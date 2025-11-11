@@ -50,6 +50,7 @@
         ...$overrideOptions // includes `persistsOnList`
       }
     })
+    value = ''
     $callback(result)
   }
 </script>
