@@ -34,7 +34,7 @@
     if (e.newState === 'closed') {
       // menuPopover.hidePopover() causes the menu click to hide the entire popover and destroy everything
       setTimeout(
-        () => { 
+        () => {
           isInputActive.set(false)
           activeAnchorID.set('')
         },
