@@ -35,10 +35,8 @@
 
       <RecursiveTask 
         taskObj={taskObj}
-        depth={0}
-        willShowCheckbox
+        depth={1}
         ancestorRoomIDs={[]}
-        isLargeFont={false}
       />
     </div>
 

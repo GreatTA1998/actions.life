@@ -1,32 +1,38 @@
-<div
-  bind:this={ReorderDropzone} 
+<div 
+  bind:this={dropzoneElem}
+  onclick={e => {
+    e.stopPropagation(); // since dropzones stack
+    activateInput({
+      anchorID,
+      modifiers: {
+        persistsOnList: true,
+        orderValue: computeOrderValue(),
+        parentID
+      }
+    })
+  }}
+  id={anchorID}
   style="
-    height: {heightInPx}px; 
-    border-radius: var(--left-padding); 
-    outline: 0px solid {colorForDebugging};
+    anchor-name: {anchorID};
+    height: {remHeight}rem; 
+    border-radius: var(--left-padding);
+    border: 0px solid {colorForDebugging}; 
     {$bestDropzoneID === dropzoneID ? dropPreviewCSS() : ''}
     {$bestDropzoneID === dropzoneID && isInvalidDrop ? 'background-color: red;' : ''}
-  " 
+  "
 ></div>
 
 <script>
+  import { activateInput } from '$lib/store/popoverInput.js'
   import { isOverlapping, getOverlapArea, clip } from '$lib/utils/dragDrop.js'
-  import { writeBatch } from 'firebase/firestore'
-  import { db } from '$lib/db/init'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import { getContext } from 'svelte'
 
-  const { 
-    Task, 
-    User, user 
-  } = getContext('app')
-
-  const { 
-    draggedItem, hasDropped, matchedDropzones, 
-    bestDropzoneID, logicAreaRect, resetDragDrop 
-  } = getContext('drag-drop')
+  const { Task } = getContext('app')
+  const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
+  const { isLargeFont } = getContext('list')
 
   let {
     ancestorRoomIDs,
@@ -34,20 +40,19 @@
     idxInThisLevel,
     parentID = '',
     colorForDebugging = 'red',
-    heightInPx = HEIGHTS.SUB_DROPZONE
+    remHeight = HEIGHTS.SUB_DROPZONE * ($isLargeFont ? 2 : 1)
   } = $props()
 
-  let ReorderDropzone = $state(null)
-  let batch = writeBatch(db)
-  let n = $derived(roomsInThisLevel.length)
-  let intersecting = $state(false)
-
   const dropzoneID = getRandomID()
+  let dropzoneElem = $state(null)
+  let n = $derived(roomsInThisLevel.length)
+  let anchorID = $derived(`--dropzone-${dropzoneID}`)
+  let intersecting = $state(false)
 
   let isInvalidDrop = $derived(ancestorRoomIDs.includes($draggedItem.id))
 
   $effect(() => {
-    if ($draggedItem) {
+    if ($draggedItem && dropzoneElem) {
       checkIntersection(
         $logicAreaRect() ? clip($draggedItem, $logicAreaRect()) : $draggedItem // quickfix as we don't have a common container between desktop mode and mobile mode
       )
@@ -60,8 +65,9 @@
     }
   })
 
+
   function checkIntersection ({ x1, x2, y1, y2 }) {
-    const dropzoneRect = ReorderDropzone.getBoundingClientRect()
+    const dropzoneRect = dropzoneElem.getBoundingClientRect()
     const overlapping = isOverlapping({ x1, x2, y1, y2 }, dropzoneRect, 0, 0)
 
     // x1 comparison is an attempt to allow the user to specifically target nested dropzones
@@ -88,6 +94,8 @@
   }
  
   async function onReorderDrop () {
+    dropzoneElem.style.background = ''
+
     if (isInvalidDrop) {
       resetDragDrop()
       return
@@ -101,36 +109,10 @@
       throw new Error(errorMessage) // triggers window.onunhandledrejection which emails me
     }
 
-    batch = writeBatch(db)
-
-    const GAP = 1
-    let newVal 
-
-    const dropZoneIdx = idxInThisLevel
-    if (dropZoneIdx === 0) {
-      const top = roomsInThisLevel[0]
-      if (top) newVal = top.orderValue / 1.1 // 1.1 slows down the approach to 0
-      else newVal = GAP // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
-    }
-    else if (dropZoneIdx === n) {
-      const bottom = roomsInThisLevel[n-1] 
-      newVal = bottom.orderValue + GAP
-      if (newVal >= $user.maxOrderValue) {
-        User.update({
-          maxOrderValue: newVal + GAP
-        })
-      }
-    }
-    else {
-      const above = roomsInThisLevel[dropZoneIdx - 1]
-      const below = roomsInThisLevel[dropZoneIdx]
-      newVal = (above.orderValue + below.orderValue) / 2
-    }
-
     const keyValueChanges = {
       parentID,
-      orderValue: newVal,
-      persistsOnList: true, // non-persistent tasks, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
+      orderValue: computeOrderValue(),
+      persistsOnList: true, // non-persistent rooms, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
       isArchived: false // otherwise dragging an archived calendar task to the list will cause it to disappear completely
     }
 
@@ -145,5 +127,28 @@
     })
 
     resetDragDrop()
+  }
+
+  function computeOrderValue () {
+    const k = 1
+    const i = idxInThisLevel
+    const rooms = roomsInThisLevel
+
+    let newVal
+    if (i === 0) {
+      const top = rooms[0]
+      if (top) newVal = top.orderValue / 1.1 // 1.1 slows down the approach to 0
+      else newVal = k // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
+    }
+    else if (i === n) {
+      const bottom = rooms[n-1] 
+      newVal = bottom.orderValue + k // Task.js will handle `maxOrderValue`
+    }
+    else {
+      const above = rooms[i-1]
+      const below = rooms[i]
+      newVal = (above.orderValue + below.orderValue) / 2
+    }
+    return newVal
   }
 </script>

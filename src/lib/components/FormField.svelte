@@ -113,9 +113,9 @@
     font-weight: 300;
   }
 
-  /* remove default input styling */
+
   input {
-    all: unset;
+    all: unset; /* remove default input styling */
 
     /* 
       Prevents extremely strange bug where <input> is rendered WAY BELOW where it should be, 

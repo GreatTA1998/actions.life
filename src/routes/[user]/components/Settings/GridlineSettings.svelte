@@ -17,11 +17,11 @@
 </script>
 
 <div class="gridlines-container">
-  <CheckboxSquare 
+  <!-- <CheckboxSquare 
     value={$user.hasGridlines}
     onClick={toggleGridlines}
     label="Show gridlines on calendar"
-  />
+  /> -->
 
   <div class="snap-settings">
     <div class="snap-label">Snap to interval</div>
@@ -84,7 +84,6 @@
     color: #555;
     min-width: 36px;
     cursor: pointer;
-    transition: all 0.15s ease;
   }
 
   .interval-button:hover {

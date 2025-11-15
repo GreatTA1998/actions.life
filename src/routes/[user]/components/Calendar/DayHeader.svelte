@@ -1,7 +1,7 @@
 <script>
-  import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
+  import { activateInput } from '$lib/store/popoverInput.js'
   import { treesByDate } from './service.js'
   import { headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
   import { 
@@ -16,12 +16,12 @@
   
   let { dt } = $props()
 
-  let isDirectlyCreatingTask = $state(false)
   let dayHeader = $state(null)
   let intersecting = $state(false)
   
   let ISODate = $derived(dt.toFormat('yyyy-MM-dd'))
   let dropzoneID = $derived('header: ' + dt.toFormat('yyyy-MM-dd'))
+  let anchorID = $derived(`--day-header-${dt.toFormat('yyyy-MM-dd')}`)
 
   $effect(() => {
     if ($draggedItem && $draggedItem.id) {
@@ -75,12 +75,6 @@
     resetDragDrop()
   }
 
-  function onclick (e) {
-    if (e.target === e.currentTarget) {
-      isDirectlyCreatingTask = true
-    }
-  }
-
   function realEffectiveArea () {
     const { left, right, top, bottom } = $scrollCalRect()
     return {
@@ -93,7 +87,14 @@
 <div bind:this={dayHeader}
   class="day-header"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
-  {onclick}
+  onclick={e => {
+    e.stopPropagation()
+    if (e.target !== e.currentTarget) return;
+    activateInput({ 
+      anchorID, 
+      modifiers: { startDateISO: ISODate, persistsOnList: false }
+    })
+  }}
 >
   <div class="compact-horizontal unselectable">
     <div class="center-flex day-name-label"
@@ -133,22 +134,19 @@
     </div>
   {/if}
 
-  {#if isDirectlyCreatingTask}
-    <div id="calendar-direct-task-div">
-      <CreateTaskDirectly
-        startDateISO={ISODate}
-        onExit={() => isDirectlyCreatingTask = false}
-      />
-    </div>
-  {/if}
+  <div class="task-input" style="anchor-name: {anchorID};" id={anchorID}>
+
+  </div>
 </div>
 
 <style>
-  #calendar-direct-task-div {
+  .task-input {
     margin-top: 4px;
-    width: 90%; 
+    width: 100%; 
+    height: 24px;
     padding-left: 0px; 
     padding-right: 0px;
+    pointer-events: none;
   }
 
   .compact-horizontal {

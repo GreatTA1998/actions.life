@@ -2,98 +2,46 @@
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
-  import FormField from '$lib/components/FormField.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import TimelineRenderer from './TimelineRenderer.svelte'
   import TaskMenu from './TaskMenu.svelte'
   import TaskCaret from './TaskCaret.svelte'
-  import { getRandomID, getRandomColor } from '$lib/utils/core.js'
+  import { getRandomColor } from '$lib/utils/core.js'
   import { WIDTHS } from '$lib/utils/constants.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
   const { Task, openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
+  const { isLargeFont } = getContext('list')
 
   let {
     taskObj,
     depth,
-    willShowCheckbox = true,
     ancestorRoomIDs = [], // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
-    isLargeFont = false,
     verticalTimeline,
     infoBadge
   } = $props()
 
   const colorForDebugging = getRandomColor()
 
-  let newSubtaskStringValue = $state('')
-  let isTypingNewSubtask = $state(false)
   let n = $derived(taskObj.children.length)
-  let depthAdjustedFontSize = $derived.by(() => {
-    let depthAdjustedFontSize = ''
-    switch (depth) {
-      case 0:
-        if (isLargeFont) depthAdjustedFontSize = '32px'
-        else depthAdjustedFontSize = '16px'
-        break
-      default: 
-        if (isLargeFont) depthAdjustedFontSize = '28px'
-        else depthAdjustedFontSize = '14px'
-    }
-    return depthAdjustedFontSize
-  })
   
-  let depthAdjustedFontWeight = $derived(400 - (depth * 0) + (200 * Math.max(1 - depth, 0)))
+  let depthAdjustedFontSize = $derived.by(() => {
+    if (depth === 1) return `${$isLargeFont ? 2 : 1}rem` // 32px or 16px
+    else return `${$isLargeFont ? 1.75 : 0.875}rem` // 28px or 14px 
+  })
+
+  let depthAdjustedFontWeight = $derived.by(() => {
+    if (depth === 1) return 600
+    else return 400
+  })
 
   function handleCheckboxChange (e) {
     Task.update({
       id: taskObj.id,
       keyValueChanges: { isDone: e.target.checked }
     })
-  }
-
-  function onEnter (e) {
-    if (newSubtaskStringValue === '') {
-      isTypingNewSubtask = false
-    }
-    else {
-      createSubtask(newSubtaskStringValue)
-      newSubtaskStringValue = ''
-    } 
-  }
-
-  function createTimelineStep (e) {
-    if (newSubtaskStringValue === '') {
-      isTypingNewSubtask = false
-    }
-    else {
-      Task.create({
-        id: getRandomID(),
-        newTaskObj: {
-          name: newSubtaskStringValue,
-          parentID: taskObj.id,
-          childrenLayout: 'normal'
-          // we purposely don't set `orderValue`,  so it'll be added to the end of the timeline sequentially
-        }
-      })
-      newSubtaskStringValue = ''
-    } 
-  }
-
-  function createSubtask (name) {
-    const newTaskObj = {
-      name,
-      parentID: taskObj.id, 
-      childrenLayout: 'normal'
-    }
-
-    if (n > 0) {
-      newTaskObj.orderValue = (taskObj.children[0].orderValue) / 1.1
-    } 
-    // Task.create(), by default, initializes `$user.maxOrderValue`
-
-    Task.create({ id: getRandomID(), newTaskObj })
   }
 
   function renderDropzone (idx) {
@@ -113,23 +61,23 @@
     style="font-size: {depthAdjustedFontSize};"
     class="task-row-container unselectable"
   >
-    {#if willShowCheckbox}
-      <div style="position: relative; margin-left: 2px; margin-right: 4px;">
-        {@render verticalTimeline?.()}
-
-        <div style="background-color: white; position: relative; padding-top: 2px; padding-bottom: 2px;">
-          {#if n === 0}
-            <Checkbox value={taskObj.isDone}
-              onchange={e => handleCheckboxChange(e)}
-            />
-          {:else}
-            <TaskCaret isCollapsed={taskObj.isCollapsed}
-              onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
-            />
-          {/if}
-        </div>
+    <div style="position: relative; margin-left: 2px; margin-right: 4px;">
+      {@render verticalTimeline?.()}
+      
+      <div style="position: relative; padding-top: 2px; padding-bottom: 2px;">
+        {#if n === 0}
+          <Checkbox value={taskObj.isDone}
+            onchange={e => handleCheckboxChange(e)}
+            zoom={$isLargeFont ? 1 : 0.5}
+          />
+        {:else}
+          <TaskCaret isCollapsed={taskObj.isCollapsed}
+            onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
+            zoom={$isLargeFont ? 2 : 1}
+          />
+        {/if}
       </div>
-    {/if}
+    </div>
 
     <button onclick={() => openTaskPopup(taskObj)} 
       class="task-name truncate-to-one-line" 
@@ -156,9 +104,7 @@
       {/if}
     </div>
 
-    <TaskMenu {taskObj} 
-      onSubtaskAdd={() => isTypingNewSubtask = true } 
-    />
+    <TaskMenu {taskObj} />
   </div>
 
   {#if taskObj.childrenLayout === 'timeline'}
@@ -168,44 +114,15 @@
       parentID={taskObj.id}
       {depth}
       {ancestorRoomIDs}
-      {isLargeFont}
       {colorForDebugging}
     />
-
-    {#if isTypingNewSubtask}  
-      <FormField
-        fieldLabel="Task Name"
-        value={newSubtaskStringValue}
-        on:input={(e) => newSubtaskStringValue = e.detail.value}
-        on:focus-out={() => {
-          if (newSubtaskStringValue === '') {
-            isTypingNewSubtask = false
-          }
-        }}
-        on:task-entered={e => createTimelineStep(e)}
-      />
-    {/if}
   {:else}
     <div style="margin-left: {WIDTHS.INDENT_PER_LEVEL}px;">
-      {#if isTypingNewSubtask}  
-        <FormField
-          fieldLabel="Task Name"
-          value={newSubtaskStringValue}
-          on:input={(e) => newSubtaskStringValue = e.detail.value}
-          on:focus-out={() => {
-            if (newSubtaskStringValue === '') {
-              isTypingNewSubtask = false
-            }
-          }}
-          on:task-entered={(e) => onEnter(e)}
-        />
-      {/if}
-
       {#if !taskObj.isCollapsed}
         <div class:ghost-negative={n === 0} 
           style="
             left: {WIDTHS.INDENT_PER_LEVEL}px;
-            width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+            width: {235 - WIDTHS.INDENT_PER_LEVEL * depth}px;
             z-index: {depth};
           "
         >
@@ -216,9 +133,7 @@
           <RecursiveTask 
             taskObj={subtaskObj}
             depth={depth+1}
-            {willShowCheckbox}
             ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
-            {isLargeFont}
           /> 
 
           {#if i === n - 1}
@@ -226,7 +141,7 @@
             <div class="ghost-negative"
               style="
                 left: {WIDTHS.INDENT_PER_LEVEL}px;
-                width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+                width: {235 - WIDTHS.INDENT_PER_LEVEL * depth}px;
                 z-index: {depth};
               "
             >
@@ -235,7 +150,7 @@
           {:else}
             <div 
               style="
-                width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+                width: {235 - WIDTHS.INDENT_PER_LEVEL * depth}px;
                 z-index: {depth};
               "
             >

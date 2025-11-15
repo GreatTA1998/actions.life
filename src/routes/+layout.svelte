@@ -1,23 +1,28 @@
 <script>
   import '$lib/db/init.js'
   import AppContext from './AppContext.svelte'
-  import { user, userInfoFromAuthProvider } from '$lib/store'
+  import { user, userInfoFromAuthProvider, hasFetchedUser } from '$lib/store'
   import posthog from 'posthog-js'
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
-  import { onMount } from 'svelte'
+  import { onMount, setContext } from 'svelte'
+  import { writable } from 'svelte/store'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { } from '$lib/db/scripts/april.js'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
+  import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
 
-  let doingAuth = true
+  setContext('list', {
+    isLargeFont: writable(false)
+  })
 
   onMount(() => {
     translateJSConstantsToCSSVariables()
 
     // fetching user takes around 300 - 500 ms
     onAuthStateChanged(getAuth(), async (resultUser) => {
+      hasFetchedUser.set(true)
       if (!resultUser) {
         user.set({})
         goto('/')
@@ -35,7 +40,6 @@
           uid: resultUser.uid 
         })
       }
-      doingAuth = false
     })
   })
 
@@ -49,7 +53,7 @@
     id="loading-screen-logo-start"
     style="z-index: 99999; background: white; width: 100vw; height: 100vh"
     class="center"
-    class:invisible={!doingAuth}
+    class:invisible={$hasFetchedUser}
   >
     <img
       src="/logo-no-bg.png"
@@ -65,11 +69,13 @@
         <slot>
 
         </slot>
+
+        <ThePopoverInput />
+
+        <TheSnackbar />
       </DragDropContext>
     </AppContext>
   </div>
-
-  <TheSnackbar />
 </div>
 
 <style>
@@ -85,6 +91,8 @@
     --fine-control-color: rgb(120, 120, 120);
     --scheduled-info-color: rgb(0, 0, 0);
     --task-name-color: rgb(0, 0, 0);
+    --left-padding: 6px; /* only applies to TaskElement, PhotoTaskElement, IconTaskElement */ 
+    --width-within-column: 94%;
 
     --calendar-section-left-spacing: 2vw;
     --experimental-black: hsla(0, 100%, 0%, 0.6);

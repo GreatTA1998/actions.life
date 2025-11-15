@@ -5,119 +5,39 @@
 
   <div class="grid-container">
     <main class="content-area">
-      {#if activeTabName === 'TODO_VIEW'}
-        <div style="
-          position: relative; 
-          height: 100%; 
-          width: 100%; 
-          padding: 0px 8px;"
-        >
-          <TodoList style="background-color: transparent; padding-top: var(--main-content-top-margin);"
-            willShowCheckbox
-            isLargeFont
-            listWidth="100%"
-            let:startTypingNewTask={startTypingNewTask}
-          >
-            <div on:click={startTypingNewTask} on:keydown class="fixed-round-button">
-              <span id="startButton" class="material-symbols-outlined" style="font-size: 48px; font-weight: 600;">
-                add
-              </span>
-            </div>
-          </TodoList>
-        </div>
-      {:else if activeTabName === 'FUTURE_VIEW'}
-        <Schedule on:task-duration-adjusted />
-      {:else if activeTabName === 'CALENDAR_VIEW'}
-        <Calendar />    
-      {:else if activeTabName === 'PHOTO_ARCHIVE'}
-        <PhotoGrid />
-      {:else if activeTabName === 'AI_VIEW'}
-        <AI />
+      {#if $activeView === 'CALENDAR'}
+        <TopBelowView />
+      {:else if $activeView === 'DISCOVER'}
+        <Discover />
+      {:else if $activeView === 'SETTINGS'}
+        <Settings />
       {/if}
     </main>
 
-    <div class="bottom-navbar">
-      <button on:click={() => activeTabName = 'TODO_VIEW'} class="bottom-nav-tab" class:active-nav-tab={activeTabName === 'TODO_VIEW'}>
-        <div style="text-align: center;">
-          <span class="material-symbols-outlined nav-tab-icon">
-            summarize
-          </span>
-          <div class="nav-tab-desc">
-            Lists
-          </div>
-        </div>
-      </button>
-
-      <button class="bottom-nav-tab" 
-        on:click={() => {
-          if (activeTabName === 'CALENDAR_VIEW') jumpToToday()
-          else {
-            activeTabName = 'CALENDAR_VIEW'
-          }
-        }}
-        class:active-nav-tab={activeTabName === 'CALENDAR_VIEW'}
-      >
-        <div style="text-align: center;">
-          <span class="material-symbols-outlined nav-tab-icon">
-            house
-          </span>
-          <div class="nav-tab-desc">
-            Cal.
-          </div>
-        </div>
-      </button>
-
-      <button class="bottom-nav-tab" on:click={() => activeTabName = 'FUTURE_VIEW'} class:active-nav-tab={activeTabName === 'FUTURE_VIEW'}>
-        <div style="text-align: center;">
-          <span class=" material-icons nav-tab-icon">
-            upcoming
-          </span>
-          <div class="nav-tab-desc">
-            Sched.
-          </div>
-        </div>
-      </button>
-
-      <button class="bottom-nav-tab" on:click={() => activeTabName = 'PHOTO_ARCHIVE'} class:active-nav-tab={activeTabName === 'PHOTO_ARCHIVE'}>
-        <div style="text-align: center;">
-          <span class=" material-icons nav-tab-icon">
-            photo_library
-          </span>
-          <div class="nav-tab-desc">
-            Photos
-          </div>
-        </div>
-      </button>
-
-      <button class="bottom-nav-tab" on:click={() => activeTabName = 'AI_VIEW'} class:active-nav-tab={activeTabName === 'AI_VIEW'}>
-        <div style="text-align: center;">
-          <span class=" material-symbols-outlined nav-tab-icon">
-            smart_toy
-          </span>
-          <div class="nav-tab-desc">
-            Robot
-          </div>
-        </div>
-      </button>
-    </div>
+    <FloatingNavbar position="right" />
   </div>
 {/if}
 
 <script>
-  import Calendar from '../components/Calendar/Calendar.svelte'
-  import TodoList from '../components/ListsArea/TodoList.svelte'
+  import TopBelowView from '../components/TopBelowView/index.svelte'
   import AI from '../components/AI/AI.svelte'
   import Schedule from './Schedule.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
   import PhotoGrid from '../components/Archive/PhotoGrid.svelte'
+  import Discover from './Discover.svelte'
+  import Settings from '../components/Settings/index.svelte'
+  import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
 
-  import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
-  import { user, isTaskPopupOpen } from '/src/lib/store'
+  import { user, isTaskPopupOpen, activeView } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
-  import { onDestroy, onMount } from 'svelte'
+  import { onDestroy, onMount, setContext } from 'svelte'
+  import { writable } from 'svelte/store'
 
-  let activeTabName = 'CALENDAR_VIEW' // probably the new user default, butthen persists the user's preference e.g. I prefer the to-do
   let unsub
+
+  setContext('list', {
+    isLargeFont: writable(true)
+  })
 
   onMount(async () => {
     isCompact.set(true)
@@ -133,10 +53,6 @@
 </svelte:head>
 
 <style>
-  :root {
-    --bottom-navbar-height: 48px;
-  }
-
   /* Prevent any scrolling on body */
   :global(body),
   :global(html) {
@@ -144,6 +60,7 @@
     height: 100%;
     width: 100%;
     position: fixed;
+    overscroll-behavior: none;
   }
 
   :global(body) {
@@ -152,7 +69,7 @@
   
   .grid-container {
     display: grid;
-    grid-template-rows: minmax(0, 1fr) var(--bottom-navbar-height);
+    grid-template-rows: 1fr;
     height: 100vh;
     /* Support for iOS Safari */
     height: -webkit-fill-available;
@@ -160,73 +77,16 @@
     height: 100dvh;
     width: 100%;
     overflow: hidden;
+    position: relative;
   }
   
   .content-area {
     grid-row: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     /* Critical for grid scrolling - allows content to be smaller than container */
     min-height: 0;
     position: relative;
-  }
-
-  .bottom-navbar {
-    grid-row: 2;
-    z-index: 3;
-    width: 100%; 
-    height: var(--bottom-navbar-height); 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    background-color: white;
-    border-top: 1px solid var(--faint-color);
-  }
-
-  .bottom-nav-tab {
-    display: flex; 
-    align-items: center;
-    justify-content: center;
-
-    height: 100%;
-    flex-basis: 0;
-    flex-grow: 1;
-    flex-shrink: 1;
-
-    color: rgb(110, 110, 110);
-
-    padding-top: 4px;
-    padding-bottom: 4px;
-  }
-
-  .active-nav-tab {
-    color: rgb(0, 0, 0);
-    font-weight: 500;
-    border-top: 0px solid rgb(0, 0, 0);
-  }
-
-  .nav-tab-desc {
-    font-size: 12px;
-    margin-top: -4px;
-  }
-
-  .nav-tab-icon {
-    font-size: 24px;
-  }
-
-  .fixed-round-button {
-    position: fixed; 
-    bottom: 60px; 
-    right: 20px; 
-
-    height: 72px;
-    width: 72px;
-    border-radius: 36px;  
-    border: 4px solid black;
-
-    display: flex;
-    align-items: center;
-    justify-content: center; 
-    cursor: pointer;
   }
 </style>

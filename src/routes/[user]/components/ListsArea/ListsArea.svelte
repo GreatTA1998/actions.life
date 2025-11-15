@@ -2,28 +2,20 @@
   import TodoList from './TodoList.svelte'
 
   const wrappingColumnLayout = `
+    position: relative;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    height: calc(100vh - var(--height-navbar));
     align-items: start; /* default is stretch */
     align-content: start; /* prevents column gaps from widening when the area gets larger */
     column-gap: 24px; /* matches dropzone's height */
     padding: 0 24px; /* add same spacing on left/right sides to match column gap */
+    height: 100%;
+    min-width: max-content;
   `
 </script>
 
-<div class="todo-list-container"> 
-  <TodoList 
-    listWidth="320px"
-    willShowCheckbox={true} 
-    style={wrappingColumnLayout}
-  />
-</div>
-
-<style>
-  .todo-list-container {
-    height: 100%;
-    /* width: 100%; would cause the strange shifting out of screen bug*/
-  }
-</style>
+<TodoList 
+  listWidth="320px"
+  cssStyle={wrappingColumnLayout}
+/>

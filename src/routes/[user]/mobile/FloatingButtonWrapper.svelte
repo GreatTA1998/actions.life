@@ -20,7 +20,7 @@
   .floating-button {
     position: absolute;
     right: 16px;
-    bottom: calc(var(--bottom-navbar-height) + var(--distance-from-bottom));
+    bottom: var(--distance-from-bottom);
 
     border: 4px solid black;
     height: 72px;

@@ -3,8 +3,8 @@
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
-  import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
+  import { activateInput } from '$lib/store/popoverInput.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate } from './service.js'
@@ -17,7 +17,6 @@
   let { dt } = $props()
 
   let dayColumn
-  let isDirectlyCreatingTask = $state(false)
   let yPosition = $state(null)
   let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
   let pixelsPerMinute = $pixelsPerHour / 60
@@ -27,6 +26,8 @@
 
   let intersecting = $state(false)
   let previewTop = $state(null)
+  
+  let anchorID = $derived(`--day-column-${dropzoneID}`)
 
   $effect(() => {
     if ($draggedItem && $draggedItem.id) {
@@ -100,13 +101,6 @@
 
       // quickfix, manually remove preview (both places are necessary for clearing the previews)
       previewTop = null
-    }
-  }
-
-  function onclick (e) {
-    if (e.target === e.currentTarget) { // equivalent to `click|self`. e.target := 1st node that detected the click, e.currentTarget := node that detected the event
-      isDirectlyCreatingTask = true
-      yPosition = getY(e)
     }
   }
 
@@ -187,11 +181,25 @@
   }
 </script>
 
+
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
 <div bind:this={dayColumn} class="day-column unselectable"
   style="height: {$totalMinutes * pixelsPerMinute}px;"
   class:grid-y={$user.hasGridlines}
-  {onclick}
+  onclick={e => {
+    if (e.target === e.currentTarget) {
+      yPosition = getY(e)
+      activateInput({
+        anchorID,
+        modifiers: { 
+          startDateISO: newDT.toFormat('yyyy-MM-dd'),
+          startTime: newDT.toFormat('HH:mm'),
+          persistsOnList: false
+        },
+        onCreate: shiftYPosition
+      })
+    }
+  }}
 >
   {#if $draggedItem.id || $user.hasGridlines}
     {#each $timestamps as timestamp, i}
@@ -229,17 +237,15 @@
       "
     ></div>
   {/if}
+  
+  <div style="display: grid; place-items: center; width: 100%">
+    <div id={anchorID}
+      style="anchor-name: {anchorID}; top: {yPosition}px; height: {30 * pixelsPerMinute}px;" 
+      class="my-portal"
+    >
 
-  {#if isDirectlyCreatingTask}
-    <div id="calendar-direct-task-div" style="top: {yPosition}px;">
-      <CreateTaskDirectly
-        startTime={newDT.toFormat('HH:mm')}
-        startDateISO={newDT.toFormat('yyyy-MM-dd')}
-        onExit={() => isDirectlyCreatingTask = false}
-        onCreate={shiftYPosition}
-      />
     </div>
-  {/if}
+  </div>
 
   {#if dt.hasSame(DateTime.now(), 'day')}
     <TimeIndicator originDT={dt} 
@@ -249,11 +255,11 @@
 </div>
 
 <style lang="scss">
-  #calendar-direct-task-div {
+  .my-portal {
     position: absolute;
-    width: 98%; 
-    padding-left: 0px; 
-    padding-right: 0px;
+    width: 100%; /* quickfix: iOS centering is unreliable with --width-within-column */
+    padding: 0;
+    pointer-events: none;
   }
 
   .task-absolute {
@@ -262,7 +268,7 @@
     right: 0;
     margin-left: auto;
     margin-right: auto;
-    width: 94%;
+    width: var(--width-within-column);
   }
 
   .my-helper-gridline {
@@ -270,6 +276,7 @@
     width: 100%;
     height: 1px;
     background-color: var(--grid-color);
+    pointer-events: none; /** otherwise it'll block clicks on the day column (deadzone) */
   }
 
   /* DO NOT REMOVE, BREAKS DRAG-AND-DROP AND DURATION ADJUSTMENT */

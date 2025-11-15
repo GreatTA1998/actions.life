@@ -118,7 +118,6 @@
 
 <style>
   :root {
-    --left-padding: 6px;
     --default-task-color: hsla(210, 20%, 36%, 0.6);
 
     --experimental-purple: hsla(248, 53%, 58%, 0.6);

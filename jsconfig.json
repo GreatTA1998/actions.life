@@ -1,0 +1,10 @@
+// needed for cmd + click (jump to definition) in the IDE
+{
+  "extends": "./.svelte-kit/tsconfig.json",
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "functions/node_modules",
+    "static"
+  ]
+}

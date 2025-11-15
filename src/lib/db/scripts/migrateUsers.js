@@ -33,7 +33,7 @@ async function migrateUser(userID) {
         email: userSnapshot.data().email || '',
         isSubscriber: userSnapshot.data().isSubscriber || false,
         phoneNumber: userSnapshot.data().phoneNumber || '',
-        maxOrderValue: userSnapshot.data().maxOrderValue || 0,
+        maxOrderValue: userSnapshot.data().maxOrderValue || 10,
         uid: userSnapshot.id
     }
     try {

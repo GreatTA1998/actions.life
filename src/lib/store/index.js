@@ -11,6 +11,7 @@ export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout }
 export { user } from './userStore.js'
 
 export const currentMode = writable('Week')
+export const activeView = writable('CALENDAR')
 
 export const tasksCache = writable({})
 
@@ -77,6 +78,10 @@ export function openSettings () {
 
 export function closeSettings () {
   settingsOpen.set(false)
+}
+
+export function toggleSettings () {
+  settingsOpen.set(!get(settingsOpen))
 }
 
 export function openTaskPopup(task) {

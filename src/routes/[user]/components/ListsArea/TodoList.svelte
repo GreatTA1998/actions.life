@@ -2,68 +2,24 @@
   import { trees, listenToTasks } from './service.js'
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
-  import FormField from '$lib/components/FormField.svelte'
-  import { getRandomID } from '$lib/utils/core.js'
   import { HEIGHTS } from '$lib/utils/constants.js'
+  import { activateInput } from '$lib/store/popoverInput.js'
   import { getContext, onMount } from 'svelte'
-  import { DateTime } from 'luxon'
 
-  const { Task, user } = getContext('app')
+  const { user } = getContext('app')
+  const { isLargeFont } = getContext('list')
 
-  export let willShowCheckbox = true
-  export let isLargeFont = false
-  export let triggerNewTask = false
-  export let listWidth = '320px'
+  let {
+    cssStyle,
+    listWidth = '320px',
+    children
+  } = $props()
 
-  let topInput = false
-  let bottomInput = false
-  let newTaskName = ''
+  const anchorID = '--dropzone-root-last'
 
   onMount(() => {
     listenToTasks($user.uid)
   })
-  
-  $: if (triggerNewTask && !bottomInput) {
-    startTypingNewTask()
-  }
-  
-  function startTypingNewTask () {
-    topInput = true
-  }
-
-  function addTaskAbove () {
-    if (newTaskName === '') topInput = false
-
-    else {
-      createTask({ 
-        orderValue: $trees.length ? $trees[0].orderValue / 1.1 : undefined
-      })
-      newTaskName = ''
-      // we don't reset the input to allow for rapid consecutive inputs (double-tap ENTER to be done
-    }
-  }
-
-  function addTaskBelow (e) {
-    if (newTaskName === '') bottomInput = false
-
-    else {
-      createTask({ orderValue: undefined })
-      newTaskName = ''
-    }
-  }
-
-  function createTask ({ orderValue }) {
-    const newTaskObj = {
-      name: newTaskName,
-      parentID: '',
-      timeZone: DateTime.local().zoneName,
-      persistsOnList: true
-    }
-    if (orderValue) {
-      newTaskObj.orderValue = orderValue
-    }
-    Task.create({ newTaskObj, id: getRandomID() })
-  }
   
   function renderDropzone (idx) {
     return {
@@ -72,88 +28,63 @@
       roomsInThisLevel: $trees,
       parentID: '',
       colorForDebugging: "purple",
-      heightInPx: HEIGHTS.ROOT_DROPZONE
+      remHeight: HEIGHTS.ROOT_DROPZONE * ($isLargeFont ? 2 : 1) // 1.5rem = 24px. Technically should be 2rem, but it's too sparse
     }
   }
 </script>
 
-<!-- NOTE: background-color: var(--todo-list-bg-color); is not yet unified, so it IS confusing -->
-<div style={$$props.style}>
+<div onclick={e => {
+    if (e.target === e.currentTarget) {
+      activateInput({ 
+        anchorID, 
+        modifiers: { persistsOnList: true } 
+      })
+    }
+  }}
+  style={cssStyle} 
+>
   {#if $trees}
-    {#if topInput}
-      <FormField fieldLabel="Task Name"
-        value={newTaskName}
-        on:input={e => newTaskName = e.detail.value}
-        on:focus-out={() => {
-          if (newTaskName === '') topInput = false
-        }}
-        on:task-entered={e => addTaskAbove(e)}
-      />
-    {/if}
-
     {#each $trees as taskObj, i (taskObj.id)}
-      <div style="width: {listWidth}">
-        <div style="width: 235px;">
+      <div style="width: {listWidth};">
+        <div class="my-dz">
           <Dropzone {...renderDropzone(i)} />
         </div>
 
         <div class="list-container">
           <RecursiveTask {taskObj}
-            depth={0}
+            depth={1}
             ancestorRoomIDs={['']}
-            {willShowCheckbox}
-            {isLargeFont}
           />
         </div>
 
-        <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
-        <div style="position: absolute; width: 235px;">
+        <div style="position: absolute" class="my-dz"> <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
           <Dropzone {...renderDropzone(i+1)} />
         </div>
       </div>
     {/each}
 
-    <div style="width: 235px;">
+    <div class="my-dz">
       <Dropzone {...renderDropzone($trees.length)} />
     </div>
-
-    <div on:click={() => bottomInput = true} on:keydown class="new-task-icon" style="width: 32px; height: 32px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-      +
-    </div>
-
-    {#if bottomInput}
-      <FormField fieldLabel="Task Name"
-        value={newTaskName}
-        on:input={e => newTaskName = e.detail.value}
-        on:focus-out={() => {
-          if (newTaskName === '') bottomInput = false
-        }}
-        on:task-entered={e => addTaskBelow(e)}
-      />
-      <div style="margin-bottom: 8px;"></div>
-    {/if}
   {/if}
+  
+  <div style="anchor-name: {anchorID}; height: 24px; width: 235px;" id={anchorID}>
 
-  <slot {startTypingNewTask}>
-    
-  </slot>
+  </div>
+  
+  {@render children?.()}
 </div>
 
 <style>  
-  .list-container {
-    padding: 0.5vw;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  .my-dz {
+    width: 235px;
+    z-index: 0;
   }
 
-  .new-task-icon {
-    font-size: 24px;
-    color: #666;
-    transition: color 0.2s;
-  }
-  
-  .new-task-icon:hover {
-    color: #333;
+  .list-container {
+    padding: 0.5vw;
+    background-color: var(--navbar-bg-color);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 </style>
