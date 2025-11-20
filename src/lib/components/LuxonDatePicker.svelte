@@ -6,180 +6,181 @@
   export let startDateISO = null
   export let willOpen = false
   export let ondateselected = () => {}
-  export let inline = false // new: inline vs popup mode
 
   // State
-  let isOpen = false
-  let selectedDate = null
-  let viewingMonth = DateTime.now().startOf('month')
-  let inputRef = null
+  let selected = null
+  let month = DateTime.now().startOf('month')
+  let popover = null
+  let inputButton = null
+
+  // Generate month options
+  const months = Array.from({ length: 12 }, (_, i) => {
+    const dt = DateTime.fromObject({ month: i + 1, day: 1 })
+    return { value: i + 1, label: dt.toFormat('MMMM') }
+  })
+
+  // Generate year options (current year ± 10 years)
+  $: years = (() => {
+    const currentYear = DateTime.now().year
+    const selectedYear = month.year
+    const startYear = Math.min(currentYear, selectedYear) - 10
+    const endYear = Math.max(currentYear, selectedYear) + 10
+    return Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i)
+  })()
+
+  $: selectedMonth = month.month
+  $: selectedYear = month.year
 
   // Initialize from startDateISO
   $: if (startDateISO) {
     try {
-      selectedDate = DateTime.fromISO(startDateISO)
-      viewingMonth = selectedDate.startOf('month')
+      selected = DateTime.fromISO(startDateISO)
+      month = selected.startOf('month')
     } catch {
-      selectedDate = null
+      selected = null
+    }
+  }
+
+  function ontoggle(e) {
+    if (e.newState === 'open' && popover && inputButton) {
+      const rect = inputButton.getBoundingClientRect()
+      popover.style.top = `${rect.bottom + 4}px`
+      popover.style.left = `${rect.left}px`
     }
   }
 
   onMount(() => {
-    if (willOpen) isOpen = true
+    if (willOpen && popover) {
+      popover.showPopover()
+    }
   })
 
   // Format for display: "Jul 19"
-  $: displayValue = selectedDate 
-    ? selectedDate.toFormat('MMM d')
-    : ''
+  $: display = selected ? selected.toFormat('MMM d') : ''
 
-  // Generate calendar grid (42 days: 6 weeks × 7 days)
-  $: calendarDays = (() => {
-    const firstDay = viewingMonth.startOf('month')
+  // Generate calendar grid from first week to last week containing current month
+  $: days = (() => {
+    const firstDay = month.startOf('month')
+    const lastDay = month.endOf('month')
     const startOfGrid = firstDay.startOf('week')
+    const endOfGrid = lastDay.endOf('week')
     
-    return Array.from({ length: 42 }, (_, i) => {
-      const date = startOfGrid.plus({ days: i })
-      return {
-        date,
-        isCurrentMonth: date.month === viewingMonth.month,
-        isToday: date.hasSame(DateTime.now(), 'day'),
-        isSelected: selectedDate?.hasSame(date, 'day') ?? false
-      }
-    })
+    const days = []
+    let current = startOfGrid
+    
+    while (current <= endOfGrid) {
+      days.push({
+        date: current,
+        isCurrentMonth: current.month === month.month,
+        isToday: current.hasSame(DateTime.now(), 'day'),
+        isSelected: selected?.hasSame(current, 'day') ?? false
+      })
+      current = current.plus({ days: 1 })
+    }
+    
+    return days
   })()
 
-  function handleDateClick(day) {
+  function selectDate(day) {
     if (day.isSelected) {
-      // Unselect: click selected date again
-      selectedDate = null
+      selected = null
       ondateselected({ mmdd: '', yyyy: '' })
-      if (!inline) isOpen = false
+      if (popover) popover.hidePopover()
     } else {
-      // Select new date
-      selectedDate = day.date
-      const mmdd = day.date.toFormat('MM/dd')
-      const yyyy = day.date.year
-      ondateselected({ mmdd, yyyy })
-      if (!inline) isOpen = false
+      selected = day.date
+      ondateselected({ mmdd: day.date.toFormat('MM/dd'), yyyy: day.date.year })
+      if (popover) popover.hidePopover()
     }
   }
 
-  function goToPrevMonth() {
-    viewingMonth = viewingMonth.minus({ months: 1 })
+  function handleMonthChange(e) {
+    const newMonth = parseInt(e.target.value)
+    month = month.set({ month: newMonth })
   }
 
-  function goToNextMonth() {
-    viewingMonth = viewingMonth.plus({ months: 1 })
-  }
-
-  function goToToday() {
-    const today = DateTime.now()
-    selectedDate = today
-    viewingMonth = today.startOf('month')
-    const mmdd = today.toFormat('MM/dd')
-    const yyyy = today.year
-    ondateselected({ mmdd, yyyy })
-    if (!inline) isOpen = false
-  }
-
-  function toggleCalendar() {
-    if (!inline) isOpen = !isOpen
-  }
-
-  // Close on outside click
-  function handleOutsideClick(e) {
-    if (!inline && isOpen && !e.target.closest('.datepicker-container')) {
-      isOpen = false
-    }
-  }
-
-  // Keyboard: Escape to close
-  function handleKeydown(e) {
-    if (e.key === 'Escape' && isOpen) {
-      isOpen = false
-    }
+  function handleYearChange(e) {
+    const newYear = parseInt(e.target.value)
+    month = month.set({ year: newYear })
   }
 </script>
 
-<svelte:window on:click={handleOutsideClick} on:keydown={handleKeydown} />
+<div class="picker">
+  <button
+    bind:this={inputButton}
+    type="button"
+    popovertarget="popover"
+    class="input"
+  >
+    {display || 'MM/dd'}
+  </button>
 
-<div class="datepicker-container" class:inline>
-  {#if !inline}
-    <input
-      bind:this={inputRef}
-      class="date-input"
-      value={displayValue}
-      on:click={toggleCalendar}
-      inputmode="none"
-      placeholder="MM/dd"
-      readonly
-    />
-  {/if}
-
-  {#if inline || isOpen}
-    <div class="calendar" class:popup={!inline}>
-      <div class="calendar-header">
-        <button type="button" class="nav-btn" on:click={goToPrevMonth}>‹</button>
-        <div class="month-year">
-          {viewingMonth.toFormat('MMMM yyyy')}
-        </div>
-        <button type="button" class="nav-btn" on:click={goToNextMonth}>›</button>
-      </div>
-
-      <div class="weekdays">
-        {#each ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] as day}
-          <div class="weekday">{day}</div>
+  <div
+    bind:this={popover}
+    id="popover"
+    popover="auto"
+    class="cal popup"
+    {ontoggle}
+  >
+    <div class="header">
+      <select class="month-select" value={selectedMonth} onchange={handleMonthChange}>
+        {#each months as m}
+          <option value={m.value}>{m.label}</option>
         {/each}
-      </div>
-
-      <div class="days-grid">
-        {#each calendarDays as day}
-          <button
-            type="button"
-            class="day"
-            class:other-month={!day.isCurrentMonth}
-            class:today={day.isToday}
-            class:selected={day.isSelected}
-            on:click={() => handleDateClick(day)}
-          >
-            {day.date.day}
-          </button>
+      </select>
+      <select class="year-select" value={selectedYear} onchange={handleYearChange}>
+        {#each years as y}
+          <option value={y}>{y}</option>
         {/each}
-      </div>
-
-      <div class="calendar-footer">
-        <button type="button" class="today-btn" on:click={goToToday}>
-          Today
-        </button>
-      </div>
+      </select>
     </div>
-  {/if}
+
+    <div class="weekdays">
+      {#each ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] as day}
+        <div class="weekday">{day}</div>
+      {/each}
+    </div>
+
+    <div class="grid">
+      {#each days as day}
+        <button
+          type="button"
+          class="day"
+          class:other-month={!day.isCurrentMonth}
+          class:today={day.isToday}
+          class:selected={day.isSelected}
+          onclick={() => selectDate(day)}
+        >
+          {day.date.day}
+        </button>
+      {/each}
+    </div>
+  </div>
 </div>
 
 <style>
-  .datepicker-container {
+  .picker {
     position: relative;
     display: inline-block;
   }
 
-  .date-input {
+  .input {
     height: 30px;
     width: 64px;
     padding: 2px;
-    border: 0px solid transparent;
+    border: 0;
     border-radius: 4px;
     font-size: 14px;
     color: var(--scheduled-info-color, #666);
     background: transparent;
     cursor: pointer;
+    text-align: left;
   }
 
-  .date-input:focus {
+  .input:focus {
     outline: none;
   }
 
-  .calendar {
+  .cal {
     background: var(--popup-bg, white);
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -188,43 +189,51 @@
     min-width: 280px;
   }
 
-  .calendar.popup {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 4px;
-    z-index: 1000;
+  .cal.popup {
+    position: fixed;
+    inset: none;
+    margin: 0;
+    padding: 0;
+    border: none;
   }
 
-  .calendar-header {
+  .header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin-bottom: 12px;
     gap: 8px;
   }
 
-  .month-year {
+  .month-select,
+  .year-select {
     font-weight: 600;
     font-size: 15px;
-    flex: 1;
-    text-align: center;
-    color: var(--text-primary, #000);
-  }
-
-  .nav-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
     padding: 4px 8px;
-    color: var(--text-secondary, #666);
+    border: 1px solid var(--border-color, #ddd);
     border-radius: 4px;
-    line-height: 1;
+    background: var(--popup-bg, white);
+    color: var(--text-primary, #000);
+    cursor: pointer;
   }
 
-  .nav-btn:hover {
-    background: var(--hover-bg, #f0f0f0);
+  .month-select {
+    flex: 1;
+  }
+
+  .year-select {
+    min-width: 80px;
+  }
+
+  .month-select:hover,
+  .year-select:hover {
+    background: var(--hover-bg, #f5f5f5);
+  }
+
+  .month-select:focus,
+  .year-select:focus {
+    outline: 2px solid var(--primary-color, #007aff);
+    outline-offset: 2px;
   }
 
   .weekdays {
@@ -242,7 +251,7 @@
     padding: 4px;
   }
 
-  .days-grid {
+  .grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 2px;
@@ -284,34 +293,6 @@
 
   .day.selected:hover {
     background: var(--primary-dark, #0056b3);
-  }
-
-  .calendar-footer {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--border-color, #eee);
-  }
-
-  .today-btn {
-    width: 100%;
-    padding: 8px;
-    border: none;
-    background: var(--secondary-bg, #f5f5f5);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--text-primary, #000);
-    font-weight: 500;
-  }
-
-  .today-btn:hover {
-    background: var(--hover-bg, #e8e8e8);
-  }
-
-  /* Inline mode: no popup styling */
-  .datepicker-container.inline .calendar {
-    position: static;
-    box-shadow: none;
   }
 </style>
 
