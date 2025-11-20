@@ -122,7 +122,7 @@
   }
 </script>
 
-<div class="main-content">
+<div>
   <MultiPhotoUploader style="position: absolute; right: 1vw; top: 1vw;"/>
 
   <div class="month-selector">
@@ -333,7 +333,6 @@
     position: relative;
     aspect-ratio: 1;
     overflow: hidden;
-    border-radius: 12px;
     background: #f0f0f0;
     cursor: pointer;
     transition: transform 0.2s ease;

@@ -4,8 +4,9 @@
   import AI from '../components/AI/AI.svelte'
   import SearchTab from './SearchTab.svelte'
   import ArchiveTab from './ArchiveTab.svelte'
+  import PhotoGrid from '../components/Archive/PhotoGrid.svelte'
 
-  let activeTab = 'date' // 'date', 'habits', 'ai', 'search', 'archive'
+  let activeTab = 'date' // 'date', 'habits', 'ai', 'search', 'archive', 'photos'
 </script>
 
 <div class="discover-container">
@@ -49,6 +50,13 @@
       >
         <span class="material-symbols-outlined">archive</span>
       </button>
+      <button 
+        class="tab-button" 
+        class:active={activeTab === 'photos'}
+        onclick={() => activeTab = 'photos'}
+      >
+        <span class="material-symbols-outlined">photo_library</span>
+      </button>
     </div>
   </div>
 
@@ -65,6 +73,8 @@
       <SearchTab />
     {:else if activeTab === 'archive'}
       <ArchiveTab />
+    {:else if activeTab === 'photos'}
+      <PhotoGrid />
     {/if}
   </div>
 </div>
@@ -140,7 +150,15 @@
   .tab-content {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    /* Hide scrollbar for Firefox */
+    scrollbar-width: none;
+    /* Hide scrollbar for IE and Edge */
+    -ms-overflow-style: none;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .tab-content::-webkit-scrollbar {
+    display: none;
   }
 </style>
 
