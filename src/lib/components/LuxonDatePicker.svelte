@@ -1,45 +1,46 @@
 <script>
   import { DateTime } from 'luxon'
-  import { onMount } from 'svelte'
+  import { onMount, untrack } from 'svelte'
 
-  // Props - maintaining backward compatibility
-  export let startDateISO = null
-  export let willOpen = false
-  export let ondateselected = () => {}
+  let {
+    startDateISO = null,
+    willOpen = false,
+    ondateselected = () => {}
+  } = $props();
 
   // State
-  let selected = null
-  let month = DateTime.now().startOf('month')
-  let popover = null
-  let inputButton = null
+  let selected = $state(null)
+  let month = $state(DateTime.now().startOf('month'))
+  let popover = $state(null)
+  let inputButton = $state(null)
 
-  // Generate month options
-  const months = Array.from({ length: 12 }, (_, i) => {
-    const dt = DateTime.fromObject({ month: i + 1, day: 1 })
-    return { value: i + 1, label: dt.toFormat('MMMM') }
-  })
-
-  // Generate year options (current year ± 10 years)
-  $: years = (() => {
-    const currentYear = DateTime.now().year
-    const selectedYear = month.year
-    const startYear = Math.min(currentYear, selectedYear) - 10
-    const endYear = Math.max(currentYear, selectedYear) + 10
-    return Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i)
-  })()
-
-  $: selectedMonth = month.month
-  $: selectedYear = month.year
+  let selectedMonth = $derived(month.month)
+  let selectedYear = $derived(month.year)
 
   // Initialize from startDateISO
-  $: if (startDateISO) {
-    try {
-      selected = DateTime.fromISO(startDateISO)
-      month = selected.startOf('month')
-    } catch {
-      selected = null
+  $effect(() => {
+    if (startDateISO) {
+      // Capture dependency
+      const iso = startDateISO;
+      
+      untrack(() => {
+        try {
+          const parsed = DateTime.fromISO(iso)
+          // Update selected if it's different
+          if (!selected || !parsed.hasSame(selected, 'day')) {
+            selected = parsed
+            // Sync month to selected date
+            const newMonth = selected.startOf('month')
+            if (!month.hasSame(newMonth, 'month')) {
+              month = newMonth
+            }
+          }
+        } catch {
+          selected = null
+        }
+      })
     }
-  }
+  })
 
   function ontoggle(e) {
     if (e.newState === 'open' && popover && inputButton) {
@@ -56,20 +57,23 @@
   })
 
   // Format for display: "Jul 19"
-  $: display = selected ? selected.toFormat('MMM d') : ''
+  let display = $derived(selected ? selected.toFormat('MMM d') : '')
+  
+  // Month name for header
+  let monthName = $derived(month.toFormat('MMMM'))
 
-  // Generate calendar grid from first week to last week containing current month
-  $: days = (() => {
+  // Generate calendar grid
+  let days = $derived.by(() => {
     const firstDay = month.startOf('month')
     const lastDay = month.endOf('month')
     const startOfGrid = firstDay.startOf('week')
     const endOfGrid = lastDay.endOf('week')
     
-    const days = []
+    const grid = []
     let current = startOfGrid
     
     while (current <= endOfGrid) {
-      days.push({
+      grid.push({
         date: current,
         isCurrentMonth: current.month === month.month,
         isToday: current.hasSame(DateTime.now(), 'day'),
@@ -78,8 +82,8 @@
       current = current.plus({ days: 1 })
     }
     
-    return days
-  })()
+    return grid
+  })
 
   function selectDate(day) {
     if (day.isSelected) {
@@ -93,14 +97,20 @@
     }
   }
 
-  function handleMonthChange(e) {
-    const newMonth = parseInt(e.target.value)
-    month = month.set({ month: newMonth })
+  function prevMonth() {
+    month = month.minus({ months: 1 })
   }
 
-  function handleYearChange(e) {
-    const newYear = parseInt(e.target.value)
-    month = month.set({ year: newYear })
+  function nextMonth() {
+    month = month.plus({ months: 1 })
+  }
+
+  function handleYearInput(e) {
+    const val = parseInt(e.target.value)
+    // Allow typing (handle partials) but only update if reasonable
+    if (!isNaN(val) && val >= 1 && val <= 9999) {
+      month = month.set({ year: val })
+    }
   }
 </script>
 
@@ -122,16 +132,25 @@
     {ontoggle}
   >
     <div class="header">
-      <select class="month-select" value={selectedMonth} onchange={handleMonthChange}>
-        {#each months as m}
-          <option value={m.value}>{m.label}</option>
-        {/each}
-      </select>
-      <select class="year-select" value={selectedYear} onchange={handleYearChange}>
-        {#each years as y}
-          <option value={y}>{y}</option>
-        {/each}
-      </select>
+      <div class="title-group">
+        <span class="month-label">{monthName}</span>
+        <input 
+          type="number" 
+          class="year-input" 
+          value={selectedYear} 
+          oninput={handleYearInput}
+          placeholder="YYYY"
+        />
+      </div>
+      
+      <div class="nav-group">
+        <button type="button" class="nav-btn" onclick={prevMonth} aria-label="Previous month">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button type="button" class="nav-btn" onclick={nextMonth} aria-label="Next month">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
     </div>
 
     <div class="weekdays">
@@ -159,7 +178,7 @@
 
 <style>
   .cal {
-    /* Base sizing - adjust these to scale the entire component */
+    /* Base sizing */
     --font-size: clamp(16px, 4vw, 18px);
     --font-size-large: clamp(18px, 4.5vw, 22px);
     --font-size-small: clamp(12px, 3vw, 14px);
@@ -215,38 +234,77 @@
   .header {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     margin-bottom: var(--spacing);
-    gap: var(--gap);
+    padding: 0 4px;
   }
 
-  .month-select,
-  .year-select {
-    font-weight: 500;
+  .title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .month-label {
+    font-weight: 600;
     font-size: var(--font-size-large);
-    padding: var(--spacing) 24px var(--spacing) 0;
-    border: none;
-    border-bottom: 1px solid var(--border-color, #ddd);
-    background: transparent;
     color: var(--text-primary, #000);
+  }
+  
+  .year-input {
+    width: 5ch;
+    font-family: inherit;
+    font-size: var(--font-size-large);
+    font-weight: 400;
+    color: var(--text-secondary, #666);
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 4px;
+    transition: all 0.2s;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  
+  .year-input:hover,
+  .year-input:focus {
+    color: var(--text-primary, #000);
+    background: var(--hover-bg, #f5f5f5);
+    outline: none;
+  }
+
+  .year-input::-webkit-outer-spin-button,
+  .year-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-secondary, #666);
     cursor: pointer;
-    min-height: var(--touch-target);
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6' viewBox='0 0 6 6'%3E%3Cpath fill='%23999' d='M0 1.5l3 3 3-3z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 4px center;
-    background-size: 6px;
-    text-align: center;
+    padding: 0;
+    width: var(--touch-target);
+    height: var(--touch-target);
+    border-radius: 50%;
+    transition: background-color 0.2s;
   }
-
-  .month-select {
-    min-width: 120px;
+  
+  .nav-btn:hover {
+    background-color: var(--hover-bg, #f0f0f0);
+    color: var(--text-primary, #000);
   }
-
-  .year-select {
-    min-width: 80px;
-  }
-
 
   .weekdays {
     display: grid;
@@ -310,4 +368,3 @@
     background: var(--primary-dark, #0056b3);
   }
 </style>
-
