@@ -310,6 +310,8 @@
     height: var(--touch-target);
     border-radius: 50%;
     transition: background-color 0.2s;
+    touch-action: manipulation; /* Prevents double-tap zoom on iOS Safari */
+    -webkit-tap-highlight-color: transparent; /* Removes the tap highlight for a cleaner experience (consistent with the day buttons) */
   }
   
   .nav-btn:hover {
