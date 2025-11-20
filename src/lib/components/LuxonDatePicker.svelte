@@ -235,14 +235,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--spacing);
-    padding: 0 4px;
+    margin-bottom: calc(var(--spacing) * 1.5);
+    padding: calc(var(--spacing) * 0.5) calc(var(--spacing) * 0.75);
   }
 
   .title-group {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: baseline;
+    gap: 12px;
   }
 
   .nav-group {
@@ -252,31 +252,42 @@
   }
 
   .month-label {
-    font-weight: 600;
-    font-size: var(--font-size-large);
+    font-weight: 700;
+    font-size: clamp(22px, 5.5vw, 28px);
     color: var(--text-primary, #000);
+    line-height: 1.2;
   }
   
   .year-input {
     width: 5ch;
     font-family: inherit;
-    font-size: var(--font-size-large);
+    font-size: clamp(20px, 5vw, 26px);
     font-weight: 400;
     color: var(--text-secondary, #666);
     background: transparent;
     border: none;
+    border-bottom: 1px dashed var(--text-secondary, #999);
     padding: 0;
+    padding-bottom: 2px;
     margin: 0;
-    border-radius: 4px;
+    border-radius: 0;
     transition: all 0.2s;
+    line-height: 1.2;
     -moz-appearance: textfield;
     appearance: textfield;
   }
   
-  .year-input:hover,
+  .year-input:hover {
+    color: var(--text-primary, #000);
+    border-bottom-color: var(--text-primary, #000);
+    background: transparent;
+  }
+  
   .year-input:focus {
     color: var(--text-primary, #000);
-    background: var(--hover-bg, #f5f5f5);
+    border-bottom-color: var(--primary-color, #007aff);
+    border-bottom-style: solid;
+    background: transparent;
     outline: none;
   }
 
