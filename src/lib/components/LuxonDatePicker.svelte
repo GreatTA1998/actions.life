@@ -158,6 +158,20 @@
 </div>
 
 <style>
+  .cal {
+    /* Base sizing - adjust these to scale the entire component */
+    --font-size: clamp(16px, 4vw, 18px);
+    --font-size-large: clamp(18px, 4.5vw, 22px);
+    --font-size-small: clamp(12px, 3vw, 14px);
+    --spacing: clamp(8px, 2vw, 12px);
+    --gap: clamp(4px, 1vw, 6px);
+    --touch-target: clamp(44px, 10vw, 48px);
+    
+    /* Derived values */
+    --cal-width: clamp(320px, 90vw, 400px);
+    --cal-padding: var(--spacing);
+  }
+
   .picker {
     position: relative;
     display: inline-block;
@@ -182,11 +196,12 @@
 
   .cal {
     background: var(--popup-bg, white);
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    padding: 12px;
+    padding: var(--cal-padding);
     user-select: none;
-    min-width: 280px;
+    width: var(--cal-width);
+    max-width: min(90vw, 400px);
   }
 
   .cal.popup {
@@ -201,75 +216,75 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 12px;
-    gap: 8px;
+    margin-bottom: var(--spacing);
+    gap: var(--gap);
   }
 
   .month-select,
   .year-select {
-    font-weight: 600;
-    font-size: 15px;
-    padding: 4px 8px;
-    border: 1px solid var(--border-color, #ddd);
-    border-radius: 4px;
-    background: var(--popup-bg, white);
+    font-weight: 500;
+    font-size: var(--font-size-large);
+    padding: var(--spacing) 24px var(--spacing) 0;
+    border: none;
+    border-bottom: 1px solid var(--border-color, #ddd);
+    background: transparent;
     color: var(--text-primary, #000);
     cursor: pointer;
+    min-height: var(--touch-target);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6' viewBox='0 0 6 6'%3E%3Cpath fill='%23999' d='M0 1.5l3 3 3-3z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 6px;
+    text-align: center;
   }
 
   .month-select {
-    flex: 1;
+    min-width: 120px;
   }
 
   .year-select {
     min-width: 80px;
   }
 
-  .month-select:hover,
-  .year-select:hover {
-    background: var(--hover-bg, #f5f5f5);
-  }
-
-  .month-select:focus,
-  .year-select:focus {
-    outline: 2px solid var(--primary-color, #007aff);
-    outline-offset: 2px;
-  }
 
   .weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-    margin-bottom: 4px;
+    gap: var(--gap);
+    margin-bottom: var(--gap);
   }
 
   .weekday {
     text-align: center;
-    font-size: 12px;
+    font-size: var(--font-size-small);
     font-weight: 600;
     color: var(--text-secondary, #999);
-    padding: 4px;
+    padding: var(--gap);
   }
 
   .grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
+    gap: var(--gap);
   }
 
   .day {
     aspect-ratio: 1;
     border: none;
     background: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--font-size);
     color: var(--text-primary, #000);
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 36px;
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
     transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .day:hover {
