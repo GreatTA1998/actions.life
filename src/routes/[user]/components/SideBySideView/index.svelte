@@ -77,7 +77,7 @@
 </script>
 
 <div class="side-by-side-container">
-  <div class="list-area-container" style="width: {listAreaWidth}px;">    
+  <div class="list-area-container hide-scrollbar" style="width: {listAreaWidth}px;">    
     <ListsArea />
   </div>
   
@@ -102,7 +102,6 @@
   .list-area-container { /* THIS IS THE SCROLLING CONTAINER */
     height: 100%;
     overflow-y: auto;
-    scrollbar-width: none;
     background-color: var(--todo-list-bg-color, #f5f5f5);
     position: relative;
     flex-shrink: 0;

@@ -60,7 +60,7 @@
   }
 </script>
 
-<div class="{journalLayout}-container" bind:this={PopupElem}>
+<div class="{journalLayout}-container hide-scrollbar" bind:this={PopupElem}>
   <div class={journalLayout}>
     {#if taskObject.imageDownloadURL}
       <PopoverMenu 
@@ -147,12 +147,6 @@
 
   .delete-button {
     border-radius: 24px; 
-  }
-
-  ::-webkit-scrollbar {
-    width: 0px;
-    height: 0px;
-    background: transparent;
   }
 
   .blurred-image {

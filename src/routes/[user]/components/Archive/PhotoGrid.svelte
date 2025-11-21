@@ -105,7 +105,7 @@
   })
 </script>
 
-<div>
+<div class="photo-grid-container">
   <MultiPhotoUploader style="position: absolute; right: 1vw; top: 1vw;"/>
 
   <div class="navigation-container">
@@ -121,52 +121,70 @@
     </button>
   </div>
   
-  <div class="photo-grid">
-    {#if loadingPhotos}
-      <div class="loading">Loading photos...</div>
-    {:else if dateRangePhotoTasks && dateRangePhotoTasks.length > 0}
-      {#each dateRangePhotoTasks as task (task.id)}
-        <div 
-          class="photo-grid-item" 
-          onclick={() => openTaskPopup(task)}
-          onkeydown={(e) => e.key === 'Enter' && openTaskPopup(task)}
-          tabindex="0"
-          role="button"
-          aria-label="Open task details"
-        >
-          <img 
-            src={task.imageDownloadURL} 
-            alt="Task" 
-            loading="lazy"
-          />
-          <div class="photo-overlay">
-            <div style="display: flex;">
-              <div class="photo-date truncate-to-one-line" style="font-size: 1rem; font-weight: 500;">
-                {task.name}
-              </div>
+  <div class="photo-grid-wrapper hide-scrollbar">
+    <div class="photo-grid">
+      {#if loadingPhotos}
+        <div class="loading">Loading photos...</div>
+      {:else if dateRangePhotoTasks && dateRangePhotoTasks.length > 0}
+        {#each dateRangePhotoTasks as task (task.id)}
+          <div 
+            class="photo-grid-item" 
+            onclick={() => openTaskPopup(task)}
+            onkeydown={(e) => e.key === 'Enter' && openTaskPopup(task)}
+            tabindex="0"
+            role="button"
+            aria-label="Open task details"
+          >
+            <img 
+              src={task.imageDownloadURL} 
+              alt="Task" 
+              loading="lazy"
+            />
+            <div class="photo-overlay">
+              <div style="display: flex;">
+                <div class="photo-date truncate-to-one-line" style="font-size: 1rem; font-weight: 500;">
+                  {task.name}
+                </div>
 
-              <div style="margin-left: auto; white-space: nowrap; font-weight: 300; font-size: 1rem;">
-                {DateTime.fromISO(task.startDateISO).toFormat('MMM d, yyyy')}
+                <div style="margin-left: auto; white-space: nowrap; font-weight: 300; font-size: 1rem;">
+                  {DateTime.fromISO(task.startDateISO).toFormat('MMM d, yyyy')}
+                </div>
               </div>
+      
+              <!-- <div class="photo-caption">
+                {task.notes}
+              </div> -->
             </div>
-    
-            <!-- <div class="photo-caption">
-              {task.notes}
-            </div> -->
           </div>
-        </div>
-      {/each}
-    {:else}
-      <div class="no-photos">No photos found for this {viewMode === 'random' ? 'selection' : 'date range'}</div>
-    {/if}
+        {/each}
+      {:else}
+        <div class="no-photos">No photos found for this {viewMode === 'random' ? 'selection' : 'date range'}</div>
+      {/if}
+    </div>
   </div>
 </div>
 
 <style>
+  .photo-grid-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
   .navigation-container {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
-    gap: 12px;
+    box-sizing: border-box;
+  }
+
+  .photo-grid-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding-bottom: 16px;
+    box-sizing: border-box;
   }
 
   .action-button {

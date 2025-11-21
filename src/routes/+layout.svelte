@@ -268,6 +268,24 @@
     gap: 0;
   }
 
+  /* Hide scrollbar utility class - works cross-browser */
+  :global(.hide-scrollbar) {
+    /* Hide scrollbar for Firefox */
+    scrollbar-width: none;
+    /* Hide scrollbar for IE and Edge */
+    -ms-overflow-style: none;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  :global(.hide-scrollbar::-webkit-scrollbar) {
+    display: none;
+    
+    /* previously used */
+    width: 0px;
+    height: 0px;
+    background: transparent;
+  }
+
   /* Original layout.svelte styles */
   .invisible {
     visibility: hidden;

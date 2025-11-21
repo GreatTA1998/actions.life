@@ -171,33 +171,35 @@
 </script>
 
 <div class="archive-tab">
-  <div class="search-bar-container">
-    <div class="search-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+  <div class="fixed-section">
+    <div class="search-bar-container">
+      <div class="search-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </div>
+      <input 
+        type="text" 
+        bind:value={searchQuery} 
+        oninput={handleSearchInput}
+        placeholder="Search archived tasks..." 
+        class="search-input"
+      />
+      {#if loadingIndex}
+        <div class="mini-loader"></div>
+      {/if}
     </div>
-    <input 
-      type="text" 
-      bind:value={searchQuery} 
-      oninput={handleSearchInput}
-      placeholder="Search archived tasks..." 
-      class="search-input"
-    />
-    {#if loadingIndex}
-      <div class="mini-loader"></div>
-    {/if}
-  </div>
 
-  <div class="filters-section">
-    <div class="root-filters">
-      {#each rootTasks as rootTask (rootTask.id)}
-        <button
-          class="root-filter-chip"
-          class:active={selectedRootID === rootTask.id}
-          onclick={() => selectRoot(rootTask.id)}
-        >
-          {rootTask.name || 'Untitled'}
-        </button>
-      {/each}
+    <div class="filters-section">
+      <div class="root-filters">
+        {#each rootTasks as rootTask (rootTask.id)}
+          <button
+            class="root-filter-chip"
+            class:active={selectedRootID === rootTask.id}
+            onclick={() => selectRoot(rootTask.id)}
+          >
+            {rootTask.name || 'Untitled'}
+          </button>
+        {/each}
+      </div>
     </div>
   </div>
 
@@ -237,14 +239,21 @@
 
 <style>
   .archive-tab {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 16px;
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    padding: 16px; /* Added padding */
+  }
+
+  .fixed-section {
+    flex-shrink: 0;
+    padding: 16px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
   .search-bar-container {
@@ -254,7 +263,6 @@
     background: #f5f5f5;
     border-radius: 10px;
     padding: 10px 12px;
-    margin-bottom: 4px;
   }
 
   .search-icon {
@@ -294,7 +302,6 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding-bottom: 8px; /* Space between filters and results */
   }
 
   .root-filters {
@@ -326,9 +333,14 @@
   }
 
   .results-section {
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 0 16px 16px 16px;
+    box-sizing: border-box;
   }
 
   .results-count {

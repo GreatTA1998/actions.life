@@ -97,7 +97,7 @@
     --font-size-small: clamp(12px, 3vw, 14px);
     --spacing: clamp(8px, 2vw, 12px);
     --gap: clamp(4px, 1vw, 6px);
-    --touch-target: clamp(44px, 10vw, 48px);
+    --touch-target: 36px; /* Minimum tappable size for mobile (Microsoft standard, common for date pickers) */
     
     /* Derived values */
     --cal-width: clamp(320px, 90vw, 400px);
@@ -114,7 +114,6 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: var(--gap);
-    margin-bottom: var(--gap);
   }
 
   .weekday {
@@ -142,6 +141,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: var(--touch-target);
+    height: var(--touch-target);
     min-height: var(--touch-target);
     min-width: var(--touch-target);
     transition: all 0.15s;

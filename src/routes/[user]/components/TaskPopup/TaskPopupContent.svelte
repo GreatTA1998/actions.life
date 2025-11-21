@@ -149,12 +149,6 @@
     border-radius: 24px; 
   }
 
-  ::-webkit-scrollbar {
-    width: 0px;
-    height: 0px;
-    background: transparent;
-  }
-
   .notes-tree-container {
     width: 100%; 
     display: flex; 
