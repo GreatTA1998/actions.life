@@ -2,7 +2,6 @@
   import DateTab from './DateTab.svelte'
   import HabitsTab from './HabitsTab.svelte'
   import AI from '../components/AI/AI.svelte'
-  import SearchTab from './SearchTab.svelte'
   import ArchiveTab from './ArchiveTab.svelte'
   import PhotoGrid from '../components/Archive/PhotoGrid.svelte'
 
@@ -39,24 +38,18 @@
 
       <button 
         class="tab-button" 
-        class:active={activeTab === 'ai'}
-        onclick={() => activeTab = 'ai'}
-      >
-        <span class="material-symbols-outlined">smart_toy</span>
-      </button>
-      <button 
-        class="tab-button" 
-        class:active={activeTab === 'search'}
-        onclick={() => activeTab = 'search'}
-      >
-        <span class="material-symbols-outlined">search</span>
-      </button>
-      <button 
-        class="tab-button" 
         class:active={activeTab === 'archive'}
         onclick={() => activeTab = 'archive'}
       >
         <span class="material-symbols-outlined">archive</span>
+      </button>
+
+      <button 
+        class="tab-button" 
+        class:active={activeTab === 'ai'}
+        onclick={() => activeTab = 'ai'}
+      >
+        <span class="material-symbols-outlined">smart_toy</span>
       </button>
     </div>
   </div>
@@ -70,8 +63,6 @@
       <div style="height: 100%;">
         <AI />
       </div>
-    {:else if activeTab === 'search'}
-      <SearchTab />
     {:else if activeTab === 'archive'}
       <ArchiveTab />
     {:else if activeTab === 'photos'}
@@ -123,7 +114,7 @@
     background: transparent;
     cursor: pointer;
     color: #666;
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     transition: all 0.2s;
     position: relative;
   }
@@ -145,7 +136,7 @@
   }
 
   .tab-button .material-symbols-outlined {
-    font-size: 24px;
+    font-size: var(--font-size-xxl);
   }
 
   .tab-content {

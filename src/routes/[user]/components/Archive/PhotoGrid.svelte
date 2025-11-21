@@ -230,7 +230,7 @@
 
   .photo-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: 2px;
     min-height: 240px;
   }
