@@ -76,9 +76,9 @@
             </div>
             <div class="journal-entry-notes">
               {#if instance.imageDownloadURL}
-                <img src={instance.imageDownloadURL} alt="Task" style="height: 300px; width: auto;" />
+                <img src={instance.imageDownloadURL} alt="Task" class="entry-image" />
               {/if}
-              {instance.notes || ''}
+              <div class="entry-text">{instance.notes || ''}</div>
             </div>
           </div>
         </div>
@@ -195,8 +195,41 @@
     line-height: 1.6;
     padding-right: 20px;
     display: flex; 
-    align-items: top;
+    align-items: flex-start;
     column-gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .entry-image {
+    height: 300px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .entry-text {
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  @media (max-width: 768px) {
+    .journal-entry-notes {
+      flex-direction: column;
+    }
+
+    .entry-image {
+      width: 100%;
+      height: auto;
+      max-height: 300px;
+      margin-bottom: 8px;
+    }
+
+    .entry-text {
+      width: 100%;
+    }
   }
 
   .empty-state {
