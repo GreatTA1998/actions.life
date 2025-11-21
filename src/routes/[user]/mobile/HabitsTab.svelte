@@ -7,14 +7,21 @@
   import ListenToRoutineInstances from '../components/Archive/ListenToRoutineInstances.svelte'
   import JournalEntries from '../components/Archive/JournalEntries.svelte'
   import BaseMenu from '$lib/components/BaseMenu.svelte'
+  import StarButton from '$lib/components/StarButton.svelte'
   import Template from '$lib/db/models/Template.js'
   import { openTemplateEditor } from '../components/Templates/store.js'
   import TemplatePopup from '../components/Templates/components/TemplatePopup/TemplatePopup.svelte'
+  import { round } from '$lib/utils/core.js'
 
   function formatTime(minutes) {
-    if (minutes < 60) return `${Math.round(minutes)} mins`
-    const hours = Math.round(minutes / 60)
-    return `${hours} hrs`
+    const roundedMinutes = round(minutes, 0)
+    if (roundedMinutes < 60) return `${roundedMinutes} mins`
+    const hours = Math.floor(roundedMinutes / 60)
+    const remainingMinutes = roundedMinutes % 60
+    if (remainingMinutes === 0) {
+      return `${hours} hr${hours !== 1 ? 's' : ''}`
+    }
+    return `${hours} hr${hours !== 1 ? 's' : ''} ${remainingMinutes} min${remainingMinutes !== 1 ? 's' : ''}`
   }
 
   let routines = $state(null)
@@ -22,6 +29,7 @@
   let routineStats = $state(new Map())
   let maxMinutesSpent = $state(0)
   let fetchedStats = new Set() // Track which routines we've fetched stats for
+  let statsLoaded = $state(false) // Track when stats have finished loading
 
   // Fetch stats for starred routines only once when routines load
   async function fetchStarredStats(routines) {
@@ -31,7 +39,10 @@
     // Only fetch stats for routines we haven't fetched yet
     const toFetch = starredWithIcons.filter(r => !fetchedStats.has(r.id))
     
-    if (toFetch.length === 0) return
+    if (toFetch.length === 0) {
+      statsLoaded = true
+      return
+    }
     
     const statsPromises = toFetch.map(routine => 
       Template.getTotalStats({ id: routine.id })
@@ -58,6 +69,7 @@
     
     maxMinutesSpent = maxTime
     routineStats = new Map(routineStats) // trigger reactivity
+    statsLoaded = true
   }
 
   let starredWithIcons = $derived.by(() => {
@@ -98,7 +110,25 @@
       routines = temp
       
       // Fetch stats for starred routines
+      statsLoaded = false
       await fetchStarredStats(routines)
+      
+      // Auto-select the top starred routine if available
+      if (!selectedRoutineID) {
+        // Get starred routines with icons and sort by stats (same logic as starredWithIcons)
+        const starredWithIconsList = routines
+          .filter(r => r.isStarred && r.iconURL)
+          .sort((a, b) => {
+            const statsA = routineStats.get(a.id) || { minutesSpent: 0 }
+            const statsB = routineStats.get(b.id) || { minutesSpent: 0 }
+            return statsB.minutesSpent - statsA.minutesSpent
+          })
+        
+        // Select the top starred routine with icon (sorted by stats)
+        if (starredWithIconsList.length > 0) {
+          selectedRoutineID = starredWithIconsList[0].id
+        }
+      }
     })
   }
 
@@ -112,12 +142,24 @@
 
   function getBarWidth(minutes) {
     if (!maxMinutesSpent || !minutes) return 0
-    return (minutes / maxMinutesSpent) * 100 // 100% of available space for row layout
+    // Scale to max 75% to leave room for hours text
+    return (minutes / maxMinutesSpent) * 75
+  }
+
+  function formatHours(minutes) {
+    if (!minutes) return '0 hrs'
+    const roundedMinutes = round(minutes, 0)
+    const hours = Math.floor(roundedMinutes / 60)
+    return `${hours} hr${hours !== 1 ? 's' : ''}`
+  }
+
+  async function toggleStar (routineID, value) {
+    await Template.update({ id: routineID, updates: { isStarred: !value } })
   }
 </script>
 
 <div class="habits-view">
-  {#if routines}
+  {#if routines && statsLoaded}
     {#if starredWithIcons.length > 0}
       <!-- First 3 routines with bars -->
       <div class="starred-routines-list">
@@ -140,7 +182,10 @@
             <div class="routine-bar-container">
               {#if routineStats.has(routine.id)}
                 {@const stats = routineStats.get(routine.id)}
-                <div class="routine-bar" style="width: {getBarWidth(stats.minutesSpent)}%"></div>
+                <div class="routine-bar-wrapper">
+                  <div class="routine-bar" style="width: {getBarWidth(stats.minutesSpent)}%"></div>
+                  <span class="routine-hours">{formatHours(stats.minutesSpent)}</span>
+                </div>
               {/if}
             </div>
           </button>
@@ -234,7 +279,13 @@
         {#if selectedRoutine}
           {@const stats = routineStats.get(selectedRoutineID)}
           <div class="routine-header">
-            <h2>{selectedRoutine.name}</h2>
+            <div class="routine-title-row">
+              <h2>{selectedRoutine.name}</h2>
+              <StarButton 
+                isStarred={selectedRoutine.isStarred}
+                onToggle={() => toggleStar(selectedRoutineID, selectedRoutine.isStarred)}
+              />
+            </div>
             {#if stats}
               <div class="routine-stats">
                 <span class="stat-item">{formatTime(stats.minutesSpent)}</span>
@@ -245,26 +296,22 @@
           </div>
           
           <JournalEntries 
-            {selectedRoutine}
             routineInstances={instances}
-            showIcon={false}
           />
         {/if}
       </ListenToDoc>
     </ListenToRoutineInstances>
-  {:else}
-    <div class="select-habit-prompt">
-      <span class="material-symbols-outlined">info</span>
-      <p>Select a habit to view its instances</p>
-    </div>
   {/if}
 
+  <!-- TO-DO: fix rrStr -->
   <!-- <TemplatePopup /> -->
 </div>
 
 <style>
   .habits-view {
     height: 100%;
+    --routine-compact-size: 40px;
+    --routine-compact-padding: 2px;
   }
 
   .starred-routines-list {
@@ -314,25 +361,50 @@
 
   .routine-bar-container {
     flex: 1;
-    height: 5px;
+    min-height: 5px;
     background: transparent;
     border-radius: 3px;
     overflow: visible;
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0; /* Allow flex item to shrink below content size */
+  }
+
+  .routine-bar-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 5px;
+    position: relative;
+    min-width: 0; /* Allow flex item to shrink below content size */
   }
 
   .routine-bar {
-    height: 100%;
+    height: 5px;
     background: #4caf50;
     border-radius: 3px;
     transition: width 0.3s ease;
     min-width: 2px;
+    flex-shrink: 1; /* Allow bar to shrink if needed */
+    max-width: 100%; /* Prevent bar from exceeding wrapper */
+  }
+
+  .routine-hours {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: #666;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: fit-content;
   }
 
   .starred-routines-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 0px;
+    gap: 2px;
     margin-bottom: 12px;
     padding: 0 4px;
   }
@@ -341,13 +413,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4px;
+    padding: var(--routine-compact-padding);
     border: none;
     background: transparent;
     cursor: pointer;
     border-radius: 6px;
-    min-width: 48px;
-    min-height: 48px;
+    width: var(--routine-compact-size);
+    height: var(--routine-compact-size);
+    box-sizing: border-box;
   }
 
   .starred-routine-compact:hover {
@@ -359,61 +432,10 @@
   }
 
   .routine-icon-compact {
-    width: 40px;
-    height: 40px;
+    width: calc(var(--routine-compact-size) - 2 * var(--routine-compact-padding));
+    height: calc(var(--routine-compact-size) - 2 * var(--routine-compact-padding));
     object-fit: contain;
     flex-shrink: 0;
-  }
-
-  .habits-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 0;
-    margin-bottom: 12px;
-  }
-
-  .habit-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 4px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    position: relative;
-    border-radius: 6px;
-    min-height: 60px;
-    overflow: hidden;
-  }
-
-  .habit-item:hover {
-    background: rgba(0, 0, 0, 0.04);
-  }
-
-  .habit-item.selected {
-    background: rgba(0, 89, 125, 0.1);
-  }
-
-  .habit-icon {
-    width: 100%;
-    height: 100%;
-    max-width: 40px;
-    max-height: 40px;
-    object-fit: contain;
-    z-index: 1;
-  }
-
-  .time-bar {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    height: 4px;
-    background: #4caf50;
-    border-radius: 2px;
-    transition: width 0.3s ease;
-    min-width: 4px;
   }
 
   .select-habit-prompt {
@@ -431,7 +453,7 @@
   }
 
   .more-button {
-    background: rgba(0, 0, 0, 0.02);
+    background: transparent;
   }
 
   .more-icon {
@@ -513,10 +535,18 @@
     padding: 0 16px;
   }
 
+  .routine-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
   .routine-header h2 {
-    margin: 0 0 8px 0;
+    margin: 0;
     font-size: var(--font-size-xxl);
     font-weight: 600;
+    flex: 1;
   }
 
   .routine-stats {

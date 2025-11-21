@@ -1,10 +1,8 @@
 <script>
-  import { formatDate } from '/src/lib/utils/core.js'
+  import { formatDate, round } from '/src/lib/utils/core.js'
   import { openTaskPopup } from '/src/lib/store'
 
   export let routineInstances = null
-  export let selectedRoutine = null
-  export let showIcon = true
 
   function calculateGapSize(currentDate, nextDate) {
     if (!currentDate || !nextDate) return 32
@@ -23,8 +21,9 @@
 
   function formatDuration(minutes) {
     if (!minutes) return ''
-    const hours = Math.floor(minutes / 60)
-    const remainingMins = minutes % 60
+    const roundedMinutes = round(minutes, 0)
+    const hours = Math.floor(roundedMinutes / 60)
+    const remainingMins = roundedMinutes % 60
     
     if (hours === 0) {
       return `${remainingMins} mins`
