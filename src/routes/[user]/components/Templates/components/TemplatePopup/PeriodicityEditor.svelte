@@ -94,7 +94,9 @@
 
   {#if pendingRRStr !== routine.rrStr}
     <div class="changes-section">
-      <PreviewChanges {pendingRRStr} {addingTasks} {deletingTasks} {exceptions}/>
+      {#if !isCreating}
+        <PreviewChanges {pendingRRStr} {addingTasks} {deletingTasks} {exceptions}/>
+      {/if}
 
       <div class="action-button-container">
         {#if isCreating}

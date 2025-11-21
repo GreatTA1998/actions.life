@@ -1,7 +1,7 @@
 <script>
   import MinimalisticInput from '$lib/components/MinimalisticInput.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
-  import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
+  import LuxonDatePicker from '$lib/components/LuxonDatePicker.svelte'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
@@ -27,9 +27,8 @@
 
 <div style="display: flex; align-items: start; gap: 16px; font-size: 1.2em;">
   <div style="display: flex; column-gap: 2px;">
-    <!-- quickfix, if it changes on every `taskObject` without id, the datepicker's node attachments would break for some reason -->
     {#key taskObject.id}
-      <MyJSDatePicker
+      <LuxonDatePicker
         startDateISO={taskObject.startDateISO}
         willOpen={$willOpenDatePicker}
         ondateselected={({ mmdd, yyyy }) => { 

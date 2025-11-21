@@ -142,7 +142,7 @@
   }
 
   .task-content {
-    font-size: 30px; /* set font-size here */
+    font-size: var(--font-size-xxxl);
 
     display: flex;
     align-items: center;

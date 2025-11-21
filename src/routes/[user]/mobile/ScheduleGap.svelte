@@ -22,7 +22,7 @@
 
 <style>
   .time-gap {
-    font-size: 16px;
+    font-size: var(--font-size-lg);
     text-align: center;
   }
 </style>

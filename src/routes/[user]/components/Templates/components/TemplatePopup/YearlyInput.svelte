@@ -1,6 +1,6 @@
 <script>
   import { parseYearly } from '$lib/utils/rrule.js'
-  import MyJSDatePicker from '$lib/components/MyJSDatePicker.svelte'
+  import LuxonDatePicker from '$lib/components/LuxonDatePicker.svelte'
   import { onMount, getContext } from 'svelte'
 
   const inputStates = getContext('inputStates')
@@ -33,7 +33,7 @@
 </script>
 
 <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
-  <MyJSDatePicker
+  <LuxonDatePicker
     startDateISO={selectedISO}
     ondateselected={handleDateSelected}
   />

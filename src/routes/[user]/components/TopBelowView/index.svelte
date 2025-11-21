@@ -89,7 +89,7 @@
 </script>
 
 <div class="top-below-container" bind:this={containerElement}>
-  <div class="calendar-container" style="height: {calendarHeight}px;">
+  <div class="calendar-container hide-scrollbar" style="height: {calendarHeight}px;">
     <Calendar />
   </div>
 
@@ -123,7 +123,6 @@
     width: 100%;
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-width: none;
     background-color: var(--todo-list-bg-color, #f5f5f5);
     position: relative;
     flex-shrink: 0;

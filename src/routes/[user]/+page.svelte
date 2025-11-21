@@ -11,7 +11,6 @@
   import { onDestroy, onMount } from 'svelte'
   import { user, loadingTasks, showSnackbar, isTaskPopupOpen, activeView } from '$lib/store'
 
-  let isShowingAI = true
   let unsub
 
   onMount(() => {
