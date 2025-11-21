@@ -96,6 +96,12 @@
 </div>
 
 <style>
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
   .journal-entries {
     --timeline-left: 4px;
     --content-padding-left: 16px;

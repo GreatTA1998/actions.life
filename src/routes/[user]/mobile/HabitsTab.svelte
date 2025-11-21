@@ -159,66 +159,68 @@
 </script>
 
 <div class="habits-view">
-  {#if routines && statsLoaded}
-    {#if starredWithIcons.length > 0}
-      <!-- First 3 routines with bars -->
-      <div class="starred-routines-list">
-        {#each starredWithIcons.slice(0, 3) as routine (routine.id)}
-          <button 
-            class="starred-routine-row"
-            onclick={() => selectHabit(routine.id)}
-          >
-            <div 
-              class="routine-icon-wrapper"
-              class:selected={selectedRoutineID === routine.id}
+  <div class="routines-section">
+    {#if routines && statsLoaded}
+      {#if starredWithIcons.length > 0}
+        <!-- First 3 routines with bars -->
+        <div class="starred-routines-list">
+          {#each starredWithIcons.slice(0, 3) as routine (routine.id)}
+            <button 
+              class="starred-routine-row"
+              onclick={() => selectHabit(routine.id)}
             >
-              <img 
-                src={routine.iconURL} 
-                alt={routine.name} 
-                class="routine-icon" 
-                title={routine.name}
-              />
-            </div>
-            <div class="routine-bar-container">
-              {#if routineStats.has(routine.id)}
-                {@const stats = routineStats.get(routine.id)}
-                <div class="routine-bar-wrapper">
-                  <div class="routine-bar" style="width: {getBarWidth(stats.minutesSpent)}%"></div>
-                  <span class="routine-hours">{formatHours(stats.minutesSpent)}</span>
-                </div>
-              {/if}
-            </div>
-          </button>
-        {/each}
-      </div>
-      
-      <!-- Remaining routines in compact grid -->
-      {#if starredWithIcons.length > 3 || unstarredWithIcons.length > 0 || textRoutines.length > 0}
-        <div class="starred-routines-grid">
-          {#if starredWithIcons.length > 3}
-            {#each starredWithIcons.slice(3) as routine (routine.id)}
-              <button 
-                class="starred-routine-compact"
+              <div 
+                class="routine-icon-wrapper"
                 class:selected={selectedRoutineID === routine.id}
-                onclick={() => selectHabit(routine.id)}
               >
                 <img 
                   src={routine.iconURL} 
                   alt={routine.name} 
-                  class="routine-icon-compact" 
+                  class="routine-icon" 
                   title={routine.name}
                 />
-              </button>
-            {/each}
-          {/if}
-          
-          {#if unstarredWithIcons.length > 0 || textRoutines.length > 0}
-            <BaseMenu {activator} {content} />
-          {/if}
+              </div>
+              <div class="routine-bar-container">
+                {#if routineStats.has(routine.id)}
+                  {@const stats = routineStats.get(routine.id)}
+                  <div class="routine-bar-wrapper">
+                    <div class="routine-bar" style="width: {getBarWidth(stats.minutesSpent)}%"></div>
+                    <span class="routine-hours">{formatHours(stats.minutesSpent)}</span>
+                  </div>
+                {/if}
+              </div>
+            </button>
+          {/each}
         </div>
+        
+        <!-- Remaining routines in compact grid -->
+        {#if starredWithIcons.length > 3 || unstarredWithIcons.length > 0 || textRoutines.length > 0}
+          <div class="starred-routines-grid">
+            {#if starredWithIcons.length > 3}
+              {#each starredWithIcons.slice(3) as routine (routine.id)}
+                <button 
+                  class="starred-routine-compact"
+                  class:selected={selectedRoutineID === routine.id}
+                  onclick={() => selectHabit(routine.id)}
+                >
+                  <img 
+                    src={routine.iconURL} 
+                    alt={routine.name} 
+                    class="routine-icon-compact" 
+                    title={routine.name}
+                  />
+                </button>
+              {/each}
+            {/if}
+            
+            {#if unstarredWithIcons.length > 0 || textRoutines.length > 0}
+              <BaseMenu {activator} {content} />
+            {/if}
+          </div>
+        {/if}
       {/if}
     {/if}
-  {/if}
+  </div>
 
   {#snippet activator({ toggle })}
     <button onclick={toggle}
@@ -268,39 +270,43 @@
   {/snippet}
 
   {#if selectedRoutineID}
-    <ListenToRoutineInstances 
-      templateID={selectedRoutineID}
-      userID={$user.uid}
-      let:routineInstances={instances}
-    >
-      <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}
-        let:theDoc={selectedRoutine}
+    <div class="routine-content-section">
+      <ListenToRoutineInstances 
+        templateID={selectedRoutineID}
+        userID={$user.uid}
+        let:routineInstances={instances}
       >
-        {#if selectedRoutine}
-          {@const stats = routineStats.get(selectedRoutineID)}
-          <div class="routine-header">
-            <div class="routine-title-row">
-              <h2>{selectedRoutine.name}</h2>
-              <StarButton 
-                isStarred={selectedRoutine.isStarred}
-                onToggle={() => toggleStar(selectedRoutineID, selectedRoutine.isStarred)}
+        <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}
+          let:theDoc={selectedRoutine}
+        >
+          {#if selectedRoutine}
+            {@const stats = routineStats.get(selectedRoutineID)}
+            <div class="routine-header">
+              <div class="routine-title-row">
+                <h2>{selectedRoutine.name}</h2>
+                <StarButton 
+                  isStarred={selectedRoutine.isStarred}
+                  onToggle={() => toggleStar(selectedRoutineID, selectedRoutine.isStarred)}
+                />
+              </div>
+              {#if stats}
+                <div class="routine-stats">
+                  <span class="stat-item">{formatTime(stats.minutesSpent)}</span>
+                  <span class="stat-divider">•</span>
+                  <span class="stat-item">completed {stats.timesCompleted} times</span>
+                </div>
+              {/if}
+            </div>
+            
+            <div class="journal-entries-wrapper">
+              <JournalEntries 
+                routineInstances={instances}
               />
             </div>
-            {#if stats}
-              <div class="routine-stats">
-                <span class="stat-item">{formatTime(stats.minutesSpent)}</span>
-                <span class="stat-divider">•</span>
-                <span class="stat-item">completed {stats.timesCompleted} times</span>
-              </div>
-            {/if}
-          </div>
-          
-          <JournalEntries 
-            routineInstances={instances}
-          />
-        {/if}
-      </ListenToDoc>
-    </ListenToRoutineInstances>
+          {/if}
+        </ListenToDoc>
+      </ListenToRoutineInstances>
+    </div>
   {/if}
 
   <!-- TO-DO: fix rrStr -->
@@ -310,8 +316,21 @@
 <style>
   .habits-view {
     height: 100%;
+    display: flex;
+    flex-direction: column;
     --routine-compact-size: 40px;
     --routine-compact-padding: 2px;
+  }
+
+  .routines-section {
+    flex-shrink: 0;
+  }
+
+  .routine-content-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .starred-routines-list {
@@ -531,8 +550,14 @@
   }
 
   .routine-header {
+    flex-shrink: 0;
     margin-bottom: 20px;
     padding: 0 16px;
+  }
+
+  .journal-entries-wrapper {
+    flex: 1;
+    min-height: 0;
   }
 
   .routine-title-row {
