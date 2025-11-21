@@ -1,292 +1,275 @@
 <script>
   import { user } from '$lib/store'
   import { DateTime } from 'luxon'
-  import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore'
+  import { collection, query, where, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
   import { openTaskPopup, updateCache } from '$lib/store/index.js'
-  import { onMount, onDestroy } from 'svelte'
+  import { onMount, onDestroy, tick } from 'svelte'
+  import DatePicker from '$lib/components/DatePicker.svelte'
 
-  // Calendar state
-  let viewingMonth = DateTime.now().startOf('month')
-  let selectedDate = DateTime.now().startOf('day')
-  let selectedTasks = []
-  let allMonthTasks = [] // Tasks for the entire month to show indicators
-  let loadingTasks = false
-  let unsub
+  // --- State ---
+  let selectedDate = $state(DateTime.now().startOf('day'))
+  // loadedDays: Array of objects { date: DateTime, dateISO: string, tasks: Task[] }
+  let loadedDays = $state([]) 
+  let visibleDays = $derived(loadedDays.filter(d => d.tasks.length > 0))
+  let loading = $state(false)
+  let unsubs = [] 
+  let scrollContainer = $state(null)
+  let scrollTimeout
 
-  // Month/Year picker state
-  let showMonthPicker = false
-  let showYearPicker = false
-  let monthYearButtonRef
+  // --- Constants ---
+  const CHUNK_SIZE = 14 // Load 2 weeks at a time
+  const SCROLL_THRESHOLD = 500 // Pixels from bottom to trigger load
 
-  // Filter tasks by selected date
-  let selectedDateISO = selectedDate.toISODate()
-
-  $: if (selectedDateISO) {
-    loadTasksForDate()
-  }
-
-  $: if (viewingMonth) {
-    loadTasksForMonth()
-  }
-
-  $: calendarDays = getCalendarDays(viewingMonth)
-
-  onMount(async () => {
-    loadTasksForDate()
-    loadTasksForMonth()
+  // --- Lifecycle ---
+  onMount(() => {
+    resetAndLoadFrom(selectedDate)
   })
 
   onDestroy(() => {
-    if (unsub) unsub()
+    cleanupListeners()
+    if (scrollTimeout) clearTimeout(scrollTimeout)
   })
 
-  function getCalendarDays(month) {
-    const firstDay = month.startOf('month')
-    const lastDay = month.endOf('month')
-    const startOfCalendar = firstDay.startOf('week') // Start from Sunday
-    const endOfCalendar = lastDay.endOf('week') // End on Saturday
+  function cleanupListeners() {
+    unsubs.forEach(u => u())
+    unsubs = []
+  }
+
+  // --- Core Logic ---
+
+  // 1. Reset & Load (Teleport)
+  async function resetAndLoadFrom(anchorDate) {
+    cleanupListeners()
+    loading = true
+    loadedDays = [] // Clear current view
     
-    const days = []
-    let current = startOfCalendar
+    // Generate the initial chunk of days
+    addDayChunk(anchorDate, CHUNK_SIZE)
     
-    while (current <= endOfCalendar) {
-      days.push({
-        date: current,
-        isCurrentMonth: current.month === month.month && current.year === month.year,
-        isToday: current.hasSame(DateTime.now(), 'day'),
-        isSelected: current.hasSame(selectedDate, 'day')
-      })
-      current = current.plus({ days: 1 })
+    // Reset scroll position
+    await tick()
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0
     }
     
-    return days
+    loading = false
   }
 
-  function getTasksForDate(dateISO) {
-    return allMonthTasks.filter(task => task.startDateISO === dateISO)
+  // 2. Load More (Infinite Scroll)
+  function loadMore() {
+    if (loading || loadedDays.length === 0) return
+    
+    const lastDay = loadedDays[loadedDays.length - 1].date
+    const nextStart = lastDay.plus({ days: 1 })
+    
+    addDayChunk(nextStart, CHUNK_SIZE)
   }
 
-  function hasTasksForDate(dateISO) {
-    return allMonthTasks.some(task => task.startDateISO === dateISO)
-  }
+  // Helper: Add a chunk of empty days and attach a listener for them
+  function addDayChunk(startDate, count) {
+    const newDays = []
+    for (let i = 0; i < count; i++) {
+      const date = startDate.plus({ days: i })
+      newDays.push({
+        date,
+        dateISO: date.toISODate(),
+        tasks: [] // Will be populated by listener
+      })
+    }
+    
+    // Append to state
+    loadedDays = [...loadedDays, ...newDays]
 
-  async function loadTasksForDate() {
-    loadingTasks = true
+    // Setup Firestore listener for this range
+    const startISO = startDate.toISODate()
+    const endISO = startDate.plus({ days: count - 1 }).toISODate()
+    
     try {
       const ref = collection(db, '/users/' + $user.uid + '/tasks')
       const q = query(
         ref,
-        where('startDateISO', '==', selectedDateISO)
+        where('startDateISO', '>=', startISO),
+        where('startDateISO', '<=', endISO)
       )
-      
-      if (unsub) unsub()
-      unsub = onSnapshot(q, (querySnapshot) => {
-        const tasks = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-        // Sort by time if available
-        tasks.sort((a, b) => {
-          if (a.startTime && b.startTime) {
-            return a.startTime.localeCompare(b.startTime)
-          }
-          return 0
-        })
+
+      const unsub = onSnapshot(q, (snapshot) => {
+        const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+        
+        // Update global cache if needed
         updateCache(tasks)
-        selectedTasks = tasks
-        loadingTasks = false
+        
+        // Distribute tasks to the correct days in our local state
+        distributeTasks(tasks, startISO, endISO)
+      }, (error) => {
+        console.error("Error listening to tasks:", error)
       })
-    } catch (error) {
-      console.error('Error loading tasks:', error)
-      loadingTasks = false
-    }
-  }
-
-  async function loadTasksForMonth() {
-    const startDateISO = viewingMonth.startOf('month').toISODate()
-    const endDateISO = viewingMonth.endOf('month').toISODate()
-    
-    try {
-      const ref = collection(db, '/users/' + $user.uid + '/tasks')
-      const q = query(
-        ref,
-        where('startDateISO', '>=', startDateISO),
-        where('startDateISO', '<=', endDateISO)
-      )
       
-      const snapshot = await getDocs(q)
-      allMonthTasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-    } catch (error) {
-      console.error('Error loading month tasks:', error)
+      unsubs.push(unsub)
+    } catch (err) {
+      console.error("Error setting up listener:", err)
     }
   }
 
-  function selectDate(date) {
-    selectedDate = date.startOf('day')
-    selectedDateISO = selectedDate.toISODate()
+  function distributeTasks(fetchedTasks, startRangeISO, endRangeISO) {
+    // Create a map for easier lookup
+    const taskMap = {}
+    fetchedTasks.forEach(t => {
+      if (!taskMap[t.startDateISO]) taskMap[t.startDateISO] = []
+      taskMap[t.startDateISO].push(t)
+    })
+
+    // We only want to update the days within the range of this listener
+    // to avoid re-rendering the whole list if not needed, 
+    // though Svelte 5 fine-grained reactivity handles this well.
+    loadedDays = loadedDays.map(day => {
+      // Only update if this day is within the range we just fetched for
+      // (Optimization: actually we can just update all matching ISOs since map lookup is fast)
+      if (day.dateISO >= startRangeISO && day.dateISO <= endRangeISO) {
+        let dayTasks = taskMap[day.dateISO] || []
+        // Sort by time
+        dayTasks.sort((a, b) => {
+           if (a.startTime && b.startTime) return a.startTime.localeCompare(b.startTime)
+           return 0
+        })
+        return { ...day, tasks: dayTasks }
+      }
+      return day
+    })
   }
 
-  function goToPreviousMonth() {
-    viewingMonth = viewingMonth.minus({ months: 1 }).startOf('month')
-  }
+  // --- Interaction Handlers ---
 
-  function goToNextMonth() {
-    viewingMonth = viewingMonth.plus({ months: 1 }).startOf('month')
-  }
+  // Handle date selection from the calendar component
+  function handleDateSelected({ mmdd, yyyy }) {
+    if (!mmdd || !yyyy) return
 
-  function goToToday() {
-    viewingMonth = DateTime.now().startOf('month')
-    selectDate(DateTime.now())
-  }
+    const [month, day] = mmdd.split('/').map(Number)
+    const year = Number(yyyy)
+    const newDate = DateTime.fromObject({ year, month, day }).startOf('day')
+    
+    // Update selection state immediately
+    selectedDate = newDate
 
-  function selectMonth(monthIndex) {
-    viewingMonth = viewingMonth.set({ month: monthIndex })
-    showMonthPicker = false
-    // Select first day of the month if current selection is out of range
-    if (selectedDate.month !== monthIndex || selectedDate.year !== viewingMonth.year) {
-      selectDate(viewingMonth.startOf('month'))
+    // Check if this date is already rendered in our list
+    const existingIndex = loadedDays.findIndex(d => d.date.hasSame(newDate, 'day'))
+
+    if (existingIndex !== -1) {
+      // Case A: Date is loaded -> Scroll to it
+      const el = document.getElementById(`day-${newDate.toISODate()}`)
+      if (el) {
+        // Temporarily disable scroll listener updates to avoid fighting
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    } else {
+      // Case B: Date is far away -> Teleport (Reset view)
+      resetAndLoadFrom(newDate)
     }
   }
 
-  function selectYear(year) {
-    viewingMonth = viewingMonth.set({ year })
-    showYearPicker = false
-    // Select first day of the month if current selection is out of range
-    if (selectedDate.year !== year) {
-      selectDate(viewingMonth.startOf('month'))
+  // Handle scroll to update selected date (Intersection Observer alternative)
+  function handleScroll(e) {
+    const container = e.target
+
+    // 1. Infinite Scroll Trigger
+    const distToBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+    if (distToBottom < SCROLL_THRESHOLD) {
+      loadMore()
     }
-  }
 
-  function toggleMonthPicker() {
-    showMonthPicker = !showMonthPicker
-    showYearPicker = false
-  }
+    // 2. Update Calendar Selection based on visible day
+    // Debounce slightly to avoid thrashing updates
+    if (scrollTimeout) clearTimeout(scrollTimeout)
+    scrollTimeout = setTimeout(() => {
+      if (!container) return
+      
+      const dayHeaders = container.querySelectorAll('.day-section')
+      const containerRect = container.getBoundingClientRect()
+      const offset = 80 // look a bit down from the top
 
-  function toggleYearPicker() {
-    showYearPicker = !showYearPicker
-    showMonthPicker = false
+      for (const section of dayHeaders) {
+        const rect = section.getBoundingClientRect()
+        // The first section that has its bottom below our offset line is the "current" one
+        if (rect.bottom > containerRect.top + offset) {
+          const iso = section.dataset.iso
+          if (iso && (!selectedDate || selectedDate.toISODate() !== iso)) {
+            // Update selectedDate without triggering a reload (one-way sync here)
+            selectedDate = DateTime.fromISO(iso)
+          }
+          break
+        }
+      }
+    }, 50)
   }
-
-  function handleClickOutside(event) {
-    if (monthYearButtonRef && !monthYearButtonRef.contains(event.target)) {
-      showMonthPicker = false
-      showYearPicker = false
-    }
-  }
-
-  function stopPropagation(event) {
-    event.stopPropagation()
-  }
-
-  $: monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                   'July', 'August', 'September', 'October', 'November', 'December']
-  
-  $: currentYear = viewingMonth.year
-  $: currentMonth = viewingMonth.month
-  
-  $: years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i)
 </script>
 
-<div class="date-view" on:click={handleClickOutside}>
-  <div class="calendar-header" bind:this={monthYearButtonRef}>
-    <div class="month-year">
-      <button class="month-button" on:click={(e) => { e.stopPropagation(); toggleMonthPicker(); }}>
-        {viewingMonth.toFormat('MMM')}
-      </button>
-      <button class="year-button" on:click={(e) => { e.stopPropagation(); toggleYearPicker(); }}>
-        {viewingMonth.toFormat('yyyy')}
-      </button>
-    </div>
-    
-    {#if showMonthPicker}
-      <div class="picker-popover month-picker" on:click={stopPropagation}>
-        {#each monthNames as monthName, index}
-          <button
-            class="picker-item"
-            class:active={index + 1 === currentMonth}
-            on:click={() => selectMonth(index + 1)}
-          >
-            {monthName}
-          </button>
-        {/each}
-      </div>
-    {/if}
-    
-    {#if showYearPicker}
-      <div class="picker-popover year-picker" on:click={stopPropagation}>
-        {#each years as year}
-          <button
-            class="picker-item"
-            class:active={year === currentYear}
-            on:click={() => selectYear(year)}
-          >
-            {year}
-          </button>
-        {/each}
-      </div>
-    {/if}
+<div class="date-view">
+  <!-- Calendar Header -->
+  <div class="calendar-container">
+    <DatePicker
+      selected={selectedDate}
+      inline={true}
+      ondateselected={handleDateSelected}
+    />
   </div>
 
-  <div class="calendar-grid">
-    <div class="day-header">
-      {#each ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as day}
-        <div class="day-header-cell">{day}</div>
-      {/each}
-    </div>
-    <div class="calendar-days">
-      {#each calendarDays as day (day.date.toISODate())}
-        <button
-          class="day-cell"
-          class:other-month={!day.isCurrentMonth}
-          class:today={day.isToday}
-          class:selected={day.isSelected}
-          on:click={() => day.isCurrentMonth && selectDate(day.date)}
-          disabled={!day.isCurrentMonth}
-        >
-          <span class="day-number">{day.date.day}</span>
-          {#if day.isCurrentMonth && hasTasksForDate(day.date.toISODate())}
-            {@const taskCount = getTasksForDate(day.date.toISODate()).length}
-            {#if taskCount > 0}
-              <div class="task-indicators">
-                {#each Array(Math.min(taskCount, 3)) as _}
-                  <div class="task-dot"></div>
-                {/each}
-              </div>
-            {/if}
-          {/if}
-        </button>
-      {/each}
-    </div>
-  </div>
-
-  <div class="tasks-list">
-    {#if loadingTasks}
-      <div class="loading">Loading tasks...</div>
-    {:else if selectedTasks && selectedTasks.length > 0}
-      {#each selectedTasks as task (task.id)}
-        <div 
-          class="task-item" 
-          on:click={() => openTaskPopup(task)}
-          on:keydown={(e) => e.key === 'Enter' && openTaskPopup(task)}
-          tabindex="0"
-          role="button"
-        >
-          {#if task.imageDownloadURL}
-            <img src={task.imageDownloadURL} alt={task.name} class="task-image" />
-          {/if}
-          <div class="task-info">
-            <div class="task-name">{task.name}</div>
-            {#if task.startTime}
-              <div class="task-time">
-                {DateTime.fromISO(`${task.startDateISO}T${task.startTime}`).toFormat('h:mm a')}
-              </div>
-            {/if}
-            {#if task.notes}
-              <div class="task-notes">{task.notes}</div>
-            {/if}
-          </div>
-        </div>
-      {/each}
+  <!-- Scrollable Schedule List -->
+  <div 
+    class="tasks-list" 
+    onscroll={handleScroll} 
+    bind:this={scrollContainer}
+  >
+    {#if visibleDays.length === 0 && loading}
+       <div class="loading">Loading schedule...</div>
     {:else}
-      <div class="no-tasks">No tasks found for this date</div>
+       {#each visibleDays as day, index (day.dateISO)}
+         <div class="day-section" id="day-{day.dateISO}" data-iso={day.dateISO}>
+           
+           <!-- Sticky Date Header -->
+           <!-- Hide for the very first visible day (anchored by calendar) -->
+           {#if index > 0}
+             <div class="day-header" class:is-today={day.date.hasSame(DateTime.now(), 'day')}>
+               <div class="day-header-content">
+                 <span class="day-name">{day.date.toFormat('cccc')}</span>
+                 <span class="day-number">{day.date.toFormat('MMM d')}</span>
+               </div>
+             </div>
+           {/if}
+
+           <!-- Tasks -->
+           <div class="day-tasks">
+             {#each day.tasks as task (task.id)}
+                  <div 
+                    class="task-item" 
+                    onclick={() => openTaskPopup(task)}
+                    onkeydown={(e) => e.key === 'Enter' && openTaskPopup(task)}
+                    tabindex="0"
+                    role="button"
+                  >
+                    {#if task.imageDownloadURL}
+                      <img src={task.imageDownloadURL} alt={task.name} class="task-image" />
+                    {/if}
+                    <div class="task-info">
+                      <div class="task-name">{task.name}</div>
+                      {#if task.startTime}
+                        <div class="task-time">
+                          {DateTime.fromISO(`${task.startDateISO}T${task.startTime}`).toFormat('h:mm a')}
+                        </div>
+                      {/if}
+                      {#if task.notes}
+                        <div class="task-notes">{task.notes}</div>
+                      {/if}
+                    </div>
+                  </div>
+               {/each}
+             </div>
+           </div>
+       {/each}
+       
+       <!-- Loading Indicator at bottom -->
+       <div class="scroll-loader">
+          <div class="loader-dots">...</div>
+       </div>
     {/if}
   </div>
 </div>
@@ -294,300 +277,125 @@
 <style>
   .date-view {
     height: 100%;
-  }
-
-  .calendar-header {
-    position: relative;
-    margin-bottom: 16px;
-    padding: 6px 0;
-  }
-
-  .month-year {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-  }
-
-  .month-button {
-    border: none;
-    background: transparent;
-    font-size: 32px;
-    font-weight: 600;
-    color: #1a1a1a;
-    cursor: pointer;
-    padding: 0;
-    border-radius: 0;
-    user-select: none;
-    line-height: 1.1;
-    letter-spacing: -0.8px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    position: relative;
-  }
-
-  .month-button::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--location-indicator-color, #00597d);
-  }
-
-  .month-button:hover {
-    opacity: 0.7;
-    transform: translateY(-1px);
-  }
-
-  .month-button:hover::after {
-    width: 100%;
-  }
-
-  .year-button {
-    border: none;
-    background: transparent;
-    font-size: 32px;
-    font-weight: 600;
-    color: #1a1a1a;
-    cursor: pointer;
-    padding: 0;
-    border-radius: 0;
-    user-select: none;
-    line-height: 1.1;
-    letter-spacing: -0.8px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    position: relative;
-  }
-
-  .year-button::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--location-indicator-color, #00597d);
-  }
-
-  .year-button:hover {
-    opacity: 0.7;
-    transform: translateY(-1px);
-  }
-
-  .year-button:hover::after {
-    width: 100%;
-  }
-
-  .picker-popover {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 4px;
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 100;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 4px;
-  }
-
-  .month-picker {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-    min-width: 200px;
-  }
-
-  .year-picker {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-    min-width: 180px;
-    max-height: 200px;
-  }
-
-  .picker-item {
-    border: none;
-    background: transparent;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #333;
-    text-align: center;
-  }
-
-  .picker-item:hover {
-    background: #f5f5f5;
-  }
-
-  .picker-item.active {
-    background: var(--location-indicator-color, #00597d);
-    color: white;
-    font-weight: 600;
-  }
-
-  .calendar-grid {
-    --date-tab-day-size: 40px;
-    width: min(100%, calc(var(--date-tab-day-size) * 7));
-    margin: 0 auto 12px;
-  }
-
-  .day-header,
-  .calendar-days {
-    display: grid;
-    grid-template-columns: repeat(7, var(--date-tab-day-size));
-    justify-content: center;
-  }
-
-  .day-header {
-    margin-bottom: 2px;
-  }
-
-  .day-header-cell {
-    text-align: center;
-    font-size: 11px;
-    font-weight: 600;
-    color: #999;
-    padding: 2px 0;
-    width: var(--date-tab-day-size);
-  }
-
-  .day-cell {
-    width: var(--date-tab-day-size);
-    height: var(--date-tab-day-size);
-    border: none;
-    background: transparent;
-    cursor: pointer;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    position: relative;
+    background: #f9f9f9;
   }
 
-  .day-cell.other-month {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  /* Today indicator - dot at top */
-  .day-cell.today::after {
-    content: '';
-    position: absolute;
-    top: 3px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--location-indicator-color, #00597d);
-    z-index: 1;
-  }
-
-  /* Selected state - ring and background */
-  .day-cell.selected {
-    background: rgba(0, 89, 125, 0.08);
-  }
-
-  .day-cell.selected::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border: 1.5px solid var(--location-indicator-color, #00597d);
-    border-radius: 4px;
-    pointer-events: none;
-  }
-
-  .day-cell.selected .day-number {
-    color: var(--location-indicator-color, #00597d);
-    font-weight: 600;
-  }
-
-  .day-cell:not(.selected):not(.other-month):hover {
-    background: #f5f5f5;
-  }
-
-  .day-number {
-    font-size: 13px;
-    font-weight: 600;
-    color: #333;
-    line-height: 1.1;
-  }
-
-  .task-indicators {
-    display: flex;
-    gap: 1.5px;
-    justify-content: center;
-    align-items: center;
-    margin-top: 0;
-    height: 3px;
-  }
-
-  .task-dot {
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: #999;
+  .calendar-container {
     flex-shrink: 0;
-  }
-
-  .day-cell.selected .task-dot {
-    background: var(--location-indicator-color, #00597d);
-    opacity: 0.6;
+    background: white;
+    z-index: 20;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding-bottom: 8px;
   }
 
   .tasks-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px;
+    scroll-behavior: smooth; /* Adds smooth scrolling natively */
+  }
+
+  .day-section {
+    margin-bottom: 24px;
+    scroll-margin-top: 60px; /* Prevents header from obscuring content when scrolling to it */
+  }
+
+  .day-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin-bottom: 12px;
+    pointer-events: none; /* Let clicks pass through to items behind if any */
+  }
+
+  .day-header-content {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    background: rgba(249, 249, 249, 0.9);
+    backdrop-filter: blur(8px);
+    padding: 8px 12px;
+    border-radius: 20px;
+    color: #555;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  }
+
+  .day-header.is-today .day-header-content {
+    color: #007aff;
+    background: rgba(0, 122, 255, 0.1);
+  }
+
+  .day-name {
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.7;
+  }
+
+  .day-number {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .day-tasks {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    padding-left: 4px; /* Indent slightly */
   }
 
   .task-item {
     background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    border: 1px solid transparent;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-radius: 12px;
     padding: 12px;
     cursor: pointer;
     display: flex;
     gap: 12px;
+    transition: all 0.2s ease;
   }
 
   .task-item:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .task-item:active {
+    transform: scale(0.99);
   }
 
   .task-image {
-    width: 80px;
-    height: 80px;
+    width: 50px;
+    height: 50px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: 8px;
     flex-shrink: 0;
+    background: #eee;
   }
 
   .task-info {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .task-name {
-    font-weight: 500;
+    font-weight: 600;
     font-size: 15px;
-    margin-bottom: 4px;
     color: #333;
+    line-height: 1.3;
   }
 
   .task-time {
     font-size: 13px;
-    color: #666;
-    margin-bottom: 4px;
+    color: #007aff;
+    font-weight: 500;
+    margin-top: 2px;
   }
 
   .task-notes {
@@ -596,15 +404,21 @@
     margin-top: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
   }
 
-  .loading, .no-tasks {
+  .loading, .scroll-loader {
     text-align: center;
-    padding: 40px 20px;
+    padding: 40px;
+    color: #999;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .loader-dots {
+    font-weight: bold;
+    letter-spacing: 4px;
+    font-size: 24px;
+    opacity: 0.3;
   }
 </style>
-

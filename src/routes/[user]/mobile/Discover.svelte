@@ -18,7 +18,7 @@
         onclick={() => activeTab = 'date'}
       >
         <span class="material-symbols-outlined">calendar_month</span>
-        <!-- <span>Date</span> -->
+
       </button>
       <button 
         class="tab-button" 
@@ -26,15 +26,23 @@
         onclick={() => activeTab = 'habits'}
       >
         <span class="material-symbols-outlined">repeat</span>
-        <!-- <span>Habits</span> -->
+
       </button>
+
+      <button 
+        class="tab-button" 
+        class:active={activeTab === 'photos'}
+        onclick={() => activeTab = 'photos'}
+      >
+        <span class="material-symbols-outlined">photo_library</span>
+      </button>
+
       <button 
         class="tab-button" 
         class:active={activeTab === 'ai'}
         onclick={() => activeTab = 'ai'}
       >
         <span class="material-symbols-outlined">smart_toy</span>
-        <!-- <span>AI</span> -->
       </button>
       <button 
         class="tab-button" 
@@ -49,13 +57,6 @@
         onclick={() => activeTab = 'archive'}
       >
         <span class="material-symbols-outlined">archive</span>
-      </button>
-      <button 
-        class="tab-button" 
-        class:active={activeTab === 'photos'}
-        onclick={() => activeTab = 'photos'}
-      >
-        <span class="material-symbols-outlined">photo_library</span>
       </button>
     </div>
   </div>
