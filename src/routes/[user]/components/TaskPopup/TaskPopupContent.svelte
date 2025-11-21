@@ -101,7 +101,7 @@
             setLoading(true);
           }} 
           onFinished={() => {
-            close({ timeout: 5000 });
+            close({ timeout: 10000 });
             setLoading(false);
           }}
         />
