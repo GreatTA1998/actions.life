@@ -6,8 +6,7 @@
   let {
     selected = null,
     ondateselected = () => {},
-    onclose = () => {},
-    inline = false
+    onclose = () => {}
   } = $props()
 
   // Internal month state - sync to selected date when it changes
@@ -57,10 +56,7 @@
         yyyy: day.date.year 
       })
     }
-    // Only call onclose if not inline (for popover usage)
-    if (!inline) {
-      onclose()
-    }
+    onclose()
   }
 </script>
 

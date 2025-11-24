@@ -66,7 +66,7 @@
       <DatePicker
         selected={selected}
         ondateselected={handleDateSelected}
-        {onclose}
+        onclose={close}
       />
     {/snippet}
   </Popover>

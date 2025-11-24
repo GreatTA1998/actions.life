@@ -14,6 +14,7 @@ export const WIDTHS = Object.freeze({
   INDENT_PER_LEVEL: 24, // unified for both subtasks and dropzones
 })
 
+// TO-DO: deprecate this AI slop
 // Mobile-optimized font sizes (increased for better readability)
 export const FONT_SIZES = Object.freeze({
   XS: 15,      // was 12px -> 25% larger
