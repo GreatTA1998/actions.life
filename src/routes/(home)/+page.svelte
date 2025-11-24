@@ -1,6 +1,5 @@
 <script>
   import DemoContext from './DemoContext.svelte'
-  import { hasFetchedUser } from '$lib/store'
   import HeroSection from './components/HeroSection.svelte'
   import TimelineDemo from './components/TimelineDemo.svelte'
   import HabitDemo from './components/HabitDemo.svelte'
@@ -11,6 +10,7 @@
   import TopNavbar from './components/TopNavbar.svelte'
   import TaskPopup from '../[user]/components/TaskPopup/TaskPopup.svelte'
   import LoginGoogle from '$lib/components/LoginGoogle.svelte'
+  import { hasFetchedUser } from '$lib/store'
   // import AppDetailsSection from './components/AppDetailsSection.svelte'
   // import VisionSection from './components/VisionSection.svelte'
 </script>
