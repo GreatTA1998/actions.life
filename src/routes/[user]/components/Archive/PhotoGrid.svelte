@@ -1,5 +1,6 @@
 <script>
   import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
+  import MonthYearNavigator from '$lib/components/MonthYearNavigator.svelte'
   import { user, updateCache, openTaskPopup } from '$lib/store/index.js'
   import { onMount, onDestroy} from 'svelte'
   import { DateTime } from 'luxon'
@@ -7,34 +8,22 @@
   import { db } from '$lib/db/init.js'
 
   let unsub
-  let allPhotoTasks = []
-  let dateRangePhotoTasks = []
-  let startDateISO 
-  let endDateISO
+  let allPhotoTasks = $state([])
+  let dateRangePhotoTasks = $state([])
   
-  // Date for navigation
-  let centerDate = DateTime.now()
-  let loadingPhotos = false
+  // Date for navigation - bind to MonthYearNavigator
+  let centerDate = $state(DateTime.now().startOf('month'))
+  let loadingPhotos = $state(false)
   
   // Use a string for view mode instead of boolean
-  let viewMode = 'month' // 'month' or 'random'
+  let viewMode = $state('month') // 'month' or 'random'
   
   // Add state for button animation
-  let isSpinning = false
-  
-  // Compute date interval for photo display - changing to a full month view
-  $: {
-    if (viewMode === 'month') {
-      // For a full month view centered on selected date
-      const startOfMonth = centerDate.startOf('month')
-      const endOfMonth = centerDate.endOf('month')
-      startDateISO = startOfMonth.toISODate()
-      endDateISO = endOfMonth.toISODate()
-      
-      // Explicitly trigger update when date range changes
-      updatePhotoDisplay()
-    }
-  }
+  let isSpinning = $state(false)
+
+  // Initialize date range from centerDate - use derived to react to changes
+  let startDateISO = $derived(centerDate.startOf('month').toISODate())
+  let endDateISO = $derived(centerDate.endOf('month').toISODate())
 
   onMount(() => {
     listenToPhotoTasks()
@@ -68,13 +57,18 @@
 
   // Update the photo display based on current view mode
   function updatePhotoDisplay() {
-    
     if (viewMode === 'random') {
       // Get 10 random photos from all photos
       const randomized = [...allPhotoTasks]
       dateRangePhotoTasks = randomized.sort(() => Math.random() - 0.5).slice(0, 10)
     } else {
       // Filter photos for the current month - use consistent DateTime methods
+      // Only filter if we have valid date range
+      if (!startDateISO || !endDateISO) {
+        dateRangePhotoTasks = []
+        return
+      }
+      
       dateRangePhotoTasks = allPhotoTasks.filter(task => {
         if (!task.startDateISO) return false
         
@@ -83,14 +77,12 @@
         const startDate = DateTime.fromISO(startDateISO)
         const endDate = DateTime.fromISO(endDateISO)
         
-        const isInRange = taskDate >= startDate && taskDate <= endDate
+        // Compare dates at start of day for accurate range checking
+        const taskDateStart = taskDate.startOf('day')
+        const startDateStart = startDate.startOf('day')
+        const endDateStart = endDate.startOf('day')
         
-        // Log a sample of the comparisons
-        if (task.id.includes("1")) {
-
-        }
-
-        return isInRange
+        return taskDateStart >= startDateStart && taskDateStart <= endDateStart
       })
     }
   }
@@ -107,128 +99,92 @@
     updatePhotoDisplay()
   }
   
-  // Set to month mode
-  function selectMonth(newCenterDate) {
-    viewMode = 'month'
-    centerDate = newCenterDate
-    
-    // Immediately calculate new date range and update display
-    const startOfMonth = centerDate.startOf('month')
-    const endOfMonth = centerDate.endOf('month')
-    startDateISO = startOfMonth.toISODate()
-    endDateISO = endOfMonth.toISODate()
-    
+  // Update display when date range, view mode, or allPhotoTasks changes
+  $effect(() => {
     updatePhotoDisplay()
-  }
+  })
 </script>
 
-<div class="main-content">
+<div class="photo-grid-container">
   <MultiPhotoUploader style="position: absolute; right: 1vw; top: 1vw;"/>
 
-  <div class="month-selector">
-    {#each Array.from({ length: 3 }) as _, yearIndex}
-      {@const year = DateTime.now().minus({ years: yearIndex })}
-      <div class="year-group">
-        <div class="year-label">{year.year}</div>
-        <div class="months-container">
-          {#each Array.from({ length: 12 }) as _, monthIndex}
-            {@const monthDate = DateTime.fromObject({ year: year.year, month: monthIndex + 1 })}
-            {@const isCurrentMonth = monthDate <= DateTime.now()}
-            {#if isCurrentMonth}
-              <button 
-                class="month-button" 
-                class:active={viewMode === 'month' && centerDate.hasSame(monthDate, 'month') && centerDate.hasSame(monthDate, 'year')}
-                on:click={() => selectMonth(monthDate)}
-              >
-                {monthDate.toFormat('MMM')}
-              </button>
-            {/if}
-          {/each}
-          
-          {#if yearIndex === 0}
-            <button 
-              class="action-button random-button" 
-              class:active={viewMode === 'random'}
-              class:spinning={isSpinning}
-              on:click={showRandomPhotos}
-              title="Show random photos"
-            >
-              <span class="material-symbols-outlined">casino</span>
-            </button>
-          {/if}
-        </div>
-      </div>
-    {/each}
+  <div class="navigation-container">
+    <MonthYearNavigator bind:month={centerDate} />
+    <button 
+      class="action-button random-button" 
+      class:active={viewMode === 'random'}
+      class:spinning={isSpinning}
+      onclick={showRandomPhotos}
+      title="Show random photos"
+    >
+      <span class="material-symbols-outlined">casino</span>
+    </button>
   </div>
   
-  <div class="photo-grid">
-    {#if loadingPhotos}
-      <div class="loading">Loading photos...</div>
-    {:else if dateRangePhotoTasks && dateRangePhotoTasks.length > 0}
-      {#each dateRangePhotoTasks as task (task.id)}
-        <div 
-          class="photo-grid-item" 
-          on:click={() => openTaskPopup(task)}
-          on:keydown={(e) => e.key === 'Enter' && openTaskPopup(task)}
-          tabindex="0"
-          role="button"
-          aria-label="Open task details"
-        >
-          <img 
-            src={task.imageDownloadURL} 
-            alt="Task" 
-            loading="lazy"
-          />
-          <div class="photo-overlay">
-            <div style="display: flex;">
-              <div class="photo-date truncate-to-one-line" style="font-size: 1rem; font-weight: 500;">
-                {task.name}
-              </div>
+  <div class="photo-grid-wrapper hide-scrollbar">
+    <div class="photo-grid">
+      {#if loadingPhotos}
+        <div class="loading">Loading photos...</div>
+      {:else if dateRangePhotoTasks && dateRangePhotoTasks.length > 0}
+        {#each dateRangePhotoTasks as task (task.id)}
+          <div 
+            class="photo-grid-item" 
+            onclick={() => openTaskPopup(task)}
+            onkeydown={(e) => e.key === 'Enter' && openTaskPopup(task)}
+            tabindex="0"
+            role="button"
+            aria-label="Open task details"
+          >
+            <img 
+              src={task.imageDownloadURL} 
+              alt="Task" 
+              loading="lazy"
+            />
+            <div class="photo-overlay">
+              <div style="display: flex;">
+                <div class="photo-date truncate-to-one-line" style="font-size: 1rem; font-weight: 500;">
+                  {task.name}
+                </div>
 
-              <div style="margin-left: auto; white-space: nowrap; font-weight: 300; font-size: 1rem;">
-                {DateTime.fromISO(task.startDateISO).toFormat('MMM d, yyyy')}
+                <div style="margin-left: auto; white-space: nowrap; font-weight: 300; font-size: 1rem;">
+                  {DateTime.fromISO(task.startDateISO).toFormat('MMM d, yyyy')}
+                </div>
               </div>
+      
+              <!-- <div class="photo-caption">
+                {task.notes}
+              </div> -->
             </div>
-    
-            <!-- <div class="photo-caption">
-              {task.notes}
-            </div> -->
           </div>
-        </div>
-      {/each}
-    {:else}
-      <div class="no-photos">No photos found for this {viewMode === 'random' ? 'selection' : 'date range'}</div>
-    {/if}
+        {/each}
+      {:else}
+        <div class="no-photos">No photos found for this {viewMode === 'random' ? 'selection' : 'date range'}</div>
+      {/if}
+    </div>
   </div>
 </div>
 
 <style>
-  .month-selector {
+  .photo-grid-container {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin-bottom: 12px;
+    position: relative;
   }
 
-  .year-group {
+  .navigation-container {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 2px;
+    box-sizing: border-box;
   }
 
-  .year-label {
-    font-weight: 600;
-    font-size: 15px;
-    color: #333;
-    min-width: 60px;
-  }
-
-  .months-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
+  .photo-grid-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding-bottom: 16px;
+    box-sizing: border-box;
   }
 
   .action-button {
@@ -252,7 +208,6 @@
     opacity: 0.7;
     box-shadow: 0 1px 2px rgba(0,0,0,0.08);
     transform-origin: center;
-    margin-left: 10px;
   }
 
   .random-button:hover {
@@ -291,32 +246,10 @@
     font-size: 22px;
   }
 
-  .month-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-    font-size: 14px;
-    white-space: nowrap;
-    min-width: 50px;
-    height: 32px;
-  }
-
-  .month-button:hover {
-    background-color: #f0f0f0;
-  }
-
-  .month-button.active {
-    background-color: #007bff;
-    color: white;
-  }
-
   .photo-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 2px;
     min-height: 240px;
   }
 
@@ -333,7 +266,6 @@
     position: relative;
     aspect-ratio: 1;
     overflow: hidden;
-    border-radius: 12px;
     background: #f0f0f0;
     cursor: pointer;
     transition: transform 0.2s ease;

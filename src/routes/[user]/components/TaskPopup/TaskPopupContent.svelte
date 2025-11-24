@@ -101,7 +101,7 @@
             setLoading(true);
           }} 
           onFinished={() => {
-            close({ timeout: 5000 });
+            close({ timeout: 10000 });
             setLoading(false);
           }}
         />
@@ -147,12 +147,6 @@
 <style>
   .delete-button {
     border-radius: 24px; 
-  }
-
-  ::-webkit-scrollbar {
-    width: 0px;
-    height: 0px;
-    background: transparent;
   }
 
   .notes-tree-container {

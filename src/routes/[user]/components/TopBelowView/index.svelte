@@ -5,6 +5,7 @@
 
   import { user } from '$lib/store'
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
+  import { trackWidth } from '$lib/utils/svelteActions.js'
   import { getContext, onMount, tick } from 'svelte'
 
   const { logicAreaRect } = getContext('drag-drop')
@@ -16,7 +17,8 @@
   let isResizing = false
   let startY = 0
   let startListHeight = 0
-  let calendarHeight = 0
+  let calendarHeight = $state(0)
+  let listWidth = $state(0)
   let containerElement
 
   function getContainerHeight () {
@@ -31,7 +33,7 @@
     return height * DEFAULT_CALENDAR_RATIO
   }
 
-  $: listAreaHeight = getContainerHeight() - calendarHeight - HANDLE_HEIGHT
+  let listAreaHeight = $derived(getContainerHeight() - calendarHeight - HANDLE_HEIGHT)
 
   onMount(async () => {
     await tick()
@@ -89,7 +91,7 @@
 </script>
 
 <div class="top-below-container" bind:this={containerElement}>
-  <div class="calendar-container" style="height: {calendarHeight}px;">
+  <div class="calendar-container hide-scrollbar" style="height: {calendarHeight}px;">
     <Calendar />
   </div>
 
@@ -97,15 +99,19 @@
     <GripHandle orientation="horizontal" on:pointerdown={handlePointerDown}/>
   </div>
 
-  <div class="list-container" style="height: {listAreaHeight}px;">    
-    <TodoList
-      cssStyle="
-        position: relative;
-        background-color: transparent; 
-        padding-top: var(--main-content-top-margin);
-      "
-      listWidth="100%"
-    />
+  <div class="list-container hide-scrollbar" 
+    use:trackWidth={w => listWidth = w} 
+    style="height: {listAreaHeight}px;"
+  >    
+    {#if listWidth}
+      <TodoList {listWidth} isLargeFont
+        cssStyle="
+          position: relative;
+          background-color: transparent; 
+          padding-top: var(--main-content-top-margin);
+        "
+      />
+    {/if}
   </div>
 </div>
 
@@ -123,7 +129,6 @@
     width: 100%;
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-width: none;
     background-color: var(--todo-list-bg-color, #f5f5f5);
     position: relative;
     flex-shrink: 0;
@@ -134,7 +139,7 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     min-height: 48px;
-    padding: 0 8px;
+    padding: 0;
     flex-shrink: 0;
   }
   

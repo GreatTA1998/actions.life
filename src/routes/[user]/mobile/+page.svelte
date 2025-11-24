@@ -20,24 +20,16 @@
 
 <script>
   import TopBelowView from '../components/TopBelowView/index.svelte'
-  import AI from '../components/AI/AI.svelte'
-  import Schedule from './Schedule.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
-  import PhotoGrid from '../components/Archive/PhotoGrid.svelte'
   import Discover from './Discover.svelte'
   import Settings from '../components/Settings/index.svelte'
   import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
 
   import { user, isTaskPopupOpen, activeView } from '/src/lib/store'
   import { isCompact } from '../components/Calendar/store.js'
-  import { onDestroy, onMount, setContext } from 'svelte'
-  import { writable } from 'svelte/store'
+  import { onDestroy, onMount } from 'svelte'
 
   let unsub
-
-  setContext('list', {
-    isLargeFont: writable(true)
-  })
 
   onMount(async () => {
     isCompact.set(true)
@@ -53,13 +45,13 @@
 </svelte:head>
 
 <style>
-  /* Prevent any scrolling on body */
   :global(body),
   :global(html) {
     overflow: hidden;
     height: 100%;
     width: 100%;
     position: fixed;
+    touch-action: manipulation;
     overscroll-behavior: none;
   }
 

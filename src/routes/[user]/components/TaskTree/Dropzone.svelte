@@ -12,9 +12,10 @@
     })
   }}
   id={anchorID}
+  class="unselectable"
   style="
     anchor-name: {anchorID};
-    height: {remHeight}rem; 
+    height: {parentID === '' ? dzRootRemHeight : dzSubRemHeight}rem; 
     border-radius: var(--left-padding);
     border: 0px solid {colorForDebugging}; 
     {$bestDropzoneID === dropzoneID ? dropPreviewCSS() : ''}
@@ -25,30 +26,28 @@
 <script>
   import { activateInput } from '$lib/store/popoverInput.js'
   import { isOverlapping, getOverlapArea, clip } from '$lib/utils/dragDrop.js'
-  import { HEIGHTS } from '$lib/utils/constants.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
   const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
-  const { isLargeFont } = getContext('list')
+  const { dzRootRemHeight, dzSubRemHeight } = getContext('list-config')
 
   let {
     ancestorRoomIDs,
     roomsInThisLevel,
     idxInThisLevel,
     parentID = '',
-    colorForDebugging = 'red',
-    remHeight = HEIGHTS.SUB_DROPZONE * ($isLargeFont ? 2 : 1)
+    colorForDebugging = 'red'
   } = $props()
 
   const dropzoneID = getRandomID()
+  
   let dropzoneElem = $state(null)
+  let intersecting = $state(false)
   let n = $derived(roomsInThisLevel.length)
   let anchorID = $derived(`--dropzone-${dropzoneID}`)
-  let intersecting = $state(false)
-
   let isInvalidDrop = $derived(ancestorRoomIDs.includes($draggedItem.id))
 
   $effect(() => {
@@ -64,7 +63,6 @@
       onReorderDrop()
     }
   })
-
 
   function checkIntersection ({ x1, x2, y1, y2 }) {
     const dropzoneRect = dropzoneElem.getBoundingClientRect()

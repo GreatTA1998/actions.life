@@ -7,13 +7,12 @@
   import TaskMenu from './TaskMenu.svelte'
   import TaskCaret from './TaskCaret.svelte'
   import { getRandomColor } from '$lib/utils/core.js'
-  import { WIDTHS } from '$lib/utils/constants.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
   const { Task, openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
-  const { isLargeFont } = getContext('list')
+  const { indent, fullWidth, scale, rootFontSize, subFontSize } = getContext('list-config')
 
   let {
     taskObj,
@@ -26,16 +25,7 @@
   const colorForDebugging = getRandomColor()
 
   let n = $derived(taskObj.children.length)
-  
-  let depthAdjustedFontSize = $derived.by(() => {
-    if (depth === 1) return `${$isLargeFont ? 2 : 1}rem` // 32px or 16px
-    else return `${$isLargeFont ? 1.75 : 0.875}rem` // 28px or 14px 
-  })
-
-  let depthAdjustedFontWeight = $derived.by(() => {
-    if (depth === 1) return 600
-    else return 400
-  })
+  let dzWidth = $derived(fullWidth - indent * depth)
 
   function handleCheckboxChange (e) {
     Task.update({
@@ -55,10 +45,10 @@
   }
 </script>
 
-<div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
+<div style="position: relative; width: 100%; font-weight: {depth === 1 ? 600 : 400};">
   <div draggable="true"
     ondragstart={e => startTaskDrag({ e, id: taskObj.id })}
-    style="font-size: {depthAdjustedFontSize};"
+    style="font-size: {depth === 1 ? rootFontSize : subFontSize}rem;"
     class="task-row-container unselectable"
   >
     <div style="position: relative; margin-left: 2px; margin-right: 4px;">
@@ -68,12 +58,12 @@
         {#if n === 0}
           <Checkbox value={taskObj.isDone}
             onchange={e => handleCheckboxChange(e)}
-            zoom={$isLargeFont ? 1 : 0.5}
+            zoom={0.5 * scale}
           />
         {:else}
           <TaskCaret isCollapsed={taskObj.isCollapsed}
             onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
-            zoom={$isLargeFont ? 2 : 1}
+            zoom={1 * scale}
           />
         {/if}
       </div>
@@ -117,12 +107,12 @@
       {colorForDebugging}
     />
   {:else}
-    <div style="margin-left: {WIDTHS.INDENT_PER_LEVEL}px;">
+    <div style="margin-left: {indent}px;">
       {#if !taskObj.isCollapsed}
         <div class:ghost-negative={n === 0} 
           style="
-            left: {WIDTHS.INDENT_PER_LEVEL}px;
-            width: {235 - WIDTHS.INDENT_PER_LEVEL * depth}px;
+            left: {indent}px;
+            width: {dzWidth}px;
             z-index: {depth};
           "
         >
@@ -140,8 +130,8 @@
             <!-- notice `left` is a constant, because it'll inherit the parent's cumulative left -->
             <div class="ghost-negative"
               style="
-                left: {WIDTHS.INDENT_PER_LEVEL}px;
-                width: {235 - WIDTHS.INDENT_PER_LEVEL * depth}px;
+                left: {indent}px;
+                width: {dzWidth}px;
                 z-index: {depth};
               "
             >
@@ -150,7 +140,7 @@
           {:else}
             <div 
               style="
-                width: {235 - WIDTHS.INDENT_PER_LEVEL * depth}px;
+                width: {dzWidth}px;
                 z-index: {depth};
               "
             >
@@ -186,6 +176,5 @@
     background: linear-gradient(to right, rgba(76, 175, 80, 0.04), transparent 50%);
     color: #388e3c;
     border-radius: 4px;
-    transition: background 0.2s, color 0.2s;
   }
 </style> 

@@ -79,7 +79,7 @@
 <div class="relative z-0 grid" style="grid-template-rows: auto 1fr; height: 100%;">
   <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
 
-  <div class="relative" style:overflow="auto" use:jumpToToday on:scroll={e => scrollX = e.target.scrollLeft} id="scroll-parent" bind:this={scrollParent}>
+  <div class="relative hide-scrollbar" style:overflow="auto" use:jumpToToday on:scroll={e => scrollX = e.target.scrollLeft} id="scroll-parent" bind:this={scrollParent}>
     <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flexbox">
       <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {$totalMinutes * ($pixelsPerHour / 60)}px;"/>
 
@@ -109,9 +109,5 @@
 
   #scroll-parent {
     background-color: var(--calendar-bg-color);
-  }
-
-  #scroll-parent::-webkit-scrollbar { /* hide scrollbar in Chrome, Safari and Opera */
-    display: none;
   }
 </style>

@@ -39,7 +39,7 @@
 
 <style>
   .day-header {
-    font-size: 30px;
+    font-size: var(--font-size-xxxl);
     padding: 12px 8px;
     border-bottom: 1px solid #f1f3f4;
 

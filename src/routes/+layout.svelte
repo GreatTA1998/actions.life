@@ -5,17 +5,12 @@
   import posthog from 'posthog-js'
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
-  import { onMount, setContext } from 'svelte'
-  import { writable } from 'svelte/store'
+  import { onMount } from 'svelte'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { } from '$lib/db/scripts/april.js'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
-
-  setContext('list', {
-    isLargeFont: writable(false)
-  })
 
   onMount(() => {
     translateJSConstantsToCSSVariables()
@@ -266,6 +261,24 @@
 
   :global(.gap-0) {
     gap: 0;
+  }
+
+  /* Hide scrollbar utility class - works cross-browser */
+  :global(.hide-scrollbar) {
+    /* Hide scrollbar for Firefox */
+    scrollbar-width: none;
+    /* Hide scrollbar for IE and Edge */
+    -ms-overflow-style: none;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  :global(.hide-scrollbar::-webkit-scrollbar) {
+    display: none;
+    
+    /* previously used */
+    width: 0px;
+    height: 0px;
+    background: transparent;
   }
 
   /* Original layout.svelte styles */

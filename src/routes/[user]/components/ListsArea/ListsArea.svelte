@@ -16,6 +16,6 @@
 </script>
 
 <TodoList 
-  listWidth="320px"
+  listWidth={320}
   cssStyle={wrappingColumnLayout}
 />

@@ -118,7 +118,6 @@
       >
         {#if selectedRoutine}
           <JournalEntries 
-            {selectedRoutine}
             {routineInstances}
             on:task-click
           />
