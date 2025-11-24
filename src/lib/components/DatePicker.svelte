@@ -64,7 +64,7 @@
   <MonthYearNavigator bind:month />
 
   <div class="weekdays">
-    {#each ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] as day}
+    {#each ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as day}
       <div class="weekday">{day}</div>
     {/each}
   </div>
