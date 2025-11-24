@@ -45,13 +45,13 @@
 </svelte:head>
 
 <style>
-  /* Prevent any scrolling on body */
   :global(body),
   :global(html) {
     overflow: hidden;
     height: 100%;
     width: 100%;
     position: fixed;
+    touch-action: manipulation;
     overscroll-behavior: none;
   }
 
