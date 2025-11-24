@@ -1,7 +1,7 @@
 <script>
-  import { trees, listenToTasks } from './service.js'
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
+  import { trees, listenToTasks } from './service.js'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { activateInput } from '$lib/store/popoverInput.js'
   import { getContext, onMount } from 'svelte'
@@ -68,7 +68,7 @@
     </div>
   {/if}
   
-  <div style="anchor-name: {anchorID}; height: 24px; width: 235px;" id={anchorID}>
+  <div style="anchor-name: {anchorID}; height: 24px; width: {listWidth}" id={anchorID}>
 
   </div>
   
