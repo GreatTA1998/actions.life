@@ -45,11 +45,13 @@ function setupListener (ref, callback) {
   )
 }
 
-function buildTreeMap(tasks) {
-  // reconstructTreeInMemory is really constructing a forest
-  const result = reconstructTreeInMemory(tasks)
-  trees.set(result)
-} 
+function buildTreeMap (tasks) {
+  document.startViewTransition(() => { // View Transition API
+    trees.set(
+      reconstructTreeInMemory(tasks) // reconstructTreeInMemory is really constructing a forest
+    )
+  })
+}
 
 export function reconstructTreeInMemory (firestoreTaskDocs) {
   const memoryTree = []

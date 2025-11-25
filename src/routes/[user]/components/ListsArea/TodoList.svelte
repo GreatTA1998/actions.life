@@ -57,7 +57,13 @@
 >
   {#if trees}
     {#each trees as taskObj, i (taskObj.id)}
-      <div style="width: {listWidth}px;">
+      <div 
+        style="
+          width: {listWidth}px; 
+          view-transition-name: list-{taskObj.id};
+        "
+        class="list-item"
+      >
         <div class="z-0">
           <Dropzone {...renderDropzone(i)} />
         </div>
@@ -90,5 +96,23 @@
     background-color: var(--navbar-bg-color);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .list-item {
+    contain: layout;
+  }
+
+  /* View Transition API styles for smooth list repositioning */
+  @supports (view-transition-name: none) {
+    ::view-transition-group(*) {
+      animation-duration: 0.3s;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation-duration: 0.3s;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
   }
 </style>
