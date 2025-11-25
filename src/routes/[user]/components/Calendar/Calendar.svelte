@@ -5,14 +5,14 @@
   import YearAndMonthTile from './YearAndMonthTile.svelte'
 
   import { calEarliestHHMM, totalMinutes } from './timestamps.js'
-  import { headerHeight, pixelsPerHour } from './store.js'
+  import { headerHeight, pixelsPerHour, timestampsColumnWidth } from './store.js'
   import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
   import { setupCalListener } from './service.js'
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'
 
-  const { scrollCalRect } = getContext('drag-drop') // quickfix
+  const { scrollCalRect } = getContext('drag-drop')
 
   let scrollParent
 
@@ -22,7 +22,7 @@
   let triggerLeft = -Infinity
   let triggerRight = Infinity
 
-  let scrollX = Math.floor(TOTAL_COLUMNS / 2) * COLUMN_WIDTH // divergent from the UI initially
+  let scrollX = Math.floor(TOTAL_COLUMNS / 2) * COLUMN_WIDTH // initially divergent from the UI
 
   $: viewportLeft = Math.floor(scrollX / COLUMN_WIDTH)
   $: viewportRight = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
@@ -79,7 +79,10 @@
 <div class="relative z-0 grid" style="grid-template-rows: auto 1fr; height: 100%;">
   <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
 
-  <div class="relative hide-scrollbar" style:overflow="auto" use:jumpToToday on:scroll={e => scrollX = e.target.scrollLeft} id="scroll-parent" bind:this={scrollParent}>
+  <div id="scroll-parent" bind:this={scrollParent}
+    class="relative hide-scrollbar" style:overflow="auto" use:jumpToToday 
+    on:scroll={e => scrollX = e.target.scrollLeft + $timestampsColumnWidth }
+  >
     <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flexbox">
       <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {$totalMinutes * ($pixelsPerHour / 60)}px;"/>
 
