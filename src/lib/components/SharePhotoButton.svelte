@@ -1,5 +1,5 @@
 <script>
-  import { copyEngravedImageToClipboard } from '$lib/utils/imageExport.js'
+  import { shareEngravedImage } from '$lib/utils/imageExport.js'
   import PopoverSnackbar from '$lib/components/PopoverSnackbar.svelte'
   
   let { taskObject } = $props()
@@ -10,10 +10,11 @@
     e.stopPropagation()
     try {
       const { imageDownloadURL, name, startDateISO } = taskObject
-      await copyEngravedImageToClipboard(imageDownloadURL, startDateISO, name)
-      snackbarMessage = 'Photo succesfully copied to clipboard'
+      await shareEngravedImage(imageDownloadURL, startDateISO, name)
+      snackbarMessage = 'Photo ready to share'
     } catch (error) {
-      console.error('Error copying engraved photo:', error)
+      console.error('Error sharing engraved photo:', error)
+      snackbarMessage = 'Failed to share photo. Error sent to developer.'
     }
   }
 </script>

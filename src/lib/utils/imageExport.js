@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 
-export async function copyEngravedImageToClipboard(imageURL, dateISO, title) {
+export async function shareEngravedImage (imageURL, dateISO, title) {
   try {
     // 1. Load the image
     const img = new Image()
@@ -89,19 +89,29 @@ export async function copyEngravedImageToClipboard(imageURL, dateISO, title) {
     // 6. Convert to Blob
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
 
-    // 7. Write to clipboard
     if (!blob) throw new Error('Canvas to Blob failed')
     
-    await navigator.clipboard.write([
-      new ClipboardItem({
-        [blob.type]: blob
-      })
-    ])
+    // 7. Share via Web Share API (works across all devices)
+    if (!navigator.share) {
+      throw new Error('Web Share API is not supported in this browser')
+    }
+    
+    const file = new File([blob], `${title || 'photo'}.png`, { type: 'image/png' })
+    
+    if (navigator.canShare && !navigator.canShare({ files: [file] })) {
+      throw new Error('Cannot share this file')
+    }
+    
+    await navigator.share({
+      files: [file],
+      title: title || 'Photo'
+    })
     
     return true
 
   } catch (error) {
-    console.error('Error copying engraved image:', error)
+    alert(`Error sharing engraved image: ${error}`)
+    error('Error sharing engraved image:', error)
     throw error
   }
 }
