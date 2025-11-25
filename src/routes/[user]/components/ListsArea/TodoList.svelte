@@ -1,4 +1,5 @@
 <script>
+  import AnimationDiv from './AnimationDiv.svelte'
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import { HEIGHTS, WIDTHS } from '$lib/utils/constants.js'
@@ -57,13 +58,7 @@
 >
   {#if trees}
     {#each trees as taskObj, i (taskObj.id)}
-      <div 
-        style="
-          width: {listWidth}px; 
-          view-transition-name: list-{taskObj.id};
-        "
-        class="list-item"
-      >
+      <AnimationDiv {listWidth} id={taskObj.id}>
         <div class="z-0">
           <Dropzone {...renderDropzone(i)} />
         </div>
@@ -78,7 +73,7 @@
         <div style="width: {listWidth}px" class="absolute z-0"> <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
           <Dropzone {...renderDropzone(i+1)} />
         </div>
-      </div>
+      </AnimationDiv>
     {/each}
 
     <div style="width: {listWidth}px" class="z-0">
@@ -96,27 +91,5 @@
     background-color: var(--navbar-bg-color);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-
-  .list-item {
-    contain: layout;
-  }
-
-  /* View Transition API styles for smooth list repositioning 
-    Decided on easeInOutCirc
-    @see https://emilkowal.ski/ui/7-practical-animation-tips
-    @see ttps://easings.co/
-  */
-  @supports (view-transition-name: none) {
-    ::view-transition-group(*) {
-      animation-duration: 0.15s;
-      animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
-    }
-
-    ::view-transition-old(*),
-    ::view-transition-new(*) {
-      animation-duration: 0.15s;
-      animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
-    }
   }
 </style>
