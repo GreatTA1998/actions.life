@@ -28,6 +28,14 @@ export function updateCache (tasks) {
   })
 }
 
+export function cleanupCache (tasks) {
+  tasksCache.update(cache => {
+    for (const task of tasks) {
+      delete cache[task.id]
+    }
+  })
+}
+
 export const clickedTaskID = writable('')
 export const isTaskPopupOpen = writable(false)
 export const willOpenDatePicker = writable(false)

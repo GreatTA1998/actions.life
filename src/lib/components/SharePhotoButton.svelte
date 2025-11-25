@@ -1,66 +1,45 @@
 <script>
-  import { onMount } from 'svelte'
-  import { formatDate } from '/src/lib/utils/core.js'
+  import { copyEngravedImageToClipboard } from '$lib/utils/imageExport.js'
+  import PopoverSnackbar from '$lib/components/PopoverSnackbar.svelte'
   
-  export let imageURL = ''
-  export let date = ''
-  export let notes = ''
+  let { taskObject } = $props()
   
-  let shareSupported = false
+  let snackbarMessage = $state('')
   
-  onMount(() => {
-    // Check if Web Share API is supported
-    shareSupported = !!navigator.share
-  })
-  
-  async function sharePhoto(event) {
-    event.stopPropagation()
-    
-    if (!imageURL) return
-    
+  async function sharePhoto (e) {
+    e.stopPropagation()
     try {
-      if (navigator.share) {
-        // Use Web Share API (works on mobile)
-        await navigator.share({
-          title: date ? `Photo from ${formatDate(date)}` : 'Shared photo',
-          text: notes || 'Shared from Actions Life',
-          url: imageURL
-        })
-      } else {
-        // Fallback for desktop - copy image URL
-        await navigator.clipboard.writeText(imageURL)
-        alert('Image URL copied to clipboard!')
-      }
+      const { imageDownloadURL, name, startDateISO } = taskObject
+      await copyEngravedImageToClipboard(imageDownloadURL, startDateISO, name)
+      snackbarMessage = 'Photo succesfully copied to clipboard'
     } catch (error) {
-      console.error('Error sharing:', error)
-      // User likely canceled share operation, no need to show error
+      console.error('Error copying engraved photo:', error)
     }
-  }
-  
-  function downloadPhoto(event) {
-    event.stopPropagation()
-    
-    if (!imageURL) return
-    
-    // Create a temporary link element
-    const link = document.createElement('a')
-    link.href = imageURL
-    link.download = `photo-${date || 'actions-life'}.jpg`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
   }
 </script>
 
 <div>
-  <button 
-    class="photo-row-action"
-    on:click={sharePhoto}
-    title="Share photo"
-  >
-    <span class="material-symbols-outlined">ios_share</span>
-    <span class="photo-row-label">Share</span>
-  </button>
+  <PopoverSnackbar {activator} {customActions} />
+  
+  {#snippet activator({ open, close, setLoading })}
+    <button 
+      class="photo-row-action"
+      onclick={async (e) => {
+        await sharePhoto(e)
+        if (snackbarMessage) {
+          open()
+          close({ timeout: 5000 })
+        }
+      }}
+    >
+      <span class="material-symbols-outlined">ios_share</span>
+      <span class="photo-row-label">Share</span>
+    </button>
+  {/snippet}
+  
+  {#snippet customActions({ open, close, setLoading })}
+    <div style="color: white;">{snackbarMessage}</div>
+  {/snippet}
 </div>
 
 <style>
@@ -74,12 +53,9 @@
     font-size: 14px;
     padding: 4px 8px;
     border-radius: 6px;
-    cursor: pointer;
     transition: background 0.2s;
-    font-weight: 400;
     width: 100%;
     justify-content: flex-start;
-    box-sizing: border-box;
   }
 
   .photo-row-action .material-symbols-outlined {
@@ -88,7 +64,6 @@
 
   .photo-row-label {
     font-size: 14px;
-    font-weight: 400;
   }
 
   .photo-row-action:hover {

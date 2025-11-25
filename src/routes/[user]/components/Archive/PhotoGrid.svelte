@@ -142,11 +142,11 @@
             />
             <div class="photo-overlay">
               <div style="display: flex;">
-                <div class="photo-date truncate-to-one-line" style="font-size: 1rem; font-weight: 500;">
+                <div class="photo-date truncate-to-one-line">
                   {task.name}
                 </div>
 
-                <div style="margin-left: auto; white-space: nowrap; font-weight: 300; font-size: 1rem;">
+                <div style="margin-left: auto; white-space: nowrap;">
                   {DateTime.fromISO(task.startDateISO).toFormat('MMM d, yyyy')}
                 </div>
               </div>

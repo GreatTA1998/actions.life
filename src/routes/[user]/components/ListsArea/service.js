@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store'
 import { db } from '$lib/db/init'
-import { updateCache } from '$lib/store'
+import { updateCache, cleanupCache } from '$lib/store'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 
 let persistTasks
@@ -19,10 +19,12 @@ export function listenToTasks (uid) {
   )
 } 
 
+// TO-DO: bugged, unused for now
 export function cleanup () {
   for (const unsub of unsubFuncs) {
     unsub()
   }
+  cleanupCache(persistTasks)
   trees.set(null)
 }
 

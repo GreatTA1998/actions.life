@@ -19,9 +19,7 @@
   </ToggleGroup>
 
   <SharePhotoButton 
-    imageURL={taskObject.imageDownloadURL}
-    date={taskObject.startDateISO}
-    notes={taskObject.notes}
+    {taskObject}
   />
   
   <PhotoRemove {taskObject} />
