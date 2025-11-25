@@ -1,6 +1,6 @@
 <script>
-  import { timestamps, calEarliestHHMM, totalMinutes } from './timestamps.js'
-  import { pixelsPerHour, headerHeight, isCompact, timestampsColumnWidth } from './store.js'
+  import { timestamps, calEarliestHHMM } from './timestamps.js'
+  import { pixelsPerHour, isCompact, timestampsColumnWidth } from './store.js'
   
   export let style
 
