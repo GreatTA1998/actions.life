@@ -103,14 +103,12 @@ export async function shareEngravedImage (imageURL, dateISO, title) {
     }
     
     await navigator.share({
-      files: [file],
-      title: title || 'Photo'
+      files: [file]
     })
     
     return true
 
   } catch (error) {
-    alert(`Error sharing engraved image: ${error}`)
     error('Error sharing engraved image:', error)
     throw error
   }
