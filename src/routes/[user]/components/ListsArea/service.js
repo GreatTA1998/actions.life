@@ -4,6 +4,7 @@ import { updateCache } from '$lib/store'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 
 let persistTasks
+const unsubFuncs = []
 
 export const trees = writable(null)
 
@@ -18,19 +19,28 @@ export function listenToTasks (uid) {
   )
 } 
 
-function setupListener (ref, callback) {
-  onSnapshot(ref, snapshot => {
-    const mappedData = snapshot.docs.map(doc => ({
-      ...doc.data(), 
-      id: doc.id
-    }))
-    
-    callback(mappedData)
+export function cleanup () {
+  for (const unsub of unsubFuncs) {
+    unsub()
+  }
+  trees.set(null)
+}
 
-    if (persistTasks) {
-      buildTreeMap(persistTasks)
-    }
-  })
+function setupListener (ref, callback) {
+  unsubFuncs.push(
+    onSnapshot(ref, snapshot => {
+      const mappedData = snapshot.docs.map(doc => ({
+        ...doc.data(), 
+        id: doc.id
+      }))
+      
+      callback(mappedData)
+  
+      if (persistTasks) {
+        buildTreeMap(persistTasks)
+      }
+    })
+  )
 }
 
 function buildTreeMap(tasks) {

@@ -137,3 +137,8 @@ export function sortByOrderValue(array) {
   });
   return array;
 } 
+
+// TO-DO: make it reactive in the future
+export function isMobile () {
+  return window.innerWidth <= 768 // You can adjust the width threshold as needed
+}

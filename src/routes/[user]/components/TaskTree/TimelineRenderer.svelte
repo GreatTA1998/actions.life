@@ -18,6 +18,7 @@
   } = $props()
   
   const { openTaskPopup, willOpenDatePicker } = getContext('app')
+  const { indent } = getContext('list-config')
 
   const defaultPxPerDay = 0.4
   const dropzoneHeight = 16
@@ -135,12 +136,12 @@
   }
 </script>
 
-<div style="margin-left: {WIDTHS.INDENT_PER_LEVEL}px;">  
+<div style="margin-left: {indent}px;">  
   {#if !taskObj.isCollapsed}
     <div class:ghost-negative={n === 0}  
       style="
-        left: {WIDTHS.INDENT_PER_LEVEL}px;
-        width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px; 
+        left: {indent}px;
+        width: {235 - indent * (depth + 1)}px; 
         z-index: {depth};
       "
     >
@@ -178,8 +179,8 @@
 
       <div class:ghost-negative={i === allSorted.length - 1}
         style="
-          left: {WIDTHS.INDENT_PER_LEVEL}px;
-          width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
+          left: {indent}px;
+          width: {235 - indent * (depth + 1)}px;
           z-index: {depth};
         "
       >
@@ -188,9 +189,3 @@
     {/each}
   {/if}
 </div>
-
-<style>
-  :root {
-    --timeline-left-margin: 8px;
-  }
-</style>

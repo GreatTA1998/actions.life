@@ -6,6 +6,7 @@
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
+  import { isMobile } from '$lib/utils/core.js'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { } from '$lib/db/scripts/april.js'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
@@ -37,10 +38,6 @@
       }
     })
   })
-
-  function isMobile () {
-    return window.innerWidth <= 768 // You can adjust the width threshold as needed
-  }
 </script>
 
 <div>

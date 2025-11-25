@@ -1,18 +1,15 @@
 <script>
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
-  import { trees, listenToTasks } from './service.js'
   import { HEIGHTS, WIDTHS } from '$lib/utils/constants.js'
   import { activateInput } from '$lib/store/popoverInput.js'
-  import { getContext, setContext, onMount } from 'svelte'
-
-  const { user } = getContext('app')
+  import { setContext } from 'svelte'
 
   let {
     cssStyle,
     listWidth,
-    children,
-    isLargeFont = false
+    isLargeFont = false,
+    trees = null
   } = $props()
 
   const anchorID = '--dropzone-root-last'
@@ -20,6 +17,7 @@
   const padding = 6
   const indent = WIDTHS.INDENT_PER_LEVEL
 
+  // scaled units
   const scale = isLargeFont ? 2 : 1
   const dzRootRemHeight = HEIGHTS.ROOT_DROPZONE * scale
   const dzSubRemHeight = HEIGHTS.SUB_DROPZONE * scale
@@ -36,15 +34,11 @@
     scale
   })
 
-  onMount(() => {
-    listenToTasks($user.uid)
-  })
-  
   function renderDropzone (idx) {
     return {
       idxInThisLevel: idx,
       ancestorRoomIDs: [''],
-      roomsInThisLevel: $trees,
+      roomsInThisLevel: trees,
       parentID: '',
       colorForDebugging: 'purple',
     }
@@ -61,8 +55,8 @@
   }}
   style={cssStyle} 
 >
-  {#if $trees}
-    {#each $trees as taskObj, i (taskObj.id)}
+  {#if trees}
+    {#each trees as taskObj, i (taskObj.id)}
       <div style="width: {listWidth}px;">
         <div class="z-0">
           <Dropzone {...renderDropzone(i)} />
@@ -82,21 +76,16 @@
     {/each}
 
     <div style="width: {listWidth}px" class="z-0">
-      <Dropzone {...renderDropzone($trees.length)} />
+      <Dropzone {...renderDropzone(trees.length)} />
     </div>
   {/if}
   
-  <div id={anchorID}
-    style="anchor-name: {anchorID}; height: 24px; width: {listWidth}px; pointer-events: none;" 
-  >
+  <div id={anchorID} style="anchor-name: {anchorID}; height: 24px; width: {listWidth}px; pointer-events: none;" >
 
   </div>
-  
-  {@render children?.()}
 </div>
 
 <style>
-
   .list-container {
     background-color: var(--navbar-bg-color);
     border-radius: 8px;

@@ -1,5 +1,6 @@
 <script>
   import TodoList from '../ListsArea/TodoList.svelte'
+  import ListenToListTrees from '../ListsArea/ListenToListTrees.svelte'
   import Calendar from '../Calendar/Calendar.svelte'
   import GripHandle from '$lib/components/GripHandle.svelte'
 
@@ -103,15 +104,19 @@
     use:trackWidth={w => listWidth = w} 
     style="height: {listAreaHeight}px;"
   >    
-    {#if listWidth}
-      <TodoList {listWidth} isLargeFont
-        cssStyle="
-          position: relative;
-          background-color: transparent; 
-          padding-top: var(--main-content-top-margin);
-        "
-      />
-    {/if}
+    <ListenToListTrees>
+      {#snippet children({ trees })}
+        {#if listWidth}
+          <TodoList {listWidth} isLargeFont {trees}
+            cssStyle="
+              position: relative;
+              background-color: transparent; 
+              padding-top: var(--main-content-top-margin);
+            "
+          />
+        {/if}
+      {/snippet}
+    </ListenToListTrees>
   </div>
 </div>
 

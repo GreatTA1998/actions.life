@@ -1,10 +1,11 @@
 <script>
-  import RecursiveTask from '../../[user]/components/TaskTree/RecursiveTask.svelte'
   import ToggleGroup from '../../../lib/components/ToggleGroup.svelte'
+  import TodoList from '../../[user]/components/ListsArea/TodoList.svelte'
+  import { isMobile } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
   const { memoryTree, Task } = getContext('app')
-
+  
   let taskObj = $derived.by(() => {
     for (const tree of $memoryTree) {
       if (tree.name === 'Walk the Camino de Santiago') {
@@ -21,9 +22,9 @@
   </div>
   
   <div class="demo-layout">
-    <div class="task-tree-column">
+    <div>
       <div style="width: 240px;">
-        <ToggleGroup 
+        <ToggleGroup
           options={[
             { text: 'list', value: 'normal' }, 
             { text: 'timeline', value: 'timeline' }
@@ -33,10 +34,10 @@
         />
       </div>
 
-      <RecursiveTask 
-        taskObj={taskObj}
-        depth={1}
-        ancestorRoomIDs={[]}
+      <TodoList trees={[taskObj]}
+        isLargeFont={isMobile()}
+        listWidth={320}
+        cssStyle=""
       />
     </div>
 
@@ -77,17 +78,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 48px;
     align-items: start;
-  }
-
-  .task-tree-column {
-    background: #fafafa;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 20px;
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
   }
 
   .controls-panel {
