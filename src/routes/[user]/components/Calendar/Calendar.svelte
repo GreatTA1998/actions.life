@@ -7,7 +7,7 @@
   import { calEarliestHHMM, totalMinutes } from './timestamps.js'
   import { headerHeight, pixelsPerHour, timestampsColumnWidth } from './store.js'
   import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
-  import { setupCalListener } from './service.js'
+  import { setupCalListener, treesByDate } from './service.js'
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'
@@ -76,41 +76,43 @@
   }
 </script>
 
-<div class="relative z-0 grid" style="grid-template-rows: auto 1fr; height: 100%;">
-  <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
+{#if Object.keys($treesByDate).length > 0}
+  <div class="relative z-0 grid" style="grid-template-rows: auto 1fr; height: 100%;">
+    <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
 
-  <div id="scroll-parent" bind:this={scrollParent}
-    class="relative hide-scrollbar" style:overflow="auto" use:jumpToToday 
-    on:scroll={e => scrollX = e.target.scrollLeft + $timestampsColumnWidth }
-  >
-    <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flexbox">
-      <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {$totalMinutes * ($pixelsPerHour / 60)}px;"/>
+    <div id="scroll-parent" bind:this={scrollParent}
+      use:jumpToToday class="relative hide-scrollbar cal-bg-color" style:overflow="auto" 
+      on:scroll={e => scrollX = e.target.scrollLeft + $timestampsColumnWidth }
+    >
+      <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flexbox">
+        <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {$totalMinutes * ($pixelsPerHour / 60)}px;"/>
 
-      {#if renderedColumnDTs[0]}
-        <div class="absolute" style:left="{renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px">
-          <div class="sticky top-0 z-1 flexbox" use:trackHeight={h => headerHeight.set(h)} style="box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);">
-            {#each renderedColumnDTs as dt (dt.toMillis())}
-              <DayHeader {dt} />
-            {/each}
+        {#if renderedColumnDTs[0]}
+          <div class="absolute" style:left="{renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px">
+            <div class="sticky top-0 z-1 flexbox" use:trackHeight={h => headerHeight.set(h)} style="box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);">
+              {#each renderedColumnDTs as dt (dt.toMillis())}
+                <DayHeader {dt} />
+              {/each}
+            </div>
+
+            <div class="flexbox pt-7">
+              {#each renderedColumnDTs as dt (dt.toMillis())}
+                <DayColumn {dt}/>
+              {/each}
+            </div>
           </div>
-
-          <div class="flexbox pt-7">
-            {#each renderedColumnDTs as dt (dt.toMillis())}
-              <DayColumn {dt}/>
-            {/each}
-          </div>
-        </div>
-      {/if}
+        {/if}
+      </div>
     </div>
   </div>
-</div>
+{/if}
 
 <style>
   .pt-7 {
     padding-top: 7px; /* timestamp has a height of 14px (despite a font size of 12px), note: this means the island and the massive-content will have a height difference of 7 px */
   }
 
-  #scroll-parent {
+  .cal-bg-color {
     background-color: var(--calendar-bg-color);
   }
 </style>

@@ -25,7 +25,7 @@ export function setupCalListener (leftDT, rightDT) {
   }
 }
 
-function divideIntoRegions (leftISO, rightISO, chunkSize = 10) {
+function divideIntoRegions (leftISO, rightISO, chunkSize) {
   const chunks = []
   let currentChunk = []
   let currentDate = DateTime.fromISO(leftISO)

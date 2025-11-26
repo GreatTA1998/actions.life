@@ -12,6 +12,7 @@
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
+  import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
 
   onMount(() => {
     translateJSConstantsToCSSVariables()
@@ -43,9 +44,9 @@
 <div>
   <div
     id="loading-screen-logo-start"
-    style="z-index: 99999; background: white; width: 100vw; height: 100vh"
+    style="z-index: 99; background: var(--offwhite-bg); width: 100vw; height: 100vh"
     class="center"
-    class:invisible={$hasFetchedUser}
+    class:invisible={$hasFetchedUser && (!$user.uid || Object.keys($treesByDate).length > 0)}
   >
     <img
       src="/logo-no-bg.png"
