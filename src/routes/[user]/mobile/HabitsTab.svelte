@@ -9,7 +9,7 @@
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import StarButton from '$lib/components/StarButton.svelte'
   import Template from '$lib/db/models/Template.js'
-  import { openTemplateEditor } from '../components/Templates/store.js'
+  import { openTemplateEditor, templates, popup, template } from '../components/Templates/store.js'
   import TemplatePopup from '../components/Templates/components/TemplatePopup/TemplatePopup.svelte'
   import { round } from '$lib/utils/core.js'
 
@@ -108,6 +108,7 @@
         return (a.name || '').localeCompare(b.name || '')
       })
       routines = temp
+      templates.set(temp)
       
       // Fetch stats for starred routines
       statsLoaded = false
@@ -309,8 +310,9 @@
     </div>
   {/if}
 
-  <!-- TO-DO: fix rrStr -->
-  <!-- <TemplatePopup /> -->
+  {#if $popup && $template}
+    <TemplatePopup />
+  {/if}
 </div>
 
 <style>
