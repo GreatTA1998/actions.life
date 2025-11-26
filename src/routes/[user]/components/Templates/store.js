@@ -1,4 +1,4 @@
-import { writable, derived, get } from 'svelte/store'
+import { writable, derived } from 'svelte/store'
 
 export const popup = writable(false)
 export const template = writable(null)
