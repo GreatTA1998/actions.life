@@ -22,7 +22,7 @@
 {/snippet}
 
 {#snippet content ({ close })} 
-  <div style="z-index: 1000; padding: 12px; display: flex; flex-direction: column; row-gap: 8px;">    
+  <div style="padding: 12px; display: flex; flex-direction: column; row-gap: 8px;">    
     <ToggleGroup onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal }})}
       options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
       activeValue={taskObj.childrenLayout} 
