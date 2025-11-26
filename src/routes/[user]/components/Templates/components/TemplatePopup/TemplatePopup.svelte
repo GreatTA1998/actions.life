@@ -34,7 +34,7 @@
   }
 </script>
 
-<BasePopup on:click-outside={closeTemplateEditor}>
+<BasePopup onClickOutside={closeTemplateEditor}>
   <div class="content-wrapper">
     <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
       {#if getPeriodicity($template.rrStr) === 'weekly'}

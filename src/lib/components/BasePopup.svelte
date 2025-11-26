@@ -1,15 +1,17 @@
 <script>
   import ModularLayer from '$lib/components/ModularLayer.svelte'
 
-  export let zIndex = 3
-  export let padding = 24
+  let { 
+    zIndex = 3, 
+    padding = 24, 
+    onClickOutside = () => {},
+    children 
+  } = $props()
 </script>
 
-<ModularLayer {zIndex} on:click-outside>
+<ModularLayer {zIndex} {onClickOutside}>
   <div class="detailed-card-popup" style="z-index: {zIndex}; padding: {padding}px">
-    <slot> 
-
-    </slot>
+    {@render children()}
   </div>
 </ModularLayer>
 

@@ -9,7 +9,7 @@
 </script>
 
 {#if taskObject}
-  <BasePopup on:click-outside={closeTaskPopup} zIndex={4} padding={0}>
+  <BasePopup onClickOutside={closeTaskPopup} zIndex={4} padding={0}>
     <TaskPopupContent />
   </BasePopup>
 {/if}
