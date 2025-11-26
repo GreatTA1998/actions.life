@@ -6,7 +6,7 @@ import { user } from './userStore.js'
 import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'
 import { writable, get } from 'svelte/store'
 
-export { timestamps, getMinutesDiff, calEarliestHHMM, calLastHHMM, totalMinutes, calSnapInterval } from '/src/routes/[user]/components/Calendar/timestamps.js'
+export { calSnapInterval, timestamps } from '/src/routes/[user]/components/Calendar/timestamps.js'
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
 
@@ -33,6 +33,7 @@ export function cleanupCache (tasks) {
     for (const task of tasks) {
       delete cache[task.id]
     }
+    return cache
   })
 }
 

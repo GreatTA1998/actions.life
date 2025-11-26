@@ -1,28 +1,15 @@
 <script>
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
   import { user, calSnapInterval } from '$lib/store'
-  import CheckboxSquare from '$lib/components/CheckboxSquare.svelte'
 
   const snapIntervals = [1, 5, 10, 15, 30]
 
   function updateSettings (interval) {
     updateFirestoreDoc(`users/${$user.uid}`, { calSnapInterval: interval })
   }
-
-  function toggleGridlines () {
-    updateFirestoreDoc(`/users/${$user.uid}`, { 
-      hasGridlines: !$user.hasGridlines 
-    })
-  }
 </script>
 
 <div class="gridlines-container">
-  <!-- <CheckboxSquare 
-    value={$user.hasGridlines}
-    onClick={toggleGridlines}
-    label="Show gridlines on calendar"
-  /> -->
-
   <div class="snap-settings">
     <div class="snap-label">Snap to interval</div>
     <div class="interval-selector">

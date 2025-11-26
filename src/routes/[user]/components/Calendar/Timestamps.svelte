@@ -1,17 +1,8 @@
 <script>
-  import { timestamps, calEarliestHHMM } from './timestamps.js'
   import { pixelsPerHour, isCompact, timestampsColumnWidth } from './store.js'
+  import { timestamps } from './timestamps.js'
   
   export let style
-
-  function getTopOffset (timestamp) {
-    let origin = minutes($calEarliestHHMM)
-    let minutesForm = minutes(timestamp)
-    // Handle cases where timestamp is on the next day (after midnight)
-    if (minutesForm < origin) minutesForm += 24 * 60
-
-    return (minutesForm - origin) * ($pixelsPerHour / 60)
-  }
 
   function minutes (time) {
     const [hours, minutes] = time.split(':').map(Number)
@@ -23,7 +14,7 @@
   {style} style:width="{$timestampsColumnWidth}px" 
 >
   {#each $timestamps as timestamp, i (i)}
-    <div class="absolute timestamp" style="top: {getTopOffset(timestamp)}px;">
+    <div class="absolute timestamp" style="top: {minutes(timestamp) * ($pixelsPerHour / 60)}px;">
       {timestamp.substring(0, $isCompact ? 2 : 5)}
     </div>
   {/each}

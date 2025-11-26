@@ -4,7 +4,6 @@
   import DayHeader from './DayHeader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
 
-  import { calEarliestHHMM, totalMinutes } from './timestamps.js'
   import { headerHeight, pixelsPerHour, timestampsColumnWidth } from './store.js'
   import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
   import { setupCalListener, treesByDate } from './service.js'
@@ -67,10 +66,9 @@
       renderedLeft = viewportLeft - 2*c
       renderedRight = viewportRight + 2*c
 
-      const [hour, minute] = $calEarliestHHMM.split(':').map(Number)
       renderedColumnDTs = Array.from(
         { length: renderedRight - renderedLeft + 1 },
-        (_, i) => originDT.plus({ days: renderedLeft + i }).set({ hour, minute })
+        (_, i) => originDT.plus({ days: renderedLeft + i })
       )
     }
   }
@@ -85,7 +83,7 @@
       on:scroll={e => scrollX = e.target.scrollLeft + $timestampsColumnWidth }
     >
       <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flexbox">
-        <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {$totalMinutes * ($pixelsPerHour / 60)}px;"/>
+        <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {24 * $pixelsPerHour}px;"/>
 
         {#if renderedColumnDTs[0]}
           <div class="absolute" style:left="{renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px">

@@ -8,7 +8,7 @@
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate } from './service.js'
-  import { user, timestamps, totalMinutes, calLastHHMM, calSnapInterval } from '$lib/store'
+  import { user, timestamps, calSnapInterval } from '$lib/store'
   import { getContext, onMount, onDestroy } from 'svelte'
 
   const { Task } = getContext('app')
@@ -184,7 +184,7 @@
 
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
 <div bind:this={dayColumn} class="day-column unselectable"
-  style="height: {$totalMinutes * pixelsPerMinute}px;"
+  style="height: {24 * $pixelsPerHour}px;"
   class:grid-y={$user.hasGridlines}
   onclick={e => {
     if (e.target === e.currentTarget) {
@@ -203,15 +203,11 @@
 >
   {#if $draggedItem.id || $user.hasGridlines}
     {#each $timestamps as timestamp, i}
-      {#if i === $timestamps.length - 1 && timestamp === $calLastHHMM}
-        <!-- Skip rendering the last gridline as it causes a 1px overflow from the container's bottom edge -->
-      {:else}
-        {@const [hour, minute] = timestamp.split(':').map(Number)}
-        <div class="my-helper-gridline" 
-          style="top: {getOffset({ dt1: dt, dt2: dt.set({ hour, minute }) })}px;"
-        >
-        </div>
-      {/if}
+      {@const [hour, minute] = timestamp.split(':').map(Number)}
+      <div class="gridline" 
+        style="top: {getOffset({ dt1: dt, dt2: dt.set({ hour, minute }) })}px;"
+      >
+      </div>
     {/each}
   {/if}
 
@@ -271,7 +267,7 @@
     width: var(--width-within-column);
   }
 
-  .my-helper-gridline {
+  .gridline {
     position: absolute;
     width: 100%;
     height: 1px;

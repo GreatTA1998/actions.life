@@ -19,11 +19,8 @@ const User = {
 
     // missing properties from August 1
     calendarTheme: z.string().default('offWhite'),
-    hasGridlines: z.boolean().default(true),
 
     defaultPhotoLayout: z.string().default('side-by-side'),
-    calEarliestHHMM: z.string().default('00:00'),
-    calLastHHMM: z.string().default('00:00'),
     calSnapInterval: z.number().default(1),
     listAreaWidthRatio: z.number().default(0.00223), // empirically determined from my account
     listAreaHeightRatio: z.number().default(0.004), // for mobile top-below view, default to 40% of viewport height
@@ -33,7 +30,7 @@ const User = {
     photoCompressWhenAttachingToTask: z.boolean().default(false),
 
     hideRoutines: z.boolean().default(true), // for mobile's future view
-    lastRanRoutines: z.string().default('') // for autoExtend.js
+    lastRanRoutines: z.string().default(''), // for autoExtend.js
 
     // unused
     // isSubscriber: z.boolean().default(false),
@@ -42,6 +39,11 @@ const User = {
     // to deprecate
     // FCMTokens: z.array(z.string()).default([]),
     // phoneNumber: z.string().optional(),
+
+    //// needed temporarily for backwards compatibility
+    hasGridlines: z.boolean().default(true),
+    calEarliestHHMM: z.string().default('00:00'),
+    calLastHHMM: z.string().default('23:59'),
   }),
 
   // TO-DO: CRUD

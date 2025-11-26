@@ -109,7 +109,7 @@ export async function shareEngravedImage (imageURL, dateISO, title) {
     return true
 
   } catch (error) {
-    error('Error sharing engraved image:', error)
+    console.error('Error sharing engraved image:', error)
     throw error
   }
 }
