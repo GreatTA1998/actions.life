@@ -6,7 +6,7 @@
   import ListenToDoc from '../components/Archive/ListenToDoc.svelte'
   import ListenToRoutineInstances from '../components/Archive/ListenToRoutineInstances.svelte'
   import JournalEntries from '../components/Archive/JournalEntries.svelte'
-  import BaseMenu from '$lib/components/BaseMenu.svelte'
+  import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import StarButton from '$lib/components/StarButton.svelte'
   import Template from '$lib/db/models/Template.js'
   import { openTemplateEditor } from '../components/Templates/store.js'
@@ -214,7 +214,7 @@
             {/if}
             
             {#if unstarredWithIcons.length > 0 || textRoutines.length > 0}
-              <BaseMenu {activator} {content} />
+              <PopoverMenu {activator} {content} />
             {/if}
           </div>
         {/if}
@@ -222,8 +222,8 @@
     {/if}
   </div>
 
-  {#snippet activator({ toggle })}
-    <button onclick={toggle}
+  {#snippet activator({ setPosition, popovertarget })}
+    <button {popovertarget} onclick={setPosition}
       class="starred-routine-compact more-button"
     >
       <span class="material-symbols-outlined more-icon">more_horiz</span>

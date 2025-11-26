@@ -48,7 +48,7 @@ function setupListener (ref, callback) {
 function buildTreeMap (tasks) {
   document.startViewTransition(() => { // View Transition API
     trees.set(
-      reconstructTreeInMemory(tasks) // reconstructTreeInMemory is really constructing a forest
+      reconstructTreeInMemory(tasks) // it's actually constructing a forest
     )
   })
 }

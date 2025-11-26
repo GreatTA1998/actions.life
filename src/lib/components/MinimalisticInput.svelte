@@ -28,7 +28,7 @@
 
 <PopoverMenu {activator} {content} />
 
-{#snippet activator({ open, close, toggle })}
+{#snippet activator({ open, close, setPosition })}
   <div class="duration-input">
     <input {value} {oninput}
       onclick={open}
@@ -44,7 +44,7 @@
   </div>
 {/snippet}
 
-{#snippet content({ open, close, toggle })}
+{#snippet content({ open, close, setPosition })}
   <div class="duration-options">
     {#each durations as duration}
       <button onclick={() => select(duration, close)}

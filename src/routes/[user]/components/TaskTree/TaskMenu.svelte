@@ -1,5 +1,5 @@
 <script>
-  import BaseMenu from '$lib/components/BaseMenu.svelte'
+  import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import ToggleGroup from '$lib/components/ToggleGroup.svelte'
   import { getContext } from 'svelte'
 
@@ -8,27 +8,27 @@
   let { taskObj } = $props()
 </script>
 
-<BaseMenu 
+<PopoverMenu 
   {activator} 
   {content} 
 />
 
-{#snippet activator ({ toggle })} 
+{#snippet activator ({ setPosition, popovertarget })} 
   <div style="max-height: 16px; display: flex; align-items: center;">
-    <button onclick={toggle} class="material-symbols-outlined menu-icon" style="font-size: 24px;">
+    <button {popovertarget} onclick={setPosition} class="material-symbols-outlined menu-icon" style="font-size: 24px;">
       more_vert
     </button>
   </div>
 {/snippet}
 
 {#snippet content ({ close })} 
-  <div style="padding: 12px; display: flex; flex-direction: column; row-gap: 8px;">    
+  <div style="padding: 8px; display: flex; flex-direction: column; row-gap: 8px;">    
     <ToggleGroup onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal }})}
       options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
       activeValue={taskObj.childrenLayout} 
     />
 
-    <div class="menu-divider"></div>
+    <!-- <div class="menu-divider"></div> -->
 
     <button class="m-item" onclick={() => { Task.archiveTree({ id: taskObj.id }) }}>
       <span class="material-symbols-outlined" style="font-size: 18px;">

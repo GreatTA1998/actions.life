@@ -1,6 +1,9 @@
 <script>
+  import { getRandomID } from '$lib/utils/core.js'
+
   let { activator, content, menuClasses = 'card', menuStyles } = $props()
 
+  const id = getRandomID()
   let popoverElem = $state(null)
   let position = $state({ x: 0, y: 0 })
   let adjustedPosition = $derived(getAdjustedPosition(position, popoverElem))
@@ -22,13 +25,13 @@
     return { x, y }
   }
 
-  async function toggle () {
-    popoverElem.togglePopover()
+  function setPosition (e) {
+    position = { x: e.clientX, y: e.clientY + 8 }
   }
 
   function open (e) {
     popoverElem.showPopover()
-    position = { x: e.clientX, y: e.clientY + 8 }
+    setPosition(e)
   }
 
   function close () {
@@ -37,14 +40,14 @@
 </script>
 
 
-{@render activator({ open, close, toggle })}
+{@render activator({ open, close, setPosition, popovertarget: id })}
 
-<div bind:this={popoverElem}
+<div {id} bind:this={popoverElem}
   popover="auto"
   style='{menuStyles} left: {adjustedPosition.x}px; top: {adjustedPosition.y}px; margin: 0; padding: 0;'
   class={menuClasses}
 >
-  {@render content({ open, close, toggle })}
+  {@render content({ open, close, setPosition })}
 </div>
 
 <style>
