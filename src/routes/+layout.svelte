@@ -216,6 +216,15 @@
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
   }
 
+  /* navbar > calendar > list area */
+  :global(::view-transition-group(floating-navbar)) {
+    z-index: 2;
+  }
+  
+  :global(::view-transition-group(calendar)) {
+    z-index: 1;
+  }
+
   /* utility classes (inspired by Tailwind, but custom for my needs) */
   :global(.absolute) {
     position: absolute;

@@ -54,6 +54,9 @@
   }
 
   .floating-navbar {
+    view-transition-name: floating-navbar;
+    contain: layout;
+    
     position: fixed;
     z-index: 2;
 

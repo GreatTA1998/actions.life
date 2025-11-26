@@ -111,6 +111,8 @@
     flex-grow: 1;
     height: 100%;
     overflow: hidden;
+    view-transition-name: calendar; 
+    contain: layout;
   }
   
   .handle-wrapper {

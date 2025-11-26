@@ -6,11 +6,11 @@
   } = $props()
 </script>
 
-<!-- contain: layout breaks popup menu -->
 <div 
   style="
     width: {listWidth}px; 
     view-transition-name: list-{id};
+    contain: layout;
   "
 >
   {@render children()}
