@@ -383,11 +383,6 @@
     transition: all 0.2s;
   }
 
-  .routine-pill.is-done {
-    background: #e0e0e0;
-    color: #999;
-    text-decoration: line-through;
-  }
 
   /* Event List */
   .event-list {
@@ -411,19 +406,13 @@
   .event-row:active {
     background: #f9f9f9;
   }
-  
-  .event-row.is-done .event-name {
-    text-decoration: none;
+
+  .is-done {
     color: #1e8e24;
   }
   
   .event-row.is-done {
     background: linear-gradient(to right, rgba(76, 175, 80, 0.04), transparent);
-  }
-
-  .event-row.is-done .event-time {
-    color: #4caf50;
-    opacity: 0.7;
   }
 
   .event-time {
