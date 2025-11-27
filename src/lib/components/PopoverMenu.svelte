@@ -1,9 +1,14 @@
 <script>
   import { getRandomID } from '$lib/utils/core.js'
 
-  let { activator, content, menuClasses = 'card', menuStyles } = $props()
+  let { 
+    activator, 
+    content, 
+    menuStyles,
+    ontoggle = () => {},
+    id = getRandomID()
+  } = $props()
 
-  const id = getRandomID()
   let popoverElem = $state(null)
   let position = $state({ x: 0, y: 0 })
   let adjustedPosition = $derived(getAdjustedPosition(position, popoverElem))
@@ -45,9 +50,10 @@
 <div {id} bind:this={popoverElem}
   popover="auto"
   style='{menuStyles} left: {adjustedPosition.x}px; top: {adjustedPosition.y}px; margin: 0; padding: 0;'
-  class={menuClasses}
+  {ontoggle}
+  class="card"
 >
-  {@render content({ open, close, setPosition })}
+  {@render content({ open, close, setPosition, popovertarget: id })}
 </div>
 
 <style>

@@ -142,3 +142,8 @@ export function sortByOrderValue(array) {
 export function isMobile () {
   return window.innerWidth <= 768 // You can adjust the width threshold as needed
 }
+
+export function minutes (HHmm) {
+  const [hours, minutes] = HHmm.split(':').map(Number)
+  return hours * 60 + minutes
+}

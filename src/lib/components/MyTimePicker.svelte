@@ -1,6 +1,7 @@
 <script>
   import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
-  import { tick } from 'svelte'
+  import { trackHeight } from '$lib/utils/svelteActions.js'
+  import { getRandomID } from '$lib/utils/core.js'
 
   let { 
     value = '', 
@@ -8,8 +9,16 @@
     onTimeSelected = () => {}
   } = $props()
 
+  const id = getRandomID()
+
+  let scrollContainer = $state(null)
+  let menuHeight = $state(0)
+
+  const start = 6
+  const end = 23
+
   const hourChoices = $state([])
-  for (let i = 6; i < 24; i++) {
+  for (let i = start; i <= end; i++) {
     let hh = i
     if (hh < 10) {
       hh = `0${hh}`
@@ -17,28 +26,26 @@
     hourChoices.push(hh + ':' + '00')
     hourChoices.push(hh + ':' + '30')
   }
- 
-  // // NOTE: won't work, probably use an action to trigger programmatic scroll
-  // $effect(() => {
-  //   tick().then(scrollToSelected)
-  // })
 
-  // function scrollToSelected () {
-  //   console.log('scrollToSelected')
-  //   const elements = document.getElementsByClassName('highlighted-option')
-  //   const el = elements[0]
-  //   console.log('el', el)
-  //   if (el) {
-  //     el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  //   }
-  // }
+  function calcPosition () {
+    const currentHour = Number(value.split(':')[0])
+    const heightPerHour = menuHeight / (end - start)
+    return (currentHour - start) * heightPerHour
+  }
 </script>
 
 <div>
-  <PopoverMenu 
+  <PopoverMenu {id}
     {activator} 
     {content}
-    menuStyles="overflow-y: auto; height: 240px;"
+    menuStyles="overflow-y: auto; height: 360px;"
+    bind:this={scrollContainer}
+    ontoggle={e => {
+      if (e.newState === 'open') {
+        const scrollContainer = document.getElementById(id)
+        scrollContainer.scrollTo({ top: calcPosition() })
+      }
+    }}
   />
 
   {#snippet activator ({ open, close, toggle })}
@@ -51,8 +58,8 @@
     />
   {/snippet}
 
-  {#snippet content({ close })}
-    <div class="time-options-grid">
+  {#snippet content({ open, close, setPosition, popovertarget })}
+    <div class="time-options-grid" use:trackHeight={h => menuHeight = h}>
       {#each hourChoices as hhmm}
         <button onclick={() => { onTimeSelected(hhmm); close(); }}
           class="time-option"
@@ -88,10 +95,11 @@
     padding: 6px 8px;
     font-size: 14px;
     color: #727272;
+    border-radius: 4px;
   }
 
   .highlighted-option {
     color: var(--scheduled-info-color);
-    font-weight: 600;
+    background-color: #f0f0f0;
   }
 </style>

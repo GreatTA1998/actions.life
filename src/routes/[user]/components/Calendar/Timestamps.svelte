@@ -1,13 +1,9 @@
 <script>
   import { pixelsPerHour, isCompact, timestampsColumnWidth } from './store.js'
   import { timestamps } from './timestamps.js'
+  import { minutes } from '$lib/utils/core.js'
   
   export let style
-
-  function minutes (time) {
-    const [hours, minutes] = time.split(':').map(Number)
-    return hours * 60 + minutes
-  }
 </script>
 
 <div class="timestamps {$$props.class}"
