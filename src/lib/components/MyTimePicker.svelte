@@ -93,13 +93,8 @@
 
   .time-option {
     padding: 6px 8px;
-    font-size: 14px;
+    font-size: 0.875rem;
     color: #727272;
     border-radius: 4px;
-  }
-
-  .highlighted-option {
-    color: var(--scheduled-info-color);
-    background-color: #f0f0f0;
   }
 </style>

@@ -3,7 +3,7 @@
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
   import BasePopup from '$lib/components/BasePopup.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
-  import MinimalisticInput from '$lib/components/MinimalisticInput.svelte'
+  import DurationPicker from '$lib/components/DurationPicker.svelte'
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
   import { getPeriodicity } from '$lib/utils/rrule.js'
   import { template, closeTemplateEditor } from '../../store.js'
@@ -79,7 +79,7 @@
           oninput={e => debouncedUpdate('startTime', e.target.value)}
           onTimeSelected={hhmm => instantUpdate('startTime', hhmm)}
         />
-        <MinimalisticInput
+        <DurationPicker
           value={Math.round($template.duration)}
           oninput={e => instantUpdate("duration", Number(e.target.value))}
         />   

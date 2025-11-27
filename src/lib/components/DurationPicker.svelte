@@ -73,7 +73,7 @@
     outline: none;
     transition: border-color 0.2s;
 
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--scheduled-info-color);
   }
 
@@ -95,7 +95,7 @@
     position: absolute;
     right: 12px;
     color: var(--scheduled-info-color);
-    font-size: 14px;
+    font-size: 0.875rem;
     pointer-events: none;
   }
 
@@ -108,18 +108,9 @@
   }
 
   .duration-button {
-    background: none;
-    border: none;
     padding: 6px 10px;
-    cursor: pointer;
     font-size: 14px;
     border-radius: 4px;
     color: #727272;
-    text-align: center;
-  }
-
-  .highlighted-option {
-    color: var(--scheduled-info-color);
-    font-weight: 600;
   }
 </style>

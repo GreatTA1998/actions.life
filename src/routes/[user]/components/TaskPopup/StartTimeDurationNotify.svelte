@@ -1,5 +1,5 @@
 <script>
-  import MinimalisticInput from '$lib/components/MinimalisticInput.svelte'
+  import DurationPicker from '$lib/components/DurationPicker.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import LuxonDatePicker from '$lib/components/LuxonDatePicker.svelte'
   import { DateTime } from 'luxon'
@@ -44,7 +44,7 @@
     />
   </div>
 
-  <MinimalisticInput value={Math.round(taskObject.duration)}
+  <DurationPicker value={Math.round(taskObject.duration)}
     oninput={e => handleChanges('duration', Number(e.target.value))}
   />
 </div>

@@ -229,6 +229,12 @@
     z-index: 1;
   }
 
+  /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */
+  :global(.highlighted-option) {
+    color: black !important;
+    font-weight: 600 !important;
+  }
+
   /* utility classes (inspired by Tailwind, but custom for my needs) */
   :global(.absolute) {
     position: absolute;
