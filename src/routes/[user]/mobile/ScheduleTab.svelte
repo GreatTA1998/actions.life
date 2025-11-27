@@ -7,6 +7,9 @@
   import { onMount, onDestroy, tick, getContext } from 'svelte'
   import DatePicker from '$lib/components/DatePicker.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
+  import SimpleToggle from '$lib/components/SimpleToggle.svelte'
+
+  const { User } = getContext('app')
 
   let selectedDate = $state(DateTime.now().startOf('day'))
   let loadedDays = $state([]) 
@@ -196,6 +199,14 @@
     />
   </div>
 
+  <div class="filter-bar">
+    <SimpleToggle 
+      checked={$user.hideRoutines} 
+      onchange={e => User.update({ hideRoutines: e.target.checked })} 
+      label="Exclude routines" 
+    />
+  </div>
+
   <div 
     class="tasks-list" 
     onscroll={handleScroll} 
@@ -205,14 +216,15 @@
        <div class="loading">Loading schedule...</div>
     {:else}
        {#each loadedDays as day, i (day.dateISO)}
+         {@const filteredTasks = $user.hideRoutines ? day.tasks.filter(t => !t.templateID) : day.tasks}
          <div class="day-section" id="day-{day.dateISO}">
            <div class="day-anchor" data-iso={day.dateISO}></div>
            
             {#if i > 0}
-              <div class="day-divider" class:is-empty={day.tasks.length === 0}></div>
+              <div class="day-divider" class:is-empty={filteredTasks.length === 0}></div>
             {/if}
 
-            {#if day.tasks.length > 0 && showDateLabels}
+            {#if filteredTasks.length > 0 && showDateLabels}
               <div class="day-divider-text" class:is-selected={selectedDate && selectedDate.hasSame(day.date, 'day')}
                 style="padding: 16px;"
               >
@@ -222,12 +234,12 @@
             {/if}
 
 
-           {#if day.tasks.length > 0}
+           {#if filteredTasks.length > 0}
            <div class="day-content">
              <!-- Horizontal Routine Dock -->
-             {#if getRoutineTasks(day.tasks).length > 0}
+             {#if getRoutineTasks(filteredTasks).length > 0}
                <div class="routine-dock">
-                 {#each getRoutineTasks(day.tasks) as task (task.id)}
+                 {#each getRoutineTasks(filteredTasks) as task (task.id)}
                    {#if task.iconURL}
                       <DoodleIcon iconTask={task} size={40} />
                    {:else}
@@ -245,7 +257,7 @@
 
              <!-- Regular Task List -->
              <div class="event-list">
-               {#each getRegularTasks(day.tasks) as task (task.id)}
+               {#each getRegularTasks(filteredTasks) as task (task.id)}
                   <button 
                     class="event-row" 
                     class:is-done={task.isDone}
@@ -296,6 +308,11 @@
     background: white;
     border-bottom: 1px solid #f0f0f0;
     padding-bottom: 4px;
+  }
+
+  .filter-bar {
+    padding: 8px 16px;
+    border-bottom: 1px solid #f0f0f0;
   }
 
   .tasks-list {

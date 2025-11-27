@@ -127,8 +127,6 @@ export const userInfoFromAuthProvider = writable({}) // test if the page data me
 export const inclusiveWeekTodo = writable([])
 export const todoMemoryTree = writable(null)
 
-export const uniqueEvents = writable(null)
-
 // New snackbar store for undo operations
 export const snackbarState = writable({
   isVisible: false,

@@ -48,7 +48,8 @@
       id: getRandomID(),
       newTaskObj: {
         ...template,
-        ...$overrideOptions // includes `persistsOnList`
+        ...$overrideOptions, // includes `persistsOnList`
+        templateID: typeof template.rrStr === 'string' ? template.id : '' // this is a quickfix, careful about legacy routines with no `rrStr`
       }
     })
     value = ''
