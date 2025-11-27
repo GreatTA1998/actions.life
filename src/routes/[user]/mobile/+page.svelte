@@ -41,7 +41,8 @@
 </script>
 
 <svelte:head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <!-- previously: maximum-scale=1, user-scalable=no -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 </svelte:head>
 
 <style>

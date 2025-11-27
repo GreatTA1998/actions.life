@@ -42,7 +42,7 @@
 
   <CheckboxSquare onClick={() => toggle('photoCompressWhenAttachingToTask')}
     value={$user.photoCompressWhenAttachingToTask}
-    label="Lightly compress photo if it's a task attachment"
+    label="Lightly compress photos"
   />
 </div>
 

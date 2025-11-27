@@ -18,10 +18,11 @@
 <script>
   import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
   import { getRandomID, getTimeInHHMM } from '/src/lib/utils/core.js'
+  import { compressImage } from '$lib/utils/imageHandling.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
+  const { Task, user } = getContext('app')
 
   export let style
 
@@ -35,9 +36,12 @@
 
   async function handleFileChange (e) {
     const promises = []
-    for (const imageBlobFile of e.target.files) {
+    for (let imageBlobFile of e.target.files) {
       if (imageBlobFile) {
         const id = getRandomID()
+        if ($user.photoCompressWhenAttachingToTask) {
+          imageBlobFile = await compressImage(imageBlobFile)
+        }
         promises.push(
           uploadImageBlobToFirebase(imageBlobFile, id).then(resultSnapshot => {
             createNewScheduledTaskContainingImage(resultSnapshot, imageBlobFile, id)

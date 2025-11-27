@@ -27,6 +27,7 @@ const User = {
 
     // automation settings
     photoUploadAutoArchive: z.boolean().default(false),
+    // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
     photoCompressWhenAttachingToTask: z.boolean().default(false),
 
     hideRoutines: z.boolean().default(true), // for mobile's future view
