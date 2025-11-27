@@ -429,8 +429,8 @@
   .event-time {
     margin-right: 12px;
     flex-shrink: 0;
-    font-size: var(--font-size-sm);
-    color: #888;
+    font-size: var(--font-size-base);
+    color: 222;
     font-weight: 500;
     padding-top: 2px;
     min-width: 60px; /* Only take space if time exists */
@@ -449,7 +449,7 @@
 
   .event-name {
     font-size: var(--font-size-base);
-    font-weight: 500;
+    font-weight: 400;
     color: #222;
     line-height: 1.4;
   }
