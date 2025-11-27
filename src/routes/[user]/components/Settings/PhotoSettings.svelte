@@ -20,7 +20,6 @@
   }
 
   function toggle (fieldName) {
-    console.log('fieldName =', fieldName)
     updateFirestoreDoc(`/users/${$user.uid}`, { 
       [fieldName]: !!!$user[fieldName] 
     })

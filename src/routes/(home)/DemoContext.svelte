@@ -40,7 +40,6 @@
       })
     },
     create: ({ id, newTaskObj }) => {
-      console.log('create task =', newTaskObj)
       firestoreDocs.update(docs => [...docs, { ...newTaskObj, id: newTaskObj.name }])
     },
     // DANGER, SHOULD BE PROPERLY IMPLEMENTED, AND OTHER PARTS
