@@ -1,5 +1,5 @@
 <script>
-  import DateTab from './DateTab.svelte'
+  import ScheduleTab from './ScheduleTab.svelte'
   import HabitsTab from './HabitsTab.svelte'
   import AI from '../components/AI/AI.svelte'
   import ArchiveTab from './ArchiveTab.svelte'
@@ -42,7 +42,7 @@
 
   <div class="tab-content hide-scrollbar">
     {#if activeTab === 'date'}
-      <DateTab />
+      <ScheduleTab />
     {:else if activeTab === 'habits'}
       <HabitsTab />
     {:else if activeTab === 'ai'}
