@@ -31,10 +31,11 @@ async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject
   // STEP 0: parallel process to retrieve width & height
   let durationForFullDisplay
   const p1 = createImageBitmap(imageBlobFile).then(bitmap => {
-    const { width, height } = bitmap 
+    // TO-DO: settings
     // these durations will display fully the portrait / landscape iPhone photos on an iPad Air 1180x820
-    if (width > height) durationForFullDisplay = 106
-    else durationForFullDisplay = 188
+    // const { width, height } = bitmap 
+    // if (width > height) durationForFullDisplay = 106
+    // else durationForFullDisplay = 188
   })
 
   // STEP 1: getDownloadURL()
@@ -51,7 +52,7 @@ async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject
   const updateObj = {
     imageDownloadURL,
     imageFullPath: fullPath, // for easy garbage collection
-    isDone: true
+    isDone: true // TO-DO: settings
     // note we do NOT change the task's timing based on the photo
   }
 
@@ -59,7 +60,7 @@ async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject
   if (!taskObject.startDateISO) { 
     updateObj.startDateISO = DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd')
     updateObj.startTime = getTimeInHHMM({ dateClassObj })
-    updateObj.duration = durationForFullDisplay
+    // updateObj.duration = durationForFullDisplay
   }
 
   // user settings: automations 

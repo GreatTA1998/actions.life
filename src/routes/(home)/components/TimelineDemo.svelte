@@ -2,6 +2,7 @@
   import ToggleGroup from '../../../lib/components/ToggleGroup.svelte'
   import TodoList from '../../[user]/components/ListsArea/TodoList.svelte'
   import { isMobile } from '$lib/utils/core.js'
+  import { WIDTHS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
   const { memoryTree, Task } = getContext('app')
@@ -36,7 +37,7 @@
 
       <TodoList trees={[taskObj]}
         isLargeFont={isMobile()}
-        listWidth={320}
+        listWidth={WIDTHS.LIST}
         cssStyle=""
       />
     </div>

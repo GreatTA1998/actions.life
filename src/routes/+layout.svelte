@@ -131,7 +131,6 @@
 
   /** used in both <DayColumn/> and <FlexibleDayTask/> */
   :global(.cal-task-name) {
-    width: 100%;
     font-weight: 500;
     font-size: 0.8rem;
     cursor: pointer; 
