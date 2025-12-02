@@ -8,3 +8,9 @@ export function sendEmail ({ subject, content, toWho }) {
     resolve()
   })
 }
+
+export function exchangeGoogleCode({ code }) {
+  const functions = getFunctions();
+  const fn = httpsCallable(functions, 'exchangeGoogleCode');
+  return fn({ code });
+}

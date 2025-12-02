@@ -3,6 +3,7 @@
   import PhotoSettings from './PhotoSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
   import EmailDraft from './EmailDraft.svelte'
+  import ConnectGoogleCalendar from '$lib/components/ConnectGoogleCalendar.svelte'
   import { getAuth, signOut } from 'firebase/auth'
   import { goto } from '$app/navigation'
 
@@ -16,6 +17,11 @@
 <div class="settings-container"> 
   <div class="settings-content">
     <div class="settings-main">
+      <div class="settings-group">
+        <div class="settings-label">Integrations</div>
+        <ConnectGoogleCalendar clientId="132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com" />
+      </div>
+
       <div class="settings-group">
         <div class="settings-label">Theme</div>
         <ColorSettings />
