@@ -10,7 +10,6 @@
     const durationMinutes = endDT.diff(startDT, 'minutes').minutes
     return durationMinutes * ($pixelsPerHour / 60)
   })
-
 </script>
 
 <div 

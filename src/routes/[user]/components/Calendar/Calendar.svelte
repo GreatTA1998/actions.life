@@ -31,20 +31,13 @@
   
   $: if (viewportRight >= triggerRight) addFutureListener()
   $: if (viewportLeft <= triggerLeft) addPastListener()
-  
-  // Simple debounce to prevent excessive fetches while scrolling
-  let fetchTimeout
-  $: {
-    const start = originDT.plus({ days: renderedLeft })
-    const end = originDT.plus({ days: renderedRight })
-    clearTimeout(fetchTimeout)
-      fetchTimeout = setTimeout(() => {
-       getGoogleEvents(start, end)
-    }, 500)
-  }
 
   onMount(() => {
     setupCalListener(
+      originDT.plus({ days: viewportLeft - 2*c }),
+      originDT.plus({ days: viewportRight + 2*c })
+    )
+    getGoogleEvents(
       originDT.plus({ days: viewportLeft - 2*c }),
       originDT.plus({ days: viewportRight + 2*c })
     )
@@ -63,11 +56,19 @@
       originDT.plus({ days: (triggerRight + c) + 1 }),
       originDT.plus({ days: (triggerRight + c) + 1 + 2*c }) 
     )
+    getGoogleEvents(
+      originDT.plus({ days: (triggerRight + c) + 1 }),
+      originDT.plus({ days: (triggerRight + c) + 1 + 2*c })
+    )
     triggerRight += (1 + 2*c)
   }
 
   function addPastListener () {
     setupCalListener(
+      originDT.plus({ days: (triggerLeft - c) - 1 - 2*c }),
+      originDT.plus({ days: (triggerLeft - c) - 1 })
+    )
+    getGoogleEvents(
       originDT.plus({ days: (triggerLeft - c) - 1 - 2*c }),
       originDT.plus({ days: (triggerLeft - c) - 1 })
     )

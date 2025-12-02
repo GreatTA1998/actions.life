@@ -5,9 +5,14 @@ import { get } from 'svelte/store'
 
 export async function getGoogleEvents (startDT, endDT) {
   try {
-    const calendars = get(user).googleCalendars || []
+    const allCalendars = get(user).googleCalendars || []
     
-    if (calendars.length === 0) return // No calendars to fetch
+    if (allCalendars.length === 0) return
+
+    const selectedIds = get(user).selectedGoogleCalendarIds ?? allCalendars.map(cal => cal.id)
+    const calendars = allCalendars.filter(cal => selectedIds.includes(cal.id))
+
+    if (calendars.length === 0) return
 
     const result = await fetchGoogleEvents({ 
       timeMin: startDT.startOf('day').toISO(),
