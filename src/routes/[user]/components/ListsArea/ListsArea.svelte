@@ -1,6 +1,7 @@
 <script>
   import TodoList from './TodoList.svelte'
   import ListenToListTrees from './ListenToListTrees.svelte'
+  import { WIDTHS } from '$lib/utils/constants.js'
 
   const wrappingColumnLayout = `
     position: relative;
@@ -19,7 +20,7 @@
 <ListenToListTrees>
   {#snippet children({ trees })}
     <TodoList 
-      listWidth={320}
+      listWidth={WIDTHS.LIST}
       cssStyle={wrappingColumnLayout}
       {trees}
     />

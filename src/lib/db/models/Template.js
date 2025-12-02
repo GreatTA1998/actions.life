@@ -28,9 +28,9 @@ const Template = {
   }),
 
   async create ({ newTemplate, id }) {
-    Template.schema.parse(newTemplate)
+    const validatedTemplate = Template.schema.parse(newTemplate)
     const docRef = doc(db, `/users/${get(user).uid}/templates/${id}`)
-    return setDoc(docRef, newTemplate, { merge: true }) // `merge: true` matters for generating periodic tasks
+    return setDoc(docRef, validatedTemplate, { merge: true }) // `merge: true` matters for generating periodic tasks
   },
 
   async update ({ id, updates }) {

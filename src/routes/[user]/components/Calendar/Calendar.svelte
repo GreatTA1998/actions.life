@@ -7,6 +7,7 @@
   import { headerHeight, pixelsPerHour, timestampsColumnWidth } from './store.js'
   import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
   import { setupCalListener, treesByDate } from './service.js'
+  import { getGoogleEvents } from './gcalService.js'
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'
@@ -29,10 +30,14 @@
   $: updateRenderedColumns(viewportLeft, viewportRight)
   
   $: if (viewportRight >= triggerRight) addFutureListener()
-  $: if (viewportLeft <= triggerLeft) addPastListener()  
+  $: if (viewportLeft <= triggerLeft) addPastListener()
 
   onMount(() => {
     setupCalListener(
+      originDT.plus({ days: viewportLeft - 2*c }),
+      originDT.plus({ days: viewportRight + 2*c })
+    )
+    getGoogleEvents(
       originDT.plus({ days: viewportLeft - 2*c }),
       originDT.plus({ days: viewportRight + 2*c })
     )
@@ -45,16 +50,25 @@
     )
   })
 
+
   function addFutureListener () {
     setupCalListener(
       originDT.plus({ days: (triggerRight + c) + 1 }),
       originDT.plus({ days: (triggerRight + c) + 1 + 2*c }) 
+    )
+    getGoogleEvents(
+      originDT.plus({ days: (triggerRight + c) + 1 }),
+      originDT.plus({ days: (triggerRight + c) + 1 + 2*c })
     )
     triggerRight += (1 + 2*c)
   }
 
   function addPastListener () {
     setupCalListener(
+      originDT.plus({ days: (triggerLeft - c) - 1 - 2*c }),
+      originDT.plus({ days: (triggerLeft - c) - 1 })
+    )
+    getGoogleEvents(
       originDT.plus({ days: (triggerLeft - c) - 1 - 2*c }),
       originDT.plus({ days: (triggerLeft - c) - 1 })
     )

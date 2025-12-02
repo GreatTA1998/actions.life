@@ -17,6 +17,7 @@
     "cron-parser": "^4.9.0",
     "firebase-admin": "^12.4.0",
     "firebase-functions": "^6.5.0",
+    "googleapis": "^166.0.0",
     "luxon": "^3.5.0",
     "postmark": "^4.0.5"
   },

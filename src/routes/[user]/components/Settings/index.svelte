@@ -3,8 +3,11 @@
   import PhotoSettings from './PhotoSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
   import EmailDraft from './EmailDraft.svelte'
+  import ConnectGoogleCalendar from '$lib/components/ConnectGoogleCalendar.svelte'
+  import GoogleCalendarSelector from '$lib/components/GoogleCalendarSelector.svelte'
   import { getAuth, signOut } from 'firebase/auth'
   import { goto } from '$app/navigation'
+  import { user } from '$lib/store'
 
   function handleLogoClick() {
     const auth = getAuth()
@@ -16,6 +19,18 @@
 <div class="settings-container"> 
   <div class="settings-content">
     <div class="settings-main">
+      <div style="display: grid; flex-direction: column; gap: 8px;">
+        <div style="font-size: 15px; font-weight: 600; color: #555; letter-spacing: 0.1px;">
+          Integrations
+        </div>
+
+        <ConnectGoogleCalendar clientId="132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com" />
+       
+        {#if $user.google?.refreshToken}
+          <GoogleCalendarSelector />
+        {/if}
+      </div>
+
       <div class="settings-group">
         <div class="settings-label">Theme</div>
         <ColorSettings />
@@ -118,9 +133,9 @@
   .settings-label {
     font-size: 15px;
     font-weight: 600;
-    margin-bottom: 16px;
     color: #555;
     letter-spacing: 0.1px;
+    margin-bottom: 16px;
   }
 
   .settings-description {

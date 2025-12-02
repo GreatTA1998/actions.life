@@ -11,7 +11,6 @@
     position: relative;
     height: {height}px; 
     min-height: {iconMinPixelHeight}px;
-    font-size: {fontSize}rem;
     opacity: {task.isDone ? '0.9' : '0.7'};
     background-color: {isBulletPoint ? '' : 'var(--navbar-bg-color)'};
     padding-left: {isBulletPoint ? '0px' : 'var(--left-padding)'};
@@ -87,8 +86,7 @@
   const iconMinPixelHeight = 32
 
   let {
-    task = null,
-    fontSize = 1
+    task = null
   } = $props()
 
   let height = $derived(($pixelsPerHour / 60) * task.duration)

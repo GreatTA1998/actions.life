@@ -2,6 +2,7 @@
   import TodoList from '../../[user]/components/ListsArea/TodoList.svelte'
   import TaskPopup from '../../[user]/components/TaskPopup/TaskPopup.svelte'
   import { isMobile } from '$lib/utils/core.js'
+  import { WIDTHS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
   const { tasksCache, clickedTaskID, memoryTree } = getContext('app')
@@ -12,7 +13,7 @@
 <div>
   <TodoList
     isLargeFont={isMobile()}
-    listWidth={320}
+    listWidth={WIDTHS.LIST}
     trees={updateLogTasks}
   />
 

@@ -45,6 +45,8 @@ const User = {
     hasGridlines: z.boolean().default(true),
     calEarliestHHMM: z.string().default('00:00'),
     calLastHHMM: z.string().default('23:59'),
+
+    selectedGoogleCalendarIds: z.array(z.string()).optional()
   }),
 
   // TO-DO: CRUD
