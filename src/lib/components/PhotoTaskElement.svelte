@@ -19,7 +19,6 @@
     flex-direction: column;
     min-height: 24px;
     height: {height}px; 
-    font-size: {fontSize}rem;
     opacity: {task.isDone ? '0.9' : '0.7'};
     background-color: {isBulletPoint ? '' : 'var(--experimental-black)'};
     background-image: url({hasIntersected ? task.imageDownloadURL : ''});
@@ -70,7 +69,6 @@
  const { startTaskDrag } = getContext('drag-drop')
 
  export let task = null // assumes `task` is hydrated
- export let fontSize = 1
 
  $: height = ($pixelsPerHour / 60) * task.duration
  $: isBulletPoint = height < 24 // 24px is exactly enough to not crop the checkbox and the task name

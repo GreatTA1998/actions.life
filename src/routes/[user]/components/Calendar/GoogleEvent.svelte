@@ -10,23 +10,27 @@
     const durationMinutes = endDT.diff(startDT, 'minutes').minutes
     return durationMinutes * ($pixelsPerHour / 60)
   })
+
 </script>
 
-<div class="google-event" style="height: {height}px;" title={event.summary}>
+<div 
+  class="google-event" 
+  style="
+    height: {height}px; 
+    background-color: {event.backgroundColor}; 
+    color: {event.foregroundColor};
+  " 
+  title={event.summary}
+>
   {event.summary}
 </div>
 
 <style>
   .google-event {
-    pointer-events: none;
-    background-color: #4285F4; /* Google Blue */
-    border: 1px solid #3367D6;
-    opacity: 0.8;
-    color: white;
-    font-size: 12px;
-    padding: 2px 4px;
+    opacity: 0.7;
+    font-size: 0.8rem;
+    padding: var(--left-padding);
     overflow: hidden;
-    border-radius: 4px;
-    z-index: 1; /* Below tasks potentially */
+    border-radius: var(--left-padding);
   }
 </style>

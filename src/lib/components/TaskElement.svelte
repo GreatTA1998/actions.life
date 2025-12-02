@@ -8,7 +8,6 @@
     position: relative;
     height: {height}px; 
     min-height: 12px;
-    font-size: {fontSize}rem;
     opacity: {task.isDone ? '0.9' : '0.7'};
     background-color: {isBulletPoint ? '' : 'var(--experimental-black)'};
     background-image: {task.imageDownloadURL ? `url(${task.imageDownloadURL})` : ''};
@@ -87,8 +86,7 @@
   const { startTaskDrag } = getContext('drag-drop')
 
   let { 
-    task = null, // this component assumes `task` is hydrated
-    fontSize = 1
+    task = null // this component assumes `task` is hydrated
    } = $props()
 
   let height = $derived($pixelsPerHour / 60 * task.duration)

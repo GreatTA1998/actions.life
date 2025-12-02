@@ -1,7 +1,8 @@
 <script>
   import { initiateGoogleConnect } from '$lib/utils/googleGIS';
-  import { fetchGoogleEvents } from '$lib/utils/cloudFunctions';
-  import { DateTime } from 'luxon';
+  import { fetchGoogleCalendars, fetchGoogleEvents } from '$lib/utils/cloudFunctions';
+  import { DateTime } from 'luxon'
+  import { user } from '$lib/store'
   
   // TODO: Replace with your actual Client ID or import from a config file
   // Ideally, expose this via a public environment variable in SvelteKit ($env/static/public)
@@ -24,6 +25,21 @@
     }
   }
 
+  async function handleFetchCalendars() {
+    loading = true;
+    error = null;
+    try {
+      const result = await fetchGoogleCalendars();
+      const count = result.data.calendars?.length || 0;
+      alert(`Successfully fetched ${count} calendar(s)!`);
+    } catch (err) {
+      console.error(err);
+      error = err.message;
+    } finally {
+      loading = false;
+    }
+  }
+
   async function testFetch() {
     loading = true;
     try {
@@ -31,7 +47,11 @@
       const endOfWeek = DateTime.now().endOf('week').toISO();
       console.log(`Fetching events from ${startOfWeek} to ${endOfWeek}`);
       
-      const result = await fetchGoogleEvents({ timeMin: startOfWeek, timeMax: endOfWeek });
+      const result = await fetchGoogleEvents({ 
+        timeMin: startOfWeek, 
+        timeMax: endOfWeek, 
+        calendarIds: $user.googleCalendars.map(cal => cal.id) 
+      })
       console.log('Events fetched:', result.data.events);
       alert(`Fetched ${result.data.events.length} events. Check console for details.`);
     } catch (err) {
@@ -61,6 +81,10 @@
       </span>
       Connect Google Calendar
     {/if}
+  </button>
+
+  <button class="fetch-calendars-btn" onclick={handleFetchCalendars} disabled={loading}>
+    {loading ? 'Loading...' : 'Fetch Calendars'}
   </button>
 
   <button class="test-btn" onclick={testFetch} disabled={loading}>
@@ -114,6 +138,26 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .fetch-calendars-btn {
+    background-color: #1a73e8;
+    color: white;
+    border: 1px solid #1a73e8;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .fetch-calendars-btn:hover {
+    background-color: #1765cc;
+  }
+
+  .fetch-calendars-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 
   .test-btn {

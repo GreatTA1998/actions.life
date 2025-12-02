@@ -228,7 +228,10 @@
 
   {#each googleEvents as event (event.id)}
     {@const startDT = DateTime.fromISO(event.start.dateTime)}
-    <div class="task-absolute" style="top: {getOffset({ dt1: dt, dt2: startDT })}px;">
+    <div class="task-absolute" style="
+      top: {getOffset({ dt1: dt, dt2: startDT })}px; 
+      pointer-events: none;"
+    >
       <GoogleEvent {event} />
     </div>
   {/each}

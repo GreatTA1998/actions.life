@@ -15,8 +15,14 @@ export function exchangeGoogleCode({ code }) {
   return fn({ code });
 }
 
-export function fetchGoogleEvents({ timeMin, timeMax }) {
+export function fetchGoogleCalendars() {
+  const functions = getFunctions();
+  const fn = httpsCallable(functions, 'fetchGoogleCalendars');
+  return fn();
+}
+
+export function fetchGoogleEvents({ timeMin, timeMax, calendarIds }) {
   const functions = getFunctions();
   const fn = httpsCallable(functions, 'fetchGoogleEvents');
-  return fn({ timeMin, timeMax });
+  return fn({ timeMin, timeMax, calendarIds });
 }
