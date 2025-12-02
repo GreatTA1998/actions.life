@@ -14,3 +14,9 @@ export function exchangeGoogleCode({ code }) {
   const fn = httpsCallable(functions, 'exchangeGoogleCode');
   return fn({ code });
 }
+
+export function fetchGoogleEvents({ timeMin, timeMax }) {
+  const functions = getFunctions();
+  const fn = httpsCallable(functions, 'fetchGoogleEvents');
+  return fn({ timeMin, timeMax });
+}

@@ -3,11 +3,12 @@
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
+  import GoogleEvent from './GoogleEvent.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
   import { activateInput } from '$lib/store/popoverInput.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
-  import { treesByDate } from './service.js'
+  import { treesByDate, googleEventsByDate } from './service.js'
   import { user, timestamps, calSnapInterval } from '$lib/store'
   import { getContext, onMount, onDestroy } from 'svelte'
 
@@ -22,6 +23,8 @@
   let pixelsPerMinute = $pixelsPerHour / 60
 
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
+  let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')] ?? [])
+
   let newDT = $derived(getNewDT(yPosition))
 
   let intersecting = $state(false)
@@ -220,6 +223,13 @@
       {:else}
         <TaskElement {task} />
       {/if}
+    </div>
+  {/each}
+
+  {#each googleEvents as event (event.id)}
+    {@const startDT = DateTime.fromISO(event.start.dateTime)}
+    <div class="task-absolute" style="top: {getOffset({ dt1: dt, dt2: startDT })}px;">
+      <GoogleEvent {event} />
     </div>
   {/each}
 

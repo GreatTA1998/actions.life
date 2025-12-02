@@ -24,7 +24,7 @@ const POSTMARK_API_KEY = defineString('POSTMARK_API_KEY');
 const GOOGLE_CLIENT_ID = defineString('GOOGLE_CLIENT_ID');
 const GOOGLE_CLIENT_SECRET = defineSecret('GOOGLE_CLIENT_SECRET');
 
-exports.exchangeGoogleCode = onCall({ secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
+exports.exchangeGoogleCode = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
   }
@@ -56,6 +56,48 @@ exports.exchangeGoogleCode = onCall({ secrets: [GOOGLE_CLIENT_SECRET] }, async (
   } catch (error) {
     console.error('Error exchanging token:', error);
     throw new HttpsError('internal', 'Failed to exchange authorization code', error.message);
+  }
+});
+
+exports.fetchGoogleEvents = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+  }
+
+  const { timeMin, timeMax } = request.data;
+
+  const userDoc = await db.collection('users').doc(request.auth.uid).get();
+  if (!userDoc.exists) {
+    throw new HttpsError('not-found', 'User not found.');
+  }
+  const userData = userDoc.data();
+  if (!userData.google || !userData.google.refreshToken) {
+    throw new HttpsError('failed-precondition', 'Google Calendar not connected.');
+  }
+
+  const oauth2Client = new google.auth.OAuth2(
+    GOOGLE_CLIENT_ID.value(),
+    GOOGLE_CLIENT_SECRET.value()
+  );
+
+  oauth2Client.setCredentials({
+    refresh_token: userData.google.refreshToken,
+  });
+
+  const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+  try {
+    const response = await calendar.events.list({
+      calendarId: 'primary',
+      timeMin: timeMin,
+      timeMax: timeMax,
+      singleEvents: true,
+      orderBy: 'startTime',
+    });
+    return { events: response.data.items };
+  } catch (error) {
+    console.error('Error fetching calendar events:', error);
+    throw new HttpsError('internal', 'Failed to fetch events', error.message);
   }
 });
 
