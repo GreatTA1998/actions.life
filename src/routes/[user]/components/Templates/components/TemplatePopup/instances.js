@@ -36,6 +36,7 @@ export function instantiateTask ({ template, dt }) {
   newTaskObj.templateID = template.id
   newTaskObj.startDateISO = dt.toFormat('yyyy-MM-dd')
   newTaskObj.persistsOnList = false
+  newTaskObj.parentID = '' // quickfix: force no parentID, ensure no parentID from corrupted template
   return newTaskObj
 }
 
