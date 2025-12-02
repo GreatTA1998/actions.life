@@ -62,6 +62,7 @@
 
 <style>
   .connect-btn {
+    width: fit-content;
     display: inline-flex;
     align-items: center;
     gap: 10px;
