@@ -63,7 +63,7 @@ exports.fetchGoogleCalendars = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECR
       apiClient.colors.get()
     ])
     
-    const allCalendars = calendarListResponse.data.items
+    const allCalendars = (calendarListResponse.data.items || [])// According to the Google Calendar API, the items property may be absent if the list is empty. This will throw a TypeError if a user somehow has no calendar entries.
       .map(cal => ({
         id: cal.id,
         summary: cal.summary,
