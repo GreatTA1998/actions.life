@@ -70,9 +70,7 @@
       e.preventDefault()
       e.stopPropagation()
       if (e.key === 'Enter') {
-        if (value === '') {
-          popoverElem.hidePopover()
-        } 
+        if (value === '') popoverElem.hidePopover()
         else {
           createTask({ name: value })
           value = ''

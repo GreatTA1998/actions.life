@@ -5,7 +5,7 @@
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
   import GoogleEvent from './GoogleEvent.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
-  import { activateInput } from '$lib/store/popoverInput.js'
+  import { activateInput, overrideOptions } from '$lib/store/popoverInput.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate, googleEventsByDate } from './service.js'
@@ -25,12 +25,11 @@
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
   let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')] ?? [])
 
-  let newDT = $derived(getNewDT(yPosition))
-
   let intersecting = $state(false)
   let previewTop = $state(null)
   
   let anchorID = $derived(`--day-column-${dropzoneID}`)
+  let newDT = $derived(getNewDT(yPosition))
 
   $effect(() => {
     if ($draggedItem && $draggedItem.id) {
@@ -179,8 +178,13 @@
   }
 
   function shiftYPosition ({ duration }) {
-    const gapBetweenTasks = 30
-    yPosition += ($pixelsPerHour / 60) * duration + gapBetweenTasks
+    const tasksGap = 30
+    yPosition += ($pixelsPerHour / 60) * duration + tasksGap
+    overrideOptions.update(options => ({
+      ...options,
+      startDateISO: newDT.toFormat('yyyy-MM-dd'),
+      startTime: newDT.toFormat('HH:mm')
+    }))
   }
 </script>
 
