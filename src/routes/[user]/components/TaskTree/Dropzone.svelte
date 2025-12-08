@@ -113,12 +113,6 @@
       persistsOnList: true, // non-persistent rooms, once dragged to the list, becomes persistent. very important, otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
       isArchived: false // otherwise dragging an archived calendar task to the list will cause it to disappear completely
     }
-
-    if ($draggedItem.isFromCal) {
-      keyValueChanges.startTime = ''
-      keyValueChanges.startDateISO = ''
-    }
-    
     Task.update({ 
       id: $draggedItem.id, 
       keyValueChanges
