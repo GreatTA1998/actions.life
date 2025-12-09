@@ -33,7 +33,7 @@
     pxPerDay, 
     timeMarkerTop 
   } = $derived.by(() => {
-    if (allSorted.length > 0 && contentHeights) { // `contentHeights` will fire on mount, and on subsequent child expand/collapse, potentially duplicate calls
+    if (allSorted.length > 0 && Object.keys(contentHeights).length === allSorted.length) { // Ensure all children have reported heights before calculating spacing
       return computeTimelineVars(contentHeights)
     }
     else {
