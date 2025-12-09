@@ -24,8 +24,8 @@
 <!-- edge case: top node -->
 {#if i === 0}
   <!-- marker dot -->
-  <div style="position: absolute; z-index: 2; top: {timeMarkerTop}px; left: 50%; transform: translateX(-50%);">
-    <div class="marker-dot"></div>
+  <div style="pointer-events: none; position: absolute; z-index: 2; top: {timeMarkerTop}px; left: 50%; transform: translateX(-50%);">
+    <div style="pointer-events: none;" class="marker-dot"></div>
   </div>
 
   <!-- top stem -->

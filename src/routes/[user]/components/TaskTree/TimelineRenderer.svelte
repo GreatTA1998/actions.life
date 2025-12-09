@@ -3,7 +3,6 @@
   import Dropzone from './Dropzone.svelte'
   import DateBadge from './DateBadge.svelte'
   import TimelineRendererVisuals from './TimelineRendererVisuals.svelte'
-  import { WIDTHS } from '$lib/utils/constants.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
@@ -48,7 +47,7 @@
     else return 0
   }
 
-  function computeTimelineVars () {    
+  function computeTimelineVars () {   
     const dayDiffs = {}
     const margins = {}
     let timeMarkerTop = 0
@@ -58,26 +57,10 @@
       dayDiffs[i] = getDayDiff(i, i+1)
     }
 
-    //// compute scale factor
-    // let candidates = []
-    // for (let i = 0; i <= allSorted.length - 2; i++) {
-    //   if (dayDiffs[i] === null) continue
-    //   else {
-    //     const minVisualGap = contentHeights[i] + dropzoneHeight
-    //     if (defaultPxPerDay * dayDiffs[i] < minVisualGap) {
-    //       // note: dayDiffs of 0, 1 are treated as 2
-    //       const nonZeroDayDiff = Math.max(dayDiffs[i], 2) // note: 2 nodes with the same start date will have infinity scale factor, so it'll be handled as 1
-    //       candidates = [...candidates, (minVisualGap / nonZeroDayDiff)]
-    //     }
-    //   }
-    // }
-    // pxPerDay = Math.max(...candidates, defaultPxPerDay)
-
     for (let i = 0; i <= allSorted.length - 2; i++) {
       if (i == allSorted.length - 1) margins[i] = 0
       else {
-        const gap = dayDiffs[i] * pxPerDay
-        margins[i] = Math.max(0, gap - contentHeights[i] - dropzoneHeight)
+        margins[i] = dayDiffs[i] * pxPerDay
       }
     }
 
@@ -101,7 +84,6 @@
         timeMarkerTop = diff * pxPerDay  + squareHeight/2
       }
     }
-
     return { dayDiffs, margins, pxPerDay, timeMarkerTop }
   } 
   
@@ -158,7 +140,13 @@
           contentHeights[i] = h
           contentHeights = contentHeights
         }}
-      >      
+      >
+        <RecursiveTask 
+          {...renderTask(child, depth + 1) }
+          {verticalTimeline}
+          {infoBadge} 
+        />
+
         {#snippet infoBadge ()}
           <DateBadge iso={child.startDateISO} onclick={() => {
             willOpenDatePicker.set(true)
@@ -169,12 +157,6 @@
         {#snippet verticalTimeline ()}
           <TimelineRendererVisuals {i} sorted={allSorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
         {/snippet}
-
-        <RecursiveTask 
-          {...renderTask(child, depth + 1) }
-          {verticalTimeline}
-          {infoBadge} 
-        />
       </div>
 
       <div class:ghost-negative={i === allSorted.length - 1}
