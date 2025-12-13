@@ -87,6 +87,7 @@
 <div bind:this={dayHeader}
   class="day-header"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
+  style:padding-bottom="0"
   onclick={e => {
     e.stopPropagation()
     if (e.target !== e.currentTarget) return;
@@ -156,10 +157,7 @@
 
   .day-header {
     width: var(--width-calendar-day-section);
-    padding-top: var(--main-content-top-margin);
-    padding-bottom: 18px;
-
-    font-size: 1.4em;
+    font-size: 1.4rem;
     background-color: var(--calendar-bg-color);
     color: #6d6d6d;
   }
