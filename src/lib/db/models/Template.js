@@ -19,7 +19,7 @@ const Template = {
     timeZone: z.string(),
     notes: z.string().default(''),
     notify: z.string().default(''),
-    isStarred: z.boolean().default(false),
+    isStarred: z.boolean().default(true),
     imageDownloadURL: z.string().default(''),
     iconURL: z.string().default(''),
     rrStr: z.string().default(''),
@@ -80,9 +80,8 @@ const Template = {
   async getTotalStats ({ id }) {
     return new Promise(async (resolve) => {
       const q = query(
-        collection(db, "users", get(user).uid, "tasks"), 
+        collection(db, 'users', get(user).uid, 'tasks'), 
         where('templateID', '==', id), 
-        where('startDateISO', '<=', DateTime.now().toFormat('yyyy-MM-dd')), 
         where('isDone', '==', true)
       )
       const snapshot = await getDocs(q)
