@@ -131,10 +131,6 @@
     cursor: pointer;
   }
 
-  .entry-wrapper:hover {
-    opacity: 0.8;
-  }
-
   .journal-entry {
     width: 100%;
     padding-left: var(--content-start);

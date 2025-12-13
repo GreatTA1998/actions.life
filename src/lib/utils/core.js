@@ -147,3 +147,8 @@ export function minutes (HHmm) {
   const [hours, minutes] = HHmm.split(':').map(Number)
   return hours * 60 + minutes
 }
+
+export function formatHours (minutes) {
+  const H = round(minutes / 60, 1)
+  return `${H} hr${H !== 1 ? 's' : ''}`
+}

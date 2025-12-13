@@ -80,9 +80,8 @@ const Template = {
   async getTotalStats ({ id }) {
     return new Promise(async (resolve) => {
       const q = query(
-        collection(db, "users", get(user).uid, "tasks"), 
+        collection(db, 'users', get(user).uid, 'tasks'), 
         where('templateID', '==', id), 
-        where('startDateISO', '<=', DateTime.now().toFormat('yyyy-MM-dd')), 
         where('isDone', '==', true)
       )
       const snapshot = await getDocs(q)

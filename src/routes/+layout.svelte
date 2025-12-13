@@ -251,6 +251,10 @@
     display: flex;
   }
 
+  :global(.content-center) {
+    align-items: center;
+  }
+
   :global(.grid) {
     display: grid;
   }
@@ -277,6 +281,10 @@
 
   :global(.gap-0) {
     gap: 0;
+  }
+
+  :global(.gap-8) {
+    gap: 8px;
   }
 
   /* Hide scrollbar utility class - works cross-browser */
