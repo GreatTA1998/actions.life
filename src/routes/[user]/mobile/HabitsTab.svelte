@@ -13,7 +13,7 @@
   let selectedRoutineID = $state('')
   let stats = $state(new Map())
 
-  let maxMinutesSpent = $derived(Math.max(0, ...Array.from(stats.values()).map(s => s.minutesSpent)))
+  let maxMinutesSpent = $derived(Math.max(1, ...Array.from(stats.values()).map(s => s.minutesSpent)))
   let unstarredRoutines = $derived($templates.filter(r => !r.isStarred))
   let starredRoutines = $derived($templates.filter(r => r.isStarred))
   let topRoutines = $derived([...starredRoutines].sort((a, b) => {
@@ -79,7 +79,7 @@
       {/each}
     </div>
     
-    {#if unstarredRoutines}
+    {#if unstarredRoutines.length > 0}
       <div class="overflow-routines-grid">        
         <PopoverMenu {activator} {content} />
       </div>
