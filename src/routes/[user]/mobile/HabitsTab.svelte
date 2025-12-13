@@ -2,36 +2,41 @@
   import HabitsTabFullDetails from './HabitsTabFullDetails.svelte'
   import TemplatePopup from '../components/Templates/components/TemplatePopup/TemplatePopup.svelte'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
-  import Template from '$lib/db/models/Template.js'
   import { openTemplateEditor, templates, popup } from '../components/Templates/store.js'
   import { formatHours } from '$lib/utils/core.js'
   import { collection, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
   import { getContext, onMount } from 'svelte'
 
-  const { user } = getContext('app')
+  const { user, Template } = getContext('app')
 
   let selectedRoutineID = $state('')
   let stats = $state(new Map())
 
   let maxMinutesSpent = $derived(Math.max(0, ...Array.from(stats.values()).map(s => s.minutesSpent)))
-  let starredRoutines = $derived.by(() => $templates.filter(r => r.isStarred))
   let unstarredRoutines = $derived($templates.filter(r => !r.isStarred))
+  let starredRoutines = $derived($templates.filter(r => r.isStarred))
+  let topRoutines = $derived([...starredRoutines].sort((a, b) => {
+    return (stats.get(b.id)?.minutesSpent ?? 0) - (stats.get(a.id)?.minutesSpent ?? 0)
+  }))
 
   $effect(async () => {
     for (const routine of starredRoutines) {
-      if (stats.has(routine.id)) continue 
-      else {
-        const result = await Template.getTotalStats({ id: routine.id })
-        stats.set(routine.id, result)
-        stats = new Map(stats) // force reactivity update
-      }
+      fetchStatsIfNeeded(routine) // don't expose variables to $effect to avoid infinit rerenders
     }
   })
 
   onMount(async () => {
     listenToRoutines()
   })
+
+  async function fetchStatsIfNeeded (routine) {
+    if (!stats.has(routine.id)) {
+      const result = await Template.getTotalStats({ id: routine.id })
+      stats.set(routine.id, result)
+      stats = new Map(stats) // force reactivity update
+    }
+  }
 
   async function listenToRoutines() {
     const ref = collection(db, '/users/' + $user.uid + '/templates')
@@ -52,10 +57,10 @@
   }
 </script>
 
-<div class="habits-view" style="width: 100%;">
-  {#if starredRoutines?.length > 0}
+<div class="habits-view">
+  {#if topRoutines}
     <div style="display: flex; flex-direction: column; padding: 0 4px;">
-      {#each starredRoutines as routine (routine.id)}
+      {#each topRoutines as routine (routine.id)}
         <button onclick={() => select(routine.id)}
           class="routine-row"
           class:selected={selectedRoutineID === routine.id}
@@ -74,11 +79,9 @@
       {/each}
     </div>
     
-    {#if unstarredRoutines.length > 0}
+    {#if unstarredRoutines}
       <div class="overflow-routines-grid">        
-        {#if unstarredRoutines.some(r => !r.iconURL)}
-          <PopoverMenu {activator} {content} />
-        {/if}
+        <PopoverMenu {activator} {content} />
       </div>
     {/if}
   {/if}
@@ -122,9 +125,7 @@
 
 <style>
   .habits-view {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    width: 100vw;
     --routine-compact-size: 40px;
     --routine-compact-padding: 2px;
   }
@@ -178,13 +179,11 @@
   }
 
   .routine-bar {
-    height: 5px;
+    transition: width 0.3s ease;
+    height: 6px;
     background: #4caf50;
     border-radius: 3px;
-    transition: width 0.3s ease;
     min-width: 2px;
-    flex-shrink: 1; /* Allow bar to shrink if needed */
-    max-width: 100%; /* Prevent bar from exceeding wrapper */
   }
 
   .overflow-routines-grid {

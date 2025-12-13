@@ -19,7 +19,7 @@ const Template = {
     timeZone: z.string(),
     notes: z.string().default(''),
     notify: z.string().default(''),
-    isStarred: z.boolean().default(false),
+    isStarred: z.boolean().default(true),
     imageDownloadURL: z.string().default(''),
     iconURL: z.string().default(''),
     rrStr: z.string().default(''),

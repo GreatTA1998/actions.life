@@ -6,7 +6,7 @@
   import { formatHours } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
-  const { user } = getContext('app')
+  const { user, Template } = getContext('app')
 
   let { selectedRoutineID, stats } = $props()
 
