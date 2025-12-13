@@ -47,8 +47,7 @@
     else selectedRoutineID = routineID
   }
 
-  function getBarWidth(minutes) {
-    if (!maxMinutesSpent || !minutes) return 0
+  function getBarWidth (minutes) {
     return (minutes / maxMinutesSpent) * 75 // Scale to max 75% to leave room for hours text
   }
 </script>
@@ -165,7 +164,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    min-width: 0; /* Allow flex item to shrink below content size */
+    min-width: 0; 
   }
 
   .routine-bar-wrapper {
@@ -186,15 +185,6 @@
     min-width: 2px;
     flex-shrink: 1; /* Allow bar to shrink if needed */
     max-width: 100%; /* Prevent bar from exceeding wrapper */
-  }
-
-  .routine-hours {
-    font-size: var(--font-size-sm, 0.875rem);
-    color: #666;
-    font-weight: 500;
-    white-space: nowrap;
-    flex-shrink: 0;
-    min-width: fit-content;
   }
 
   .overflow-routines-grid {
@@ -248,16 +238,5 @@
 
   .menu-item.selected {
     background: rgba(0, 89, 125, 0.08);
-  }
-
-  .menu-icon-placeholder {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f5f5f5;
-    border-radius: 4px;
-    flex-shrink: 0;
   }
 </style>
