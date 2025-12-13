@@ -114,7 +114,7 @@
   {/if}
 
   {#snippet routineItem({ routine })}
-    <div class="flexbox content-center" style="width: 240px;">
+    <div class="flexbox content-center" style="width: 200px;">
       {#if routine.iconURL}
         <img src={routine.iconURL} alt={routine.name} class="routine-icon" />
       {/if}
@@ -140,8 +140,8 @@
   .routine-row {
     display: flex;
     align-items: center;
-    column-gap: 8px;
-    padding: 8px;
+    column-gap: 16px;
+    padding: 4px;
     min-height: 48px;
   }
 
