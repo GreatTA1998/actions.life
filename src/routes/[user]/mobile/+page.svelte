@@ -6,7 +6,7 @@
   <div class="grid-container">
     <main class="content-area">
       {#if $activeView === 'CALENDAR'}
-        <TopBelowView />
+        <AboveBelowView />
       {:else if $activeView === 'DISCOVER'}
         <Discover />
       {:else if $activeView === 'SETTINGS'}
@@ -19,7 +19,7 @@
 {/if}
 
 <script>
-  import TopBelowView from '../components/TopBelowView/index.svelte'
+  import AboveBelowView from '../components/AboveBelowView/index.svelte'
   import TaskPopup from '../components/TaskPopup/TaskPopup.svelte'
   import Discover from './Discover.svelte'
   import Settings from '../components/Settings/index.svelte'
