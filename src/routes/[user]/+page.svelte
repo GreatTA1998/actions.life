@@ -2,6 +2,7 @@
   import TheSnackbar from './components/TheSnackbar.svelte'
   import NavbarContentLayout from '$lib/components/NavbarContentLayout.svelte'
   import SideBySideView from './components/SideBySideView/index.svelte'
+  import DualView from '$lib/components/DualView.svelte'
   import TaskPopup from './components/TaskPopup/TaskPopup.svelte'
   import Settings from './components/Settings/index.svelte'
   import ExtendRoutines from './components/ExtendRoutines.svelte'
@@ -30,11 +31,10 @@
   {/if}
 
   <NavbarContentLayout>
-    <!-- <div slot="navbar"></div> -->
-
     <div slot="content" class="relative z-0 flexbox" style="flex-grow: 1; height: 100%;">
       {#if $activeView === 'CALENDAR'}
-        <SideBySideView />
+        <!-- <SideBySideView /> -->
+         <DualView />
       {:else if $activeView === 'DISCOVER'}
         <Discover />
       {:else if $activeView === 'SETTINGS'}
