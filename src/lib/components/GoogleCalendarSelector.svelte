@@ -26,44 +26,29 @@
   }
 </script>
 
-<div class="calendar-selector">
-  <div class="calendar-list">
-    {#each calendars as calendar (calendar.id)}
-      <label class="calendar-item" onclick={(e) => { e.stopPropagation(); toggleCalendar(calendar.id) }}>
-        <div 
-          class="checkbox-square" 
-          class:checked={isEnabled(calendar.id)}
-          style="background-color: {calendar.backgroundColor || '#4285F4'};"
-        >
-          {#if isEnabled(calendar.id)}
-            <span class="checkmark">✓</span>
-          {/if}
-        </div>
-        <span class="calendar-name">{calendar.summary || calendar.id}</span>
-      </label>
-    {/each}
-  </div>
+<div class="calendar-list">
+  {#each calendars as calendar (calendar.id)}
+    <label class="calendar-item" onclick={(e) => { e.stopPropagation(); toggleCalendar(calendar.id) }}>
+      <div 
+        class="checkbox-square" 
+        class:checked={isEnabled(calendar.id)}
+        style="background-color: {calendar.backgroundColor || '#4285F4'};"
+      >
+        {#if isEnabled(calendar.id)}
+          <span class="checkmark">✓</span>
+        {/if}
+      </div>
+      <span class="calendar-name">{calendar.summary || calendar.id}</span>
+    </label>
+  {/each}
 </div>
 
 <style>
-  .calendar-selector {
-    border-radius: 8px;
-    display: grid;
-    flex-direction: column;
-    gap: 8px;
-    user-select: none;
-  }
-
-  .title {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 500;
-  }
-
   .calendar-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    user-select: none;
   }
 
   .calendar-item {
