@@ -1,7 +1,7 @@
 <script>
-  import ListsArea from '../ListsArea/ListsArea.svelte'
   import Calendar from '../Calendar/Calendar.svelte'
   import GripHandle from '$lib/components/GripHandle.svelte'
+  import ListsArea from '../ListsArea/ListsArea.svelte'
 
   import { user } from '$lib/store'
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
@@ -62,11 +62,9 @@
     
     window.removeEventListener('pointermove', handlePointerMove)
     window.removeEventListener('pointerup', handlePointerUp)
-    
     document.body.style.userSelect = ''
 
-    // Release pointer capture
-    if (e.target.hasPointerCapture(e.pointerId)) {
+    if (e.target.hasPointerCapture(e.pointerId)) {  // Capture pointer to ensure events fire even when moved outside window
       e.target.releasePointerCapture(e.pointerId)
     }
 
@@ -110,7 +108,6 @@
   .calendar-container {
     flex-grow: 1;
     height: 100%;
-    overflow: hidden;
     view-transition-name: calendar; 
     contain: layout;
   }

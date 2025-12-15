@@ -1,7 +1,3 @@
-<script>
-  // No script needed for this static content component
-</script>
-
 <div class="details-section">
   <div class="section-header">
     <h2>Current limitations</h2>

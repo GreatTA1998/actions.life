@@ -1,13 +1,13 @@
 <script>
-  import TodoList from '../ListsArea/TodoList.svelte'
-  import ListenToListTrees from '../ListsArea/ListenToListTrees.svelte'
   import Calendar from '../Calendar/Calendar.svelte'
   import GripHandle from '$lib/components/GripHandle.svelte'
+  import TodoList from '../ListsArea/TodoList.svelte'
+  import ListenToListTrees from '../ListsArea/ListenToListTrees.svelte'
 
   import { user } from '$lib/store'
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
-  import { trackWidth } from '$lib/utils/svelteActions.js'
   import { getContext, onMount, tick } from 'svelte'
+  import { trackWidth } from '$lib/utils/svelteActions.js'
 
   const { logicAreaRect } = getContext('drag-drop')
   

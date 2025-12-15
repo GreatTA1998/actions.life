@@ -143,7 +143,7 @@
 <style>
   .task-input {
     width: 100%; 
-    height: 1rem;
+    height: 1.125rem;
     padding-left: 0px; 
     padding-right: 0px;
     pointer-events: none;
