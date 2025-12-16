@@ -114,7 +114,6 @@
     font-size: 2.5rem;
     color: #1a202c;
     margin-bottom: 0.5rem;
-    font-family: 'Inter', sans-serif;
   }
 
   .date {
@@ -131,14 +130,12 @@
     font-size: 1.5rem;
     color: #2d3748;
     margin-bottom: 1rem;
-    font-family: 'Inter', sans-serif;
   }
 
   p {
     line-height: 1.6;
     color: #4a5568;
     margin-bottom: 1rem;
-    font-family: 'Inter', sans-serif;
   }
 
   ul {
