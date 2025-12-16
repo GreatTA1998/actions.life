@@ -14,10 +14,13 @@
   let currentDT = $derived(viewportLeft ? originDT.plus({ days: viewportLeft }) : originDT)
 </script>
 
-<div class="corner-label" style="
-  height: {height}px; 
-  --timestamps-column-width: {exactWidth}px;
-">
+<div 
+  class="corner-label unselectable" 
+  style="
+    height: {height}px; 
+    --timestamps-column-width: {exactWidth}px;
+  "
+>
   <div 
     style="
       display: flex; justify-content: center; row-gap: 2px;

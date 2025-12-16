@@ -57,7 +57,7 @@
   }
 
   .task-not-done {
-    filter: grayscale(80%) opacity(0.8) blur(0.8px);
+    filter: grayscale(90%) opacity(0.5) blur(0px);
   }
 
   .clearly-visible {

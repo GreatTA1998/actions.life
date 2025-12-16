@@ -311,6 +311,14 @@
     min-height: 0;
   }
 
+  :global(.mt-0) {
+    margin-top: 0;
+  }
+
+  :global(.mt-4) {
+    margin-top: 4px;
+  }
+
   :global(.touch-none) {
     touch-action: none;
   }

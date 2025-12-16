@@ -93,7 +93,7 @@
     if (e.target !== e.currentTarget) return;
     activateInput({ 
       anchorID, 
-      modifiers: { startDateISO: ISODate, persistsOnList: false }
+      modifiers: { startDateISO: ISODate, startTime: '', persistsOnList: false }
     })
   }}
 >
@@ -114,25 +114,23 @@
   </div>
 
   {#if $headerExpanded}
-    <div style="overflow: hidden; margin-top: {$isCompact ? '0' : '4'}px;">
-      {#if $treesByDate[ISODate]}
-        <div style="display: flex; flex-wrap: wrap;">
-          {#each $treesByDate[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
-            <DoodleIcon {iconTask} />
-          {/each}
-        </div>
+    {#if $treesByDate[ISODate]}
+      <div class="flexbox flex-wrap {$isCompact? 'mt-0' : 'mt-4'}">
+        {#each $treesByDate[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
+          <DoodleIcon {iconTask} />
+        {/each}
+      </div>
 
-        <div style="display: flex; flex-direction: column; row-gap: 4px; padding: 0px 4px;">
-          {#each $treesByDate[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
-            <FlexibleDayTask task={flexibleDayTask} />
-          {/each}
-          
-          {#if $bestDropzoneID === dropzoneID}
-            <div style="height: 12px; width: 100%; {dropPreviewCSS()}"></div>
-          {/if}
-        </div>
-      {/if}
-    </div>
+      <div style="display: flex; flex-direction: column; row-gap: 4px; padding: 0px 4px;">
+        {#each $treesByDate[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
+          <FlexibleDayTask task={flexibleDayTask} />
+        {/each}
+        
+        {#if $bestDropzoneID === dropzoneID}
+          <div style="height: 12px; width: 100%; {dropPreviewCSS()}"></div>
+        {/if}
+      </div>
+    {/if}
   {/if}
 
   <div class="task-input" style="anchor-name: {anchorID};" id={anchorID}>
