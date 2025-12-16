@@ -16,31 +16,4 @@
     -webkit-backdrop-filter: blur(10px);
     /* box-shadow: 0 2px 20px rgba(180, 200, 190, 0.1); */
   }
-
-  .github-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    background: transparent;
-    border: none;
-    text-decoration: none;
-  }
-
-  .github-link:hover {
-    background: rgba(180, 200, 190, 0.15);
-    transform: translateY(-1px);
-  }
-
-  .github-link svg {
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-    filter: sepia(20%) saturate(80%) hue-rotate(80deg);
-  }
-
-  .github-link:hover svg {
-    opacity: 1;
-  }
 </style>
