@@ -12,8 +12,8 @@
   const matchedDropzones = writable({})
   const bestDropzoneID = writable('')
   const hasDropped = writable(false)
-  const scrollCalRect = writable(() => {})
-  const logicAreaRect = writable(() => {})
+  const scrollCalRect = writable(() => ({ left: 0, top: 0, right: 9999, bottom: 9999 }))
+  const logicAreaRect = writable(() => ({ left: 0, top: 0, right: 9999, bottom: 9999 }))
 
   const frameRate = 60
   const oneThousandMs = 1000
