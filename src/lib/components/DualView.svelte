@@ -5,6 +5,7 @@
   let { 
     orientation = 'horizontal',
     ratioDbField = 'listAreaWidthRatio', // listAreaHeightRatio
+    minL = 0,
     child1,
     child2
   } = $props()
@@ -25,7 +26,7 @@
 
   function onpointermove (e) {
     if (resizing) {
-      axisL = Math.max(0, Math.min(axisValue(e), windowL))
+      axisL = Math.max(0, Math.min(axisValue(e), windowL - minL))
     }
   }
 

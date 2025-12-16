@@ -6,9 +6,9 @@
   <div class="grid-container">
     <main class="content-area">
       {#if $activeView === 'CALENDAR'}
-        <DualView orientation="vertical" 
-          {child1} {child2} 
-          ratioDbField="listAreaHeightRatio"
+        <DualView orientation="vertical" ratioDbField="listAreaHeightRatio" minL={MOBILE_SAFE_BOTTOM}
+          {child1} 
+          {child2} 
         />
 
         {#snippet child1 ()}
@@ -16,7 +16,7 @@
         {/snippet}
 
         {#snippet child2 ()}
-          <UnifiedListArea xyScrolling={false} />
+          <UnifiedListArea xyScrolling={false}/>
         {/snippet}
       {:else if $activeView === 'DISCOVER'}
         <Discover />
@@ -38,7 +38,8 @@
   import Settings from '../components/Settings/index.svelte'
   import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
 
-  import { user, isTaskPopupOpen, activeView } from '/src/lib/store'
+  import { MOBILE_SAFE_BOTTOM } from '$lib/utils/constants.js'
+  import { user, isTaskPopupOpen, activeView } from '$lib/store'
   import { isCompact } from '../components/Calendar/store.js'
   import { onDestroy, onMount } from 'svelte'
 
