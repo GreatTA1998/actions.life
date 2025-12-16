@@ -11,27 +11,35 @@
 
   const { user, User } = getContext('app')
   
-  let resizing = false
-  let containerLength = $state(orientation === 'horizontal' ? window.innerWidth : window.innerHeight)
-  let div1AxisLength = $state($user[ratioDbField] * 100 * containerLength)
+  const windowL = orientation === 'horizontal' ? window.innerWidth : window.innerHeight
+  
+  let resizing = $state(false)
+  let axisL = $state($user[ratioDbField] * 100 * windowL)
 
   function onpointerdown (e) {
     e.stopPropagation()
     e.preventDefault()
     resizing = true
+
+    // ensure the event fires even if moved outside the window
+    e.target.setPointerCapture(e.pointerId)
   }
 
   function onpointermove (e) {
     if (resizing) {
-      div1AxisLength = Math.min(axisValue(e), containerLength)
+      axisL = Math.max(0, Math.min(axisValue(e), windowL))
     }
   }
 
   function onpointerup (e) {
     resizing = false
     const kvChanges = {}
-    kvChanges[ratioDbField] = (div1AxisLength / containerLength) / 100
+    kvChanges[ratioDbField] = (axisL / windowL) / 100
     User.update(kvChanges)
+
+    if (e.target.hasPointerCapture(e.pointerId)) { 
+      e.target.releasePointerCapture(e.pointerId)
+    }
   }
 
   function axisValue (e) {
@@ -45,7 +53,7 @@
   {onpointerup}
 >
   <div class="div-1 min-w-0 min-h-0" 
-    style="flex: 0 0 {div1AxisLength}px;"
+    style="flex: 0 0 {axisL}px;"
   >    
     {@render child1()}
   </div>

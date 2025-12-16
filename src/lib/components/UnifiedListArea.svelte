@@ -20,7 +20,7 @@
   })
 </script>
 
-<div id="list-area" class="h-full overflow-auto">
+<div id="list-area" class="h-full overflow-auto hide-scrollbar">
   {#if xyScrolling}
     <ListsArea/>
   {:else}

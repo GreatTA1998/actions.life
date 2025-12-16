@@ -36,13 +36,13 @@
     {/if}
   </div>
 
-  {#if $treesByDate}
+  <!-- {#if $treesByDate}
     <button onclick={() => headerExpanded.set(!$headerExpanded)}
       class="collapse-arrow material-symbols-outlined"
     >
       {$headerExpanded ? "expand_less" : "expand_more"}
     </button>
-  {/if}
+  {/if} -->
 </div>
 
 <style>
@@ -81,7 +81,7 @@
     right: auto;
     font-size: 26px;
     cursor: pointer;
-    color: rgba(110, 110, 110, 0.2);
+    color: var(--fine-control-color);
     font-weight: 200;
   }
 </style>
