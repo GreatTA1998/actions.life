@@ -287,19 +287,41 @@
     gap: 8px;
   }
 
-  /* Hide scrollbar utility class - works cross-browser */
+  :global(.h-full) {
+    height: 100%;
+  }
+
+  :global(.w-full) {
+    width: 100%;
+  }
+
+  :global(.overflow-hidden) {
+    overflow: hidden;
+  }
+
+  :global(.overflow-auto) {
+    overflow: auto;
+  }
+
+  :global(.min-w-0) {
+    min-width: 0;
+  }
+
+  :global(.min-h-0) {
+    min-height: 0;
+  }
+
+  :global(.touch-none) {
+    touch-action: none;
+  }
+
   :global(.hide-scrollbar) {
-    /* Hide scrollbar for Firefox */
     scrollbar-width: none;
-    /* Hide scrollbar for IE and Edge */
     -ms-overflow-style: none;
   }
 
-  /* Hide scrollbar for Chrome, Safari and Opera */
   :global(.hide-scrollbar::-webkit-scrollbar) {
     display: none;
-    
-    /* previously used */
     width: 0px;
     height: 0px;
     background: transparent;
@@ -333,6 +355,7 @@
       opacity: 0;
     }
   }
+  
   @media screen and (min-width: 320px) {
     .app-loading-logo {
       width: 110px;

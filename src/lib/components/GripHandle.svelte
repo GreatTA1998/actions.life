@@ -1,14 +1,13 @@
 <script>
-  export let orientation = 'vertical' // for horizontal resizing (side-by-side), 'horizontal' for vertical resizing (top-below)
+  let { 
+    orientation = 'vertical', 
+    onpointerdown 
+  } = $props()
 </script>
 
-<div class="resize-handle" class:horizontal={orientation === 'horizontal'}>
-  <!-- reason for handling touchstart: https://pqina.nl/blog/blocking-navigation-gestures-on-ios-13-4/ -->
-  <div class="resize-fab" 
-    on:pointerdown|stopPropagation|preventDefault|nonpassive
-    on:touchstart|stopPropagation|preventDefault|nonpassive
-  >
-    {#if orientation === 'horizontal'}
+<div class="resize-handle" class:horizontal={orientation === 'vertical'}>
+  <div class="resize-fab" {onpointerdown}>
+    {#if orientation === 'vertical'}
       <!-- Horizontal lines for vertical resizing (top-below) -->
       <svg width="36" height="12" viewBox="0 0 36 12" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="6" y="2" width="24" height="0.5" fill="var(--grip-line-color)" />
