@@ -19,10 +19,8 @@
   function onpointerdown (e) {
     e.stopPropagation()
     e.preventDefault()
+    e.target.setPointerCapture(e.pointerId) // ensure the event fires even if moved outside the window
     resizing = true
-
-    // ensure the event fires even if moved outside the window
-    e.target.setPointerCapture(e.pointerId)
   }
 
   function onpointermove (e) {
@@ -32,14 +30,13 @@
   }
 
   function onpointerup (e) {
+    if (e.target.hasPointerCapture(e.pointerId)) { 
+      e.target.releasePointerCapture(e.pointerId)
+    }
     resizing = false
     const kvChanges = {}
     kvChanges[ratioDbField] = (axisL / windowL) / 100
     User.update(kvChanges)
-
-    if (e.target.hasPointerCapture(e.pointerId)) { 
-      e.target.releasePointerCapture(e.pointerId)
-    }
   }
 
   function axisValue (e) {
@@ -47,25 +44,16 @@
   }
 </script>
 
-<div class="relative flexbox overflow-hidden w-full h-full" 
+<div 
+  class="relative flexbox overflow-hidden w-full h-full" 
   style:flex-direction={orientation === 'horizontal' ? 'row' : 'column'}
-  {onpointermove}
-  {onpointerup}
+  {onpointermove} {onpointerup}
 >
-  <div class="div-1 min-w-0 min-h-0" 
-    style="flex: 0 0 {axisL}px;"
-  >    
+  <div class="div-1 min-w-0 min-h-0" style="flex: 0 0 {axisL}px;">    
     {@render child1()}
   </div>
   
-  <div class="relative flexbox z-1 content-center touch-none"
-    class:h-full={orientation === 'horizontal'}
-    class:w-full={orientation === 'vertical'}
-  >
-    <GripHandle {onpointerdown} 
-      {orientation} 
-    />
-  </div>
+  <GripHandle {onpointerdown} {orientation} />
 
   <div style="flex: 1; min-height: 0; min-width: 0;">
     {@render child2()}
