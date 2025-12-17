@@ -14,10 +14,13 @@
   let currentDT = $derived(viewportLeft ? originDT.plus({ days: viewportLeft }) : originDT)
 </script>
 
-<div class="corner-label" style="
-  height: {height}px; 
-  --timestamps-column-width: {exactWidth}px;
-">
+<div 
+  class="corner-label unselectable" 
+  style="
+    height: {height}px; 
+    --timestamps-column-width: {exactWidth}px;
+  "
+>
   <div 
     style="
       display: flex; justify-content: center; row-gap: 2px;
@@ -36,13 +39,13 @@
     {/if}
   </div>
 
-  {#if $treesByDate}
+  <!-- {#if $treesByDate}
     <button onclick={() => headerExpanded.set(!$headerExpanded)}
       class="collapse-arrow material-symbols-outlined"
     >
       {$headerExpanded ? "expand_less" : "expand_more"}
     </button>
-  {/if}
+  {/if} -->
 </div>
 
 <style>
@@ -81,7 +84,7 @@
     right: auto;
     font-size: 26px;
     cursor: pointer;
-    color: rgba(110, 110, 110, 0.2);
+    color: var(--fine-control-color);
     font-weight: 200;
   }
 </style>

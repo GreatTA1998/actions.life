@@ -5,6 +5,7 @@
   import EmailDraft from './EmailDraft.svelte'
   import ConnectGoogleCalendar from '$lib/components/ConnectGoogleCalendar.svelte'
   import GoogleCalendarSelector from '$lib/components/GoogleCalendarSelector.svelte'
+  import GithubButton from '$lib/components/GithubButton.svelte'
   import { getAuth, signOut } from 'firebase/auth'
   import { goto } from '$app/navigation'
   import { user } from '$lib/store'
@@ -60,6 +61,8 @@
   </div>
   
   <div class="footer">
+    <GithubButton />
+
     <button on:click={handleLogoClick} class="logout-button">
       <span class="material-symbols-outlined">logout</span>
       <span>Log out to home tutorials</span>
@@ -118,10 +121,6 @@
       border-top: 1px solid #eaeaea;
       padding-top: 48px;
     }
-
-    .footer {
-      padding: 24px 20px;
-    }
   }
 
   .settings-group {
@@ -147,6 +146,7 @@
 
   .footer {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
     padding: 24px 64px;
     border-top: 1px solid #eaeaea;

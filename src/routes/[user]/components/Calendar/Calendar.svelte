@@ -89,7 +89,10 @@
 </script>
 
 {#if Object.keys($treesByDate).length > 0}
-  <div class="relative z-0 grid" style="grid-template-rows: auto 1fr; height: 100%;">
+  <div 
+    class="relative z-0 grid h-full" 
+    style="grid-template-rows: auto 1fr; view-transition-name: calendar; contain: layout;"
+  >
     <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
 
     <div id="scroll-parent" bind:this={scrollParent}

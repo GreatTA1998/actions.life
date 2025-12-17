@@ -53,7 +53,7 @@
   $effect(() => {
     if ($draggedItem && dropzoneElem) {
       checkIntersection(
-        $logicAreaRect() ? clip($draggedItem, $logicAreaRect()) : $draggedItem // quickfix as we don't have a common container between desktop mode and mobile mode
+        clip($draggedItem, $logicAreaRect())
       )
     }
   })

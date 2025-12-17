@@ -26,10 +26,10 @@
 
 <style>
   .google-event {
-    opacity: 0.7;
+    opacity: 0.4;
     font-size: 0.8rem;
     padding: var(--left-padding);
-    overflow: hidden;
     border-radius: var(--left-padding);
+    overflow: hidden;
   }
 </style>

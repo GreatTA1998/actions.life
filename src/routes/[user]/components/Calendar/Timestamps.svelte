@@ -10,7 +10,7 @@
   {style} style:width="{$timestampsColumnWidth}px" 
 >
   {#each $timestamps as timestamp, i (i)}
-    <div class="absolute timestamp" style="top: {minutes(timestamp) * ($pixelsPerHour / 60)}px;">
+    <div class="absolute timestamp unselectable" style="top: {minutes(timestamp) * ($pixelsPerHour / 60)}px;">
       {timestamp.substring(0, $isCompact ? 2 : 5)}
     </div>
   {/each}

@@ -1,28 +1,32 @@
 <script>
-  export let orientation = 'vertical' // for horizontal resizing (side-by-side), 'horizontal' for vertical resizing (top-below)
+  let { 
+    orientation = 'vertical', 
+    onpointerdown 
+  } = $props()
 </script>
 
-<div class="resize-handle" class:horizontal={orientation === 'horizontal'}>
-  <!-- reason for handling touchstart: https://pqina.nl/blog/blocking-navigation-gestures-on-ios-13-4/ -->
-  <div class="resize-fab" 
-    on:pointerdown|stopPropagation|preventDefault|nonpassive
-    on:touchstart|stopPropagation|preventDefault|nonpassive
-  >
-    {#if orientation === 'horizontal'}
-      <!-- Horizontal lines for vertical resizing (top-below) -->
-      <svg width="36" height="12" viewBox="0 0 36 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="6" y="2" width="24" height="0.5" fill="var(--grip-line-color)" />
-        <rect x="0" y="5.75" width="36" height="0.5" fill="var(--grip-line-color)" />
-        <rect x="6" y="9.5" width="24" height="0.5" fill="var(--grip-line-color)" />
-      </svg>
-    {:else}
-      <!-- Vertical lines for horizontal resizing (side-by-side) -->
-      <svg width="12" height="36" viewBox="0 0 12 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="6" width="0.5" height="24" fill="var(--grip-line-color)" />
-        <rect x="5.75" y="0" width="0.5" height="36" fill="var(--grip-line-color)" />
-        <rect x="9.5" y="6" width="0.5" height="24" fill="var(--grip-line-color)" />
-      </svg>
-    {/if}
+<div class="relative flexbox z-1 content-center touch-none"
+  class:h-full={orientation === 'horizontal'}
+  class:w-full={orientation === 'vertical'}
+>
+  <div class="resize-handle" class:horizontal={orientation === 'vertical'}>
+    <div class="resize-fab" {onpointerdown}>
+      {#if orientation === 'vertical'}
+        <!-- horizontal triple lines-->
+        <svg width="36" height="12" viewBox="0 0 36 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="2" width="24" height="0.5" fill="var(--fine-control-color)" />
+          <rect x="0" y="5.75" width="36" height="0.5" fill="var(--fine-control-color)" />
+          <rect x="6" y="9.5" width="24" height="0.5" fill="var(--fine-control-color)" />
+        </svg>
+      {:else}
+        <!-- vertical triple lines -->
+        <svg width="12" height="36" viewBox="0 0 12 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="6" width="0.5" height="24" fill="var(--fine-control-color)" />
+          <rect x="5.75" y="0" width="0.5" height="36" fill="var(--fine-control-color)" />
+          <rect x="9.5" y="6" width="0.5" height="24" fill="var(--fine-control-color)" />
+        </svg>
+      {/if}
+    </div>
   </div>
 </div>
 
