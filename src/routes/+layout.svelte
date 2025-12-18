@@ -1,7 +1,7 @@
 <script>
   import '$lib/db/init.js'
   import AppContext from './AppContext.svelte'
-  import { user, userInfoFromAuthProvider, hasFetchedUser } from '$lib/store'
+  import { user, userInfoFromAuthProvider, authChecked, loggedIn } from '$lib/store'
   import posthog from 'posthog-js'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
@@ -18,9 +18,8 @@
   onMount(() => {
     translateJSConstantsToCSSVariables()
 
-    // fetching user takes around 300 - 500 ms
     onAuthStateChanged(getAuth(), async (resultUser) => {
-      hasFetchedUser.set(true)
+      authChecked.set(true) // from cookie, takes around 300 - 500ms
       
       if (page.url.pathname.startsWith('/legal')) return
 
@@ -34,6 +33,7 @@
       } 
       
       else {
+        loggedIn.set(true)
         goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
 
         userInfoFromAuthProvider.set({
@@ -50,7 +50,7 @@
     id="loading-screen-logo-start"
     style="z-index: 99; background: var(--offwhite-bg); width: 100vw; height: 100vh"
     class="center"
-    class:invisible={$hasFetchedUser && (!$user.uid || Object.keys($treesByDate).length > 0)}
+    class:invisible={$authChecked && (!$loggedIn || $loggedIn && $user.uid && Object.keys($treesByDate).length > 0)}
   >
     <img
       src="/logo-no-bg.png"

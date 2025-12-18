@@ -1,21 +1,23 @@
 <script>
   import GripHandle from '$lib/components/GripHandle.svelte'
   import { getContext } from 'svelte'
+  import { user } from '$lib/store'
 
   let { 
     orientation = 'horizontal',
     ratioDbField = 'listAreaWidthRatio', // listAreaHeightRatio
     minL = 0,
-    child1,
-    child2
+    child1, child2
   } = $props()
-
-  const { user, User } = getContext('app')
+  const { User } = getContext('app')
   
+  const placeholderRatio = 0.003
   const windowL = orientation === 'horizontal' ? window.innerWidth : window.innerHeight
-  
   let resizing = $state(false)
-  let axisL = $state($user[ratioDbField] * 100 * windowL)
+  let axisL = $state(placeholderRatio * 100 * windowL)
+  $effect(() => {
+    if ($user[ratioDbField]) axisL = $user[ratioDbField] * 100 * windowL
+  })
 
   function onpointerdown (e) {
     e.stopPropagation()
@@ -45,10 +47,10 @@
   }
 </script>
 
-<div 
+<div {onpointermove} {onpointerup}
   class="relative flexbox overflow-hidden w-full h-full" 
   style:flex-direction={orientation === 'horizontal' ? 'row' : 'column'}
-  {onpointermove} {onpointerup}
+  style:visibility={$user.uid ? 'visible' : 'hidden'}
 >
   <div class="div-1 min-w-0 min-h-0" style="flex: 0 0 {axisL}px;">    
     {@render child1()}

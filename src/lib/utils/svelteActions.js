@@ -23,7 +23,7 @@ export function lazyCallable (node, callback) {
 }
 
 export function trackWidth (node, onWidthChange) {
-  const ro = new ResizeObserver((entries) => {
+  const ro = new ResizeObserver(entries => {
     const exactWidth = entries[0].contentRect.width
     onWidthChange(exactWidth)
     
@@ -44,12 +44,11 @@ export function trackWidth (node, onWidthChange) {
   }
 }
 
+// crazy that boundingClientRect flickers between integers and decimals
 export function trackHeight (node, onHeightChange) {
-  const ro = new ResizeObserver((entries) => {
+  const ro = new ResizeObserver(entries => {
     const exactHeight = entries[0].contentRect.height
     onHeightChange(exactHeight)
-
-    // crazy that boundingClientRect flickers between integers and decimals
   })
   
   ro.observe(node)

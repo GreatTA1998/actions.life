@@ -10,12 +10,12 @@
   import TopNavbar from './components/TopNavbar.svelte'
   import TaskPopup from '../[user]/components/TaskPopup/TaskPopup.svelte'
   import GoogleIdentityButton from '$lib/components/GoogleIdentityButton.svelte'
-  import { hasFetchedUser } from '$lib/store'
+  import { authChecked } from '$lib/store'
   // import AppDetailsSection from './components/AppDetailsSection.svelte'
   // import VisionSection from './components/VisionSection.svelte'
 </script>
 
-{#if $hasFetchedUser}
+{#if $authChecked}
   <div
     style="display: flex; flex-grow: 1; height: 100%; padding: 3%; padding-top: 2%;"
     class="home-page-background"

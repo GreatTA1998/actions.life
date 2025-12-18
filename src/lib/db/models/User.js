@@ -1,12 +1,4 @@
 import { z } from 'zod'
-import { db } from '$lib/db/init.js'
-import {
-  doc,
-  updateDoc,
-  arrayUnion,
-  collection,
-  addDoc
-} from 'firebase/firestore'
 import { updateFirestoreDoc } from '$lib/db/helpers.js'
 import { user } from '$lib/store/index.js'
 import { get } from 'svelte/store'
@@ -17,7 +9,7 @@ const User = {
     email: z.string(),
     maxOrderValue: z.number().default(10),
 
-    // missing properties from August 1
+    // properties introduced from August 1 2024, maybe
     calendarTheme: z.string().default('offWhite'),
 
     defaultPhotoLayout: z.string().default('side-by-side'),
@@ -27,21 +19,12 @@ const User = {
 
     // automation settings
     photoUploadAutoArchive: z.boolean().default(false),
-    // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
-    photoCompressWhenAttachingToTask: z.boolean().default(false),
+    photoCompressWhenAttachingToTask: z.boolean().default(false), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
 
     hideRoutines: z.boolean().default(true), // for mobile's future view
     lastRanRoutines: z.string().default(''), // for autoExtend.js
 
-    // unused
-    // isSubscriber: z.boolean().default(false),
-    // includeRoutinesInEvents: z.boolean().default(false),
-
-    // to deprecate
-    // FCMTokens: z.array(z.string()).default([]),
-    // phoneNumber: z.string().optional(),
-
-    //// needed temporarily for backwards compatibility
+    // needed temporarily for backwards compatibility
     hasGridlines: z.boolean().default(true),
     calEarliestHHMM: z.string().default('00:00'),
     calLastHHMM: z.string().default('23:59'),
@@ -59,23 +42,6 @@ const User = {
       console.error("error in User.update", error)
       alert(`Error calling User.update: ${error.message}`)
     }
-  },
-
-  addIconURL (userUID, name, url, hidden) {
-    return addDoc(collection(db, "users", userUID, "icons"), {
-      url,
-      name,
-      hidden
-    })
-      .then(() => url)
-      .catch((err) => console.error("error in User.addIcon", err))
-  },
-
-  addFCMToken (userUID, FCMToken) {
-    return updateDoc(doc(db, "users", userUID), {
-      FCMTokens: arrayUnion(FCMToken)
-    })
-      .catch((err) => console.error("error in User.update", err))
   }
 }
 

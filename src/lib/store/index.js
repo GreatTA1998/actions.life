@@ -106,11 +106,10 @@ export function closeTaskPopup() {
 
 export const todoTasks = writable(null)
 
-export const loadingTasks = writable(true)
-
 export const doodleIcons = writable([])
 
-export const hasFetchedUser = writable(false)
+export const authChecked = writable(false)
+export const loggedIn = writable(false)
 export const hasLogoExited = writable(false)
 
 export const mostRecentlyCompletedTaskID = writable('')

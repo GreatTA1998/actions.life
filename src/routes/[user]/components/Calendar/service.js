@@ -4,8 +4,8 @@ import { DateTime } from 'luxon'
 import { pureNumericalHourForm } from '$lib/utils/core.js'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '$lib/db/init'
-import { page } from '$app/stores'
-import { get, writable } from 'svelte/store'
+import { page } from '$app/state'
+import { writable } from 'svelte/store'
 
 const listeners = {}
 
@@ -14,6 +14,7 @@ export const treesByDate = writable({})
 export const googleEventsByDate = writable({})
 
 export function setupCalListener (leftDT, rightDT) {  
+  console.time('setupCalListener')
   const leftISO = leftDT.toFormat('yyyy-MM-dd')
   const rightISO = rightDT.toFormat('yyyy-MM-dd')
   
@@ -54,7 +55,7 @@ function divideIntoRegions (leftISO, rightISO, chunkSize) {
 function listenToRegion (dateISOs) {
   return onSnapshot(
     query(
-      collection(db, `/users/${get(page).params.user}/tasks`), 
+      collection(db, `/users/${page.params.user}/tasks`), 
       where('treeISOs', 'array-contains-any', dateISOs)
     ),
     (snapshot) => {
@@ -87,6 +88,7 @@ export function rebuildRegion (regionTasks, dateISOs) {
     }
     return dict
   })
+  console.timeEnd('setupCalListener')
 }
 
 function constructForest (firestoreTaskDocs) {
