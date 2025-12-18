@@ -8,8 +8,6 @@
 
   onMount(async () => {
     const today = DateTime.utc().toFormat('yyyy-MM-dd')
-    console.log('today', today)
-    console.log('$user.lastRanRoutines', $user.lastRanRoutines)
     if (today > $user.lastRanRoutines) { 
       for (const template of await Template.getAll()) {
         if (template.rrStr) { // required because '' will fail the `generateRecurrenceDTs` function

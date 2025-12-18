@@ -10,9 +10,7 @@ export { calSnapInterval, timestamps } from '/src/routes/[user]/components/Calen
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
 
-export const currentMode = writable('Week')
 export const activeView = writable('CALENDAR')
-
 export const tasksCache = writable({})
 
 // NOTE: this must be called for every listener, otherwise unexpected code that relies on `tasksCache` will break
@@ -104,27 +102,10 @@ export function closeTaskPopup() {
   willOpenDatePicker.set(false)
 }
 
-export const todoTasks = writable(null)
-
 export const doodleIcons = writable([])
-
 export const authChecked = writable(false)
 export const loggedIn = writable(false)
-export const hasLogoExited = writable(false)
-
-export const mostRecentlyCompletedTaskID = writable('')
-export const isSnackbarHidden = writable(false)
-export const mostRecentlyCompletedTaskName = writable('')
-
-// 200/24 is the week view value
-export const appModePixelsPerHour = writable(200 / 24)
-
 export const showSnackbar = writable(false)
-
-export const userInfoFromAuthProvider = writable({}) // test if the page data method works. If not, fallback to this solution for creating a mirror doc
-
-export const inclusiveWeekTodo = writable([])
-export const todoMemoryTree = writable(null)
 
 // New snackbar store for undo operations
 export const snackbarState = writable({
@@ -138,17 +119,14 @@ export const SNACKBAR_DURATION = 5000
 let timeoutId = null
 
 export function showUndoSnackbar(message, undoAction) {
-  // Clear any existing timeout
   if (timeoutId) clearTimeout(timeoutId)
   
-  // Show new snackbar
   snackbarState.set({
     isVisible: true,
     message,
     undoAction
   })
 
-  // Set new timeout
   timeoutId = setTimeout(() => {
     snackbarState.update(s => ({ ...s, isVisible: false }))
   }, SNACKBAR_DURATION)

@@ -1,7 +1,7 @@
 <script>
   import '$lib/db/init.js'
   import AppContext from './AppContext.svelte'
-  import { user, userInfoFromAuthProvider, authChecked, loggedIn } from '$lib/store'
+  import { user, authChecked, loggedIn } from '$lib/store'
   import posthog from 'posthog-js'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
@@ -14,8 +14,20 @@
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
   import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
+  
+  let { children } = $props()
+
+  $effect(() => {
+    if ($treesByDate && $user.uid) console.timeEnd('total load time')
+  })
+
+  $effect(() => {
+    if ($authChecked) console.timeEnd('auth')
+  })
 
   onMount(() => {
+    console.time('auth')
+    console.time('total load time')
     translateJSConstantsToCSSVariables()
 
     onAuthStateChanged(getAuth(), async (resultUser) => {
@@ -33,13 +45,8 @@
       } 
       
       else {
-        loggedIn.set(true)
         goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
-
-        userInfoFromAuthProvider.set({
-          email: resultUser.email,
-          uid: resultUser.uid 
-        })
+        loggedIn.set(true)
       }
     })
   })
@@ -63,10 +70,8 @@
   <div>
     <AppContext>
       <DragDropContext>
-        <slot>
-
-        </slot>
-
+        {@render children()}
+        
         <ThePopoverInput />
 
         <TheSnackbar />

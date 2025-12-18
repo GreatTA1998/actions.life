@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { updateFirestoreDoc } from '$lib/db/helpers.js'
 import { user } from '$lib/store/index.js'
 import { get } from 'svelte/store'
+import { getAuth } from 'firebase/auth'
 
 const User = {
   schema: z.object({
@@ -32,7 +33,14 @@ const User = {
     selectedGoogleCalendarIds: z.array(z.string()).optional()
   }),
 
-  // TO-DO: CRUD
+  async create () {
+    const validatedUser = User.schema.parse(getAuth().currentUser)
+    console.log('validatedUser =', validatedUser)
+    return await setFirestoreDoc(`/users/${uid}`, 
+      validatedUser
+    )
+  },
+
   async update (keyValueChanges) {
     const { uid } = get(user)
     try {
