@@ -17,7 +17,8 @@
     "@vite-pwa/sveltekit": "^1.0.0",
     "rollup-plugin-visualizer": "^6.0.5",
     "sass": "^1.63.5",
-    "svelte": "^5.0.0"
+    "svelte": "^5.0.0",
+    "vite-plugin-devtools-json": "^1.0.0"
   },
   "type": "module",
   "dependencies": {

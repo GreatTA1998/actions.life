@@ -9,7 +9,6 @@
   import { onMount } from 'svelte'
   import { isMobile } from '$lib/utils/core.js'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
-  import { } from '$lib/db/scripts/april.js'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
