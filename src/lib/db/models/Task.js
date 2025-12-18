@@ -66,7 +66,7 @@ const Task = {
   }),
 
   // danger: relies on `tasksCache`
-  create: async ({ id, newTaskObj }) => {
+  create: async ({ id, newTaskObj, optimistic = true }) => {
     try {
       const validatedTask = Task.schema.parse(newTaskObj)
       const { uid } = get(user)
@@ -96,8 +96,9 @@ const Task = {
         rootID
       })
       
-      batch.commit() // for a snappier user experience we don't use `await` for now
-      
+      if (optimistic) batch.commit() // for a snappier user experience we don't use `await` for now
+      else await batch.commit() 
+
       return validatedTask
     } 
     catch (error) {
