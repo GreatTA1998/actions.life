@@ -3,6 +3,7 @@
   import AppContext from './AppContext.svelte'
   import { user, userInfoFromAuthProvider, hasFetchedUser } from '$lib/store'
   import posthog from 'posthog-js'
+  import { page } from '$app/state'
   import { goto } from '$app/navigation'
   import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
@@ -20,16 +21,19 @@
     // fetching user takes around 300 - 500 ms
     onAuthStateChanged(getAuth(), async (resultUser) => {
       hasFetchedUser.set(true)
-      if (!resultUser) {
-        user.set({})
-        goto('/')
+      
+      if (page.url.pathname.startsWith('/legal')) return
 
-        // see how new visitors interacts with home page demos
-        posthog.init('phc_Cm2c1eB0MCZLTjJDYHklZ7GUp0Ar7p5bIpF5hkCJPdo', {
-          api_host: 'https://us.i.posthog.com',
-          person_profiles: 'always' // or 'always' to create profiles for anonymous users as well
+      else if (!resultUser) {
+        goto('/')
+        user.set({})
+
+        posthog.init('phc_Cm2c1eB0MCZLTjJDYHklZ7GUp0Ar7p5bIpF5hkCJPdo', { // see how new visitors interacts with home page demos
+          api_host: 'https://us.i.posthog.com'         
         })
-      } else {
+      } 
+      
+      else {
         goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
 
         userInfoFromAuthProvider.set({
