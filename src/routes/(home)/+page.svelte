@@ -16,10 +16,7 @@
 </script>
 
 {#if $authChecked}
-  <div
-    style="display: flex; flex-grow: 1; height: 100%; padding: 3%; padding-top: 2%;"
-    class="home-page-background"
-  >
+  <div class="home-bg h-full flexbox" style="flex-grow: 1; padding: 3%; padding-top: 2%;">
     <div style="position: absolute; top: 0; left: 0; right: 0;">
       <TopNavbar />
     </div>
@@ -57,7 +54,7 @@
 {/if}
 
 <style lang="scss">
-  .home-page-background {
+  .home-bg {
     background: linear-gradient(
       135deg,
       #f7f0e1 0%,
@@ -70,7 +67,7 @@
     overflow-x: hidden;
   }
 
-  .home-page-background > * {
+  .home-bg > * {
     position: relative;
     z-index: 1;
   }

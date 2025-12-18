@@ -4,7 +4,7 @@
   import ExtendRoutines from '/src/routes/[user]/components/ExtendRoutines.svelte'
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import { user, authChecked, showSnackbar, isTaskPopupOpen } from '$lib/store'
+  import { user, showSnackbar, isTaskPopupOpen } from '$lib/store'
   import { onMount, onDestroy, getContext } from 'svelte'
   import { page } from '$app/state'
 
@@ -14,15 +14,8 @@
   let unsub = () => {}
   let uid = $derived(page.params.user)
 
-  $effect(() => {
-    if ($authChecked) {
-      console.time('listenToUser')
-      listenToUser()      
-    }
-  })
-
   onMount(() => {
-
+    listenToUser()  
   })
 
   onDestroy(() => {
@@ -37,7 +30,6 @@
       } else {
         user.set({ ...snap.data() })
       }
-      console.timeEnd('listenToUser')
     })
   }
 </script>

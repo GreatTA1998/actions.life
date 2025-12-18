@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { updateFirestoreDoc } from '$lib/db/helpers.js'
+import { setFirestoreDoc, updateFirestoreDoc } from '$lib/db/helpers.js'
 import { user } from '$lib/store/index.js'
 import { get } from 'svelte/store'
 import { getAuth } from 'firebase/auth'
@@ -36,7 +36,7 @@ const User = {
   async create () {
     const validatedUser = User.schema.parse(getAuth().currentUser)
     console.log('validatedUser =', validatedUser)
-    return await setFirestoreDoc(`/users/${uid}`, 
+    return await setFirestoreDoc(`/users/${validatedUser.uid}`, 
       validatedUser
     )
   },

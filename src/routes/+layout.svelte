@@ -17,17 +17,7 @@
   
   let { children } = $props()
 
-  $effect(() => {
-    if ($treesByDate && $user.uid) console.timeEnd('total load time')
-  })
-
-  $effect(() => {
-    if ($authChecked) console.timeEnd('auth')
-  })
-
   onMount(() => {
-    console.time('auth')
-    console.time('total load time')
     translateJSConstantsToCSSVariables()
 
     onAuthStateChanged(getAuth(), async (resultUser) => {
