@@ -14,7 +14,12 @@
   import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
   import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
 
+  $effect(() => {
+    if ($treesByDate) console.timeEnd('total load time')
+  })
+
   onMount(() => {
+    console.time('total load time')
     translateJSConstantsToCSSVariables()
 
     // fetching user takes around 300 - 500 ms

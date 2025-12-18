@@ -14,6 +14,7 @@ export const treesByDate = writable({})
 export const googleEventsByDate = writable({})
 
 export function setupCalListener (leftDT, rightDT) {  
+  console.time('setupCalListener')
   const leftISO = leftDT.toFormat('yyyy-MM-dd')
   const rightISO = rightDT.toFormat('yyyy-MM-dd')
   
@@ -87,6 +88,7 @@ export function rebuildRegion (regionTasks, dateISOs) {
     }
     return dict
   })
+  console.timeEnd('setupCalListener')
 }
 
 function constructForest (firestoreTaskDocs) {

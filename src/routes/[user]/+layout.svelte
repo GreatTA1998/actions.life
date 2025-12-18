@@ -20,12 +20,14 @@
 
   function listenToUserDoc (userID) {
     const ref = doc(db, '/users/' + userID)
+    console.time('listenToUser')
     unsub = onSnapshot(ref, async (snap) => {
       if (!snap.exists()) {
         initializeNewFirestoreUser(ref, $userInfoFromAuthProvider)
       } else {
         user.set({ ...snap.data() })
       }
+      console.timeEnd('listenToUser')
     })
   }
 
