@@ -1,6 +1,6 @@
-import { writable, get } from 'svelte/store'
+import { writable } from 'svelte/store'
 import { db } from '$lib/db/init'
-import { updateCache, cleanupCache, user } from '$lib/store'
+import { updateCache, cleanupCache } from '$lib/store'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 
 let persistTasks
@@ -46,18 +46,11 @@ function setupListener (ref, callback) {
 }
 
 function buildTreeMap (tasks) {
-  if (get(user).uid) {
-    document.startViewTransition(() => { // View Transition API
-      trees.set(
-        reconstructTreeInMemory(tasks) // it's actually constructing a forest
-      )
-    })
-  } 
-  else {
+  document.startViewTransition(() => { // View Transition API
     trees.set(
       reconstructTreeInMemory(tasks) // it's actually constructing a forest
     )
-  }
+  })
 }
 
 export function reconstructTreeInMemory (firestoreTaskDocs) {
