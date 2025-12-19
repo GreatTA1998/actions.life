@@ -2,7 +2,7 @@
   import { activeView } from '$lib/store'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
 
-  let { position = 'right' } = $props() // 'right' | 'bottom'
+  let { position = 'right' } = $props() // or 'bottom'
 
   let isBottom = $derived(position === 'bottom')
 
