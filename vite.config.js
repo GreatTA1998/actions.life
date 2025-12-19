@@ -1,6 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import { SvelteKitPWA } from '@vite-pwa/sveltekit'
-import { visualizer } from 'rollup-plugin-visualizer'
 import devtoolsJson from 'vite-plugin-devtools-json'
 
 export default {
@@ -34,11 +33,6 @@ export default {
           }
         ]
       }
-    }),
-
-    visualizer({
-      open: true, // Opens the report in your browser automatically
-      filename: 'stats.html' // Output file name
     }),
 
     devtoolsJson()
