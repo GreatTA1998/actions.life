@@ -1,17 +1,15 @@
 <script>
   import { activeView } from '$lib/store'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
+  import Icon from '@iconify/svelte'
 
   let { position = 'right' } = $props() // or 'bottom'
 
   let isBottom = $derived(position === 'bottom')
 
   function onCalClick () {
-    if ($activeView === 'CALENDAR') {
-      jumpToToday()
-    } else {
-      changeTo('CALENDAR')
-    }
+    if ($activeView === 'CALENDAR') jumpToToday()
+    else changeTo('CALENDAR')
   }
 
   function changeTo (view) {
@@ -32,17 +30,13 @@
   <button onclick={onCalClick}
     class="my-btn" class:active={$activeView === 'CALENDAR'}
   >
-    <span class="material-symbols-outlined nav-icon">
-      house
-    </span>
+    <Icon icon="material-symbols:house-outline" style="font-size: {isBottom ? 1.5 : 1.2}rem;"/>
   </button>
 
   <button onclick={() => changeTo('DISCOVER')}
     class="my-btn" class:active={$activeView === 'DISCOVER'}
   >
-    <span class="material-symbols-outlined nav-icon">
-      manage_search
-    </span>
+    <Icon icon="material-symbols:manage-search" style="font-size: {isBottom ? 1.5 : 1.2}rem;"/>
   </button>
 </div>
 
@@ -117,10 +111,6 @@
     & .logo-button {
       padding: 0 8px;
     }
-
-    & .nav-icon {
-      font-size: 1.5rem;
-    }
   }
 
   .right-nav {
@@ -134,10 +124,6 @@
     
     & .logo-button {
       padding: 4px 0;
-    }
-
-    & .nav-icon {
-      font-size: 1.2rem;
     }
   }
 </style>

@@ -6,6 +6,7 @@
   import ConnectGoogleCalendar from '$lib/components/ConnectGoogleCalendar.svelte'
   import GoogleCalendarSelector from '$lib/components/GoogleCalendarSelector.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
+  import Icon from '@iconify/svelte'
   import { getAuth, signOut } from 'firebase/auth'
   import { goto } from '$app/navigation'
   import { user } from '$lib/store'
@@ -63,8 +64,8 @@
   <div class="footer">
     <GithubButton />
 
-    <button on:click={handleLogoClick} class="logout-button">
-      <span class="material-symbols-outlined">logout</span>
+    <button onclick={handleLogoClick} class="logout-button">
+      <Icon icon="material-symbols-light:logout" style="font-size: 1.4rem;"/>
       <span>Log out to home tutorials</span>
     </button>
   </div>

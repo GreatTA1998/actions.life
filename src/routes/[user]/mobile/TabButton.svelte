@@ -1,4 +1,6 @@
 <script>
+  import Icon from '@iconify/svelte'
+
   let {
     icon,
     active = false,
@@ -7,11 +9,12 @@
 </script>
 
 <button 
-  class="tab-button" 
+  class="tab-button flexbox" 
   class:active={active}
   onclick={onclick}
 >
-  <span class="material-symbols-outlined" style="font-size: 1.8rem;">{icon}</span>
+  <!-- <Icon icon="material-symbols-light:calendar-month" style="font-size: 1.8rem;"/> -->
+  <Icon icon="material-symbols-light:{icon}" style="font-size: 1.8rem;"/>
 </button>
 
 <style>

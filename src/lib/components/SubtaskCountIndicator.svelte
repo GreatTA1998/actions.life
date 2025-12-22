@@ -1,4 +1,5 @@
 <script>
+  import Icon from '@iconify/svelte'
   let { 
     taskObj, 
     onclick = () => {},
@@ -9,7 +10,7 @@
 </script>
 
 <button {onclick} class="subtask-progress-badge" style="color: {color};">
-  <span class="material-symbols-outlined" style="font-size: 12px;">check_circle</span>
+  <Icon icon="material-symbols-light:check-circle-outline" style="font-size: 0.875rem;"/>
   <span style="font-size: 12px;">{subtasks.filter(child => child.isDone).length}/{subtasks.length}</span>
 </button>
 

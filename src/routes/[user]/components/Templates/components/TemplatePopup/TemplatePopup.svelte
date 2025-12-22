@@ -5,6 +5,7 @@
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import DurationPicker from '$lib/components/DurationPicker.svelte'
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
+  import Icon from '@iconify/svelte'
   import { getPeriodicity } from '$lib/utils/rrule.js'
   import { template, closeTemplateEditor } from '../../store.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
@@ -88,8 +89,8 @@
 
     <PeriodicityEditor routine={$template} />
 
-    <button onclick={e => { e.stopPropagation(); handleDelete() }} class="material-symbols-outlined delete-button">
-      delete
+    <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button" style="display: flex; align-items: center; justify-content: center;">
+      <Icon icon="material-symbols-light:delete-outline" style="font-size: 1.5rem;"/>
     </button>
   </div>
 </BasePopup>

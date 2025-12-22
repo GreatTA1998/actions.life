@@ -5,6 +5,7 @@
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
   import Markdown from '$lib/components/Markdown.svelte'
+  import Icon from '@iconify/svelte'
 
   const { Task } = getContext('app')
 
@@ -92,12 +93,12 @@
   <div style="display: flex; flex-direction: column; gap: 4px;">
     {#each defaultQuestions as question}
       <div 
-        on:click={() => { 
+        onclick={() => { 
           if (!loading) {
             state.currentInput = question; 
             addMessage(); 
           }
-        }} 
+        }}
         class="rounded-tag"
         class:disabled={loading}
       >
@@ -111,13 +112,11 @@
       type="text"
       placeholder="Type your message..."
       bind:value={state.currentInput}
-      on:keydown={(e) => e.key === 'Enter' && addMessage()}
+      onkeydown={(e) => e.key === 'Enter' && addMessage()}
     />
 
-    <button on:click={addMessage} class="submit-button">
-      <span class="material-symbols-outlined">
-        arrow_upward
-      </span>
+    <button onclick={addMessage} class="submit-button">
+      <Icon icon="material-symbols-light:arrow-upward" style="font-size: 1.5rem;"/>
     </button>
   </div>
 </div>

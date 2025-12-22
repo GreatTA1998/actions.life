@@ -172,14 +172,6 @@
     row-gap: 12px;
   }
 
-  .material-symbols-outlined {
-    font-variation-settings:
-      'FILL' 0,
-      'wght' 400,
-      'GRAD' 0,
-      'opsz' 48
-  }
-
   .action-button {
     display: flex;
     align-items: center;

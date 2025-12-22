@@ -1,5 +1,6 @@
 <script>
   import { releaseImage } from '$lib/db/helpers.js'
+  import Icon from '@iconify/svelte'
   import { getContext } from 'svelte'
 
   const { Task, user } = getContext('app')
@@ -25,7 +26,7 @@
 <button onclick={() => confirmDeletePhoto(taskObject)} 
   class="photo-row-action" 
 >
-  <span class="material-symbols-outlined">no_photography</span>
+  <Icon icon="material-symbols-light:no-photography-outline" style="font-size: 1.125rem;"/>
   <span class="photo-row-label">Remove photo</span>
 </button>
 
@@ -35,25 +36,17 @@
     align-items: center;
     gap: 4px;
     background: none;
-    border: none;
     color: #333;
-    font-size: 14px;
+    font-size: 0.875rem;
     padding: 4px 8px;
     border-radius: 6px;
-    cursor: pointer;
     transition: background 0.2s;
-    font-weight: 400;
     width: 100%;
     justify-content: flex-start;
-    box-sizing: border-box;
-  }
-
-  .photo-row-action .material-symbols-outlined {
-    font-size: 18px;
   }
 
   .photo-row-label {
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 400;
   }
 

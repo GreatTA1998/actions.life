@@ -90,6 +90,7 @@
     --experimental-black: hsla(0, 100%, 0%, 0.6);
     --offwhite-bg: rgb(250, 250, 250);
     --faint-color: lightgrey;
+    --popup-control: 1.67rem;
   }
 
   :global(*) {

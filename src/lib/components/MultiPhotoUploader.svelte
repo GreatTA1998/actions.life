@@ -1,13 +1,13 @@
 <div class="float-button" {style}>
   <!-- `align-items: center` is a quickfix related to mystery height, probably from the invisible input -->
   <div style="display: flex; align-items: center;">
-    <button on:click={openFolderInput} class="material-symbols-outlined responsive-icon-size">
-      photo_library
+    <button onclick={openFolderInput} class="responsive-icon-size flexbox content-center">
+      <Icon icon="material-symbols-light:photo-library-outline" style="font-size: 2.125rem;"/>
     </button>
 
     <input style="display: none;" 
       bind:this={FolderInput}
-      on:change={(e) =>  handleFileChange(e)} 
+      onchange={(e) =>  handleFileChange(e)} 
       multiple
       type="file" 
       accept="image/*" 
@@ -21,6 +21,7 @@
   import { compressImage } from '$lib/utils/imageHandling.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
+  import Icon from '@iconify/svelte'
 
   const { Task, user } = getContext('app')
 

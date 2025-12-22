@@ -13,7 +13,7 @@
   <div class="tabs-header">
     <div class="tabs-wrapper">
       <TabButton 
-        icon="calendar_month"
+        icon="calendar-month-outline"
         active={activeTab === 'date'}
         onclick={() => activeTab = 'date'}
       />
@@ -23,17 +23,17 @@
         onclick={() => activeTab = 'habits'}
       />
       <TabButton 
-        icon="photo_library"
+        icon="photo-camera-back-outline"
         active={activeTab === 'photos'}
         onclick={() => activeTab = 'photos'}
       />
       <TabButton 
-        icon="archive"
+        icon="archive-outline"
         active={activeTab === 'archive'}
         onclick={() => activeTab = 'archive'}
       />
       <TabButton 
-        icon="smart_toy"
+        icon="smart-toy-outline"
         active={activeTab === 'ai'}
         onclick={() => activeTab = 'ai'}
       />

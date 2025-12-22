@@ -6,6 +6,7 @@
   import TimelineRenderer from './TimelineRenderer.svelte'
   import TaskMenu from './TaskMenu.svelte'
   import TaskCaret from './TaskCaret.svelte'
+  import Icon from '@iconify/svelte'
   import { getRandomColor } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
@@ -82,11 +83,11 @@
       {#if infoBadge}
         {@render infoBadge()}
       {:else if taskObj.startDateISO}
-        <span class:overdue={!taskObj.isDone && taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
-          class="material-symbols-outlined" style="font-size: 12px;" 
+        <div class:overdue={!taskObj.isDone && taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
+          class="flexbox content-center"
         >
-          calendar_today
-        </span>
+          <Icon icon="material-symbols-light:calendar-today" style="font-size: 0.75rem;"/>
+        </div>
       {/if}
 
       {#if taskObj.isCollapsed && n > 0}

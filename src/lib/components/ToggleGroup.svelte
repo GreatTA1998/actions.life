@@ -1,4 +1,5 @@
 <script>
+  import Icon from '@iconify/svelte'
   let {
     onselect,
     options = [],
@@ -11,7 +12,7 @@
   {#each options as option}
     <button onclick={() => onselect(option.value)} class="toggle-btn" class:active={option.value === activeValue}>
       {#if useIcons}
-        <span class="material-symbols-outlined">{option.icon}</span>
+        <Icon icon={'material-symbols-light:' + option.icon.replaceAll('_', '-')} style="font-size: 1.25rem;"/>
       {:else}
         {option.text}
       {/if}

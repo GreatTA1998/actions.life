@@ -1,7 +1,5 @@
-<button class="material-symbols-outlined"  
-  {onclick}
->
-  add_photo_alternate
+<button {onclick} class="flexbox">
+  <Icon icon="material-symbols-light:add-photo-alternate-outline" style="font-size: var(--popup-control);"/>
 </button>
 
 <input style="display: none;" 
@@ -12,6 +10,7 @@
 >
 
 <script>
+  import Icon from '@iconify/svelte'
   import { getContext } from 'svelte'
 
   const { uploadMockPhoto, uploadImage, user } = getContext('app')

@@ -1,4 +1,6 @@
 <script>
+  import Icon from '@iconify/svelte'
+
   let {
     isCollapsed = false,
     onToggle = () => {},
@@ -6,10 +8,12 @@
   } = $props()
 </script>
 
-<button class="caret-button" onclick={onToggle} style="zoom: {zoom};">
-  <span class="material-symbols-outlined caret-icon">
-    {isCollapsed ? 'chevron_right' : 'expand_more'}
-  </span>
+<button class="caret-button" onclick={onToggle} style="zoom: {zoom}; display: flex; align-items: center; justify-content: center;">
+  <div class="caret-icon flexbox content-center">
+    <Icon 
+      icon={isCollapsed ? 'material-symbols-light:chevron-right' : 'material-symbols-light:expand-more'} 
+    />
+  </div>
 </button>
 
 <style>
@@ -22,7 +26,7 @@
   }
 
   .caret-icon {
-    font-size: 30px;
+    font-size: 1.875rem;
     color: var(--fine-control-color);
     font-weight: 100;
     pointer-events: none; /* without this, the touch area for this button is based on this large icon, not the small button that contains it */

@@ -1,5 +1,6 @@
 <script>
   import PeriodicityEditor from '/src/routes/[user]/components/Templates/components/TemplatePopup/PeriodicityEditor.svelte'
+  import Icon from '@iconify/svelte'
   import { getContext } from 'svelte'
 
   const { user } = getContext('app')
@@ -18,14 +19,14 @@
 </script>
 
 {#if taskObject.templateID}
-  <button onclick={toggleTemplateEditor} class="my-btn material-symbols-outlined" class:active={isTemplateEditorOpen}>
-    repeat
+  <button onclick={toggleTemplateEditor} class="my-btn flexbox" class:active={isTemplateEditorOpen}>
+    <Icon icon="material-symbols-light:repeat" style="font-size: var(--popup-control);"/>
   </button>
 {:else}
-  <button onclick={toggleCreate} class="my-btn material-symbols-outlined" 
+  <button onclick={toggleCreate} class="my-btn flexbox" 
     class:greyed-out={$user.uid === 'demo-user'} disabled={$user.uid === 'demo-user'}
   >
-    repeat
+    <Icon icon="material-symbols-light:repeat" style="font-size: var(--popup-control);"/>
   </button>
 
   {#if isCreatingRoutine}

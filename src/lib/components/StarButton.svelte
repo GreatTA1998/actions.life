@@ -1,4 +1,5 @@
 <script>
+  import Icon from '@iconify/svelte'
   let { isStarred = false, onToggle } = $props()
 </script>
 
@@ -7,9 +8,11 @@
   class="star-button"
   class:starred={isStarred}
 >
-  <span class="material-symbols-outlined star-icon">
-    {isStarred ? 'star' : 'star_border'}
-  </span>
+  <Icon 
+    icon="material-symbols-light:{isStarred ? 'star' : 'star-outline'}"
+    class="star-icon"
+    style="font-size: 2.2rem;"
+  />
 </button>
 
 <style>
@@ -29,15 +32,13 @@
     background: rgba(0, 0, 0, 0.04);
   }
 
-  .star-icon {
+  :global(.star-icon) {
     font-size: var(--font-size-xl, 1.25rem);
     color: #666;
     transition: color 0.15s;
   }
 
-  .star-button.starred .star-icon {
+  .star-button.starred :global(.star-icon) {
     color: #ffa726;
-    font-variation-settings: 'FILL' 1;
   }
 </style>
-

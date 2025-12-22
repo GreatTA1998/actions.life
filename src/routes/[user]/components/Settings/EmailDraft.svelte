@@ -2,6 +2,7 @@
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
   import { sendEmail } from '$lib/utils/cloudFunctions.js'
   import { showUndoSnackbar, user } from '$lib/store'
+  import Icon from '@iconify/svelte'
 
   let messageBody = ''
   let isSending = false
@@ -52,8 +53,8 @@
   </div>
 
   <div class="email-footer">
-    <button on:click={handleSendEmail} class="send-email-button" disabled={!messageBody.trim() || isSending}>
-      <span class="material-symbols-outlined">send</span>
+    <button onclick={handleSendEmail} class="send-email-button" disabled={!messageBody.trim() || isSending}>
+      <Icon icon="material-symbols-light:send" style="font-size: 1rem;"/>
       <span>{isSending ? 'Sending...' : 'Send'}</span>
     </button>
   </div>
