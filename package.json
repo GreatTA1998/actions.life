@@ -21,6 +21,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
     "browser-image-compression": "^2.0.2",
     "firebase": "^12.7.0",
     "firebase-functions": "^6.5.0",

@@ -13,7 +13,8 @@
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
   import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
-  
+  import '@fontsource-variable/inter'
+
   let { children } = $props()
 
   onMount(() => {
@@ -93,7 +94,7 @@
 
   :global(*) {
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Variable', sans-serif;
   }
 
   /* prevent accidental going back page */
