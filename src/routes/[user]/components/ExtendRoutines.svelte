@@ -18,7 +18,7 @@
           .map(template => 
             extendRoutine({ 
               startDT: DateTime.fromISO(template.prevEndISO).plus({ days: 1 }),
-              endDT: DateTime.now().plus({ days: (template.previewSpan || 14) }),
+              endDT: DateTime.utc().plus({ days: template.previewSpan }),
               template
             }).catch(e => console.error(`Failed to extend template ${template.id}:`, e))
           )

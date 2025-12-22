@@ -22,8 +22,8 @@ const Template = {
     imageDownloadURL: z.string().default(''),
     iconURL: z.string().default(''),
     rrStr: z.string().default(''),
-    previewSpan: z.number().default(2 * 7), // needs to be computed and therefore optional
-    prevEndISO: z.string().default('')
+    prevEndISO: z.string().default(''),
+    previewSpan: z.number().optional(), // needs to be computed
   }),
 
   async create ({ newTemplate, id }) {

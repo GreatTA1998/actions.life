@@ -58,7 +58,7 @@
         ...routine, 
         rrStr: pendingRRStr,
         previewSpan,
-        prevEndISO: DateTime.now().plus({ days: previewSpan }).toFormat('yyyy-MM-dd')
+        prevEndISO: DateTime.utc().plus({ days: previewSpan }).toFormat('yyyy-MM-dd')
       }
     })
     Task.update({ id: routine.id, keyValueChanges: {
