@@ -17,7 +17,6 @@
   let { children } = $props()
 
   onMount(() => {
-    console.timeEnd('client hook vs layout mount')
     translateJSConstantsToCSSVariables()
 
     onAuthStateChanged($firebaseAuth, async (resultUser) => {

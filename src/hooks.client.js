@@ -1,11 +1,8 @@
 import { auth } from '$lib/db/init.js'
 import { firebaseAuth } from '$lib/store'
-
-console.time('client hook vs layout mount')
+import { reportError } from '$lib/utils/errorReporting.js'
 
 firebaseAuth.set(auth)
-
-import { reportError } from '$lib/utils/errorReporting.js'
 
 export function handleError ({ event, error }) {
   reportError({ 
