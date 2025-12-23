@@ -1,7 +1,5 @@
 <script>
-  import { initiateGoogleConnect } from '$lib/utils/googleGIS';
-  import { fetchGoogleCalendars, fetchGoogleEvents } from '$lib/utils/cloudFunctions';
-  import { DateTime } from 'luxon'
+  import { initiateGoogleConnect, loadGoogleIdentityServices } from '$lib/utils/googleGIS'
   import { user } from '$lib/store'
   
   // TODO: Replace with your actual Client ID or import from a config file
@@ -17,13 +15,14 @@
     loading = true;
     error = null;
     try {
-      await initiateGoogleConnect(clientId);
-      alert('Successfully connected Google Calendar!');
+      await loadGoogleIdentityServices()
+      await initiateGoogleConnect(clientId)
+      alert('Successfully connected Google Calendar!')
     } catch (err) {
-      console.error(err);
-      error = err.message;
+      console.error(err)
+      error = err.message
     } finally {
-      loading = false;
+      loading = false
     }
   }
 </script>
