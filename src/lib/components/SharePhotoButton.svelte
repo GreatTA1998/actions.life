@@ -1,6 +1,6 @@
 <script>
   import { shareEngravedImage } from '$lib/utils/imageExport.js'
-  import Icon from '@iconify/svelte'
+  import MslIosShare from 'virtual:icons/material-symbols-light/ios-share'
   
   let { taskObject } = $props()
   
@@ -20,7 +20,7 @@
 </script>
 
 <button onclick={e => sharePhoto(e)} class="photo-row-action">
-  <Icon icon="material-symbols-light:ios-share" style="font-size: 1.125rem;"/>
+  <MslIosShare style="font-size: 1.125rem;"/>
   <span class="photo-row-label">Share</span>
 </button>
 

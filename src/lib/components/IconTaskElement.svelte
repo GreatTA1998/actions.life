@@ -32,7 +32,7 @@
           color: {task.isDone ? 'rgb(20, 20, 20)' : '#509c13'};
         "
       >
-        <Icon icon="material-symbols-light:circle" style="font-size: 2px;"/>
+        <MslCircle style="font-size: 2px;"/>
       </div>
     {/if}
 
@@ -74,7 +74,7 @@
 <script>
   // Assumes `task` is hydrated
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
-  import Icon from '@iconify/svelte'
+  import MslCircle from 'virtual:icons/material-symbols-light/circle'
   import { getTrueY } from '$lib/utils/core.js'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'

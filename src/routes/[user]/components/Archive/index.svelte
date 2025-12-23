@@ -2,7 +2,7 @@
   import PhotoGrid from './PhotoGrid.svelte'
   import JournalEntries from './JournalEntries.svelte'  
   import ListenToDoc from './ListenToDoc.svelte'
-  import Icon from '@iconify/svelte'
+  import MslStar from 'virtual:icons/material-symbols-light/star'
   import { user } from '/src/lib/store/userStore.js'
   import { onMount, onDestroy } from 'svelte'
   import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
@@ -77,7 +77,6 @@
         }}
         class:selected-item={isViewingPhotos}
       >  
-        <Icon icon="material-symbols-light:photo-library-outline" style="font-size: 1.5rem;"/>
         Photos
       </div>
       
@@ -99,7 +98,7 @@
 
             {#if routine.isStarred}
               <div class="star-icon">
-                <Icon icon="material-symbols-light:star" style="font-size: 0.875rem;"/>
+                <MslStar style="font-size: 0.875rem;"/>
               </div>
             {/if}
           </div>

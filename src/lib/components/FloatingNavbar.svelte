@@ -1,7 +1,8 @@
 <script>
   import { activeView } from '$lib/store'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
-  import Icon from '@iconify/svelte'
+  import MsManageSearch from 'virtual:icons/material-symbols/manage-search'
+  import MsHouseOutline from 'virtual:icons/material-symbols/house-outline'
 
   let { position = 'right' } = $props() // or 'bottom'
 
@@ -30,13 +31,13 @@
   <button onclick={onCalClick}
     class="my-btn" class:active={$activeView === 'CALENDAR'}
   >
-    <Icon icon="material-symbols:house-outline" style="font-size: {isBottom ? 1.5 : 1.2}rem;"/>
+    <MsHouseOutline style="font-size: {isBottom ? 1.5 : 1.2}rem;"/>
   </button>
 
   <button onclick={() => changeTo('DISCOVER')}
     class="my-btn" class:active={$activeView === 'DISCOVER'}
   >
-    <Icon icon="material-symbols:manage-search" style="font-size: {isBottom ? 1.5 : 1.2}rem;"/>
+    <MsManageSearch style="font-size: {isBottom ? 1.5 : 1.2}rem;"/>
   </button>
 </div>
 

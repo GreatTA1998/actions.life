@@ -1,5 +1,6 @@
 <script>
-  import Icon from '@iconify/svelte'
+  import MslStar from 'virtual:icons/material-symbols-light/star'
+  import MslStarOutline from 'virtual:icons/material-symbols-light/star-outline'
   let { isStarred = false, onToggle } = $props()
 </script>
 
@@ -8,11 +9,11 @@
   class="star-button"
   class:starred={isStarred}
 >
-  <Icon 
-    icon="material-symbols-light:{isStarred ? 'star' : 'star-outline'}"
-    class="star-icon"
-    style="font-size: 2.2rem;"
-  />
+  {#if isStarred}
+    <MslStar class="star-icon" style="font-size: 2.2rem;"/>
+  {:else}
+    <MslStarOutline class="star-icon" style="font-size: 2.2rem;"/>
+  {/if}
 </button>
 
 <style>

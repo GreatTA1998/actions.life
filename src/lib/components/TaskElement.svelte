@@ -30,7 +30,7 @@
           color: {task.isDone ? '#509c13' : 'rgb(20, 20, 20)'};
         "
       >
-        <Icon icon="material-symbols-light:circle" style="font-size: 2px;"/>
+        <MslCircle style="font-size: 2px;"/>
       </div>
     {/if}
 
@@ -76,7 +76,7 @@
 <script>
   import CalCheckableTaskName from '$lib/components/CalCheckableTaskName.svelte'
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
-  import Icon from '@iconify/svelte'
+  import MslCircle from 'virtual:icons/material-symbols-light/circle'
   import { getTrueY } from '$lib/utils/core.js'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'

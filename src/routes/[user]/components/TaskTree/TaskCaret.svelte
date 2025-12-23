@@ -1,5 +1,6 @@
 <script>
-  import Icon from '@iconify/svelte'
+  import MslChevronRight from 'virtual:icons/material-symbols-light/chevron-right'
+  import MslExpandMore from 'virtual:icons/material-symbols-light/expand-more'
 
   let {
     isCollapsed = false,
@@ -10,9 +11,11 @@
 
 <button class="caret-button" onclick={onToggle} style="zoom: {zoom}; display: flex; align-items: center; justify-content: center;">
   <div class="caret-icon flexbox content-center">
-    <Icon 
-      icon={isCollapsed ? 'material-symbols-light:chevron-right' : 'material-symbols-light:expand-more'} 
-    />
+    {#if isCollapsed}
+      <MslChevronRight />
+    {:else}
+      <MslExpandMore />
+    {/if}
   </div>
 </button>
 

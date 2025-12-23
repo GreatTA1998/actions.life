@@ -1,7 +1,7 @@
 <script>
   import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
   import MonthYearNavigator from '$lib/components/MonthYearNavigator.svelte'
-  import Icon from '@iconify/svelte'
+  import MslCasinoOutline from 'virtual:icons/material-symbols-light/casino-outline'
   import { user, updateCache, openTaskPopup } from '$lib/store/index.js'
   import { onMount, onDestroy} from 'svelte'
   import { DateTime } from 'luxon'
@@ -118,7 +118,7 @@
       onclick={showRandomPhotos}
       title="Show random photos"
     >
-      <Icon icon="material-symbols-light:casino-outline" style="font-size: 22px;"/>
+      <MslCasinoOutline style="font-size: 1.375rem;"/>
     </button>
   </div>
   

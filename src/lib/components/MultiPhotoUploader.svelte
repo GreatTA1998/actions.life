@@ -2,7 +2,7 @@
   <!-- `align-items: center` is a quickfix related to mystery height, probably from the invisible input -->
   <div style="display: flex; align-items: center;">
     <button onclick={openFolderInput} class="responsive-icon-size flexbox content-center">
-      <Icon icon="material-symbols-light:photo-library-outline" style="font-size: 2.125rem;"/>
+      <MslPhotoLibrary style="font-size: 2.125rem;"/>
     </button>
 
     <input style="display: none;" 
@@ -21,7 +21,7 @@
   import { compressImage } from '$lib/utils/imageHandling.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
-  import Icon from '@iconify/svelte'
+  import MslPhotoLibrary from 'virtual:icons/material-symbols-light/photo-library'
 
   const { Task, user } = getContext('app')
 

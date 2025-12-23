@@ -6,7 +6,7 @@
   import TimelineRenderer from './TimelineRenderer.svelte'
   import TaskMenu from './TaskMenu.svelte'
   import TaskCaret from './TaskCaret.svelte'
-  import Icon from '@iconify/svelte'
+  import MslCalendarTodayOutline from 'virtual:icons/material-symbols-light/calendar-today-outline'
   import { getRandomColor } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
@@ -86,7 +86,7 @@
         <div class:overdue={!taskObj.isDone && taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
           class="flexbox content-center"
         >
-          <Icon icon="material-symbols-light:calendar-today-outline" style="font-size: 0.875rem;"/>
+          <MslCalendarTodayOutline style="font-size: 0.875rem;"/>
         </div>
       {/if}
 

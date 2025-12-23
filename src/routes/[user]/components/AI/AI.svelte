@@ -5,7 +5,7 @@
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
   import Markdown from '$lib/components/Markdown.svelte'
-  import Icon from '@iconify/svelte'
+  import MslArrowUpward from 'virtual:icons/material-symbols-light/arrow-upward'
 
   const { Task } = getContext('app')
 
@@ -116,7 +116,7 @@
     />
 
     <button onclick={addMessage} class="submit-button">
-      <Icon icon="material-symbols-light:arrow-upward" style="font-size: 1.5rem;"/>
+      <MslArrowUpward style="font-size: 1.5rem;"/>
     </button>
   </div>
 </div>

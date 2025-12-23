@@ -3,7 +3,8 @@
   import { treesByDate } from './service.js'
   import { WIDTHS } from '$lib/utils/constants.js'
   import { DateTime } from 'luxon'
-  import Icon from '@iconify/svelte'
+  import MslExpandLess from 'virtual:icons/material-symbols-light/expand-less'
+  import MslExpandMore from 'virtual:icons/material-symbols-light/expand-more'
 
   let {
     viewportLeft,
@@ -44,7 +45,11 @@
     <button onclick={() => headerExpanded.set(!$headerExpanded)}
       class="collapse-arrow"
     >
-      <Icon icon={$headerExpanded ? "material-symbols-light:expand-less" : "material-symbols-light:expand-more"} style="font-size: 26px;"/>
+      {#if $headerExpanded}
+        <MslExpandLess style="font-size: 26px;"/>
+      {:else}
+        <MslExpandMore style="font-size: 26px;"/>
+      {/if}
     </button>
   {/if} -->
 </div>

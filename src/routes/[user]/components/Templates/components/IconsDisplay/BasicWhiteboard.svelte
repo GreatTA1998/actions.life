@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte'
   import { doodleIcons } from '/src/lib/store'
-  import IconifyIcon from '@iconify/svelte'
+  import MslColorizeOutline from 'virtual:icons/material-symbols-light/colorize-outline'
   import Icon from '/src/lib/db/models/Icon.js'
   import { getRandomID } from '/src/lib/utils/core.js'
   import ColorPicker from './ColorPicker.svelte'
@@ -140,7 +140,7 @@
         style="background-color: {colorPickerColor}; display: flex; align-items: center;"
         title="Custom color"
       >
-        <IconifyIcon icon="material-symbols-light:colorize-outline" style="font-size: 1rem;"/>
+        <MslColorizeOutline style="font-size: 1rem;"/>
       </div>
     </div>
 

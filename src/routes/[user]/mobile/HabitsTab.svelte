@@ -2,7 +2,7 @@
   import HabitsTabFullDetails from './HabitsTabFullDetails.svelte'
   import TemplatePopup from '../components/Templates/components/TemplatePopup/TemplatePopup.svelte'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
-  import Icon from '@iconify/svelte'
+  import MslMoreHoriz from 'virtual:icons/material-symbols-light/more-horiz'
   import { openTemplateEditor, templates, popup } from '../components/Templates/store.js'
   import { formatHours } from '$lib/utils/core.js'
   import { collection, onSnapshot } from 'firebase/firestore'
@@ -89,7 +89,7 @@
 
   {#snippet activator({ setPosition, popovertarget })}
     <button {popovertarget} onclick={setPosition} class="routine-compact more-button">
-      <Icon icon="material-symbols-light:more-horiz" style="font-size: var(--font-size-xxl);"/>
+      <MslMoreHoriz style="font-size: var(--font-size-xxl);"/>
     </button>
   {/snippet}
 

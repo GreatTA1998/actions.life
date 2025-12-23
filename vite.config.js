@@ -1,5 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite'
 import { SvelteKitPWA } from '@vite-pwa/sveltekit'
+import Icons from 'unplugin-icons/vite'
 import devtoolsJson from 'vite-plugin-devtools-json'
 
 export default {
@@ -9,7 +10,10 @@ export default {
 
   plugins: [
     sveltekit(),
-
+    Icons({
+      compiler: 'svelte'
+    }),
+    devtoolsJson(), // stops Google warning (also potentially useful for debugging)
     SvelteKitPWA({
       manifest: {
         name: 'actions.life',
@@ -33,8 +37,6 @@ export default {
           }
         ]
       }
-    }),
-
-    devtoolsJson()
+    })
   ]
 }

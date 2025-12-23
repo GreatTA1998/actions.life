@@ -1,6 +1,6 @@
 <script>
   import { releaseImage } from '$lib/db/helpers.js'
-  import Icon from '@iconify/svelte'
+  import MslNoPhotographyOutline from 'virtual:icons/material-symbols-light/no-photography-outline'
   import { getContext } from 'svelte'
 
   const { Task, user } = getContext('app')
@@ -26,7 +26,7 @@
 <button onclick={() => confirmDeletePhoto(taskObject)} 
   class="photo-row-action" 
 >
-  <Icon icon="material-symbols-light:no-photography-outline" style="font-size: 1.125rem;"/>
+  <MslNoPhotographyOutline style="font-size: 1.125rem;"/>
   <span class="photo-row-label">Remove photo</span>
 </button>
 

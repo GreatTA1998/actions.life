@@ -9,7 +9,7 @@
   import TemplateEditor from './TemplateEditor.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
-  import Icon from '@iconify/svelte'
+  import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
@@ -131,7 +131,7 @@
 
     <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
       <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button action-button">
-        <Icon icon="material-symbols-light:delete-outline" style="font-size: var(--popup-control);"/>
+        <MslDeleteOutline style="font-size: var(--popup-control);"/>
         <span class="tooltip">Delete this task and all its children</span>
       </button>
     </div>
