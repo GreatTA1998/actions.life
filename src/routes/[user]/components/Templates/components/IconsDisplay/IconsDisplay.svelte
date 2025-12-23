@@ -1,6 +1,5 @@
 <script>
   import BasicWhiteboard from './BasicWhiteboard.svelte'
-  import IconifyIcon from '@iconify/svelte'
   import Icon from '$lib/db/models/Icon.js'
   import Template from '$lib/db/models/Template.js'
   import { template } from '../../store.js'
@@ -41,7 +40,7 @@
 
           <!-- {#if doodleIcon.createdBy === $user.uid && $template.iconURL === doodleIcon.url}
             <button onclick={() => handleDeleteIcon({ doodleIcon })} class="delete">
-              <IconifyIcon icon="material-symbols-light:delete-outline" style="font-size: 12px;"/>
+              Delete
             </button>
           {/if} -->
         </div>

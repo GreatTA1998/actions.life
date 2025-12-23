@@ -1,9 +1,13 @@
 <script>
-  import ToggleGroup from '$lib/components/ToggleGroup.svelte'
+  import ToggleGroupStyled from '$lib/components/ToggleGroupStyled.svelte'
   import CheckboxSquare from '$lib/components/CheckboxSquare.svelte'
-  import { photoLayoutOptions, defaultPhotoLayout } from '$lib/store/photoLayout.js'
+  import { defaultPhotoLayout } from '$lib/store/photoLayout.js'
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
   import { getContext } from 'svelte'
+
+  import MslSplitscreenLeft from 'virtual:icons/material-symbols-light/splitscreen-left'
+  import MslSplitscreenTop from 'virtual:icons/material-symbols-light/splitscreen-top'
+  import MslFullscreenPortrait from 'virtual:icons/material-symbols-light/fullscreen-portrait'
 
   const { user } = getContext('app')
 
@@ -28,11 +32,17 @@
 
 <div class="photo-settings">  
   <div class="layout-options">
-    <ToggleGroup options={photoLayoutOptions} 
-      onselect={newValue => updateDefaultPhotoLayout(newValue)} 
-      activeValue={$defaultPhotoLayout}
-      useIcons
-    />
+    <ToggleGroupStyled>
+      <button onclick={() => updateDefaultPhotoLayout('side-by-side')} class="toggle-btn" class:active={$defaultPhotoLayout === 'side-by-side'}>
+        <MslSplitscreenLeft style="font-size: 1.25rem;"/>
+      </button>
+      <button onclick={() => updateDefaultPhotoLayout('top-and-below')} class="toggle-btn" class:active={$defaultPhotoLayout === 'top-and-below'}>
+        <MslSplitscreenTop style="font-size: 1.25rem;"/>
+      </button>
+      <button onclick={() => updateDefaultPhotoLayout('full-photo')} class="toggle-btn" class:active={$defaultPhotoLayout === 'full-photo'}>
+        <MslFullscreenPortrait style="font-size: 1.25rem;"/>
+      </button>
+    </ToggleGroupStyled>
   </div>
 
   <CheckboxSquare onClick={() => toggle('photoUploadAutoArchive')}

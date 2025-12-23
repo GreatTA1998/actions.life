@@ -1,45 +1,28 @@
 <script>
-  import Icon from '@iconify/svelte'
+  import ToggleGroupStyled from '$lib/components/ToggleGroupStyled.svelte'
   let {
     onselect,
     options = [],
-    activeValue,
-    useIcons = false // but used by photo layout settings
+    activeValue
   } = $props()
 </script>
 
-<div class="toggle-group">
+<ToggleGroupStyled>
   {#each options as option}
     <button onclick={() => onselect(option.value)} class="toggle-btn" class:active={option.value === activeValue}>
-      {#if useIcons}
-        <Icon icon={'material-symbols-light:' + option.icon.replaceAll('_', '-')} style="font-size: 1.25rem;"/>
-      {:else}
-        {option.text}
-      {/if}
+      {option.text}
     </button>
   {/each}
-</div>
+</ToggleGroupStyled>
 
 <style>
-  .toggle-group {
-    display: flex;
-    background: #f6f6f7;
-    border-radius: 6px;
-    padding: 2px;
-    gap: 0;
-    margin: 4px 0;
-  }
 
   .toggle-btn {
     flex: 1;
     padding: 6px 0;
-    border: none;
-    background: transparent;
     color: #6e6e7a;
     border-radius: 4px;
-    font-size: 14px;
-    font-weight: 400;
-    cursor: pointer;
+    font-size: 0.875rem;
     transition: background 0.15s, color 0.15s;
   }
 

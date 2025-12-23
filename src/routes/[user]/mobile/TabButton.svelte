@@ -1,20 +1,13 @@
 <script>
-  import Icon from '@iconify/svelte'
-
   let {
-    icon,
     active = false,
-    onclick = () => {}
+    onclick = () => {},
+    children
   } = $props()
 </script>
 
-<button 
-  class="tab-button flexbox" 
-  class:active={active}
-  onclick={onclick}
->
-  <!-- <Icon icon="material-symbols-light:calendar-month" style="font-size: 1.8rem;"/> -->
-  <Icon icon="material-symbols-light:{icon}" style="font-size: 1.8rem;"/>
+<button {onclick} class="tab-button" class:active={active}> 
+  {@render children()}
 </button>
 
 <style>
