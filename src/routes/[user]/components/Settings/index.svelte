@@ -7,13 +7,12 @@
   import GoogleCalendarSelector from '$lib/components/GoogleCalendarSelector.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
   import Icon from '@iconify/svelte'
-  import { getAuth, signOut } from 'firebase/auth'
+  import { signOut } from 'firebase/auth'
   import { goto } from '$app/navigation'
-  import { user } from '$lib/store'
+  import { user, firebaseAuth } from '$lib/store'
 
-  function handleLogoClick() {
-    const auth = getAuth()
-    signOut(auth).catch(console.error)
+  async function handleLogoClick() {
+    await signOut($firebaseAuth)
     goto('/')
   }
 </script>

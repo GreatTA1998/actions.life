@@ -86,7 +86,7 @@
         <div class:overdue={!taskObj.isDone && taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
           class="flexbox content-center"
         >
-          <Icon icon="material-symbols-light:calendar-today" style="font-size: 0.75rem;"/>
+          <Icon icon="material-symbols-light:calendar-today-outline" style="font-size: 0.875rem;"/>
         </div>
       {/if}
 

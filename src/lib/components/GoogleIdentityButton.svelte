@@ -1,12 +1,15 @@
 
 <script>
-  import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
+  import { signInWithPopup, GoogleAuthProvider, browserPopupRedirectResolver } from 'firebase/auth'
+  import { firebaseAuth } from '$lib/store'
 
   async function signInWithGoogle () {
-    const auth = getAuth();
     try {
-      const provider = new GoogleAuthProvider()
-      const result = await signInWithPopup(auth, provider)
+      const result = await signInWithPopup(
+        $firebaseAuth,
+        new GoogleAuthProvider(),
+        browserPopupRedirectResolver
+      )
       // This gives you a Google Access Token. You can use it to access the Google API.
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;

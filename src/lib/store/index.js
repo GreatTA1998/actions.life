@@ -10,6 +10,7 @@ export { calSnapInterval, timestamps } from '/src/routes/[user]/components/Calen
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
 
+export const firebaseAuth = writable(null)
 export const activeView = writable('CALENDAR')
 export const tasksCache = writable({})
 

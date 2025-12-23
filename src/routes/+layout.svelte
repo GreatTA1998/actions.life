@@ -1,11 +1,10 @@
 <script>
-  import '$lib/db/init.js'
   import AppContext from './AppContext.svelte'
-  import { user, authChecked, loggedIn } from '$lib/store'
+  import { user, authChecked, loggedIn, firebaseAuth } from '$lib/store'
   import posthog from 'posthog-js'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
-  import { getAuth, onAuthStateChanged } from 'firebase/auth'
+  import { onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
   import { isMobile } from '$lib/utils/core.js'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
@@ -18,9 +17,10 @@
   let { children } = $props()
 
   onMount(() => {
+    console.timeEnd('client hook vs layout mount')
     translateJSConstantsToCSSVariables()
 
-    onAuthStateChanged(getAuth(), async (resultUser) => {
+    onAuthStateChanged($firebaseAuth, async (resultUser) => {
       authChecked.set(true) // from cookie, takes around 300 - 500ms
       
       if (page.url.pathname.startsWith('/legal')) return
