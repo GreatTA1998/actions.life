@@ -45,6 +45,8 @@ const Task = {
 
   create: async ({ id, newTaskObj, optimistic = true }) => {
     try {
+      if (firestoreOffline()) return alert('Currently offline')
+      
       const validatedTask = Task.schema.parse(newTaskObj)
       const { parentID, startDateISO } = validatedTask
       const parent = get(tasksCache)[parentID]
@@ -78,6 +80,8 @@ const Task = {
 
   update: async ({ id, keyValueChanges }) => {
     try {
+      if (firestoreOffline()) return alert('Currently offline')
+    
       const batch = writeBatch(db)
       const validatedChanges = Task.schema.partial().parse(keyValueChanges)
 
@@ -100,6 +104,8 @@ const Task = {
 
   delete: async ({ id }) => {
     return new Promise(async (resolve) => {
+      if (firestoreOffline()) return resolve(alert('Currently offline'))
+
       const taskObj = get(tasksCache)[id]
       const treeNodes = await getSubtreeNodes(taskObj)
 
@@ -249,6 +255,10 @@ function maintainOrderValue (validatedObj, batch) {
       maxOrderValue: increment(diff)
     })
   }
+}
+
+function firestoreOffline () {
+  return !navigator.onLine // not synced with Firestore but temporary solution until Supabase
 }
 
 export default Task

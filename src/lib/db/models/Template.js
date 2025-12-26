@@ -4,7 +4,7 @@ import { getAffectedInstances } from '/src/routes/[user]/components/Templates/co
 import { db } from '$lib/db/init.js'
 import { updateFirestoreDoc, deleteFirestoreDoc, releaseImage, getFirestoreCollection } from '$lib/db/helpers.js'
 import { user } from '$lib/store'
-import { doc, getDocs, collection, query, setDoc, where } from 'firebase/firestore'
+import { doc, getCountFromServer, sum, getAggregateFromServer, collection, query, setDoc, where } from 'firebase/firestore'
 import { get } from 'svelte/store'
 
 const Template = {
@@ -76,11 +76,13 @@ const Template = {
         where('templateID', '==', id), 
         where('isDone', '==', true)
       )
-      const snapshot = await getDocs(q)
-      resolve({
-        minutesSpent: snapshot.docs.reduce((acc, doc) => acc + doc.data().duration, 0),
-        timesCompleted: snapshot.docs.length
-      })
+      const [count, minutesSpent] = await Promise.all([
+        getCountFromServer(q).then(snapshot => snapshot.data().count),
+        getAggregateFromServer(q, {
+          minutesSpent: sum('duration')
+        }).then(snapshot => snapshot.data().minutesSpent)
+      ])
+      resolve({ minutesSpent, timesCompleted: count })
     })
   }
 }

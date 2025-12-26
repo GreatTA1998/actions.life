@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore, persistentLocalCache, persistentSingleTabManager } from 'firebase/firestore'
 import { initializeAuth, browserLocalPersistence, indexedDBLocalPersistence } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -13,7 +13,12 @@ const firebaseConfig = {
 }
 
 const app = initializeApp(firebaseConfig)
-const db = getFirestore(app, 'schema-compliant')
+
+const db = initializeFirestore(app, 
+  { localCache: persistentLocalCache({ tabManager: persistentSingleTabManager() }) }, 
+  'schema-compliant'
+)
+
 const auth = initializeAuth(app, {
   persistence: [indexedDBLocalPersistence, browserLocalPersistence]
 })

@@ -5,7 +5,6 @@ import {
 import { db } from './init'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
 
-// Helpers all have the `firestore` prefix
 export function firestoreRef (path) {
   return doc(db, path)
 }
