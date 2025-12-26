@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 
 const db = initializeFirestore(app, 
-  { localCache: persistentLocalCache({ tabManager: persistentSingleTabManager() }) }, 
+  { /* localCache: persistentLocalCache({ tabManager: persistentSingleTabManager() }) */ }, 
   'schema-compliant'
 )
 
