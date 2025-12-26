@@ -2,7 +2,7 @@
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
   import { user, calSnapInterval } from '$lib/store'
 
-  const snapIntervals = [1, 5, 10, 15, 30]
+  const snapIntervals = [1, 5, 10, 15, 30, 60]
 
   function updateSettings (interval) {
     updateFirestoreDoc(`users/${$user.uid}`, { calSnapInterval: interval })
@@ -11,7 +11,7 @@
 
 <div class="gridlines-container">
   <div class="snap-settings">
-    <div class="snap-label">Snap to interval</div>
+    <div class="snap-label">Snap start time to nearest</div>
     <div class="interval-selector">
       <div class="interval-buttons">
         {#each snapIntervals as interval}
@@ -43,9 +43,8 @@
   }
 
   .snap-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: #555;
+    font-size: 0.875rem;
+    font-weight: 400;
   }
 
   .interval-selector {

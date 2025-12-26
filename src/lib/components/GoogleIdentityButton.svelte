@@ -3,6 +3,8 @@
   import { signInWithPopup, GoogleAuthProvider, browserPopupRedirectResolver } from 'firebase/auth'
   import { firebaseAuth } from '$lib/store'
 
+  let { name = 'Continue with Google', onclick = signInWithGoogle, disabled = false } = $props()
+
   async function signInWithGoogle () {
     try {
       const result = await signInWithPopup(
@@ -32,7 +34,7 @@
   }
 </script>
 
-<button onclick={signInWithGoogle} class="gsi-material-button">
+<button {onclick} {disabled} class="gsi-material-button">
   <div class="gsi-material-button-state"></div>
   <div class="gsi-material-button-content-wrapper">
     <div class="gsi-material-button-icon">
@@ -44,8 +46,8 @@
         <path fill="none" d="M0 0h48v48H0z"></path>
       </svg>
     </div>
-    <span class="gsi-material-button-contents">Continue with Google</span>
-    <span style="display: none;">Continue with Google</span>
+    <span class="gsi-material-button-contents">{name}</span>
+    <span style="display: none;">{name}</span>
   </div>
 </button>
 

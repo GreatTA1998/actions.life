@@ -1,5 +1,6 @@
 <script>
   import { initiateGoogleConnect, loadGoogleIdentityServices } from '$lib/utils/googleGIS'
+  import GoogleIdentityButton from '$lib/components/GoogleIdentityButton.svelte'
   import { user } from '$lib/store'
   
   // TODO: Replace with your actual Client ID or import from a config file
@@ -50,7 +51,7 @@
   {:else}
     <div class="connected-status">
       <span class="checkmark">✓</span>
-      Connected to Google Calendar
+      <GoogleIdentityButton name="Successfully connected" onclick={() => {}} disabled/>
     </div>
   {/if}
 </div>
@@ -70,10 +71,8 @@
     border: 1px solid #dadce0;
     border-radius: 4px;
     padding: 8px 16px;
-    font-family: 'Google Sans', Roboto, Arial, sans-serif;
     font-weight: 500;
     font-size: 0.875rem;
-    cursor: pointer;
     transition: background-color 0.2s, box-shadow 0.2s;
   }
 
@@ -98,12 +97,6 @@
     margin-top: 4px;
   }
 
-  .buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
   .fetch-calendars-btn {
     background-color: #1a73e8;
     color: white;
@@ -124,20 +117,6 @@
     cursor: not-allowed;
   }
 
-  .test-btn {
-    background-color: #f1f3f4;
-    color: #3c4043;
-    border: 1px solid #dadce0;
-    border-radius: 4px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  .test-btn:hover {
-    background-color: #e8eaed;
-  }
-
   .connected-status {
     display: inline-flex;
     align-items: center;
@@ -145,7 +124,6 @@
     color: #188038; /* Google Green */
     font-weight: 500;
     font-size: 0.875rem;
-    padding: 8px 0;
   }
 
   .connected-status .checkmark {

@@ -31,19 +31,17 @@
 </script>
 
 <div class="photo-settings">  
-  <div class="layout-options">
-    <ToggleGroupStyled>
-      <button onclick={() => updateDefaultPhotoLayout('side-by-side')} class="toggle-btn" class:active={$defaultPhotoLayout === 'side-by-side'}>
-        <MslSplitscreenLeft style="font-size: 1.25rem;"/>
-      </button>
-      <button onclick={() => updateDefaultPhotoLayout('top-and-below')} class="toggle-btn" class:active={$defaultPhotoLayout === 'top-and-below'}>
-        <MslSplitscreenTop style="font-size: 1.25rem;"/>
-      </button>
-      <button onclick={() => updateDefaultPhotoLayout('full-photo')} class="toggle-btn" class:active={$defaultPhotoLayout === 'full-photo'}>
-        <MslFullscreenPortrait style="font-size: 1.25rem;"/>
-      </button>
-    </ToggleGroupStyled>
-  </div>
+  <ToggleGroupStyled>
+    <button onclick={() => updateDefaultPhotoLayout('side-by-side')} class="toggle-btn" class:active={$defaultPhotoLayout === 'side-by-side'}>
+      <MslSplitscreenLeft style="font-size: 1.25rem;"/>
+    </button>
+    <button onclick={() => updateDefaultPhotoLayout('top-and-below')} class="toggle-btn" class:active={$defaultPhotoLayout === 'top-and-below'}>
+      <MslSplitscreenTop style="font-size: 1.25rem;"/>
+    </button>
+    <button onclick={() => updateDefaultPhotoLayout('full-photo')} class="toggle-btn" class:active={$defaultPhotoLayout === 'full-photo'}>
+      <MslFullscreenPortrait style="font-size: 1.25rem;"/>
+    </button>
+  </ToggleGroupStyled>
 
   <CheckboxSquare onClick={() => toggle('photoUploadAutoArchive')}
     value={$user.photoUploadAutoArchive}
@@ -57,16 +55,21 @@
 </div>
 
 <style>
+  .toggle-btn {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+  } 
+
+  .toggle-btn.active {
+    background: #e3e6ee;
+    color: #1a1a1a;
+    font-weight: 500;
+  }
+
   .photo-settings {
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-  
-  .layout-options {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    width: 100%;
   }
 </style>
