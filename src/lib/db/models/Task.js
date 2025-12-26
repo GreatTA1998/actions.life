@@ -8,29 +8,8 @@ import {
   onSnapshot, doc 
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
-import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
+import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
 import { showUndoSnackbar } from '$lib/store'
-
-function maintainOrderValue (validatedObj, batch) {
-  const { maxOrderValue, uid } = get(user)
-  if (!validatedObj.orderValue) {
-    validatedObj.orderValue = maxOrderValue + 1 // k = 1
-  }
-  const diff = validatedObj.orderValue - maxOrderValue
-  if (diff > 0) {
-    batch.update(doc(db, 'users', uid), { 
-      maxOrderValue: increment(diff)
-    })
-  }
-}
-
-export function isValidISODate (dateStr) {
-  if (dateStr === '') return true
-  const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/
-  if (!isoFormatRegex.test(dateStr)) return false
-  const date = new Date(dateStr)
-  return !isNaN(date.getTime())
-}
 
 const Task = {
   schema: z.object({
@@ -38,8 +17,7 @@ const Task = {
     duration: z.number().default(30),
     parentID: z.string().default(''),
     startTime: z.string().default(''),
-    startDateISO: z.string()
-      .default('')
+    startDateISO: z.string().default('')
       .refine(isValidISODate, {
         message: 'startDateISO is not in proper yyyy-MM-dd format'
       })
@@ -58,45 +36,35 @@ const Task = {
     childrenLayout: z.string().default('normal'), // 'normal' (renaming to 'list' but requires proper migration) or 'timeline'
     photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'thumbnail'
     isCollapsed: z.boolean().default(false),
-
-    orderValue: z.number().optional(), // must be maintained
-
-    treeISOs: z.array(z.string()).optional(), // must be maintained
-    rootID: z.string().optional() // must be maintained
+    
+    // maintained fields
+    orderValue: z.number().optional(),
+    treeISOs: z.array(z.string()).optional(), 
+    rootID: z.string().optional() 
   }),
 
-  // danger: relies on `tasksCache`
   create: async ({ id, newTaskObj, optimistic = true }) => {
     try {
       const validatedTask = Task.schema.parse(newTaskObj)
+      const { parentID, startDateISO } = validatedTask
+      const parent = get(tasksCache)[parentID]
+
       const { uid } = get(user)
       const batch = writeBatch(db)
-      const result = await maintainTreeISOsForCreate({ task: validatedTask, batch })
-      let treeISOs = []
-  
-      // for backwards compatibility
-      if (result && typeof result === 'object' && Array.isArray(result.treeISOs)) {
-        treeISOs = result.treeISOs
-      } 
-      else if (Array.isArray(result)) {
-        treeISOs = result
-      }
 
-      let rootID = id
-      if (validatedTask.parentID) {
-        const parent = get(tasksCache)[validatedTask.parentID]
-        rootID = parent?.rootID || id
+      let treeISOs = [...(parent?.treeISOs ?? []), startDateISO].filter(Boolean)
+      if (startDateISO && parent) { // currently impossible via UI to create a scheduled subtask directly
+        await updateEntireTree({ batch, parent, treeISOs })
       }
-
       maintainOrderValue(validatedTask, batch)
 
       batch.set(doc(db, `users/${uid}/tasks/${id}`), { 
         ...validatedTask,
         treeISOs, 
-        rootID
+        rootID: parent ? parent.rootID : id
       })
       
-      if (optimistic) batch.commit() // for a snappier user experience we don't use `await` for now
+      if (optimistic) batch.commit()
       else await batch.commit() 
 
       return validatedTask
@@ -116,8 +84,8 @@ const Task = {
       if (validatedChanges.orderValue) {
         maintainOrderValue(validatedChanges,batch)
       }
-      
       await maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
+
       batch.update(
         doc(db, `users/${get(user).uid}/tasks/${id}`), 
         validatedChanges
@@ -259,6 +227,27 @@ const Task = {
     const startDate = "2000-01-01"
     const endDate = "2100-12-31"
     return Task.getTasksJSONByRange(uid, startDate, endDate)
+  }
+}
+
+export function isValidISODate (dateStr) {
+  if (dateStr === '') return true
+  const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/
+  if (!isoFormatRegex.test(dateStr)) return false
+  const date = new Date(dateStr)
+  return !isNaN(date.getTime())
+}
+
+function maintainOrderValue (validatedObj, batch) {
+  const { maxOrderValue, uid } = get(user)
+  if (!validatedObj.orderValue) {
+    validatedObj.orderValue = maxOrderValue + 1 // k = 1
+  }
+  const diff = validatedObj.orderValue - maxOrderValue
+  if (diff > 0) {
+    batch.update(doc(db, 'users', uid), { 
+      maxOrderValue: increment(diff)
+    })
   }
 }
 
