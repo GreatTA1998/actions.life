@@ -1,7 +1,6 @@
 <script>
   import ScheduleTab from './ScheduleTab.svelte'
   import HabitsTab from './HabitsTab.svelte'
-  import AI from '../components/AI/AI.svelte'
   import ArchiveTab from './ArchiveTab.svelte'
   import PhotoGrid from '../components/Archive/PhotoGrid.svelte'
   import TabButton from './TabButton.svelte'
@@ -9,9 +8,8 @@
   import MslRepeat from 'virtual:icons/material-symbols-light/repeat'
   import MslPhotoCameraBackOutline from 'virtual:icons/material-symbols-light/photo-camera-back-outline'
   import MslArchiveOutline from 'virtual:icons/material-symbols-light/archive-outline'
-  import MslSmartToyOutline from 'virtual:icons/material-symbols-light/smart-toy-outline'
 
-  let activeTab = $state('date') // 'date', 'habits', 'ai', 'search', 'archive', 'photos'
+  let activeTab = $state('date') // 'date', 'habits', 'archive', 'photos'
 </script>
 
 <div class="discover-container">
@@ -29,9 +27,6 @@
       <TabButton active={activeTab === 'archive'} onclick={() => activeTab = 'archive'}>  
         <MslArchiveOutline style="font-size: 1.8rem;"/>
       </TabButton>
-      <TabButton active={activeTab === 'ai'} onclick={() => activeTab = 'ai'}>  
-        <MslSmartToyOutline style="font-size: 1.8rem;"/>
-      </TabButton>
     </div>
   </div>
 
@@ -40,10 +35,6 @@
       <ScheduleTab />
     {:else if activeTab === 'habits'}
       <HabitsTab />
-    {:else if activeTab === 'ai'}
-      <div style="height: 100%;">
-        <AI />
-      </div>
     {:else if activeTab === 'archive'}
       <ArchiveTab />
     {:else if activeTab === 'photos'}
