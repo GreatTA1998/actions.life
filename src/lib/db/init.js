@@ -1,3 +1,4 @@
+// WARNING: must restart the server for ANY little change in this file, since HMR will re-run and persistentLocalCache()'s config output is non-identical
 import { initializeApp } from 'firebase/app'
 import { initializeFirestore, persistentLocalCache, persistentSingleTabManager } from 'firebase/firestore'
 import { initializeAuth, browserLocalPersistence, indexedDBLocalPersistence } from 'firebase/auth'
