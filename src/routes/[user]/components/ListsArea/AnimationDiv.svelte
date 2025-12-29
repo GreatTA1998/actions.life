@@ -6,7 +6,7 @@
   } = $props()
 </script>
 
-<div 
+<div
   style="
     width: {listWidth}px; 
     view-transition-name: list-{id};
@@ -20,7 +20,7 @@
   /* View Transition API styles for smooth list repositioning 
     Decided on easeInOutCirc
     @see https://emilkowal.ski/ui/7-practical-animation-tips
-    @see ttps://easings.co/
+    @see https://easings.co/
   */
   @supports (view-transition-name: none) {
     ::view-transition-group(*) {
