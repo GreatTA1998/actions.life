@@ -22,19 +22,15 @@ export async function maintainTreeISOs ({ id, batch, keyValueChanges: changes })
 }
 
 async function hasChangedFamily ({ task, changes }) {
-  const { parentID } = changes
-  const parentChanged = (parentID !== undefined && parentID !== task.parentID)
-  
-  let rootChanged = false
-  if (parentChanged) {
+  if (changes.parentID === undefined) return false
+  else if (changes.parentID === task.parentID) return false
+  else {
     const [oldRoot, newRoot] = await Promise.all([
       getRoot(task),
-      getRoot(get(tasksCache)[parentID])
+      getRoot(get(tasksCache)[changes.parentID])
     ])
-    rootChanged = oldRoot !== newRoot
+    return oldRoot !== newRoot
   }
-  
-  return parentChanged && rootChanged
 }
 
 export async function handleCrossTree ({ task, changes, batch }) {
@@ -75,7 +71,7 @@ export async function handleCrossTree ({ task, changes, batch }) {
 }
 
 export async function handleSameTree ({ task, changes, batch }) {
-  const root = await getRoot(task) // same tree => root is in cache?
+  const root = await getRoot(task)
   const treeNodes = await getSubtreeNodes(root)
   batchUpdate({ 
     nodes: treeNodes,
@@ -104,6 +100,8 @@ function batchUpdate ({ nodes, treeISOs, batch, rootID }) {
 }
 
 export async function getRoot (task) {
+  if (task === undefined) return undefined
+  
   const cacheResult = get(tasksCache)[task.rootID]
   if (cacheResult) return cacheResult
   else {
@@ -115,6 +113,8 @@ export async function getRoot (task) {
 }
 
 export async function getSubtreeNodes (task) {
+  if (task === undefined) return []
+
   const tasksSnapshot = await getDocs(
     query(
       collection(db, `/users/${get(user).uid}/tasks`),

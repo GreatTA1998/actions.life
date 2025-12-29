@@ -12,7 +12,7 @@ export { user } from './userStore.js'
 
 export const firebaseAuth = writable(null)
 export const activeView = writable('CALENDAR')
-export const tasksCache = writable({})
+export const tasksCache = writable({}) // id -> Task, '' -> undefined
 
 // NOTE: this must be called for every listener, otherwise unexpected code that relies on `tasksCache` will break
 // latest bug was due to `updateCache` not being used for the itinerary listener. 
