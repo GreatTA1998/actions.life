@@ -88,7 +88,6 @@
   }
 </script>
 
-<!-- contain: layout; -->
 {#if Object.keys($treesByDate).length > 0}
   <div 
     class="relative z-0 grid h-full" 

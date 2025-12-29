@@ -213,7 +213,7 @@
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
   }
 
-  /* navbar > task-popup > calendar > list area */
+  /* navbar > task-popup > calendar > each list-{id} */
   :global(::view-transition-group(task-popup)) {
     z-index: 3;
   }
