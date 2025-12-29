@@ -249,6 +249,11 @@
     animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
   }
 
+  :global(::view-transition-old(.static-ui)) {
+    opacity: 0;
+    animation: none; /* New is visible by default when old is hidden */
+  }
+
   :global(::view-transition-new(.static-ui)) {
     animation: none;
   }
