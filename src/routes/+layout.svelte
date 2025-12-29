@@ -43,7 +43,6 @@
 
 <div>
   <div
-    id="loading-screen-logo-start"
     style="z-index: 99; background: var(--offwhite-bg); width: 100vw; height: 100vh"
     class="center"
     class:invisible={$authChecked && (!$loggedIn || $loggedIn && $user.uid && Object.keys($treesByDate).length > 0)}
@@ -215,7 +214,7 @@
   }
 
   /* navbar > task-popup > calendar > list area */
-  /* :global(::view-transition-group(task-popup)) {
+  :global(::view-transition-group(task-popup)) {
     z-index: 3;
   }
 
@@ -225,7 +224,7 @@
 
   :global(::view-transition-group(calendar)) {
     z-index: 1;
-  } */
+  }
 
   /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */
   :global(.highlighted-option) {
