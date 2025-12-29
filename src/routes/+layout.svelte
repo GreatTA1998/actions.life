@@ -251,10 +251,12 @@
 
   :global(::view-transition-old(.static-ui)) {
     opacity: 0;
+    animation-duration: 0s;
     animation: none; /* New is visible by default when old is hidden */
   }
 
-  :global(::view-transition-new(.static-ui)) {
+  :global(::view-transition-new(.static-ui)) {   
+    animation-duration: 0s;
     animation: none;
   }
 
