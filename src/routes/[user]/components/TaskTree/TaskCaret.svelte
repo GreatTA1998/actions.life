@@ -7,9 +7,13 @@
     onToggle = () => {},
     zoom = 1
   } = $props()
+
+  function animatedToggle () {
+    document.startViewTransition(onToggle)
+  }
 </script>
 
-<button class="caret-button" onclick={onToggle} style="zoom: {zoom}; display: flex; align-items: center; justify-content: center;">
+<button class="caret-button" onclick={animatedToggle} style="zoom: {zoom}; display: flex; align-items: center; justify-content: center;">
   <div class="caret-icon flexbox content-center">
     {#if isCollapsed}
       <MslChevronRight />
