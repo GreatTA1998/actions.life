@@ -251,6 +251,7 @@
 
   :global(::view-transition-group(.static-ui)) {
     animation: none;
+    animation-duration: 0s;
   }
 
   :global(::view-transition-image-pair(.static-ui)) {
@@ -260,11 +261,19 @@
   :global(::view-transition-old(.static-ui)),
   :global(::view-transition-new(.static-ui)) {
     animation: none;
-    mix-blend-mode: normal;
+    mix-blend-mode: normal; /* overrides plus-lighter */ 
     display: block;
     /* opacity: 0;
     animation-duration: 0s;
     animation: none;  */
+  }
+
+  :global(::view-transition-new(.static-ui)) {
+    opacity: 1;
+  }
+
+  :global(::view-transition-old(.static-ui)) {
+    display: none;
   }
 
   /* :global(::view-transition-new(.static-ui)) {   
