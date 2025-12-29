@@ -1,6 +1,6 @@
 // WARNING: must restart the server for ANY little change in this file, since HMR will re-run and persistentLocalCache()'s config output is non-identical
 import { initializeApp } from 'firebase/app'
-import { initializeFirestore, persistentLocalCache, persistentSingleTabManager } from 'firebase/firestore'
+import { initializeFirestore } from 'firebase/firestore'
 import { initializeAuth, browserLocalPersistence, indexedDBLocalPersistence } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -15,10 +15,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 
-const db = initializeFirestore(app, 
-  { localCache: persistentLocalCache({ tabManager: persistentSingleTabManager() }) }, 
-  'schema-compliant'
-)
+const db = initializeFirestore(app, {}, 'schema-compliant')
 
 const auth = initializeAuth(app, {
   persistence: [indexedDBLocalPersistence, browserLocalPersistence]
