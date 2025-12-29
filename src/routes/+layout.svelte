@@ -214,18 +214,18 @@
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
   }
 
-  :global(::view-transition-group(task-popup)) {
+  /* navbar > task-popup > calendar > list area */
+  /* :global(::view-transition-group(task-popup)) {
     z-index: 3;
   }
 
-  /* navbar > task-popup > calendar > list area */
   :global(::view-transition-group(floating-navbar)) {
     z-index: 2;
   }
 
   :global(::view-transition-group(calendar)) {
     z-index: 1;
-  }
+  } */
 
   /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */
   :global(.highlighted-option) {
