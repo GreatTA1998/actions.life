@@ -88,10 +88,11 @@
   }
 </script>
 
+<!-- contain: layout; -->
 {#if Object.keys($treesByDate).length > 0}
   <div 
     class="relative z-0 grid h-full" 
-    style="grid-template-rows: auto 1fr; view-transition-name: calendar; contain: layout;"
+    style="grid-template-rows: auto 1fr; view-transition-name: calendar;"
   >
     <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
 
