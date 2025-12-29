@@ -226,6 +226,12 @@
     z-index: 1;
   }
 
+  /* Disable the flash (cross-fade) */
+  :global(::view-transition-old(calendar)),
+  :global(::view-transition-new(calendar)) {
+    animation: none;
+  }
+
   /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */
   :global(.highlighted-option) {
     color: black !important;
