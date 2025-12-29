@@ -243,8 +243,8 @@
   }
 
   /* other view-transition-groups are just to maintain the z-index order */
-  :global(::view-transition-old(*)),
-  :global(::view-transition-new(*)) {
+  :global(::view-transition-old(calendar)),
+  :global(::view-transition-new(calendar)) {
     animation: none;
   }
 
