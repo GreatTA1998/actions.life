@@ -50,7 +50,7 @@
 
   .floating-navbar {
     view-transition-name: floating-navbar;
-    /* contain: layout; */
+    view-transition-class: static-ui;
     
     position: fixed;
     z-index: 2;
