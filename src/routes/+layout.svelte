@@ -263,9 +263,6 @@
     animation: none;
     mix-blend-mode: normal; /* overrides plus-lighter */ 
     display: block;
-    /* opacity: 0;
-    animation-duration: 0s;
-    animation: none;  */
   }
 
   :global(::view-transition-new(.static-ui)) {
@@ -275,11 +272,6 @@
   :global(::view-transition-old(.static-ui)) {
     display: none;
   }
-
-  /* :global(::view-transition-new(.static-ui)) {   
-    animation-duration: 0s;
-    animation: none;
-  } */
 
   /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */
   :global(.highlighted-option) {
