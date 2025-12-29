@@ -242,17 +242,15 @@
     animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
   }
 
-  /* other view-transition-groups are just to maintain the z-index order */
-  :global(::view-transition-old(calendar)),
-  :global(::view-transition-new(calendar)) {
-    animation: none;
-  }
-
-  /* opacity of old and new snapshot */
+  /* affects opacity */
   :global(::view-transition-old(.list-item)),
   :global(::view-transition-new(.list-item)) {
     animation-duration: 0.15s;
     animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
+  }
+
+  :global(::view-transition-new(.static-ui)) {
+    animation: none;
   }
 
   /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */
