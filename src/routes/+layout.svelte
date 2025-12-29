@@ -215,10 +215,14 @@
 
   /* navbar > task-popup > calendar > each list-{id} */
   :global(::view-transition-group(task-popup)) {
-    z-index: 3;
+    z-index: 4;
   }
 
   :global(::view-transition-group(floating-navbar)) {
+    z-index: 3;
+  }
+
+  :global(::view-transition-group(grip-handle)) {
     z-index: 2;
   }
 
@@ -226,10 +230,29 @@
     z-index: 1;
   }
 
-  /* Disable the flash (cross-fade) */
-  :global(::view-transition-old(calendar)),
-  :global(::view-transition-new(calendar)) {
+  /* Decided on easeInOutCirc
+    @see https://emilkowal.ski/ui/7-practical-animation-tips
+    @see https://easings.co/
+
+    Movement: position (left, top), size (w, h), transforms
+  */
+  :global(::view-transition-group(.list-item)) {
+    z-index: 0;
+    animation-duration: 0.15s;
+    animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
+  }
+
+  /* other view-transition-groups are just to maintain the z-index order */
+  :global(::view-transition-old(*)),
+  :global(::view-transition-new(*)) {
     animation: none;
+  }
+
+  /* opacity of old and new snapshot */
+  :global(::view-transition-old(.list-item)),
+  :global(::view-transition-new(.list-item)) {
+    animation-duration: 0.15s;
+    animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
   }
 
   /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */

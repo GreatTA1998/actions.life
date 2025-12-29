@@ -10,7 +10,7 @@
   class:w-full={orientation === 'vertical'}
 >
   <div class="resize-handle" class:horizontal={orientation === 'vertical'}>
-    <div class="resize-fab" {onpointerdown}>
+    <div class="resize-fab" {onpointerdown} style="view-transition-name: grip-handle;">
       {#if orientation === 'vertical'}
         <!-- horizontal triple lines-->
         <svg width="36" height="12" viewBox="0 0 36 12" fill="none" xmlns="http://www.w3.org/2000/svg">
