@@ -250,19 +250,27 @@
   }
 
   :global(::view-transition-group(.static-ui)) {
-    animation: none; /* Disable any size/position interpolation */
-  }
-
-  :global(::view-transition-old(.static-ui)) {
-    opacity: 0;
-    animation-duration: 0s;
-    animation: none; /* New is visible by default when old is hidden */
-  }
-
-  :global(::view-transition-new(.static-ui)) {   
-    animation-duration: 0s;
     animation: none;
   }
+
+  :global(::view-transition-image-pair(.static-ui)) {
+    isolation: auto;
+  }
+
+  :global(::view-transition-old(.static-ui)),
+  :global(::view-transition-new(.static-ui)) {
+    animation: none;
+    mix-blend-mode: normal;
+    display: block;
+    /* opacity: 0;
+    animation-duration: 0s;
+    animation: none;  */
+  }
+
+  /* :global(::view-transition-new(.static-ui)) {   
+    animation-duration: 0s;
+    animation: none;
+  } */
 
   /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */
   :global(.highlighted-option) {
