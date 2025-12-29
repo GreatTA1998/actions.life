@@ -249,6 +249,10 @@
     animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
   }
 
+  :global(::view-transition-group(.static-ui)) {
+    animation: none; /* Disable any size/position interpolation */
+  }
+
   :global(::view-transition-old(.static-ui)) {
     opacity: 0;
     animation-duration: 0s;
