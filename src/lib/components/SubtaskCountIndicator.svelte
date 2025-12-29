@@ -10,7 +10,7 @@
 </script>
 
 <button {onclick} class="subtask-progress-badge" style="color: {color};">
-  <MslCheckCircleOutline style="font-size: 0.875rem;"/>
+  <MslCheckCircleOutline style="font-size: 0.75rem;"/>
   <span style="font-size: 12px;">{subtasks.filter(child => child.isDone).length}/{subtasks.length}</span>
 </button>
 

@@ -86,7 +86,7 @@
         <div class:overdue={!taskObj.isDone && taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
           class="flexbox content-center"
         >
-          <MslCalendarTodayOutline style="font-size: 0.875rem;"/>
+          <MslCalendarTodayOutline style="font-size: 0.75rem;"/>
         </div>
       {/if}
 
