@@ -1,42 +1,32 @@
 <script>
   import ScheduleTab from './ScheduleTab.svelte'
   import HabitsTab from './HabitsTab.svelte'
-  import AI from '../components/AI/AI.svelte'
   import ArchiveTab from './ArchiveTab.svelte'
   import PhotoGrid from '../components/Archive/PhotoGrid.svelte'
   import TabButton from './TabButton.svelte'
+  import MslCalendarMonthOutline from 'virtual:icons/material-symbols-light/calendar-month-outline'
+  import MslRepeat from 'virtual:icons/material-symbols-light/repeat'
+  import MslPhotoCameraBackOutline from 'virtual:icons/material-symbols-light/photo-camera-back-outline'
+  import MslArchiveOutline from 'virtual:icons/material-symbols-light/archive-outline'
 
-  let activeTab = $state('date') // 'date', 'habits', 'ai', 'search', 'archive', 'photos'
+  let activeTab = $state('date') // 'date', 'habits', 'archive', 'photos'
 </script>
 
 <div class="discover-container">
   <div class="tabs-header">
     <div class="tabs-wrapper">
-      <TabButton 
-        icon="calendar_month"
-        active={activeTab === 'date'}
-        onclick={() => activeTab = 'date'}
-      />
-      <TabButton 
-        icon="repeat"
-        active={activeTab === 'habits'}
-        onclick={() => activeTab = 'habits'}
-      />
-      <TabButton 
-        icon="photo_library"
-        active={activeTab === 'photos'}
-        onclick={() => activeTab = 'photos'}
-      />
-      <TabButton 
-        icon="archive"
-        active={activeTab === 'archive'}
-        onclick={() => activeTab = 'archive'}
-      />
-      <TabButton 
-        icon="smart_toy"
-        active={activeTab === 'ai'}
-        onclick={() => activeTab = 'ai'}
-      />
+      <TabButton active={activeTab === 'date'} onclick={() => activeTab = 'date'}>  
+        <MslCalendarMonthOutline style="font-size: 1.8rem;"/>
+      </TabButton>
+      <TabButton active={activeTab === 'habits'} onclick={() => activeTab = 'habits'}>  
+        <MslRepeat style="font-size: 1.8rem;"/>
+      </TabButton>
+      <TabButton active={activeTab === 'photos'} onclick={() => activeTab = 'photos'}>  
+        <MslPhotoCameraBackOutline style="font-size: 1.8rem;"/>
+      </TabButton>
+      <TabButton active={activeTab === 'archive'} onclick={() => activeTab = 'archive'}>  
+        <MslArchiveOutline style="font-size: 1.8rem;"/>
+      </TabButton>
     </div>
   </div>
 
@@ -45,10 +35,6 @@
       <ScheduleTab />
     {:else if activeTab === 'habits'}
       <HabitsTab />
-    {:else if activeTab === 'ai'}
-      <div style="height: 100%;">
-        <AI />
-      </div>
     {:else if activeTab === 'archive'}
       <ArchiveTab />
     {:else if activeTab === 'photos'}

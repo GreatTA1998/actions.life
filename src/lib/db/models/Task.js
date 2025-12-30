@@ -1,36 +1,14 @@
 import { z } from 'zod'
 import { releaseImage } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
-import { user, tasksCache } from '$lib/store/index.js'
+import { user, tasksCache, showUndoSnackbar } from '$lib/store'
 import { 
   writeBatch, getDocs, increment, 
   collection, query, where, 
   onSnapshot, doc 
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
-import { maintainTreeISOs, maintainTreeISOsForCreate, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
-import { showUndoSnackbar } from '$lib/store'
-
-function maintainOrderValue (validatedObj, batch) {
-  const { maxOrderValue, uid } = get(user)
-  if (!validatedObj.orderValue) {
-    validatedObj.orderValue = maxOrderValue + 1 // k = 1
-  }
-  const diff = validatedObj.orderValue - maxOrderValue
-  if (diff > 0) {
-    batch.update(doc(db, 'users', uid), { 
-      maxOrderValue: increment(diff)
-    })
-  }
-}
-
-export function isValidISODate (dateStr) {
-  if (dateStr === '') return true
-  const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/
-  if (!isoFormatRegex.test(dateStr)) return false
-  const date = new Date(dateStr)
-  return !isNaN(date.getTime())
-}
+import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
 
 const Task = {
   schema: z.object({
@@ -38,15 +16,13 @@ const Task = {
     duration: z.number().default(30),
     parentID: z.string().default(''),
     startTime: z.string().default(''),
-    startDateISO: z.string()
-      .default('')
+    startDateISO: z.string().default('')
       .refine(isValidISODate, {
         message: 'startDateISO is not in proper yyyy-MM-dd format'
       })
     ,
     iconURL: z.string().default(''),
     timeZone: z.string().default(Intl.DateTimeFormat().resolvedOptions().timeZone),
-    notify: z.string().default(''),
     notes: z.string().default(''),
     templateID: z.string().default(''),
     isDone: z.boolean().default(false),
@@ -58,46 +34,39 @@ const Task = {
     childrenLayout: z.string().default('normal'), // 'normal' (renaming to 'list' but requires proper migration) or 'timeline'
     photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'thumbnail'
     isCollapsed: z.boolean().default(false),
-
-    orderValue: z.number().optional(), // must be maintained
-
-    treeISOs: z.array(z.string()).optional(), // must be maintained
-    rootID: z.string().optional() // must be maintained
+    
+    // maintained fields
+    orderValue: z.number().optional(),
+    treeISOs: z.array(z.string()).optional(), 
+    rootID: z.string().optional() 
   }),
 
-  // danger: relies on `tasksCache`
-  create: async ({ id, newTaskObj }) => {
+  create: async ({ id, newTaskObj, optimistic = true }) => {
     try {
+      if (firestoreOffline()) return alert('Currently offline')
+      
       const validatedTask = Task.schema.parse(newTaskObj)
+      const { parentID, startDateISO } = validatedTask
+      const parent = get(tasksCache)[parentID]
+
       const { uid } = get(user)
       const batch = writeBatch(db)
-      const result = await maintainTreeISOsForCreate({ task: validatedTask, batch })
-      let treeISOs = []
-  
-      // for backwards compatibility
-      if (result && typeof result === 'object' && Array.isArray(result.treeISOs)) {
-        treeISOs = result.treeISOs
-      } 
-      else if (Array.isArray(result)) {
-        treeISOs = result
-      }
 
-      let rootID = id
-      if (validatedTask.parentID) {
-        const parent = get(tasksCache)[validatedTask.parentID]
-        rootID = parent?.rootID || id
+      let treeISOs = [...(parent?.treeISOs ?? []), startDateISO].filter(Boolean)
+      if (startDateISO && parent) { // currently impossible via UI to create a scheduled subtask directly
+        await updateEntireTree({ batch, parent, treeISOs })
       }
-
       maintainOrderValue(validatedTask, batch)
 
       batch.set(doc(db, `users/${uid}/tasks/${id}`), { 
         ...validatedTask,
         treeISOs, 
-        rootID
+        rootID: parent ? parent.rootID : id
       })
       
-      batch.commit() // for a snappier user experience we don't use `await` for now
-      
+      if (optimistic) batch.commit()
+      else await batch.commit() 
+
       return validatedTask
     } 
     catch (error) {
@@ -109,14 +78,16 @@ const Task = {
 
   update: async ({ id, keyValueChanges }) => {
     try {
+      if (firestoreOffline()) return alert('Currently offline')
+    
       const batch = writeBatch(db)
       const validatedChanges = Task.schema.partial().parse(keyValueChanges)
 
       if (validatedChanges.orderValue) {
         maintainOrderValue(validatedChanges,batch)
       }
-      
       await maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
+
       batch.update(
         doc(db, `users/${get(user).uid}/tasks/${id}`), 
         validatedChanges
@@ -131,6 +102,8 @@ const Task = {
 
   delete: async ({ id }) => {
     return new Promise(async (resolve) => {
+      if (firestoreOffline()) return resolve(alert('Currently offline'))
+
       const taskObj = get(tasksCache)[id]
       const treeNodes = await getSubtreeNodes(taskObj)
 
@@ -211,54 +184,40 @@ const Task = {
     }
   },
 
-  getTasksJSONByRange: async (uid, startDate, endDate) => {
-    const neededProperties = [
-      "duration",
-      "isDone",
-      "name",
-      "notes",
-      "startDateISO",
-      "startTime",
-    ]
+  getByDateRange: async (startDate, endDate) => {
     const q = query(
-      collection(db, "users", uid, "tasks"),
-      where("startDateISO", "!=", ""),
-      where("startDateISO", ">=", startDate),
-      where("startDateISO", "<=", endDate)
-    )
-
-    const getDataArray = (snapshot) => snapshot.docs.map((doc) => doc.data())
-    const taskArray = await getDocs(q).then(getDataArray).catch(console.error)
-
-    const reducetoNeeded = (task) =>
-      neededProperties.reduce(
-        (acc, prop) => ({ [prop]: task[prop] || "", ...acc }),
-        {}
-      )
-    const result = taskArray.map(reducetoNeeded)
-    
-    return JSON.stringify(result)
-  },
-  
-  // Added method for compatibility with PhotoGrid.svelte
-  getByDateRange: async (uid, startDate, endDate) => {
-    const q = query(
-      collection(db, "users", uid, "tasks"),
-      where("startDateISO", ">=", startDate),
-      where("startDateISO", "<=", endDate),
-      where("imageFullPath", "!=", "")
+      collection(db, 'users', get(user).uid, 'tasks'),
+      where('startDateISO', '>=', startDate),
+      where('startDateISO', '<=', endDate),
     )
     const snapshot = await getDocs(q)
     return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-  },
-  
-  // Added method for compatibility with LegacyExportTasks.svelte
-  getTasksJSON: async (uid) => {
-    // Using getTasksJSONByRange with a wide date range
-    const startDate = "2000-01-01"
-    const endDate = "2100-12-31"
-    return Task.getTasksJSONByRange(uid, startDate, endDate)
   }
+}
+
+export function isValidISODate (dateStr) {
+  if (dateStr === '') return true
+  const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/
+  if (!isoFormatRegex.test(dateStr)) return false
+  const date = new Date(dateStr)
+  return !isNaN(date.getTime())
+}
+
+function maintainOrderValue (validatedObj, batch) {
+  const { maxOrderValue, uid } = get(user)
+  if (!validatedObj.orderValue) {
+    validatedObj.orderValue = maxOrderValue + 1 // k = 1
+  }
+  const diff = validatedObj.orderValue - maxOrderValue
+  if (diff > 0) {
+    batch.update(doc(db, 'users', uid), { 
+      maxOrderValue: increment(diff)
+    })
+  }
+}
+
+function firestoreOffline () {
+  return !navigator.onLine // not synced with Firestore but temporary solution until Supabase
 }
 
 export default Task

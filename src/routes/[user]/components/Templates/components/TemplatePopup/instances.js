@@ -23,11 +23,12 @@ export function isException (task, template) {
 }
 
 export function createTaskInstance ({ template, dt }) {
-  Task.create({
+  return Task.create({
     // ensure idempotence, with deterministic IDs
     // assumes the recurrence is at the resolution of days
     id: template.id + '_' + dt.toFormat('yyyy-MM-dd'),
-    newTaskObj: instantiateTask({ template, dt })
+    newTaskObj: instantiateTask({ template, dt }),
+    optimistic: false
   })
 }
 

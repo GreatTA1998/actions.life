@@ -17,9 +17,8 @@
 <style>
   /* Prevent accidentally trigger click on other elements e.g. accidentally creating a new task on the calendar when you're just trying to exit */
   .fullscreen-invisible-modular-layer {
-    view-transition-name: task-popup; 
-    contain: layout;
-
+    view-transition-name: task-popup;
+    view-transition-class: static-ui;
     width: 100vw; 
     height: 100vh; 
     position: fixed; 

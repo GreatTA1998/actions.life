@@ -1,51 +1,43 @@
 <script>
-  import { doc, onSnapshot, setDoc } from 'firebase/firestore'
+  import TaskPopup from '/src/routes/[user]/components/TaskPopup/TaskPopup.svelte'
+  import ExtendRoutines from '/src/routes/[user]/components/ExtendRoutines.svelte'
+  import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import { user, userInfoFromAuthProvider } from '$lib/store'
-  import { onMount, onDestroy } from 'svelte'
-  import { page } from '$app/stores'
-  import User from '$lib/db/models/User.js'
+  import { user, isTaskPopupOpen } from '$lib/store'
+  import { onMount, onDestroy, getContext } from 'svelte'
+  import { page } from '$app/state'
 
-  let unsub
+  let { children } = $props()
+  const { User } = getContext('app')
 
-  $: userID = $page.params.user
+  let unsub = () => {}
+  let uid = $derived(page.params.user)
 
-  onMount(() => {
-    listenToUserDoc(userID)
-  })
+  onMount(listenToUser)
 
   onDestroy(() => {
     if (unsub) unsub()
   })
 
-  function listenToUserDoc (userID) {
-    const ref = doc(db, '/users/' + userID)
-    console.time('listenToUser')
+  function listenToUser () {
+    const ref = doc(db, '/users/' + uid)
     unsub = onSnapshot(ref, async (snap) => {
-      if (!snap.exists()) {
-        initializeNewFirestoreUser(ref, $userInfoFromAuthProvider)
-      } else {
+      if (!snap.exists()) User.create()
+      else {
         user.set({ ...snap.data() })
       }
-      console.timeEnd('listenToUser')
     })
-  }
-
-  async function initializeNewFirestoreUser (ref, authData) {
-    const userObj = User.schema.parse({
-      uid: authData.uid,
-      email: authData.email
-    })
-
-    return await setDoc(ref,
-      userObj,
-      { merge: true }
-    ).catch((err) => console.error('error in initializeNewFirestoreUser', err))
   }
 </script>
 
 <div>
-  <slot>
+  {#if $user.uid}
+    {@render children()}
 
-  </slot>
+    <ExtendRoutines />
+
+    {#if $isTaskPopupOpen}
+      <TaskPopup />
+    {/if}
+  {/if}
 </div>

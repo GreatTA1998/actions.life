@@ -1,17 +1,13 @@
 <script>
   let {
-    icon,
     active = false,
-    onclick = () => {}
+    onclick = () => {},
+    children
   } = $props()
 </script>
 
-<button 
-  class="tab-button" 
-  class:active={active}
-  onclick={onclick}
->
-  <span class="material-symbols-outlined" style="font-size: 1.8rem;">{icon}</span>
+<button {onclick} class="tab-button" class:active={active}> 
+  {@render children()}
 </button>
 
 <style>

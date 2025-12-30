@@ -46,11 +46,9 @@ function setupListener (ref, callback) {
 }
 
 function buildTreeMap (tasks) {
-  document.startViewTransition(() => { // View Transition API
-    trees.set(
-      reconstructTreeInMemory(tasks) // it's actually constructing a forest
-    )
-  })
+  trees.set(
+    reconstructTreeInMemory(tasks) // it's actually constructing a forest
+  )
 }
 
 export function reconstructTreeInMemory (firestoreTaskDocs) {

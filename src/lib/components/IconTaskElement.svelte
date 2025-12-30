@@ -27,15 +27,13 @@
   -->
   <div style="display: flex; align-items: center; width: 100%;">
     {#if isBulletPoint}
-      <span class="material-icons" 
-        style="
-          font-size: 2px; 
+      <div class="flexbox content-center" style="
           margin-right: calc(var(--left-padding) - 2px);
-          color: {task.isDone ? 'rgb(20, 20, 20)' : '#509c13'}; 
+          color: {task.isDone ? 'rgb(20, 20, 20)' : '#509c13'};
         "
       >
-       circle
-     </span>
+        <MslCircle style="font-size: 2px;"/>
+      </div>
     {/if}
 
     <DoodleIcon iconTask={task} />
@@ -76,6 +74,7 @@
 <script>
   // Assumes `task` is hydrated
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
+  import MslCircle from 'virtual:icons/material-symbols-light/circle'
   import { getTrueY } from '$lib/utils/core.js'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'

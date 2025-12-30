@@ -29,7 +29,6 @@
   }
 
   .checkbox-text {
-    font-size: 13px;
-    color: #555;
+    font-size: 0.875rem;
   }
 </style>

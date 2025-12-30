@@ -1,5 +1,6 @@
 <script>
   import { shareEngravedImage } from '$lib/utils/imageExport.js'
+  import MslIosShare from 'virtual:icons/material-symbols-light/ios-share'
   
   let { taskObject } = $props()
   
@@ -19,7 +20,7 @@
 </script>
 
 <button onclick={e => sharePhoto(e)} class="photo-row-action">
-  <span class="material-symbols-outlined">ios_share</span>
+  <MslIosShare style="font-size: 1.125rem;"/>
   <span class="photo-row-label">Share</span>
 </button>
 
@@ -36,12 +37,8 @@
     justify-content: flex-start;
   }
 
-  .photo-row-action .material-symbols-outlined {
-    font-size: 18px;
-  }
-
   .photo-row-label {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 
   .photo-row-action:hover {

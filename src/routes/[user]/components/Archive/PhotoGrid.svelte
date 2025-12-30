@@ -1,6 +1,7 @@
 <script>
   import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
   import MonthYearNavigator from '$lib/components/MonthYearNavigator.svelte'
+  import MslCasinoOutline from 'virtual:icons/material-symbols-light/casino-outline'
   import { user, updateCache, openTaskPopup } from '$lib/store/index.js'
   import { onMount, onDestroy} from 'svelte'
   import { DateTime } from 'luxon'
@@ -117,7 +118,7 @@
       onclick={showRandomPhotos}
       title="Show random photos"
     >
-      <span class="material-symbols-outlined">casino</span>
+      <MslCasinoOutline style="font-size: 1.375rem;"/>
     </button>
   </div>
   
@@ -242,10 +243,6 @@
     box-shadow: 0 2px 4px rgba(0,123,255,0.2);
   }
 
-  .random-button span {
-    font-size: 22px;
-  }
-
   .photo-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -296,6 +293,7 @@
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
   }
 </style>

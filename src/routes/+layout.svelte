@@ -1,46 +1,36 @@
 <script>
-  import '$lib/db/init.js'
   import AppContext from './AppContext.svelte'
-  import { user, userInfoFromAuthProvider, hasFetchedUser } from '$lib/store'
-  import posthog from 'posthog-js'
-  import { goto } from '$app/navigation'
-  import { getAuth, onAuthStateChanged } from 'firebase/auth'
-  import { onMount } from 'svelte'
-  import { isMobile } from '$lib/utils/core.js'
-  import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
-  import { } from '$lib/db/scripts/april.js'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
+  import { user, authChecked, loggedIn, firebaseAuth } from '$lib/store'
+  import { page } from '$app/state'
+  import { goto } from '$app/navigation'
+  import { onAuthStateChanged } from 'firebase/auth'
+  import { onMount } from 'svelte'
+  import { isMobile } from '$lib/utils/core.js'
+  import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
+  import '@fontsource-variable/inter'
 
-  $effect(() => {
-    if ($treesByDate) console.timeEnd('total load time')
-  })
+  let { children } = $props()
 
   onMount(() => {
-    console.time('total load time')
     translateJSConstantsToCSSVariables()
 
-    // fetching user takes around 300 - 500 ms
-    onAuthStateChanged(getAuth(), async (resultUser) => {
-      hasFetchedUser.set(true)
-      if (!resultUser) {
-        user.set({})
+    onAuthStateChanged($firebaseAuth, async (resultUser) => {
+      authChecked.set(true) // from cookie, takes around 300 - 500ms
+      
+      if (page.url.pathname.startsWith('/legal')) return
+
+      else if (!resultUser) {
         goto('/')
-
-        // see how new visitors interacts with home page demos
-        posthog.init('phc_Cm2c1eB0MCZLTjJDYHklZ7GUp0Ar7p5bIpF5hkCJPdo', {
-          api_host: 'https://us.i.posthog.com',
-          person_profiles: 'always' // or 'always' to create profiles for anonymous users as well
-        })
-      } else {
+        user.set({})
+      } 
+      
+      else {
         goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
-
-        userInfoFromAuthProvider.set({
-          email: resultUser.email,
-          uid: resultUser.uid 
-        })
+        loggedIn.set(true)
       }
     })
   })
@@ -48,10 +38,9 @@
 
 <div>
   <div
-    id="loading-screen-logo-start"
     style="z-index: 99; background: var(--offwhite-bg); width: 100vw; height: 100vh"
     class="center"
-    class:invisible={$hasFetchedUser && (!$user.uid || Object.keys($treesByDate).length > 0)}
+    class:invisible={$authChecked && (!$loggedIn || $loggedIn && $user.uid && Object.keys($treesByDate).length > 0)}
   >
     <img
       src="/logo-no-bg.png"
@@ -64,10 +53,8 @@
   <div>
     <AppContext>
       <DragDropContext>
-        <slot>
-
-        </slot>
-
+        {@render children()}
+        
         <ThePopoverInput />
 
         <TheSnackbar />
@@ -81,6 +68,7 @@
     --accent-color: rgb(92, 101, 22);
     --base-color: rgb(0, 89, 125);
     --sub-color: rgb(172, 160, 78);
+    --success-color: #188038;
 
     --logo-twig-color: #b34f1b;
     --location-indicator-color: var(--logo-twig-color);
@@ -96,11 +84,12 @@
     --experimental-black: hsla(0, 100%, 0%, 0.6);
     --offwhite-bg: rgb(250, 250, 250);
     --faint-color: lightgrey;
+    --popup-control: 1.67rem;
   }
 
   :global(*) {
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter Variable', sans-serif;
   }
 
   /* prevent accidental going back page */
@@ -220,17 +209,64 @@
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
   }
 
+  /* navbar > task-popup > calendar > each list-{id} */
   :global(::view-transition-group(task-popup)) {
+    z-index: 4;
+  }
+
+  :global(::view-transition-group(floating-navbar)) {
     z-index: 3;
   }
 
-  /* navbar > task-popup > calendar > list area */
-  :global(::view-transition-group(floating-navbar)) {
+  :global(::view-transition-group(grip-handle)) {
     z-index: 2;
   }
 
   :global(::view-transition-group(calendar)) {
     z-index: 1;
+  }
+
+  /* Decided on easeInOutCirc
+    @see https://emilkowal.ski/ui/7-practical-animation-tips
+    @see https://easings.co/
+
+    Movement: position (left, top), size (w, h), transforms
+  */
+  :global(::view-transition-group(.list-item)) {
+    z-index: 0;
+    animation-duration: 0.15s;
+    animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
+  }
+
+  /* affects opacity */
+  :global(::view-transition-old(.list-item)),
+  :global(::view-transition-new(.list-item)) {
+    animation-duration: 0.15s;
+    animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
+  }
+
+  :global(::view-transition-group(.static-ui)) {
+    animation: none;
+    animation-duration: 0s;
+  }
+
+  :global(::view-transition-image-pair(.static-ui)) {
+    isolation: auto;
+  }
+
+  :global(::view-transition-old(.static-ui)),
+  :global(::view-transition-new(.static-ui)) {
+    animation: none;
+    mix-blend-mode: normal; /* overrides plus-lighter */ 
+    display: block;
+  }
+
+  :global(::view-transition-new(.static-ui)) {
+    opacity: 1;
+  }
+
+  :global(::view-transition-old(.static-ui)) {
+    display: none;
   }
 
   /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */

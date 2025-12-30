@@ -1,4 +1,6 @@
 <script>
+  import MslStar from 'virtual:icons/material-symbols-light/star'
+  import MslStarOutline from 'virtual:icons/material-symbols-light/star-outline'
   let { isStarred = false, onToggle } = $props()
 </script>
 
@@ -7,9 +9,11 @@
   class="star-button"
   class:starred={isStarred}
 >
-  <span class="material-symbols-outlined star-icon">
-    {isStarred ? 'star' : 'star_border'}
-  </span>
+  {#if isStarred}
+    <MslStar class="star-icon" style="font-size: 2.2rem;"/>
+  {:else}
+    <MslStarOutline class="star-icon" style="font-size: 2.2rem;"/>
+  {/if}
 </button>
 
 <style>
@@ -29,15 +33,13 @@
     background: rgba(0, 0, 0, 0.04);
   }
 
-  .star-icon {
+  :global(.star-icon) {
     font-size: var(--font-size-xl, 1.25rem);
     color: #666;
     transition: color 0.15s;
   }
 
-  .star-button.starred .star-icon {
+  .star-button.starred :global(.star-icon) {
     color: #ffa726;
-    font-variation-settings: 'FILL' 1;
   }
 </style>
-

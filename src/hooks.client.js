@@ -1,4 +1,8 @@
+import { auth } from '$lib/db/init.js'
+import { firebaseAuth } from '$lib/store'
 import { reportError } from '$lib/utils/errorReporting.js'
+
+firebaseAuth.set(auth)
 
 export function handleError ({ event, error }) {
   reportError({ 

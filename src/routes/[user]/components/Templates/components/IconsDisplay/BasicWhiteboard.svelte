@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte'
   import { doodleIcons } from '/src/lib/store'
+  import MslColorizeOutline from 'virtual:icons/material-symbols-light/colorize-outline'
   import Icon from '/src/lib/db/models/Icon.js'
   import { getRandomID } from '/src/lib/utils/core.js'
   import ColorPicker from './ColorPicker.svelte'
@@ -128,20 +129,18 @@
         <div
           class:selected={color === pencilColor}
           class="color-circle"
-          on:click={() => (color = pencilColor)}
+          onclick={() => (color = pencilColor)}
           style="background-color: {pencilColor}"
         ></div>
       {/each}
       <div
         class="color-circle custom-color"
         class:selected={!colors.includes(color)}
-        on:click={toggleColorPicker}
-        style="background-color: {colorPickerColor}"
+        onclick={toggleColorPicker}
+        style="background-color: {colorPickerColor}; display: flex; align-items: center;"
         title="Custom color"
       >
-        <span class="material-icons">
-          colorize
-        </span>
+        <MslColorizeOutline style="font-size: 1rem;"/>
       </div>
     </div>
 
@@ -149,18 +148,18 @@
       id="whiteboard"
       width="240"
       height="240"
-      on:mousedown={handleStart}
-      on:mouseup={handleEnd}
-      on:mousemove={handleMove}
-      on:touchstart={handleStart}
-      on:touchend={handleEnd}
-      on:touchmove={handleMove}
+      onmousedown={handleStart}
+      onmouseup={handleEnd}
+      onmousemove={handleMove}
+      ontouchstart={handleStart}
+      ontouchend={handleEnd}
+      ontouchmove={handleMove}
     >
       Your browser does not support the HTML5 canvas tag.
     </canvas>
     <div>
-      <button on:click={clearBoard}>Clear</button>
-      <button class="save-button" disabled={!name} on:click={handleSave}
+      <button onclick={clearBoard}>Clear</button>
+      <button class="save-button" disabled={!name} onclick={handleSave}
         >Save</button
       >
     </div>

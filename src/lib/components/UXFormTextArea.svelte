@@ -60,7 +60,6 @@
     margin-bottom: 8px;
     font-size: 14px;
     color: gray;
-    font-family: 'Inter';
     line-height: 16px;
   }
 
@@ -69,7 +68,6 @@
     margin-bottom: 9px;
     font-weight: 500;
     font-size: 24px;
-    font-family: 'Inter';
     line-height: 18px;
   }
 

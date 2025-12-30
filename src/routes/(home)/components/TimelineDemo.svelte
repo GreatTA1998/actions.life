@@ -1,5 +1,5 @@
 <script>
-  import ToggleGroup from '../../../lib/components/ToggleGroup.svelte'
+  import ToggleGroup from '$lib/components/ToggleGroup.svelte'
   import TodoList from '../../[user]/components/ListsArea/TodoList.svelte'
   import { isMobile } from '$lib/utils/core.js'
   import { WIDTHS } from '$lib/utils/constants.js'

@@ -1,24 +1,21 @@
 
 <script>
-  import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
-  import { userInfoFromAuthProvider } from '/src/lib/store/index.js'
+  import { signInWithPopup, GoogleAuthProvider, browserPopupRedirectResolver } from 'firebase/auth'
+  import { firebaseAuth } from '$lib/store'
+
+  let { name = 'Continue with Google', onclick = signInWithGoogle, disabled = false } = $props()
 
   async function signInWithGoogle () {
-    const auth = getAuth();
     try {
-      const provider = new GoogleAuthProvider()
-      const result = await signInWithPopup(auth, provider)
+      const result = await signInWithPopup(
+        $firebaseAuth,
+        new GoogleAuthProvider(),
+        browserPopupRedirectResolver
+      )
       // This gives you a Google Access Token. You can use it to access the Google API.
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;
-      // The signed-in user info.
       const user = result.user;
-      // standardization
-      userInfoFromAuthProvider.set({
-        email: user.email,
-        uid: user.uid,
-        name: user.displayName || ''
-      })
 
       // IdP data available using getAdditionalUserInfo(result)
       // ...
@@ -37,7 +34,7 @@
   }
 </script>
 
-<button onclick={signInWithGoogle} class="gsi-material-button">
+<button {onclick} {disabled} class="gsi-material-button">
   <div class="gsi-material-button-state"></div>
   <div class="gsi-material-button-content-wrapper">
     <div class="gsi-material-button-icon">
@@ -49,8 +46,8 @@
         <path fill="none" d="M0 0h48v48H0z"></path>
       </svg>
     </div>
-    <span class="gsi-material-button-contents">Continue with Google</span>
-    <span style="display: none;">Continue with Google</span>
+    <span class="gsi-material-button-contents">{name}</span>
+    <span style="display: none;">{name}</span>
   </div>
 </button>
 

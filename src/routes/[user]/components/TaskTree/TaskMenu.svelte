@@ -1,6 +1,8 @@
 <script>
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import ToggleGroup from '$lib/components/ToggleGroup.svelte'
+  import MslMoreVert from 'virtual:icons/material-symbols-light/more-vert'
+  import MslInventory2Outline from 'virtual:icons/material-symbols-light/inventory-2-outline'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
@@ -15,8 +17,8 @@
 
 {#snippet activator ({ setPosition, popovertarget })} 
   <div style="max-height: 16px; display: flex; align-items: center;">
-    <button {popovertarget} onclick={setPosition} class="material-symbols-outlined menu-icon" style="font-size: 24px;">
-      more_vert
+    <button {popovertarget} onclick={setPosition} class="menu-icon flexbox content-center">
+      <MslMoreVert style="font-size: 1.5rem;"/>
     </button>
   </div>
 {/snippet}
@@ -31,9 +33,7 @@
     <!-- <div class="menu-divider"></div> -->
 
     <button class="m-item" onclick={() => { Task.archiveTree({ id: taskObj.id }) }}>
-      <span class="material-symbols-outlined" style="font-size: 18px;">
-        inventory_2
-      </span>
+      <MslInventory2Outline style="font-size: 1.125rem;"/>
       Hide from list
     </button>
   </div>

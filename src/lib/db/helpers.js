@@ -5,7 +5,6 @@ import {
 import { db } from './init'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
 
-// Helpers all have the `firestore` prefix
 export function firestoreRef (path) {
   return doc(db, path)
 }
@@ -13,7 +12,7 @@ export function firestoreRef (path) {
 export async function setFirestoreDoc (path, newObject) {
   try {
     const ref = firestoreRef(path)
-    return await setDoc(ref, newObject)
+    return await setDoc(ref, newObject, { merge: true })
   } catch (error) {
     console.error('error in setFirestoreDoc, CRUD', error)
     console.error('payload was =', newObject)

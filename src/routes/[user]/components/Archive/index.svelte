@@ -2,6 +2,7 @@
   import PhotoGrid from './PhotoGrid.svelte'
   import JournalEntries from './JournalEntries.svelte'  
   import ListenToDoc from './ListenToDoc.svelte'
+  import MslStar from 'virtual:icons/material-symbols-light/star'
   import { user } from '/src/lib/store/userStore.js'
   import { onMount, onDestroy } from 'svelte'
   import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
@@ -71,23 +72,20 @@
     
     <div class="nav-items">  
       <div class="photo-nav-item"
-        on:click={() => { 
+        onclick={() => { 
           isViewingPhotos = true; selectedRoutineID = ''
         }}
-        on:keydown
         class:selected-item={isViewingPhotos}
       >  
-        <span class="material-symbols-outlined">photo_library</span>
         Photos
       </div>
       
       {#if routines}
         {#each routines as routine (routine.id)}
           <div 
-            on:click={() => { 
+            onclick={() => { 
               selectedRoutineID = routine.id; isViewingPhotos = false;
             }} 
-            on:keydown
             class="nav-item" 
             class:selected-item={selectedRoutineID === routine.id}
           >
@@ -99,9 +97,9 @@
             <span>{routine.name}</span>
 
             {#if routine.isStarred}
-              <span class="star-icon material-icons">
-                star
-              </span>
+              <div class="star-icon">
+                <MslStar style="font-size: 0.875rem;"/>
+              </div>
             {/if}
           </div>
         {/each}

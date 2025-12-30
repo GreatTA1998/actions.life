@@ -2,60 +2,59 @@
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
-  import EmailDraft from './EmailDraft.svelte'
+  import DataExport from './DataExport/index.svelte'
   import ConnectGoogleCalendar from '$lib/components/ConnectGoogleCalendar.svelte'
   import GoogleCalendarSelector from '$lib/components/GoogleCalendarSelector.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
-  import { getAuth, signOut } from 'firebase/auth'
+  import MslLogout from 'virtual:icons/material-symbols-light/logout'
+  import { signOut } from 'firebase/auth'
   import { goto } from '$app/navigation'
-  import { user } from '$lib/store'
+  import { user, firebaseAuth } from '$lib/store'
 
-  function handleLogoClick() {
-    const auth = getAuth()
-    signOut(auth).catch(console.error)
+  async function handleLogoClick() {
+    await signOut($firebaseAuth)
     goto('/')
   }
+
+  let statusMessage = $state('')
 </script>
 
 <div class="settings-container"> 
   <div class="settings-content">
-    <div class="settings-main">
-      <div style="display: grid; flex-direction: column; gap: 8px;">
-        <div style="font-size: 15px; font-weight: 600; color: #555; letter-spacing: 0.1px;">
-          Integrations
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 24px;">
+      <div style="display: flex; flex-direction: column; row-gap: 24px;">
+        <div style="display: flex; column-gap: 12px; align-items: center;" class="settings-group">
+          <div class="title">App</div>
+          <ColorSettings />
         </div>
+      </div>
+   
+      <div style="display: flex; flex-direction: column; row-gap: 16px;">
+        <div class="flexbox settings-group" style="flex-direction: column; row-gap: 24px;">
+          <div class="title">Calendar</div>
+          <GridlineSettings />
 
-        <ConnectGoogleCalendar clientId="132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com" />
-       
-        {#if $user.google?.refreshToken}
-          <GoogleCalendarSelector />
-        {/if}
+          <div style="display: grid; flex-direction: column; gap: 8px;">
+            <ConnectGoogleCalendar clientId="132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com" />
+          
+            {#if $user.google?.refreshToken}
+              <GoogleCalendarSelector />
+            {/if}
+          </div>
+        </div>
       </div>
 
-      <div class="settings-group">
-        <div class="settings-label">Theme</div>
-        <ColorSettings />
+      <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
+        <div class="flexbox content-center" style="column-gap: 12px;">
+          <div class="title">Data</div>
+          <span class="status">{statusMessage}</span>
+        </div>
+        <DataExport onFinish={message => statusMessage = message}/>
       </div>
 
-      <div class="settings-group">
-        <GridlineSettings />
-      </div>
-
-      <div class="settings-group">
-        <div class="settings-label">Photos</div>
+      <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
+        <div class="title">Photo</div>
         <PhotoSettings />
-      </div>
-    </div>
-    
-    <div class="settings-side">
-      <div class="settings-group">
-        <div class="settings-label">Support</div>
-        <div class="settings-description">
-          My job is to fix issues you have quickly. I'm also hoping for advice on how to 
-          improve this calendar.
-        </div>
-        
-        <EmailDraft />
       </div>
     </div>
   </div>
@@ -63,83 +62,52 @@
   <div class="footer">
     <GithubButton />
 
-    <button on:click={handleLogoClick} class="logout-button">
-      <span class="material-symbols-outlined">logout</span>
-      <span>Log out to home tutorials</span>
+    <button onclick={handleLogoClick} class="logout-button">
+      <MslLogout style="font-size: 1.4rem;"/>
+      <span>Sign out</span>
     </button>
   </div>
 </div>
 
 <style>
+  .status {
+    color: var(--success-color);
+    font-size: 0.875rem;
+  }
+
   .settings-container {
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
-    color: #3d3d3d;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--offwhite-bg);
+    background: rgb(235, 235, 235);
     overflow-y: auto;
+  }
+
+  .settings-group {
+    border-radius: 12px;
+    padding: 12px;
+    background: var(--navbar-bg-color);
+  }
+
+  .title {
+    font-size: 1rem;
+    font-weight: 600;
   }
 
   .settings-content {
     display: flex;
     flex-direction: row;
-    padding: 48px 64px;
+    padding: 24px;
     gap: 80px;
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
   }
 
-  .settings-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 48px;
-  }
-
-  .settings-side {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 48px;
-    border-left: 1px solid #eaeaea;
-    padding-left: 64px;
-  }
-
-  @media (max-width: 768px) {
-    .settings-content {
-      flex-direction: column;
-      padding: 24px 20px;
-      gap: 48px;
-    }
-
-    .settings-side {
-      border-left: none;
-      padding-left: 0;
-      border-top: 1px solid #eaeaea;
-      padding-top: 48px;
-    }
-  }
-
-  .settings-group {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .settings-label {
-    font-size: 15px;
-    font-weight: 600;
-    color: #555;
-    letter-spacing: 0.1px;
-    margin-bottom: 16px;
-  }
 
   .settings-description {
-    font-size: 14px;
-    color: #555;
+    font-size: 0.875rem;
     margin-bottom: 24px;
     line-height: 1.6;
   }
@@ -149,7 +117,6 @@
     align-items: center;
     justify-content: flex-end;
     padding: 24px 64px;
-    border-top: 1px solid #eaeaea;
     max-width: 1400px;
     margin: 0 auto;
     width: 100%;
@@ -159,21 +126,8 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: transparent;
-    border: none;
     color: #6b6b6b;
-    font-size: 13px;
     font-weight: 500;
     padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .logout-button:hover {
-    background: #f5f5f5;
-  }
-
-  .logout-button span {
-    font-size: 16px;
   }
 </style>
