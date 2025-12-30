@@ -8,30 +8,6 @@ export default {
     allowedHosts: ['unwintry-supermorally-irena.ngrok-free.dev'] // for local iOS testing with ngrok
   },
 
-  build: {
-    rollupOptions: {
-      output: {
-        /**
-         * Returning-user optimization:
-         * Split large, slow-changing dependencies into stable vendor chunks so
-         * repeat visits (and post-deploy updates) re-download less JS.
-         */
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return
-
-          // Biggest wins in this codebase
-          if (id.includes('/firebase/') || id.includes('/@firebase/')) return 'vendor-firebase'
-          if (id.includes('/luxon/')) return 'vendor-luxon'
-          if (id.includes('/rrule/')) return 'vendor-rrule'
-          if (id.includes('/posthog-js/')) return 'vendor-posthog'
-
-          // Keep the rest of node_modules together to avoid a request explosion
-          return 'vendor'
-        }
-      }
-    }
-  },
-
   plugins: [
     sveltekit(),
     Icons({
