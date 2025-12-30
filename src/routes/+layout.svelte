@@ -1,7 +1,6 @@
 <script>
   import AppContext from './AppContext.svelte'
   import { user, authChecked, loggedIn, firebaseAuth } from '$lib/store'
-  import posthog from 'posthog-js'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
   import { onAuthStateChanged } from 'firebase/auth'
@@ -28,8 +27,12 @@
         goto('/')
         user.set({})
 
-        posthog.init('phc_Cm2c1eB0MCZLTjJDYHklZ7GUp0Ar7p5bIpF5hkCJPdo', { // see how new visitors interacts with home page demos
-          api_host: 'https://us.i.posthog.com'         
+        // Lazy-load PostHog so it doesn't bloat the initial app shell bundle
+        // (especially for returning/logged-in users who never need it).
+        void import('posthog-js').then(({ default: posthog }) => {
+          posthog.init('phc_Cm2c1eB0MCZLTjJDYHklZ7GUp0Ar7p5bIpF5hkCJPdo', { // see how new visitors interacts with home page demos
+            api_host: 'https://us.i.posthog.com'
+          })
         })
       } 
       
