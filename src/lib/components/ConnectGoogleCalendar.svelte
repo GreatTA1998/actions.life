@@ -121,7 +121,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #188038; /* Google Green */
+    color: var(--success-color);
     font-weight: 500;
     font-size: 0.875rem;
   }

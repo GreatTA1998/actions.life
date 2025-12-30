@@ -2,6 +2,7 @@
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
+  import ExportForAI from './ExportForAI.svelte'
   import ConnectGoogleCalendar from '$lib/components/ConnectGoogleCalendar.svelte'
   import GoogleCalendarSelector from '$lib/components/GoogleCalendarSelector.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
@@ -14,15 +15,16 @@
     await signOut($firebaseAuth)
     goto('/')
   }
+
+  let statusMessage = $state('')
 </script>
 
 <div class="settings-container"> 
   <div class="settings-content">
-    <div style="flex: 1; display: flex; flex-direction: column; gap: 36px;">
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 24px;">
       <div style="display: flex; flex-direction: column; row-gap: 24px;">
         <div style="display: flex; column-gap: 12px; align-items: center;" class="settings-group">
           <div class="title">App</div>
-
           <ColorSettings />
         </div>
       </div>
@@ -43,11 +45,16 @@
       </div>
 
       <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
-        <div class="title">
-          Photo
-        </div>
-
+        <div class="title">Photo</div>
         <PhotoSettings />
+      </div>
+
+      <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
+        <div class="flexbox content-center" style="column-gap: 12px;">
+          <div class="title">Data</div>
+          <span class="status">{statusMessage}</span>
+        </div>
+        <ExportForAI onFinish={message => statusMessage = message}/>
       </div>
     </div>
   </div>
@@ -63,12 +70,17 @@
 </div>
 
 <style>
+  .status {
+    color: var(--success-color);
+    font-size: 0.875rem;
+  }
+
   .settings-container {
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
-    background: var(--offwhite-bg);
+    background: rgb(235, 235, 235);
     overflow-y: auto;
   }
 

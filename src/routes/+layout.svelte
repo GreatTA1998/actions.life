@@ -68,6 +68,7 @@
     --accent-color: rgb(92, 101, 22);
     --base-color: rgb(0, 89, 125);
     --sub-color: rgb(172, 160, 78);
+    --success-color: #188038;
 
     --logo-twig-color: #b34f1b;
     --location-indicator-color: var(--logo-twig-color);

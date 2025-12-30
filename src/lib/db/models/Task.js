@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { releaseImage } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
-import { user, tasksCache } from '$lib/store/index.js'
+import { user, tasksCache, showUndoSnackbar } from '$lib/store'
 import { 
   writeBatch, getDocs, increment, 
   collection, query, where, 
@@ -9,7 +9,6 @@ import {
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
-import { showUndoSnackbar } from '$lib/store'
 
 const Task = {
   schema: z.object({
@@ -24,7 +23,6 @@ const Task = {
     ,
     iconURL: z.string().default(''),
     timeZone: z.string().default(Intl.DateTimeFormat().resolvedOptions().timeZone),
-    notify: z.string().default(''),
     notes: z.string().default(''),
     templateID: z.string().default(''),
     isDone: z.boolean().default(false),
@@ -186,53 +184,14 @@ const Task = {
     }
   },
 
-  getTasksJSONByRange: async (uid, startDate, endDate) => {
-    const neededProperties = [
-      "duration",
-      "isDone",
-      "name",
-      "notes",
-      "startDateISO",
-      "startTime",
-    ]
+  getByDateRange: async (startDate, endDate) => {
     const q = query(
-      collection(db, "users", uid, "tasks"),
-      where("startDateISO", "!=", ""),
-      where("startDateISO", ">=", startDate),
-      where("startDateISO", "<=", endDate)
-    )
-
-    const getDataArray = (snapshot) => snapshot.docs.map((doc) => doc.data())
-    const taskArray = await getDocs(q).then(getDataArray).catch(console.error)
-
-    const reducetoNeeded = (task) =>
-      neededProperties.reduce(
-        (acc, prop) => ({ [prop]: task[prop] || "", ...acc }),
-        {}
-      )
-    const result = taskArray.map(reducetoNeeded)
-    
-    return JSON.stringify(result)
-  },
-  
-  // Added method for compatibility with PhotoGrid.svelte
-  getByDateRange: async (uid, startDate, endDate) => {
-    const q = query(
-      collection(db, "users", uid, "tasks"),
-      where("startDateISO", ">=", startDate),
-      where("startDateISO", "<=", endDate),
-      where("imageFullPath", "!=", "")
+      collection(db, 'users', get(user).uid, 'tasks'),
+      where('startDateISO', '>=', startDate),
+      where('startDateISO', '<=', endDate),
     )
     const snapshot = await getDocs(q)
     return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-  },
-  
-  // Added method for compatibility with LegacyExportTasks.svelte
-  getTasksJSON: async (uid) => {
-    // Using getTasksJSONByRange with a wide date range
-    const startDate = "2000-01-01"
-    const endDate = "2100-12-31"
-    return Task.getTasksJSONByRange(uid, startDate, endDate)
   }
 }
 
