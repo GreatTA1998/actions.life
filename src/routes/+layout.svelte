@@ -1,5 +1,8 @@
 <script>
   import AppContext from './AppContext.svelte'
+  import DragDropContext from '$lib/components/DragDropContext.svelte'
+  import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
+  import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
   import { user, authChecked, loggedIn, firebaseAuth } from '$lib/store'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
@@ -7,9 +10,6 @@
   import { onMount } from 'svelte'
   import { isMobile } from '$lib/utils/core.js'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
-  import DragDropContext from '$lib/components/DragDropContext.svelte'
-  import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
-  import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
   import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
   import '@fontsource-variable/inter'
 
