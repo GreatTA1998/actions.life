@@ -2,7 +2,7 @@
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
-  import ExportForAI from './ExportForAI.svelte'
+  import DataExport from './DataExport/index.svelte'
   import ConnectGoogleCalendar from '$lib/components/ConnectGoogleCalendar.svelte'
   import GoogleCalendarSelector from '$lib/components/GoogleCalendarSelector.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
@@ -45,16 +45,16 @@
       </div>
 
       <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
-        <div class="title">Photo</div>
-        <PhotoSettings />
-      </div>
-
-      <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
         <div class="flexbox content-center" style="column-gap: 12px;">
           <div class="title">Data</div>
           <span class="status">{statusMessage}</span>
         </div>
-        <ExportForAI onFinish={message => statusMessage = message}/>
+        <DataExport onFinish={message => statusMessage = message}/>
+      </div>
+
+      <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
+        <div class="title">Photo</div>
+        <PhotoSettings />
       </div>
     </div>
   </div>
