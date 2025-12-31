@@ -104,9 +104,10 @@ const Task = {
         validatedChanges
       )
       batch.commit()
-      
-      // TO-DO: unify with `archiveTree`
-      if (!get(tasksCache)[id].isArchived && validatedChanges.isArchived) {
+
+      // specifically protect against done tasks disappearing during simple mode
+      const task = get(tasksCache)[id]
+      if (validatedChanges.isArchived && !(task.startDateISO || validatedChanges.startDateISO)) {
         showUndoSnackbar(
           `Archiving 1 task from the list area`,
           () => Task.update({ id, keyValueChanges: { isArchived: false } })
