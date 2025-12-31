@@ -6,7 +6,7 @@ import Task from '$lib/db/models/Task.js'
 
 const storage = getStorage()
 
-export async function singleUpload ({ e, willCompress, taskObject, willArchive }) {
+export async function singleUpload ({ e, willCompress, taskObject, willHydrateDateTime = false }) {
   const promises = []
   for (let image of e.target.files) { // in reality it's always one file due to the input limit
     if (image) { // blob file
@@ -16,7 +16,7 @@ export async function singleUpload ({ e, willCompress, taskObject, willArchive }
       }
       promises.push(
         uploadImageBlobToFirebase(image, id).then(resultSnapshot => {
-          mergeImageWithTask(resultSnapshot, image, id, taskObject, willArchive)
+          mergeImageWithTask(resultSnapshot, image, id, taskObject, willHydrateDateTime)
         })
       )
     }
@@ -24,7 +24,7 @@ export async function singleUpload ({ e, willCompress, taskObject, willArchive }
   await Promise.all(promises)
 }
 
-async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject, willArchive) {
+async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject, willHydrateDateTime) {
   const { metadata } = resultSnapshot 
   const { fullPath, timeCreated } = metadata
 
@@ -57,15 +57,10 @@ async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject
   }
 
   // only auto-hydrate the time if the task isn't already on the calendar
-  if (!taskObject.startDateISO) { 
+  if (!taskObject.startDateISO && willHydrateDateTime) { 
     updateObj.startDateISO = DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd')
     updateObj.startTime = getTimeInHHMM({ dateClassObj })
     // updateObj.duration = durationForFullDisplay
-  }
-
-  // user settings: automations 
-  if (willArchive) {
-    updateObj.isArchived = true
   }
 
   try {

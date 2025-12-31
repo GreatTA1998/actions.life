@@ -18,6 +18,7 @@ const User = {
     listAreaHeightRatio: z.number().default(0.004), // for mobile top-below view, default to 40% of viewport height
 
     // automation settings
+    simpleMode: z.boolean().default(true),
     photoUploadAutoArchive: z.boolean().default(false),
     photoCompressWhenAttachingToTask: z.boolean().default(false), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
 
@@ -34,7 +35,6 @@ const User = {
 
   async create () {
     const validatedUser = User.schema.parse(get(firebaseAuth).currentUser)
-    console.log('validatedUser =', validatedUser)
     return await setFirestoreDoc(`/users/${validatedUser.uid}`, 
       validatedUser
     )

@@ -30,7 +30,7 @@
       e,
       taskObject,
       willCompress: $user.photoCompressWhenAttachingToTask,
-      willArchive: $user.photoUploadAutoArchive,
+      willHydrateDateTime: $user.photoUploadAutoArchive,
     })
   }
 </script>

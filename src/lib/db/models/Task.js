@@ -79,20 +79,39 @@ const Task = {
   update: async ({ id, keyValueChanges }) => {
     try {
       if (firestoreOffline()) return alert('Currently offline')
+
+      if (get(user).simpleMode) {
+        const { startDateISO, isDone, persistsOnList, isArchived } = keyValueChanges
+
+        if (startDateISO || isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
+          keyValueChanges.isArchived = true
+        } 
+        else if (persistsOnList && !isArchived) {  // only possible via drag-to-list
+          keyValueChanges.startDateISO = ''
+          keyValueChanges.startTime = ''
+        }
+      }
     
-      const batch = writeBatch(db)
       const validatedChanges = Task.schema.partial().parse(keyValueChanges)
+      const batch = writeBatch(db)
 
       if (validatedChanges.orderValue) {
         maintainOrderValue(validatedChanges,batch)
       }
       await maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
-
       batch.update(
         doc(db, `users/${get(user).uid}/tasks/${id}`), 
         validatedChanges
       )
       batch.commit()
+      
+      // TO-DO: unify with `archiveTree`
+      if (!get(tasksCache)[id].isArchived && validatedChanges.isArchived) {
+        showUndoSnackbar(
+          `Archiving 1 task from the list area`,
+          () => Task.update({ id, keyValueChanges: { isArchived: false } })
+        )
+      }
     }
     catch (error) {
       alert("Error saving changes to db, please reload")
@@ -141,7 +160,7 @@ const Task = {
     await batch.commit()
 
     showUndoSnackbar(
-      `Hiding ${tasks.length} task${tasks.length > 1 ? 's' : ''} from the list area`,
+      `Archiving ${tasks.length} task${tasks.length > 1 ? 's' : ''} from the list area`,
       () => Task.unarchiveTree({ id })
     )
 

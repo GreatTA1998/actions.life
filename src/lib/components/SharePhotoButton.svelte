@@ -21,7 +21,7 @@
 
 <button onclick={e => sharePhoto(e)} class="photo-row-action">
   <MslIosShare style="font-size: 1.125rem;"/>
-  <span class="photo-row-label">Share</span>
+  <span class="photo-row-label">Share captioned photo</span>
 </button>
 
 <style>

@@ -27,18 +27,6 @@
     background-repeat: no-repeat;
   "
 >
-  <div style="display: flex; align-items: center; width: 100%; padding-top: 4px; padding-left: 6px;">
-    {#if task.iconURL}
-      <img src={task.iconURL} style="pointer-events: none; width: 32px; height: 32px;" alt="task icon">
-    {:else if task.name}
-      <div class="cal-task-name truncate-to-one-line unselectable" 
-        style="color: white;"
-      >
-        {task.name}
-      </div>
-    {/if}
-  </div>
-
    <!-- 
      `1vw`: if it's too wide, it overlaps with the task name for short duration tasks 
    -->
@@ -104,11 +92,8 @@
 <style>
  :root {
    --left-padding: 6px;
-   --default-task-color: hsla(210, 20%, 36%, 0.6);
 
    --experimental-black: hsla(0, 100%, 0%, 0.6);
-   --experimental-purple: hsla(248, 53%, 58%, 0.6);
-   --experimental-red: hsla(0, 100%, 50%, 0.6);
  }
 
  .calendar-block {

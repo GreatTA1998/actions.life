@@ -1,4 +1,5 @@
 <script>
+  import ModeSettings from './ModeSettings.svelte'
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
@@ -22,11 +23,13 @@
 <div class="settings-container"> 
   <div class="settings-content">
     <div style="flex: 1; display: flex; flex-direction: column; gap: 24px;">
-      <div style="display: flex; flex-direction: column; row-gap: 24px;">
-        <div style="display: flex; column-gap: 12px; align-items: center;" class="settings-group">
+      <div class="settings-group" style="display: flex; flex-direction: column; row-gap: 12px;">
+        <div style="display: flex; column-gap: 12px; align-items: center;">
           <div class="title">App</div>
+          
           <ColorSettings />
         </div>
+        <ModeSettings />
       </div>
    
       <div style="display: flex; flex-direction: column; row-gap: 16px;">

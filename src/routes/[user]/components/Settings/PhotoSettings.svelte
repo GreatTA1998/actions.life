@@ -45,7 +45,7 @@
 
   <CheckboxSquare onClick={() => toggle('photoUploadAutoArchive')}
     value={$user.photoUploadAutoArchive}
-    label="Auto-archive task after uploading a photo"
+    label="When attaching a photo, use the photo's date and time taken as start time"
   />
 
   <CheckboxSquare onClick={() => toggle('photoCompressWhenAttachingToTask')}
