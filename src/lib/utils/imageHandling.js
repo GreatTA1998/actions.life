@@ -6,7 +6,7 @@ import Task from '$lib/db/models/Task.js'
 
 const storage = getStorage()
 
-export async function singleUpload ({ e, willCompress, taskObject, willHydrateDateTime = false }) {
+export async function singleUpload ({ e, willCompress, taskObject, willHydrateDateTime }) {
   const promises = []
   for (let image of e.target.files) { // in reality it's always one file due to the input limit
     if (image) { // blob file

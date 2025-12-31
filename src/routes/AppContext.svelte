@@ -30,7 +30,7 @@
       e,
       taskObject,
       willCompress: $user.photoCompressWhenAttachingToTask,
-      willHydrateDateTime: $user.photoUploadAutoArchive,
+      willHydrateDateTime: true // $user.photoUploadAutoArchive, quickfix, otherwise attaching a photo to a list task causes it to disappear, as it gets archived
     })
   }
 </script>
