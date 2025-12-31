@@ -220,10 +220,10 @@
 
   {#each scheduledTasks as task, i (task.id)}
     <div class="task-absolute" style="top: {getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px;">
-      {#if task.iconURL}
-        <IconTaskElement {task} />
-      {:else if task.imageDownloadURL}
+      {#if task.imageDownloadURL}
         <PhotoTaskElement {task} />
+      {:else if task.iconURL}
+        <IconTaskElement {task} />
       {:else}
         <TaskElement {task} />
       {/if}
