@@ -6,7 +6,7 @@ import Task from '$lib/db/models/Task.js'
 
 const storage = getStorage()
 
-export async function singleUpload ({ e, willCompress, taskObject, willHydrateDateTime }) {
+export async function singleUpload ({ e, willCompress, taskObject, hasSideEffect }) {
   const promises = []
   for (let image of e.target.files) { // in reality it's always one file due to the input limit
     if (image) { // blob file
@@ -16,7 +16,7 @@ export async function singleUpload ({ e, willCompress, taskObject, willHydrateDa
       }
       promises.push(
         uploadImageBlobToFirebase(image, id).then(resultSnapshot => {
-          mergeImageWithTask(resultSnapshot, image, id, taskObject, willHydrateDateTime)
+          mergeImageWithTask(resultSnapshot, image, id, taskObject, hasSideEffect)
         })
       )
     }
@@ -24,7 +24,7 @@ export async function singleUpload ({ e, willCompress, taskObject, willHydrateDa
   await Promise.all(promises)
 }
 
-async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject, willHydrateDateTime) {
+async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject, hasSideEffect) {
   const { metadata } = resultSnapshot 
   const { fullPath, timeCreated } = metadata
 
@@ -52,15 +52,15 @@ async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject
   const updateObj = {
     imageDownloadURL,
     imageFullPath: fullPath, // for easy garbage collection
-    isDone: true // TO-DO: settings
     // note we do NOT change the task's timing based on the photo
   }
 
-  // only auto-hydrate the time if the task isn't already on the calendar
-  if (!taskObject.startDateISO && willHydrateDateTime) { 
-    updateObj.startDateISO = DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd')
-    updateObj.startTime = getTimeInHHMM({ dateClassObj })
-    // updateObj.duration = durationForFullDisplay
+  if (hasSideEffect) {
+    if (!taskObject.startDateISO) {
+      updateObj.startDateISO = DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd')
+      updateObj.startTime = getTimeInHHMM({ dateClassObj })
+    }
+    updateObj.isDone = true
   }
 
   try {
