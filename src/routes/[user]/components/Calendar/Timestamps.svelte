@@ -29,6 +29,6 @@
     color: #6d6d6d;
     background-color: var(--calendar-bg-color);
     z-index: 2;
-    font-size: 12px;
+    font-size: calc(0.75rem);
   }
 </style> 

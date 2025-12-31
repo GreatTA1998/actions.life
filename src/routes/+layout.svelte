@@ -85,6 +85,9 @@
     --offwhite-bg: rgb(250, 250, 250);
     --faint-color: lightgrey;
     --popup-control: 1.67rem;
+
+    /* font-size */
+    --scale: 1;
   }
 
   :global(*) {
@@ -126,7 +129,7 @@
   /** used in both <DayColumn/> and <FlexibleDayTask/> */
   :global(.cal-task-name) {
     font-weight: 500;
-    font-size: 0.8rem;
+    font-size: calc(0.8rem * var(--scale));
     cursor: pointer; 
   }
 

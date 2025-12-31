@@ -154,7 +154,7 @@
 
   .day-header {
     width: var(--width-calendar-day-section);
-    font-size: 1.4rem;
+    font-size: calc(1.4rem * var(--scale));
     background-color: var(--calendar-bg-color);
     color: #6d6d6d;
   }

@@ -27,7 +27,7 @@
 <style>
   .google-event {
     opacity: 0.4;
-    font-size: 0.8rem;
+    font-size: calc(0.8rem * var(--scale));
     padding: var(--left-padding);
     border-radius: var(--left-padding);
     overflow: hidden;

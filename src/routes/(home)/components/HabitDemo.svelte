@@ -105,7 +105,7 @@
   }
 
   .day-name-label {
-    font-size: 15px;
+    font-size: calc(1rem * var(--scale));
     margin-bottom: 0px;
     font-weight: 500;
     color: #6b7280;

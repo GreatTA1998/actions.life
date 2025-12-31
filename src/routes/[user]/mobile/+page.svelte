@@ -40,6 +40,10 @@
 </svelte:head>
 
 <style>
+  :global(:root) {
+    --scale: 2;
+  }
+
   :global(body),
   :global(html) {
     overflow: hidden;
