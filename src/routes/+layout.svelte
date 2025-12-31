@@ -25,12 +25,14 @@
 
       else if (!resultUser) {
         goto('/')
+        loggedIn.set(false)
         user.set({})
       } 
       
       else {
         goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
         loggedIn.set(true)
+        // [user]/+layout.svelte will hydrate `user`
       }
     })
   })

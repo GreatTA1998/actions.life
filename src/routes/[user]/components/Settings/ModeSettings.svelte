@@ -4,7 +4,7 @@
 
   const { User } = getContext('app')
   
-  let isSimple = $derived($user.simpleMode ?? true)
+  let isSimple = $derived($user.simpleMode)
 </script>
 
 <div class="mode-setting">

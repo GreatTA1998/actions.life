@@ -9,12 +9,11 @@
   import GithubButton from '$lib/components/GithubButton.svelte'
   import MslLogout from 'virtual:icons/material-symbols-light/logout'
   import { signOut } from 'firebase/auth'
-  import { goto } from '$app/navigation'
   import { user, firebaseAuth } from '$lib/store'
 
   async function handleLogoClick() {
     await signOut($firebaseAuth)
-    goto('/')
+    window.location.href = '/'
   }
 
   let statusMessage = $state('')
