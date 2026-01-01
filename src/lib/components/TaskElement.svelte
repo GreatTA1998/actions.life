@@ -93,6 +93,7 @@
   function getMergedStyle () {
     const styles = []
     
+    // TO-FIX: these styles are no longer reactive e.g. opacity change when task is marked as done, or duration changes
     styles.push(`position: relative`)
     styles.push(`height: ${height}px`)
     styles.push(`min-height: 12px`)
