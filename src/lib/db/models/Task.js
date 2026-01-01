@@ -5,7 +5,7 @@ import { user, tasksCache, showUndoSnackbar } from '$lib/store'
 import { 
   writeBatch, getDocs, increment, 
   collection, query, where, 
-  onSnapshot, doc 
+  onSnapshot, doc
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
@@ -34,6 +34,7 @@ const Task = {
     childrenLayout: z.string().default('normal'), // 'normal' (renaming to 'list' but requires proper migration) or 'timeline'
     photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'thumbnail'
     isCollapsed: z.boolean().default(false),
+    tagIDs: z.array(z.string()).default([]),
     
     // maintained fields
     orderValue: z.number().optional(),

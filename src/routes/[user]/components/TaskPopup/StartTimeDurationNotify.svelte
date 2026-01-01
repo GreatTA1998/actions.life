@@ -2,6 +2,7 @@
   import DurationPicker from '$lib/components/DurationPicker.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import LuxonDatePicker from '$lib/components/LuxonDatePicker.svelte'
+  import ColorTags from './ColorTags.svelte'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
@@ -25,7 +26,7 @@
   }
 </script>
 
-<div style="display: flex; align-items: start; gap: 16px; font-size: 1.2em;">
+<div style="display: flex; align-items: center; gap: 16px; font-size: 1.2em;">
   <div style="display: flex; column-gap: 2px;">
     {#key taskObject.id}
       <LuxonDatePicker
@@ -47,4 +48,6 @@
   <DurationPicker value={Math.round(taskObject.duration)}
     oninput={e => handleChanges('duration', Number(e.target.value))}
   />
+
+  <ColorTags {taskObject} />
 </div>

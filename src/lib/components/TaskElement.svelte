@@ -4,19 +4,7 @@
   draggable="true" 
   class="claude-draggable-item"
   class:calendar-block={!isBulletPoint}
-  style="
-    position: relative;
-    height: {height}px; 
-    min-height: 12px;
-    opacity: {task.isDone ? '0.9' : '0.7'};
-    background-color: {isBulletPoint ? '' : 'var(--experimental-black)'};
-    background-image: {task.imageDownloadURL ? `url(${task.imageDownloadURL})` : ''};
-    background-size: contain;
-    background-repeat: no-repeat;
-    padding-left: {isBulletPoint ? '0px' : 'var(--left-padding)'};
-    padding-right: var(--left-padding);
-    display: flex; flex-direction: column; row-gap: 4px;
-  "
+  style={mergedStyle}
 >
   <!-- As long as this parent div is correctly sized, the duration adjusting area 
     will be positioned correctly (it's glued to the bottom of this parent div)
@@ -33,13 +21,9 @@
         <MslCircle style="font-size: 2px;"/>
       </div>
     {/if}
-
-    <CalCheckableTaskName 
-      {task} 
-      color={isBulletPoint ? 'black' : 'white'}
-    />
+    
+    <CalCheckableTaskName {task} color={(isBulletPoint || task.tagIDs?.length >= 2) ? 'black' : 'white'}/>
   </div>
-  <!-- End of task name flexbox -->
 
   {#if !isBulletPoint}
     {#if task.children.length > 0}
@@ -78,19 +62,72 @@
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
   import MslCircle from 'virtual:icons/material-symbols-light/circle'
   import { getTrueY } from '$lib/utils/core.js'
+  import { user } from '$lib/store'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
-  import { getContext } from 'svelte'
+  import { getContext, onMount } from 'svelte'
 
+  import { getMultiColorBgStyles } from '$lib/utils/multiColorRendering.js'
+  
   const { Task, openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
 
   let { 
     task = null // this component assumes `task` is hydrated
-   } = $props()
+  } = $props()
 
+  const tagColors = $derived(
+    (task.tagIDs || [])
+      .map(id => $user.tags?.[id]?.color)
+      .filter(Boolean)
+  )
+  
   let height = $derived($pixelsPerHour / 60 * task.duration)
   let isBulletPoint = $derived(height < 24) // 24px is exactly enough to not crop the checkbox and the task name
   let startY = 0
+  let mergedStyle = $state([])
+
+  onMount(() => {
+    mergedStyle = getMergedStyle()
+  })
+  
+  function getMergedStyle () {
+    const styles = []
+    
+    styles.push(`position: relative`)
+    styles.push(`height: ${height}px`)
+    styles.push(`min-height: 12px`)
+    styles.push(`opacity: ${task.isDone ? '0.9' : '0.7'}`)
+    styles.push(`padding-left: ${isBulletPoint ? '0px' : 'var(--left-padding)'}`)
+    styles.push(`padding-right: var(--left-padding)`)
+    styles.push(`display: flex`)
+    styles.push(`flex-direction: column`)
+    styles.push(`row-gap: 4px`)
+
+    if (!isBulletPoint) {
+      styles.push(`border: 1px solid rgba(0,0,0,0.15)`)
+      let bgColor = 'var(--experimental-black)'
+      const { tagIDs } = task
+      if (tagIDs) {
+        if (tagIDs.length === 1) {
+          bgColor = $user.tags[tagIDs[0]].color
+        } 
+        else if (tagIDs.length >= 2) { 
+          const multiColorStyles = getMultiColorBgStyles(tagColors, 'dots') // or 'gradient'
+          bgColor = multiColorStyles.backgroundColor
+
+          Object.entries(multiColorStyles).forEach(([k, v]) => {
+            if (k !== 'opacity' && v !== undefined && v !== '') {
+              const cssKey = k.replace(/([A-Z])/g, '-$1').toLowerCase() // Convert camelCase to kebab-case for CSS
+              styles.push(`${cssKey}: ${v}`)
+            }
+          })
+        }
+      }
+
+      styles.push(`background-color: ${bgColor}`)
+    }
+    return styles.join('; ')
+  }
 
   function startAdjustingDuration (e) {
     e.stopPropagation() // DragContext doesn't get involved, duration adjustment is fully handled within this component
@@ -114,13 +151,6 @@
 </script> 
 
 <style>
-  :root {
-    --default-task-color: hsla(210, 20%, 36%, 0.6);
-
-    --experimental-purple: hsla(248, 53%, 58%, 0.6);
-    --experimental-red: hsla(0, 100%, 50%, 0.6);
-  }
-
   .calendar-block {
     width: 100%;
     padding-top: var(--left-padding);
