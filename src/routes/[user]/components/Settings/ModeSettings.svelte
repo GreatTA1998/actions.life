@@ -7,7 +7,7 @@
   let isSimple = $derived($user.simpleMode)
 </script>
 
-<div class="mode-setting">
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
   <div class="mode-toggle">
     <button onclick={() => User.update({ simpleMode: true })} 
       class="mode-button"
@@ -33,12 +33,6 @@
 </div>
 
 <style>
-  .mode-setting {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
 
   .mode-toggle {
     display: flex;
