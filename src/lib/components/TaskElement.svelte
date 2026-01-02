@@ -64,7 +64,7 @@
   import { getTrueY } from '$lib/utils/core.js'
   import { user } from '$lib/store'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
-  import { getContext, onMount } from 'svelte'
+  import { getContext } from 'svelte'
 
   import { getMultiColorBgStyles } from '$lib/utils/multiColorRendering.js'
   
@@ -80,15 +80,11 @@
       .map(id => $user.tags?.[id]?.color)
       .filter(Boolean)
   )
-  
+
+  let startY = $state(0)
   let height = $derived($pixelsPerHour / 60 * task.duration)
   let isBulletPoint = $derived(height < 24) // 24px is exactly enough to not crop the checkbox and the task name
-  let startY = 0
-  let mergedStyle = $state([])
-
-  onMount(() => {
-    mergedStyle = getMergedStyle()
-  })
+  let mergedStyle = $derived(getMergedStyle(task))
   
   function getMergedStyle () {
     const styles = []
@@ -103,9 +99,9 @@
     styles.push(`display: flex`)
     styles.push(`flex-direction: column`)
     styles.push(`row-gap: 4px`)
+    styles.push(`border: ${isBulletPoint ? '' : '1px solid rgba(0,0,0,0.15)'}`)
 
     if (!isBulletPoint) {
-      styles.push(`border: 1px solid rgba(0,0,0,0.15)`)
       let bgColor = 'var(--experimental-black)'
       const { tagIDs } = task
       if (tagIDs) {
@@ -115,7 +111,8 @@
         else if (tagIDs.length >= 2) { 
           const multiColorStyles = getMultiColorBgStyles(tagColors, 'dots') // or 'gradient'
           bgColor = multiColorStyles.backgroundColor
-
+          
+          // NOTE: these are side-effects, additional CSS property changes
           Object.entries(multiColorStyles).forEach(([k, v]) => {
             if (k !== 'opacity' && v !== undefined && v !== '') {
               const cssKey = k.replace(/([A-Z])/g, '-$1').toLowerCase() // Convert camelCase to kebab-case for CSS
