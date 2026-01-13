@@ -26,28 +26,28 @@
   }
 </script>
 
-<div style="display: flex; align-items: center; gap: 16px; font-size: 1.2em;">
-  <div style="display: flex; column-gap: 2px;">
-    {#key taskObject.id}
-      <LuxonDatePicker
-        startDateISO={taskObject.startDateISO}
-        willOpen={$willOpenDatePicker}
-        ondateselected={({ mmdd, yyyy }) => { 
-          if (!(mmdd && yyyy)) handleChanges('startDateISO', '')
-          else handleChanges('startDateISO', `${yyyy}-${mmdd.replace('/', '-')}`)
-        }}
-      />
-    {/key}
-
-    <MyTimePicker value={taskObject.startTime}
-      oninput={e => handleChanges('startTime', e.target.value)}
-      onTimeSelected={hhmm => handleChanges('startTime', hhmm)}
+<div style="display: flex; align-items: center; gap: 8px; font-size: 1.2rem;">
+  {#key taskObject.id}
+    <LuxonDatePicker
+      startDateISO={taskObject.startDateISO}
+      willOpen={$willOpenDatePicker}
+      ondateselected={({ mmdd, yyyy }) => { 
+        if (!(mmdd && yyyy)) handleChanges('startDateISO', '')
+        else handleChanges('startDateISO', `${yyyy}-${mmdd.replace('/', '-')}`)
+      }}
     />
-  </div>
+  {/key}
+
+  <MyTimePicker value={taskObject.startTime}
+    oninput={e => handleChanges('startTime', e.target.value)}
+    onTimeSelected={hhmm => handleChanges('startTime', hhmm)}
+  />
 
   <DurationPicker value={Math.round(taskObject.duration)}
     oninput={e => handleChanges('duration', Number(e.target.value))}
   />
+
+  <div></div>
 
   <ColorTags {taskObject} />
 </div>

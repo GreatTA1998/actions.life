@@ -69,10 +69,20 @@ export function reconstructTreeInMemory (firestoreTaskDocs) {
   return memoryTree
 }
 
-function extendTree(node, memo) {
+function extendTree (node, memo) {
   node.children = memo[node.id]
   node.children = node.children.sort((a, b) => a.orderValue - b.orderValue)
   for (const child of node.children) {
     extendTree(child, memo)
+  }
+}
+
+export function findSubtree ({ tree, id }) {
+  if (tree.id === id) return tree
+  else {
+    for (const child of tree.children) {
+      const result = findSubtree({ tree: child, id })
+      if (result) return result
+    }
   }
 }

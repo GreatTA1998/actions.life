@@ -34,7 +34,7 @@
 
     <button class="m-item" onclick={() => { Task.archiveTree({ id: taskObj.id }) }}>
       <MslInventory2Outline style="font-size: 1.125rem;"/>
-      Archive from list
+      Archive
     </button>
   </div>
 {/snippet}

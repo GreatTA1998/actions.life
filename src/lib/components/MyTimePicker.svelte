@@ -50,7 +50,7 @@
 
   {#snippet activator ({ open, close, toggle })}
     <input {value}
-      placeholder='hh:mm'
+      placeholder='time'
       pattern='[0-9]{2}:[0-9]{2}'
       {oninput}
       onclick={open}
@@ -74,7 +74,7 @@
 
 <style lang="scss">
   .time-dropdown {
-    width: 52px; 
+    width: 58px; 
     text-align: center; 
     height: 30px; 
     border-radius: 4px;

@@ -3,7 +3,7 @@ import { db } from '/src/lib/db/init.js' // not initialize db first will cause p
 import './themes'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { user } from './userStore.js'
-import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'
+import { reconstructTreeInMemory, findSubtree } from '/src/routes/[user]/components/ListsArea/service.js'
 import { writable, get } from 'svelte/store'
 
 export { calSnapInterval, timestamps } from '/src/routes/[user]/components/Calendar/timestamps.js'
@@ -69,16 +69,6 @@ clickedTaskID.subscribe(async (taskID) => {
     console.error('Error in task tree subscription:', error)
   })
 })
-
-function findSubtree ({ tree, id }) {
-  if (tree.id === id) return tree
-  else {
-    for (const child of tree.children) {
-      const result = findSubtree({ tree: child, id })
-      if (result) return result
-    }
-  }
-}
 
 export function openSettings () {
   settingsOpen.set(true)

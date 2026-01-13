@@ -2,13 +2,14 @@
 
 <script>
   import { setContext } from 'svelte'
-  import { writable } from 'svelte/store'
+  import { get, writable } from 'svelte/store'
   import realTask from '$lib/db/models/Task.js'
-  import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'
+  import { reconstructTreeInMemory, findSubtree } from '/src/routes/[user]/components/ListsArea/service.js'
 
   let { children } = $props()
 
   const clickedTaskID = writable('')
+  const ancestralTree = writable(null)
   const user = writable({
     uid: 'demo-user',
     maxOrderValue: 100
@@ -215,7 +216,7 @@
 
   const tasks = [...habitTasks, ...timelineTasks, ...updateLogTasks]
 
-  // set ids manually
+  // set ids manually (TO-DO: makes the demo brittle)
   for (let i = 0; i < tasks.length; i++) {
     tasks[i].id = tasks[i].name
     tasks[i].orderValue = i + 1
@@ -234,12 +235,24 @@
     memoryTree.set(reconstructTreeInMemory(docs))
   })
 
+  clickedTaskID.subscribe(id => {
+    if (!id) return
+
+    for (const tree of get(memoryTree)) {
+      const result = findSubtree({ id, tree })
+      if (result) {
+        ancestralTree.set(result)
+      }
+    }
+  })
+
   setContext('app', {
     User, user,
     Task,
     tasksCache, 
     memoryTree,
     clickedTaskID,
+    ancestralTree,
     closeTaskPopup: () => clickedTaskID.set(''),
     openTaskPopup: (task) => clickedTaskID.set(task.id), 
     uploadMockPhoto: ({ id }) =>{

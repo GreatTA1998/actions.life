@@ -49,6 +49,8 @@ const Task = {
       const validatedTask = Task.schema.parse(newTaskObj)
       const { parentID, startDateISO } = validatedTask
       const parent = get(tasksCache)[parentID]
+      
+      if (parent?.tagIDs) validatedTask.tagIDs = parent.tagIDs
 
       const { uid } = get(user)
       const batch = writeBatch(db)

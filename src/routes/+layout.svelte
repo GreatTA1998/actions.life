@@ -123,6 +123,9 @@
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+
+    /* additional based on personal use */
+    display: inline-flex;
   }
 
   /** used in both <DayColumn/> and <FlexibleDayTask/> */

@@ -1,4 +1,5 @@
 <script>
+  import ColorPicker from './ColorPicker.svelte'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import Task from '$lib/db/models/Task';
   import User from '$lib/db/models/User'
@@ -9,13 +10,15 @@
 
   let { taskObject } = $props()
 
-  let input = $state(false)
   let value = $state('')
+
+  function autofocus (node) {
+    node.focus()
+  }
 
   function onkeyup (e) {
     if (e.key === 'Enter') {
       if (value === '') {
-        input = false
         return
       }
       const copy = { ...$user.tags }
@@ -41,15 +44,16 @@
   }
 
   function toggleTag (id) {
-    const keyValueChanges = {}
-    if (taskObject.tagIDs.includes(id)) {
-      keyValueChanges.tagIDs = taskObject.tagIDs?.filter(elem => elem !== id) || [id]
+    const kvChanges = {}
+    const { tagIDs } = taskObject
+    if (tagIDs?.includes(id)) {
+      kvChanges.tagIDs = tagIDs?.filter(elem => elem !== id) || [id]
     } else {
-      keyValueChanges.tagIDs = [...(taskObject.tagIDs || []), id] 
+      kvChanges.tagIDs = [...(tagIDs || []), id] 
     }
     Task.update({ 
       id: taskObject.id,
-      keyValueChanges
+      keyValueChanges: kvChanges
     })
   }
 </script>
@@ -57,7 +61,19 @@
 <PopoverMenu {activator} {content} />
 
 {#snippet activator ({ setPosition, popovertarget })}
-  <button onclick={setPosition} {popovertarget} class="flexbox content-center" style="column-gap: 2px;">
+  <button onclick={setPosition} {popovertarget} 
+    class="flexbox content-center" 
+    style="
+      column-gap: 4px; 
+      height: 18px; 
+      min-width: 18px; 
+      width: fit-content;
+      align-items: center; 
+      justify-content: center; 
+      border-radius: 4px; 
+      padding: 0px 4px;
+    "
+  >
     {#if (taskObject.tagIDs?.length > 0)}
       {#each taskObject.tagIDs as id}
         {@render circle($user.tags[id].color)}
@@ -69,40 +85,71 @@
 {/snippet}
 
 {#snippet content ()}
-  <div style="height: fit-content; width: 240px; padding: 4px;">
+  <div style="height: fit-content; width: fit-content; padding: 4px; display: flex; flex-direction: column; row-gap: 4px;">
     {#if $user.tags}
       {#each Object.entries($user.tags) as [id, tag] (id)}
-        <div class="flexbox content-center" style="column-gap: 4px;">
-          <input type="color" value={tag.color} onchange={updateColor}>
+        <button 
+          class="flexbox content-center" 
+          class:selected={taskObject.tagIDs?.includes(id)}
+          style="column-gap: 4px;"
+        >
+          <ColorPicker type="color" value={tag.color} onchange={updateColor} />
           <!-- {@render circle(tag.color)} -->
           <div onclick={() => toggleTag(id)}>{tag.name}</div>
           {@render menu(id)}
-        </div>
+        </button>
       {/each}
     {/if}
 
-    <div onclick={() => input = true} style="height: 48px;">    
-      {#if input}
-        <input {value} oninput={e => value = e.target.value} {onkeyup}>
-      {/if}
-    </div>
+    <button popovertarget="new-tag-popover" style="anchor-name: --anchor-new-tag; height: 20px; min-width: 48px; width: 100%; border: 1px solid red;">
+      <!-- problem: if you use popovertarget, without a reference to JS and tracking states, you can't autofocus -->
+      <!-- however you could make it a component, and let it trigger on an open -->
+      <div popover id="new-tag-popover" style="position: absolute; position-area: center;">
+        <input use:autofocus {value} oninput={e => value = e.target.value} {onkeyup}>
+      </div>
+    </button>
   </div>
 {/snippet}
 
 {#snippet circle (color)}
-  <div style="background-color: {color}; border-radius: 50%; width: 6px; height: 6px;"></div>
+  <div style="background-color: {color}; border-radius: 50%; width: 4px; height: 4px;"></div>
 {/snippet}
 
 {#snippet menu (id)}
-  <!-- TO-DO: anchor positioning  -->
-  <div popover {id} style="width: fit-content; height: fit-content;">
+  <div popover id="popover-{id}" 
+    style="
+      position: absolute;
+      position-anchor: --anchor-{id};
+      left: anchor(right);
+      top: anchor(top);
+      position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    "
+  >
     <button>Edit</button>
     <button onclick={() => deleteColorTag({ tagID: id, user: $user })}>
       Delete
     </button>    
   </div>
 
-  <button popovertarget={id}>
+  <button popovertarget="popover-{id}" 
+    style="
+      height: fit-content; 
+      display: flex;
+      anchor-name: --anchor-{id};
+    ">
     <MslMoreVert style="font-size: 1.5rem;"/>
   </button>
 {/snippet}
+
+<style>
+  [popover] {
+    margin: 0;
+    inset: unset; 
+  }
+
+  .selected {
+    background-color: rgba(0, 0, 0);
+    color: white;
+    border-radius: 4px;
+  }
+</style>

@@ -10,10 +10,9 @@
     ondateselected = () => {}
   } = $props()
 
-  // State
   let selected = $state(null)
+  let display = $derived(selected ? selected.toFormat('yyyy-MM-dd') : '')
 
-  // Initialize from startDateISO
   $effect(() => {
     if (startDateISO) {
       // Capture dependency
@@ -33,14 +32,9 @@
     }
   })
 
-  // Format for display: "Jul 19"
-  let display = $derived(selected ? selected.toFormat('MMM d') : '')
-
-  // Handle date selection and update local state
-  function handleDateSelected({ mmdd, yyyy }) {
-    if (!mmdd || !yyyy) {
-      selected = null
-    } else {
+  function handleDateSelected ({ mmdd, yyyy }) {
+    if (!mmdd || !yyyy) selected = null
+    else {
       const [month, day] = mmdd.split('/').map(Number)
       const year = Number(yyyy)
       selected = DateTime.fromObject({ year, month, day })
@@ -58,7 +52,7 @@
         popovertarget="popover"
         class="input"
       >
-        {display || 'MM/dd'}
+        {display || 'date'}
       </button>
     {/snippet}
 
@@ -80,7 +74,7 @@
 
   .input {
     height: 30px;
-    width: 64px;
+    width: fit-content;
     padding: 2px;
     border: 0;
     border-radius: 4px;

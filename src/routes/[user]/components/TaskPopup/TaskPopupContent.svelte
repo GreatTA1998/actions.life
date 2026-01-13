@@ -72,7 +72,7 @@
       <UXFormTextArea value={taskObject.notes}
         oninput={e => debouncedUpdate($clickedTaskID, { notes: e.target.value })}
         fieldLabel=""
-        placeholder="Write notes here..."
+        placeholder="Notes"
       />
     </div>
 
@@ -132,7 +132,6 @@
     <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
       <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button action-button">
         <MslDeleteOutline style="font-size: var(--popup-control);"/>
-        <span class="tooltip">Delete this task and all its children</span>
       </button>
     </div>
   </div>
@@ -146,10 +145,6 @@
 </PhotoLayout>
 
 <style>
-  .delete-button {
-    border-radius: 24px; 
-  }
-
   .notes-tree-container {
     width: 100%; 
     display: flex; 
@@ -175,27 +170,6 @@
     font-weight: 700;
     padding-left: 0px;
     padding-bottom: 4px;
-  }
-
-  .tooltip {
-    visibility: hidden;
-    background-color: #555;
-    color: white;
-    text-align: center;
-    padding: 5px;
-    border-radius: 6px;
-    position: absolute;
-    z-index: 5;
-    bottom: 125%;
-    right: 0;
-    transform: translateY(-5px);
-    white-space: nowrap;
-    font-family: system-ui, -apple-system, sans-serif;
-    font-size: 14px;
-  }
-
-  .delete-button:hover .tooltip {
-    visibility: visible;
   }
 
   .action-button {

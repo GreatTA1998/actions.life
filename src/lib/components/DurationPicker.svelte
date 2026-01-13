@@ -39,7 +39,7 @@
       placeholder="30"
     >
     <span class="suffix">
-      min
+      m
     </span>
   </div>
 {/snippet}
@@ -67,7 +67,7 @@
   input {
     max-width: 80px;
     height: 30px;
-    padding: 8px 40px 8px 12px; /* extra padding on right for "min" */
+    padding: 0px 6px 0px 0px; /* extra padding on right for "min" */
     border: 0px solid #e0e0e0;
     border-radius: 6px;
     outline: none;
