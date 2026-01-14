@@ -2,6 +2,7 @@ import { sveltekit } from '@sveltejs/kit/vite'
 import { SvelteKitPWA } from '@vite-pwa/sveltekit'
 import Icons from 'unplugin-icons/vite'
 import devtoolsJson from 'vite-plugin-devtools-json'
+import UnoCSS from 'unocss/vite'
 
 export default {
   server: {
@@ -10,6 +11,7 @@ export default {
 
   plugins: [
     sveltekit(),
+    UnoCSS(),
     Icons({
       compiler: 'svelte'
     }),

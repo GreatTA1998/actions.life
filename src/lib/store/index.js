@@ -37,7 +37,6 @@ export function cleanupCache (tasks) {
 }
 
 export const clickedTaskID = writable('')
-export const isTaskPopupOpen = writable(false)
 export const willOpenDatePicker = writable(false)
 export const settingsOpen = writable(false)
 export const ancestralTree = writable(null)
@@ -82,13 +81,14 @@ export function toggleSettings () {
   settingsOpen.set(!get(settingsOpen))
 }
 
-export function openTaskPopup(task) {
+export function openTaskPopup (task) {
+  const taskPopover = document.getElementById('task-popover')
+  taskPopover.showPopover()
+
   clickedTaskID.set(task.id)
-  isTaskPopupOpen.set(true)
 }
 
 export function closeTaskPopup() {
-  isTaskPopupOpen.set(false)
   clickedTaskID.set('')
   willOpenDatePicker.set(false)
 }

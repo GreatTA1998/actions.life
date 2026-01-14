@@ -3,7 +3,7 @@
   import ExtendRoutines from '/src/routes/[user]/components/ExtendRoutines.svelte'
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import { user, isTaskPopupOpen } from '$lib/store'
+  import { user } from '$lib/store'
   import { onMount, onDestroy, getContext } from 'svelte'
   import { page } from '$app/state'
 
@@ -35,9 +35,7 @@
     {@render children()}
 
     <ExtendRoutines />
-
-    {#if $isTaskPopupOpen}
-      <TaskPopup />
-    {/if}
+    
+    <TaskPopup />
   {/if}
 </div>

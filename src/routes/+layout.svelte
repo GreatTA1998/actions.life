@@ -12,6 +12,7 @@
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
   import '@fontsource-variable/inter'
+  import 'virtual:uno.css'
 
   let { children } = $props()
 
@@ -105,6 +106,10 @@
   :global(body) {
     margin: 0;
     height: 100%;
+  }
+
+  :global(img) {
+    display: block;
   }
 
   /* Reset button's default styling */
