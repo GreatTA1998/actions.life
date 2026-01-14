@@ -112,7 +112,7 @@
 {/snippet}
 
 {#snippet circle (color)}
-  <div style="background-color: {color}; border-radius: 50%; width: 4px; height: 4px;"></div>
+  <div style="background-color: {color}; border-radius: 50%; width: 5px; height: 5px;"></div>
 {/snippet}
 
 {#snippet menu (id)}
