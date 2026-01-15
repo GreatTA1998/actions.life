@@ -43,35 +43,28 @@
   }
 </script>
 
-<div class="picker">
-  <Popover {willOpen}>
-    {#snippet activator({ setButtonRef, close })}
-      <button
-        use:setButtonRef
-        type="button"
-        popovertarget="popover"
-        class="input"
-      >
-        {display || 'date'}
-      </button>
-    {/snippet}
+<Popover {willOpen}>
+  {#snippet activator({ setButtonRef, close })}
+    <button
+      use:setButtonRef
+      type="button"
+      popovertarget="popover"
+      class="input"
+    >
+      {display || 'date'}
+    </button>
+  {/snippet}
 
-    {#snippet content({ close })}
-      <DatePicker
-        selected={selected}
-        ondateselected={handleDateSelected}
-        onclose={close}
-      />
-    {/snippet}
-  </Popover>
-</div>
+  {#snippet content({ close })}
+    <DatePicker
+      selected={selected}
+      ondateselected={handleDateSelected}
+      onclose={close}
+    />
+  {/snippet}
+</Popover>
 
 <style>
-  .picker {
-    position: relative;
-    display: inline-block;
-  }
-
   .input {
     height: 30px;
     width: fit-content;

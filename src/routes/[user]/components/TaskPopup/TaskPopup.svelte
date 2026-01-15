@@ -2,7 +2,6 @@
   import TaskPopupContent from './TaskPopupContent.svelte'
   import { getContext } from 'svelte'
   import { innerWidth } from 'svelte/reactivity/window'
-  import { isInputActive } from '$lib/store/popoverInput.js'
 
   const { tasksCache, clickedTaskID, closeTaskPopup } = getContext('app')
 
@@ -19,15 +18,11 @@
   }
 
   function ontoggle (e) {
-    if (e.newState === 'closed') {
-      closeTaskPopup()
-      setTimeout(() => isInputActive.set(false), 300) // @see ThePopoverInput.svelte
-    }
-    else isInputActive.set(true)
+    if (e.newState === 'closed') closeTaskPopup()
   }
 </script>
 
-<div popover {ontoggle} id="task-popover">
+<dialog {ontoggle} id="task-dialog" closedby="any">
   {#if taskObject}
     {@const { imageDownloadURL, photoLayout } = taskObject}
 
@@ -59,7 +54,7 @@
               <img src={taskObject.imageDownloadURL} 
                 style="width: {W.details1}px; height: {W.details1 * 3/4}px; object-fit: cover;" 
               />
-              <div style="width: {W.details1}px; height: 300px; border: solid blue; padding: 12px;">
+              <div style="width: {W.details1}px; height: 300px; padding: 12px;">
                 <TaskPopupContent />
               </div>
             {/if}
@@ -68,27 +63,36 @@
       {/await}
     {:else}
       {#if innerWidth.current < 768}
-        <div style="max-height: 80dvh; width: 100vw; height: fit-content;">
+        <div style="max-height: 80dvh; width: 100vw; height: fit-content; padding: 12px;">
           <TaskPopupContent />
         </div>
       {:else}
-        <div style="width: 768px;">
+        <div style="width: 768px; padding: 12px;">
           <TaskPopupContent />
         </div>
       {/if}
     {/if}
   {/if}
-</div>
+</dialog>
 
 <style>
-  [popover] {
+  dialog {
     padding: 0;
     border: none;
-    border-radius: 16px;
+    border-radius: 24px;
   }
 
   ::backdrop {
-    backdrop-filter: blur(3px);
-    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(48px);
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+
+  dialog:-internal-dialog-in-top-layer {
+    max-width: unset;
+    max-height: unset;
+  }
+
+  :focus-visible {
+    outline: unset;
   }
 </style>

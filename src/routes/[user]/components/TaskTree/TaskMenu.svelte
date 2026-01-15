@@ -16,21 +16,19 @@
 />
 
 {#snippet activator ({ setPosition, popovertarget })} 
-  <div style="max-height: 16px; display: flex; align-items: center;">
+  <div style="anchor-name: --anchor-{popovertarget}; max-height: 16px; display: flex; align-items: center;">
     <button {popovertarget} onclick={setPosition} class="menu-icon flexbox content-center">
       <MslMoreVert style="font-size: 1.5rem;"/>
     </button>
   </div>
 {/snippet}
 
-{#snippet content ({ close })} 
+{#snippet content ({ close })}
   <div style="padding: 8px; display: flex; flex-direction: column; row-gap: 8px;">    
     <ToggleGroup onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal }})}
       options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
       activeValue={taskObj.childrenLayout} 
     />
-
-    <!-- <div class="menu-divider"></div> -->
 
     <button class="m-item" onclick={() => { Task.archiveTree({ id: taskObj.id }) }}>
       <MslInventory2Outline style="font-size: 1.125rem;"/>
@@ -53,12 +51,5 @@
     display: flex;
     align-items: center;
     column-gap: 6px;
-  }
-
-  .menu-divider {
-    height: 1px;
-    background: #ececf0;
-    margin: 4px 0;
-    border: none;
   }
 </style>

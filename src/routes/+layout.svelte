@@ -90,6 +90,7 @@
     --popup-control: 1.67rem;
   }
 
+  /* reset styles */
   :global(*) {
     box-sizing: border-box;
     font-family: 'Inter Variable', sans-serif;
@@ -112,6 +113,10 @@
     display: block;
   }
 
+  :global([popover]) {
+    padding: 0;
+  }
+
   /* Reset button's default styling */
   :global(button) {
     background: none;
@@ -131,6 +136,7 @@
 
     /* additional based on personal use */
     display: inline-flex;
+    align-items: center;
   }
 
   /** used in both <DayColumn/> and <FlexibleDayTask/> */

@@ -22,14 +22,14 @@
     1000
   )
 
-  function handleDelete () {
+  async function handleDelete () {
     if (taskObject.imageDownloadURL && !confirm("Are you sure you want to delete this task and its image?")) {
       return
     }
     if (taskObject.notes && !confirm("Are you sure you want to delete this task and its notes?")) {
       return
     }
-    Task.delete({ 
+    await Task.delete({ 
       id: taskObject.id
     })
     closeTaskPopup()
