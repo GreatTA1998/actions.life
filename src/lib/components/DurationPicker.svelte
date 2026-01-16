@@ -1,5 +1,6 @@
 <script>
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
+  import { fieldHeight, paddingVal } from '$lib/styles/reused.module.css'
 
   let { value, oninput } = $props()
 
@@ -29,18 +30,20 @@
 <PopoverMenu {activator} {content} />
 
 {#snippet activator({ open, close, setPosition })}
-  <div class="duration-input">
+  <div style="
+    position: relative; display: inline-flex; align-items: center;
+    padding: 0px {paddingVal}; height: {fieldHeight}"
+  >
     <input {value} {oninput}
       onclick={open}
       type="number" 
       pattern="[0-9]*"
       max="1000"
       min="0"
-      placeholder="30"
     >
-    <span class="suffix">
+    <div class="suffix">
       m
-    </span>
+    </div>
   </div>
 {/snippet}
 
@@ -58,16 +61,9 @@
 {/snippet}
 
 <style>
-  .duration-input {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-  }
-
   input {
-    max-width: 80px;
-    height: 30px;
-    padding: 0px 6px 0px 0px; /* extra padding on right for "min" */
+    display: block;
+    field-sizing: content;
     border: 0px solid #e0e0e0;
     border-radius: 6px;
     outline: none;
@@ -92,8 +88,6 @@
   }
 
   .suffix {
-    position: absolute;
-    right: 12px;
     color: var(--scheduled-info-color);
     font-size: 0.875rem;
     pointer-events: none;

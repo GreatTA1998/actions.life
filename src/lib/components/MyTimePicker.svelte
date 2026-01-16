@@ -2,6 +2,7 @@
   import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { getRandomID } from '$lib/utils/core.js'
+  import { fieldHeight, paddingVal, fieldWithPlaceholder } from '$lib/styles/reused.module.css'
 
   let { 
     value = '', 
@@ -35,10 +36,11 @@
 </script>
 
 <div>
+  <!-- instead achieve overflow via the @snippet itself -->
+  <!-- menuStyles="overflow-y: auto; height: 360px;" -->
   <PopoverMenu {id}
     {activator} 
     {content}
-    menuStyles="overflow-y: auto; height: 360px;"
     bind:this={scrollContainer}
     ontoggle={e => {
       if (e.newState === 'open') {
@@ -48,13 +50,18 @@
     }}
   />
 
-  {#snippet activator ({ open, close, toggle })}
+  {#snippet activator ({ open, popovertarget })}
     <input {value}
-      placeholder='time'
+      placeholder='Time'
       pattern='[0-9]{2}:[0-9]{2}'
       {oninput}
-      onclick={open}
-      class="time-dropdown"
+      onclick={open}                                                                
+      class="time-dropdown {fieldWithPlaceholder}"
+      style="
+        anchor-name: --anchor-{popovertarget};
+        height: {fieldHeight};
+        padding: 0 {paddingVal};
+      "
     />
   {/snippet}
 
@@ -74,11 +81,11 @@
 
 <style lang="scss">
   .time-dropdown {
-    width: 58px; 
+    field-sizing: content;
     text-align: center; 
-    height: 30px; 
     border-radius: 4px;
     border: none;
+    outline: none;
 
     font-size: 14px;
     color: var(--scheduled-info-color);

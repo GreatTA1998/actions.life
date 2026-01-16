@@ -26,7 +26,7 @@
   }
 </script>
 
-<div style="display: flex; align-items: center; gap: 8px; font-size: 1.2rem;">
+<div style="display: flex; align-items: center; column-gap: 12px; font-size: 1.2rem;">
   {#key taskObject.id}
     <LuxonDatePicker
       startDateISO={taskObject.startDateISO}
@@ -46,8 +46,6 @@
   <DurationPicker value={Math.round(taskObject.duration)}
     oninput={e => handleChanges('duration', Number(e.target.value))}
   />
-
-  <div></div>
 
   <ColorTags {taskObject} />
 </div>

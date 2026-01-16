@@ -7,6 +7,7 @@
   import { deleteColorTag } from '$lib/db/helpers.js'
   import { user } from '$lib/store'
   import { getRandomID, getRandomColor } from '$lib/utils/core.js'
+  import { paddingVal, fieldHeight } from '$lib/styles/reused.module.css'
 
   let { taskObject } = $props()
 
@@ -65,13 +66,13 @@
     class="flexbox content-center" 
     style="
       column-gap: 4px; 
-      height: 18px; 
+      height: {fieldHeight}; 
       min-width: 18px; 
       width: fit-content;
       align-items: center; 
       justify-content: center; 
       border-radius: 4px; 
-      padding: 0px 4px;
+      padding: 0px {paddingVal};
     "
   >
     {#if (taskObject.tagIDs?.length > 0)}

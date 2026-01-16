@@ -4,6 +4,7 @@
   class:grey-border={!isFocused}
   class:blue-border={isFocused}
   style="height: fit-content;"
+  style:padding="0 {paddingVal}"
 >
   <!-- <div class="ux-field-label">
     {fieldLabel}
@@ -31,7 +32,8 @@
   let { oninput, fieldLabel = '', placeholder, value = '' } = $props()
 
   import TextAreaAutoResizing from '$lib/components/TextAreaAutoResizing.svelte'
-  
+  import { paddingVal } from '$lib/styles/reused.module.css'
+
   let InputElem
   let willTriggerFocus = $state(false)
   let isFocused = $state(false)

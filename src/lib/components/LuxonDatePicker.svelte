@@ -3,6 +3,7 @@
   import { untrack } from 'svelte'
   import Popover from './Popover.svelte'
   import DatePicker from './DatePicker.svelte'
+  import { fieldHeight, paddingVal, fieldWithPlaceholder } from '$lib/styles/reused.module.css'
 
   let {
     startDateISO = null,
@@ -44,15 +45,15 @@
 </script>
 
 <Popover {willOpen}>
-  {#snippet activator({ setButtonRef, close })}
-    <button
+  {#snippet activator({ setButtonRef, open, toggle, id })}
+    <input value={display}
+      popovertarget={id}
+      onclick={toggle}
       use:setButtonRef
-      type="button"
-      popovertarget="popover"
-      class="input"
+      placeholder="Year and Date"
+      class="input {fieldWithPlaceholder}"
+      style="height: {fieldHeight}; padding: 0 {paddingVal};"
     >
-      {display || 'date'}
-    </button>
   {/snippet}
 
   {#snippet content({ close })}
@@ -66,10 +67,10 @@
 
 <style>
   .input {
-    height: 30px;
-    width: fit-content;
+    border: none;
+    field-sizing: content;
+    min-width: 80px;
     padding: 2px;
-    border: 0;
     border-radius: 4px;
     font-size: 14px;
     color: var(--scheduled-info-color, #666);

@@ -1,11 +1,14 @@
 <script>
   import { onMount } from 'svelte'
+  import { getRandomID } from '$lib/utils/core.js'
 
   let {
     willOpen = false,
     activator,
     content
   } = $props()
+
+  const id = getRandomID()
 
   let popover = $state(null)
   let inputButton = $state(null)
@@ -36,12 +39,21 @@
     }
   })
 
+  function open () {
+    if (popover) popover.showPopover()
+  }
+
   function close() {
     if (popover) popover.hidePopover()
   }
+  
+  // note it doesn't work if the activator isn't an input or button
+  function toggle () {
+    popover.togglePopover()
+  }
 </script>
 
-{@render activator({ setButtonRef, close })}
+{@render activator({ setButtonRef, close, open, toggle, id })}
 
 <div
   bind:this={popover}
