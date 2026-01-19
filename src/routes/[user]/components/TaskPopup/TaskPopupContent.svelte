@@ -15,7 +15,7 @@
   const { Task, tasksCache, clickedTaskID, closeTaskPopup, ancestralTree } = getContext('app')
   
   let taskObject = $derived($tasksCache[$clickedTaskID])
-  let showTemplateEditor = $state(taskObject.templateID)
+  let showTemplateEditor = $state(false)
 
   const debouncedUpdate = createDebouncedFunction(
     (id, keyValueChanges) => Task.update({ id, keyValueChanges }), 

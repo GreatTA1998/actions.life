@@ -20,9 +20,15 @@
   function ontoggle (e) {
     if (e.newState === 'closed') closeTaskPopup()
   }
+
+  function onclick (e) {
+    if (e.target === e.currentTarget) {
+      closeTaskPopup()
+    }
+  }
 </script>
 
-<dialog {ontoggle} id="task-dialog" closedby="any">
+<dialog {ontoggle} {onclick} id="task-dialog">
   {#if taskObject}
     {@const { imageDownloadURL, photoLayout } = taskObject}
 

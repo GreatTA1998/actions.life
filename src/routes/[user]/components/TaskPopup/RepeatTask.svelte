@@ -19,7 +19,7 @@
 </script>
 
 {#if taskObject.templateID}
-  <button onclick={toggleTemplateEditor} class="my-btn flexbox" class:active={isTemplateEditorOpen}>
+  <button onclick={toggleTemplateEditor} class="my-btn flexbox" style="color: rgb(0, 89, 125);" class:active={isTemplateEditorOpen}>
     <MslRepeat style="font-size: var(--popup-control);"/>
   </button>
 {:else}
@@ -37,10 +37,10 @@
 <style>
   .my-btn {
     color: rgb(20, 20, 20);
+    border-radius: 4px;
   }
 
   .my-btn.active {
-    color: rgb(0, 89, 125);
     background: rgba(0, 89, 125, 0.1);
   }
 
