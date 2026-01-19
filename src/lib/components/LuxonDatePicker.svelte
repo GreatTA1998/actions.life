@@ -3,7 +3,7 @@
   import { untrack } from 'svelte'
   import Popover from './Popover.svelte'
   import DatePicker from './DatePicker.svelte'
-  import { fieldHeight, paddingVal, fieldWithPlaceholder } from '$lib/styles/reused.module.css'
+  import { paddingVal, fieldWithPlaceholder } from '$lib/styles/reused.module.css'
 
   let {
     startDateISO = null,
@@ -52,7 +52,7 @@
       use:setButtonRef
       placeholder="Year and Date"
       class="input {fieldWithPlaceholder}"
-      style="height: {fieldHeight}; padding: 0 {paddingVal};"
+      style="padding: 0 {paddingVal};"
     >
   {/snippet}
 

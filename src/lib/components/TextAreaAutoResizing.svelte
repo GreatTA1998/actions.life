@@ -12,6 +12,7 @@
   rows={numberOfInitialRowsIfEmpty}
   style="
     width: 100%;
+    min-height: 0.875rem;
    --nonFocusedPlaceholderOpacity: {nonFocusedPlaceholderOpacity};
    --fontSizeIncludeUnits: {fontSizeIncludeUnits};
   "

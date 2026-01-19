@@ -113,6 +113,11 @@
     display: block;
   }
 
+  :global(input) {
+    background: none;
+    padding: 0;
+  }
+
   :global([popover]) {
     padding: 0;
   }
@@ -137,13 +142,6 @@
     /* additional based on personal use */
     display: inline-flex;
     align-items: center;
-  }
-
-  /** used in both <DayColumn/> and <FlexibleDayTask/> */
-  :global(.cal-task-name) {
-    font-weight: 500;
-    font-size: 0.8rem;
-    cursor: pointer; 
   }
 
   :global(.simple-flex) {

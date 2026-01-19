@@ -1,9 +1,12 @@
 :export {
   paddingVal: 4px;
-  fieldHeight: 30px;
 }
 
 .fieldWithPlaceholder::placeholder {
   font-size: 0.875rem;
+  opacity: 0.6;
+}
+
+.fieldWithLargePlaceholder::placeholder {
   opacity: 0.6;
 }

@@ -1,7 +1,8 @@
 <script>
   import RepeatTask from './RepeatTask.svelte'
   import PhotoUpload from './PhotoUpload.svelte'
-  import RecursiveBulletPoint from './RecursiveBulletPoint.svelte'
+  import FamilyTree from './FamilyTree.svelte'
+  import ParentBadge from '$lib/components/ParentBadge.svelte'
   import InfoFields from './InfoFields.svelte'
   import PopoverSnackbar from '$lib/components/PopoverSnackbar.svelte'
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
@@ -10,12 +11,15 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
   import { createDebouncedFunction } from '$lib/utils/core.js'
+  import { fieldWithLargePlaceholder } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
 
   const { Task, tasksCache, clickedTaskID, closeTaskPopup, ancestralTree } = getContext('app')
-  
+
   let taskObject = $derived($tasksCache[$clickedTaskID])
   let showTemplateEditor = $state(false)
+  let inputRef = $state(null)
+  let parent = $derived(taskObject.parentID ? $tasksCache[taskObject.parentID] : null)
 
   const debouncedUpdate = createDebouncedFunction(
     (id, keyValueChanges) => Task.update({ id, keyValueChanges }), 
@@ -40,8 +44,8 @@
   }
 </script>
 
-<div style="height: 100%;">
-  <div style="display: flex; align-items: center; column-gap: 12px;">
+<div style="height: 100%; display: flex; flex-direction: column; row-gap: 8px;">
+  <div style="display: flex; align-items: center; column-gap: 8px;">
     {#if taskObject.iconURL}
       <DoodleIcon iconTask={taskObject} size={48} />
     {:else}
@@ -56,12 +60,30 @@
         zoom={1}
       />
     {/if}
-    <input value={taskObject.name}
-      oninput={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
-      placeholder="Untitled"
-      type="text" 
-      style="width: 100%; box-sizing: border-box; font-size: 24px;"
+
+    <div onclick={() => inputRef.focus()} 
+      class="flex flex-1 items-center gap-x-2 pb-0.5"
+      style="cursor: text; border-bottom: 1px solid var(--faint-color);"
     >
+      <input bind:this={inputRef} 
+        value={taskObject.name}
+        oninput={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
+        placeholder="Title"
+        type="text" 
+        class={fieldWithLargePlaceholder}
+        style="field-sizing: content; font-size: 1.5rem; padding: 0;"
+      >
+
+      {#if parent}
+        <ParentBadge {parent} 
+          --color="var(--task-name-color)" 
+          --font-size="1.2rem" 
+          --padding="0px 8px"
+          --border-radius="24px"
+          --background="rgba(230, 230, 230, 0.15)"
+        />
+      {/if}
+    </div>
   </div>
 
   <InfoFields {taskObject} />
@@ -75,19 +97,13 @@
       />
     </div>
 
-    <!-- <div class="ancestral-tree" style="border: solid; height: 120px;"></div> -->
-
-    <!-- {#if $ancestralTree}
-      <div class="ancestral-tree">
-        <RecursiveBulletPoint
-          originalPopupTask={taskObject}
-          node={$ancestralTree}
-        />
-      </div>
-    {/if}  -->
+    <div class="ancestral-tree" style="height: 48px; min-width: calc(375px - 24px);">
+      {#if $ancestralTree}
+        <FamilyTree/>
+      {/if} 
+    </div>
   </div>
 
-  <div style="margin-top: 16px;"></div>
 
   <div style="margin-top: auto; margin-bottom: 0; display: flex; align-items: center; width: 100%; column-gap: 12px;">
     <PopoverSnackbar 
@@ -164,13 +180,11 @@
   input[type=text] {
     background: transparent;
     border: none;
-    border-bottom: 1px solid var(--faint-color);
     border-radius: 0px;
     outline: none;
     font-size: 23px;
     font-weight: 700;
     padding-left: 0px;
-    padding-bottom: 4px;
   }
 
   .action-button {

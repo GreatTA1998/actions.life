@@ -28,7 +28,7 @@
   }
 </script>
 
-<dialog {ontoggle} {onclick} id="task-dialog">
+<dialog {ontoggle} {onclick} id="task-dialog" style="background: var(--offwhite-bg);">
   {#if taskObject}
     {@const { imageDownloadURL, photoLayout } = taskObject}
 
@@ -40,10 +40,12 @@
           </div>
         {:else}
           {#if innerWidth.current < 768}
-            <div style="max-height: 80dvh;">
-              <div style="width: 100%; height: 40dvh;"></div>
-              <div style="width: 100%; height: 40dvh; border: solid green;">
-                Mobile layout {innerWidth.current}px
+            <div style="max-height: 80dvh; width: 100dvw;">
+              <img src={taskObject.imageDownloadURL}
+                style="width: 100%; height: 40dvh; object-fit: cover;" 
+              />
+              <div style="width: 100%; height: fit-content; padding: 12px;">
+                <TaskPopupContent />
               </div>
             </div>
           {:else}      
@@ -52,7 +54,7 @@
                 <img src={taskObject.imageDownloadURL}
                   style="width: {W.details2 / PHI}px; height: 400px; object-fit: cover;" 
                 />
-                <div style="width: {W.details2}px; 12px 16px;">
+                <div style="width: {W.details2}px; padding: 12px 16px;">
                   <TaskPopupContent />
                 </div>
               </div>  
@@ -89,8 +91,7 @@
   }
 
   ::backdrop {
-    backdrop-filter: blur(48px);
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgb(80, 80, 80); 
   }
 
   dialog:-internal-dialog-in-top-layer {

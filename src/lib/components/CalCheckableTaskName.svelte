@@ -1,5 +1,6 @@
 <script>
   import Checkbox from '$lib/components/Checkbox.svelte'
+  import ParentBadge from '$lib/components/ParentBadge.svelte'
   import { getContext } from 'svelte'
 
   const { Task, tasksCache, openTaskPopup } = getContext('app')
@@ -25,37 +26,19 @@
     />
   </div>
 
-  <div onclick={() => openTaskPopup(task)} class="cal-task-name truncate-to-one-line unselectable" style="color: {color}">
+  <div onclick={() => openTaskPopup(task)} class="task-name truncate-to-one-line unselectable" style="color: {color}">
     {task.name}
   </div>
 
   {#if parent}
-    <div 
-      onclick={e => { 
-        e.stopPropagation()
-        openTaskPopup(parent)
-      }} 
-      class="glass-pill content-sized" 
-      style="color: {color}; white-space: nowrap; overflow: hidden; text-overflow: clip;"
-    >
-      {parent.name.split(' ')[0]}
-    </div>
+    <ParentBadge {parent} --color={color} />
   {/if}
 </div>
 
 <style>
-  .glass-pill {
-    font-size: 0.75rem;
-    background: rgba(120, 120, 120, 0.15);
-    border: 1px solid rgba(150, 150, 150, 0.2);
-    border-radius: 12px;
-    padding: 0px 4px;
+  .task-name {
     font-weight: 500;
-    cursor: pointer;
-  }
-
-  .content-sized {
-    flex: 0 0 auto;
-    max-width: 12ch;
+    font-size: 0.8rem;
+    cursor: pointer; 
   }
 </style>

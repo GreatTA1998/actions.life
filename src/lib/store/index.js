@@ -60,7 +60,7 @@ clickedTaskID.subscribe(async (taskID) => {
     const memoryTrees = reconstructTreeInMemory(noImmediateSiblings) // TO-DO: rename to reconstructTrees (plural)
     ancestralTree.set(
       findSubtree({ 
-        id: task.parentID || task.id, 
+        id: task.id, 
         tree: memoryTrees[0]
       })
     )

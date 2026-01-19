@@ -1,6 +1,6 @@
 <script>
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
-  import { fieldHeight, paddingVal } from '$lib/styles/reused.module.css'
+  import { paddingVal } from '$lib/styles/reused.module.css'
 
   let { value, oninput } = $props()
 
@@ -32,7 +32,7 @@
 {#snippet activator({ open, close, setPosition })}
   <div style="
     position: relative; display: inline-flex; align-items: center;
-    padding: 0px {paddingVal}; height: {fieldHeight}"
+    padding: 0px {paddingVal};"
   >
     <input {value} {oninput}
       onclick={open}

@@ -23,7 +23,7 @@
       onfocusout={() => isFocused = false}
       {placeholder}
       resetDefaultStyling={true}
-      numberOfInitialRowsIfEmpty={3}
+      numberOfInitialRowsIfEmpty={2}
     />
   </div>
 </div>
@@ -52,8 +52,6 @@
   .ux-form-field {
     height: 100px;
     padding: 2px;
-    /* padding-left: 9px;
-    padding-right: 9px; */
     border-radius: 4px;
   }
 

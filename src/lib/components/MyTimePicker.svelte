@@ -2,7 +2,7 @@
   import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { getRandomID } from '$lib/utils/core.js'
-  import { fieldHeight, paddingVal, fieldWithPlaceholder } from '$lib/styles/reused.module.css'
+  import { paddingVal, fieldWithPlaceholder } from '$lib/styles/reused.module.css'
 
   let { 
     value = '', 
@@ -35,7 +35,7 @@
   }
 </script>
 
-<div>
+<div style="display: flex;">
   <!-- instead achieve overflow via the @snippet itself -->
   <!-- menuStyles="overflow-y: auto; height: 360px;" -->
   <PopoverMenu {id}
@@ -59,7 +59,6 @@
       class="time-dropdown {fieldWithPlaceholder}"
       style="
         anchor-name: --anchor-{popovertarget};
-        height: {fieldHeight};
         padding: 0 {paddingVal};
       "
     />
@@ -87,7 +86,7 @@
     border: none;
     outline: none;
 
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--scheduled-info-color);
   }
 
