@@ -114,8 +114,10 @@
   }
 
   :global(input) {
-    background: none;
+    background: transparent;
+    outline-color: transparent;
     padding: 0;
+    border: none;
   }
 
   :global([popover]) {

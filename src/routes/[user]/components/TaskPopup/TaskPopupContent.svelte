@@ -1,10 +1,9 @@
 <script>
   import RepeatTask from './RepeatTask.svelte'
-  import PhotoUpload from './PhotoUpload.svelte'
   import FamilyTree from './FamilyTree.svelte'
   import ParentBadge from '$lib/components/ParentBadge.svelte'
   import InfoFields from './InfoFields.svelte'
-  import PopoverSnackbar from '$lib/components/PopoverSnackbar.svelte'
+  import PhotoUploadWithQuestion from './PhotoUploadWithQuestion.svelte'
   import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
   import TemplateEditor from './TemplateEditor.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
@@ -17,9 +16,9 @@
   const { Task, tasksCache, clickedTaskID, closeTaskPopup, ancestralTree } = getContext('app')
 
   let taskObject = $derived($tasksCache[$clickedTaskID])
-  let showTemplateEditor = $state(false)
-  let inputRef = $state(null)
+  let editingRoutine = $state(false)
   let parent = $derived(taskObject.parentID ? $tasksCache[taskObject.parentID] : null)
+  let inputRef = $state(null)
 
   const debouncedUpdate = createDebouncedFunction(
     (id, keyValueChanges) => Task.update({ id, keyValueChanges }), 
@@ -37,10 +36,6 @@
       id: taskObject.id
     })
     closeTaskPopup()
-  }
-
-  function toggleTemplateEditor () {
-    showTemplateEditor = !showTemplateEditor
   }
 </script>
 
@@ -71,7 +66,7 @@
         placeholder="Title"
         type="text" 
         class={fieldWithLargePlaceholder}
-        style="field-sizing: content; font-size: 1.5rem; padding: 0;"
+        style="field-sizing: content; font-size: 1.5rem; font-weight: 700;"
       >
 
       {#if parent}
@@ -104,47 +99,10 @@
     </div>
   </div>
 
-
   <div style="margin-top: auto; margin-bottom: 0; display: flex; align-items: center; width: 100%; column-gap: 12px;">
-    <PopoverSnackbar 
-      {activator} 
-      {customActions} 
-    />
+    <PhotoUploadWithQuestion {taskObject} />
 
-    {#snippet activator({ open, close, setLoading })}
-      {#if !taskObject.imageDownloadURL}
-        <PhotoUpload {taskObject} 
-          onUpload={() => {
-            open();
-            setLoading(true);
-          }} 
-          onFinished={() => {
-            close({ timeout: 10000 });
-            setLoading(false);
-          }}
-        />
-      {/if}
-    {/snippet}
-
-    {#snippet customActions({ open, close, setLoading })}
-      <div style="color: white; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
-        How was it? 
-        <div style="display: flex; align-items: center; column-gap: 12px;">
-          {#each [': (', ': |', ': )'] as emotion}
-            <button onclick={() => {
-              Task.update({ id: taskObject.id, keyValueChanges: { notes: emotion + ' ' + taskObject.notes }});
-              close({ timeout: 0 });
-            }}
-            style="width: 32px; height: 32px; outline: 1px solid white; border-radius: 50%; transform: rotate(90deg)"
-            >
-              {emotion}
-            </button>
-          {/each}
-        </div>  
-      </div>
-    {/snippet}
-
-    <RepeatTask {taskObject} onToggleTemplateEditor={toggleTemplateEditor} isTemplateEditorOpen={showTemplateEditor}/>
+    <RepeatTask {taskObject} onToggleTemplateEditor={() => editingRoutine = !editingRoutine} isTemplateEditorOpen={editingRoutine}/>
 
     <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
       <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button action-button">
@@ -153,7 +111,7 @@
     </div>
   </div>
 
-  {#if taskObject.templateID && showTemplateEditor}
+  {#if taskObject.templateID && editingRoutine}
     <div class="template-editor-section">
       <h3 class="template-title">Routine Template</h3>
       <TemplateEditor templateID={taskObject.templateID} />
@@ -174,17 +132,6 @@
     flex: 1 1 160px;
     display: grid; 
     row-gap: 12px;
-  }
-
-  /* Refer to: https://stackoverflow.com/a/3131082/7812829 */
-  input[type=text] {
-    background: transparent;
-    border: none;
-    border-radius: 0px;
-    outline: none;
-    font-size: 23px;
-    font-weight: 700;
-    padding-left: 0px;
   }
 
   .action-button {
