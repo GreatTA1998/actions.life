@@ -1,7 +1,7 @@
 <script>
   import LayoutDecider from './LayoutDecider.svelte'
   import ClickableImage from './ClickableImage.svelte'
-  import TaskPopupContent from './TaskPopupContent.svelte'
+  import TaskInfo from './TaskInfo.svelte'
   import { getContext } from 'svelte'
 
   const { tasksCache, clickedTaskID, closeTaskPopup } = getContext('app')
@@ -26,8 +26,8 @@
         <ClickableImage {taskObject} {style} />
       {/snippet}
 
-      {#snippet taskInfo ()}
-        <TaskPopupContent />
+      {#snippet info ()}
+        <TaskInfo />
       {/snippet}
     </LayoutDecider>
   {/if}
@@ -37,6 +37,7 @@
   dialog {
     padding: 0;
     border: none;
+
     border-radius: 24px;
   }
 
@@ -45,8 +46,7 @@
   }
 
   dialog:-internal-dialog-in-top-layer {
-    max-width: unset;
-    max-height: unset;
+    max-height: 100%;
   }
 
   :focus-visible {

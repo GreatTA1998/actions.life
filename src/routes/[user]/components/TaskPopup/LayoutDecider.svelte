@@ -1,9 +1,9 @@
 <script>
   import { innerWidth } from 'svelte/reactivity/window'
 
-  let { taskObject, photo, taskInfo } = $props()
+  let { taskObject, photo, info } = $props()
 
-  const W = { details1: 480, details2: 480}
+  const W = { maxTaskInfo: 480, total: 768 }
   const PHI = 1.618
 
   async function getAspectRatio (src) {
@@ -20,27 +20,34 @@
   {#if imageDownloadURL}
     {#await getAspectRatio(imageDownloadURL) then aspectRatio}
       {#if photoLayout === 'full-photo'}
-        {@render photo("width: 400px; height: 400px; object-fit: cover;")}
+        {@render photo("width: 500px; height: 500px; object-fit: cover;")}
       {:else}
         {#if innerWidth.current < 768}
           <div style="max-height: 80dvh; width: 100vw;">
             {@render photo("width: 100%; height: 40dvh; object-fit: cover;")}
             <div style="width: 100%; padding: 12px;">
-              {@render taskInfo()}
+              {@render info()}
             </div>
           </div>
         {:else}      
           {#if aspectRatio <= 1} <!-- left portrait -->
+            {@const photoWidth = W.maxTaskInfo / PHI}
             <div style="display: flex;">
-              {@render photo("width: {W.details2 / PHI}px; height: 400px; object-fit: cover;")}
-              <div style="width: {W.details2}px; padding: 12px 16px;">
-                {@render taskInfo()}
+          
+              {@render photo(`width: ${photoWidth}px; object-fit: cover;`)}
+              <div style="
+                width: {W.maxTaskInfo}px;
+                max-height: {photoWidth * 1/aspectRatio}px; 
+                overflow-y: auto;
+                padding: 12px 16px;"
+              >
+                {@render info()}
               </div>
             </div>  
           {:else if aspectRatio > 1} <!-- top landscape -->
-            {@render photo("width: {W.details1}px; height: {W.details1 * 3/4}px; object-fit: cover;")}
-            <div style="width: {W.details1}px; height: 300px; padding: 12px;">
-              {@render taskInfo()}
+            {@render photo(`width: ${W.maxTaskInfo}px; object-fit: cover;`)}
+            <div style="width: {W.maxTaskInfo}px; padding: 12px;">
+              {@render info()}
             </div>
           {/if}
         {/if}
@@ -49,11 +56,11 @@
   {:else}
     {#if innerWidth.current < 768}
       <div style="max-height: 80dvh; width: 100vw; padding: 12px;">
-        {@render taskInfo()}
+        {@render info()}
       </div>
     {:else}
-      <div style="width: 768px; height: 480px; border: solid red; padding: 12px;">
-        {@render taskInfo()}
+      <div style="width: {W.maxTaskInfo}px; padding: 12px;">
+        {@render info()}
       </div>
     {/if}
   {/if}
