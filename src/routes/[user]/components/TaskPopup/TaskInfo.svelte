@@ -92,11 +92,11 @@
       />
     </div>
 
-    <!-- <div class="ancestral-tree" style="height: 48px; min-width: calc(375px - 24px);">
+    <div class="ancestral-tree" style="min-height: 48px;">
       {#if $ancestralTree}
         <FamilyTree/>
       {/if} 
-    </div> -->
+    </div>
   </div>
 
   <div style="margin-top: auto; margin-bottom: 0; display: flex; align-items: center; width: 100%; column-gap: 12px;">
