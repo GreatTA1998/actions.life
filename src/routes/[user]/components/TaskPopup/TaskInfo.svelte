@@ -83,7 +83,7 @@
 
   <InfoFields {taskObject} />
 
-  <div style="width: 100%; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div style="width: 100%; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
     <div style="flex: 1 1 400px;">
       <UXFormTextArea value={taskObject.notes}
         oninput={e => debouncedUpdate($clickedTaskID, { notes: e.target.value })}
