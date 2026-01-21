@@ -37,7 +37,6 @@
   dialog {
     padding: 0;
     border: none;
-
     border-radius: 24px;
   }
 

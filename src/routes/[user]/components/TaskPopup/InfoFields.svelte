@@ -26,7 +26,7 @@
   }
 </script>
 
-<div style="display: flex; align-items: center; column-gap: 32px; font-size: 1.2rem;">
+<div class="flex items-center gap-x-6 text-xl">
   {#key taskObject.id}
     <LuxonDatePicker
       startDateISO={taskObject.startDateISO}
