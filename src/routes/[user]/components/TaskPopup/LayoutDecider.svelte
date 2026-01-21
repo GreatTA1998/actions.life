@@ -45,6 +45,7 @@
                 max-height: {photoWidth * 1/aspectRatio}px; 
                 overflow-y: auto;
                 padding: 12px 16px;"
+                class="hide-scrollbar"
               >
                 {@render info()}
               </div>

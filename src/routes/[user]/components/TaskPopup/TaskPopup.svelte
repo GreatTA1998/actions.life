@@ -19,7 +19,7 @@
   }
 </script>
 
-<dialog {ontoggle} {onclick} id="task-dialog" style="background: var(--offwhite-bg);">
+<dialog {ontoggle} {onclick} id="task-dialog" class="hide-scrollbar" style="background: var(--offwhite-bg);">
   {#if taskObject}
     <LayoutDecider {taskObject}>
       {#snippet photo (style)}
