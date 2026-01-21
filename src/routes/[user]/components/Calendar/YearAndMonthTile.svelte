@@ -17,7 +17,7 @@
 </script>
 
 <div 
-  class="corner-label unselectable" 
+  class="corner-label select-none" 
   style="
     height: {height}px; 
     --timestamps-column-width: {exactWidth}px;

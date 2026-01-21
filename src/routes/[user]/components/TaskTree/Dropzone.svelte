@@ -12,7 +12,7 @@
     })
   }}
   id={anchorID}
-  class="unselectable"
+  class="select-none"
   style="
     anchor-name: {anchorID};
     height: {parentID === '' ? dzRootRemHeight : dzSubRemHeight}rem; 

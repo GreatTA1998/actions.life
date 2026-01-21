@@ -39,22 +39,23 @@
   }
 </script>
 
-<div style="height: 100%; display: flex; flex-direction: column; row-gap: 8px;">
-  <div style="display: flex; align-items: center; column-gap: 8px;">
-    {#if taskObject.iconURL}
-      <DoodleIcon iconTask={taskObject} size={48} />
-    {:else}
-      <Checkbox
-        value={taskObject.isDone}
-        onchange={e => Task.update({
-          id: taskObject.id,
-          keyValueChanges: {
-            isDone: e.target.checked
-          }
-        })}
-        zoom={1}
-      />
-    {/if}
+<div class="h-full flex flex-col gap-y-2">
+  <div class="flex items-center gap-x-2">
+    <div class="shrink">
+      {#if taskObject.iconURL}
+        <DoodleIcon iconTask={taskObject} size={48} />
+      {:else}
+        <Checkbox zoom={1}
+          value={taskObject.isDone}
+          onchange={e => Task.update({ 
+            id: taskObject.id,
+            keyValueChanges: {
+              isDone: e.target.checked
+            }
+          })}
+        />
+      {/if}
+    </div>
 
     <div onclick={() => inputRef.focus()} 
       class="flex flex-1 items-center gap-x-2 pb-0.5"
@@ -65,7 +66,7 @@
         oninput={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
         placeholder="Title"
         type="text" 
-        class={fieldWithLargePlaceholder}
+        class="truncate {fieldWithLargePlaceholder}"
         style="field-sizing: content; font-size: 1.5rem; font-weight: 700;"
       >
 
@@ -129,7 +130,7 @@
   }
 
   .ancestral-tree {
-    flex: 1 1 160px;
+    flex: 1 1 400px;
     display: grid; 
     row-gap: 12px;
   }

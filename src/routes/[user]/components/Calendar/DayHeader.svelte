@@ -97,7 +97,7 @@
     })
   }}
 >
-  <div class="compact-horizontal unselectable">
+  <div class="compact-horizontal select-none">
     <div class="center-flex day-name-label"
       class:active-day-name={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
     >

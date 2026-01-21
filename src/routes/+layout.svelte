@@ -94,6 +94,7 @@
   :global(*) {
     box-sizing: border-box;
     font-family: 'Inter Variable', sans-serif;
+    min-width: 0;
   }
 
   /* prevent accidental going back page */
@@ -146,26 +147,6 @@
     align-items: center;
   }
 
-  :global(.simple-flex) {
-    display: flex;
-    align-items: center;
-  }
-
-  :global(.new-task-icon) {  
-    font-weight: 100;
-    color: var(--task-action-subtle-color);
-    font-size: 30px; 
-    line-height: 0.3;
-    cursor: pointer;  
-  }
-
-  /* NOTE: must have a explicitly set width */
-  :global(.truncate-to-one-line) {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
   /* Reused between some components */
   :global(.reset-textarea) {
     border: none;
@@ -183,14 +164,6 @@
     padding: 1rem;
     overflow-y: auto;
     height: 100%;
-  }
-
-  :global(.unselectable) {
-    -moz-user-select: -moz-none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    -o-user-select: none;
-    user-select: none;
   }
 
   /* Notion scrollbar styles */

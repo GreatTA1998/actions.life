@@ -190,7 +190,7 @@
 
 
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
-<div bind:this={dayColumn} class="day-column unselectable"
+<div bind:this={dayColumn} class="day-column select-none"
   style="height: {24 * $pixelsPerHour}px;"
   class:grid-y={$user.hasGridlines}
   onclick={e => {

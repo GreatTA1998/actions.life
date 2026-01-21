@@ -50,7 +50,7 @@
   <div draggable="true"
     ondragstart={e => startTaskDrag({ e, id: taskObj.id })}
     style="font-size: {depth === 1 ? rootFontSize : subFontSize}rem;"
-    class="task-row-container unselectable"
+    class="task-row-container select-none"
   >
     <div style="position: relative; margin-left: 2px; margin-right: 4px;">
       {@render verticalTimeline?.()}
@@ -71,7 +71,7 @@
     </div>
 
     <button onclick={() => openTaskPopup(taskObj)} 
-      class="task-name truncate-to-one-line" 
+      class="task-name truncate" 
       class:done-task={taskObj.isDone} 
     >
       {taskObj.name}

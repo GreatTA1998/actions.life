@@ -26,7 +26,7 @@
     />
   </div>
 
-  <div onclick={() => openTaskPopup(task)} class="task-name truncate-to-one-line unselectable" style="color: {color}">
+  <div onclick={() => openTaskPopup(task)} class="task-name truncate select-none" style="color: {color}">
     {task.name}
   </div>
 

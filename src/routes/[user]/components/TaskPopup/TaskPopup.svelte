@@ -47,6 +47,7 @@
 
   dialog:-internal-dialog-in-top-layer {
     max-height: 100%;
+    max-width: 100%;
   }
 
   :focus-visible {

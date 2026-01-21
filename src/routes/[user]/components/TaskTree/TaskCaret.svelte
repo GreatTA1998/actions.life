@@ -33,6 +33,7 @@
   }
 
   .caret-icon {
+    min-width: auto; /* since it's larger than its container */
     font-size: 1.875rem;
     color: var(--fine-control-color);
     font-weight: 100;

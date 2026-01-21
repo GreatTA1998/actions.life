@@ -143,7 +143,7 @@
             />
             <div class="photo-overlay">
               <div style="display: flex;">
-                <div class="photo-date truncate-to-one-line">
+                <div class="photo-date truncate">
                   {task.name}
                 </div>
 

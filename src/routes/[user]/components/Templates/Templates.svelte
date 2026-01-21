@@ -62,7 +62,7 @@
       </div>
       {#each noIconRoutines as routine (routine.id)}
         <button on:click={() => openTemplateEditor(routine.id)} class="grid gap-0 text-left">
-          <div class="truncate-to-one-line">{routine.name}</div>
+          <div class="truncate">{routine.name}</div>
           <WeekRhythm rrStr={routine.rrStr} />
         </button>
       {/each}
@@ -76,7 +76,7 @@
       <div style="margin-left: 24px; margin-top: 24px; display: grid; gap: 24px; align-items: start; grid-auto-rows: min-content; max-width: 300px;">
         {#each monthly as routine (routine.id)}
           <button on:click={() => openTemplateEditor(routine.id)} class="grid gap-0 text-left">
-            <div class="truncate-to-one-line">{routine.name}</div>
+            <div class="truncate">{routine.name}</div>
             <MonthRhythm rrStr={routine.rrStr} />
           </button>
         {/each}
@@ -91,7 +91,7 @@
       <div style="margin-left: 24px; margin-top: 24px; display: grid; gap: 24px; align-items: start; grid-auto-rows: min-content;">
         {#each yearly as routine (routine.id)}
           <button on:click={() => openTemplateEditor(routine.id)} class="grid gap-0 text-left">
-            <div class="truncate-to-one-line">{routine.name}</div>
+            <div class="truncate">{routine.name}</div>
             <YearRhythm rrStr={routine.rrStr} />
           </button>
         {/each}
