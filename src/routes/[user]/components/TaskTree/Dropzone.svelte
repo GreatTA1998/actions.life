@@ -25,9 +25,8 @@
 
 <script>
   import { activateInput } from '$lib/store/popoverInput.js'
-  import { isOverlapping, getOverlapArea, clip } from '$lib/utils/dragDrop.js'
+  import { isOverlapping, getOverlapArea, clip, dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import { getRandomID } from '$lib/utils/core.js'
-  import { dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
