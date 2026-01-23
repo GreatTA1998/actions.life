@@ -1,5 +1,4 @@
 <script>
-  import { isOverlapping, getOverlapArea, clip, dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
@@ -10,10 +9,13 @@
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate, googleEventsByDate } from './service.js'
   import { user, timestamps, calSnapInterval } from '$lib/store'
-  import { getContext, onMount, onDestroy } from 'svelte'
+  import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
-  const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, scrollCalRect, resetDragDrop } = getContext('drag-drop')
+  const { 
+    draggedItem, scrollCalRect, detectOverlap,
+    bestDropzoneID, dropPreviewCSS, hasDropped, resetDragDrop
+  } = getContext('drag-drop')
   
   let { dt } = $props()
 
@@ -25,7 +27,6 @@
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
   let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')] ?? [])
 
-  let intersecting = $state(false)
   let previewTop = $state(null)
   
   let anchorID = $derived(`--day-column-${dropzoneID}`)
@@ -33,8 +34,19 @@
 
   $effect(() => {
     if ($draggedItem && $draggedItem.id) {
-      requestAnimationFrame(checkIntersection)
+      requestAnimationFrame(() => {
+        detectOverlap({
+          dropzoneElem: dayColumn,
+          clipRect: calContentArea(),
+          dropzoneID
+        })
+      })
     }
+  })
+  
+  $effect(() => {
+    if ($bestDropzoneID === dropzoneID) renderDragPreview()
+    else previewTop = null
   })
 
   $effect(() => {
@@ -42,67 +54,23 @@
       performDrop()
     }
   })
-  
-  onMount(async () => {})
 
-  onDestroy(() => {})
+  function renderDragPreview () {
+    const localTop = $draggedItem.y1 + dayColumn.scrollTop - dayColumn.getBoundingClientRect().top
+    let resultDT = snapToNearestInterval(
+      dt.plus({ hours: localTop / $pixelsPerHour }),
+      $calSnapInterval
+    )
+    previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
+  }
 
-  function realEffectiveArea () {
+  function calContentArea () {
     const { left, right, top, bottom } = $scrollCalRect()
     return {
       left: left + $timestampsColumnWidth, // potentially brittle for mobile mode
       right,
       top: top + $headerHeight,
       bottom
-    }
-  }
-
-  function checkIntersection () {
-    const { x1, x2, y1, y2 } = clip($draggedItem, realEffectiveArea())
-
-    const dayColumnRect = dayColumn.getBoundingClientRect()
-    intersecting = isOverlapping(
-      { x1, x2, y1, y2 }, 
-      dayColumnRect,
-      0.3,
-      0
-    )
-
-    if (intersecting) {
-      // update context-wide state
-      const area = getOverlapArea({ x1, x2, y1, y2 }, dayColumnRect)
-      matchedDropzones.update(obj => {
-        obj[dropzoneID] = {
-          area,
-          left: dayColumnRect.left
-        }
-        return obj
-      })
-      
-      if ($bestDropzoneID === dropzoneID) { // show preview
-        const localTop = $draggedItem.y1 + dayColumn.scrollTop - dayColumnRect.top
-        let resultDT = snapToNearestInterval(
-          dt.plus({ hours: localTop / $pixelsPerHour }),
-          $calSnapInterval
-        )
-        previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
-        // for some reason, getOffset works well but localTop introduces a 1~2px inaccuracy
-        // this is because resultDT is AFTER snapping, whereas localTop is BEFORE snapping
-      }
-
-      else {
-        previewTop = null
-      }
-    }
-
-    else {
-      matchedDropzones.update(obj => {
-        delete obj[dropzoneID]
-        return obj
-      })
-
-      // quickfix, manually remove preview (both places are necessary for clearing the previews)
-      previewTop = null
     }
   }
 
@@ -240,13 +208,13 @@
     </div>
   {/each}
 
-  {#if intersecting && previewTop !== null}
+  {#if previewTop !== null}
     <div class="task-absolute" 
       style="
         top: {previewTop}px; 
         height: {$draggedItem.height}px;
         border-radius: var(--left-padding);
-        {dropPreviewCSS()}
+        {dropPreviewCSS}
       "
     ></div>
   {/if}

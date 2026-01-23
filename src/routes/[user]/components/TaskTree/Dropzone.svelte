@@ -18,19 +18,21 @@
     height: {parentID === '' ? dzRootRemHeight : dzSubRemHeight}rem; 
     border-radius: var(--left-padding);
     border: 0px solid {colorForDebugging}; 
-    {$bestDropzoneID === dropzoneID ? dropPreviewCSS() : ''}
-    {$bestDropzoneID === dropzoneID && isInvalidDrop ? 'background-color: red;' : ''}
+    {$bestDropzoneID === id ? dropPreviewCSS : ''}
+    {$bestDropzoneID === id && isInvalidDrop ? 'background-color: red;' : ''}
   "
 ></div>
 
 <script>
   import { activateInput } from '$lib/store/popoverInput.js'
-  import { isOverlapping, getOverlapArea, clip, dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
-  const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, logicAreaRect, resetDragDrop } = getContext('drag-drop')
+  const { 
+    draggedItem, logicAreaRect, detectOverlap, 
+    bestDropzoneID,  dropPreviewCSS, hasDropped, resetDragDrop,
+  } = getContext('drag-drop')
   const { dzRootRemHeight, dzSubRemHeight } = getContext('list-config')
 
   let {
@@ -41,56 +43,32 @@
     colorForDebugging = 'red'
   } = $props()
 
-  const dropzoneID = getRandomID()
+  const id = getRandomID()
   
   let dropzoneElem = $state(null)
-  let intersecting = $state(false)
   let n = $derived(roomsInThisLevel.length)
-  let anchorID = $derived(`--dropzone-${dropzoneID}`)
+  let anchorID = $derived(`--dropzone-${id}`)
   let isInvalidDrop = $derived(ancestorRoomIDs.includes($draggedItem.id))
 
   $effect(() => {
     if ($draggedItem && dropzoneElem) {
-      checkIntersection(
-        clip($draggedItem, $logicAreaRect())
-      )
+      requestAnimationFrame(() => {
+        detectOverlap({
+          dropzoneElem,
+          clipRect: $logicAreaRect(),
+          dropzoneID: id
+        })
+      })
     }
   })
 
   $effect(() => {
-    if ($hasDropped && $bestDropzoneID === dropzoneID) {
-      onReorderDrop()
+    if ($hasDropped && $bestDropzoneID === id) {
+      onDrop()
     }
   })
-
-  function checkIntersection ({ x1, x2, y1, y2 }) {
-    const dropzoneRect = dropzoneElem.getBoundingClientRect()
-    const overlapping = isOverlapping({ x1, x2, y1, y2 }, dropzoneRect, 0, 0)
-
-    // x1 comparison is an attempt to allow the user to specifically target nested dropzones
-    // document this change - the fact that left takes priority, but otherwise normal intersection should still work
-    // which makes it very easy for light users to use drag-drop but opens a door for advanced users
-    intersecting = overlapping // && x1 > dropzoneRect.left // rename to `qualify` or something
-    
-    if (intersecting) {
-      const area = getOverlapArea({ x1, x2, y1, y2 }, dropzoneRect)
-      matchedDropzones.update(obj => {
-        obj[dropzoneID] = {
-          area,
-          left: dropzoneRect.left
-        }
-        return obj
-      })
-    }
-    else {
-      matchedDropzones.update(obj => {
-        delete obj[dropzoneID]
-        return obj
-      })
-    }
-  }
  
-  async function onReorderDrop () {
+  async function onDrop () {
     dropzoneElem.style.background = ''
 
     if (isInvalidDrop) {

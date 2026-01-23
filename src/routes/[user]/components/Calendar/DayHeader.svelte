@@ -3,29 +3,32 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { activateInput } from '$lib/store/popoverInput.js'
   import { treesByDate } from './service.js'
-  import { headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
-  import { 
-    isOverlapping, getOverlapArea, clip,
-    dropPreviewCSS 
-  } from '$lib/utils/dragDrop.js'
+  import { headerHeight, headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
   const { Task } = getContext('app')
-  const { draggedItem, hasDropped, bestDropzoneID, scrollCalRect, matchedDropzones, resetDragDrop } = getContext('drag-drop')
+  const { 
+    draggedItem, scrollCalRect, detectOverlap, 
+    bestDropzoneID, dropPreviewCSS, hasDropped, resetDragDrop
+  } = getContext('drag-drop')
   
   let { dt } = $props()
 
   let dayHeader = $state(null)
-  let intersecting = $state(false)
-  
   let ISODate = $derived(dt.toFormat('yyyy-MM-dd'))
   let dropzoneID = $derived('header: ' + dt.toFormat('yyyy-MM-dd'))
   let anchorID = $derived(`--day-header-${dt.toFormat('yyyy-MM-dd')}`)
 
   $effect(() => {
     if ($draggedItem && $draggedItem.id) {
-      requestAnimationFrame(checkIntersection)
+      requestAnimationFrame(() => {
+        detectOverlap({
+          dropzoneElem: dayHeader,
+          clipRect: calHeaderArea(),
+          dropzoneID
+        })
+      })
     }
   })
 
@@ -34,37 +37,6 @@
       drop_handler($draggedItem)
     }
   })
-
-  function checkIntersection () {
-    const { x1, x2, y1, y2 } = clip($draggedItem, realEffectiveArea())
-
-    const dayHeaderRect = dayHeader.getBoundingClientRect()
-    intersecting = isOverlapping(
-      { x1, x2, y1, y2 }, 
-      dayHeaderRect,
-      0,
-      0
-    )
-
-    if (intersecting) {
-      // update context-wide state
-      const area = getOverlapArea({ x1, x2, y1, y2 }, dayHeaderRect)
-      matchedDropzones.update(obj => {
-        obj[dropzoneID] = {
-          area,
-          left: dayHeaderRect.left
-        }
-        return obj
-      })
-    }
-
-    else {
-      matchedDropzones.update(obj => {
-        delete obj[dropzoneID]
-        return obj
-      })
-    }
-  }
 
   function drop_handler ({ id }) {
     Task.update({ id, keyValueChanges: {
@@ -75,11 +47,14 @@
     resetDragDrop()
   }
 
-  function realEffectiveArea () {
-    const { left, right, top, bottom } = $scrollCalRect()
+  function calHeaderArea () {
+    // left clipping is most important, everything else is inconsequential
+    const { left, right, top } = $scrollCalRect()
     return {
-      left: left + $timestampsColumnWidth,  // left clipping is most important, everything else is inconsequential
-      right, top, bottom
+      left: left + $timestampsColumnWidth, 
+      right, 
+      top, 
+      bottom: top + $headerHeight
     }
   }
 </script>
@@ -127,7 +102,7 @@
         {/each}
         
         {#if $bestDropzoneID === dropzoneID}
-          <div style="height: 12px; width: 100%; {dropPreviewCSS()}"></div>
+          <div style="height: 12px; width: 100%; {dropPreviewCSS}"></div>
         {/if}
       </div>
     {/if}
