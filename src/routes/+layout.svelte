@@ -13,6 +13,7 @@
   import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
   import '@fontsource-variable/inter'
   import 'virtual:uno.css'
+  import 'normalize.css/normalize.css'
 
   let { children } = $props()
 

@@ -44,6 +44,12 @@
     background-color: rgb(80, 80, 80); 
   }
 
+  /* override Safari default styles */
+  dialog:modal {
+    max-width: 100%;
+  }
+
+  /* override Chrome default styles */
   dialog:-internal-dialog-in-top-layer {
     max-height: 100%;
     max-width: 100%;
