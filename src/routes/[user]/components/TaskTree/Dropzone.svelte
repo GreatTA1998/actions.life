@@ -52,12 +52,10 @@
 
   $effect(() => {
     if ($draggedItem && dropzoneElem) {
-      requestAnimationFrame(() => {
-        detectOverlap({
-          dropzoneElem,
-          clipRect: $logicAreaRect(),
-          dropzoneID: id
-        })
+      detectOverlap({
+        dropzoneElem,
+        clipRect: $logicAreaRect(),
+        dropzoneID: id
       })
     }
   })
