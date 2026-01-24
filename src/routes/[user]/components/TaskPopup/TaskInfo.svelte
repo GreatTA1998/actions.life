@@ -1,6 +1,7 @@
 <script>
   import RepeatTask from './RepeatTask.svelte'
   import FamilyTree from './FamilyTree.svelte'
+  import DragDropContext from '$lib/components/DragDropContext.svelte'
   import ParentBadge from '$lib/components/ParentBadge.svelte'
   import InfoFields from './InfoFields.svelte'
   import PhotoUploadWithQuestion from './PhotoUploadWithQuestion.svelte'
@@ -95,7 +96,9 @@
 
     <div class="ancestral-tree" style="min-height: 48px;">
       {#if $ancestralTree}
-        <FamilyTree/>
+        <DragDropContext>
+          <FamilyTree/>
+        </DragDropContext>
       {/if} 
     </div>
   </div>
