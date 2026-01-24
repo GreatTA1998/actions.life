@@ -199,7 +199,14 @@
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
   }
 
+  /* refactor into a CSS module */
   /* navbar > task-popup > calendar > each list-{id} */
+  :global(::view-transition-group(.dialog-list-item)) {
+    z-index: 5;
+    animation-duration: 0.15s;
+    animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
+  }
+
   :global(::view-transition-group(task-popup)) {
     z-index: 4;
   }

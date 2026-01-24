@@ -82,15 +82,10 @@ export function toggleSettings () {
 }
 
 export function openTaskPopup (task) {
-  const taskDialog = document.getElementById('task-dialog')
-  taskDialog.showModal()
-
   clickedTaskID.set(task.id)
 }
 
 export function closeTaskPopup() {
-  const taskDialog = document.getElementById('task-dialog')
-  taskDialog.close()
   clickedTaskID.set('')
   willOpenDatePicker.set(false)
 }

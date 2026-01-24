@@ -1,6 +1,6 @@
 <script>
   import RepeatTask from './RepeatTask.svelte'
-  import FamilyTree from './FamilyTree.svelte'
+  import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import ParentBadge from '$lib/components/ParentBadge.svelte'
   import InfoFields from './InfoFields.svelte'
@@ -97,7 +97,12 @@
     <div class="ancestral-tree" style="min-height: 48px;">
       {#if $ancestralTree}
         <DragDropContext>
-          <FamilyTree/>
+          <!-- TO-DO: use css width, with calc -->
+          <TodoList trees={$ancestralTree.children}
+            listWidth={480}
+            parentID={taskObject.id}
+            cssStyle="position: relative;"
+          />
         </DragDropContext>
       {/if} 
     </div>

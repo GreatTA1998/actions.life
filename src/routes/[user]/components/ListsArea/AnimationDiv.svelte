@@ -1,12 +1,19 @@
 <script>
+  import { getRandomID } from '$lib/utils/core.js'
+
   let { 
     children,
     listWidth,
-    id
+    id = getRandomID(),
+    inDialog = false
   } = $props()
 </script>
 
-<div style="view-transition-name: list-{id}; view-transition-class: list-item; width: {listWidth}px;">
+<div style="
+  view-transition-name: list-{id}; 
+  view-transition-class: {inDialog ? 'dialog-list-item' : 'list-item'}; 
+  width: {listWidth}px;"
+>
   {@render children()}
 </div>
 

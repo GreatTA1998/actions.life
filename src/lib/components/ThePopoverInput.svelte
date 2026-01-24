@@ -107,7 +107,7 @@
 {/if}
 
 <style>
-  /* the anchor relationship is pragrammatically determined by popoverInput.js */
+  /* the anchor relationship controlled by popoverInput.js */
   .my-popover {
     position-area: center;
 

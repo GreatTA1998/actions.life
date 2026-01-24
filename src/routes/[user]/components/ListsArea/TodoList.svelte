@@ -10,7 +10,8 @@
     cssStyle,
     listWidth,
     isLargeFont = false,
-    trees = null
+    trees = null,
+    parentID = ''
   } = $props()
 
   const anchorID = '--dropzone-root-last'
@@ -20,7 +21,7 @@
 
   // scaled units
   const scale = isLargeFont ? 2 : 1
-  const dzRootRemHeight = HEIGHTS.ROOT_DROPZONE * scale
+  const dzRootRemHeight = (parentID ? HEIGHTS.ROOT_DROPZONE : HEIGHTS.SUB_DROPZONE) * scale
   const dzSubRemHeight = HEIGHTS.SUB_DROPZONE * scale
   const rootFontSize = 1 * scale // rem =  16px / 32px
   const subFontSize = 0.875 * scale // rem = 14px / 28px
@@ -37,10 +38,10 @@
 
   function renderDropzone (idx) {
     return {
+      parentID,
       idxInThisLevel: idx,
       ancestorRoomIDs: [''],
       roomsInThisLevel: trees,
-      parentID: '',
       colorForDebugging: 'purple',
     }
   }
@@ -50,7 +51,10 @@
     if (e.target === e.currentTarget) {
       activateInput({ 
         anchorID, 
-        modifiers: { persistsOnList: true }
+        modifiers: { 
+          persistsOnList: true,
+          parentID
+        }
       })
     }
   }}
@@ -58,12 +62,12 @@
 >
   {#if trees}
     {#each trees as taskObj, i (taskObj.id)}
-      <AnimationDiv {listWidth} id={taskObj.id}>
+      <AnimationDiv {listWidth} inDialog={parentID}>
         <div class="z-0">
           <Dropzone {...renderDropzone(i)} />
         </div>
 
-        <div style="padding: {padding}px" class="list-container">
+        <div style="padding: {padding}px" class:list-container={!parentID}>
           <RecursiveTask {taskObj}
             depth={1}
             ancestorRoomIDs={['']}
