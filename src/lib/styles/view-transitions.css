@@ -1,0 +1,52 @@
+:root {
+  --vt-duration: 0.15s;
+  --vt-easing: cubic-bezier(0.79, 0.14, 0.15, 0.86); /* easeInOutCirc */
+  /* 
+    @see https://emilkowal.ski/ui/7-practical-animation-tips
+    @see https://easings.co/ 
+  */
+}
+
+/* dialog-list-item > task-popup > floating-navbar > grip-handle > calendar > list-items */
+::view-transition-group(.dialog-list-item) { z-index: 5; }
+::view-transition-group(task-popup) { z-index: 4; }
+::view-transition-group(floating-navbar) { z-index: 3; }
+::view-transition-group(grip-handle) { z-index: 2; }
+::view-transition-group(calendar) { z-index: 1; }
+::view-transition-group(.list-item) { z-index: 0; }
+
+::view-transition-group(.dialog-list-item),
+::view-transition-group(.list-item) {
+  animation-duration: var(--vt-duration);
+  animation-timing-function: var(--vt-easing);
+}
+
+::view-transition-old(.list-item),
+::view-transition-new(.list-item) {
+  animation-duration: var(--vt-duration);
+  animation-timing-function: var(--vt-easing);
+}
+
+/* Static UI: no animation, instant swap, but competes in top layer's z-index */
+::view-transition-group(.static-ui) {
+  animation: none;
+}
+
+::view-transition-image-pair(.static-ui) {
+  isolation: auto;
+}
+
+::view-transition-old(.static-ui),
+::view-transition-new(.static-ui) {
+  animation: none;
+  mix-blend-mode: normal;
+  display: block;
+}
+
+::view-transition-new(.static-ui) {
+  opacity: 1;
+}
+
+::view-transition-old(.static-ui) {
+  display: none;
+}

@@ -14,6 +14,7 @@
   import '@fontsource-variable/inter'
   import 'virtual:uno.css'
   import 'normalize.css/normalize.css'
+  import '$lib/styles/view-transitions.css'
 
   let { children } = $props()
 
@@ -197,73 +198,6 @@
 
   :global(.paper-shadow) {
     box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
-  }
-
-  /* refactor into a CSS module */
-  /* navbar > task-popup > calendar > each list-{id} */
-  :global(::view-transition-group(.dialog-list-item)) {
-    z-index: 5;
-    animation-duration: 0.15s;
-    animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
-  }
-
-  :global(::view-transition-group(task-popup)) {
-    z-index: 4;
-  }
-
-  :global(::view-transition-group(floating-navbar)) {
-    z-index: 3;
-  }
-
-  :global(::view-transition-group(grip-handle)) {
-    z-index: 2;
-  }
-
-  :global(::view-transition-group(calendar)) {
-    z-index: 1;
-  }
-
-  /* Decided on easeInOutCirc
-    @see https://emilkowal.ski/ui/7-practical-animation-tips
-    @see https://easings.co/
-
-    Movement: position (left, top), size (w, h), transforms
-  */
-  :global(::view-transition-group(.list-item)) {
-    z-index: 0;
-    animation-duration: 0.15s;
-    animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
-  }
-
-  /* affects opacity */
-  :global(::view-transition-old(.list-item)),
-  :global(::view-transition-new(.list-item)) {
-    animation-duration: 0.15s;
-    animation-timing-function: cubic-bezier(0.79,0.14,0.15,0.86);
-  }
-
-  :global(::view-transition-group(.static-ui)) {
-    animation: none;
-    animation-duration: 0s;
-  }
-
-  :global(::view-transition-image-pair(.static-ui)) {
-    isolation: auto;
-  }
-
-  :global(::view-transition-old(.static-ui)),
-  :global(::view-transition-new(.static-ui)) {
-    animation: none;
-    mix-blend-mode: normal; /* overrides plus-lighter */ 
-    display: block;
-  }
-
-  :global(::view-transition-new(.static-ui)) {
-    opacity: 1;
-  }
-
-  :global(::view-transition-old(.static-ui)) {
-    display: none;
   }
 
   /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */
