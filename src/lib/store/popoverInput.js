@@ -1,9 +1,11 @@
 import { writable, get } from 'svelte/store'
 
-export const isInputActive = writable(false)
-export const popoverTeleporter = writable(null)
-export const activeAnchorID = writable('')
+export const globalInputPopover = writable(null)
+export const globalMenuPopover = writable(null)
 export const globalInput = writable(null)
+
+export const activeAnchorID = writable('')
+export const isInputActive = writable(false)
 export const callback = writable(() => {})
 export const overrideOptions = writable({})
 
@@ -12,17 +14,13 @@ export function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }
     isInputActive.set(false)
   }
   else {
-    const popover = get(popoverTeleporter)
+    const inputPopover = get(globalInputPopover)
     const input = get(globalInput)
+    const menuPopover = get(globalMenuPopover)
 
-    popover.style.positionAnchor = anchorID
-    const anchor = document.getElementById(anchorID)
-    const rect = anchor.getBoundingClientRect()
-    
-    // use reliable JS to avoid using `width: anchor-size()` which is not widely supported
-    popover.style.setProperty('width', `${rect.width}px`);
-    popover.style.setProperty('height', `${rect.height}px`);
-    popover.showPopover()
+    inputPopover.style.positionAnchor = anchorID
+    inputPopover.showPopover()
+    menuPopover.showPopover()
     input.focus()
 
     isInputActive.set(true)

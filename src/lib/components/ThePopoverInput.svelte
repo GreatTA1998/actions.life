@@ -2,7 +2,8 @@
   import PopoverInputDropdownMenu from '$lib/components/PopoverInputDropdownMenu.svelte'
   import { 
     activeAnchorID,
-    popoverTeleporter, 
+    globalMenuPopover,
+    globalInputPopover, 
     globalInput, 
     isInputActive, 
     callback,
@@ -13,21 +14,15 @@
 
   const { Task } = getContext('app')
 
-  let inputElem = $state(null)
-  let popoverElem = $state(null)
-  let value = $state('')
-
+  let inputPopover = $state(null)
   let menuPopover = $state(null)
-
-  $effect(() => {
-    if ($activeAnchorID) {
-      menuPopover.showPopover()
-    }
-  })
+  let input = $state(null)
+  let value = $state('')
   
   onMount(() => {
-    popoverTeleporter.set(popoverElem)
-    globalInput.set(inputElem)
+    globalInputPopover.set(inputPopover)
+    globalMenuPopover.set(menuPopover)
+    globalInput.set(input)
   })
 
   function ontoggle (e) {
@@ -57,20 +52,20 @@
   }
 </script>
   
-<div bind:this={popoverElem}
+<div bind:this={inputPopover}
   popover="auto"
-  class="my-popover"
+  class="task-input"
   {ontoggle}
 >
   <input
     style="width: 100%; height: 100%;" 
-    bind:this={inputElem} 
+    bind:this={input} 
     bind:value={value}
     onkeyup={e => {
       e.preventDefault()
       e.stopPropagation()
       if (e.key === 'Enter') {
-        if (value === '') popoverElem.hidePopover()
+        if (value === '') inputPopover.hidePopover()
         else {
           createTask({ name: value })
           value = ''
@@ -78,38 +73,28 @@
       }
     }}
     onblur={() => { // to detect iOS 26 keyboard exit via the "arrow" key 
-      popoverElem.hidePopover()
+      inputPopover.hidePopover()
     }}
   >
 </div>
 
-{#if $activeAnchorID}
-  <div bind:this={menuPopover} 
-    popover="manual" style="
-
-    margin: 0;
-    inset: auto;
-
-    padding: 0; /* default is 4px, resulting in a 8x8 box */
-    border: none; /* default is black */
-
-    position-anchor: {$activeAnchorID}; 
-    position: fixed; 
-    top: anchor(bottom); 
-    left: anchor(left);
-  "
-  >
-    <PopoverInputDropdownMenu 
-      taskName={value} 
-      onSelect={template => createTask(template)}
-    />
-  </div>
-{/if}
+<div bind:this={menuPopover} 
+  popover="manual" 
+  style="position-anchor: {$activeAnchorID};"
+  class="menu-dropdown"
+>
+  <PopoverInputDropdownMenu 
+    taskName={value} 
+    onSelect={template => createTask(template)}
+  />
+</div>
 
 <style>
   /* the anchor relationship controlled by popoverInput.js */
-  .my-popover {
+  .task-input {
     position-area: center;
+    width: anchor-size(width);
+    height: anchor-size(height);
 
     margin: 0;
     inset: auto;
@@ -118,6 +103,18 @@
     border: none;
     background: transparent;
     overflow-y: hidden; /** Safari-specific fix */
+  }
+
+  .menu-dropdown {
+    position: fixed; 
+    top: anchor(bottom); 
+    left: anchor(left);
+
+    margin: 0;
+    inset: auto;
+    padding: 0; /* default is 4px, resulting in a 8x8 box */
+    border: none; /* default is black */
+    border-radius: 12px;
   }
 
   input:focus {

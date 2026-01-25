@@ -85,8 +85,9 @@
 
   <InfoFields {taskObject} />
 
-  <div style="width: 100%; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <div style="width: 100%; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0px;">
     <div style="flex: 1 1 400px;">
+      <!-- TO-FIX: disallow overflow! -->
       <UXFormTextArea value={taskObject.notes}
         oninput={e => debouncedUpdate($clickedTaskID, { notes: e.target.value })}
         fieldLabel=""
@@ -97,7 +98,6 @@
     <div class="ancestral-tree" style="min-height: 48px;">
       {#if $ancestralTree}
         <DragDropContext>
-          <!-- TO-DO: use css width, with calc -->
           <TodoList trees={$ancestralTree.children}
             listWidth="100%"
             parentID={taskObject.id}

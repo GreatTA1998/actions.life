@@ -5,6 +5,7 @@
   import { HEIGHTS, WIDTHS } from '$lib/utils/constants.js'
   import { activateInput } from '$lib/store/popoverInput.js'
   import { setContext } from 'svelte'
+  import { getRandomID } from '$lib/utils/core.js'
 
   let {
     cssStyle,
@@ -14,7 +15,7 @@
     parentID = ''
   } = $props()
 
-  const anchorID = '--dropzone-root-last'
+  const anchorID = `--dropzone-root-last-${getRandomID()}`
   const padding = 6
 
   // scaled units
