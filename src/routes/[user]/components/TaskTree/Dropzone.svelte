@@ -15,7 +15,7 @@
   class="select-none"
   style="
     anchor-name: {anchorID};
-    height: {parentID === '' ? dzRootRemHeight : dzSubRemHeight}rem; 
+    height: {parentID === '' ? dzRootRemHeight() : dzSubRemHeight()}rem; 
     border-radius: var(--left-padding);
     border: 1px solid {colorForDebugging}; 
     {$bestDropzoneID === id ? dropPreviewCSS : ''}

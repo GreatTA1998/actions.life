@@ -13,7 +13,7 @@
 
   const { Task, openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
-  const { indent, fullWidth, scale, rootFontSize, subFontSize } = getContext('list-config')
+  const { indent, listWidth, scale, rootFontSize, subFontSize } = getContext('list-config')
 
   let {
     taskObj,
@@ -24,9 +24,10 @@
   } = $props()
 
   const colorForDebugging = getRandomColor()
+  const padding = 6
 
   let n = $derived(taskObj.children.length)
-  let dzWidth = $derived(fullWidth - indent * depth)
+  let dzWidth = $derived(`calc(${listWidth()} - ${padding}px - ${indent * depth}px)`)
 
   function handleCheckboxChange (e) {
     Task.update({
@@ -49,7 +50,7 @@
 <div style="position: relative; width: 100%; font-weight: {depth === 1 ? 600 : 400};">
   <div draggable="true"
     ondragstart={e => startTaskDrag({ e, id: taskObj.id })}
-    style="font-size: {depth === 1 ? rootFontSize : subFontSize}rem;"
+    style="font-size: {depth === 1 ? rootFontSize() : subFontSize()}rem;"
     class="task-row-container select-none"
   >
     <div style="position: relative; margin-left: 2px; margin-right: 4px;">
@@ -59,12 +60,12 @@
         {#if n === 0}
           <Checkbox value={taskObj.isDone}
             onchange={e => handleCheckboxChange(e)}
-            zoom={0.5 * scale}
+            zoom={0.5 * scale()}
           />
         {:else}
           <TaskCaret isCollapsed={taskObj.isCollapsed}
             onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
-            zoom={1 * scale}
+            zoom={1 * scale()}
           />
         {/if}
       </div>
@@ -111,11 +112,7 @@
     <div style="margin-left: {indent}px;">
       {#if !taskObj.isCollapsed}
         <div class:ghost-negative={n === 0} 
-          style="
-            left: {indent}px;
-            width: {dzWidth}px;
-            z-index: {depth};
-          "
+          style="left: {indent}px; width: {dzWidth}; z-index: {depth};"
         >
           <Dropzone {...renderDropzone(0)} /> 
         </div>
@@ -130,21 +127,12 @@
           {#if i === n - 1}
             <!-- notice `left` is a constant, because it'll inherit the parent's cumulative left -->
             <div class="ghost-negative"
-              style="
-                left: {indent}px;
-                width: {dzWidth}px;
-                z-index: {depth};
-              "
+              style="left: {indent}px; width: {dzWidth}; z-index: {depth};"
             >
               <Dropzone {...renderDropzone(i + 1)} /> 
             </div>
           {:else}
-            <div 
-              style="
-                width: {dzWidth}px;
-                z-index: {depth};
-              "
-            >
+            <div style="width: {dzWidth}; z-index: {depth};">
               <Dropzone {...renderDropzone(i + 1)} /> 
             </div>
           {/if}

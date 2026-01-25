@@ -2,7 +2,6 @@
   import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import ListenToListTrees from '/src/routes/[user]/components/ListsArea/ListenToListTrees.svelte'
   import { getContext, onMount, tick } from 'svelte'
-  import { innerWidth } from 'svelte/reactivity/window'
   import { WIDTHS } from '$lib/utils/constants.js'
 
   const { logicAreaRect } = getContext('drag-drop')
@@ -39,7 +38,7 @@
   <ListenToListTrees>
     {#snippet children({ trees })}
       <TodoList {trees}
-        listWidth={xyScrolling ? WIDTHS.LIST : innerWidth.current}
+        listWidth={xyScrolling ? WIDTHS.LIST + 'px' : '100%'}
         cssStyle={xyScrolling ? wrappingColumnLayout : simpleMobileLayout}
         isLargeFont={!xyScrolling}
       />       

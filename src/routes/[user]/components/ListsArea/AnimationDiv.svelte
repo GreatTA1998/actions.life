@@ -11,8 +11,8 @@
 
 <div style="
   view-transition-name: list-{id}; 
-  view-transition-class: {inDialog ? 'dialog-list-item' : 'list-item'}; 
-  width: {listWidth}px;"
+  view-transition-class: {inDialog ? 'dialog-list-item' : 'list-item'};
+  width: {listWidth};"
 >
   {@render children()}
 </div>

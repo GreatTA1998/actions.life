@@ -15,25 +15,23 @@
   } = $props()
 
   const anchorID = '--dropzone-root-last'
-  
   const padding = 6
-  const indent = WIDTHS.INDENT_PER_LEVEL
 
   // scaled units
-  const scale = isLargeFont ? 2 : 1
-  const dzRootRemHeight = (parentID ? HEIGHTS.ROOT_DROPZONE : HEIGHTS.SUB_DROPZONE) * scale
-  const dzSubRemHeight = HEIGHTS.SUB_DROPZONE * scale
-  const rootFontSize = 1 * scale // rem =  16px / 32px
-  const subFontSize = 0.875 * scale // rem = 14px / 28px
+  const scale = $derived(isLargeFont ? 2 : 1)
+  const dzRootRemHeight = $derived((parentID ? HEIGHTS.ROOT_DROPZONE : HEIGHTS.SUB_DROPZONE) * scale)
+  const dzSubRemHeight = $derived(HEIGHTS.SUB_DROPZONE * scale)
+  const rootFontSize = $derived(1 * scale) // rem =  16px / 32px
+  const subFontSize = $derived(0.875 * scale) // rem = 14px / 28px
 
   setContext('list-config', { 
-    indent, 
-    dzRootRemHeight, 
-    dzSubRemHeight,
-    fullWidth: listWidth - padding,
-    rootFontSize,
-    subFontSize,
-    scale
+    indent: WIDTHS.INDENT_PER_LEVEL, 
+    dzRootRemHeight: () => dzRootRemHeight,
+    dzSubRemHeight: () => dzSubRemHeight,
+    listWidth: () => listWidth,
+    rootFontSize: () => rootFontSize,
+    subFontSize: () => subFontSize,
+    scale: () => scale
   })
 
   function renderDropzone (idx) {
@@ -58,7 +56,7 @@
       })
     }
   }}
-  style={cssStyle} 
+  style={cssStyle}
 >
   {#if trees}
     {#each trees as taskObj, i (taskObj.id)}
@@ -74,18 +72,18 @@
           />
         </div>
 
-        <div style="width: {listWidth}px" class="absolute z-0"> <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
+        <div style="width: {listWidth}" class="absolute z-0"> <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
           <Dropzone {...renderDropzone(i+1)} />
         </div>
       </AnimationDiv>
     {/each}
 
-    <div style="width: {listWidth}px" class="z-0">
+    <div style="width: {listWidth}" class="z-0">
       <Dropzone {...renderDropzone(trees.length)} />
     </div>
   {/if}
   
-  <div id={anchorID} style="anchor-name: {anchorID}; height: 24px; width: {listWidth}px; pointer-events: none;" >
+  <div id={anchorID} style="anchor-name: {anchorID}; height: 24px; width: {listWidth}; pointer-events: none;" >
 
   </div>
 </div>
