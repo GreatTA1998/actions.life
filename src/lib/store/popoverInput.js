@@ -4,7 +4,6 @@ export const globalInputPopover = writable(null)
 export const globalMenuPopover = writable(null)
 export const globalInput = writable(null)
 
-export const activeAnchorID = writable('')
 export const isInputActive = writable(false)
 export const callback = writable(() => {})
 export const overrideOptions = writable({})
@@ -26,7 +25,6 @@ export function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }
     input.focus()
 
     isInputActive.set(true)
-    activeAnchorID.set(anchorID)
     callback.set(onCreate)
     overrideOptions.set(modifiers)
   }

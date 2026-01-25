@@ -1,7 +1,6 @@
 <script>
   import DropdownMenu from '$lib/components/DropdownMenu.svelte'
   import { 
-    activeAnchorID,
     globalMenuPopover, globalInputPopover, globalInput, 
     isInputActive, callback, overrideOptions
   } from '$lib/store/popoverInput.js'
@@ -27,7 +26,6 @@
       setTimeout(
         () => {
           isInputActive.set(false)
-          activeAnchorID.set('')
         },
         300 // genius, delay the reset (iOS ontoggle resolves before click)
       )
