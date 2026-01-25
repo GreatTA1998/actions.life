@@ -91,10 +91,13 @@
         </div>
       {/if}
 
-      {#if taskObj.isCollapsed && n > 0}
-        <SubtaskCountIndicator {taskObj} onclick={() => openTaskPopup(taskObj)} />
-      {/if}
     </div>
+
+    <div style="flex-grow: 1;"></div>
+
+    {#if taskObj.isCollapsed && n > 0}
+      <SubtaskCountIndicator {taskObj} onclick={() => openTaskPopup(taskObj)} />
+    {/if}
 
     <TaskMenu {taskObj} />
   </div>

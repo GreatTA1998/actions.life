@@ -44,6 +44,7 @@
   .base-popup {
     width: fit-content;
     height: fit-content;
+    max-height: 100dvh;
     overflow-y: auto;
  
     position: fixed;
