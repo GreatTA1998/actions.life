@@ -66,7 +66,7 @@
           <Dropzone {...renderDropzone(i)} />
         </div>
 
-        <div style="padding: {padding}px" class:list-container={!parentID}>
+        <div style="padding: {padding}px; padding: 0; padding-bottom: 0;" class:list-container={!parentID}>
           <RecursiveTask {taskObj}
             depth={1}
             ancestorRoomIDs={['']}
@@ -90,9 +90,9 @@
 </div>
 
 <style>
-  .list-container {
+  /* .list-container {
     background-color: var(--navbar-bg-color);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
+  } */
 </style>
