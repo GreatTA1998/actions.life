@@ -1,13 +1,9 @@
 <script>
-  import PopoverInputDropdownMenu from '$lib/components/PopoverInputDropdownMenu.svelte'
+  import DropdownMenu from '$lib/components/DropdownMenu.svelte'
   import { 
     activeAnchorID,
-    globalMenuPopover,
-    globalInputPopover, 
-    globalInput, 
-    isInputActive, 
-    callback,
-    overrideOptions
+    globalMenuPopover, globalInputPopover, globalInput, 
+    isInputActive, callback, overrideOptions
   } from '$lib/store/popoverInput.js'
   import { getRandomID } from '$lib/utils/core';
   import { onMount, getContext } from 'svelte'
@@ -80,27 +76,21 @@
 
 <div bind:this={menuPopover} 
   popover="manual" 
-  style="position-anchor: {$activeAnchorID};"
   class="menu-dropdown"
 >
-  <PopoverInputDropdownMenu 
+  <DropdownMenu 
     taskName={value} 
     onSelect={template => createTask(template)}
   />
 </div>
 
 <style>
-  /* the anchor relationship controlled by popoverInput.js */
+  /* position-anchor is dynamically set by popoverInput.js */
   .task-input {
     position-area: center;
     width: anchor-size(width);
     height: anchor-size(height);
 
-    margin: 0;
-    inset: auto;
-
-    padding: 0;
-    border: none;
     background: transparent;
     overflow-y: hidden; /** Safari-specific fix */
   }
@@ -110,10 +100,6 @@
     top: anchor(bottom); 
     left: anchor(left);
 
-    margin: 0;
-    inset: auto;
-    padding: 0; /* default is 4px, resulting in a 8x8 box */
-    border: none; /* default is black */
     border-radius: 12px;
   }
 

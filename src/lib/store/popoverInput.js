@@ -18,7 +18,9 @@ export function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }
     const input = get(globalInput)
     const menuPopover = get(globalMenuPopover)
 
-    inputPopover.style.positionAnchor = anchorID
+    // note: although using an anchor variable is more readable, the update gets batched causing synchronicity issues with focus etc.
+    inputPopover.style.positionAnchor = anchorID 
+    menuPopover.style.positionAnchor = anchorID
     inputPopover.showPopover()
     menuPopover.showPopover()
     input.focus()

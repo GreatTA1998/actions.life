@@ -45,7 +45,7 @@
           </div>
         </div>
 
-        <TaskPopup />
+        <!-- <TaskPopup /> -->
         <!-- <VisionSection /> -->
         <!-- <AppDetailsSection /> -->
       </DemoContext>

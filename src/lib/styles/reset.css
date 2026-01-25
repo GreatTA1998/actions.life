@@ -29,7 +29,11 @@ input {
 }
 
 [popover] {
-  padding: 0;
+  /* margin: auto; inset: 0 is applied for centering */
+  margin: 0;
+  inset: auto;
+  padding: 0; /* 4px, resulting in a 8x8 box */
+  border: none; /* black */
 }
 
 button {

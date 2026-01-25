@@ -1,4 +1,5 @@
 <script>
+  import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
   import TaskPopup from '/src/routes/[user]/components/TaskPopup/TaskPopup.svelte'
   import ExtendRoutines from '/src/routes/[user]/components/ExtendRoutines.svelte'
   import { doc, onSnapshot } from 'firebase/firestore'
@@ -39,5 +40,8 @@
     {#if $clickedTaskID}
       <TaskPopup />
     {/if}
+    
+    <!-- consider making it a context -->
+    <ThePopoverInput />
   {/if}
 </div>

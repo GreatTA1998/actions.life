@@ -2,7 +2,6 @@
   import AppContext from './AppContext.svelte'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
-  import ThePopoverInput from '$lib/components/ThePopoverInput.svelte'
   import { user, authChecked, loggedIn, firebaseAuth } from '$lib/store'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
@@ -61,8 +60,6 @@
       <DragDropContext>
         {@render children()}
         
-        <ThePopoverInput />
-
         <TheSnackbar />
       </DragDropContext>
     </AppContext>
