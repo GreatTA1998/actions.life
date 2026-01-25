@@ -17,7 +17,7 @@
 
 {#snippet activator ({ setPosition, popovertarget })} 
   <div style="anchor-name: --anchor-{popovertarget}; max-height: 16px; display: flex; align-items: center;">
-    <button {popovertarget} onclick={setPosition} class="menu-icon flexbox content-center">
+    <button {popovertarget} onclick={setPosition} class="menu-icon flexbox items-center">
       <MslMoreVert style="font-size: 1.5rem;"/>
     </button>
   </div>

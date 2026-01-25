@@ -15,6 +15,7 @@
   import 'virtual:uno.css'
   import 'normalize.css/normalize.css'
   import '$lib/styles/view-transitions.css'
+  import '$lib/styles/reset.css'
 
   let { children } = $props()
 
@@ -92,76 +93,6 @@
     --popup-control: 1.67rem;
   }
 
-  /* reset styles */
-  :global(*) {
-    box-sizing: border-box;
-    font-family: 'Inter Variable', sans-serif;
-    min-width: 0;
-  }
-
-  /* prevent accidental going back page */
-  /* https://stackoverflow.com/questions/30636930/disable-web-page-navigation-on-swipeback-and-forward?rq=1 */
-  :global(html, body) {
-    overscroll-behavior-x: none;
-  }
-
-  /* adding body { height: 100% } and remove html, body { overflow: hidden} at least allows you to scroll the page back up from the mystery white space, whereas
-  before the problem would happen AND you cannot scroll back up*/
-  :global(body) {
-    margin: 0;
-    height: 100%;
-  }
-
-  :global(img) {
-    display: block;
-  }
-
-  :global(input) {
-    background: transparent;
-    outline-color: transparent;
-    padding: 0;
-    border: none;
-  }
-
-  :global([popover]) {
-    padding: 0;
-  }
-
-  /* Reset button's default styling */
-  :global(button) {
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-    font: inherit;
-    color: inherit;
-    cursor: pointer;
-    outline: inherit;
-    text-align: center;
-
-    /* Fix for Safari/iOS */
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-
-    /* additional based on personal use */
-    display: inline-flex;
-    align-items: center;
-  }
-
-  /* Reused between some components */
-  :global(.reset-textarea) {
-    border: none;
-    overflow: auto;
-    outline: none;
-
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
-
-    resize: none; /*remove the resize handle on the bottom right*/
-  }
-
   :global(.main-content) {
     padding: 1rem;
     overflow-y: auto;
@@ -206,93 +137,16 @@
     font-weight: 600 !important;
   }
 
-  /* utility classes (inspired by Tailwind, but custom for my needs) */
-  :global(.absolute) {
-    position: absolute;
-  }
-
-  :global(.relative) {
-    position: relative;
-  }
-
-  :global(.sticky) {
-    position: sticky;
-  }
-
   :global(.flexbox) {
     display: flex;
-  }
-
-  :global(.content-center) {
-    align-items: center;
-  }
-
-  :global(.grid) {
-    display: grid;
-  }
-
-  :global(.z-1) {
-    z-index: 1;
-  }
-
-  :global(.z-0) {
-    z-index: 0;
-  }
-
-  :global(.top-0) {
-    top: 0;
-  }
-
-  :global(.left-0) {
-    left: 0;
-  }
-
-  :global(.text-left) {
-    text-align: left;
-  }
-
-  :global(.gap-0) {
-    gap: 0;
   }
 
   :global(.gap-8) {
     gap: 8px;
   }
 
-  :global(.h-full) {
-    height: 100%;
-  }
-
-  :global(.w-full) {
-    width: 100%;
-  }
-
-  :global(.overflow-hidden) {
-    overflow: hidden;
-  }
-
-  :global(.overflow-auto) {
-    overflow: auto;
-  }
-
-  :global(.min-w-0) {
-    min-width: 0;
-  }
-
-  :global(.min-h-0) {
-    min-height: 0;
-  }
-
-  :global(.mt-0) {
-    margin-top: 0;
-  }
-
   :global(.mt-4) {
     margin-top: 4px;
-  }
-
-  :global(.touch-none) {
-    touch-action: none;
   }
 
   :global(.hide-scrollbar) {

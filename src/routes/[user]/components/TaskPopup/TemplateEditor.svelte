@@ -105,7 +105,7 @@
       <PeriodicityEditor routine={template} />
     </div>
 
-    <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button flexbox content-center">
+    <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button flexbox items-center">
       <MslDeleteOutline style="font-size: 1.5rem;"/>
     </button>
   </div>

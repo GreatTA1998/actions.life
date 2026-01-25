@@ -27,7 +27,7 @@
   -->
   <div style="display: flex; align-items: center; width: 100%;">
     {#if isBulletPoint}
-      <div class="flexbox content-center" style="
+      <div class="flexbox items-center" style="
           margin-right: calc(var(--left-padding) - 2px);
           color: {task.isDone ? 'rgb(20, 20, 20)' : '#509c13'};
         "

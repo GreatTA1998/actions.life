@@ -115,7 +115,7 @@
   {/if}
 
   {#snippet routineItem({ routine })}
-    <div class="flexbox content-center" style="width: 200px;">
+    <div class="flexbox items-center" style="width: 200px;">
       {#if routine.iconURL}
         <img src={routine.iconURL} alt={routine.name} class="routine-icon" />
       {/if}

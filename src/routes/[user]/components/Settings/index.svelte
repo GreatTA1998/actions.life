@@ -47,7 +47,7 @@
       </div>
 
       <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
-        <div class="flexbox content-center" style="column-gap: 12px;">
+        <div class="flexbox items-center" style="column-gap: 12px;">
           <div class="title">Data</div>
           <span class="status">{statusMessage}</span>
         </div>

@@ -5,7 +5,7 @@
   } = $props()
 </script>
 
-<div class="relative flexbox z-1 content-center touch-none"
+<div class="relative flexbox z-1 items-center touch-none"
   class:h-full={orientation === 'horizontal'}
   class:w-full={orientation === 'vertical'}
 >

@@ -84,7 +84,7 @@
         {@render infoBadge()}
       {:else if taskObj.startDateISO}
         <div class:overdue={!taskObj.isDone && taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
-          class="flexbox content-center"
+          class="flexbox items-center"
         >
           <MslCalendarTodayOutline style="font-size: 0.75rem;"/>
         </div>

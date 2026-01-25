@@ -1,7 +1,7 @@
 <div class="float-button" {style}>
   <!-- `align-items: center` is a quickfix related to mystery height, probably from the invisible input -->
   <div style="display: flex; align-items: center;">
-    <button onclick={openFolderInput} class="responsive-icon-size flexbox content-center">
+    <button onclick={openFolderInput} class="responsive-icon-size flexbox items-center">
       <MslPhotoLibrary style="font-size: 2.125rem;"/>
     </button>
 

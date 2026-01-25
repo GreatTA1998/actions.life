@@ -14,7 +14,7 @@
 </script>
 
 <button class="caret-button" onclick={animatedToggle} style="zoom: {zoom}; display: flex; align-items: center; justify-content: center;">
-  <div class="caret-icon flexbox content-center">
+  <div class="caret-icon flexbox items-center">
     {#if isCollapsed}
       <MslChevronRight />
     {:else}

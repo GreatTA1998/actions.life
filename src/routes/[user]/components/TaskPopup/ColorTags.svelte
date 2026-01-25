@@ -63,7 +63,7 @@
 
 {#snippet activator ({ setPosition, popovertarget })}
   <button onclick={setPosition} {popovertarget} 
-    class="flexbox content-center" 
+    class="flexbox items-center" 
     style="
       column-gap: 4px; 
       min-width: 16px; 
@@ -90,7 +90,7 @@
     {#if $user.tags}
       {#each Object.entries($user.tags) as [id, tag] (id)}
         <button 
-          class="flexbox content-center" 
+          class="flexbox items-center" 
           class:selected={taskObject.tagIDs?.includes(id)}
           style="column-gap: 4px;"
         >
