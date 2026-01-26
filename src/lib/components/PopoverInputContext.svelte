@@ -77,43 +77,25 @@
   }
 </script>
 
-<div>
-  {@render children()}
+{@render children()}
 
-  <div bind:this={inputPopover}
-    popover="auto"
-    class="task-input"
-    {ontoggle}
+<div {ontoggle} bind:this={inputPopover} popover="auto" class="task-input">
+  <input 
+    bind:this={input} bind:value={value}
+    {onkeyup} onblur={() => inputPopover.hidePopover()}
+    style="width: 100%; height: 100%;"
   >
-    <input
-      style="width: 100%; height: 100%;" 
-      bind:this={input} 
-      bind:value={value}
-      {onkeyup}
-      onblur={() => { 
-        inputPopover.hidePopover()
-      }}
-    >
-    <!--
-      onblur: detects iOS 26 keyboard exit via the "arrow" key 
-      must use a () => function as inputPopover is not defined when attached
-    -->
-  </div>
-
-  <div bind:this={menuPopover} 
-    popover="manual" 
-    class="menu-dropdown"
-  >
-    <DropdownMenu 
-      taskName={value} 
-      onSelect={template => createTask(template)}
-    />
-  </div>
+  <!-- 1. `onblur` detects iOS 26 keyboard exit via the "arrow" key. 2. Must use a () => function as inputPopover is not defined when attached -->
 </div>
 
+<div bind:this={menuPopover} popover="manual" class="menu-dropdown">
+  <DropdownMenu 
+    taskName={value} 
+    onSelect={template => createTask(template)}
+  />
+</div>
 
 <style>
-  /* position-anchor is dynamically set by popoverInput.js */
   .task-input {
     position-area: center;
     width: anchor-size(width);
