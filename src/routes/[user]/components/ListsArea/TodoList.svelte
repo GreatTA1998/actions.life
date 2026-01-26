@@ -21,7 +21,7 @@
 
   // scaled units
   const scale = $derived(isLargeFont ? 2 : 1)
-  const dzRootRemHeight = $derived((parentID ? HEIGHTS.ROOT_DROPZONE : HEIGHTS.SUB_DROPZONE) * scale)
+  const dzRootRemHeight = $derived((parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE) * scale)
   const dzSubRemHeight = $derived(HEIGHTS.SUB_DROPZONE * scale)
   const rootFontSize = $derived(1 * scale) // rem =  16px / 32px
   const subFontSize = $derived(0.875 * scale) // rem = 14px / 28px

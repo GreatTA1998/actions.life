@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { releaseImage } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
-import { user, tasksCache, showUndoSnackbar } from '$lib/store'
+import { user, tasksCache, cleanupCache, showUndoSnackbar } from '$lib/store'
 import { 
   writeBatch, getDocs, increment, 
   collection, query, where, 
@@ -137,7 +137,8 @@ const Task = {
       }
       await handleTreeISOsForDeletion({ batch, tasksToDelete: treeNodes }) // modifies `batch` before commiting
       await batch.commit()
-
+      
+      cleanupCache(treeNodes)
       resolve(treeNodes)
     })
   },

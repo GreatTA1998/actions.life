@@ -24,7 +24,6 @@
   .color-buttons {
     display: flex;
     gap: 10px;
-    flex-wrap: wrap;
   }
   
   .color-button {
