@@ -1,13 +1,13 @@
 <script>
   import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
-  import { activateInput } from '$lib/store/popoverInput.js'
   import { treesByDate } from './service.js'
   import { headerHeight, headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
   const { Task } = getContext('app')
+  const { activateInput } = getContext('popover-input')
   const { 
     draggedItem, scrollCalRect, detectOverlap, 
     bestDropzoneID, dropPreviewCSS, hasDropped, resetDragDrop

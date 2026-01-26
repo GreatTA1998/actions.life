@@ -31,15 +31,14 @@
 
 <div>
   {#if $user.uid}
-    {@render children()}
-
     <ExtendRoutines />
-     
-    {#if $clickedTaskID}
-      <TaskPopup />
-    {/if}
-    
-    <!-- consider making it a context -->
-    <ThePopoverInput />
+
+    <ThePopoverInput>
+      {@render children()}
+      
+      {#if $clickedTaskID}
+        <TaskPopup />
+      {/if}
+    </ThePopoverInput>
   {/if}
 </div>

@@ -4,7 +4,6 @@
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
   import GoogleEvent from './GoogleEvent.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
-  import { activateInput, overrideOptions } from '$lib/store/popoverInput.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate, googleEventsByDate } from './service.js'
@@ -12,6 +11,7 @@
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
+  const { activateInput, overrideOptions } = getContext('popover-input')
   const { 
     draggedItem, scrollCalRect, detectOverlap,
     bestDropzoneID, dropPreviewCSS, hasDropped, resetDragDrop

@@ -3,8 +3,7 @@
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import { HEIGHTS, WIDTHS } from '$lib/utils/constants.js'
-  import { activateInput } from '$lib/store/popoverInput.js'
-  import { setContext } from 'svelte'
+  import { getContext, setContext } from 'svelte'
   import { getRandomID } from '$lib/utils/core.js'
 
   let {
@@ -14,6 +13,8 @@
     trees = null,
     parentID = ''
   } = $props()
+
+  const { activateInput } = getContext('popover-input')
 
   const anchorID = `--dropzone-root-last-${getRandomID()}`
   const padding = 6

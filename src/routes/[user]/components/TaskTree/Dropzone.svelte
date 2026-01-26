@@ -24,7 +24,6 @@
 ></div>
 
 <script>
-  import { activateInput } from '$lib/store/popoverInput.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
@@ -34,6 +33,7 @@
     bestDropzoneID,  dropPreviewCSS, hasDropped, resetDragDrop,
   } = getContext('drag-drop')
   const { dzRootRemHeight, dzSubRemHeight } = getContext('list-config')
+  const { activateInput } = getContext('popover-input')
 
   let {
     ancestorRoomIDs,
