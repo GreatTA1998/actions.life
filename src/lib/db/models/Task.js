@@ -125,7 +125,7 @@ const Task = {
       const treeNodes = await getSubtreeNodes(taskObj)
 
       // warning: need a way to disable this confirmation when we support sub-tasks for routines
-      if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} tasks in this tree?`)) {
+      if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} actions at once?`)) {
         return resolve([])
       }
 

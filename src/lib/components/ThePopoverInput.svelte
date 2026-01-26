@@ -22,9 +22,9 @@
 
   function ontoggle (e) {
     if (e.newState === 'closed') {
-      // menuPopover.hidePopover() causes the menu click to hide the entire popover and destroy everything
       setTimeout(
         () => {
+          menuPopover.hidePopover() // otherwise clicking a menu item causes the input popover to get destroyed, which terminates the creation of the routine
           isInputActive.set(false)
         },
         300 // genius, delay the reset (iOS ontoggle resolves before click)

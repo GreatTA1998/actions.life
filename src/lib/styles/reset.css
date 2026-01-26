@@ -28,29 +28,27 @@ input {
   border: none;
 }
 
+input:focus-visible {
+  outline: none; /* -webkit-focus-ring-color auto 1px;  */
+}
+
 [popover] {
-  /* margin: auto; inset: 0 is applied for centering */
-  margin: 0;
-  inset: auto;
+  margin: 0; /* auto (centering) */
+  inset: auto; /* 0 (centering) */ 
   padding: 0; /* 4px, resulting in a 8x8 box */
   border: none; /* black */
 }
 
 button {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  appearance: none; /* auto (browser styling) */
   background: none;
   border: none;
   padding: 0;
   margin: 0;
   font: inherit;
   color: inherit;
-  cursor: pointer;
   outline: inherit;
-
-  /* Fix for Safari/iOS */
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  display: inline-flex;
-  align-items: center;
 }

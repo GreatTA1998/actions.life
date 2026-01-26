@@ -4,7 +4,7 @@
   import { setContext } from 'svelte'
   import { get, writable } from 'svelte/store'
   import realTask from '$lib/db/models/Task.js'
-  import { reconstructTreeInMemory, findSubtree } from '/src/routes/[user]/components/ListsArea/service.js'
+  import { buildForest, findSubtree } from '/src/routes/[user]/components/ListsArea/service.js'
 
   let { children } = $props()
 
@@ -232,7 +232,7 @@
       temp[task.id] = task
     }
     tasksCache.set(temp)
-    memoryTree.set(reconstructTreeInMemory(docs))
+    memoryTree.set(buildForest(docs))
   })
 
   clickedTaskID.subscribe(id => {

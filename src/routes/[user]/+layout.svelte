@@ -16,9 +16,7 @@
 
   onMount(listenToUser)
 
-  onDestroy(() => {
-    if (unsub) unsub()
-  })
+  onDestroy(unsub)
 
   function listenToUser () {
     const ref = doc(db, '/users/' + uid)
