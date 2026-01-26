@@ -25,5 +25,32 @@ export const themes = {
       '--navbar-bg-color': '#ffffff',
       '--grid-color': 'rgb(228, 228, 228)'
     }
+  },
+  google: {
+    previewColor: '#4285F4',
+    cssVars: {
+      '--todo-list-bg-color': '#f0f4f8',
+      '--calendar-bg-color': '#ffffff',
+      '--navbar-bg-color': '#f0f4f8',
+      '--grid-color': '#e5e7eb'
+    }
+  },
+  linear: {
+    previewColor: '#5E6AD2',
+    cssVars: {
+      '--todo-list-bg-color': '#f7f8f9',
+      '--calendar-bg-color': '#ffffff',
+      '--navbar-bg-color': '#ffffff',
+      '--grid-color': 'rgba(0,0,0,0.06)'
+    }
+  },
+  figma: {
+    previewColor: '#0ACF83',
+    cssVars: {
+      '--todo-list-bg-color': '#ffffff',
+      '--calendar-bg-color': '#e5e5e5',
+      '--navbar-bg-color': '#f5f5f5',
+      '--grid-color': '#dcdcdc'
+    }
   }
 }

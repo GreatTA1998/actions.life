@@ -96,8 +96,7 @@
       {/if}
     </div>
 
-    <div style="flex-grow: 1;"></div>
-
+    <!-- <div style="flex-grow: 1;"></div> -->
 
     <TaskMenu {taskObj} />
   </div>

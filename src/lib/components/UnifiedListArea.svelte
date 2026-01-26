@@ -48,7 +48,6 @@
 
 <style>
   #list-area {
-    /* background-color: var(--todo-list-bg-color); */
-    background-color: var(--offwhite-bg);
+    background-color: var(--todo-list-bg-color);
   }
 </style>
