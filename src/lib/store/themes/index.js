@@ -14,6 +14,11 @@ user.subscribe($user => {
 })
 
 function setTheme (theme) {
+  if (!themes[theme]) { // needed due to new backwards compatibility between new version themes and old version themes
+    console.warn(`Theme '${theme}' not found, falling back to 'naturalGreen'`)
+    theme = 'naturalGreen'
+  }
+
   currentTheme.set(theme)
   
   if (browser) {
