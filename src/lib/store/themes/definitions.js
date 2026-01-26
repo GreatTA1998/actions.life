@@ -52,5 +52,41 @@ export const themes = {
       '--navbar-bg-color': '#f5f5f5',
       '--grid-color': '#dcdcdc'
     }
+  },
+  lavenderMist: {
+    previewColor: '#E6E6FA',
+    cssVars: {
+      '--todo-list-bg-color': '#F3E5F5', // Very light purple
+      '--calendar-bg-color': '#FFFFFF',
+      '--navbar-bg-color': '#F3E5F5',
+      '--grid-color': '#E1BEE7'
+    }
+  },
+  desertSand: {
+    previewColor: '#EDC9AF',
+    cssVars: {
+      '--todo-list-bg-color': '#FAF3E0', // Light warm beige
+      '--calendar-bg-color': '#FFFAF0', // Floral white
+      '--navbar-bg-color': '#FAF3E0',
+      '--grid-color': '#EEDC9A'
+    }
+  },
+  skyAndClouds: {
+    previewColor: '#87CEEB',
+    cssVars: {
+      '--todo-list-bg-color': '#E0F7FA', // Light cyan
+      '--calendar-bg-color': '#FFFFFF',
+      '--navbar-bg-color': '#E0F7FA',
+      '--grid-color': '#B2EBF2'
+    }
+  },
+  midnightStudio: {
+    previewColor: '#2C3E50',
+    cssVars: {
+      '--todo-list-bg-color': '#ECF0F1', // Light gray/white for contrast against dark UI elements if any, or keeping it light for text legibility
+      '--calendar-bg-color': '#FFFFFF',
+      '--navbar-bg-color': '#BDC3C7',
+      '--grid-color': '#95A5A6'
+    }
   }
 }

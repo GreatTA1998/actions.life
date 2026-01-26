@@ -160,7 +160,7 @@
     min-width: 30px; /* min-width and height to make it easy to delete legacy tasks with no titles */
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: rgb(80, 80, 80);
+    color: #1a1a1a; /* rgb(80, 80, 80) */
   }
 
   .done-task {
