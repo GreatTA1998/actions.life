@@ -8,21 +8,22 @@
   import { getContext } from 'svelte'
   
   let { 
-    taskObj,
+    task,
     children = [], 
     depth, 
     parentID, 
-    ancestorRoomIDs = [],
+    ancestorIDs = [],
     colorForDebugging 
   } = $props()
   
   const { openTaskPopup, willOpenDatePicker } = getContext('app')
-  const { indent } = getContext('list-config')
+  const { indent, listWidth } = getContext('list-config')
 
   const defaultPxPerDay = 0.4
   const dropzoneHeight = 16
   const squareHeight = 12.5
 
+  const dzWidth = $derived(`calc(${listWidth()} - ${indent * (depth + 1)}px)`)
   let allSorted = $derived(children.sort(chronologically))
   let n = $derived(allSorted.length)
   let contentHeights = $state({})
@@ -102,7 +103,7 @@
   function renderDropzone (idx) {
     return {
       idxInThisLevel: idx,
-      ancestorRoomIDs: [parentID, ...ancestorRoomIDs],
+      ancestorIDs: [parentID, ...ancestorIDs],
       roomsInThisLevel: allSorted,
       parentID: parentID,
       colorForDebugging,
@@ -111,24 +112,19 @@
 
   function renderTask (node, depth) {
     return {
-      taskObj: node,
+      task: node,
       depth,
-      ancestorRoomIDs: [parentID, ...ancestorRoomIDs],
+      ancestorIDs: [parentID, ...ancestorIDs],
     }
   }
 </script>
 
 <div style="margin-left: {indent}px;">  
-  {#if !taskObj.isCollapsed}
-    <div class:ghost-negative={n === 0}  
-      style="
-        left: {indent}px;
-        width: {235 - indent * (depth + 1)}px; 
-        z-index: {depth};
-      "
-    >
-      <Dropzone {...renderDropzone(0)} />
-    </div>
+  {#if !task.isCollapsed}
+    <Dropzone {...renderDropzone(0)} 
+      extraClass={n === 0 ? 'ghost-negative' : ''}
+      extraStyle="left: {indent}px; width: {dzWidth}; z-index: {depth}"
+    />
 
     {#each allSorted as child, i (child.id)}
       <div style="
@@ -159,15 +155,10 @@
         {/snippet}
       </div>
 
-      <div class:ghost-negative={i === allSorted.length - 1}
-        style="
-          left: {indent}px;
-          width: {235 - indent * (depth + 1)}px;
-          z-index: {depth};
-        "
-      >
-        <Dropzone {...renderDropzone(i + 1)} />
-      </div>
+      <Dropzone {...renderDropzone(i + 1)} 
+        extraClass={i === allSorted.length - 1 ? 'ghost-negative' : ''}
+        extraStyle="left: {indent}px; width: {dzWidth}; z-index: {depth}"
+      />
     {/each}
   {/if}
 </div>

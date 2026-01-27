@@ -27,7 +27,7 @@
 
   {#if !isBulletPoint}
     {#if task.children.length > 0}
-      <SubtaskCountIndicator taskObj={task} color='white' />
+      <SubtaskCountIndicator {task} color='white' />
     {/if}
 
     <div style="flex-grow: 1; overflow: hidden;">

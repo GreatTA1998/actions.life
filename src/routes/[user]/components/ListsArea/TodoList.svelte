@@ -3,8 +3,8 @@
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import { HEIGHTS, WIDTHS } from '$lib/utils/constants.js'
-  import { getContext, setContext } from 'svelte'
   import { getRandomID } from '$lib/utils/core.js'
+  import { getContext, setContext } from 'svelte'
 
   let {
     cssStyle,
@@ -17,7 +17,6 @@
   const { activateInput } = getContext('popover-input')
 
   const anchorID = `--dropzone-root-last-${getRandomID()}`
-  const padding = 6
 
   // scaled units
   const scale = $derived(isLargeFont ? 2 : 1)
@@ -36,13 +35,13 @@
     scale: () => scale
   })
 
-  function renderDropzone (idx) {
+  function renderDropzone (idx, colorForDebugging = 'purple') {
     return {
       parentID,
       idxInThisLevel: idx,
-      ancestorRoomIDs: [''],
+      ancestorIDs: [''],
       roomsInThisLevel: trees,
-      colorForDebugging: 'purple',
+      colorForDebugging
     }
   }
 </script>
@@ -61,39 +60,22 @@
   style={cssStyle}
 >
   {#if trees}
-    {#each trees as taskObj, i (taskObj.id)}
+    <Dropzone {...renderDropzone(0)} />
+
+    {#each trees as task, i (task.id)}
       <AnimationDiv {listWidth} inDialog={parentID}>
-        <div class="z-0">
-          <Dropzone {...renderDropzone(i)} />
-        </div>
+        <RecursiveTask 
+          {task}
+          depth={1}
+          ancestorIDs={['']}
+        />
 
-        <div style="padding: {padding}px; padding: 0; padding-bottom: 0;" class:list-container={!parentID}>
-          <RecursiveTask {taskObj}
-            depth={1}
-            ancestorRoomIDs={['']}
-          />
-        </div>
-
-        <div style="width: {listWidth}" class="absolute z-0"> <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
-          <Dropzone {...renderDropzone(i+1)} />
-        </div>
+        <Dropzone style="width: {listWidth}" {...renderDropzone(i+1)} />
       </AnimationDiv>
     {/each}
-
-    <div style="width: {listWidth}" class="z-0">
-      <Dropzone {...renderDropzone(trees.length)} />
-    </div>
   {/if}
   
   <div id={anchorID} style="anchor-name: {anchorID}; height: 24px; width: {listWidth}; pointer-events: none;" >
 
   </div>
 </div>
-
-<style>
-  /* .list-container {
-    background-color: var(--navbar-bg-color);
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  } */
-</style>

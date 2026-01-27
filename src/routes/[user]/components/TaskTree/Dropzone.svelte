@@ -12,12 +12,14 @@
     })
   }}
   id={anchorID}
-  class="select-none"
+  class="{extraClass} select-none"
   style="
+    {extraStyle};
+    min-width: 100px;
     anchor-name: {anchorID};
     height: {parentID === '' ? dzRootRemHeight() : dzSubRemHeight()}rem; 
     border-radius: var(--left-padding);
-    border: 0px solid {colorForDebugging}; 
+    border: 1px solid {colorForDebugging}; 
     {$bestDropzoneID === id ? dropPreviewCSS : ''}
     {$bestDropzoneID === id && isInvalidDrop ? 'background-color: red;' : ''}
   "
@@ -36,11 +38,13 @@
   const { activateInput } = getContext('popover-input')
 
   let {
-    ancestorRoomIDs,
+    ancestorIDs,
     roomsInThisLevel,
     idxInThisLevel,
     parentID = '',
-    colorForDebugging = 'red'
+    colorForDebugging = 'red',
+    extraClass = '',
+    extraStyle = ''
   } = $props()
 
   const id = getRandomID()
@@ -48,7 +52,7 @@
   let dropzoneElem = $state(null)
   let n = $derived(roomsInThisLevel.length)
   let anchorID = $derived(`--dropzone-${id}`)
-  let isInvalidDrop = $derived(ancestorRoomIDs.includes($draggedItem.id))
+  let isInvalidDrop = $derived(ancestorIDs.includes($draggedItem.id))
 
   $effect(() => {
     if ($draggedItem && dropzoneElem) {

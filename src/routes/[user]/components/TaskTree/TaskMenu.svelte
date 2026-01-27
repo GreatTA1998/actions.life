@@ -7,7 +7,7 @@
 
   const { Task } = getContext('app')
 
-  let { taskObj } = $props()
+  let { task } = $props()
 </script>
 
 <PopoverMenu 
@@ -25,12 +25,12 @@
 
 {#snippet content ({ close })}
   <div style="padding: 8px; display: flex; flex-direction: column; row-gap: 8px;">    
-    <ToggleGroup onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal }})}
+    <ToggleGroup onselect={newVal => Task.update({ id: task.id, keyValueChanges: { childrenLayout: newVal }})}
       options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
-      activeValue={taskObj.childrenLayout} 
+      activeValue={task.childrenLayout} 
     />
 
-    <button class="m-item" onclick={() => { Task.archiveTree({ id: taskObj.id }) }}>
+    <button class="m-item" onclick={() => { Task.archiveTree({ id: task.id }) }}>
       <MslInventory2Outline style="font-size: 1.125rem;"/>
       Archive
     </button>

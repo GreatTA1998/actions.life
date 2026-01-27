@@ -41,7 +41,7 @@
 
   {#if !isBulletPoint && !task.imageDownloadURL}
     {#if task.children.length > 0}
-      <SubtaskCountIndicator taskObj={task} />
+      <SubtaskCountIndicator {task} />
     {/if}
 
     <div style="flex-grow: 1; overflow: hidden;">

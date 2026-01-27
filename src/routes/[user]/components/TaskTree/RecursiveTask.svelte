@@ -16,9 +16,9 @@
   const { indent, listWidth, scale, rootFontSize, subFontSize } = getContext('list-config')
 
   let {
-    taskObj,
+    task,
     depth,
-    ancestorRoomIDs = [], // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
+    ancestorIDs = [], // ancestorIDs prevent a parent from becoming its own parent, creating an infinite cycle
     verticalTimeline,
     infoBadge
   } = $props()
@@ -26,22 +26,22 @@
   const colorForDebugging = getRandomColor()
   const padding = 6
 
-  let n = $derived(taskObj.children.length)
+  let n = $derived(task.children.length)
   let dzWidth = $derived(`calc(${listWidth()} - ${padding}px - ${indent * depth}px)`)
 
   function handleCheckboxChange (e) {
     Task.update({
-      id: taskObj.id,
+      id: task.id,
       keyValueChanges: { isDone: e.target.checked }
     })
   }
 
   function renderDropzone (idx) {
     return {
-      ancestorRoomIDs: [taskObj.id, ...ancestorRoomIDs],
-      roomsInThisLevel: taskObj.children,
+      ancestorIDs: [task.id, ...ancestorIDs],
+      roomsInThisLevel: task.children,
       idxInThisLevel: idx,
-      parentID: taskObj.id,
+      parentID: task.id,
       colorForDebugging
     }
   }
@@ -49,7 +49,7 @@
 
 <div style="position: relative; width: 100%; font-weight: {depth === 1 ? 600 : 400};">
   <div draggable="true"
-    ondragstart={e => startTaskDrag({ e, id: taskObj.id })}
+    ondragstart={e => startTaskDrag({ e, id: task.id })}
     style="font-size: {depth === 1 ? rootFontSize() : subFontSize()}rem;"
     class="task-row-container select-none"
   >
@@ -58,24 +58,21 @@
       
       <div style="position: relative; padding-top: 2px; padding-bottom: 2px;">
         {#if n === 0}
-          <Checkbox value={taskObj.isDone}
+          <Checkbox value={task.isDone}
             onchange={e => handleCheckboxChange(e)}
             zoom={0.5 * scale()}
           />
         {:else}
-          <TaskCaret isCollapsed={taskObj.isCollapsed}
-            onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
+          <TaskCaret isCollapsed={task.isCollapsed}
+            onToggle={() => Task.update({ id: task.id, keyValueChanges: { isCollapsed: !task.isCollapsed } })}
             zoom={1 * scale()}
           />
         {/if}
       </div>
     </div>
 
-    <button onclick={() => openTaskPopup(taskObj)} 
-      class="task-name truncate" 
-      class:done-task={taskObj.isDone} 
-    >
-      {taskObj.name}
+    <button onclick={() => openTaskPopup(task)} class="task-name truncate" class:done-task={task.isDone}>
+      {task.name}
     </button>
 
     <div style="margin-left: 6px;"></div>
@@ -83,60 +80,53 @@
     <div style="display: flex; align-items: center; column-gap: 4px;">
       {#if infoBadge}
         {@render infoBadge()}
-      {:else if taskObj.startDateISO}
-        <div class:overdue={!taskObj.isDone && taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
+      {:else if task.startDateISO}
+        <div class:overdue={!task.isDone && task.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
           class="flexbox items-center"
         >
           <MslCalendarTodayOutline style="font-size: 0.75rem;"/>
         </div>
       {/if}
 
-      {#if taskObj.isCollapsed && n > 0}
-        <SubtaskCountIndicator {taskObj} onclick={() => openTaskPopup(taskObj)} />
+      {#if task.isCollapsed && n > 0}
+        <SubtaskCountIndicator {task} onclick={() => openTaskPopup(task)} />
       {/if}
     </div>
 
-    <!-- <div style="flex-grow: 1;"></div> -->
-
-    <TaskMenu {taskObj} />
+    <TaskMenu {task} />
   </div>
 
-  {#if taskObj.childrenLayout === 'timeline'}
+  {#if task.childrenLayout === 'timeline'}
     <TimelineRenderer
-      {taskObj}
-      children={taskObj.children}
-      parentID={taskObj.id}
+      {task}
+      children={task.children}
+      parentID={task.id}
       {depth}
-      {ancestorRoomIDs}
+      {ancestorIDs}
       {colorForDebugging}
     />
   {:else}
     <div style="margin-left: {indent}px;">
-      {#if !taskObj.isCollapsed}
-        <div class:ghost-negative={n === 0} 
-          style="left: {indent}px; width: {dzWidth}; z-index: {depth};"
-        >
-          <Dropzone {...renderDropzone(0)} /> 
-        </div>
-
-        {#each taskObj.children as subtaskObj, i (subtaskObj.id)}
+      {#if !task.isCollapsed}
+        <Dropzone {...renderDropzone(0)} 
+          extraClass={n === 0 ? 'ghost-negative' : ''} 
+          extraStyle="left: {indent}px; width: {dzWidth}; z-index: {depth}"
+        /> 
+        {#each task.children as subtask, i (subtask.id)}
           <RecursiveTask 
-            taskObj={subtaskObj}
+            task={subtask}
             depth={depth+1}
-            ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
+            ancestorIDs={[task.id, ...ancestorIDs]}
           /> 
-
           {#if i === n - 1}
-            <!-- notice `left` is a constant, because it'll inherit the parent's cumulative left -->
-            <div class="ghost-negative"
-              style="left: {indent}px; width: {dzWidth}; z-index: {depth};"
-            >
-              <Dropzone {...renderDropzone(i + 1)} /> 
-            </div>
+            <Dropzone {...renderDropzone(i + 1)} 
+              extraClass="ghost-negative"
+              extraStyle="left: {indent}px; width: {dzWidth}; z-index: {depth}"
+            /> 
           {:else}
-            <div style="width: {dzWidth}; z-index: {depth};">
-              <Dropzone {...renderDropzone(i + 1)} /> 
-            </div>
+            <Dropzone {...renderDropzone(i + 1)} 
+              extraStyle="width: {dzWidth}; z-index: {depth}" 
+            /> 
           {/if}
         {/each}
       {/if}

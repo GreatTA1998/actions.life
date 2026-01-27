@@ -47,8 +47,8 @@ exports.fetchGoogleCalendars = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECR
     throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
   }
 
-  const userDoc = await db.collection('users').doc(request.auth.uid);
-  const userData = (await userDoc.get()).data()
+  const userRef = db.collection('users').doc(request.auth.uid)
+  const userData = (await userRef.get()).data()
   
   if (!userData?.google?.refreshToken) throw new HttpsError('failed-precondition', 'No refresh token')
 
@@ -63,7 +63,7 @@ exports.fetchGoogleCalendars = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECR
       apiClient.colors.get()
     ])
     
-    const allCalendars = (calendarListResponse.data.items || [])// According to the Google Calendar API, the items property may be absent if the list is empty. This will throw a TypeError if a user somehow has no calendar entries.
+    const allCalendars = (calendarListResponse.data.items || []) // According to the Google Calendar API, the items property may be absent if the list is empty. This will throw a TypeError if a user somehow has no calendar entries.
       .map(cal => ({
         id: cal.id,
         summary: cal.summary,
@@ -71,7 +71,7 @@ exports.fetchGoogleCalendars = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECR
         foregroundColor: cal.foregroundColor
       }))
 
-    await userDoc.update({
+    await userRef.update({
       googleCalendars: allCalendars,
       googleGlobalColorDefinitions: colorsResponse.data.event // maps event's `colorId` to a global definition
     })

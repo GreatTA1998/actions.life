@@ -85,27 +85,23 @@
 
   <InfoFields {taskObject} />
 
-  <div style="width: 100%; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0px;">
-    <div style="flex: 1 1 400px;">
-      <!-- TO-FIX: disallow overflow! -->
-      <UXFormTextArea value={taskObject.notes}
-        oninput={e => debouncedUpdate($clickedTaskID, { notes: e.target.value })}
-        fieldLabel=""
-        placeholder="Notes"
-      />
-    </div>
+  <div style="width: 100%; max-width: 100%;">
+    <!-- TO-FIX: disallow horizontal and vertical overflow! 
+      note: 100% width doesn't work because textarea is an inline element 
+    -->
+    <UXFormTextArea value={taskObject.notes}
+      oninput={e => debouncedUpdate($clickedTaskID, { notes: e.target.value })}
+      fieldLabel=""
+      placeholder="Notes"
+    />
 
-    <div class="ancestral-tree" style="min-height: 48px;">
-      {#if $ancestralTree}
-        <DragDropContext>
-          <TodoList trees={$ancestralTree.children}
-            listWidth="100%"
-            parentID={taskObject.id}
-            cssStyle="position: relative;"
-          />
-        </DragDropContext>
-      {/if} 
-    </div>
+    <DragDropContext>
+      <TodoList trees={$ancestralTree.children}
+        listWidth="100%"
+        parentID={taskObject.id}
+        cssStyle="position: relative"
+      />
+    </DragDropContext>
   </div>
 
   <div style="margin-top: auto; margin-bottom: 0; display: flex; align-items: center; width: 100%; column-gap: 12px;">
@@ -135,12 +131,6 @@
     justify-content: space-between;
     flex-wrap: wrap; 
     gap: 12px;
-  }
-
-  .ancestral-tree {
-    flex: 1 1 400px;
-    display: grid; 
-    row-gap: 12px;
   }
 
   .action-button {

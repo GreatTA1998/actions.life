@@ -1,17 +1,19 @@
 <script>
   import MslCheckCircleOutline from 'virtual:icons/material-symbols-light/check-circle-outline'
   let { 
-    taskObj, 
+    task, 
     onclick = () => {},
     color = ''
   } = $props()
 
-  let subtasks = $derived(taskObj.children)
+  let subtasks = $derived(task.children)
 </script>
 
 <button {onclick} class="subtask-progress-badge" style="color: {color};">
   <MslCheckCircleOutline style="font-size: 0.75rem;"/>
-  <span style="font-size: 12px;">{subtasks.filter(child => child.isDone).length}/{subtasks.length}</span>
+  <span style="font-size: 12px;">
+    {subtasks.filter(child => child.isDone).length}/{subtasks.length}
+  </span>
 </button>
 
 <style>
