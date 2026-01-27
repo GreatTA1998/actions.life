@@ -36,11 +36,11 @@
     })
   }
 
-  function renderDropzone (idx) {
+  function dzProps (i) {
     return {
       ancestorIDs: [task.id, ...ancestorIDs],
       roomsInThisLevel: task.children,
-      idxInThisLevel: idx,
+      idxInThisLevel: i,
       parentID: task.id,
       colorForDebugging
     }
@@ -108,27 +108,20 @@
   {:else}
     <div style="margin-left: {indent}px;">
       {#if !task.isCollapsed}
-        <Dropzone {...renderDropzone(0)} 
-          extraClass={n === 0 ? 'ghost-negative' : ''} 
-          extraStyle="left: {indent}px; width: {dzWidth}; z-index: {depth}"
-        /> 
         {#each task.children as subtask, i (subtask.id)}
+          <Dropzone {...dzProps(i)} extraStyle="width: {dzWidth}; z-index: {depth}" /> 
+          
           <RecursiveTask 
             task={subtask}
             depth={depth+1}
             ancestorIDs={[task.id, ...ancestorIDs]}
           /> 
-          {#if i === n - 1}
-            <Dropzone {...renderDropzone(i + 1)} 
-              extraClass="ghost-negative"
-              extraStyle="left: {indent}px; width: {dzWidth}; z-index: {depth}"
-            /> 
-          {:else}
-            <Dropzone {...renderDropzone(i + 1)} 
-              extraStyle="width: {dzWidth}; z-index: {depth}" 
-            /> 
-          {/if}
         {/each}
+
+        <Dropzone {...dzProps(n)} 
+          extraClass="ghost-negative"
+          extraStyle="left: {indent}px; width: {dzWidth}; z-index: {depth}" 
+        />
       {/if}
     </div>
   {/if}
