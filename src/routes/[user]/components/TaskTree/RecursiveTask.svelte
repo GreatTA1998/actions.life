@@ -29,13 +29,6 @@
   let n = $derived(task.children.length)
   let dzWidth = $derived(`calc(${listWidth()} - ${padding}px - ${indent * depth}px)`)
 
-  function handleCheckboxChange (e) {
-    Task.update({
-      id: task.id,
-      keyValueChanges: { isDone: e.target.checked }
-    })
-  }
-
   function dzProps (i) {
     return {
       ancestorIDs: [task.id, ...ancestorIDs],
@@ -59,7 +52,10 @@
       <div style="position: relative; padding-top: 2px; padding-bottom: 2px;">
         {#if n === 0}
           <Checkbox value={task.isDone}
-            onchange={e => handleCheckboxChange(e)}
+            onchange={e => Task.update({
+              id: task.id,
+              keyValueChanges: { isDone: e.target.checked }
+            })}
             zoom={0.5 * scale()}
           />
         {:else}
