@@ -24,9 +24,9 @@
   const subFontSize = $derived(0.875 * scale) // rem = 14px / 28px
 
   setContext('list-config', { 
+    indent: WIDTHS.INDENT_PER_LEVEL, 
     listWidth: () => listWidth,
     minWidth: () => minWidth,
-    indent: WIDTHS.INDENT_PER_LEVEL, 
     scale: () => scale,
     dzRootHeight: () => dzRootHeight,
     dzSubHeight: () => dzSubHeight,
