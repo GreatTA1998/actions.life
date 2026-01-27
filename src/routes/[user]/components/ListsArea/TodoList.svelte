@@ -1,5 +1,4 @@
 <script>
-  import AnimationDiv from './AnimationDiv.svelte'
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import { HEIGHTS, WIDTHS } from '$lib/utils/constants.js'
@@ -7,7 +6,7 @@
   import { getContext, setContext } from 'svelte'
 
   let {
-    cssStyle,
+    style,
     listWidth,
     isLargeFont = false,
     trees = null,
@@ -18,6 +17,7 @@
   const anchorID = `--dropzone-root-last-${getRandomID()}`
 
   const scale = $derived(isLargeFont ? 2 : 1)
+  const minWidth = '360px'
   const dzRootHeight = $derived(`${(parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE) * scale}rem`)
   const dzSubHeight = $derived(`${HEIGHTS.SUB_DROPZONE * scale}rem`)
   const rootFontSize = $derived(1 * scale) // rem =  16px / 32px
@@ -25,6 +25,7 @@
 
   setContext('list-config', { 
     listWidth: () => listWidth,
+    minWidth: () => minWidth,
     indent: WIDTHS.INDENT_PER_LEVEL, 
     scale: () => scale,
     dzRootHeight: () => dzRootHeight,
@@ -56,20 +57,21 @@
   }
 </script>
 
-<div {onclick} style={cssStyle}>
+<div {onclick} {style}>
   {#if trees}
-    <Dropzone {...dzProps(0)} />
-
     {#each trees as task, i (task.id)}
-      <AnimationDiv {listWidth} inDialog={parentID}>
-        <RecursiveTask {task} depth={1} ancestorIDs={['']} />
+      <div style="width: {listWidth};
+        view-transition-name: list-{getRandomID()}; 
+        view-transition-class: {parentID ? 'dialog-list-item' : 'list-item'};"
+      >  
+        <Dropzone {...dzProps(i)} /> <!-- putting dropzones on top guarantees consistent top spacing for each new column, despite being an anti-pattern to <RecursiveTask/> -->
 
-        <Dropzone {...dzProps(i+1)} />
-      </AnimationDiv>
+        <RecursiveTask {task} depth={1} ancestorIDs={['']} />
+      </div>
     {/each}
   {/if}
   
-  <div style="anchor-name: {anchorID}; height: {dzRootHeight}; pointer-events: none;" >
+  <div style="anchor-name: {anchorID}; height: {dzRootHeight}; min-width: {minWidth}; pointer-events: none; border: solid green;" >
 
   </div>
 </div>

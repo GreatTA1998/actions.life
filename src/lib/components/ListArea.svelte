@@ -38,7 +38,7 @@
     {#snippet children({ trees })}
       <TodoList {trees}
         listWidth={xyScrolling ? 'fit-content' : '100%'}
-        cssStyle={xyScrolling ? wrappingColumnLayout : simpleMobileLayout}
+        style={xyScrolling ? wrappingColumnLayout : simpleMobileLayout}
         isLargeFont={!xyScrolling}
       />       
     {/snippet}

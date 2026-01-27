@@ -12,7 +12,7 @@ export const WIDTHS = Object.freeze({
   CALENDAR_LEFT_PADDING: 16,
   MOBILE_TIME_AXIS: 22,
   DESKTOP_TIME_AXIS: 64,
-  INDENT_PER_LEVEL: 24, // unified for both subtasks and dropzones
+  INDENT_PER_LEVEL: 24 // unified for both subtasks and dropzones
 })
 
 // TO-DO: deprecate this AI slop, 

@@ -15,7 +15,7 @@
   style="
     {extraStyle};
     anchor-name: {anchorID};
-    min-width: 100px;
+    min-width: {minWidth()};
     height: {parentID === '' ? dzRootHeight() : dzSubHeight()}; 
     border-radius: var(--left-padding);
     border: 0px solid {colorForDebugging}; 
@@ -33,7 +33,7 @@
     draggedItem, logicAreaRect, detectOverlap, 
     bestDropzoneID,  dropPreviewCSS, hasDropped, resetDragDrop,
   } = getContext('drag-drop')
-  const { dzRootHeight, dzSubHeight } = getContext('list-config')
+  const { dzRootHeight, dzSubHeight, minWidth } = getContext('list-config')
   const { activateInput } = getContext('popover-input')
 
   let {
