@@ -19,7 +19,7 @@
     anchor-name: {anchorID};
     height: {parentID === '' ? dzRootRemHeight() : dzSubRemHeight()}rem; 
     border-radius: var(--left-padding);
-    border: 1px solid {colorForDebugging}; 
+    border: 0px solid {colorForDebugging}; 
     {$bestDropzoneID === id ? dropPreviewCSS : ''}
     {$bestDropzoneID === id && isInvalidDrop ? 'background-color: red;' : ''}
   "
