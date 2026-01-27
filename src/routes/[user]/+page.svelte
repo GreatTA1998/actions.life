@@ -4,7 +4,7 @@
   import Settings from './components/Settings/index.svelte'
   import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
   import Calendar from '/src/routes/[user]/components/Calendar/Calendar.svelte'
-  import UnifiedListArea from '$lib/components/UnifiedListArea.svelte'
+  import ListArea from '$lib/components/ListArea.svelte'
   import PhotoGrid from '/src/routes/[user]/components/Archive/PhotoGrid.svelte'
   import HabitsTab from '/src/routes/[user]/mobile/HabitsTab.svelte'
   import ScheduleTab from '/src/routes/[user]/mobile/ScheduleTab.svelte'
@@ -17,7 +17,7 @@
       <Settings />
     {:else if $activeView === 'CALENDAR'}
       <DualView {child1} {child2} />
-      {#snippet child1 ()}<UnifiedListArea xyScrolling />{/snippet}
+      {#snippet child1 ()}<ListArea xyScrolling />{/snippet}
       {#snippet child2 ()}<Calendar />{/snippet}
     {:else if $activeView === 'SCHEDULE'}
       <ScheduleTab />

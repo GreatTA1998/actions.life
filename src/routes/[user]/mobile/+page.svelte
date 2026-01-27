@@ -8,7 +8,7 @@
         {child2} 
       />
       {#snippet child1 ()}<Calendar />{/snippet}
-      {#snippet child2 ()}<UnifiedListArea xyScrolling={false}/>{/snippet}
+      {#snippet child2 ()}<ListArea xyScrolling={false}/>{/snippet}
     {:else if $activeView === 'SCHEDULE'}
       <ScheduleTab />
     {:else if $activeView === 'ROUTINES'}
@@ -22,7 +22,7 @@
 </div>
 
 <script>
-  import UnifiedListArea from '$lib/components/UnifiedListArea.svelte'
+  import ListArea from '$lib/components/ListArea.svelte'
   import Calendar from '/src/routes/[user]/components/Calendar/Calendar.svelte'
   import DualView from '$lib/components/DualView.svelte'
   import Settings from '../components/Settings/index.svelte'
