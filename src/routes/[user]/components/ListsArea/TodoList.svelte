@@ -15,27 +15,25 @@
   } = $props()
 
   const { activateInput } = getContext('popover-input')
-
   const anchorID = `--dropzone-root-last-${getRandomID()}`
 
-  // scaled units
   const scale = $derived(isLargeFont ? 2 : 1)
-  const dzRootRemHeight = $derived((parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE) * scale)
-  const dzSubRemHeight = $derived(HEIGHTS.SUB_DROPZONE * scale)
+  const dzRootHeight = $derived(`${(parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE) * scale}rem`)
+  const dzSubHeight = $derived(`${HEIGHTS.SUB_DROPZONE * scale}rem`)
   const rootFontSize = $derived(1 * scale) // rem =  16px / 32px
   const subFontSize = $derived(0.875 * scale) // rem = 14px / 28px
 
   setContext('list-config', { 
-    indent: WIDTHS.INDENT_PER_LEVEL, 
-    dzRootRemHeight: () => dzRootRemHeight,
-    dzSubRemHeight: () => dzSubRemHeight,
     listWidth: () => listWidth,
+    indent: WIDTHS.INDENT_PER_LEVEL, 
+    scale: () => scale,
+    dzRootHeight: () => dzRootHeight,
+    dzSubHeight: () => dzSubHeight,
     rootFontSize: () => rootFontSize,
     subFontSize: () => subFontSize,
-    scale: () => scale
   })
 
-  function renderDropzone (idx, colorForDebugging = 'purple') {
+  function dzProps (idx, colorForDebugging = 'purple') {
     return {
       parentID,
       idxInThisLevel: idx,
@@ -44,9 +42,8 @@
       colorForDebugging
     }
   }
-</script>
 
-<div onclick={e => {
+  function onclick (e) {
     if (e.target === e.currentTarget) {
       activateInput({ 
         anchorID, 
@@ -56,26 +53,23 @@
         }
       })
     }
-  }}
-  style={cssStyle}
->
+  }
+</script>
+
+<div {onclick} style={cssStyle}>
   {#if trees}
-    <Dropzone {...renderDropzone(0)} />
+    <Dropzone {...dzProps(0)} />
 
     {#each trees as task, i (task.id)}
       <AnimationDiv {listWidth} inDialog={parentID}>
-        <RecursiveTask 
-          {task}
-          depth={1}
-          ancestorIDs={['']}
-        />
+        <RecursiveTask {task} depth={1} ancestorIDs={['']} />
 
-        <Dropzone style="width: {listWidth}" {...renderDropzone(i+1)} />
+        <Dropzone {...dzProps(i+1)} />
       </AnimationDiv>
     {/each}
   {/if}
   
-  <div id={anchorID} style="anchor-name: {anchorID}; height: 24px; width: {listWidth}; pointer-events: none;" >
+  <div id={anchorID} style="anchor-name: {anchorID}; height: {dzRootHeight}; pointer-events: none;" >
 
   </div>
 </div>
