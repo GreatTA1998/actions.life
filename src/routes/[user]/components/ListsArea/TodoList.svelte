@@ -71,7 +71,7 @@
     {/each}
   {/if}
   
-  <div style="anchor-name: {anchorID}; height: {dzRootHeight}; min-width: {minWidth}; pointer-events: none; border: solid green;" >
+  <div style="anchor-name: {anchorID}; height: {dzRootHeight}; min-width: {minWidth}; pointer-events: none;" >
 
   </div>
 </div>
