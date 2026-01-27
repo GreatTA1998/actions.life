@@ -1,16 +1,20 @@
 <div class="grid-container">
   <main class="content-area">
-    {#if $activeView === 'CALENDAR'}
+    {#if $activeView === 'SETTINGS'}
+      <Settings />
+    {:else if $activeView === 'CALENDAR'}
       <DualView orientation="vertical" ratioDbField="listAreaHeightRatio" minL={MOBILE_SAFE_BOTTOM}
         {child1} 
         {child2} 
       />
       {#snippet child1 ()}<Calendar />{/snippet}
       {#snippet child2 ()}<UnifiedListArea xyScrolling={false}/>{/snippet}
-    {:else if $activeView === 'DISCOVER'}
-      <Discover />
-    {:else if $activeView === 'SETTINGS'}
-      <Settings />
+    {:else if $activeView === 'SCHEDULE'}
+      <ScheduleTab />
+    {:else if $activeView === 'ROUTINES'}
+      <HabitsTab />
+    {:else if $activeView === 'PHOTOS'}
+      <PhotoGrid />
     {/if}
   </main>
 
@@ -21,9 +25,11 @@
   import UnifiedListArea from '$lib/components/UnifiedListArea.svelte'
   import Calendar from '/src/routes/[user]/components/Calendar/Calendar.svelte'
   import DualView from '$lib/components/DualView.svelte'
-  import Discover from './Discover.svelte'
   import Settings from '../components/Settings/index.svelte'
   import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
+  import PhotoGrid from '/src/routes/[user]/components/Archive/PhotoGrid.svelte'
+  import HabitsTab from '/src/routes/[user]/mobile/HabitsTab.svelte'
+  import ScheduleTab from '/src/routes/[user]/mobile/ScheduleTab.svelte'
 
   import { MOBILE_SAFE_BOTTOM } from '$lib/utils/constants.js'
   import { activeView } from '$lib/store'
