@@ -17,7 +17,7 @@
   const anchorID = `--dropzone-root-last-${getRandomID()}`
 
   const scale = $derived(isLargeFont ? 2 : 1)
-  const minWidth = '360px'
+  const minWidth = '240px' // too large = wasteful gap between columns 
   const dzRootHeight = $derived(`${(parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE) * scale}rem`)
   const dzSubHeight = $derived(`${HEIGHTS.SUB_DROPZONE * scale}rem`)
   const rootFontSize = $derived(1 * scale) // rem =  16px / 32px
