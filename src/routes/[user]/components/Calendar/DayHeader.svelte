@@ -106,7 +106,7 @@
     {/if}
   {/if}
 
-  <div class="task-input" style="anchor-name: {anchorID};" id={anchorID}>
+  <div class="task-input" style="anchor-name: {anchorID};">
 
   </div>
 </div>

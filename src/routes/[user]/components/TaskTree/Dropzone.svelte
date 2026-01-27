@@ -11,12 +11,11 @@
       }
     })
   }}
-  id={anchorID}
   class="{extraClass} select-none"
   style="
     {extraStyle};
-    min-width: 100px;
     anchor-name: {anchorID};
+    min-width: 100px;
     height: {parentID === '' ? dzRootHeight() : dzSubHeight()}; 
     border-radius: var(--left-padding);
     border: 0px solid {colorForDebugging}; 

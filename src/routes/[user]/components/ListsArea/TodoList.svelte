@@ -69,7 +69,7 @@
     {/each}
   {/if}
   
-  <div id={anchorID} style="anchor-name: {anchorID}; height: {dzRootHeight}; pointer-events: none;" >
+  <div style="anchor-name: {anchorID}; height: {dzRootHeight}; pointer-events: none;" >
 
   </div>
 </div>

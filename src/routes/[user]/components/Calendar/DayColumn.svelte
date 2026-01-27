@@ -218,8 +218,7 @@
   {/if}
   
   <div style="display: grid; place-items: center; width: 100%">
-    <div id={anchorID}
-      style="anchor-name: {anchorID}; top: {yPosition}px; height: {30 * pixelsPerMinute}px;" 
+    <div style="anchor-name: {anchorID}; top: {yPosition}px; height: {30 * pixelsPerMinute}px;" 
       class="my-portal"
     >
 
