@@ -3,13 +3,14 @@
   import { untrack } from 'svelte'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import DatePicker from './DatePicker.svelte'
-  import { paddingVal, fieldWithPlaceholder } from '$lib/styles/reused.module.css'
+  import { paddingVal, placeholderField } from '$lib/styles/reused.module.css'
 
   let {
     startDateISO = null,
     ondateselected = () => {}
   } = $props()
 
+  let button = $state(null)
   let selected = $state(null)
   let display = $derived(selected ? selected.toFormat('yyyy-MM-dd') : '')
 
@@ -45,15 +46,14 @@
 
 <PopoverMenu>
   {#snippet activator({ id, anchorName })}
-    <input 
-      popovertarget={id}
-      type="button"
-      placeholder="Year and Date"
-      value={display}
-      class="input {fieldWithPlaceholder}"
-      style:padding="0 {paddingVal}"
-      style:anchor-name={anchorName}
-    >
+    <button bind:this={button} popovertarget={id} style:anchor-name={anchorName}>
+      <input onclick={() => button.click()}
+        placeholder="Year and Date"
+        value={display}
+        class="input {placeholderField}"
+        style:padding="0 {paddingVal}"
+      >
+    </button>
   {/snippet}
 
   {#snippet content({ close })}

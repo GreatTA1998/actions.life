@@ -2,11 +2,11 @@
   paddingVal: 4px;
 }
 
-.fieldWithPlaceholder::placeholder {
+.placeholderField::placeholder {
   font-size: 0.875rem;
   opacity: 0.6;
 }
 
-.fieldWithLargePlaceholder::placeholder {
+.placeholderFieldLarge::placeholder {
   opacity: 0.6;
 }

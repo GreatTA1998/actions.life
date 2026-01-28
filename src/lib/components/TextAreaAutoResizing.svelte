@@ -16,12 +16,12 @@
    --nonFocusedPlaceholderOpacity: {nonFocusedPlaceholderOpacity};
    --fontSizeIncludeUnits: {fontSizeIncludeUnits};
   "
-  class={fieldWithPlaceholder}
+  class={placeholderField}
   class:reset-default-styling={resetDefaultStyling}
 ></textarea>
 
 <script>
-  import { fieldWithPlaceholder } from '$lib/styles/reused.module.css'
+  import { placeholderField } from '$lib/styles/reused.module.css'
   import { onMount } from 'svelte'
 
   let {

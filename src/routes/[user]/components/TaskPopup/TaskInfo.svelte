@@ -11,7 +11,7 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
   import { createDebouncedFunction } from '$lib/utils/core.js'
-  import { fieldWithLargePlaceholder } from '$lib/styles/reused.module.css'
+  import { placeholderFieldLarge } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
 
   const { Task, tasksCache, clickedTaskID, closeTaskPopup, ancestralTree } = getContext('app')
@@ -67,7 +67,7 @@
         oninput={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
         placeholder="Title"
         type="text" 
-        class="truncate {fieldWithLargePlaceholder}"
+        class="truncate {placeholderFieldLarge}"
         style="field-sizing: content; font-size: 1.5rem; font-weight: 700;"
       >
 

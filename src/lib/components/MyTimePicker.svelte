@@ -2,7 +2,7 @@
   import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { getRandomID } from '$lib/utils/core.js'
-  import { paddingVal, fieldWithPlaceholder } from '$lib/styles/reused.module.css'
+  import { paddingVal, placeholderField } from '$lib/styles/reused.module.css'
 
   let { 
     value = '', 
@@ -51,7 +51,7 @@
         {value} oninput={e => /^([01]\d|2[0-3]):[0-5]\d$/.test(e.target.value) ? oninput(e) : '' }
         placeholder='Time'
         pattern='[0-9]{2}:[0-9]{2}'                                                             
-        class="time-dropdown {fieldWithPlaceholder}"
+        class="time-dropdown {placeholderField}"
         style:anchor-name={anchorName}
         style:padding="0 {paddingVal}"
       />
