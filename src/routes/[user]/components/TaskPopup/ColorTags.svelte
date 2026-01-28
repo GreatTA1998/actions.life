@@ -61,9 +61,11 @@
 
 <PopoverMenu {activator} {content} />
 
-{#snippet activator ({ popovertarget })}
-  <button {popovertarget} 
+{#snippet activator ({ id, anchorName })}
+  <button popovertarget={id}
     class="flexbox items-center" 
+    style:anchor-name={anchorName}
+    style:padding="0px {paddingVal}"
     style="
       column-gap: 4px; 
       min-width: 16px; 
@@ -72,9 +74,7 @@
       align-items: center; 
       justify-content: center; 
       border-radius: 4px; 
-      padding: 0px {paddingVal};
     "
-    style:anchor-name="--anchor-{popovertarget}"
   >
     {#if (task.tagIDs?.length > 0)}
       {#each task.tagIDs as id}

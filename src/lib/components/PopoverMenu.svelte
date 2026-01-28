@@ -8,30 +8,26 @@
     id = getRandomID()
   } = $props()
 
-  let popoverElem = $state(null)
-
-  function open (e) {
-    popoverElem.showPopover()
-  }
+  let menu = $state(null)
+  let anchorName = $derived(`--anchor-${id}`)
 
   function close () {
-    popoverElem.hidePopover()
+    menu.hidePopover()
   }
 </script>
 
-{@render activator({ open, close, popovertarget: id })}
+{@render activator({ id, anchorName })}
 
-<div {id} bind:this={popoverElem}
-  popover="auto"
+<div popover {id} {ontoggle}
+  bind:this={menu}
+  class="absolute"
+  style:position-anchor={anchorName}
+  style:position-area="right span-bottom"
+  style:position-try-fallbacks="flip-block, flip-inline, flip-inline flip-block"
   style="
-    position: absolute;
-    position-anchor: --anchor-{id};
-    position-area: right span-bottom;
-    position-try-fallbacks: flip-block, flip-inline, flip-inline flip-block;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); 
   "
-  {ontoggle}
 >
-  {@render content({ open, close, popovertarget: id })}
+  {@render content({ close })}
 </div>

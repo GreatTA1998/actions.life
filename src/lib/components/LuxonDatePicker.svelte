@@ -44,15 +44,15 @@
 </script>
 
 <PopoverMenu>
-  {#snippet activator({ popovertarget })}
+  {#snippet activator({ id, anchorName })}
     <input 
-      {popovertarget}
+      popovertarget={id}
       type="button"
       placeholder="Year and Date"
       value={display}
       class="input {fieldWithPlaceholder}"
       style:padding="0 {paddingVal}"
-      style:anchor-name="--anchor-{popovertarget}"
+      style:anchor-name={anchorName}
     >
   {/snippet}
 

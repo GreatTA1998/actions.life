@@ -4,7 +4,7 @@
 
   let { value, oninput } = $props()
 
-  let buttonElem = $state(null)
+  let button = $state(null)
 
   const durations = [
     { label: '1m', value: 1 },
@@ -30,14 +30,13 @@
 </script>
 
 <PopoverMenu>
-  {#snippet activator({ popovertarget })}
-    <button {popovertarget}
+  {#snippet activator({ id, anchorName })}
+    <button bind:this={button}
+      popovertarget={id}
+      style:anchor-name={anchorName}
       style:padding="0px {paddingVal}"
-      style:anchor-name="--anchor-{popovertarget}"
-      bind:this={buttonElem}
     >
-      <input
-        onclick={() => buttonElem.click()}
+      <input onclick={() => button.click()}
         {value} {oninput}
         type="number" 
         pattern="[0-9]*"

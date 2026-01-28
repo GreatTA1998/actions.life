@@ -45,17 +45,15 @@
     }
   }}
 >
-  {#snippet activator ({ popovertarget })}
-    <button {popovertarget} bind:this={buttonElem}>
+  {#snippet activator ({ id, anchorName })}
+    <button popovertarget={id} bind:this={buttonElem}>
       <input onclick={() => buttonElem.click()}    
         {value} oninput={e => /^([01]\d|2[0-3]):[0-5]\d$/.test(e.target.value) ? oninput(e) : '' }
         placeholder='Time'
         pattern='[0-9]{2}:[0-9]{2}'                                                             
         class="time-dropdown {fieldWithPlaceholder}"
-        style="
-          anchor-name: --anchor-{popovertarget};
-          padding: 0 {paddingVal};
-        "
+        style:anchor-name={anchorName}
+        style:padding="0 {paddingVal}"
       />
     </button>
   {/snippet}

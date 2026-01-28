@@ -8,11 +8,11 @@
 </script>
 
 <PopoverMenu>
-  {#snippet activator ({ popovertarget })}
-    <button style:display="contents" {popovertarget}>
+  {#snippet activator ({ id, anchorName })}
+    <button style:display="contents" popovertarget={id}>
       <img {style} 
         src={task.imageDownloadURL} 
-        style:anchor-name="--anchor-{popovertarget}"
+        style:anchor-name={anchorName}
       />
     </button>
   {/snippet}

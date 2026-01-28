@@ -11,9 +11,9 @@
 </script>
 
 <PopoverMenu>
-  {#snippet activator ({ popovertarget })} 
-    <div style="anchor-name: --anchor-{popovertarget}; max-height: 16px; display: flex; align-items: center;">
-      <button {popovertarget} class="menu-icon flexbox items-center">
+  {#snippet activator ({ id, anchorName })} 
+    <div style="anchor-name: {anchorName}; max-height: 16px; display: flex; align-items: center;">
+      <button popovertarget={id} class="menu-icon flexbox items-center">
         <MslMoreVert style="font-size: 1.5rem;"/>
       </button>
     </div>

@@ -82,29 +82,31 @@
     
     {#if unstarredRoutines.length > 0}
       <div class="overflow-routines-grid">        
-        <PopoverMenu {activator} {content} />
+        <PopoverMenu>
+          {#snippet activator({ id, anchorName })}
+            <button popovertarget={id} style:anchor-name={anchorName}
+              class="routine-compact more-button"
+            >
+              <MslMoreHoriz style="font-size: var(--font-size-xxl);"/>
+            </button>
+          {/snippet}
+        
+          {#snippet content({ close })}
+            <div class="more-menu-content">
+              {#each unstarredRoutines as routine (routine.id)}
+                <button onclick={() => { select(routine.id); close(); }}
+                  class="menu-item"
+                  class:selected={selectedRoutineID === routine.id}
+                >
+                  {@render routineItem({ routine })}
+                </button>
+              {/each}
+            </div>
+          {/snippet}
+        </PopoverMenu>
       </div>
     {/if}
   {/if}
-
-  {#snippet activator({ popovertarget })}
-    <button {popovertarget} class="routine-compact more-button">
-      <MslMoreHoriz style="font-size: var(--font-size-xxl);"/>
-    </button>
-  {/snippet}
-
-  {#snippet content({ close })}
-    <div class="more-menu-content">
-      {#each unstarredRoutines as routine (routine.id)}
-        <button onclick={() => { select(routine.id); close(); }}
-          class="menu-item"
-          class:selected={selectedRoutineID === routine.id}
-        >
-          {@render routineItem({ routine })}
-        </button>
-      {/each}
-    </div>
-  {/snippet}
 
   {#if selectedRoutineID}
     <HabitsTabFullDetails {selectedRoutineID} {stats} />
