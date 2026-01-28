@@ -116,7 +116,7 @@
 
         <Dropzone {...dzProps(n)} 
           extraClass="ghost-negative"
-          extraStyle="left: {indent}px; z-index: {depth}; right: 0" 
+          extraStyle="left: {indent}px; right: 0; z-index: {depth}" 
         />
       {/if}
     </div>

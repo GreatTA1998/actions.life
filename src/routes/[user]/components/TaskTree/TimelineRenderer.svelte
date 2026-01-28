@@ -17,13 +17,12 @@
   } = $props()
   
   const { openTaskPopup, willOpenDatePicker } = getContext('app')
-  const { indent, listWidth } = getContext('list-config')
+  const { indent } = getContext('list-config')
 
   const defaultPxPerDay = 0.4
   const dropzoneHeight = 16
   const squareHeight = 12.5
 
-  const dzWidth = $derived(`calc(${listWidth()} - ${indent * (depth + 1)}px)`)
   let allSorted = $derived(children.sort(chronologically))
   let n = $derived(allSorted.length)
   let contentHeights = $state({})
@@ -100,9 +99,9 @@
     }
   }
 
-  function renderDropzone (idx) {
+  function dzProps (i) {
     return {
-      idxInThisLevel: idx,
+      idxInThisLevel: i,
       ancestorIDs: [parentID, ...ancestorIDs],
       roomsInThisLevel: allSorted,
       parentID: parentID,
@@ -121,44 +120,35 @@
 
 <div style="margin-left: {indent}px;">  
   {#if !task.isCollapsed}
-    <Dropzone {...renderDropzone(0)} 
-      extraClass={n === 0 ? 'ghost-negative' : ''}
-      extraStyle="left: {indent}px; width: {dzWidth}; z-index: {depth}"
-    />
-
     {#each allSorted as child, i (child.id)}
-      <div style="
-          margin-bottom: {margins[i]}px;
-          position: relative;
-          display: flex; align-items: center;
-        "
+      <Dropzone {...dzProps(i+1)} />
+
+      <div 
+        style:margin-bottom="{margins[i]}px"
+        class="relative flexbox items-center" 
         use:trackHeight={h => { 
           contentHeights[i] = h
           contentHeights = contentHeights
         }}
       >
-        <RecursiveTask 
-          {...renderTask(child, depth + 1) }
-          {verticalTimeline}
-          {infoBadge} 
-        />
+        <RecursiveTask {...renderTask(child, depth + 1) }>
+          {#snippet infoBadge ()}
+            <DateBadge iso={child.startDateISO} onclick={() => {
+              willOpenDatePicker.set(true)
+              openTaskPopup(child)
+            }}/>
+          {/snippet}
 
-        {#snippet infoBadge ()}
-          <DateBadge iso={child.startDateISO} onclick={() => {
-            willOpenDatePicker.set(true)
-            openTaskPopup(child)
-          }}/>
-        {/snippet}
-
-        {#snippet verticalTimeline ()}
-          <TimelineRendererVisuals {i} sorted={allSorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
-        {/snippet}
+          {#snippet verticalTimeline ()}
+            <TimelineRendererVisuals {i} sorted={allSorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
+          {/snippet}
+        </RecursiveTask>
       </div>
-
-      <Dropzone {...renderDropzone(i + 1)} 
-        extraClass={i === allSorted.length - 1 ? 'ghost-negative' : ''}
-        extraStyle="left: {indent}px; width: {dzWidth}; z-index: {depth}"
-      />
     {/each}
+
+    <Dropzone {...dzProps(n)} 
+      extraClass="ghost-negative"
+      extraStyle="left: {indent}px; right: 0; z-index: {depth}"
+    />
   {/if}
 </div>
