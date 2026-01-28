@@ -21,18 +21,18 @@
 
   function select (duration, close) {
     if (oninput) {
-      oninput({ target: { value: duration.value } });
+      oninput({ target: { value: duration.value } })
     }
-    close();
+    close()
   }
 </script>
 
 <PopoverMenu {activator} {content} />
 
-{#snippet activator({ open, close, setPosition })}
-  <div style="
-    position: relative; display: inline-flex; align-items: center;
-    padding: 0px {paddingVal};"
+{#snippet activator({ open, close, setPosition, popovertarget })}
+  <div class="relative inline-flex items-center" 
+    style:padding="0px {paddingVal}"
+    style:anchor-name="--anchor-{popovertarget}"
   >
     <input {value} {oninput}
       onclick={open}

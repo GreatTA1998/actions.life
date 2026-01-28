@@ -74,6 +74,7 @@
       border-radius: 4px; 
       padding: 0px {paddingVal};
     "
+    style:anchor-name="--anchor-{popovertarget}"
   >
     {#if (task.tagIDs?.length > 0)}
       {#each task.tagIDs as id}

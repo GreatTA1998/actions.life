@@ -24,8 +24,6 @@
 <div {id} bind:this={popoverElem}
   popover="auto"
   style="
-    margin: 0;
-    inset: auto;
     position: absolute;
     position-anchor: --anchor-{id};
     position-area: right span-bottom;

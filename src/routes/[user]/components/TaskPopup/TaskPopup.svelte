@@ -6,15 +6,15 @@
   import { getContext } from 'svelte'
 
   const { tasksCache, clickedTaskID, closeTaskPopup } = getContext('app')
-  const { inputActive } = getContext('popover-input')
 
   const zIndex = 3
   let task = $derived($tasksCache[$clickedTaskID])
 </script>
 
-<!-- TO-DO: layer aware escaping needs to be generalized to work beyond task inputs, but all popovers -->
 <svelte:window onkeydown={(e) => {
-  if (e.key === 'Escape' && !inputActive()) closeTaskPopup()
+  if (e.key === 'Escape' && !document.querySelector(':popover-open')) {
+    closeTaskPopup()
+  }
 }} />
 
 <ModularLayer {zIndex} onClickOutside={closeTaskPopup}>

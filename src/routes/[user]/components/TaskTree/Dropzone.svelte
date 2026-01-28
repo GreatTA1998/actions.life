@@ -17,7 +17,7 @@
     min-width: {minWidth()};
     height: {parentID === '' ? dzRootHeight() : dzSubHeight()}; 
     border-radius: var(--left-padding);
-    border: 0px solid {colorForDebugging}; 
+    border: {debug() ? 1 : 0}px solid {debugColor}; 
     {$bestDropzoneID === id ? dropPreviewCSS : ''}
     {$bestDropzoneID === id && isInvalidDrop ? 'background-color: red;' : ''};
     {extraStyle};
@@ -33,7 +33,7 @@
     draggedItem, logicAreaRect, detectOverlap, 
     bestDropzoneID,  dropPreviewCSS, hasDropped, resetDragDrop,
   } = getContext('drag-drop')
-  const { dzRootHeight, dzSubHeight, minWidth } = getContext('list-config')
+  const { dzRootHeight, dzSubHeight, minWidth, debug } = getContext('list-config')
   const { activateInput } = getContext('popover-input')
 
   let {
@@ -41,7 +41,7 @@
     roomsInThisLevel,
     idxInThisLevel,
     parentID = '',
-    colorForDebugging = 'red',
+    debugColor = 'red',
     extraClass = '',
     extraStyle = ''
   } = $props()

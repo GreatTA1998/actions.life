@@ -13,7 +13,7 @@
 
   const { Task, openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
-  const { indent, scale, rootFontSize, subFontSize } = getContext('list-config')
+  const { indent, scale, rootFontSize, subFontSize, debug } = getContext('list-config')
 
   let {
     task,
@@ -24,7 +24,7 @@
   } = $props()
 
   let n = $derived(task.children.length)
-  const colorForDebugging = getRandomColor()
+  const debugColor = getRandomColor()
 
   function dzProps (i) {
     return {
@@ -32,12 +32,15 @@
       roomsInThisLevel: task.children,
       idxInThisLevel: i,
       parentID: task.id,
-      colorForDebugging
+      debugColor
     }
   }
 </script>
 
-<div class="relative" style="font-weight: {depth === 1 ? 600 : 400}">
+<div class="relative" 
+  style:border="{debug() ? 1 : 0}px solid {debugColor}"
+  style:font-weight={depth === 1 ? 600 : 400}
+>
   <div draggable="true"
     ondragstart={e => startTaskDrag({ e, id: task.id })}
     style="font-size: {depth === 1 ? rootFontSize() : subFontSize()}"
@@ -99,10 +102,10 @@
       parentID={task.id}
       {depth}
       {ancestorIDs}
-      {colorForDebugging}
+      {debugColor}
     />
   {:else}
-    <div style="margin-left: {indent}px;">
+    <div style="margin-left: {indent()}">
       {#if !task.isCollapsed}
         {#each task.children as subtask, i (subtask.id)}
           <Dropzone {...dzProps(i)} /> 
@@ -116,7 +119,7 @@
 
         <Dropzone {...dzProps(n)} 
           extraClass="ghost-negative"
-          extraStyle="left: {indent}px; right: 0; z-index: {depth}" 
+          extraStyle="left: {indent()}; right: 0; z-index: {depth}" 
         />
       {/if}
     </div>

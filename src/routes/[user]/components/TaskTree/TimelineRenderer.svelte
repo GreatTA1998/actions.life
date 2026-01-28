@@ -13,7 +13,7 @@
     depth, 
     parentID, 
     ancestorIDs = [],
-    colorForDebugging 
+    debugColor 
   } = $props()
   
   const { openTaskPopup, willOpenDatePicker } = getContext('app')
@@ -105,7 +105,7 @@
       ancestorIDs: [parentID, ...ancestorIDs],
       roomsInThisLevel: allSorted,
       parentID: parentID,
-      colorForDebugging,
+      debugColor,
     }
   }
 
@@ -118,7 +118,7 @@
   }
 </script>
 
-<div style="margin-left: {indent}px;">  
+<div style="margin-left: {indent()}">  
   {#if !task.isCollapsed}
     {#each allSorted as child, i (child.id)}
       <Dropzone {...dzProps(i+1)} />
@@ -148,7 +148,7 @@
 
     <Dropzone {...dzProps(n)} 
       extraClass="ghost-negative"
-      extraStyle="left: {indent}px; right: 0; z-index: {depth}"
+      extraStyle="left: {indent()}; right: 0; z-index: {depth}"
     />
   {/if}
 </div>
