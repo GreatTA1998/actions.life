@@ -1,13 +1,12 @@
 <script>
   import { DateTime } from 'luxon'
   import { untrack } from 'svelte'
-  import Popover from './Popover.svelte'
+  import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import DatePicker from './DatePicker.svelte'
   import { paddingVal, fieldWithPlaceholder } from '$lib/styles/reused.module.css'
 
   let {
     startDateISO = null,
-    willOpen = false,
     ondateselected = () => {}
   } = $props()
 
@@ -44,15 +43,16 @@
   }
 </script>
 
-<Popover {willOpen}>
-  {#snippet activator({ setButtonRef, open, toggle, id })}
-    <input value={display}
-      popovertarget={id}
-      onclick={toggle}
-      use:setButtonRef
+<PopoverMenu>
+  {#snippet activator({ popovertarget })}
+    <input 
+      {popovertarget}
+      type="button"
       placeholder="Year and Date"
+      value={display}
       class="input {fieldWithPlaceholder}"
-      style="padding: 0 {paddingVal};"
+      style:padding="0 {paddingVal}"
+      style:anchor-name="--anchor-{popovertarget}"
     >
   {/snippet}
 
@@ -63,7 +63,7 @@
       onclose={close}
     />
   {/snippet}
-</Popover>
+</PopoverMenu>
 
 <style>
   .input {

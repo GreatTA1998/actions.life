@@ -3,7 +3,6 @@ import { writable, derived } from 'svelte/store'
 import { tasksCache } from './tasksCache.js'
 
 export const clickedTaskID = writable('')
-export const willOpenDatePicker = writable(false)
 
 export const ancestralTree = derived(
   [clickedTaskID, tasksCache],
@@ -27,5 +26,4 @@ export function openTaskPopup (task) {
 
 export function closeTaskPopup() {
   clickedTaskID.set('')
-  willOpenDatePicker.set(false)
 }

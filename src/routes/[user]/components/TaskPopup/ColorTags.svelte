@@ -61,8 +61,8 @@
 
 <PopoverMenu {activator} {content} />
 
-{#snippet activator ({ setPosition, popovertarget })}
-  <button onclick={setPosition} {popovertarget} 
+{#snippet activator ({ popovertarget })}
+  <button {popovertarget} 
     class="flexbox items-center" 
     style="
       column-gap: 4px; 

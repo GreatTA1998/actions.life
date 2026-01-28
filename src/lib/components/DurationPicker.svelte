@@ -4,6 +4,8 @@
 
   let { value, oninput } = $props()
 
+  let buttonElem = $state(null)
+
   const durations = [
     { label: '1m', value: 1 },
     { label: '2m', value: 2 },
@@ -27,38 +29,39 @@
   }
 </script>
 
-<PopoverMenu {activator} {content} />
-
-{#snippet activator({ open, close, setPosition, popovertarget })}
-  <div class="relative inline-flex items-center" 
-    style:padding="0px {paddingVal}"
-    style:anchor-name="--anchor-{popovertarget}"
-  >
-    <input {value} {oninput}
-      onclick={open}
-      type="number" 
-      pattern="[0-9]*"
-      max="1000"
-      min="0"
+<PopoverMenu>
+  {#snippet activator({ popovertarget })}
+    <button {popovertarget}
+      style:padding="0px {paddingVal}"
+      style:anchor-name="--anchor-{popovertarget}"
+      bind:this={buttonElem}
     >
-    <div class="suffix">
-      m
-    </div>
-  </div>
-{/snippet}
-
-{#snippet content({ open, close, setPosition })}
-  <div class="duration-options">
-    {#each durations as duration}
-      <button onclick={() => select(duration, close)}
-        class="duration-button" 
-        class:highlighted-option={value === duration.value}
+      <input
+        onclick={() => buttonElem.click()}
+        {value} {oninput}
+        type="number" 
+        pattern="[0-9]*"
+        min="0"
       >
-        {duration.label}
-      </button>
-    {/each}
-  </div>
-{/snippet}
+      <div class="suffix">
+        m
+      </div>
+    </button>
+  {/snippet}
+
+  {#snippet content({ close })}
+    <div class="duration-options">
+      {#each durations as duration}
+        <button onclick={() => select(duration, close)}
+          class="duration-button" 
+          class:highlighted-option={value === duration.value}
+        >
+          {duration.label}
+        </button>
+      {/each}
+    </div>
+  {/snippet}
+</PopoverMenu>
 
 <style>
   input {

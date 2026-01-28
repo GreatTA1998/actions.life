@@ -6,7 +6,7 @@
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
-  const { Task, willOpenDatePicker } = getContext('app')
+  const { Task } = getContext('app')
 
   let { task } = $props()
 
@@ -30,7 +30,6 @@
   {#key task.id}
     <LuxonDatePicker
       startDateISO={task.startDateISO}
-      willOpen={$willOpenDatePicker}
       ondateselected={({ mmdd, yyyy }) => { 
         if (!(mmdd && yyyy)) handleChanges('startDateISO', '')
         else handleChanges('startDateISO', `${yyyy}-${mmdd.replace('/', '-')}`)

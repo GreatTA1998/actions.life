@@ -16,7 +16,7 @@
     debugColor 
   } = $props()
   
-  const { openTaskPopup, willOpenDatePicker } = getContext('app')
+  const { openTaskPopup } = getContext('app')
   const { indent } = getContext('list-config')
 
   const defaultPxPerDay = 0.4
@@ -134,7 +134,6 @@
         <RecursiveTask {...renderTask(child, depth + 1) }>
           {#snippet infoBadge ()}
             <DateBadge iso={child.startDateISO} onclick={() => {
-              willOpenDatePicker.set(true)
               openTaskPopup(child)
             }}/>
           {/snippet}

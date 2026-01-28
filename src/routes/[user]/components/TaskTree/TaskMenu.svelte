@@ -10,32 +10,29 @@
   let { task } = $props()
 </script>
 
-<PopoverMenu 
-  {activator} 
-  {content} 
-/>
+<PopoverMenu>
+  {#snippet activator ({ popovertarget })} 
+    <div style="anchor-name: --anchor-{popovertarget}; max-height: 16px; display: flex; align-items: center;">
+      <button {popovertarget} class="menu-icon flexbox items-center">
+        <MslMoreVert style="font-size: 1.5rem;"/>
+      </button>
+    </div>
+  {/snippet}
 
-{#snippet activator ({ setPosition, popovertarget })} 
-  <div style="anchor-name: --anchor-{popovertarget}; max-height: 16px; display: flex; align-items: center;">
-    <button {popovertarget} onclick={setPosition} class="menu-icon flexbox items-center">
-      <MslMoreVert style="font-size: 1.5rem;"/>
-    </button>
-  </div>
-{/snippet}
+  {#snippet content ()}
+    <div style="padding: 8px; display: flex; flex-direction: column; row-gap: 8px;">    
+      <ToggleGroup onselect={newVal => Task.update({ id: task.id, keyValueChanges: { childrenLayout: newVal }})}
+        options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
+        activeValue={task.childrenLayout} 
+      />
 
-{#snippet content ({ close })}
-  <div style="padding: 8px; display: flex; flex-direction: column; row-gap: 8px;">    
-    <ToggleGroup onselect={newVal => Task.update({ id: task.id, keyValueChanges: { childrenLayout: newVal }})}
-      options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
-      activeValue={task.childrenLayout} 
-    />
-
-    <button class="m-item" onclick={() => { Task.archiveTree({ id: task.id }) }}>
-      <MslInventory2Outline style="font-size: 1.125rem;"/>
-      Archive
-    </button>
-  </div>
-{/snippet}
+      <button class="m-item" onclick={() => { Task.archiveTree({ id: task.id }) }}>
+        <MslInventory2Outline style="font-size: 1.125rem;"/>
+        Archive
+      </button>
+    </div>
+  {/snippet}
+</PopoverMenu>
 
 <style>
   .menu-icon {

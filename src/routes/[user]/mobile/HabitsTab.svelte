@@ -87,8 +87,8 @@
     {/if}
   {/if}
 
-  {#snippet activator({ setPosition, popovertarget })}
-    <button {popovertarget} onclick={setPosition} class="routine-compact more-button">
+  {#snippet activator({ popovertarget })}
+    <button {popovertarget} class="routine-compact more-button">
       <MslMoreHoriz style="font-size: var(--font-size-xxl);"/>
     </button>
   {/snippet}

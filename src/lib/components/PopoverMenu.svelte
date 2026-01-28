@@ -28,18 +28,10 @@
     position-anchor: --anchor-{id};
     position-area: right span-bottom;
     position-try-fallbacks: flip-block, flip-inline, flip-inline flip-block;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); 
   "
   {ontoggle}
-  class="card"
 >
   {@render content({ open, close, popovertarget: id })}
 </div>
-
-<style>
-  .card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border: none;
-  }
-</style>

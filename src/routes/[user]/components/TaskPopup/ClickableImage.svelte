@@ -8,8 +8,13 @@
 </script>
 
 <PopoverMenu>
-  {#snippet activator ({ open, close, toggle })}
-    <img onclick={open} src={task.imageDownloadURL} {style} />
+  {#snippet activator ({ popovertarget })}
+    <button style:display="contents" {popovertarget}>
+      <img {style} 
+        src={task.imageDownloadURL} 
+        style:anchor-name="--anchor-{popovertarget}"
+      />
+    </button>
   {/snippet}
 
   {#snippet content ()}

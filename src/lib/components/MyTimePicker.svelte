@@ -12,11 +12,12 @@
 
   const id = getRandomID()
 
+  let buttonElem = $state(null)
   let scrollContainer = $state(null)
   let menuHeight = $state(0)
 
-  const start = 6
-  const end = 23
+  const start = 8
+  const end = 21
 
   const hourChoices = $state([])
   for (let i = start; i <= end; i++) {
@@ -35,37 +36,32 @@
   }
 </script>
 
-<div style="display: flex;">
-  <!-- instead achieve overflow via the @snippet itself -->
-  <!-- menuStyles="overflow-y: auto; height: 360px;" -->
-  <PopoverMenu {id}
-    {activator} 
-    {content}
-    bind:this={scrollContainer}
-    ontoggle={e => {
-      if (e.newState === 'open') {
-        const scrollContainer = document.getElementById(id)
-        scrollContainer.scrollTo({ top: calcPosition() })
-      }
-    }}
-  />
-
-  {#snippet activator ({ open, popovertarget })}
-    <input {value}
-      placeholder='Time'
-      pattern='[0-9]{2}:[0-9]{2}'
-      {oninput}
-      onclick={open}                                                                
-      class="time-dropdown {fieldWithPlaceholder}"
-      style="
-        anchor-name: --anchor-{popovertarget};
-        padding: 0 {paddingVal};
-      "
-    />
+<PopoverMenu {id}
+  bind:this={scrollContainer}
+  ontoggle={e => {
+    if (e.newState === 'open') {
+      const scrollContainer = document.getElementById(id)
+      scrollContainer.scrollTo({ top: calcPosition() })
+    }
+  }}
+>
+  {#snippet activator ({ popovertarget })}
+    <button {popovertarget} bind:this={buttonElem}>
+      <input onclick={() => buttonElem.click()}    
+        {value} oninput={e => /^([01]\d|2[0-3]):[0-5]\d$/.test(e.target.value) ? oninput(e) : '' }
+        placeholder='Time'
+        pattern='[0-9]{2}:[0-9]{2}'                                                             
+        class="time-dropdown {fieldWithPlaceholder}"
+        style="
+          anchor-name: --anchor-{popovertarget};
+          padding: 0 {paddingVal};
+        "
+      />
+    </button>
   {/snippet}
 
-  {#snippet content({ open, close, setPosition, popovertarget })}
-    <div class="time-options-grid" use:trackHeight={h => menuHeight = h}>
+  {#snippet content({ close })}
+    <div class="time-options-grid max-h-[480px] overflow-y-auto" use:trackHeight={h => menuHeight = h}>
       {#each hourChoices as hhmm}
         <button onclick={() => { onTimeSelected(hhmm); close(); }}
           class="time-option"
@@ -76,7 +72,7 @@
       {/each}
     </div>
   {/snippet}
-</div>
+</PopoverMenu>
 
 <style lang="scss">
   .time-dropdown {
