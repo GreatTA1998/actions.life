@@ -67,7 +67,6 @@
 
 <style>
   .input {
-    border: none;
     field-sizing: content;
     min-width: 80px;
     padding: 2px;
@@ -75,8 +74,8 @@
     font-size: 14px;
     color: var(--scheduled-info-color, #666);
     background: transparent;
-    cursor: pointer;
     text-align: left;
+    cursor: pointer;
   }
 
   .input:focus {
