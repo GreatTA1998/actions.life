@@ -8,7 +8,7 @@
 
   const { Task, willOpenDatePicker } = getContext('app')
 
-  let { taskObject } = $props()
+  let { task } = $props()
 
   function handleChanges (key, value, timeZone) {
     if (typeof Number(value) !== "number") return
@@ -20,16 +20,16 @@
     if (timeZone) taskUpdates.timeZone = DateTime.local().zoneName
 
     Task.update({
-      id: taskObject.id,
+      id: task.id,
       keyValueChanges: taskUpdates
     })
   }
 </script>
 
 <div class="flex items-center gap-x-6" style="font-size: 1.25rem;">
-  {#key taskObject.id}
+  {#key task.id}
     <LuxonDatePicker
-      startDateISO={taskObject.startDateISO}
+      startDateISO={task.startDateISO}
       willOpen={$willOpenDatePicker}
       ondateselected={({ mmdd, yyyy }) => { 
         if (!(mmdd && yyyy)) handleChanges('startDateISO', '')
@@ -38,14 +38,14 @@
     />
   {/key}
 
-  <MyTimePicker value={taskObject.startTime}
+  <MyTimePicker value={task.startTime}
     oninput={e => handleChanges('startTime', e.target.value)}
     onTimeSelected={hhmm => handleChanges('startTime', hhmm)}
   />
 
-  <DurationPicker value={Math.round(taskObject.duration)}
+  <DurationPicker value={Math.round(task.duration)}
     oninput={e => handleChanges('duration', Number(e.target.value))}
   />
 
-  <ColorTags {taskObject} />
+  <ColorTags {task} />
 </div>

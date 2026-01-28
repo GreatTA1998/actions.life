@@ -7,7 +7,7 @@
 
   const { memoryTree, Task } = getContext('app')
   
-  let taskObj = $derived.by(() => {
+  let task = $derived.by(() => {
     for (const tree of $memoryTree) {
       if (tree.name === 'Walk the Camino de Santiago') {
         return tree
@@ -30,12 +30,12 @@
             { text: 'list', value: 'normal' }, 
             { text: 'timeline', value: 'timeline' }
           ]} 
-          activeValue={taskObj.childrenLayout}
-          onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal } })}
+          activeValue={task.childrenLayout}
+          onselect={newVal => Task.update({ id: task.id, keyValueChanges: { childrenLayout: newVal } })}
         />
       </div>
 
-      <TodoList trees={[taskObj]}
+      <TodoList trees={[task]}
         isLargeFont={isMobile()}
         listWidth={WIDTHS.LIST}
         cssStyle=""

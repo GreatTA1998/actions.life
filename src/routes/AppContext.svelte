@@ -25,10 +25,10 @@
     willOpenDatePicker
   })
 
-  async function uploadImage ({ e, taskObject }) {
+  async function uploadImage ({ e, task }) {
     await singleUpload({ 
       e,
-      taskObject,
+      task,
       willCompress: $user.photoCompressWhenAttachingToTask,
       hasSideEffect: $user.photoUploadAutoArchive
     })

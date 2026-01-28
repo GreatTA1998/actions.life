@@ -1,7 +1,7 @@
 <script>
   import { innerWidth } from 'svelte/reactivity/window'
 
-  let { taskObject, photo, info } = $props()
+  let { task, photo, info } = $props()
 
   const breakpoints = {
     tablet: 768,
@@ -19,8 +19,8 @@
   }
 </script>
 
-{#if taskObject}
-  {@const { imageDownloadURL, photoLayout } = taskObject}
+{#if task}
+  {@const { imageDownloadURL, photoLayout } = task}
 
   {#if imageDownloadURL}
     {#await getAspectRatio(imageDownloadURL) then aspectRatio}

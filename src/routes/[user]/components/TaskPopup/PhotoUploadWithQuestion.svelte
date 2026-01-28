@@ -5,13 +5,13 @@
 
   const { Task } = getContext('app')
 
-  let { taskObject } = $props()
+  let { task } = $props()
 </script>
 
 <PopoverSnackbar>
   {#snippet activator({ open, close, setLoading })}
-    {#if !taskObject.imageDownloadURL}
-      <PhotoUpload {taskObject} 
+    {#if !task.imageDownloadURL}
+      <PhotoUpload {task} 
         onUpload={() => {
           open();
           setLoading(true);
@@ -30,7 +30,7 @@
       <div style="display: flex; align-items: center; column-gap: 12px;">
         {#each [': (', ': |', ': )'] as emotion}
           <button onclick={() => {
-            Task.update({ id: taskObject.id, keyValueChanges: { notes: emotion + ' ' + taskObject.notes }});
+            Task.update({ id: task.id, keyValueChanges: { notes: emotion + ' ' + task.notes }});
             close({ timeout: 0 });
           }}
           style="width: 32px; height: 32px; outline: 1px solid white; align-items: center; justify-content: center; border-radius: 50%; transform: rotate(90deg)"

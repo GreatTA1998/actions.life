@@ -9,7 +9,7 @@
   import { getRandomID, getRandomColor } from '$lib/utils/core.js'
   import { paddingVal } from '$lib/styles/reused.module.css'
 
-  let { taskObject } = $props()
+  let { task } = $props()
 
   let value = $state('')
 
@@ -31,9 +31,9 @@
 
       User.update({ tags: copy })
       Task.update({
-        id: taskObject.id,
+        id: task.id,
         keyValueChanges: {
-          tagIDs: [...(taskObject.tagIDs || []), id] 
+          tagIDs: [...(task.tagIDs || []), id] 
         }
       })
       value = ''
@@ -46,14 +46,14 @@
 
   function toggleTag (id) {
     const kvChanges = {}
-    const { tagIDs } = taskObject
+    const { tagIDs } = task
     if (tagIDs?.includes(id)) {
       kvChanges.tagIDs = tagIDs?.filter(elem => elem !== id) || [id]
     } else {
       kvChanges.tagIDs = [...(tagIDs || []), id] 
     }
     Task.update({ 
-      id: taskObject.id,
+      id: task.id,
       keyValueChanges: kvChanges
     })
   }
@@ -75,8 +75,8 @@
       padding: 0px {paddingVal};
     "
   >
-    {#if (taskObject.tagIDs?.length > 0)}
-      {#each taskObject.tagIDs as id}
+    {#if (task.tagIDs?.length > 0)}
+      {#each task.tagIDs as id}
         {@render circle($user.tags[id].color)}
       {/each}
     {:else}
@@ -91,7 +91,7 @@
       {#each Object.entries($user.tags) as [id, tag] (id)}
         <button 
           class="flexbox items-center" 
-          class:selected={taskObject.tagIDs?.includes(id)}
+          class:selected={task.tagIDs?.includes(id)}
           style="column-gap: 4px;"
         >
           <ColorPicker type="color" value={tag.color} onchange={updateColor} />

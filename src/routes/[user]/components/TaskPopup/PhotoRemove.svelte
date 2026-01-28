@@ -5,7 +5,7 @@
 
   const { Task, user } = getContext('app')
 
-  let { taskObject } = $props()
+  let { task } = $props()
 
   async function confirmDeletePhoto ({ imageFullPath, imageDownloadURL }) {
     if (confirm('Are you sure you want to delete the photo?')) {
@@ -13,7 +13,7 @@
         await releaseImage($user.uid, { imageFullPath, imageDownloadURL })
       }
       Task.update({ 
-        id: taskObject.id,
+        id: task.id,
         keyValueChanges: { 
           imageDownloadURL: '',
           imageFullPath: ''
@@ -23,7 +23,7 @@
   }
 </script>
 
-<button onclick={() => confirmDeletePhoto(taskObject)} 
+<button onclick={() => confirmDeletePhoto(task)} 
   class="photo-row-action" 
 >
   <MslNoPhotographyOutline style="font-size: 1.125rem;"/>

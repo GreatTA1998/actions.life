@@ -14,17 +14,17 @@
   import { getContext } from 'svelte'
 
   const { uploadMockPhoto, uploadImage, user } = getContext('app')
-  let { onUpload, onFinished, taskObject } = $props()
+  let { onUpload, onFinished, task } = $props()
   let FolderInput = $state(null)
 
   function onclick () {
-    if ($user.uid === 'demo-user') uploadMockPhoto(taskObject)
+    if ($user.uid === 'demo-user') uploadMockPhoto(task)
     else FolderInput.click()
   }
  
   async function handleFileChange (e) {
     onUpload()
-    await uploadImage({ e, taskObject })
+    await uploadImage({ e, task })
     onFinished()
   }
 </script>

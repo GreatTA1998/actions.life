@@ -16,9 +16,9 @@
 
   const { Task, tasksCache, clickedTaskID, closeTaskPopup, ancestralTree } = getContext('app')
 
-  let taskObject = $derived($tasksCache[$clickedTaskID])
+  let task = $derived($tasksCache[$clickedTaskID])
   let editingRoutine = $state(false)
-  let parent = $derived(taskObject.parentID ? $tasksCache[taskObject.parentID] : null)
+  let parent = $derived(task.parentID ? $tasksCache[task.parentID] : null)
   let inputRef = $state(null)
 
   const debouncedUpdate = createDebouncedFunction(
@@ -27,14 +27,14 @@
   )
 
   async function handleDelete () {
-    if (taskObject.imageDownloadURL && !confirm("Are you sure you want to delete this task and its image?")) {
+    if (task.imageDownloadURL && !confirm("Are you sure you want to delete this task and its image?")) {
       return
     }
-    if (taskObject.notes && !confirm("Are you sure you want to delete this task and its notes?")) {
+    if (task.notes && !confirm("Are you sure you want to delete this task and its notes?")) {
       return
     }
     await Task.delete({ 
-      id: taskObject.id
+      id: task.id
     })
     closeTaskPopup()
   }
@@ -43,13 +43,13 @@
 <div class="h-full flex flex-col gap-y-2">
   <div class="flex items-center gap-x-2">
     <div class="shrink">
-      {#if taskObject.iconURL}
-        <DoodleIcon iconTask={taskObject} size={48} />
+      {#if task.iconURL}
+        <DoodleIcon iconTask={task} size={48} />
       {:else}
         <Checkbox zoom={1}
-          value={taskObject.isDone}
+          value={task.isDone}
           onchange={e => Task.update({ 
-            id: taskObject.id,
+            id: task.id,
             keyValueChanges: {
               isDone: e.target.checked
             }
@@ -63,7 +63,7 @@
       style="cursor: text; border-bottom: 1px solid var(--faint-color);"
     >
       <input bind:this={inputRef} 
-        value={taskObject.name}
+        value={task.name}
         oninput={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
         placeholder="Title"
         type="text" 
@@ -83,13 +83,13 @@
     </div>
   </div>
 
-  <InfoFields {taskObject} />
+  <InfoFields {task} />
 
   <div style="width: 100%; max-width: 100%;">
     <!-- TO-FIX: disallow horizontal and vertical overflow! 
       note: 100% width doesn't work because textarea is an inline element 
     -->
-    <UXFormTextArea value={taskObject.notes}
+    <UXFormTextArea value={task.notes}
       oninput={e => debouncedUpdate($clickedTaskID, { notes: e.target.value })}
       fieldLabel=""
       placeholder="Notes"
@@ -98,16 +98,16 @@
     <DragDropContext>
       <TodoList trees={$ancestralTree.children}
         listWidth="100%"
-        parentID={taskObject.id}
+        parentID={task.id}
         style="position: relative"
       />
     </DragDropContext>
   </div>
 
   <div style="margin-top: auto; margin-bottom: 0; display: flex; align-items: center; width: 100%; column-gap: 12px;">
-    <PhotoUploadWithQuestion {taskObject} />
+    <PhotoUploadWithQuestion {task} />
 
-    <RepeatTask {taskObject} onToggleTemplateEditor={() => editingRoutine = !editingRoutine} isTemplateEditorOpen={editingRoutine}/>
+    <RepeatTask {task} onToggleTemplateEditor={() => editingRoutine = !editingRoutine} isTemplateEditorOpen={editingRoutine}/>
 
     <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
       <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button action-button">
@@ -116,10 +116,10 @@
     </div>
   </div>
 
-  {#if taskObject.templateID && editingRoutine}
+  {#if task.templateID && editingRoutine}
     <div class="template-editor-section">
       <h3 class="template-title">Routine Template</h3>
-      <TemplateEditor templateID={taskObject.templateID} />
+      <TemplateEditor templateID={task.templateID} />
     </div>
   {/if}
 </div>

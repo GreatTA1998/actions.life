@@ -9,7 +9,7 @@
   const { inputActive } = getContext('popover-input')
 
   const zIndex = 3
-  let taskObject = $derived($tasksCache[$clickedTaskID])
+  let task = $derived($tasksCache[$clickedTaskID])
 </script>
 
 <!-- TO-DO: layer aware escaping needs to be generalized to work beyond task inputs, but all popovers -->
@@ -27,10 +27,10 @@
       view-transition-class: static-ui;
     "
   >
-    {#if taskObject}
-      <LayoutDecider {taskObject}>
+    {#if task}
+      <LayoutDecider {task}>
         {#snippet photo (style)}
-          <ClickableImage {taskObject} {style} />
+          <ClickableImage {task} {style} />
         {/snippet}
 
         {#snippet info ()}

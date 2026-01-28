@@ -4,7 +4,7 @@
   import { getContext } from 'svelte'
 
   const { user } = getContext('app')
-  let { taskObject, onToggleTemplateEditor, isTemplateEditorOpen = false } = $props()
+  let { task, onToggleTemplateEditor, isTemplateEditorOpen = false } = $props()
   let isCreatingRoutine = $state(false)
 
   function toggleCreate (e) {
@@ -18,7 +18,7 @@
   }
 </script>
 
-{#if taskObject.templateID}
+{#if task.templateID}
   <button onclick={toggleTemplateEditor} class="my-btn flexbox" style="color: rgb(0, 89, 125);" class:active={isTemplateEditorOpen}>
     <MslRepeat style="font-size: var(--popup-control);"/>
   </button>
@@ -30,7 +30,7 @@
   </button>
 
   {#if isCreatingRoutine}
-    <PeriodicityEditor isCreating routine={{ ...taskObject, rrStr: '' }} />
+    <PeriodicityEditor isCreating routine={{ ...task, rrStr: '' }} />
   {/if}
 {/if}
 

@@ -121,8 +121,8 @@ const Task = {
 
   delete: async ({ id }) => {
     return new Promise(async (resolve) => {
-      const taskObj = get(tasksCache)[id]
-      const treeNodes = await getSubtreeNodes(taskObj)
+      const task = get(tasksCache)[id]
+      const treeNodes = await getSubtreeNodes(task)
 
       // warning: need a way to disable this confirmation when we support sub-tasks for routines
       if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} actions at once?`)) {
@@ -144,8 +144,8 @@ const Task = {
   },
 
   archiveTree: async ({ id }) => {
-    const taskObj = get(tasksCache)[id]
-    const tasks = await getSubtreeNodes(taskObj)
+    const task = get(tasksCache)[id]
+    const tasks = await getSubtreeNodes(task)
 
     const { uid } = get(user)
     const batch = writeBatch(db)
@@ -169,8 +169,8 @@ const Task = {
   unarchiveTree: async ({ id }) => {
     const { uid } = get(user)
     const batch = writeBatch(db)
-    const taskObj = get(tasksCache)[id]
-    const tasksToUnarchive = await getSubtreeNodes(taskObj)
+    const task = get(tasksCache)[id]
+    const tasksToUnarchive = await getSubtreeNodes(task)
 
     for (const task of tasksToUnarchive) {
       batch.update(doc(db, `/users/${uid}/tasks/${task.id}`), { 
