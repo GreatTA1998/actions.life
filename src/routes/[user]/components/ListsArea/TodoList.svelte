@@ -59,18 +59,19 @@
 <div {onclick} {style}>
   {#if trees}
     {#each trees as task, i (task.id)}
-      <div style="width: {listWidth};
-        view-transition-name: list-{getRandomID()}; 
-        view-transition-class: {parentID ? 'dialog-list-item' : 'list-item'};"
+      <div 
+        style:width={listWidth}
+        style:view-transition-name="list-{getRandomID()}"
+        style:view-transition-class={parentID ? 'dialog-list-item' : 'list-item'}
       >  
         <Dropzone {...dzProps(i)} /> <!-- putting dropzones on top ensures consistent top spacing for each new column -->
 
         <RecursiveTask {task} depth={1} ancestorIDs={['']} />
       </div>
     {/each}
-  {/if}
-  
-  <div style="anchor-name: {anchorID}; height: {dzRootHeight}; min-width: {minWidth}; pointer-events: none;" >
 
-  </div>
+    <div style:anchor-name={anchorID}> <!-- trick to anchor onto the dropzone from a list click -->
+      <Dropzone {...dzProps(trees.length)} />
+    </div>
+  {/if}
 </div>

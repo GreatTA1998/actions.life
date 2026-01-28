@@ -11,16 +11,16 @@
       }
     })
   }}
-  class="{extraClass} select-none"
+  class="select-none {extraClass}"
   style="
-    {extraStyle};
     anchor-name: {anchorID};
     min-width: {minWidth()};
     height: {parentID === '' ? dzRootHeight() : dzSubHeight()}; 
     border-radius: var(--left-padding);
     border: 0px solid {colorForDebugging}; 
     {$bestDropzoneID === id ? dropPreviewCSS : ''}
-    {$bestDropzoneID === id && isInvalidDrop ? 'background-color: red;' : ''}
+    {$bestDropzoneID === id && isInvalidDrop ? 'background-color: red;' : ''};
+    {extraStyle};
   "
 ></div>
 
