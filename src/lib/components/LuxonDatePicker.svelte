@@ -16,7 +16,6 @@
 
   $effect(() => {
     if (startDateISO) {
-      // Capture dependency
       const iso = startDateISO
       
       untrack(() => {
