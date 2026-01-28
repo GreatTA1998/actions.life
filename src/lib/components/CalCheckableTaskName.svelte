@@ -13,8 +13,8 @@
   let parent = $derived(task.parentID ? $tasksCache[task.parentID] : null)
 </script>
 
-<div style="width: 100%; display: flex; align-items: center; column-gap: 4px;">
-  <div>
+<div class="flexbox items-center gap-x-1 w-full">
+  <div style:flex-shrink="0">
     <Checkbox
       value={task.isDone}
       onchange={e => Task.update({
@@ -26,7 +26,11 @@
     />
   </div>
 
-  <div onclick={() => openTaskPopup(task)} class="task-name truncate select-none" style="color: {color}">
+  <div 
+    style:flex-grow="0" style:color={color}
+    class="task-name truncate select-none" 
+    onclick={() => openTaskPopup(task)} 
+  >
     {task.name}
   </div>
 

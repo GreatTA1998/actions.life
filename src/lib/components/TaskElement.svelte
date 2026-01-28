@@ -11,7 +11,7 @@
 
     `min-height` prevents the parent from being super small when it's bullet point mode
   -->
-  <div style="display: flex; align-items: center; width: 100%;">
+  <div class="flexbox items-center w-full">
     {#if isBulletPoint}
       <div class="flexbox items-center" style="
           margin-right: calc(var(--left-padding) - 2px);
@@ -32,7 +32,7 @@
 
     <div style="flex-grow: 1; overflow: hidden;">
       <div style="font-size: 12px; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
-        {task.notes || ''}
+        {task.notes}
       </div>
     </div>
   {/if}

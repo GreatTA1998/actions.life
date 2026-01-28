@@ -20,12 +20,11 @@
   const minWidth = '240px' // too large = wasteful gap between columns 
   const dzRootHeight = $derived(`${(parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE) * scale}rem`)
   const dzSubHeight = $derived(`${HEIGHTS.SUB_DROPZONE * scale}rem`)
-  const rootFontSize = $derived(1 * scale) // rem =  16px / 32px
-  const subFontSize = $derived(0.875 * scale) // rem = 14px / 28px
+  const rootFontSize = $derived(`${1 * scale}rem`) // rem =  16px / 32px
+  const subFontSize = $derived(`${0.875 * scale}rem`) // rem = 14px / 28px
 
   setContext('list-config', { 
     indent: WIDTHS.INDENT_PER_LEVEL, 
-    listWidth: () => listWidth,
     minWidth: () => minWidth,
     scale: () => scale,
     dzRootHeight: () => dzRootHeight,
@@ -64,7 +63,7 @@
         view-transition-name: list-{getRandomID()}; 
         view-transition-class: {parentID ? 'dialog-list-item' : 'list-item'};"
       >  
-        <Dropzone {...dzProps(i)} /> <!-- putting dropzones on top guarantees consistent top spacing for each new column, despite being an anti-pattern to <RecursiveTask/> -->
+        <Dropzone {...dzProps(i)} /> <!-- putting dropzones on top ensures consistent top spacing for each new column -->
 
         <RecursiveTask {task} depth={1} ancestorIDs={['']} />
       </div>

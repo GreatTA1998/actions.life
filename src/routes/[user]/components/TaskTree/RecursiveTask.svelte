@@ -13,7 +13,7 @@
 
   const { Task, openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
-  const { indent, listWidth, scale, rootFontSize, subFontSize } = getContext('list-config')
+  const { indent, scale, rootFontSize, subFontSize } = getContext('list-config')
 
   let {
     task,
@@ -23,11 +23,8 @@
     infoBadge
   } = $props()
 
-  const colorForDebugging = getRandomColor()
-  const padding = 6
-
   let n = $derived(task.children.length)
-  let dzWidth = $derived(`calc(${listWidth()} - ${padding}px - ${indent * depth}px)`)
+  const colorForDebugging = getRandomColor()
 
   function dzProps (i) {
     return {
@@ -40,16 +37,16 @@
   }
 </script>
 
-<div style="position: relative; width: 100%; font-weight: {depth === 1 ? 600 : 400};">
+<div class="relative" style="font-weight: {depth === 1 ? 600 : 400}">
   <div draggable="true"
     ondragstart={e => startTaskDrag({ e, id: task.id })}
-    style="font-size: {depth === 1 ? rootFontSize() : subFontSize()}rem;"
-    class="task-row-container select-none"
+    style="font-size: {depth === 1 ? rootFontSize() : subFontSize()}"
+    class="flexbox items-center min-w-[30px] truncate text-[#1a1a1a] select-none"
   >
-    <div style="position: relative; margin-left: 2px; margin-right: 4px;">
+    <div class="relative ml-0.5 mr-1">
       {@render verticalTimeline?.()}
       
-      <div style="position: relative; padding-top: 2px; padding-bottom: 2px;">
+      <div class="relative py-0.5">
         {#if n === 0}
           <Checkbox value={task.isDone}
             onchange={e => Task.update({
@@ -67,13 +64,16 @@
       </div>
     </div>
 
-    <button onclick={() => openTaskPopup(task)} class="task-name truncate" class:done-task={task.isDone}>
+    <button onclick={() => openTaskPopup(task)} 
+      class="min-w-[16px] min-h-[16px] truncate" 
+      class:done-task={task.isDone}
+    >
       {task.name}
     </button>
 
     <div style="margin-left: 6px;"></div>
 
-    <div style="display: flex; align-items: center; column-gap: 4px;">
+    <div class="flexbox items-center gap-x-1">
       {#if infoBadge}
         {@render infoBadge()}
       {:else if task.startDateISO}
@@ -105,7 +105,7 @@
     <div style="margin-left: {indent}px;">
       {#if !task.isCollapsed}
         {#each task.children as subtask, i (subtask.id)}
-          <Dropzone {...dzProps(i)} extraStyle="width: {dzWidth}; z-index: {depth}" /> 
+          <Dropzone {...dzProps(i)} /> 
           
           <RecursiveTask 
             task={subtask}
@@ -116,7 +116,7 @@
 
         <Dropzone {...dzProps(n)} 
           extraClass="ghost-negative"
-          extraStyle="left: {indent}px; width: {dzWidth}; z-index: {depth}" 
+          extraStyle="left: {indent}px; z-index: {depth}; right: 0" 
         />
       {/if}
     </div>
@@ -124,22 +124,8 @@
 </div>
 
 <style>
-  .task-name {
-    min-width: 16px; 
-    min-height: 16px;
-  }
-
   .overdue {
     color: red;
-  }
-
-  .task-row-container {
-    display: flex; 
-    align-items: center;
-    min-width: 30px; /* min-width and height to make it easy to delete legacy tasks with no titles */
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    color: #1a1a1a; /* rgb(80, 80, 80) */
   }
 
   .done-task {
