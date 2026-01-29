@@ -7,6 +7,7 @@
   import TaskMenu from './TaskMenu.svelte'
   import TaskCaret from './TaskCaret.svelte'
   import MslCalendarTodayOutline from 'virtual:icons/material-symbols-light/calendar-today-outline'
+  import { user } from '$lib/store'
   import { getRandomColor } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
@@ -77,6 +78,12 @@
     <div style="margin-left: 6px;"></div>
 
     <div class="flexbox items-center gap-x-1">
+      {#if task.tagIDs}
+        {#each task.tagIDs as tagID}
+          <div style="background-color: {$user.tags?.[tagID].color}; border-radius: 50%; width: 5px; height: 5px;"></div>
+        {/each}
+      {/if}
+       
       {#if infoBadge}
         {@render infoBadge()}
       {:else if task.startDateISO}

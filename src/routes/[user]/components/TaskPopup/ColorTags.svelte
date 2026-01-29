@@ -1,5 +1,4 @@
 <script>
-  import ColorPicker from './ColorPicker.svelte'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import Task from '$lib/db/models/Task';
   import User from '$lib/db/models/User'
@@ -12,6 +11,16 @@
   let { task } = $props()
 
   let value = $state('')
+  const presetColors = [
+    '#E07A5F', // coral
+    '#3D8B8B', // teal
+    '#D4A03D', // amber
+    '#C27BA0', // rose
+    '#6B7F99', // slate
+    '#C67B5C', // terracotta
+    '#5E8B6A', // forest
+    '#8E6B8E', // plum
+  ]
 
   function onkeyup (e) {
     if (e.key === 'Enter') {
@@ -36,10 +45,6 @@
     }
   }
 
-  function updateColor (e) {
-    console.log(e.target.value)
-  }
-
   function toggleTag (id) {
     const kvChanges = {}
     const { tagIDs } = task
@@ -51,6 +56,16 @@
     Task.update({ 
       id: task.id,
       keyValueChanges: kvChanges
+    })
+  }
+
+  function editTag (id, kvChanges) {
+    const copy = { ...$user.tags }
+    for (const [k, v] of Object.entries(kvChanges)) {
+      copy[id][k] = v
+    }
+    User.update({
+      tags: copy
     })
   }
 </script>
@@ -73,24 +88,63 @@
   {/snippet}
 
   {#snippet content ()}
-    <div class="flexbox flex-col gap-y-1 py-1 px-2 min-w-[240px]">
+    <div class="flexbox flex-col gap-y-1 py-1 px-1 min-w-[240px]">
       {#if $user.tags}
         {#each Object.entries($user.tags) as [id, tag] (id)}  
-        {@const selected = task.tagIDs?.includes(id)}
-          <div class="flexbox items-center gap-x-1">
+          {@const selected = task.tagIDs?.includes(id)}
+          <div 
+            class="flexbox items-center gap-x-1"
+            style:background-color={selected ? 'rgb(230, 230, 230)' : ''}
+            style:border-radius="8px"
+          >
             <button onclick={() => toggleTag(id)}
               style:opacity={selected ? '1' : '0.5'}
+              style:filter="grayscale({ selected ? '0%' : '10%'})"
               style:color={selected ? 'black' : 'grey'}
-              class="grow flexbox gap-x-2"
+              class="grow flexbox gap-x-2 px-1"
             >
               {@render circle(tag.color, '1.125rem')}
 
-              <div>
-                {tag.name}
-              </div>
+              <div>{tag.name}</div>
             </button>
 
-            {@render menu(id)}
+            <PopoverMenu>
+              {#snippet activator({ id, anchorName })}
+                <button popovertarget={id} style:anchor-name={anchorName}>
+                  <MslMoreVert style="font-size: 1.5rem;"/>
+                </button>
+              {/snippet}
+
+              {#snippet content({ close })}
+                <div class="flexbox flex-wrap py-1 px-2">
+                  {#each presetColors as color}
+                    <div onclick={() => { editTag(id, { color }); close() }} 
+                      class="w-[24px] h-[24px]" 
+                      style:background-color={color}
+                    >
+                    </div>
+                  {/each}
+                </div>
+            
+                <div class="py-1 px-2">
+                  <input placeholder="Edit name" 
+                    onkeyup={e => {
+                      if (e.key === 'Enter') {
+                        editTag(id, { name: e.target.value });
+                        close();
+                      }
+                    }} 
+                    style:field-sizing="content"
+                  >
+                </div>
+            
+                <div class="py-1 px-2">
+                  <button onclick={() => deleteColorTag({ tagID: id, user: $user })}>
+                    Delete
+                  </button>  
+                </div>
+              {/snippet}
+            </PopoverMenu>
           </div>
         {/each}
       {/if}
@@ -108,37 +162,4 @@
 
 {#snippet circle (color, size = '5px')}
   <div style="background-color: {color}; border-radius: 50%; width: {size}; height: {size};"></div>
-{/snippet}
-
-{#snippet menu (id)}
-  <div popover id="popover-{id}" 
-    style="
-      position: absolute;
-      position-anchor: --anchor-{id};
-      left: anchor(right);
-      top: anchor(top);
-      position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-    "
-  >  
-    <div>
-      <button>Edit color</button>
-    </div>
-    <div>
-      <button>Edit name</button>
-    </div>
-    <div>
-      <button onclick={() => deleteColorTag({ tagID: id, user: $user })}>
-        Delete
-      </button>  
-    </div>
-  </div>
-
-  <button popovertarget="popover-{id}" 
-    style="
-      height: fit-content; 
-      display: flex;
-      anchor-name: --anchor-{id};
-    ">
-    <MslMoreVert style="font-size: 1.5rem;"/>
-  </button>
 {/snippet}

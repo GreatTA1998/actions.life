@@ -265,4 +265,8 @@
       })
     }
   })
+
+  setContext('popover-input', {
+    activateInput: () => {} // quick-fix to avoid error
+  })
 </script>
