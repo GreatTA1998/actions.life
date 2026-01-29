@@ -79,7 +79,7 @@
     >
       {#if (task.tagIDs?.length > 0)}
         {#each task.tagIDs as id}
-          {@render circle($user.tags[id].color)}
+          {@render circle($user.tags[id]?.color)}
         {/each}
       {:else}
         {@render circle('var(--experimental-black)')}

@@ -80,7 +80,7 @@
     <div class="flexbox items-center gap-x-1">
       {#if task.tagIDs}
         {#each task.tagIDs as tagID}
-          <div style="background-color: {$user.tags?.[tagID].color}; border-radius: 50%; width: 5px; height: 5px;"></div>
+          <div style="background-color: {$user.tags?.[tagID]?.color}; border-radius: 50%; width: 5px; height: 5px;"></div>
         {/each}
       {/if}
        
