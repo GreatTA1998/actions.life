@@ -20,7 +20,8 @@
   animation-duration: var(--vt-duration);
   animation-timing-function: var(--vt-easing);
 }
-
+::view-transition-old(.dialog-list-item),
+::view-transition-new(.dialog-list-item,)
 ::view-transition-old(.list-item),
 ::view-transition-new(.list-item) {
   animation-duration: var(--vt-duration);

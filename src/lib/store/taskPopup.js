@@ -9,7 +9,7 @@ export const ancestralTree = derived(
   ([$clickedTaskID, $tasksCache]) => {
     if (!$tasksCache[$clickedTaskID]) return
 
-    const union = buildForest(Object.values($tasksCache))
+    const union = buildForest(Object.values($tasksCache).filter(t => !t.isArchived))
     for (const rootTree of union) {
       const result = findSubtree({
         tree: rootTree,

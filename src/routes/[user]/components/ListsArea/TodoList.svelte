@@ -62,8 +62,8 @@
       <div style:width={listWidth}>
         <Dropzone {...dzProps(i)} />
         
-        <div 
-          style:view-transition-name={getRandomID()}
+        <div
+          style:view-transition-name="match-element"
           style:view-transition-class={parentID ? 'dialog-list-item' : 'list-item'}
         >  
           <RecursiveTask {task} depth={1} ancestorIDs={['']} />
