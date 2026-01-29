@@ -136,9 +136,10 @@ const Task = {
         batch.delete(doc(db, `/users/${uid}/tasks/${node.id}`))
       }
       await handleTreeISOsForDeletion({ batch, tasksToDelete: treeNodes }) // modifies `batch` before commiting
+      cleanupCache(treeNodes) // previous operations and sub-operations depend on `tasksCache`
+      
       await batch.commit()
       
-      cleanupCache(treeNodes)
       resolve(treeNodes)
     })
   },
