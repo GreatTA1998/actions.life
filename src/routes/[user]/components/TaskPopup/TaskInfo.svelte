@@ -5,7 +5,7 @@
   import ParentBadge from '$lib/components/ParentBadge.svelte'
   import InfoFields from './InfoFields.svelte'
   import PhotoUploadWithQuestion from './PhotoUploadWithQuestion.svelte'
-  import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
+  import TextArea from '$lib/components/TextArea.svelte'
   import TemplateEditor from './TemplateEditor.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
@@ -89,9 +89,8 @@
     <!-- TO-FIX: disallow horizontal and vertical overflow! 
       note: 100% width doesn't work because textarea is an inline element 
     -->
-    <UXFormTextArea value={task.notes}
+    <TextArea value={task.notes}
       oninput={e => debouncedUpdate($clickedTaskID, { notes: e.target.value })}
-      fieldLabel=""
       placeholder="Notes"
     />
 

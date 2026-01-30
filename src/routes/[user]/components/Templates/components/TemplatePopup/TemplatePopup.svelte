@@ -4,7 +4,7 @@
   import BasePopup from '$lib/components/BasePopup.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import DurationPicker from '$lib/components/DurationPicker.svelte'
-  import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
+  import TextArea from '$lib/components/TextArea.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
   import { getPeriodicity } from '$lib/utils/rrule.js'
   import { template, closeTemplateEditor } from '../../store.js'
@@ -68,9 +68,8 @@
     
     <div style="display: flex; gap: 8px; align-items: start;">
       <div style="flex: 1 1 400px;">
-        <UXFormTextArea value={$template.notes}
+        <TextArea value={$template.notes}
           oninput={e => debouncedUpdate('notes', e.target.value)}
-          fieldLabel=""
           placeholder="Notes..."
         />
       </div>
