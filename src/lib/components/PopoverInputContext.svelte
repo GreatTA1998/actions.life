@@ -83,7 +83,7 @@
   <input 
     bind:this={input} bind:value={value}
     {onkeyup} onblur={() => inputPopover.hidePopover()}
-    style="width: 100%; height: 100%;"
+    class="w-full h-full rounded"
   >
   <!-- 1. `onblur` detects iOS 26 keyboard exit via the "arrow" key. 2. Must use a () => function as inputPopover is not defined when attached -->
 </div>
@@ -111,11 +111,5 @@
     left: anchor(left);
 
     border-radius: 12px;
-  }
-
-  input:focus {
-    outline: none; /* goes off screen despite `box-sizing: border-box` */
-    border: 2px solid #2757cf;
-    border-radius: 4px;
   }
 </style>

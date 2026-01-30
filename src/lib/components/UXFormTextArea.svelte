@@ -1,11 +1,11 @@
-<div 
+<!-- <div 
   onclick={() => willTriggerFocus = true}
   class="ux-form-field"
   class:grey-border={!isFocused}
   class:blue-border={isFocused}
   style="height: fit-content;"
   style:padding="0 {paddingVal}"
->
+> -->
   <!-- <div class="ux-field-label">
     {fieldLabel}
   </div> -->
@@ -13,20 +13,18 @@
   <!-- input interface is a quick-fix, 
   
   and parent will need to consume `e.detail` instead of `e.target value` -->
-  <div bind:this={InputElem}>
+  <!-- <div bind:this={InputElem}> -->
     <TextAreaAutoResizing
       {value}
       {willTriggerFocus}
       {oninput}
-      onManuallyFocused={() => willTriggerFocus = false}
       onfocusin={() => isFocused = true}
       onfocusout={() => isFocused = false}
       {placeholder}
       resetDefaultStyling={true}
-      numberOfInitialRowsIfEmpty={2}
     />
-  </div>
-</div>
+  <!-- </div> -->
+<!-- </div> -->
 
 <script>
   let { oninput, fieldLabel = '', placeholder, value = '' } = $props()
