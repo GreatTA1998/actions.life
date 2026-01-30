@@ -105,6 +105,10 @@
     overflow-y: hidden; /** Safari-specific fix */
   }
 
+  input:focus {
+    border: 2px solid #2757cf;
+  }
+
   .menu-dropdown {
     position: fixed; 
     top: anchor(bottom); 

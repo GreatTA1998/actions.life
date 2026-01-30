@@ -29,12 +29,7 @@ input {
 }
 
 input:focus-visible {
-  outline: none; /* -webkit-focus-ring-color auto 1px;  */
-}
-
-input:focus {
-  outline: none; /* goes off screen despite `box-sizing: border-box` */
-  border: 2px solid #2757cf;
+  outline: none; /* -webkit-focus-ring-color auto 1px;, goes off screen because `box-sizing: border-box` (use borders instead) */
 }
 
 textarea {
