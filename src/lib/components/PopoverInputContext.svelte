@@ -18,7 +18,6 @@
   const callback = writable(() => {})
 
   setContext('popover-input', {
-    inputActive: () => inputActive,
     activateInput,
     overrideOptions
   })
