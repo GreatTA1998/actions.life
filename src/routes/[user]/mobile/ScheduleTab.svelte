@@ -8,6 +8,7 @@
   import DatePicker from '$lib/components/DatePicker.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import SimpleToggle from '$lib/components/SimpleToggle.svelte'
+  import { WIDTHS } from '$lib/utils/constants.js'
 
   const { User } = getContext('app')
 
@@ -34,8 +35,7 @@
     unsubs = []
   }
 
-  // --- Core Logic ---
-  async function resetAndLoadFrom(anchorDate) {
+  async function resetAndLoadFrom (anchorDate) {
     cleanupListeners()
     loading = true
     loadedDays = [] 
@@ -170,137 +170,129 @@
     }
   }
   
-  // --- Helpers ---
-  function isRoutine(task) {
-    // User definition: "routine instances... can be an icon"
-    // We include tasks with icons OR templateIDs as "routines" to be docked
+  function isRoutine (task) {
     return !!(task.templateID || task.iconURL)
   }
 
-  function getRoutineTasks(tasks) {
+  function getRoutineTasks (tasks) {
     return tasks.filter(isRoutine)
   }
 
-  function getRegularTasks(tasks) {
+  function getRegularTasks (tasks) {
     return tasks.filter(t => !isRoutine(t))
   }
 
-  function formatTime(isoTime) {
+  function formatTime (isoTime) {
     return DateTime.fromFormat(isoTime, 'HH:mm').toFormat('h:mm a')
   }
 </script>
 
-<div class="date-view">
-  <div class="calendar-container">
-    <DatePicker
-      selected={selectedDate}
-      inline={true}
-      ondateselected={handleDateSelected}
-    />
-  </div>
+<div class="flex w-full justify-center">
+  <div class="h-full flex flex-col bg-white" style:max-width={WIDTHS.MAX_PANEL + 'px'}>
+    <div class="calendar-container">
+      <DatePicker
+        selected={selectedDate}
+        inline={true}
+        ondateselected={handleDateSelected}
+      />
+    </div>
 
-  <div class="filter-bar">
-    <SimpleToggle 
-      checked={$user.hideRoutines} 
-      onchange={e => User.update({ hideRoutines: e.target.checked })} 
-      label="Exclude routines" 
-    />
-  </div>
+    <div class="filter-bar">
+      <SimpleToggle 
+        checked={$user.hideRoutines} 
+        onchange={e => User.update({ hideRoutines: e.target.checked })} 
+        label="Exclude routines" 
+      />
+    </div>
 
-  <div 
-    class="tasks-list" 
-    onscroll={handleScroll} 
-    bind:this={scrollContainer}
-  >
-    {#if loadedDays.length === 0 && loading}
-       <div class="loading">Loading schedule...</div>
-    {:else}
-       {#each loadedDays as day, i (day.dateISO)}
-         {@const filteredTasks = $user.hideRoutines ? day.tasks.filter(t => !t.templateID) : day.tasks}
-         <div class="day-section" id="day-{day.dateISO}">
-           <div class="day-anchor" data-iso={day.dateISO}></div>
-           
-            {#if i > 0}
-              <div class="day-divider" class:is-empty={filteredTasks.length === 0}></div>
-            {/if}
+    <div 
+      class="tasks-list" 
+      onscroll={handleScroll} 
+      bind:this={scrollContainer}
+    >
+      {#if loadedDays.length === 0 && loading}
+        <div class="loading">Loading schedule...</div>
+      {:else}
+        {#each loadedDays as day, i (day.dateISO)}
+          {@const filteredTasks = $user.hideRoutines ? day.tasks.filter(t => !t.templateID) : day.tasks}
+          <div class="day-section" id="day-{day.dateISO}">
+            <div class="day-anchor" data-iso={day.dateISO}></div>
+            
+              {#if i > 0}
+                <div class="day-divider" class:is-empty={filteredTasks.length === 0}></div>
+              {/if}
 
-            {#if filteredTasks.length > 0 && showDateLabels}
-              <div class="day-divider-text" class:is-selected={selectedDate && selectedDate.hasSame(day.date, 'day')}
-                style="padding: 16px;"
-              >
-                <span class="dd-day">{day.date.toFormat('cccc')}</span>
-                <span class="dd-date">{day.date.toFormat('MMM d')}</span>
-              </div>
-            {/if}
+              {#if filteredTasks.length > 0 && showDateLabels}
+                <div class="day-divider-text" class:is-selected={selectedDate && selectedDate.hasSame(day.date, 'day')}
+                  style="padding: 16px;"
+                >
+                  <span class="dd-day">{day.date.toFormat('cccc')}</span>
+                  <span class="dd-date">{day.date.toFormat('MMM d')}</span>
+                </div>
+              {/if}
 
 
-           {#if filteredTasks.length > 0}
-           <div class="day-content">
-             <!-- Horizontal Routine Dock -->
-             {#if getRoutineTasks(filteredTasks).length > 0}
-               <div class="routine-dock">
-                 {#each getRoutineTasks(filteredTasks) as task (task.id)}
-                   {#if task.iconURL}
-                      <DoodleIcon iconTask={task} size={40} />
-                   {:else}
+            {#if filteredTasks.length > 0}
+              <div class="day-content">
+                <!-- Horizontal Routine Dock -->
+                {#if getRoutineTasks(filteredTasks).length > 0}
+                  <div class="routine-dock">
+                    {#each getRoutineTasks(filteredTasks) as task (task.id)}
+                      {#if task.iconURL}
+                          <DoodleIcon iconTask={task} size={40} />
+                      {:else}
+                          <button 
+                            class="routine-pill" 
+                            class:is-done={task.isDone}
+                            onclick={() => openTaskPopup(task)}
+                          >
+                            {task.name}
+                          </button>
+                      {/if}
+                    {/each}
+                  </div>
+                {/if}
+
+                <!-- Regular Task List -->
+                <div class="event-list">
+                  {#each getRegularTasks(filteredTasks) as task (task.id)}
                       <button 
-                        class="routine-pill" 
+                        class="event-row" 
                         class:is-done={task.isDone}
+                        class:has-time={!!task.startTime}
                         onclick={() => openTaskPopup(task)}
                       >
-                        {task.name}
+                        {#if task.startTime}
+                          <div class="event-time">
+                            {formatTime(task.startTime)}
+                          </div>
+                        {/if}
+                        
+                        <div class="event-details">
+                          <div class="event-name">{task.name}</div>
+                          {#if task.notes}
+                            <div class="event-notes">{task.notes}</div>
+                          {/if}
+                        </div>
                       </button>
-                   {/if}
-                 {/each}
-               </div>
-             {/if}
-
-             <!-- Regular Task List -->
-             <div class="event-list">
-               {#each getRegularTasks(filteredTasks) as task (task.id)}
-                  <button 
-                    class="event-row" 
-                    class:is-done={task.isDone}
-                    class:has-time={!!task.startTime}
-                    onclick={() => openTaskPopup(task)}
-                  >
-                    {#if task.startTime}
-                      <div class="event-time">
-                        {formatTime(task.startTime)}
-                      </div>
-                    {/if}
-                    
-                    <div class="event-details">
-                      <div class="event-name">{task.name}</div>
-                      {#if task.notes}
-                        <div class="event-notes">{task.notes}</div>
-                      {/if}
-                    </div>
-                  </button>
-               {/each}
-             </div>
-           </div>
-           {/if}
-         </div>
-       {/each}
-       
-       <div class="scroll-loader">
+                  {/each}
+                </div>
+              </div>
+            {/if}
+          </div>
+        {/each}
+        
+        <div class="scroll-loader">
           <div class="loader-dots">...</div>
-       </div>
-    {/if}
+        </div>
+      {/if}
+    </div>
   </div>
 </div>
 
 <style>
   :global(body) {
     --accent-color: #007aff;
-  }
-
-  .date-view {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: white;
   }
 
   .calendar-container {
@@ -383,8 +375,6 @@
     transition: all 0.2s;
   }
 
-
-  /* Event List */
   .event-list {
     display: flex;
     flex-direction: column;
