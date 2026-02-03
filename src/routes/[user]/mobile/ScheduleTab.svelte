@@ -188,7 +188,7 @@
 </script>
 
 <div class="flex w-full justify-center">
-  <div class="h-full flex flex-col bg-white" style:max-width={WIDTHS.MAX_PANEL + 'px'}>
+  <div class="h-full flex flex-col bg-white" style:max-width={WIDTHS.PANEL_MAX + 'px'}>
     <div class="calendar-container">
       <DatePicker
         selected={selectedDate}

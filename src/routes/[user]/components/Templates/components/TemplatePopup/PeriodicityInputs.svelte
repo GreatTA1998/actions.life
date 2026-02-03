@@ -4,7 +4,7 @@
   import MonthlyInput from './MonthlyInput.svelte'
   import YearlyInput from './YearlyInput.svelte'
   import Tabs from '$lib/components/Tabs.svelte'
-  import { getPeriodicity } from '$lib/utils/rrule.js'
+  import { periodicity } from '$lib/utils/rrule.js'
   import { onMount, setContext, createEventDispatcher } from 'svelte'
   import { writable } from 'svelte/store'
 
@@ -33,7 +33,7 @@
   $: dispatch('update-rr', $inputStates[overallPointer])
 
   onMount(() => {
-    activeTab = getPeriodicity(initialRRStr)
+    activeTab = periodicity(initialRRStr)
     initPointers(initialRRStr)
     inputStates.update(states => ({ ...states, [overallPointer]: initialRRStr }))
     loaded = true

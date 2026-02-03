@@ -6,7 +6,7 @@
   import DurationPicker from '$lib/components/DurationPicker.svelte'
   import TextArea from '$lib/components/TextArea.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
-  import { getPeriodicity } from '$lib/utils/rrule.js'
+  import { periodicity } from '$lib/utils/rrule.js'
   import { template, closeTemplateEditor } from '../../store.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import Template from '$lib/db/models/Template.js'
@@ -38,7 +38,7 @@
 <BasePopup onClickOutside={closeTemplateEditor}>
   <div class="content-wrapper">
     <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
-      {#if getPeriodicity($template.rrStr) === 'weekly'}
+      {#if periodicity($template.rrStr) === 'weekly'}
         <button onclick={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
           {#if $template.iconURL}
             <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />

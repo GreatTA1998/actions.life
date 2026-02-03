@@ -1,21 +1,23 @@
 <script>
+  import RoutineItem from './RoutineItem.svelte'
   import HabitsTabFullDetails from './HabitsTabFullDetails.svelte'
   import TemplatePopup from '../components/Templates/components/TemplatePopup/TemplatePopup.svelte'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import MslMoreHoriz from 'virtual:icons/material-symbols-light/more-horiz'
   import { openTemplateEditor, templates, popup } from '../components/Templates/store.js'
-  import { formatHours } from '$lib/utils/core.js'
   import { collection, onSnapshot } from 'firebase/firestore'
+  import { WIDTHS } from '$lib/utils/constants.js'
   import { db } from '$lib/db/init.js'
+  import { periodicity } from '$lib/utils/rrule.js'
   import { getContext, onMount } from 'svelte'
 
   const { user, Template } = getContext('app')
 
   let selectedRoutineID = $state('')
   let stats = $state(new Map())
-
-  let maxMinutesSpent = $derived(Math.max(1, ...Array.from(stats.values()).map(s => s.minutesSpent)))
-  let unstarredRoutines = $derived($templates.filter(r => !r.isStarred))
+  
+  const rank = { weekly: 0, monthly: 1, yearly: 2 }
+  let unstarredRoutines = $derived($templates.filter(r => !r.isStarred).sort((a, b) => rank[periodicity(a.rrStr)] - rank[periodicity(b.rrStr)]))
   let starredRoutines = $derived($templates.filter(r => r.isStarred))
   let topRoutines = $derived([...starredRoutines].sort((a, b) => {
     return (stats.get(b.id)?.minutesSpent ?? 0) - (stats.get(a.id)?.minutesSpent ?? 0)
@@ -39,7 +41,7 @@
     }
   }
 
-  async function listenToRoutines() {
+  async function listenToRoutines () {
     const ref = collection(db, '/users/' + $user.uid + '/templates')
     onSnapshot(ref, async (querySnapshot) => {
       templates.set(
@@ -52,189 +54,55 @@
     if (selectedRoutineID === routineID) openTemplateEditor(routineID)
     else selectedRoutineID = routineID
   }
-
-  function getBarWidth (minutes) {
-    return (minutes / maxMinutesSpent) * 75 // Scale to max 75% to leave room for hours text
-  }
 </script>
 
-<div class="habits-view">
-  {#if topRoutines}
-    <div style="display: flex; flex-direction: column; padding: 0 4px;">
-      {#each topRoutines as routine (routine.id)}
-        <button onclick={() => select(routine.id)}
-          class="routine-row"
-          class:selected={selectedRoutineID === routine.id}
-        >
-          {@render routineItem({ routine })}
-
-          {#if stats.has(routine.id)}
-            <div class="routine-bar-container">
-              <div class="routine-bar-wrapper">
-                <div class="routine-bar" style="width: {getBarWidth(stats.get(routine.id).minutesSpent)}%"></div>
-                <span class="routine-hours">{formatHours(stats.get(routine.id).minutesSpent)}</span>
-              </div>
-            </div>
-          {/if}
-        </button>
-      {/each}
-    </div>
-    
-    {#if unstarredRoutines.length > 0}
-      <div class="overflow-routines-grid">        
+<div class="flex w-full justify-center flex-wrap">
+  <div style:width={WIDTHS.PANEL_MAX + 'px'} class="bg-white">
+    {#if topRoutines}
+      <div class="flex flex-col py-0 px-2">
+        {#each topRoutines as routine (routine.id)}
+          <RoutineItem onclick={() => select(routine.id)}
+            {routine} {selectedRoutineID} {stats}
+          />
+        {/each}
+      </div>
+      
+      {#if unstarredRoutines.length > 0}
         <PopoverMenu>
           {#snippet activator({ id, anchorName })}
-            <button popovertarget={id} style:anchor-name={anchorName}
-              class="routine-compact more-button"
-            >
-              <MslMoreHoriz style="font-size: var(--font-size-xxl);"/>
+            <button popovertarget={id} style:anchor-name={anchorName}>
+              <MslMoreHoriz style="font-size: var(--font-size-xxl)"/>
             </button>
           {/snippet}
         
           {#snippet content({ close })}
-            <div class="more-menu-content">
+            <!-- pragmatic sizing quickfix for mobile and desktop -->
+            <div class="w-screen max-h-[60vh] overflow-y-auto p-2 flex flex-wrap gap-4">
               {#each unstarredRoutines as routine (routine.id)}
-                <button onclick={() => { select(routine.id); close(); }}
-                  class="menu-item"
-                  class:selected={selectedRoutineID === routine.id}
-                >
-                  {@render routineItem({ routine })}
-                </button>
+                <RoutineItem onclick={() => { select(routine.id); close(); }}
+                  {routine} {selectedRoutineID}
+                />
               {/each}
             </div>
           {/snippet}
         </PopoverMenu>
-      </div>
+      {/if}
     {/if}
-  {/if}
+  </div>
 
   {#if selectedRoutineID}
-    <HabitsTabFullDetails {selectedRoutineID} {stats} />
+    <HabitsTabFullDetails {selectedRoutineID} {stats}
+      extraStyle="width: 100vw; max-width: 60ch; padding: 8px 0px;" 
+    />
   {/if}
 
   {#if $popup}
     <TemplatePopup />
   {/if}
-
-  {#snippet routineItem({ routine })}
-    <div class="flexbox items-center" style="width: 200px;">
-      {#if routine.iconURL}
-        <img src={routine.iconURL} alt={routine.name} class="routine-icon" />
-      {/if}
-      <span>{routine.name}</span>
-    </div>
-  {/snippet}
 </div>
 
 <style>
-  .habits-view {
-    width: 100vw;
-    --routine-compact-size: 40px;
-    --routine-compact-padding: 2px;
-  }
-
-  .scrollable-flexbox {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-
-  .routine-row {
-    display: flex;
-    align-items: center;
-    column-gap: 16px;
-    padding: 4px;
-    min-height: 48px;
-  }
-
-  .routine-row.selected {
-    background: rgba(0, 89, 125, 0.1);
-  }
-
-  .routine-icon {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-  }
-
-  .routine-bar-container {
-    flex: 1;
-    min-height: 5px;
-    background: transparent;
-    border-radius: 3px;
-    overflow: visible;
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0; 
-  }
-
-  .routine-bar-wrapper {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 5px;
-    position: relative;
-    min-width: 0; /* Allow flex item to shrink below content size */
-  }
-
-  .routine-bar {
-    transition: width 0.3s ease;
-    height: 6px;
-    background: #4caf50;
-    border-radius: 3px;
-    min-width: 2px;
-  }
-
-  .overflow-routines-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-    margin-bottom: 12px;
-    padding: 0 4px;
-  }
-
-  .routine-compact {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    padding: var(--routine-compact-padding);
-    width: var(--routine-compact-size);
-    height: var(--routine-compact-size);
-  }
-
-  .routine-compact.selected {
-    background: rgba(0, 89, 125, 0.1);
-  }
-
-  .routine-icon-compact {
-    width: calc(var(--routine-compact-size) - 2 * var(--routine-compact-padding));
-    height: calc(var(--routine-compact-size) - 2 * var(--routine-compact-padding));
-    object-fit: contain;
-    flex-shrink: 0;
-  }
-
-  .more-menu-content {
-    padding: 8px;
-    max-height: 60vh;
-    overflow-y: auto;
-    min-width: 200px;
-  }
-
-  .menu-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 8px;
-    text-align: left;
-  }
-
-  .menu-item.selected {
-    background: rgba(0, 89, 125, 0.08);
+  :root {
+    --rhythm-highlight-color: orange;
   }
 </style>

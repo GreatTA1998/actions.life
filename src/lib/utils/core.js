@@ -158,7 +158,7 @@ export function minutes (HHmm) {
   return hours * 60 + minutes
 }
 
-export function formatHours (minutes) {
-  const H = round(minutes / 60, 1)
+export function formatHours (minutes, decimalPlaces = 1) {
+  const H = round(minutes / 60, decimalPlaces)
   return `${H} hr${H !== 1 ? 's' : ''}`
 }
