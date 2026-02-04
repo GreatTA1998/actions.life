@@ -11,7 +11,7 @@
   let { 
     selectedRoutineID, 
     stats,
-    extraStyle
+    extraClass
   } = $props()
 
   async function toggleStar (routineID, value) {
@@ -19,7 +19,7 @@
   }
 </script>
 
-<div style={extraStyle}>
+<div class={extraClass}>
   <ListenToRoutineInstances templateID={selectedRoutineID} userID={$user.uid}
     let:routineInstances={instances}
   >
@@ -27,15 +27,15 @@
       let:theDoc={selectedRoutine}
     >
       {#if selectedRoutine}
-        <div class="routine-header">
-          <div class="routine-title-row">
+        <div class="shrink-0 mb-5 px-4">
+          <div class="flex items-center gap-2 mb-2">
             <h2>{selectedRoutine.name}</h2>
             <StarButton isStarred={selectedRoutine.isStarred}
               onToggle={() => toggleStar(selectedRoutineID, selectedRoutine.isStarred)}
             />
           </div>
           {#if stats.has(selectedRoutineID)}
-            <div class="flexbox items-center gap-8">
+            <div class="flexbox items-center gap-2">
               <span>{formatHours(stats.get(selectedRoutineID).minutesSpent)}</span>
               <span style="color: #666;">•</span>
               <span>completed {stats.get(selectedRoutineID).timesCompleted} times</span>
@@ -43,9 +43,7 @@
           {/if}
         </div>
         
-        <div class="journal-entries-wrapper">
-          <JournalEntries routineInstances={instances}/>
-        </div>
+        <JournalEntries routineInstances={instances}/>
         
       {/if}
     </ListenToDoc>
@@ -53,27 +51,9 @@
 </div>
 
 <style>
-  .routine-header {
-    flex-shrink: 0;
-    margin-bottom: 20px;
-    padding: 0 16px;
-  }
-
-  .routine-header h2 {
+  h2 {
     margin: 0;
     font-size: var(--font-size-xxl);
     font-weight: 600;
-  }
-
-  .routine-title-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .journal-entries-wrapper {
-    flex: 1;
-    min-height: 0;
   }
 </style>

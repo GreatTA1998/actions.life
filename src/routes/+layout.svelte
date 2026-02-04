@@ -15,6 +15,7 @@
   import 'normalize.css/normalize.css'
   import '$lib/styles/view-transitions.css'
   import '$lib/styles/reset.css'
+  import '$lib/styles/utility.css'
 
   let { children } = $props()
 
@@ -96,38 +97,6 @@
     height: 100%;
   }
 
-  /* Notion scrollbar styles */
-  :global(::-webkit-scrollbar) {
-    width: 6px;
-    height: 6px;
-    background: transparent;
-  }
-  :global(::-webkit-scrollbar-thumb) {
-    background: #D3D1CB;
-  }
-  :global(::-webkit-scrollbar-track) {
-    background: #EDECE9;
-  }
-
-  /* https://uxmovement.substack.com/p/how-to-use-surface-elevation-to-elevate
-    We base low, medium and high elevation on this essay.
-  */
-  :global(.core-shadow) {
-    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1)
-  }
-
-  :global(.cast-shadow) {
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.08);
-  }
-
-  :global(.cast-shadow-max) {
-    box-shadow: 0px 18px 36px rgba(0, 0, 0, 0.08);
-  }
-
-  :global(.paper-shadow) {
-    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
-  }
-
   /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */
   :global(.highlighted-option) {
     color: black !important;
@@ -136,26 +105,6 @@
 
   :global(.flexbox) {
     display: flex;
-  }
-
-  :global(.gap-8) {
-    gap: 8px;
-  }
-
-  :global(.mt-4) {
-    margin-top: 4px;
-  }
-
-  :global(.hide-scrollbar) {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  :global(.hide-scrollbar::-webkit-scrollbar) {
-    display: none;
-    width: 0px;
-    height: 0px;
-    background: transparent;
   }
 
   /* Original layout.svelte styles */

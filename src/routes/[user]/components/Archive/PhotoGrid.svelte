@@ -12,17 +12,11 @@
   let allPhotoTasks = $state([])
   let dateRangePhotoTasks = $state([])
   
-  // Date for navigation - bind to MonthYearNavigator
-  let centerDate = $state(DateTime.now().startOf('month'))
+  let centerDate = $state(DateTime.now().startOf('month')) // for <MonthYearNavigator />
   let loadingPhotos = $state(false)
-  
-  // Use a string for view mode instead of boolean
-  let viewMode = $state('month') // 'month' or 'random'
-  
-  // Add state for button animation
+  let viewMode = $state('month') // or 'random'
   let isSpinning = $state(false)
 
-  // Initialize date range from centerDate - use derived to react to changes
   let startDateISO = $derived(centerDate.startOf('month').toISODate())
   let endDateISO = $derived(centerDate.endOf('month').toISODate())
 
@@ -88,13 +82,11 @@
     }
   }
   
-  // Set to random mode with animation
-  function showRandomPhotos() {
-    // Trigger animation
+  function showRandomPhotos () {
     isSpinning = true;
     setTimeout(() => {
       isSpinning = false;
-    }, 500);
+    }, 500)
     
     viewMode = 'random'
     updatePhotoDisplay()
@@ -151,10 +143,6 @@
                   {DateTime.fromISO(task.startDateISO).toFormat('MMM d, yyyy')}
                 </div>
               </div>
-      
-              <!-- <div class="photo-caption">
-                {task.notes}
-              </div> -->
             </div>
           </div>
         {/each}

@@ -92,7 +92,7 @@
 
   {#if selectedRoutineID}
     <HabitsTabFullDetails {selectedRoutineID} {stats}
-      extraStyle="width: 100vw; max-width: 60ch; padding: 8px 0px;" 
+      extraClass="w-screen max-w-[60ch] py-2"
     />
   {/if}
 

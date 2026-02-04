@@ -51,7 +51,7 @@
   $: filteredInstances = routineInstances?.filter(hasContent) || []
 </script>
 
-<div class="main-content">
+<div class="p-4">
   <div class="journal-entries">
     {#if filteredInstances.length > 0}
       {#each filteredInstances as instance, i (instance.id)}
@@ -96,12 +96,6 @@
 </div>
 
 <style>
-  .main-content {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-  }
-
   .journal-entries {
     --timeline-left: 4px;
     --content-padding-left: 16px;
