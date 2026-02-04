@@ -2,18 +2,18 @@
   onclick={() => openTaskPopup(task)}
   ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })} 
   draggable="true" 
-  class="claude-draggable-item"
-  class:calendar-block={!isBulletPoint}
+  class={isBulletPoint ? '' : calendarBlock}
   style={mergedStyle}
+  style:padding-top={isBulletPoint ? '' : 'var(--left-padding)'}
 >
   <!-- As long as this parent div is correctly sized, the duration adjusting area 
     will be positioned correctly (it's glued to the bottom of this parent div)
 
     `min-height` prevents the parent from being super small when it's bullet point mode
   -->
-  <div class="flexbox items-center w-full">
+  <div class="flex items-center w-full">
     {#if isBulletPoint}
-      <div class="flexbox items-center" style="
+      <div class="flex items-center" style="
           margin-right: calc(var(--left-padding) - 2px);
           color: {task.isDone ? '#509c13' : 'rgb(20, 20, 20)'};
         "
@@ -26,10 +26,6 @@
   </div>
 
   {#if !isBulletPoint}
-    {#if task.children.length > 0}
-      <SubtaskCountIndicator {task} color='white' />
-    {/if}
-
     <div style="flex-grow: 1; overflow: hidden;">
       <div style="font-size: 12px; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
         {task.notes}
@@ -59,8 +55,8 @@
 
 <script>
   import CalCheckableTaskName from '$lib/components/CalCheckableTaskName.svelte'
-  import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
   import MslCircle from 'virtual:icons/material-symbols-light/circle'
+  import { calendarBlock } from '$lib/styles/reused.module.css'
   import { getTrueY } from '$lib/utils/core.js'
   import { user } from '$lib/store'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
@@ -146,13 +142,4 @@
       }
     })
   }
-</script> 
-
-<style>
-  .calendar-block {
-    width: 100%;
-    padding-top: var(--left-padding);
-    border-radius: var(--left-padding);
-    cursor: pointer;
-  }
-</style>
+</script>

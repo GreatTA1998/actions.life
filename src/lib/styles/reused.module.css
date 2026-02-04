@@ -10,3 +10,9 @@
 .placeholderFieldLarge::placeholder {
   opacity: 0.6;
 }
+
+.calendarBlock {
+  width: 100%;
+  cursor: pointer;
+  border-radius: var(--left-padding);
+}

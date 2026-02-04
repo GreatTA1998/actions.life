@@ -1,6 +1,7 @@
 <script>
   import Checkbox from '$lib/components/Checkbox.svelte'
   import ParentBadge from '$lib/components/ParentBadge.svelte'
+  import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
   import { getContext } from 'svelte'
 
   const { Task, tasksCache, openTaskPopup } = getContext('app')
@@ -33,6 +34,10 @@
   >
     {task.name}
   </div>
+
+  {#if task.children.length > 0}
+    <SubtaskCountIndicator {task} {color} />
+  {/if}
 
   {#if parent}
     <ParentBadge {parent} --color={color} />

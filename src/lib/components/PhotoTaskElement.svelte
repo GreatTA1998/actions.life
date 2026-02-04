@@ -12,7 +12,7 @@
   draggable="true" 
   ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })}
   use:lazyCallable={() => hasIntersected = true}
-  class:calendar-block={true}
+  class={calendarBlock}
   style="
     position: relative;
     display: flex; 
@@ -51,6 +51,7 @@
  import { getTrueY } from '$lib/utils/core.js'
  import { lazyCallable } from '/src/lib/utils/svelteActions.js'
  import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
+ import { calendarBlock } from '$lib/styles/reused.module.css'
  import { getContext } from 'svelte'
 
  const { Task, openTaskPopup} = getContext('app')
@@ -87,18 +88,4 @@
      }      
    })
  }
-</script> 
-
-<style>
- :root {
-   --left-padding: 6px;
-
-   --experimental-black: hsla(0, 100%, 0%, 0.6);
- }
-
- .calendar-block {
-   width: 100%;
-   cursor: pointer;
-   border-radius: var(--left-padding);
- }
-</style>
+</script>

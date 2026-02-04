@@ -1,10 +1,9 @@
 <div 
   onclick={() => openTaskPopup(task)}
   ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })} draggable="true" 
-  class:calendar-block={!isBulletPoint}
   class:clear-border={!isBulletPoint}
-  class:graph-paper-texture={!isBulletPoint && !task.imageDownloadURL}
-  class:full-photo-texture={!isBulletPoint && task.imageDownloadURL}
+  class:graph-paper-texture={!isBulletPoint}
+  class={!isBulletPoint ? calendarBlock : ''}
 
   style="
     --image-download-url: url({task.imageDownloadURL});
@@ -25,25 +24,25 @@
 
    `min-height` prevents the parent from being super small when it's bullet point mode
   -->
-  <div style="display: flex; align-items: center; width: 100%;">
+  <div class="flex items-center w-full gap-1">
     {#if isBulletPoint}
-      <div class="flexbox items-center" style="
-          margin-right: calc(var(--left-padding) - 2px);
-          color: {task.isDone ? 'rgb(20, 20, 20)' : '#509c13'};
-        "
+      <div 
+        class="flex items-center"
+        style:margin-right="calc(var(--left-padding) - 2px)" 
+        style:color={task.isDone ? 'rgb(20, 20, 20)' : '#509c13'}
       >
         <MslCircle style="font-size: 2px;"/>
       </div>
     {/if}
 
     <DoodleIcon iconTask={task} />
-  </div>
 
-  {#if !isBulletPoint && !task.imageDownloadURL}
     {#if task.children.length > 0}
       <SubtaskCountIndicator {task} />
     {/if}
+  </div>
 
+  {#if !isBulletPoint}
     <div style="flex-grow: 1; overflow: hidden;">
       <div style="font-size: 12px; font-weight: 400; color: rgb(20, 20, 20);">
         {task.notes || ''}
@@ -79,6 +78,7 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
+  import { calendarBlock } from '$lib/styles/reused.module.css'
 
   const { Task,openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
@@ -117,18 +117,6 @@
 </script> 
 
 <style>
-  :root {
-    --left-padding: 6px;
-
-    --experimental-black: hsla(0, 100%, 0%, 0.6);
-  }
-
-  .calendar-block {
-    width: 100%;
-    cursor: pointer;
-    border-radius: var(--left-padding);
-  }
-
   .clear-border {
     border: 1px solid var(--experimental-black);
   }
@@ -138,11 +126,5 @@
         linear-gradient(90deg, rgba(200,200,200,0.8) 1px, transparent 0), 
         linear-gradient(180deg, rgba(200,200,200,0.8) 1px, transparent 0);
       background-size: 24px 24px; /* Adjust the size of the pattern */
-  }
-
-  .full-photo-texture {
-    background-image: var(--image-download-url);
-    background-size: contain;
-    background-repeat: no-repeat;
   }
 </style>
