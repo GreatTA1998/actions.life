@@ -25,7 +25,7 @@
     <CalCheckableTaskName {task} color={(isBulletPoint || task.tagIDs?.length >= 2) ? 'black' : 'white'}/>
   </div>
 
-  {#if !isBulletPoint}
+  {#if !isBulletPoint && task.tagIDs?.length < 2}
     <div style="flex-grow: 1; overflow: hidden;">
       <div style="font-size: 12px; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
         {task.notes}

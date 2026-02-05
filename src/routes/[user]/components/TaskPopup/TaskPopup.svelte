@@ -2,7 +2,7 @@
   import ModularLayer from '$lib/components/ModularLayer.svelte'
   import LayoutDecider from './LayoutDecider.svelte'
   import ClickableImage from './ClickableImage.svelte'
-  import TaskInfo from './TaskInfo.svelte'
+  import Details from './Details.svelte'
   import { getContext } from 'svelte'
 
   const { tasksCache, clickedTaskID, closeTaskPopup } = getContext('app')
@@ -34,7 +34,7 @@
         {/snippet}
 
         {#snippet info ()}
-          <TaskInfo />
+          <Details />
         {/snippet}
       </LayoutDecider>
     {/if}

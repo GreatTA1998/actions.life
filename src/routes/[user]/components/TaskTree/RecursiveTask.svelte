@@ -52,14 +52,12 @@
       {@render verticalTimeline?.()}
       
       {#if n === 0}
-        <Checkbox value={task.isDone}
+        <Checkbox value={task.isDone} {fontSize}
           onchange={e => Task.update({ id: task.id, keyValueChanges: { isDone: e.target.checked }})}
-          zoom={0.6 * scale()}
         />
       {:else}
-        <TaskCaret isCollapsed={task.isCollapsed}
+        <TaskCaret isCollapsed={task.isCollapsed} {fontSize}
           onToggle={() => Task.update({ id: task.id, keyValueChanges: { isCollapsed: !task.isCollapsed } })}
-          {fontSize}
         />
       {/if}
     </div>

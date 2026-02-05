@@ -46,14 +46,9 @@
       {#if task.iconURL}
         <DoodleIcon iconTask={task} size={48} />
       {:else}
-        <Checkbox zoom={1}
+        <Checkbox fontSize="1.5rem"
           value={task.isDone}
-          onchange={e => Task.update({ 
-            id: task.id,
-            keyValueChanges: {
-              isDone: e.target.checked
-            }
-          })}
+          onchange={e => Task.update({ id: task.id, keyValueChanges: { isDone: e.target.checked }})}
         />
       {/if}
     </div>
