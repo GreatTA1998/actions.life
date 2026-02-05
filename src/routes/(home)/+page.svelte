@@ -16,7 +16,7 @@
 </script>
 
 {#if $authChecked}
-  <div class="home-bg h-full flexbox" style="flex-grow: 1; padding: 3%; padding-top: 2%;">
+  <div class="home-bg h-full flex grow" style="padding: 3%; padding-top: 2%;">
     <div style="position: absolute; top: 0; left: 0; right: 0;">
       <TopNavbar />
     </div>

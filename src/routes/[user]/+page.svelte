@@ -12,7 +12,7 @@
 </script>
 
 <NavbarContentLayout>
-  <div slot="content" class="relative z-0 flexbox h-full" style="flex-grow: 1;">
+  <div slot="content" class="grow relative z-0 flex h-full">
     {#if $activeView === 'SETTINGS'}
       <Settings />
     {:else if $activeView === 'CALENDAR'}

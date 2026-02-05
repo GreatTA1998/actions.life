@@ -52,7 +52,7 @@
       />
     </div>
 
-    <div class="flexbox" style="align-items: center">
+    <div class="flex items-center">
       {#await Template.getTotalStats({ id: $template.id })}
         <div class="stats">Loading stats...</div>
       {:then { minutesSpent, timesCompleted }}
@@ -74,7 +74,7 @@
         />
       </div>
 
-      <div class="flexbox" style="column-gap: 8px; align-items: center; justify-content: center;">
+      <div class="flex items-center justify-center gap-x-2">
         <MyTimePicker value={$template.startTime}
           oninput={e => debouncedUpdate('startTime', e.target.value)}
           onTimeSelected={hhmm => instantUpdate('startTime', hhmm)}

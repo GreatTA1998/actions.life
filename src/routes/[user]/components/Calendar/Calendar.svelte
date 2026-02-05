@@ -99,18 +99,18 @@
       use:jumpToToday class="relative hide-scrollbar cal-bg-color" style:overflow="auto" 
       on:scroll={e => scrollX = e.target.scrollLeft + $timestampsColumnWidth }
     >
-      <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flexbox">
+      <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flex">
         <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {24 * $pixelsPerHour}px;"/>
 
         {#if renderedColumnDTs[0]}
           <div class="absolute" style:left="{renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px">
-            <div class="sticky top-0 z-1 flexbox" use:trackHeight={h => headerHeight.set(h)} style="box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);">
+            <div class="sticky top-0 z-1 flex" use:trackHeight={h => headerHeight.set(h)} style="box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);">
               {#each renderedColumnDTs as dt (dt.toMillis())}
                 <DayHeader {dt} />
               {/each}
             </div>
 
-            <div class="flexbox pt-7">
+            <div class="flex pt-7">
               {#each renderedColumnDTs as dt (dt.toMillis())}
                 <DayColumn {dt}/>
               {/each}

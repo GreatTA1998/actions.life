@@ -25,6 +25,7 @@
   } = $props()
 
   let n = $derived(task.children.length)
+  let fontSize = $derived(depth === 1 ? rootFontSize() : subFontSize())
   const debugColor = getRandomColor()
 
   function dzProps (i) {
@@ -42,42 +43,35 @@
   style:border="{debug() ? 1 : 0}px solid {debugColor}"
   style:font-weight={depth === 1 ? 600 : 400}
 >
-  <div draggable="true"
-    ondragstart={e => startTaskDrag({ e, id: task.id })}
-    style="font-size: {depth === 1 ? rootFontSize() : subFontSize()}"
-    class="flexbox items-center min-w-[30px] truncate text-[#1a1a1a] select-none"
+  <div 
+    draggable="true" ondragstart={e => startTaskDrag({ e, id: task.id })}
+    style:font-size={fontSize}
+    class="flex items-center gap-x-1 text-[#1a1a1a] select-none"
   >
-    <div class="relative ml-0.5 mr-1">
+    <div class="shrink-0 relative">
       {@render verticalTimeline?.()}
       
-      <div class="relative py-0.5">
-        {#if n === 0}
-          <Checkbox value={task.isDone}
-            onchange={e => Task.update({
-              id: task.id,
-              keyValueChanges: { isDone: e.target.checked }
-            })}
-            zoom={0.5 * scale()}
-          />
-        {:else}
-          <TaskCaret isCollapsed={task.isCollapsed}
-            onToggle={() => Task.update({ id: task.id, keyValueChanges: { isCollapsed: !task.isCollapsed } })}
-            zoom={1 * scale()}
-          />
-        {/if}
-      </div>
+      {#if n === 0}
+        <Checkbox value={task.isDone}
+          onchange={e => Task.update({ id: task.id, keyValueChanges: { isDone: e.target.checked }})}
+          zoom={0.6 * scale()}
+        />
+      {:else}
+        <TaskCaret isCollapsed={task.isCollapsed}
+          onToggle={() => Task.update({ id: task.id, keyValueChanges: { isCollapsed: !task.isCollapsed } })}
+          {fontSize}
+        />
+      {/if}
     </div>
 
     <button onclick={() => openTaskPopup(task)} 
-      class="min-w-[16px] min-h-[16px] truncate" 
+      class="min-w-[16px] min-h-[16px] truncate text-clip shrink-1" 
       class:done-task={task.isDone}
     >
       {task.name}
     </button>
 
-    <div style="margin-left: 6px;"></div>
-
-    <div class="flexbox items-center gap-x-1">
+    <div class="shrink-0 flex items-center gap-x-1">
       {#if task.tagIDs}
         {#each task.tagIDs as tagID}
           <div style="background-color: {$user.tags?.[tagID]?.color}; border-radius: 50%; width: 5px; height: 5px;"></div>
@@ -87,8 +81,8 @@
       {#if infoBadge}
         {@render infoBadge()}
       {:else if task.startDateISO}
-        <div class:overdue={!task.isDone && task.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
-          class="flexbox items-center"
+        <div class="flex items-center"
+          class:overdue={!task.isDone && task.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
         >
           <MslCalendarTodayOutline style="font-size: 0.75rem;"/>
         </div>
@@ -98,8 +92,8 @@
         <SubtaskCountIndicator {task} onclick={() => openTaskPopup(task)} />
       {/if}
     </div>
-
-    <TaskMenu {task} />
+    
+    <TaskMenu {task} extraClass="shrink-0"/>
   </div>
 
   {#if task.childrenLayout === 'timeline'}

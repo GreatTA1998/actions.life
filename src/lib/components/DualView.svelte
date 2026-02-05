@@ -44,7 +44,7 @@
 </script>
 
 <div {onpointermove} {onpointerup}
-  class="relative flexbox overflow-hidden w-full h-full" 
+  class="relative flex overflow-hidden w-full h-full" 
   style:flex-direction={orientation === 'horizontal' ? 'row' : 'column'}
 >
   <div class="div-1 min-w-0 min-h-0" style="flex: 0 0 {axisL}px;">    

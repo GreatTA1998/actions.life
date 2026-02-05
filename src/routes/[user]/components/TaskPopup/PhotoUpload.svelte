@@ -1,4 +1,4 @@
-<button {onclick} class="flexbox">
+<button {onclick} class="flex">
   <MslAddPhotoAlternateOutline style="font-size: var(--popup-control);"/>
 </button>
 

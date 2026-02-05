@@ -125,7 +125,7 @@
 
       <div 
         style:margin-bottom="{margins[i]}px"
-        class="relative flexbox items-center" 
+        class="relative flex items-center"
         use:trackHeight={h => { 
           contentHeights[i] = h
           contentHeights = contentHeights

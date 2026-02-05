@@ -103,10 +103,6 @@
     font-weight: 600 !important;
   }
 
-  :global(.flexbox) {
-    display: flex;
-  }
-
   /* Original layout.svelte styles */
   .invisible {
     visibility: hidden;

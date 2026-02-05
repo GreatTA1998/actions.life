@@ -22,7 +22,7 @@
   const simpleMobileLayout = `
     position: relative;
     background-color: transparent; 
-    padding-top: var(--main-content-top-margin);
+    padding: 0px 8px;
   `
 
   onMount(async () => {

@@ -5,7 +5,7 @@
   let {
     isCollapsed = false,
     onToggle = () => {},
-    zoom = 1
+    fontSize = '1rem'
   } = $props()
 
   function animatedToggle () {
@@ -13,8 +13,14 @@
   }
 </script>
 
-<button class="caret-button" onclick={animatedToggle} style="zoom: {zoom}; display: flex; align-items: center; justify-content: center;">
-  <div class="caret-icon flexbox items-center">
+<button class="flex items-center justify-center" onclick={animatedToggle}
+  style:width={fontSize} style:height={fontSize}
+>
+  <!-- without pointer-events: none, the touch area for this button is based on this large icon, not the small button that contains it -->
+  <div 
+    style:font-size="calc(2 * {fontSize})" 
+    class="shrink-0 flex items-center text-[var(--fine-control-color)] pointer-events-none"
+  >
     {#if isCollapsed}
       <MslChevronRight />
     {:else}
@@ -22,21 +28,3 @@
     {/if}
   </div>
 </button>
-
-<style>
-  .caret-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 12.5px;
-    width: 12.5px;
-  }
-
-  .caret-icon {
-    min-width: auto; /* since it's larger than its container */
-    font-size: 1.875rem;
-    color: var(--fine-control-color);
-    font-weight: 100;
-    pointer-events: none; /* without this, the touch area for this button is based on this large icon, not the small button that contains it */
-  }
-</style> 

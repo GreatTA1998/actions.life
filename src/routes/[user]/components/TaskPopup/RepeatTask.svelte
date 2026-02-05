@@ -19,11 +19,11 @@
 </script>
 
 {#if task.templateID}
-  <button onclick={toggleTemplateEditor} class="my-btn flexbox" style="color: rgb(0, 89, 125);" class:active={isTemplateEditorOpen}>
+  <button onclick={toggleTemplateEditor} class="my-btn flex" style="color: rgb(0, 89, 125);" class:active={isTemplateEditorOpen}>
     <MslRepeat style="font-size: var(--popup-control);"/>
   </button>
 {:else}
-  <button onclick={toggleCreate} class="my-btn flexbox" 
+  <button onclick={toggleCreate} class="my-btn flex" 
     class:greyed-out={$user.uid === 'demo-user'} disabled={$user.uid === 'demo-user'}
   >
     <MslRepeat style="font-size: var(--popup-control);"/>

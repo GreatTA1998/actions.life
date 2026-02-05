@@ -14,7 +14,7 @@
   let parent = $derived(task.parentID ? $tasksCache[task.parentID] : null)
 </script>
 
-<div class="flexbox items-center gap-x-1 w-full">
+<div class="flex items-center gap-x-1 w-full">
   <div style:flex-shrink="0">
     <Checkbox
       value={task.isDone}

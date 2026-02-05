@@ -88,7 +88,7 @@
 
   {#if $headerExpanded}
     {#if $treesByDate[ISODate]}
-      <div class="flexbox flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
+      <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
         {#each $treesByDate[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
           <DoodleIcon {iconTask} />
         {/each}

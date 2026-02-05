@@ -7,16 +7,19 @@
 
   const { Task } = getContext('app')
 
-  let { task } = $props()
+  let { 
+    task,
+    extraClass = ''
+  } = $props()
 </script>
 
 <PopoverMenu>
   {#snippet activator ({ id, anchorName })} 
-    <div style="anchor-name: {anchorName}; max-height: 16px; display: flex; align-items: center;">
-      <button popovertarget={id} class="menu-icon flexbox items-center">
-        <MslMoreVert style="font-size: 1.5rem;"/>
-      </button>
-    </div>
+    <button popovertarget={id} style:anchor-name={anchorName}
+      class="{extraClass} items-center text-color-[var(--task-action-subtle-color)]" 
+    >
+      <MslMoreVert/>  
+    </button>
   {/snippet}
 
   {#snippet content ()}
@@ -35,11 +38,6 @@
 </PopoverMenu>
 
 <style>
-  .menu-icon {
-    font-weight: 200;
-    color: var(--task-action-subtle-color);
-  }
-
   .m-item {
     text-align: left;
     font-size: 1rem;

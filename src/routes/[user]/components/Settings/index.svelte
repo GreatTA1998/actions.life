@@ -31,8 +31,8 @@
         <ModeSettings />
       </div>
    
-      <div style="display: flex; flex-direction: column; row-gap: 16px;">
-        <div class="flexbox settings-group" style="flex-direction: column; row-gap: 24px;">
+      <div class="flex flex-col gap-y-4">
+        <div class="flex flex-col gap-y-6 settings-group">
           <div class="title">Calendar</div>
           <GridlineSettings />
 
@@ -47,7 +47,7 @@
       </div>
 
       <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
-        <div class="flexbox items-center" style="column-gap: 12px;">
+        <div class="flex items-center gap-x-3">
           <div class="title">Data</div>
           <span class="status">{statusMessage}</span>
         </div>

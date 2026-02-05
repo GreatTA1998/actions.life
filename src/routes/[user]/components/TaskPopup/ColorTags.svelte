@@ -73,7 +73,7 @@
 <PopoverMenu>
   {#snippet activator ({ id, anchorName })}
     <button popovertarget={id}
-      class="flexbox items-center gap-x-1 min-w-[16px] min-h-[16px] justify-center rounded" 
+      class="flex items-center gap-x-1 min-w-[16px] min-h-[16px] justify-center rounded" 
       style:anchor-name={anchorName}
       style:padding="0px {paddingVal}"
     >
@@ -88,12 +88,12 @@
   {/snippet}
 
   {#snippet content ()}
-    <div class="flexbox flex-col gap-y-1 py-1 px-1 min-w-[240px]">
+    <div class="flex flex-col gap-y-1 py-1 px-1 min-w-[240px]">
       {#if $user.tags}
         {#each Object.entries($user.tags) as [id, tag] (id)}  
           {@const selected = task.tagIDs?.includes(id)}
           <div 
-            class="flexbox items-center gap-x-1"
+            class="flex items-center gap-x-1"
             style:background-color={selected ? 'rgb(230, 230, 230)' : ''}
             style:border-radius="8px"
           >
@@ -101,7 +101,7 @@
               style:opacity={selected ? '1' : '0.5'}
               style:filter="grayscale({ selected ? '0%' : '10%'})"
               style:color={selected ? 'black' : 'grey'}
-              class="grow flexbox gap-x-2 px-1"
+              class="grow flex gap-x-2 px-1"
             >
               {@render circle(tag.color, '1.125rem')}
 
@@ -116,7 +116,7 @@
               {/snippet}
 
               {#snippet content({ close })}
-                <div class="flexbox flex-wrap py-1 px-2">
+                <div class="flex flex-wrap py-1 px-2">
                   {#each presetColors as color}
                     <div onclick={() => { editTag(id, { color }); close() }} 
                       class="w-[24px] h-[24px]" 

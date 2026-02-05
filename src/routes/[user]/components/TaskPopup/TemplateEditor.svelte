@@ -88,7 +88,7 @@
         />
       </div>
 
-      <div class="flexbox" style="column-gap: 8px; align-items: center; justify-content: center;">
+      <div class="flex items-center justify-center gap-x-2">
         <MyTimePicker value={template.startTime}
           oninput={e => debouncedUpdate('startTime', e.target.value)}
           onTimeSelected={hhmm => instantUpdate('startTime', hhmm)}
@@ -104,7 +104,7 @@
       <PeriodicityEditor routine={template} />
     </div>
 
-    <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button flexbox items-center">
+    <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button flex items-center">
       <MslDeleteOutline style="font-size: 1.5rem;"/>
     </button>
   </div>
