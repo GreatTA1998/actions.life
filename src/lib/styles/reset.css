@@ -3,7 +3,7 @@
   font-family: 'Inter Variable', sans-serif;
 }
 
-.flex > * {
+:where(.flex) > * {
   min-width: 0;
 }
 

@@ -64,7 +64,7 @@
     </div>
 
     <button onclick={() => openTaskPopup(task)} 
-      class="shrink-1 min-w-[16px] min-h-[16px] truncate text-clip" 
+      class="shrink-1 min-w-[24px] min-h-[24px] truncate text-clip"
       class:done-task={task.isDone}
     >
       {task.name}
