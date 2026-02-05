@@ -14,7 +14,7 @@
 
   const { Task, openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
-  const { indent, scale, rootFontSize, subFontSize, debug } = getContext('list-config')
+  const { indent, rootFontSize, subFontSize, debug } = getContext('list-config')
 
   let {
     task,
@@ -26,6 +26,7 @@
 
   let n = $derived(task.children.length)
   let fontSize = $derived(depth === 1 ? rootFontSize() : subFontSize())
+  let overdue = $derived(!task.isDone && task.startDateISO < DateTime.now().toFormat('yyyy-MM-dd'))
   const debugColor = getRandomColor()
 
   function dzProps (i) {
@@ -63,35 +64,38 @@
     </div>
 
     <button onclick={() => openTaskPopup(task)} 
-      class="min-w-[16px] min-h-[16px] truncate text-clip shrink-1" 
+      class="shrink-1 min-w-[16px] min-h-[16px] truncate text-clip" 
       class:done-task={task.isDone}
     >
       {task.name}
     </button>
 
-    <div class="shrink-0 flex items-center gap-x-1">
-      {#if task.tagIDs}
-        {#each task.tagIDs as tagID}
-          <div style="background-color: {$user.tags?.[tagID]?.color}; border-radius: 50%; width: 5px; height: 5px;"></div>
-        {/each}
-      {/if}
-       
-      {#if infoBadge}
-        {@render infoBadge()}
-      {:else if task.startDateISO}
-        <div class="flex items-center"
-          class:overdue={!task.isDone && task.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
+    {#if task.tagIDs}
+      {#each task.tagIDs as tagID}
+        <div class="shrink-0 w-[5px] h-[5px] rounded-[50%]" 
+          style:background-color={$user.tags?.[tagID]?.color}
         >
-          <MslCalendarTodayOutline style="font-size: 0.75rem;"/>
         </div>
-      {/if}
+      {/each}
+    {/if}
+      
+    {#if infoBadge}
+      {@render infoBadge()}
+    {:else if task.startDateISO}
+      <div class="flex items-center" style:color={overdue ? 'red' : ''}>
+        <MslCalendarTodayOutline style="font-size: 0.75rem"/>
+      </div>
+    {/if}
 
-      {#if task.isCollapsed && n > 0}
-        <SubtaskCountIndicator {task} onclick={() => openTaskPopup(task)} />
-      {/if}
-    </div>
+    {#if task.isCollapsed && n > 0}
+      <SubtaskCountIndicator {task} 
+        onclick={() => openTaskPopup(task)} 
+      />
+    {/if}
     
-    <TaskMenu {task} extraClass="shrink-0"/>
+    <TaskMenu {task} {fontSize} 
+      extraClass="shrink-0"
+    />
   </div>
 
   {#if task.childrenLayout === 'timeline'}
@@ -126,10 +130,6 @@
 </div>
 
 <style>
-  .overdue {
-    color: red;
-  }
-
   .done-task {
     background: linear-gradient(to right, rgba(76, 175, 80, 0.04), transparent 50%);
     color: #388e3c;

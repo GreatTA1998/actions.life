@@ -26,7 +26,6 @@
     debug: () => false,
     indent: () => `${WIDTHS.INDENT_PER_LEVEL}px`, 
     minWidth: () => '240px', // too large = wasteful gap between columns 
-    scale: () => scale,
     dzRootHeight: () => dzRootHeight,
     dzSubHeight: () => dzSubHeight,
     rootFontSize: () => rootFontSize,

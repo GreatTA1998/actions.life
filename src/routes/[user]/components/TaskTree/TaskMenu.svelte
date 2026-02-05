@@ -9,16 +9,26 @@
 
   let { 
     task,
-    extraClass = ''
+    extraClass = '',
+    fontSize = '1rem'
   } = $props()
 </script>
 
 <PopoverMenu>
   {#snippet activator ({ id, anchorName })} 
-    <button popovertarget={id} style:anchor-name={anchorName}
-      class="{extraClass} items-center text-color-[var(--task-action-subtle-color)]" 
+    <!-- overflow-hidden is the quickfix for buttons causing overflow  -->
+    <button 
+      popovertarget={id} style:anchor-name={anchorName}
+      style:width="calc(0.75 * {fontSize})"
+      style:height={fontSize}
+      class="{extraClass} overflow-hidden justify-center text-color-[var(--task-action-subtle-color)]" 
     >
-      <MslMoreVert/>  
+      <div 
+        style:font-size="calc(1.125 * {fontSize})"
+        class="shrink-0 flex items-center"
+      >
+        <MslMoreVert/>  
+      </div>
     </button>
   {/snippet}
 
