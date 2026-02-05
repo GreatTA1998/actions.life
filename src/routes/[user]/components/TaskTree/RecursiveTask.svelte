@@ -97,18 +97,16 @@
     />
   </div>
 
-  {#if task.childrenLayout === 'timeline'}
-    <TimelineRenderer
-      {task}
-      children={task.children}
-      parentID={task.id}
-      {depth}
-      {ancestorIDs}
-      {debugColor}
-    />
-  {:else}
-    <div style="margin-left: {indent()}">
-      {#if !task.isCollapsed}
+  <div style="margin-left: {indent()}">
+    {#if !task.isCollapsed}
+      {#if task.childrenLayout === 'timeline'}
+        <TimelineRenderer
+          children={task.children}
+          parentID={task.id}
+          {depth}
+          {ancestorIDs}
+        />
+      {:else}
         {#each task.children as subtask, i (subtask.id)}
           <Dropzone {...dzProps(i)} /> 
           
@@ -118,14 +116,14 @@
             ancestorIDs={[task.id, ...ancestorIDs]}
           /> 
         {/each}
-
-        <Dropzone {...dzProps(n)} 
-          extraClass="ghost-negative"
-          extraStyle="left: {indent()}; right: 0; z-index: {depth}" 
-        />
       {/if}
-    </div>
-  {/if}
+
+      <Dropzone {...dzProps(n)} 
+        extraClass="ghost-negative"
+        extraStyle="left: {indent()}; right: 0; z-index: {depth}" 
+      />
+    {/if}
+  </div>
 </div>
 
 <style>

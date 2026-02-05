@@ -4,24 +4,23 @@
   import DateBadge from './DateBadge.svelte'
   import TimelineRendererVisuals from './TimelineRendererVisuals.svelte'
   import { trackHeight } from '$lib/utils/svelteActions.js'
+  import { getRandomColor } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
   
   let { 
-    task,
     children = [], 
     depth, 
     parentID, 
-    ancestorIDs = [],
-    debugColor 
+    ancestorIDs = []
   } = $props()
   
   const { openTaskPopup } = getContext('app')
-  const { indent } = getContext('list-config')
 
   const defaultPxPerDay = 0.4
   const dropzoneHeight = 16
   const squareHeight = 12.5
+  const debugColor = getRandomColor()
 
   let allSorted = $derived(children.sort(chronologically))
   let n = $derived(allSorted.length)
@@ -118,36 +117,26 @@
   }
 </script>
 
-<div style="margin-left: {indent()}">  
-  {#if !task.isCollapsed}
-    {#each allSorted as child, i (child.id)}
-      <Dropzone {...dzProps(i+1)} />
+{#each allSorted as child, i (child.id)}
+  <Dropzone {...dzProps(i)} />
 
-      <div 
-        style:margin-bottom="{margins[i]}px"
-        class="relative flex items-center"
-        use:trackHeight={h => { 
-          contentHeights[i] = h
-          contentHeights = contentHeights
-        }}
-      >
-        <RecursiveTask {...renderTask(child, depth + 1) }>
-          {#snippet infoBadge ()}
-            <DateBadge iso={child.startDateISO} onclick={() => {
-              openTaskPopup(child)
-            }}/>
-          {/snippet}
+  <div style:margin-bottom="{margins[i]}px"
+    class="relative flex items-center"
+    use:trackHeight={h => { 
+      contentHeights[i] = h
+      contentHeights = contentHeights
+    }}
+  >
+    <RecursiveTask {...renderTask(child, depth + 1) }>
+      {#snippet infoBadge ()}
+        <DateBadge iso={child.startDateISO} onclick={() => {
+          openTaskPopup(child)
+        }}/>
+      {/snippet}
 
-          {#snippet verticalTimeline ()}
-            <TimelineRendererVisuals {i} sorted={allSorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
-          {/snippet}
-        </RecursiveTask>
-      </div>
-    {/each}
-
-    <Dropzone {...dzProps(n)} 
-      extraClass="ghost-negative"
-      extraStyle="left: {indent()}; right: 0; z-index: {depth}"
-    />
-  {/if}
-</div>
+      {#snippet verticalTimeline ()}
+        <TimelineRendererVisuals {i} sorted={allSorted} {dayDiffs} {pxPerDay} {timeMarkerTop} {squareHeight} />
+      {/snippet}
+    </RecursiveTask>
+  </div>
+{/each}
