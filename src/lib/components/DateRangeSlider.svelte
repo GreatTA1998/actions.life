@@ -23,11 +23,9 @@
     const now = DateTime.now()
     const ticks = []
     
-    // Calculate the range of years to show based on MIN_OFFSET and MAX_OFFSET
     const minYear = now.plus({ months: MIN_OFFSET }).year
     const maxYear = now.plus({ months: MAX_OFFSET }).year
     
-    // Show all years within the range
     for (let year = minYear; year <= maxYear; year++) {
       const yearStart = DateTime.fromObject({ year, month: 1, day: 1 })
       const monthsDiff = Math.round(yearStart.diff(now, 'months').months)
@@ -38,7 +36,6 @@
       }
     }
     
-    // Sort by offset
     return ticks.sort((a, b) => a.offset - b.offset)
   }
   
