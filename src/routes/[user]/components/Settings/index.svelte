@@ -36,12 +36,12 @@
           <div class="title">Calendar</div>
           <GridlineSettings />
 
-          <div style="display: grid; flex-direction: column; gap: 8px;">
-            <ConnectGoogleCalendar clientId="132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com" />
-          
+          <div class="grid flex-col gap-2">          
             {#if $user.google?.refreshToken}
               <GoogleCalendarSelector />
             {/if}
+
+            <ConnectGoogleCalendar clientId="132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com" />
           </div>
         </div>
       </div>

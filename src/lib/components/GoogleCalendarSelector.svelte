@@ -1,75 +1,47 @@
 <script>
-  import { getContext, onMount } from 'svelte'
-  import { fetchGoogleCalendars } from '$lib/utils/cloudFunctions'
+  import { updateFirestoreDoc } from '$lib/db/helpers.js'
+  import { user } from '$lib/store'
+  import { allAccounts, cals } from '$lib/store'
 
-  const { user, User } = getContext('app')
-
-  let calendars = $derived($user.googleCalendars || [])
-  // Default to all calendars enabled if preference doesn't exist
-  let enabledIds = $derived($user.selectedGoogleCalendarIds ?? calendars.map(c => c.id))
-
-  onMount(async () => {
-    await fetchGoogleCalendars()
-  })
-
-  function toggleCalendar(calendarId) {
-    const currentEnabled = $user.selectedGoogleCalendarIds ?? calendars.map(c => c.id)
-    const newEnabled = currentEnabled.includes(calendarId)
-      ? currentEnabled.filter(id => id !== calendarId)
-      : [...currentEnabled, calendarId]
+  function toggle (e, calID, account) {
+    e.stopPropagation()
+    const oldA = account.selectedCalIDs ?? cals[account.id].map(cal => cal.id)
+    const newA = oldA.includes(calID) ? oldA.filter(id => id !== calID) : [...oldA, calID]
     
-    User.update({ selectedGoogleCalendarIds: newEnabled })
-  }
-
-  function isEnabled(calendarId) {
-    return enabledIds.includes(calendarId)
+    updateFirestoreDoc(`/users/${$user.uid}/googleAccounts/${account.id}`, {
+      selectedCalIDs: newA
+    })
   }
 </script>
 
-<div class="calendar-list">
-  {#each calendars as calendar (calendar.id)}
-    <label class="calendar-item" onclick={(e) => { e.stopPropagation(); toggleCalendar(calendar.id) }}>
-      <div 
-        class="checkbox-square" 
-        class:checked={isEnabled(calendar.id)}
-        style="background-color: {calendar.backgroundColor || '#4285F4'};"
+<div class="flex flex-col gap-2 user-select-none">
+  {#each $allAccounts as account}
+    {#each $cals[account.id] as cal (cal.id)}
+      {@const visible = account.selectedCalIDs || []}
+
+      <label 
+        class="flex items-center gap-2 cursor-pointer py-1"
+        onclick={e => toggle(e, cal.id, account)}
       >
-        {#if isEnabled(calendar.id)}
-          <span class="checkmark">✓</span>
-        {/if}
-      </div>
-      <span class="calendar-name">{calendar.summary || calendar.id}</span>
-    </label>
+        <div 
+          class="shrink-0 w-[18px] h-[18px] rounded flex items-center justify-center" 
+          class:checked={visible.includes(cal.id)}
+          style:background-color={cal.backgroundColor || '#4285F4'}
+          style:transition="opacity 0.2s"
+        >
+          {#if visible.includes(cal.id)}
+            <span class="checkmark">✓</span>
+          {/if}
+        </div>
+        <span class="calendar-name">
+          {cal.summary || cal.id}
+        </span>
+      </label>
+    {/each}
   {/each}
 </div>
 
 <style>
-  .calendar-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    user-select: none;
-  }
-
-  .calendar-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    padding: 4px 0;
-  }
-
-  .checkbox-square {
-    width: 18px;
-    height: 18px;
-    border-radius: 3px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: opacity 0.2s;
-  }
-
   .checkbox-square.checked {
     opacity: 1;
   }

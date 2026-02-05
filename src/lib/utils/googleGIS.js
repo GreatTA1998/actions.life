@@ -1,4 +1,4 @@
-import { exchangeGoogleCode } from './cloudFunctions';
+import { exchangeGoogleCode } from './cloudFunctions'
 
 /**
  * Initiates the Google OAuth2 Authorization Code Flow.
@@ -6,11 +6,11 @@ import { exchangeGoogleCode } from './cloudFunctions';
  * @param {string} scope - Space-separated list of scopes.
  * @returns {Promise<void>}
  */
-export function initiateGoogleConnect (clientId, scope = 'https://www.googleapis.com/auth/calendar') {
+export function initiateGoogleConnect (clientId, scope = 'https://www.googleapis.com/auth/calendar openid email') {
   return new Promise((resolve, reject) => {
     if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
       reject(new Error('Google Identity Services script not loaded.'))
-      return;
+      return
     }
 
     const client = google.accounts.oauth2.initCodeClient({
@@ -39,10 +39,10 @@ export function initiateGoogleConnect (clientId, scope = 'https://www.googleapis
             reject(new Error('Authorization cancelled'))
         }
       },
-    });
+    })
 
     client.requestCode()
-  });
+  })
 }
 
 export function loadGoogleIdentityServices () {
@@ -55,4 +55,3 @@ export function loadGoogleIdentityServices () {
     document.head.appendChild(script)
   })
 }
-

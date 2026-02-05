@@ -1,48 +1,80 @@
-import { fetchGoogleEvents } from '$lib/utils/cloudFunctions'
+import { fetchGoogleEvents, fetchGoogleCalendars } from '$lib/utils/cloudFunctions'
 import { googleEventsByDate } from './service.js'
 import { user } from '$lib/store'
+import { allAccounts, cals } from '$lib/store'
 import { get } from 'svelte/store'
+import { collection, onSnapshot } from 'firebase/firestore'
+import { db } from '$lib/db/init'
+
+export async function fetchAccountsAndCalendars () {
+  return new Promise(resolve => {
+    let firstTime = true
+
+    const ref = collection(db, `/users/${get(user).uid}/googleAccounts`)
+    onSnapshot(ref, async (snapshot) => {
+      // danger: if we hydrate doc id here, it'd override account id, perhaps rename it to uid in the future
+      allAccounts.set(snapshot.docs.map(doc => ({ ...doc.data() })))
+      if (firstTime) { // danger, won't react to newly added accounts
+        firstTime = false
+        const promises = []
+        for (const account of get(allAccounts)) {
+          promises.push(
+            fetchGoogleCalendars({ refreshToken: account.refreshToken.value })
+              .then(result => cals.update(C => {
+                C[account.id] = result.data.calendars
+                return C 
+              }))
+          )
+        }
+        await Promise.all(promises)
+        resolve()
+      }
+    })
+  })
+}
 
 export async function getGoogleEvents (startDT, endDT) {
-  try {
-    const allCalendars = get(user).googleCalendars || []
-    
-    if (allCalendars.length === 0) return
+  const accounts = get(allAccounts)
+  const calendars = get(cals)
+   
+  for (const account of accounts) {
+    if (account.selectedCalIDs.length > 0) {
+      helper(startDT, endDT, account.selectedCalIDs, calendars[account.id], account.refreshToken.value)
+    }
+  }
+}
 
-    const selectedIds = get(user).selectedGoogleCalendarIds ?? allCalendars.map(cal => cal.id)
-    const calendars = allCalendars.filter(cal => selectedIds.includes(cal.id))
-
-    if (calendars.length === 0) return
-
+export async function helper (startDT, endDT, calendarIds, calArr, refreshToken) {
+  try {  
     const result = await fetchGoogleEvents({ 
       timeMin: startDT.startOf('day').toISO(),
       timeMax: endDT.endOf('day').toISO(),
-      calendarIds: calendars.map(cal => cal.id) 
+      calendarIds,
+      refreshToken
     })
     
-    if (result.data && result.data.events) {
-      const events = result.data.events
+    if (result.data?.events) {
+      const { events } = result.data
       const eventsByDate = {}
       
-      const calMap = new Map(calendars.map(cal => [cal.id, cal]))
+      const calMap = new Map(calArr.map(cal => [cal.id, cal]))
       
       for (const event of events) {
-        // Filter out cancelled events or those without dates
         if (event.status === 'cancelled') continue
         
         // Only include timed events (not all-day events)
         if (!event.start?.dateTime || !event.end?.dateTime) continue
         
         const startDateISO = event.start.dateTime.split('T')[0] // YYYY-MM-DD
-        
+
         if (!eventsByDate[startDateISO]) eventsByDate[startDateISO] = []
         eventsByDate[startDateISO].push({
           id: event.id,
           summary: event.summary,
           start: event.start, // { dateTime: ..., timeZone: ... }
           end: event.end,
-          backgroundColor: calMap.get(event.calendarId).backgroundColor || '#4285F4',
-          foregroundColor: calMap.get(event.calendarId).foregroundColor || 'white',
+          backgroundColor: calMap.get(event.calendarId).backgroundColor,
+          foregroundColor: calMap.get(event.calendarId).foregroundColor,
           description: event.description,
           location: event.location,
           htmlLink: event.htmlLink
@@ -50,7 +82,7 @@ export async function getGoogleEvents (startDT, endDT) {
       }
 
       googleEventsByDate.update(current => {
-         return { ...current, ...eventsByDate }
+        return { ...current, ...eventsByDate }
       })
     }
   } catch (e) {

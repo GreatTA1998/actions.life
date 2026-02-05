@@ -7,6 +7,9 @@ export { user } from './userStore.js'
 export { clickedTaskID, ancestralTree, openTaskPopup, closeTaskPopup } from './taskPopup.js'
 export { tasksCache, updateCache, cleanupCache } from './tasksCache.js'
 
+export const allAccounts = writable([])
+export const cals = writable({})
+
 export const firebaseAuth = writable(null)
 export const activeView = writable('CALENDAR')
 

@@ -7,7 +7,7 @@
   import { headerHeight, pixelsPerHour, timestampsColumnWidth } from './store.js'
   import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
   import { setupCalListener, treesByDate } from './service.js'
-  import { getGoogleEvents } from './gcalService.js'
+  import { getGoogleEvents, fetchAccountsAndCalendars } from './gcalService.js'
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'
@@ -32,21 +32,22 @@
   $: if (viewportRight >= triggerRight) addFutureListener()
   $: if (viewportLeft <= triggerLeft) addPastListener()
 
-  onMount(() => {
+  onMount(async () => {
     setupCalListener(
-      originDT.plus({ days: viewportLeft - 2*c }),
-      originDT.plus({ days: viewportRight + 2*c })
-    )
-    getGoogleEvents(
       originDT.plus({ days: viewportLeft - 2*c }),
       originDT.plus({ days: viewportRight + 2*c })
     )
     triggerLeft = viewportLeft - c
     triggerRight = viewportRight + c
-    
     // quickfix, refactor into an action in the future perhaps
     scrollCalRect.set(
       () => scrollParent.getBoundingClientRect() // temporary,  () => {} is more robust across layout changes
+    )
+
+    await fetchAccountsAndCalendars()
+    getGoogleEvents(
+      originDT.plus({ days: viewportLeft - 2*c }),
+      originDT.plus({ days: viewportRight + 2*c })
     )
   })
 

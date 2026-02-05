@@ -8,13 +8,13 @@
   let { clientId = 'YOUR_CLIENT_ID_HERE' } = $props() 
 
   let loading = $state(false)
-  let error = $state(null)
+  let error = $state('')
 
   let isConnected = $derived($user.google?.refreshToken)
 
   async function handleConnect() {
-    loading = true;
-    error = null;
+    loading = true
+    error = ''
     try {
       await loadGoogleIdentityServices()
       await initiateGoogleConnect(clientId)
@@ -29,7 +29,7 @@
 </script>
 
 <div class="buttons">
-  {#if !isConnected}
+  <!-- {#if !isConnected} -->
     <button class="connect-btn" onclick={handleConnect} disabled={loading}>
       {#if loading}
         Connecting...
@@ -48,17 +48,15 @@
         Connect Google Calendar
       {/if}
     </button>
-  {:else}
+  <!-- {:else}
     <div class="connected-status">
       <span class="checkmark">✓</span>
       <GoogleIdentityButton name="Successfully connected" onclick={() => {}} disabled/>
     </div>
-  {/if}
+  {/if} -->
 </div>
 
-{#if error}
-  <p class="error">{error}</p>
-{/if}
+<p style:color="red">{error}</p>
 
 <style>
   .connect-btn {
@@ -89,12 +87,6 @@
   .icon {
     display: flex;
     align-items: center;
-  }
-
-  .error {
-    color: red;
-    font-size: 12px;
-    margin-top: 4px;
   }
 
   .fetch-calendars-btn {
