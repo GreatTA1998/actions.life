@@ -100,8 +100,7 @@
   <div style="margin-left: {indent()}">
     {#if !task.isCollapsed}
       {#if task.childrenLayout === 'timeline'}
-        <Timeline
-          children={task.children}
+        <Timeline children={task.children}
           parentID={task.id}
           {depth}
           {ancestorIDs}

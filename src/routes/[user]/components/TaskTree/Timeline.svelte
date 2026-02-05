@@ -23,7 +23,6 @@
   const debugColor = getRandomColor()
 
   let allSorted = $derived(children.sort(chronologically))
-  let n = $derived(allSorted.length)
   let contentHeights = $state({})
   let { 
     dayDiffs, 
