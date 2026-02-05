@@ -3,7 +3,7 @@
   import Dropzone from './Dropzone.svelte'
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
-  import TimelineRenderer from './TimelineRenderer.svelte'
+  import Timeline from './Timeline.svelte'
   import TaskMenu from './TaskMenu.svelte'
   import TaskCaret from './TaskCaret.svelte'
   import MslCalendarTodayOutline from 'virtual:icons/material-symbols-light/calendar-today-outline'
@@ -100,7 +100,7 @@
   <div style="margin-left: {indent()}">
     {#if !task.isCollapsed}
       {#if task.childrenLayout === 'timeline'}
-        <TimelineRenderer
+        <Timeline
           children={task.children}
           parentID={task.id}
           {depth}
