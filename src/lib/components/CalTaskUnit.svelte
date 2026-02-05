@@ -36,7 +36,7 @@
   </div>
 
   {#if task.children.length > 0}
-    <SubtaskCountIndicator {task} {color} />
+    <SubtaskCountIndicator {task} {color} extraClass="min-w-fit"/>
   {/if}
 
   {#if parent}

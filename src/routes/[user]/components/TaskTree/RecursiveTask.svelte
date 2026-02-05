@@ -40,12 +40,9 @@
   }
 </script>
 
-<div class="relative" 
-  style:border="{debug() ? 1 : 0}px solid {debugColor}"
-  style:font-weight={depth === 1 ? 600 : 400}
->
-  <div 
-    draggable="true" ondragstart={e => startTaskDrag({ e, id: task.id })}
+<div class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
+  <div draggable="true" 
+    ondragstart={e => startTaskDrag({ e, id: task.id })}
     style:font-size={fontSize}
     class="flex items-center gap-x-1 text-[#1a1a1a] select-none"
   >
@@ -66,6 +63,7 @@
     <button onclick={() => openTaskPopup(task)} 
       class="shrink-1 min-w-[24px] min-h-[24px] truncate text-clip"
       class:done-task={task.isDone}
+      style:font-weight={depth === 1 ? 600 : 400}
     >
       {task.name}
     </button>
@@ -88,7 +86,8 @@
     {/if}
 
     {#if task.isCollapsed && n > 0}
-      <SubtaskCountIndicator {task} 
+      <SubtaskCountIndicator extraClass="min-w-fit"       
+        {task} {fontSize}
         onclick={() => openTaskPopup(task)} 
       />
     {/if}

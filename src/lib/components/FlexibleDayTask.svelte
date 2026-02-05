@@ -3,11 +3,11 @@
   draggable="true" 
   style="opacity: {task.isDone ? '0.9' : '0.7'};"
 >
-  <CalCheckableTaskName {task} />
+  <CalTaskUnit {task} />
 </div>
 
 <script>
-  import CalCheckableTaskName from './CalCheckableTaskName.svelte'
+  import CalTaskUnit from './CalTaskUnit.svelte'
   import { getContext } from 'svelte'
 
   const { startTaskDrag } = getContext('drag-drop')

@@ -10,7 +10,7 @@
   import Checkbox from '$lib/components/Checkbox.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
-  import { createDebouncedFunction } from '$lib/utils/core.js'
+  import { createDebouncedFunction, isMobile } from '$lib/utils/core.js'
   import { placeholderFieldLarge } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
 
@@ -91,6 +91,7 @@
 
     <DragDropContext>
       <TodoList trees={$ancestralTree.children}
+        isLargeFont={isMobile()}
         listWidth="100%"
         parentID={task.id}
         style="position: relative; min-height: 48px;"

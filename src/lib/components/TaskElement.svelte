@@ -22,7 +22,9 @@
       </div>
     {/if}
     
-    <CalCheckableTaskName {task} color={(isBulletPoint || task.tagIDs?.length >= 2) ? 'black' : 'white'}/>
+    <CalTaskUnit {task} 
+      color={(isBulletPoint || task.tagIDs?.length >= 2) ? 'black' : 'white'}
+    />
   </div>
 
   {#if !isBulletPoint && task.tagIDs?.length < 2}
@@ -54,7 +56,7 @@
 </div>
 
 <script>
-  import CalCheckableTaskName from '$lib/components/CalCheckableTaskName.svelte'
+  import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import MslCircle from 'virtual:icons/material-symbols-light/circle'
   import { calendarBlock } from '$lib/styles/reused.module.css'
   import { getTrueY } from '$lib/utils/core.js'

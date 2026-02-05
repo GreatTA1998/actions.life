@@ -2,7 +2,7 @@
   Note, the HTML checkbox tick color literally cannot be changed, 
   but it will be automatically white if it "decides" that our chosen background color is dark enough, and vice versa
  -->
-<label style:font-size="{fontSize}" onclick={e => { e.stopPropagation(); onclick(); }} class="container">
+<label style:font-size={fontSize} onclick={e => { e.stopPropagation(); onclick(); }} class="container">
   <!-- 
     `checked` only hydrates the initial value 
     use `e.target.checked`
