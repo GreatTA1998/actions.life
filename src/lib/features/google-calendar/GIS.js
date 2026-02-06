@@ -1,4 +1,4 @@
-import { cloudFunction } from './cloudFunctions'
+import { cloudFunction } from '$lib/utils/cloudFunctions.js'
 
 /**
  * Initiates the Google OAuth2 Authorization Code Flow.
@@ -22,23 +22,23 @@ export function initiateGoogleConnect (clientId, scope = 'https://www.googleapis
           try {
             console.log('Received auth code, exchanging for tokens...')
             await cloudFunction('exchangeGoogleCode', { code: response.code })
-            console.log('Token exchange successful.')
             resolve()
           } catch (error) {
             console.error('Error exchanging code:', error)
-            reject(error);
+            reject(error)
           }
         } else if (response.error) {
           console.error('GIS Error:', response.error)
-          reject(new Error(response.error));
+          reject(new Error(response.error))
         } else {
-            // User closed popup or cancelled
-            console.log('User cancelled or no code returned')
-            // We might not want to reject here, just resolve or do nothing.
-            // But for a Promise, we usually want to know it finished.
-            reject(new Error('Authorization cancelled'))
+          console.log('Unknown callback error, response =', response)
+          reject(new Error('Unknown callback error'))
         }
       },
+      error_callback: (error) => {
+        console.error('GIS Error Callback:', error);
+        reject(new Error(error.type === 'popup_closed' ? 'Authorization cancelled' : error.message));
+      }
     })
 
     client.requestCode()

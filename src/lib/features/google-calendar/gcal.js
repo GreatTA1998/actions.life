@@ -1,7 +1,5 @@
 import { cloudFunction } from '$lib/utils/cloudFunctions'
-import { googleEventsByDate } from './service.js'
-import { user } from '$lib/store'
-import { allAccounts, cals } from '$lib/store'
+import { user, allAccounts, cals, googleEventsByDate } from '$lib/store'
 import { get } from 'svelte/store'
 import { collection, onSnapshot } from 'firebase/firestore'
 import { db } from '$lib/db/init'
@@ -39,12 +37,19 @@ export async function getGoogleEvents (startDT, endDT) {
    
   for (const account of accounts) {
     if (account.selectedCalIDs.length > 0) {
-      helper(startDT, endDT, account.selectedCalIDs, calendars[account.id], account.refreshToken.value)
+      helper(
+        startDT, 
+        endDT, 
+        account.selectedCalIDs, 
+        calendars[account.id], 
+        account.refreshToken.value,
+        account.opacity
+      )
     }
   }
 }
 
-export async function helper (startDT, endDT, calendarIds, calArr, refreshToken) {
+export async function helper (startDT, endDT, calendarIds, calArr, refreshToken, opacity = 0.4) {
   try {  
     const result = await cloudFunction('fetchGoogleEvents', { 
       timeMin: startDT.startOf('day').toISO(),
@@ -69,6 +74,7 @@ export async function helper (startDT, endDT, calendarIds, calArr, refreshToken)
 
         if (!eventsByDate[startDateISO]) eventsByDate[startDateISO] = []
         eventsByDate[startDateISO].push({
+          opacity,
           id: event.id,
           calendarId: event.calendarId,
           summary: event.summary,

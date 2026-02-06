@@ -12,8 +12,9 @@
 <script>
   import MslAddPhotoAlternateOutline from 'virtual:icons/material-symbols-light/add-photo-alternate-outline'
   import { getContext } from 'svelte'
+  import { user } from '$lib/store'
 
-  const { uploadMockPhoto, uploadImage, user } = getContext('app')
+  const { uploadMockPhoto, uploadImage } = getContext('app')
   let { onUpload, onFinished, task } = $props()
   let FolderInput = $state(null)
 

@@ -13,10 +13,4 @@
   const { startTaskDrag } = getContext('drag-drop')
 
   let { task } = $props()
-</script> 
-
-<style>
- :root {
-   --left-padding: 6px;
- }
-</style>
+</script>

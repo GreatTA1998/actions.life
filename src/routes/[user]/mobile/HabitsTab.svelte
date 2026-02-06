@@ -10,8 +10,9 @@
   import { db } from '$lib/db/init.js'
   import { periodicity } from '$lib/utils/rrule.js'
   import { getContext, onMount } from 'svelte'
+  import { user } from '$lib/store'
 
-  const { user, Template } = getContext('app')
+  const { Template } = getContext('app')
 
   let selectedRoutineID = $state('')
   let stats = $state(new Map())

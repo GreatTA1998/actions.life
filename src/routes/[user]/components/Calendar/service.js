@@ -10,7 +10,6 @@ const listeners = {}
 
 export const treesByID = writable({})
 export const treesByDate = writable({})
-export const googleEventsByDate = writable({})
 
 export function setupCalListener (leftDT, rightDT) {  
   const leftISO = leftDT.toFormat('yyyy-MM-dd')

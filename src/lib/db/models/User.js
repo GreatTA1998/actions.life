@@ -31,7 +31,7 @@ const User = {
     calLastHHMM: z.string().default('23:59'),
     tags: z.record(z.object({ color: z.string(), name: z.string()})).default({}),
 
-    selectedGoogleCalendarIds: z.array(z.string()).optional()
+    selectedGoogleCalendarIds: z.array(z.string()).optional() // to deprecate
   }),
 
   async create () {

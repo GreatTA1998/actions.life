@@ -1,9 +1,8 @@
 <script>
   import PeriodicityEditor from '/src/routes/[user]/components/Templates/components/TemplatePopup/PeriodicityEditor.svelte'
   import MslRepeat from 'virtual:icons/material-symbols-light/repeat'
-  import { getContext } from 'svelte'
+  import { user } from '$lib/store'
 
-  const { user } = getContext('app')
   let { task, onToggleTemplateEditor, isTemplateEditorOpen = false } = $props()
   let isCreatingRoutine = $state(false)
 

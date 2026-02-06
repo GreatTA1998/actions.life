@@ -9,6 +9,7 @@ export { tasksCache, updateCache, cleanupCache } from './tasksCache.js'
 
 export const allAccounts = writable([])
 export const cals = writable({})
+export const googleEventsByDate = writable({})
 
 export const firebaseAuth = writable(null)
 export const activeView = writable('CALENDAR')

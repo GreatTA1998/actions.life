@@ -5,8 +5,9 @@
   import StarButton from '$lib/components/StarButton.svelte'
   import { formatHours } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
+  import { user } from '$lib/store'
 
-  const { user, Template } = getContext('app')
+  const { Template } = getContext('app')
 
   let { 
     selectedRoutineID, 

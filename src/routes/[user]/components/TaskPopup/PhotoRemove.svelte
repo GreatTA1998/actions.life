@@ -2,8 +2,9 @@
   import { releaseImage } from '$lib/db/helpers.js'
   import MslNoPhotographyOutline from 'virtual:icons/material-symbols-light/no-photography-outline'
   import { getContext } from 'svelte'
+  import { user } from '$lib/store'
 
-  const { Task, user } = getContext('app')
+  const { Task } = getContext('app')
 
   let { task } = $props()
 

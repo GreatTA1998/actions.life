@@ -7,7 +7,7 @@
   import { headerHeight, pixelsPerHour, timestampsColumnWidth } from './store.js'
   import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
   import { setupCalListener, treesByDate } from './service.js'
-  import { getGoogleEvents, fetchAccountsAndCalendars } from './gcalService.js'
+  import { getGoogleEvents, fetchAccountsAndCalendars } from '$lib/features/google-calendar/gcal.js'
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'

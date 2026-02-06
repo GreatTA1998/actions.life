@@ -2,12 +2,12 @@
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
-  import GoogleEvent from './GoogleEvent.svelte'
+  import GcalEvent from '$lib/features/google-calendar/GCalEvent.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
-  import { treesByDate, googleEventsByDate } from './service.js'
-  import { user, timestamps, calSnapInterval } from '$lib/store'
+  import { treesByDate } from './service.js'
+  import { user, timestamps, calSnapInterval, googleEventsByDate } from '$lib/store'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
@@ -202,7 +202,7 @@
       top: {getOffset({ dt1: dt, dt2: startDT })}px; 
       pointer-events: none;"
     >
-      <GoogleEvent {event} />
+      <GcalEvent {event} />
     </div>
   {/each}
 

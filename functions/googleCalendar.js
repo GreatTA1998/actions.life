@@ -48,7 +48,8 @@ exports.exchangeGoogleCode = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET
         expiryDate: tokens.expiry_date // 1 hour after issuance
       },
       scope: tokens.scope,
-      selectedCalIDs: []
+      selectedCalIDs: [],
+      opacity: 0.9
     }, { merge: true })
 
     return { success: true, googleUserId, email: googleEmail }

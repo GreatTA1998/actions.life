@@ -4,12 +4,12 @@
   import PhotoSettings from './PhotoSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
   import DataExport from './DataExport/index.svelte'
-  import ConnectGoogleCalendar from '$lib/components/ConnectGoogleCalendar.svelte'
-  import GoogleCalendarSelector from '$lib/components/GoogleCalendarSelector.svelte'
+  import AddAccount from '$lib/features/google-calendar/AddAccount.svelte'
+  import GCalDashboard from '$lib/features/google-calendar/GCalDashboard.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
   import MslLogout from 'virtual:icons/material-symbols-light/logout'
   import { signOut } from 'firebase/auth'
-  import { user, firebaseAuth } from '$lib/store'
+  import { firebaseAuth } from '$lib/store'
 
   async function handleLogoClick() {
     await signOut($firebaseAuth)
@@ -37,11 +37,9 @@
           <GridlineSettings />
 
           <div class="grid flex-col gap-2">          
-            {#if $user.google?.refreshToken}
-              <GoogleCalendarSelector />
-            {/if}
+            <GCalDashboard />
 
-            <ConnectGoogleCalendar clientId="132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com" />
+            <AddAccount />
           </div>
         </div>
       </div>

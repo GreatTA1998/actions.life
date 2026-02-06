@@ -16,14 +16,15 @@
 </div>  
 
 <script>
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-  import { getRandomID, getTimeInHHMM } from '/src/lib/utils/core.js'
+  import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+  import { getRandomID, getTimeInHHMM } from '$lib/utils/core.js'
   import { compressImage } from '$lib/utils/imageHandling.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
   import MslPhotoLibrary from 'virtual:icons/material-symbols-light/photo-library'
+  import { user } from '$lib/store'
 
-  const { Task, user } = getContext('app')
+  const { Task } = getContext('app')
 
   export let style
 

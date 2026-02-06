@@ -1,13 +1,11 @@
 <script>
   import { onMount } from 'svelte'
-  import { doodleIcons } from '/src/lib/store'
+  import { user, doodleIcons } from '$lib/store'
   import MslColorizeOutline from 'virtual:icons/material-symbols-light/colorize-outline'
-  import Icon from '/src/lib/db/models/Icon.js'
-  import { getRandomID } from '/src/lib/utils/core.js'
+  import { getRandomID } from '$lib/utils/core.js'
   import ColorPicker from './ColorPicker.svelte'
   import { getContext } from 'svelte'
-
-  const { user } = getContext('app')
+  const { Icon } = getContext('app')
 
   let colors = ['black', 'orange', 'red', 'lightblue', 'blue', 'green']
   let name = ''

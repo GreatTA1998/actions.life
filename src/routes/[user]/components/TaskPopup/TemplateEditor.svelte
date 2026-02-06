@@ -11,8 +11,9 @@
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
   import { template as templateStore } from '/src/routes/[user]/components/Templates/store.js'
+  import { user } from '$lib/store'
 
-  const { Template, user } = getContext('app')
+  const { Template } = getContext('app')
   let { templateID } = $props()
 
   let template = $state(null)
