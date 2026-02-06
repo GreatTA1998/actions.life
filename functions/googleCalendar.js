@@ -27,7 +27,7 @@ exports.exchangeGoogleCode = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET
     
     const ticket = await authClient.verifyIdToken({
       idToken: tokens.id_token,
-      audience: GOOGLE_CLIENT_ID.value(),
+      audience: GOOGLE_CLIENT_ID.value()
     })
     
     const payload = ticket.getPayload()
@@ -35,7 +35,8 @@ exports.exchangeGoogleCode = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET
     const googleEmail = payload.email
 
     const ref = db.doc(`users/${request.auth.uid}/googleAccounts/${googleUserId}`)
-    
+     
+    // TO-DO: use factory functions instead of misusing Zod
     await ref.set({
       email: googleEmail,
       id: googleUserId,
@@ -65,69 +66,54 @@ exports.fetchGoogleCalendars = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECR
   }
   const { refreshToken } = request.data
   if (!refreshToken) throw new HttpsError('failed-precondition', 'No refresh token')
+
   const authClient = createAuthClient()
   authClient.setCredentials({ refresh_token: refreshToken })
+
   const apiClient = google.calendar({ version: 'v3', auth: authClient });
 
   try {
     const response = await apiClient.calendarList.list({ minAccessRole: 'reader' })
     
-    const allCalendars = (response.data.items || []) // According to the Google Calendar API, the items property may be absent if the list is empty. This will throw a TypeError if a user somehow has no calendar entries.
-      .map(cal => ({
-        id: cal.id,
-        summary: cal.summary,
-        backgroundColor: cal.backgroundColor,
-        foregroundColor: cal.foregroundColor
-      }))
-
-    return { calendars: allCalendars }
+    const calendars = (response.data.items || []) // Google Calendar API: the items may be absent if the list is empty. This will throw a TypeError if a user somehow has no calendar entries.
+      .map(({ id, summary, backgroundColor, foregroundColor }) => ({ id, summary, backgroundColor, foregroundColor }))
+    
+    return { calendars }
   } catch (error) {
     console.error('Error fetching calendars:', error);
     throw new HttpsError('internal', 'Failed to fetch calendars', error.message);
   }
-});
+})
 
 exports.fetchGoogleEvents = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'The function must be called while authenticated.')
 
   const { timeMin, timeMax, calendarIds, refreshToken } = request.data
 
-  if (!Array.isArray(calendarIds) || calendarIds.length === 0) throw new HttpsError('invalid-argument', 'calendarIds must be a non-empty array.')
+  if (!calendarIds) throw new HttpsError('invalid-argument', 'calendarIds is undefined.')
   if (!refreshToken) throw new HttpsError('invalid-argument', 'refreshToken is required.')
 
   const authClient = createAuthClient()
   authClient.setCredentials({ refresh_token: refreshToken })
 
-  const calendar = google.calendar({ version: 'v3', auth: authClient })
+  const apiClient = google.calendar({ version: 'v3', auth: authClient })
 
-  try {
-    const eventPromises = calendarIds.map(async calendarId => {
-      try {
-        const response = await calendar.events.list({
-          calendarId,
-          timeMin,
-          timeMax,
-          singleEvents: true,
-          orderBy: 'startTime',
-        });
-        // Include calendarId with each event so frontend can match to calendar colors
-        return (response.data.items || []).map(event => ({
-          ...event,
-          calendarId
-        }))
-      } catch (err) {
-        console.error(`Error fetching events for calendar ${calendarId}:`, err);
-        return [] // Fail gracefully
-      }
-    })
+  const eventPromises = calendarIds.map(async calendarId => {
+    try {
+      const response = await apiClient.events.list({
+        calendarId,
+        timeMin,
+        timeMax,
+        singleEvents: true,
+        orderBy: 'startTime'
+      })
+      return (response.data.items || []).map(event => ({ ...event, calendarId }))
+    } catch (err) {
+      console.error(`Error fetching events for calendar ${calendarId}:`, err);
+      return []
+    }
+  })
 
-    const results = await Promise.all(eventPromises)
-    const allEvents = results.flat()
-
-    return { events: allEvents }
-
-  } catch (error) {
-    console.error('Error fetching calendar events:', error)
-    throw new HttpsError('internal', 'Failed to fetch events', error.message)
-  }
+  const results = await Promise.all(eventPromises)
+  return { events: results.flat() }
 })
