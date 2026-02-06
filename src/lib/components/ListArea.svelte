@@ -7,7 +7,6 @@
   let { xyScrolling } = $props()
 
   const wrappingColumnLayout = `
-    position: relative;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
@@ -20,7 +19,6 @@
   `
 
   const simpleMobileLayout = `
-    position: relative;
     background-color: transparent; 
     padding: 0px 8px;
   `

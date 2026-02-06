@@ -55,7 +55,7 @@
   }
 </script>
 
-<div {onclick} {style}>
+<div {onclick} {style} class="relative">
   {#if trees}
     {#each trees as task, i (task.id)}
       <div style:width={listWidth}>
