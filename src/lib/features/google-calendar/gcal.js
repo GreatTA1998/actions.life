@@ -3,8 +3,13 @@ import { user, allAccounts, cals, googleEventsByDate } from '$lib/store'
 import { get } from 'svelte/store'
 import { collection, onSnapshot } from 'firebase/firestore'
 import { db } from '$lib/db/init'
+import { DateTime } from 'luxon'
 
 export async function fetchAccountsAndCalendars () {
+  // quickfix for localhost refetching duplicates
+  cals.set({})
+  googleEventsByDate.set({})
+
   return new Promise(resolve => {
     let firstTime = true
 
@@ -31,7 +36,7 @@ export async function fetchAccountsAndCalendars () {
   })
 }
 
-export async function getGoogleEvents (startDT, endDT) {
+export async function getAllGCalEvents (startDT, endDT) {
   const accounts = get(allAccounts)
   const calendars = get(cals)
    
@@ -57,44 +62,69 @@ export async function helper (startDT, endDT, calendarIds, calArr, refreshToken,
       calendarIds,
       refreshToken
     })
-    
+
+    const dtsInRange = []
+    let current = startDT
+    while (current <= endDT) {
+      dtsInRange.push(current.toFormat('yyyy-MM-dd'))
+      current = current.plus({ days: 1 })
+    }
+
     if (result.data?.events) {
-      const { events } = result.data
-      const eventsByDate = {}
-      
+      const dict = {}
+      for (const dt of dtsInRange) {
+        dict[dt] = empty()
+      }
       const calMap = new Map(calArr.map(cal => [cal.id, cal]))
       
-      for (const event of events) {
-        if (event.status === 'cancelled') continue
-        
-        // Only include timed events (not all-day events)
-        if (!event.start?.dateTime || !event.end?.dateTime) continue
-        
-        const startDateISO = event.start.dateTime.split('T')[0] // YYYY-MM-DD
-
-        if (!eventsByDate[startDateISO]) eventsByDate[startDateISO] = []
-        eventsByDate[startDateISO].push({
-          opacity,
-          id: event.id,
-          calendarId: event.calendarId,
-          summary: event.summary,
-          start: event.start, // { dateTime: ..., timeZone: ... }
-          end: event.end,
-          backgroundColor: calMap.get(event.calendarId).backgroundColor,
-          foregroundColor: calMap.get(event.calendarId).foregroundColor,
-          description: event.description,
-          location: event.location,
-          htmlLink: event.htmlLink
-        })
+      for (const event of result.data.events) {
+        if (event.start.date && !event.start.dateTime) {
+          const d1 = DateTime.fromISO(event.start.date)
+          const d2 = DateTime.fromISO(event.end.date)
+          let current = d1
+          while (current <= d2) {
+            current = current.plus({ days: 1 })
+            const yyyyMMdd = current.toFormat('yyyy-MM-dd')
+            if (!dict[yyyyMMdd]) dict[yyyyMMdd] = empty() // since all day event's end interval can exceed our API fetch range
+            dict[yyyyMMdd].allDay.push(gcalTask(event, calMap, opacity)) 
+          }
+        }
+        else if (event.start.dateTime && event.end.dateTime) {
+          const yyyyMMdd = event.start.dateTime.split('T')[0]
+          dict[yyyyMMdd].hasStartTime.push(gcalTask(event, calMap, opacity))
+        }
       }
-
       googleEventsByDate.update(current => {
-        return { ...current, ...eventsByDate }
+        for (const dt of dtsInRange) {
+          if (!current[dt]) current[dt] = empty()
+          // composable, since multiple accounts will overwrite the same date period
+          current[dt].hasStartTime = [...current[dt].hasStartTime, ...dict[dt].hasStartTime]
+          current[dt].allDay = [...current[dt].allDay, ...dict[dt].allDay]
+        }
+        return current
       })
     }
   } catch (e) {
     console.error("Failed to fetch Google Events", e)
     throw e // Fail fast - let caller handle if needed
   }
+}
+
+function gcalTask (event, calMap, opacity) {
+  return {
+    opacity,
+    id: event.id,
+    calendarId: event.calendarId,
+    summary: event.summary,
+    start: event.start, // { dateTime: ..., timeZone: ... }
+    end: event.end,
+    backgroundColor: calMap.get(event.calendarId).backgroundColor,
+    foregroundColor: calMap.get(event.calendarId).foregroundColor,
+    description: event.description
+  }
+}
+
+function empty () {
+  return { hasStartTime: [], allDay: [] }
 }
 

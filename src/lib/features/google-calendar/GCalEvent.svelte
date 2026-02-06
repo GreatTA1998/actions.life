@@ -18,11 +18,14 @@
   style:opacity={event.opacity}
   style:height="{height}px"
   style:background-color={event.backgroundColor} 
-  style:color={event.foregroundColor}w
+  style:color={event.foregroundColor}
   style:padding="var(--left-padding)"
   style:border-radius="var(--left-padding)"
   style:overflow="hidden"
   style:font-size="0.875rem"
 >
   {event.summary}
+  <p style:font-weight="300" style:font-size="0.75rem">
+    {event.description}
+  </p>
 </div>

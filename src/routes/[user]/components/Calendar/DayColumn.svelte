@@ -25,7 +25,7 @@
   let pixelsPerMinute = $pixelsPerHour / 60
 
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
-  let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')] ?? [])
+  let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
 
   let previewTop = $state(null)
   
@@ -196,7 +196,7 @@
     </div>
   {/each}
 
-  {#each googleEvents as event (event.id)}
+  {#each googleEvents as event}
     {@const startDT = DateTime.fromISO(event.start.dateTime)}
     <div class="task-absolute" style="
       top: {getOffset({ dt1: dt, dt2: startDT })}px; 

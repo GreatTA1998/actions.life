@@ -1,7 +1,9 @@
 <script>
   import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
+  import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
   import { treesByDate } from './service.js'
+  import { googleEventsByDate } from '$lib/store'
   import { headerHeight, headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
@@ -103,6 +105,14 @@
           <div style="height: 12px; width: 100%; {dropPreviewCSS}"></div>
         {/if}
       </div>
+    {/if}
+
+    {#if $googleEventsByDate[ISODate]?.allDay}
+       <div class="flex flex-col gap-y-1 px-1">
+        {#each $googleEventsByDate[ISODate].allDay as event}  
+          <GCalAllDay {event} />
+        {/each}
+       </div>
     {/if}
   {/if}
 
