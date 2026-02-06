@@ -88,7 +88,7 @@
 
   .settings-group {
     border-radius: 12px;
-    padding: 12px;
+    padding: 16px;
     background: var(--navbar-bg-color);
   }
 

@@ -14,30 +14,33 @@
   }
 </script>
 
-<div class="flex flex-col gap-2 user-select-none">
+<div class="flex gap-8 user-select-none flex-wrap">
   {#each $allAccounts as account}
-    {#each $cals[account.id] as cal (cal.id)}
-      {@const visible = account.selectedCalIDs || []}
+    <div class="flex flex-col gap-1">
+      <h2 style:font-size="0.875rem" class="font-bold">{account.email}</h2>
+      {#each $cals[account.id] as cal (cal.id)}
+        {@const visible = account.selectedCalIDs}
 
-      <label 
-        class="flex items-center gap-2 cursor-pointer py-1"
-        onclick={e => toggle(e, cal.id, account)}
-      >
-        <div 
-          class="shrink-0 w-[18px] h-[18px] rounded flex items-center justify-center" 
-          class:checked={visible.includes(cal.id)}
-          style:background-color={cal.backgroundColor || '#4285F4'}
-          style:transition="opacity 0.2s"
+        <label 
+          class="flex items-center gap-2 cursor-pointer py-1"
+          onclick={e => toggle(e, cal.id, account)}
         >
-          {#if visible.includes(cal.id)}
-            <span class="checkmark">✓</span>
-          {/if}
-        </div>
-        <span class="calendar-name">
-          {cal.summary || cal.id}
-        </span>
-      </label>
-    {/each}
+          <div 
+            class="shrink-0 w-[18px] h-[18px] rounded flex items-center justify-center" 
+            class:checked={visible.includes(cal.id)}
+            style:background-color={cal.backgroundColor || '#4285F4'}
+            style:transition="opacity 0.2s"
+          >
+            {#if visible.includes(cal.id)}
+              <span class="checkmark">✓</span>
+            {/if}
+          </div>
+          <span style="font-size: 0.875rem; flex: 1">
+            {cal.summary || cal.id}
+          </span>
+        </label>
+      {/each}
+    </div>
   {/each}
 </div>
 
@@ -55,10 +58,5 @@
     font-size: 0.875rem;
     font-weight: bold;
     line-height: 1;
-  }
-
-  .calendar-name {
-    font-size: 0.875rem;
-    flex: 1;
   }
 </style>

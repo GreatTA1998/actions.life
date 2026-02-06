@@ -1,4 +1,4 @@
-import { fetchGoogleEvents, fetchGoogleCalendars } from '$lib/utils/cloudFunctions'
+import { cloudFunction } from '$lib/utils/cloudFunctions'
 import { googleEventsByDate } from './service.js'
 import { user } from '$lib/store'
 import { allAccounts, cals } from '$lib/store'
@@ -19,7 +19,7 @@ export async function fetchAccountsAndCalendars () {
         const promises = []
         for (const account of get(allAccounts)) {
           promises.push(
-            fetchGoogleCalendars({ refreshToken: account.refreshToken.value })
+            cloudFunction('fetchGoogleCalendars',{ refreshToken: account.refreshToken.value })
               .then(result => cals.update(C => {
                 C[account.id] = result.data.calendars
                 return C 
@@ -46,7 +46,7 @@ export async function getGoogleEvents (startDT, endDT) {
 
 export async function helper (startDT, endDT, calendarIds, calArr, refreshToken) {
   try {  
-    const result = await fetchGoogleEvents({ 
+    const result = await cloudFunction('fetchGoogleEvents', { 
       timeMin: startDT.startOf('day').toISO(),
       timeMax: endDT.endOf('day').toISO(),
       calendarIds,
@@ -70,6 +70,7 @@ export async function helper (startDT, endDT, calendarIds, calArr, refreshToken)
         if (!eventsByDate[startDateISO]) eventsByDate[startDateISO] = []
         eventsByDate[startDateISO].push({
           id: event.id,
+          calendarId: event.calendarId,
           summary: event.summary,
           start: event.start, // { dateTime: ..., timeZone: ... }
           end: event.end,

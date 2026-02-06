@@ -11,13 +11,13 @@
 
 <div class="gridlines-container">
   <div class="snap-settings">
-    <div class="snap-label">Snap start time to nearest</div>
+    <div class="snap-label">Snap to nearest</div>
     <div class="interval-selector">
       <div class="interval-buttons">
         {#each snapIntervals as interval}
           <button 
             on:click={() => updateSettings(interval)} 
-            class="interval-button"
+            class="interval-button justify-center"
             class:active={$calSnapInterval === interval}
           >
             {interval}
@@ -70,10 +70,6 @@
     color: #555;
     min-width: 36px;
     cursor: pointer;
-  }
-
-  .interval-button:hover {
-    background: rgba(0, 0, 0, 0.05);
   }
 
   .interval-button.active {

@@ -45,7 +45,7 @@
             </g>
           </svg>
         </span>
-        Connect Google Calendar
+        Add calendar account
       {/if}
     </button>
   <!-- {:else}

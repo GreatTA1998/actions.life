@@ -1,4 +1,4 @@
-import { exchangeGoogleCode } from './cloudFunctions'
+import { cloudFunction } from './cloudFunctions'
 
 /**
  * Initiates the Google OAuth2 Authorization Code Flow.
@@ -21,7 +21,7 @@ export function initiateGoogleConnect (clientId, scope = 'https://www.googleapis
         if (response.code) {
           try {
             console.log('Received auth code, exchanging for tokens...')
-            await exchangeGoogleCode({ code: response.code })
+            await cloudFunction('exchangeGoogleCode', { code: response.code })
             console.log('Token exchange successful.')
             resolve()
           } catch (error) {
