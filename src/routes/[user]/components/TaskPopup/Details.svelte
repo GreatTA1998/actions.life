@@ -93,7 +93,7 @@
       <TodoList trees={$ancestralTree.children}
         listWidth="100%"
         parentID={task.id}
-        style="min-height: 48px"
+        style="padding-bottom: 1rem"
       />
     </DragDropContext>
   </div>
