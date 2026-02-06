@@ -77,12 +77,12 @@ export async function helper (startDT, endDT, calendarIds, calArr, refreshToken,
       }
       const calMap = new Map(calArr.map(cal => [cal.id, cal]))
       
-      for (const event of result.data.events) {
+      for (const event of result.data.events) { // this is wrong, multi-day events can have start and end times see Feb 26 18:00 --> March 4 21:00, re-think the logic
         if (event.start.date && !event.start.dateTime) {
           const d1 = DateTime.fromISO(event.start.date)
           const d2 = DateTime.fromISO(event.end.date)
           let current = d1
-          while (current <= d2) {
+          while (current <= d2) { 
             current = current.plus({ days: 1 })
             const yyyyMMdd = current.toFormat('yyyy-MM-dd')
             if (!dict[yyyyMMdd]) dict[yyyyMMdd] = empty() // since all day event's end interval can exceed our API fetch range
@@ -91,6 +91,7 @@ export async function helper (startDT, endDT, calendarIds, calArr, refreshToken,
         }
         else if (event.start.dateTime && event.end.dateTime) {
           const yyyyMMdd = event.start.dateTime.split('T')[0]
+          if (!dict[yyyyMMdd]) dict[yyyyMMdd] = empty() // quickfix for multiday events spanning and matching in previous intervals
           dict[yyyyMMdd].hasStartTime.push(gcalTask(event, calMap, opacity))
         }
       }
