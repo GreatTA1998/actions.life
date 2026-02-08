@@ -12,9 +12,15 @@
   let photos = $state(null)
   let unsub = () => {}
   let totalSize = 0
-  const batchSize = 25
+  const batchSize = 50 // small batch sizes, ironically, causes more wasteful re-renders as size increases
+  let dt = $state(DateTime.now().set({ day: 1 }))
 
   onMount(getBatch)
+
+  $effect(() => {
+    getBatch(dt)
+  })
+  
   onDestroy(unsub)
 
   async function getBatch () {
@@ -31,6 +37,7 @@
     return query(
       collection(db, `users/${$user.uid}/tasks`),
       where('imageDownloadURL', '!=', ''),
+      where('startDateISO', '<=', dt.toFormat('yyyy-MM-dd')),
       orderBy('startDateISO', 'desc'),
       limit(size)
     )
@@ -45,7 +52,7 @@
   <MultiPhotoUploader style="position: absolute; right: 1vw; top: 1vw;"/>
 
   <div class="shrink-0 flex items-center">
-    <MonthYearNavigator />
+    <MonthYearNavigator {dt} onChange={({ newVal }) => dt = newVal} />
 
     <RandomButton onclick={showRandomPhotos} />
   </div>

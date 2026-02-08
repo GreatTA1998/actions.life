@@ -1,6 +1,5 @@
 <script>
   import { DateTime } from 'luxon'
-  import { untrack } from 'svelte'
   import MonthYearNavigator from './MonthYearNavigator.svelte'
 
   let {
@@ -9,45 +8,27 @@
     onclose = () => {}
   } = $props()
 
-  // Internal month state - sync to selected date when it changes
-  let month = $state(DateTime.now().startOf('month'))
+  let dt = $state(DateTime.now().startOf('month'))
 
-  // Sync month to selected date when it changes externally
-  $effect(() => {
-    if (selected) {
-      untrack(() => {
-        const newMonth = selected.startOf('month')
-        if (!month.hasSame(newMonth, 'month')) {
-          month = newMonth
-        }
-      })
-    }
-  })
-
-  // Generate calendar grid
   let days = $derived.by(() => {
-    const firstDay = month.startOf('month')
-    const lastDay = month.endOf('month')
-    const startOfGrid = firstDay.startOf('week')
-    const endOfGrid = lastDay.endOf('week')
-    
     const grid = []
-    let current = startOfGrid
-    
-    while (current <= endOfGrid) {
+    const firstDay = dt.startOf('month')
+    const lastDay = dt.endOf('month')
+  
+    let current = firstDay.startOf('week')
+    while (current <= lastDay.endOf('week')) {
       grid.push({
         date: current,
-        isCurrentMonth: current.month === month.month,
+        isCurrentMonth: current.month === dt.month,
         isToday: current.hasSame(DateTime.now(), 'day'),
         isSelected: selected?.hasSame(current, 'day') ?? false
       })
       current = current.plus({ days: 1 })
     }
-    
     return grid
   })
 
-  function selectDate(day) {
+  function selectDate (day) {
     if (day.isSelected) {
       ondateselected({ mmdd: '', yyyy: '' })
     } else {
@@ -61,7 +42,7 @@
 </script>
 
 <div class="cal">
-  <MonthYearNavigator bind:month />
+  <MonthYearNavigator {dt} onChange={({ newVal }) => dt = newVal } />
 
   <div class="weekdays">
     {#each ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as day}
@@ -71,13 +52,11 @@
 
   <div class="grid">
     {#each days as day}
-      <button
-        type="button"
+      <button onclick={() => selectDate(day)}
         class="day"
         class:other-month={!day.isCurrentMonth}
         class:today={day.isToday}
         class:selected={day.isSelected}
-        onclick={() => selectDate(day)}
       >
         {day.date.day}
       </button>
@@ -128,26 +107,16 @@
 
   .day {
     aspect-ratio: 1;
-    border: none;
-    background: none;
     border-radius: 8px;
-    cursor: pointer;
     font-size: var(--font-size);
     color: var(--text-primary, #000);
-    display: flex;
-    align-items: center;
     justify-content: center;
     width: var(--touch-target);
     height: var(--touch-target);
     min-height: var(--touch-target);
     min-width: var(--touch-target);
-    transition: all 0.15s;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-  }
-
-  .day:hover {
-    background: var(--hover-bg, #f0f0f0);
   }
 
   .day.other-month {
@@ -163,10 +132,6 @@
     background: var(--primary-color);
     color: white;
     font-weight: 600;
-  }
-
-  .day.selected:hover {
-    background: var(--primary-dark, #0056b3);
   }
 </style>
 
