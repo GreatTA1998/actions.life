@@ -6,9 +6,9 @@ export function lazyCallable (node, callback) {
       for (const entry of entries) {
         if (entry.isIntersecting) {
           if (callback()) {
-            observer.unobserve(node);
+            // observer.unobserve(node)
           }
-          return;
+          return
         }
       }
     },

@@ -7,7 +7,7 @@
   import ListArea from '$lib/components/ListArea.svelte'
   import PhotoGrid from '/src/routes/[user]/components/Archive/PhotoGrid.svelte'
   import HabitsTab from '/src/routes/[user]/mobile/HabitsTab.svelte'
-  import ScheduleTab from '/src/routes/[user]/mobile/ScheduleTab.svelte'
+  import Schedule from '/src/routes/[user]/mobile/Schedule.svelte'
   import { activeView } from '$lib/store'
 </script>
 
@@ -20,7 +20,7 @@
       {#snippet child1 ()}<ListArea xyScrolling />{/snippet}
       {#snippet child2 ()}<Calendar />{/snippet}
     {:else if $activeView === 'SCHEDULE'}
-      <ScheduleTab />
+      <Schedule />
     {:else if $activeView === 'ROUTINES'}
       <HabitsTab />
     {:else if $activeView === 'PHOTOS'}

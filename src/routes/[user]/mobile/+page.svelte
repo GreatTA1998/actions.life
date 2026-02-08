@@ -10,7 +10,7 @@
       {#snippet child1 ()}<Calendar />{/snippet}
       {#snippet child2 ()}<ListArea xyScrolling={false}/>{/snippet}
     {:else if $activeView === 'SCHEDULE'}
-      <ScheduleTab />
+      <Schedule />
     {:else if $activeView === 'ROUTINES'}
       <HabitsTab />
     {:else if $activeView === 'PHOTOS'}
@@ -29,7 +29,7 @@
   import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
   import PhotoGrid from '/src/routes/[user]/components/Archive/PhotoGrid.svelte'
   import HabitsTab from '/src/routes/[user]/mobile/HabitsTab.svelte'
-  import ScheduleTab from '/src/routes/[user]/mobile/ScheduleTab.svelte'
+  import Schedule from '/src/routes/[user]/mobile/Schedule.svelte'
 
   import { MOBILE_SAFE_BOTTOM } from '$lib/utils/constants.js'
   import { activeView } from '$lib/store'
