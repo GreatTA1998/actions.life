@@ -30,13 +30,14 @@
       {/snippet}
       
       {#snippet content ({ close })}
-        <div class="grid flex-col gap-y-1 p-1">
+        <div class="grid flex-col gap-y-2 py-1 px-1">
           {#each Array.from({ length: 12 }, (_, i) => i + 1) as m}
-            <button style:background-color={dt.month === m ? 'orange' : ''} 
+            <button style:font-weight={dt.month === m ? '600' : '400'} 
               onclick={() => { 
                 onChange({ newVal: dt.set({ month: m }) })
                 close()
               }}
+              class="py-1 px-1 rounded"
             >
               {DateTime.fromObject({ month: m }).toFormat('LLLL')}
             </button>
