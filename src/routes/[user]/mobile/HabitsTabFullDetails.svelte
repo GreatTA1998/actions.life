@@ -54,7 +54,7 @@
 <style>
   h2 {
     margin: 0;
-    font-size: var(--font-size-xxl);
+    font-size: 1.75rem;
     font-weight: 600;
   }
 </style>

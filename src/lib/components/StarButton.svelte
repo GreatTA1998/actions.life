@@ -10,9 +10,9 @@
   class:starred={isStarred}
 >
   {#if isStarred}
-    <MslStar class="star-icon" style="font-size: 2.2rem;"/>
+    <MslStar class="star-icon"/>
   {:else}
-    <MslStarOutline class="star-icon" style="font-size: 2.2rem;"/>
+    <MslStarOutline class="star-icon"/>
   {/if}
 </button>
 
@@ -22,21 +22,14 @@
     align-items: center;
     justify-content: center;
     padding: 4px;
-    border: none;
-    background: transparent;
-    border-radius: 4px;
     transition: background 0.15s;
     flex-shrink: 0;
   }
 
-  .star-button:hover {
-    background: rgba(0, 0, 0, 0.04);
-  }
-
+  /* global needed otherwise Uniconify's icons become black */
   :global(.star-icon) {
-    font-size: var(--font-size-xl, 1.25rem);
+    font-size: 2.2rem;
     color: #666;
-    transition: color 0.15s;
   }
 
   .star-button.starred :global(.star-icon) {

@@ -72,7 +72,7 @@
         <PopoverMenu>
           {#snippet activator({ id, anchorName })}
             <button popovertarget={id} style:anchor-name={anchorName}>
-              <MslMoreHoriz style="font-size: var(--font-size-xxl)"/>
+              <MslMoreHoriz style="font-size: 1.75rem" />
             </button>
           {/snippet}
         

@@ -41,10 +41,6 @@
   })
 </script>
 
-<svelte:head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-</svelte:head>
-
 <style>
   :global(body),
   :global(html) {
@@ -52,7 +48,7 @@
     height: 100%;
     width: 100%;
     position: fixed;
-    touch-action: manipulation;
+    touch-action: manipulation; /* prevents double tap to zoom and therefore tap delays, common mobile optimization */
     overscroll-behavior: none;
   }
 

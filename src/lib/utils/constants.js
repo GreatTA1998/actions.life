@@ -24,21 +24,6 @@ export const WIDTHS = Object.freeze({
   PANEL_MAX: breakpoints.desktop / goldenRatio
 })
 
-// TO-DO: deprecate this AI slop, 
-// unfortunately it's used in most components in the Discovery tab
-// Mobile-optimized font sizes (increased for better readability)
-export const FONT_SIZES = Object.freeze({
-  XS: 15,      // was 12px -> 25% larger
-  SM: 16,      // was 13px -> 23% larger
-  MD: 17,      // was 14px -> 21% larger
-  BASE: 18,    // was 15px -> 20% larger
-  LG: 19,      // was 16px -> 19% larger
-  XL: 24,      // was 20px -> 20% larger
-  XXL: 28,     // was 24px -> 17% larger
-  XXXL: 36,    // was 30px -> 20% larger
-  HUGE: 56,    // was 48px -> 17% larger
-})
-
 export const MOBILE_SAFE_BOTTOM = 48
 
 export function translateJSConstantsToCSSVariables () {
@@ -51,12 +36,6 @@ export function translateJSConstantsToCSSVariables () {
   for (const [key, value] of Object.entries(HEIGHTS)) {
     document.documentElement.style.setProperty(
       `--height-${key}`.toLowerCase().replace(/_/g, '-'),
-      `${value}px`
-    )
-  }
-  for (const [key, value] of Object.entries(FONT_SIZES)) {
-    document.documentElement.style.setProperty(
-      `--font-size-${key}`.toLowerCase().replace(/_/g, '-'),
       `${value}px`
     )
   }

@@ -17,7 +17,6 @@
   let loading = $state(false)
   let unsubs = [] 
   let scrollContainer = $state(null)
-  let showDateLabels = $state(true) // Toggle to show/hide textual date headers
 
   const CHUNK_SIZE = 14 
   const SCROLL_THRESHOLD = 500 
@@ -119,8 +118,7 @@
     })
   }
 
-  // --- Interaction Handlers ---
-  function handleDateSelected({ mmdd, yyyy }) {
+  function ondateselected({ mmdd, yyyy }) {
     if (!mmdd || !yyyy) return
 
     const [month, day] = mmdd.split('/').map(Number)
@@ -141,20 +139,19 @@
     }
   }
 
-  function handleScroll(e) {
+  function onscroll (e) {
     const container = e.target
     const distToBottom = container.scrollHeight - container.scrollTop - container.clientHeight
     if (distToBottom < SCROLL_THRESHOLD) {
       loadMore()
     }
 
-    // Continuous update logic (no debounce)
     if (!container) return
     
     const daySections = container.querySelectorAll('.day-section')
     const containerRect = container.getBoundingClientRect()
-    // Reduced offset to capture even small empty days at the top
-    const offset = 10 
+
+    const offset = 10 // Reduced offset to capture even small empty days at the top 
 
     for (const section of daySections) {
       const rect = section.getBoundingClientRect()
@@ -187,17 +184,16 @@
   }
 </script>
 
-<div class="flex w-full justify-center">
-  <div class="h-full flex flex-col bg-white" style:max-width={WIDTHS.PANEL_MAX + 'px'}>
-    <div class="calendar-container">
+<div class="h-full basis-full flex justify-center">
+  <div class="flex flex-col bg-white" style:max-width={WIDTHS.PANEL_MAX + 'px'}>
+    <div class="shrink-0">
       <DatePicker
         selected={selectedDate}
-        inline={true}
-        ondateselected={handleDateSelected}
+        {ondateselected}
       />
     </div>
 
-    <div class="filter-bar">
+    <div class="py-2 px-4 border-y-solid border-gray-100">
       <SimpleToggle 
         checked={$user.hideRoutines} 
         onchange={e => User.update({ hideRoutines: e.target.checked })} 
@@ -205,252 +201,109 @@
       />
     </div>
 
-    <div 
-      class="tasks-list" 
-      onscroll={handleScroll} 
-      bind:this={scrollContainer}
+    <div {onscroll} bind:this={scrollContainer}
+      style:flex="1"
+      class="overflow-y-auto scroll-smooth pb-[80px]" 
     >
-      {#if loadedDays.length === 0 && loading}
-        <div class="loading">Loading schedule...</div>
-      {:else}
-        {#each loadedDays as day, i (day.dateISO)}
-          {@const filteredTasks = $user.hideRoutines ? day.tasks.filter(t => !t.templateID) : day.tasks}
-          <div class="day-section" id="day-{day.dateISO}">
-            <div class="day-anchor" data-iso={day.dateISO}></div>
-            
-              {#if i > 0}
-                <div class="day-divider" class:is-empty={filteredTasks.length === 0}></div>
-              {/if}
+      {#each loadedDays as day, i (day.dateISO)}
+        {@const filteredTasks = $user.hideRoutines ? day.tasks.filter(t => !t.templateID) : day.tasks}
+        <div class="day-section" id="day-{day.dateISO}">
+          {#if filteredTasks.length > 0}
+            <div class="day-title p-4" class:highlight={selectedDate.hasSame(day.date, 'day')}>
+              <span class="uppercase mr-1">{day.date.toFormat('cccc')}</span>
+              <span>{day.date.toFormat('MMM d')}</span>
+            </div>
+          {/if}
 
-              {#if filteredTasks.length > 0 && showDateLabels}
-                <div class="day-divider-text" class:is-selected={selectedDate && selectedDate.hasSame(day.date, 'day')}
-                  style="padding: 16px;"
-                >
-                  <span class="dd-day">{day.date.toFormat('cccc')}</span>
-                  <span class="dd-date">{day.date.toFormat('MMM d')}</span>
-                </div>
-              {/if}
-
-
-            {#if filteredTasks.length > 0}
-              <div class="day-content">
-                <!-- Horizontal Routine Dock -->
-                {#if getRoutineTasks(filteredTasks).length > 0}
-                  <div class="routine-dock">
-                    {#each getRoutineTasks(filteredTasks) as task (task.id)}
-                      {#if task.iconURL}
-                          <DoodleIcon iconTask={task} size={40} />
-                      {:else}
-                          <button 
-                            class="routine-pill" 
-                            class:is-done={task.isDone}
-                            onclick={() => openTaskPopup(task)}
-                          >
-                            {task.name}
-                          </button>
-                      {/if}
-                    {/each}
-                  </div>
-                {/if}
-
-                <!-- Regular Task List -->
-                <div class="event-list">
-                  {#each getRegularTasks(filteredTasks) as task (task.id)}
-                      <button 
-                        class="event-row" 
-                        class:is-done={task.isDone}
-                        class:has-time={!!task.startTime}
-                        onclick={() => openTaskPopup(task)}
+          {#if filteredTasks.length > 0}
+            <div class="pb-4">
+              {#if getRoutineTasks(filteredTasks).length > 0}
+                <div class="flex items-center flex-wrap gap-3 py-3 px-4">
+                  {#each getRoutineTasks(filteredTasks) as task (task.id)}
+                    {#if task.iconURL}
+                      <DoodleIcon iconTask={task} size={40} />
+                    {:else}
+                      <button onclick={() => openTaskPopup(task)}
+                        class="routine-pill" 
+                        style:color={task.isDone ? '#1e8e24' : ''}
                       >
-                        {#if task.startTime}
-                          <div class="event-time">
-                            {formatTime(task.startTime)}
-                          </div>
-                        {/if}
-                        
-                        <div class="event-details">
-                          <div class="event-name">{task.name}</div>
-                          {#if task.notes}
-                            <div class="event-notes">{task.notes}</div>
-                          {/if}
-                        </div>
+                        {task.name}
                       </button>
+                    {/if}
                   {/each}
                 </div>
+              {/if}
+
+              <div class="flex flex-col">
+                {#each getRegularTasks(filteredTasks) as task (task.id)}
+                  <button onclick={() => openTaskPopup(task)}
+                    class="gap-x-4 text-left py-2 px-4" 
+                    class:done-gradient={task.isDone}
+                  >
+                    {#if task.startTime}
+                      <div class="shrink-0 event-time">
+                        {formatTime(task.startTime)}
+                      </div>
+                    {/if}
+                    
+                    <div class="min-w-0">
+                      <div class="event-name">{task.name}</div>
+                      {#if task.notes}
+                        <div class="event-notes truncate">{task.notes}</div>
+                      {/if}
+                    </div>
+                  </button>
+                {/each}
               </div>
-            {/if}
-          </div>
-        {/each}
-        
-        <div class="scroll-loader">
-          <div class="loader-dots">...</div>
+            </div>
+          {/if}
+
+          <div class="border-t border-t-dashed border-[#dadada] py-[2px]"></div>
         </div>
-      {/if}
+      {/each}
     </div>
   </div>
 </div>
 
 <style>
-  :global(body) {
-    --accent-color: #007aff;
-  }
-
-  .calendar-container {
-    flex-shrink: 0;
-    background: white;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 4px;
-  }
-
-  .filter-bar {
-    padding: 8px 16px;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .tasks-list {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 80px;
-    scroll-behavior: smooth; 
-  }
-
-  .day-section {
-    position: relative;
-  }
-  
-  .day-anchor {
-    position: absolute;
-    top: -100px;
-    height: 1px; 
-    width: 1px;
-  }
-
-  .day-divider {
-    border-top: 1px dashed #dadada;
-    margin-top: 0;
-  }
-
-  .day-divider.is-empty {
-    padding: 2px 12px;
-  }
-
-  .day-divider-text {
-    font-size: var(--font-size-md);
-    color: #888;
+  .day-title {
+    font-size: var(--fs-4);
+    color: #444;
     font-weight: 600;
-    transition: color 0.2s;
   }
   
-  .day-divider-text.is-selected {
-    color: var(--primary-color, #007aff);
-  }
-
-  .dd-day {
-    text-transform: uppercase;
-    margin-right: 6px;
-  }
-
-  .day-content {
-    padding: 0 0 16px 0;
-  }
-
-  /* Routine Dock */
-  .routine-dock {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 12px 16px;
-    align-items: center;
+  .day-title.highlight {
+    color: var(--primary-color);
   }
 
   .routine-pill {
     background: #f5f5f5;
-    border: none;
     border-radius: 16px;
     padding: 6px 12px;
-    font-size: var(--font-size-sm);
+
+    font-size: var(--fs-3);
     color: #555;
     font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .event-list {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .event-row {
-    display: flex;
-    align-items: flex-start;
-    width: 100%;
-    background: transparent;
-    border: none;
-    padding: 10px 16px;
-    text-align: left;
-    cursor: pointer;
-    border-bottom: 1px solid #fcfcfc;
-    transition: background 0.1s;
-  }
-
-  .event-row:active {
-    background: #f9f9f9;
-  }
-
-  .is-done {
-    color: #1e8e24;
   }
   
-  .event-row.is-done {
+  .done-gradient {
     background: linear-gradient(to right, rgba(76, 175, 80, 0.04), transparent);
   }
 
   .event-time {
-    margin-right: 12px;
-    flex-shrink: 0;
-    font-size: var(--font-size-base);
-    color: 222;
+    font-size: var(--fs-4);
+    color: #222;
     font-weight: 500;
-    padding-top: 2px;
-    min-width: 60px; /* Only take space if time exists */
-    text-align: right;
-  }
-
-  /* Remove padding/gap for untimed tasks to align left */
-  .event-row:not(.has-time) {
-    padding-left: 16px;
-  }
-  
-  .event-details {
-    flex: 1;
-    min-width: 0;
   }
 
   .event-name {
-    font-size: var(--font-size-base);
-    font-weight: 400;
+    font-size: var(--fs-4);
     color: #222;
-    line-height: 1.4;
   }
 
   .event-notes {
-    font-size: var(--font-size-sm);
-    color: #999;
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .loading, .scroll-loader, .empty-day-msg {
-    text-align: center;
-    padding: 20px;
-    color: #ccc;
-    font-size: var(--font-size-sm);
-  }
-  
-  .loader-dots {
-    font-size: var(--font-size-xl);
-    letter-spacing: 2px;
+    font-size: var(--fs-3);
+    color: #444;
+    font-weight: 300;
   }
 </style>

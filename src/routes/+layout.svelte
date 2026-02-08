@@ -69,13 +69,11 @@
 
 <style>
   :global(:root) {
-    --accent-color: rgb(92, 101, 22);
-    --base-color: rgb(0, 89, 125);
-    --sub-color: rgb(172, 160, 78);
+    --primary-color: #007aff; /* only date components use this blue */
     --success-color: #188038;
-
     --logo-twig-color: #b34f1b;
     --location-indicator-color: var(--logo-twig-color);
+    
     --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */
     --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
     --fine-control-color: rgb(120, 120, 120);
@@ -89,6 +87,9 @@
     --offwhite-bg: rgb(250, 250, 250);
     --faint-color: lightgrey;
     --popup-control: 1.67rem;
+
+    --fs-3: 1rem;
+    --fs-4: 1.125rem;
   }
 
   :global(.main-content) {

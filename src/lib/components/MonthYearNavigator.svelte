@@ -101,7 +101,7 @@
   
   .year-input:focus {
     color: var(--text-primary, #000);
-    border-bottom-color: var(--primary-color, #007aff);
+    border-bottom-color: var(--primary-color);
     border-bottom-style: solid;
     background: transparent;
     outline: none;

@@ -156,11 +156,11 @@
 
   .day.today {
     font-weight: 700;
-    color: var(--primary-color, #007aff);
+    color: var(--primary-color);
   }
 
   .day.selected {
-    background: var(--primary-color, #007aff);
+    background: var(--primary-color);
     color: white;
     font-weight: 600;
   }

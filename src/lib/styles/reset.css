@@ -5,6 +5,7 @@
 
 :where(.flex) > * {
   min-width: 0;
+  /* note: <button> is styled directly with display: inline-flex, so doesn't receive this min-width: 0 */
 }
 
 /* prevent accidental going back page */
