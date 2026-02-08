@@ -20,7 +20,7 @@
   $effect(() => {
     getBatch(dt)
   })
-  
+
   onDestroy(unsub)
 
   async function getBatch () {
@@ -83,7 +83,7 @@
         </div>
       {/each}
 
-      <div use:lazyCallable={getBatch} class="w-[480px] h-[480px] border-solid">
+      <div use:lazyCallable={getBatch} class="h-[480px] border-solid">
 
       </div>
     </div>
