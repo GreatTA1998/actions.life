@@ -31,6 +31,7 @@
     startTaskDrag,
     resetDragDrop,
     detectOverlap,
+    computeOrderValue,
     dropPreviewCSS
   })
 
@@ -174,6 +175,28 @@
     const hOverlap = Math.max(0, Math.min(x2, right) - Math.max(x1, left))
     const vOverlap = Math.max(0, Math.min(y2, bottom) - Math.max(y1, top))
     return hOverlap * vOverlap
+  }
+
+  function computeOrderValue (i, rooms) {
+    const k = 1
+    const n = rooms.length
+
+    let newVal
+    if (i === 0) {
+      const top = rooms[0]
+      if (top) newVal = top.orderValue / 1.1 // 1.1 slows down the approach to 0
+      else newVal = k // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
+    }
+    else if (i === n) {
+      const bottom = rooms[n-1] 
+      newVal = bottom.orderValue + k // Task.js will handle `maxOrderValue`
+    }
+    else {
+      const above = rooms[i-1]
+      const below = rooms[i]
+      newVal = (above.orderValue + below.orderValue) / 2
+    }
+    return newVal
   }
 </script>
 

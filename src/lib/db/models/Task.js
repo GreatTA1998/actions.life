@@ -95,7 +95,7 @@ const Task = {
       const batch = writeBatch(db)
 
       if (validatedChanges.orderValue) {
-        maintainOrderValue(validatedChanges,batch)
+        maintainOrderValue(validatedChanges, batch)
       }
       await maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
       batch.update(
