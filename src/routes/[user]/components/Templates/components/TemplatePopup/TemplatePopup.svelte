@@ -76,7 +76,6 @@
 
       <div class="flex items-center justify-center gap-x-2">
         <MyTimePicker value={$template.startTime}
-          oninput={e => debouncedUpdate('startTime', e.target.value)}
           onTimeSelected={hhmm => instantUpdate('startTime', hhmm)}
         />
         <DurationPicker

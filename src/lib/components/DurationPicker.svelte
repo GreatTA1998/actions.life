@@ -1,6 +1,6 @@
 <script>
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
-  import { paddingVal } from '$lib/styles/reused.module.css'
+  import { paddingVal, placeholderField, fieldGrey, noZoomFS } from '$lib/styles/reused.module.css'
 
   let { value, oninput } = $props()
 
@@ -15,10 +15,10 @@
     { label: '20m', value: 20 },
     { label: '30m', value: 30 },
     { label: '40m', value: 40 },
-    { label: '1hr', value: 60 },
-    { label: '2hr', value: 120 },
-    { label: '3hr', value: 180 },
-    { label: '4hr', value: 240 }
+    { label: '50m', value: 50 },
+    { label: '60m', value: 60 },
+    { label: '90m', value: 90 },
+    { label: '120m', value: 120 },
   ];
 
   function select (duration, close) {
@@ -30,29 +30,32 @@
 </script>
 
 <PopoverMenu>
-  {#snippet activator({ id, anchorName })}
+  {#snippet activator({ id, anchorName, close })}
     <button bind:this={button}
       popovertarget={id}
       style:anchor-name={anchorName}
       style:padding="0px {paddingVal}"
+      style:font-size={noZoomFS}
     >
       <input onclick={() => button.click()}
-        {value} {oninput}
+        {value} {oninput} onblur={() => setTimeout(close, 300)}
+        class={placeholderField}
         type="number" 
         pattern="[0-9]*"
         min="0"
       >
-      <div class="suffix">
+      <span class="pointer-events-none">
         m
-      </div>
+      </span>
     </button>
   {/snippet}
 
   {#snippet content({ close })}
-    <div class="duration-options">
+    <div class="grid gap-2 p-2" style:grid-template-columns="repeat(3, 1fr)">
       {#each durations as duration}
         <button onclick={() => select(duration, close)}
-          class="duration-button" 
+          style:color={fieldGrey}
+          class="rounded py-2 px-3 {placeholderField}" 
           class:highlighted-option={value === duration.value}
         >
           {duration.label}
@@ -64,15 +67,8 @@
 
 <style>
   input {
-    display: block;
     field-sizing: content;
-    border: 0px solid #e0e0e0;
     border-radius: 6px;
-    outline: none;
-    transition: border-color 0.2s;
-
-    font-size: 0.875rem;
-    color: var(--scheduled-info-color);
   }
 
   input:focus {
@@ -87,26 +83,5 @@
   }
   input[type=number] {
     -moz-appearance: textfield;
-  }
-
-  .suffix {
-    color: var(--scheduled-info-color);
-    font-size: 0.875rem;
-    pointer-events: none;
-  }
-
-  .duration-options {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    padding: 8px;
-    max-width: 240px;
-  }
-
-  .duration-button {
-    padding: 6px 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    color: #727272;
   }
 </style>

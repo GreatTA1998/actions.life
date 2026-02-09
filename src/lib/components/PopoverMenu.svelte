@@ -16,18 +16,13 @@
   }
 </script>
 
-{@render activator({ id, anchorName })}
+{@render activator({ id, anchorName, close })}
 
-<div popover {id} {ontoggle}
-  bind:this={menu}
-  class="absolute"
+<div popover {id} {ontoggle} bind:this={menu}
+  class="absolute rounded-xl pragmatic-shadow"
   style:position-anchor={anchorName}
-  style:position-area="right span-bottom"
+  style:position-area="block-end span-inline-end"
   style:position-try-fallbacks="flip-block, flip-inline, flip-inline flip-block"
-  style="
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); 
-  "
 >
   {@render content({ close })}
 </div>

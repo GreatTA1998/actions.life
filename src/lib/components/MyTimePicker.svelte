@@ -2,11 +2,10 @@
   import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { getRandomID } from '$lib/utils/core.js'
-  import { paddingVal, placeholderField } from '$lib/styles/reused.module.css'
+  import { paddingVal, placeholderField, fieldGrey, noZoomFS } from '$lib/styles/reused.module.css'
 
   let { 
-    value = '', 
-    oninput = () => {},
+    value = '',
     onTimeSelected = () => {}
   } = $props()
 
@@ -34,6 +33,17 @@
     const heightPerHour = menuHeight / (end - start)
     return (currentHour - start) * heightPerHour
   }
+
+  function validateTime (e) {
+    const { value } = e.target
+    if (/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) {
+      onTimeSelected(value)
+    } 
+    else if (/^([01]\d|2[0-3])([0-5]\d)$/.test(value)) {
+      const formatted = value.slice(0, 2) + ':' + value.slice(2)
+      onTimeSelected(formatted)
+    }
+  }
 </script>
 
 <PopoverMenu {id}
@@ -45,24 +55,32 @@
     }
   }}
 >
-  {#snippet activator ({ id, anchorName })}
+  {#snippet activator ({ id, anchorName, close })}
     <button popovertarget={id} bind:this={buttonElem}>
       <input onclick={() => buttonElem.click()}    
-        {value} oninput={e => /^([01]\d|2[0-3]):[0-5]\d$/.test(e.target.value) ? oninput(e) : '' }
-        placeholder='Time'
-        pattern='[0-9]{2}:[0-9]{2}'                                                             
-        class="time-dropdown {placeholderField}"
+        inputmode="numeric"
+        {value} oninput={validateTime}
+        onblur={() => setTimeout(close, 300)}
+        placeholder="Time"
+        pattern="[0-9]{2}:[0-9]{2}"                                                           
+        class={placeholderField}
         style:anchor-name={anchorName}
         style:padding="0 {paddingVal}"
+        style:field-sizing="content"
       />
     </button>
   {/snippet}
 
   {#snippet content({ close })}
-    <div class="time-options-grid max-h-[480px] overflow-y-auto" use:trackHeight={h => menuHeight = h}>
+    <div use:trackHeight={h => menuHeight = h}
+      class="grid p-1 gap-1 max-h-[240px] overflow-y-auto hide-scrollbar"
+      style:grid-template-columns="repeat(2, 1fr)"
+    >
       {#each hourChoices as hhmm}
         <button onclick={() => { onTimeSelected(hhmm); close(); }}
-          class="time-option"
+          class="rounded py-1 px-2" 
+          style:color={fieldGrey}
+          style:font-size={noZoomFS}
           class:highlighted-option={value === hhmm}
         >
           {hhmm}
@@ -71,30 +89,3 @@
     </div>
   {/snippet}
 </PopoverMenu>
-
-<style lang="scss">
-  .time-dropdown {
-    field-sizing: content;
-    text-align: center; 
-    border-radius: 4px;
-    border: none;
-    outline: none;
-
-    font-size: 0.875rem;
-    color: var(--scheduled-info-color);
-  }
-
-  .time-options-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    padding: 4px;
-    gap: 4px;
-  }
-
-  .time-option {
-    padding: 6px 8px;
-    font-size: 0.875rem;
-    color: #727272;
-    border-radius: 4px;
-  }
-</style>

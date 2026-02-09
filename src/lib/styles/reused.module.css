@@ -1,9 +1,15 @@
 :export {
   paddingVal: 4px;
+  fieldGrey: #727272;
+  noZoomFS: 1rem; /* iOS zoom triggers if font is below 16px */
+}
+
+.placeholderField {
+  font-size: 1rem; /* iOS zoom triggers if font is below 16px */
 }
 
 .placeholderField::placeholder {
-  font-size: 0.875rem;
+  font-size: 1rem;
   opacity: 0.6;
 }
 

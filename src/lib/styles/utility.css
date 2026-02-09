@@ -41,3 +41,8 @@
 .paper-shadow {
   box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2), 1px 1px 1px 1px rgba(0, 0, 0, 0.19);
 }
+
+/* just clearer to discern as elevated than using core-shadow + cast-shadow */
+.pragmatic-shadow { 
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); 
+}

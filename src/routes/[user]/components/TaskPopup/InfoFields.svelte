@@ -38,7 +38,6 @@
   {/key}
 
   <MyTimePicker value={task.startTime}
-    oninput={e => handleChanges('startTime', e.target.value)}
     onTimeSelected={hhmm => handleChanges('startTime', hhmm)}
   />
 

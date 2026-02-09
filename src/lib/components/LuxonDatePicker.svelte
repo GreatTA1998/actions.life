@@ -46,10 +46,11 @@
 <PopoverMenu>
   {#snippet activator({ id, anchorName })}
     <button bind:this={button} popovertarget={id} style:anchor-name={anchorName}>
-      <input onclick={() => button.click()}
-        placeholder="Year and Date"
+      <input onclick={() => button.click()} 
+        readonly 
         value={display}
-        class="input {placeholderField}"
+        placeholder="Year and Date" 
+        class="input {placeholderField}" 
         style:padding="0 {paddingVal}"
       >
     </button>
@@ -57,7 +58,7 @@
 
   {#snippet content({ close })}
     <DatePicker
-      selected={selected}
+      {selected}
       ondateselected={handleDateSelected}
       onclose={close}
     />
@@ -70,14 +71,5 @@
     min-width: 80px;
     padding: 2px;
     border-radius: 4px;
-    font-size: 14px;
-    color: var(--scheduled-info-color, #666);
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .input:focus {
-    outline: none;
   }
 </style>
