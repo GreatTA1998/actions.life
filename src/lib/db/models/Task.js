@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { releaseImage } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
 import { user, tasksCache, cleanupCache, showUndoSnackbar } from '$lib/store'
+import { closeTaskPopup } from '$lib/store/taskPopup.js'
 import { 
   writeBatch, getDocs, increment, 
   collection, query, where, 
@@ -121,6 +122,7 @@ const Task = {
 
   delete: async ({ id }) => {
     return new Promise(async (resolve) => {
+      closeTaskPopup()
       const task = get(tasksCache)[id]
       const treeNodes = await getSubtreeNodes(task)
 

@@ -63,11 +63,10 @@
     $callback(result)
   }
 
-  function onkeyup (e) {
-    e.preventDefault()
-    e.stopPropagation()
+  function onkeydown (e) {
     if (e.key === 'Enter') {
-      if (value === '') inputPopover.hidePopover()
+      if (e.isComposing) return // IME (Input Method Editors), we use keydown to avoid the exhaustive solution mentioned in this article: https://www.stum.de/2016/06/24/handling-ime-events-in-javascript/
+      else if (value === '') inputPopover.hidePopover()
       else {
         createTask({ name: value })
         value = ''
@@ -81,7 +80,7 @@
 <div {ontoggle} bind:this={inputPopover} popover="auto" class="task-input">
   <input 
     bind:this={input} bind:value={value}
-    {onkeyup} onblur={() => inputPopover.hidePopover()}
+    {onkeydown} onblur={() => inputPopover.hidePopover()}
     class="w-full h-full rounded"
   >
   <!-- 1. `onblur` detects iOS 26 keyboard exit via the "arrow" key. 2. Must use a () => function as inputPopover is not defined when attached -->
