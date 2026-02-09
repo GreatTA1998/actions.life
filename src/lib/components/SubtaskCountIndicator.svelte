@@ -13,8 +13,8 @@
 
 <button {onclick} 
   style:font-size={fontSize}
+  style:color={color}
   class="flex items-center gap-x-[2px] {extraClass}" 
-  style="color: {color}"
 >
   <MslCheckCircleOutline style="font-size: 0.75em" class="shrink-0"/>
   <span style="font-size: 0.75em" class="shrink-0">

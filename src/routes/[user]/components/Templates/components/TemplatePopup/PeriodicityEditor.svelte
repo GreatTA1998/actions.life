@@ -107,11 +107,11 @@
 
       <div class="action-button-container">
         {#if isCreating}
-          <RoundButton on:click={handleCreate} backgroundColor="rgb(0, 89, 125)" textColor="white">
+          <RoundButton onclick={handleCreate} backgroundColor="rgb(0, 89, 125)" textColor="white">
             Create routine
           </RoundButton>
         {:else}
-          <RoundButton on:click={handleUpdate} backgroundColor="rgb(0, 89, 125)" textColor="white">
+          <RoundButton onclick={handleUpdate} backgroundColor="rgb(0, 89, 125)" textColor="white">
             Apply changes
           </RoundButton>
         {/if}

@@ -6,11 +6,6 @@
   style={mergedStyle}
   style:padding-top={isBulletPoint ? '' : 'var(--left-padding)'}
 >
-  <!-- As long as this parent div is correctly sized, the duration adjusting area 
-    will be positioned correctly (it's glued to the bottom of this parent div)
-
-    `min-height` prevents the parent from being super small when it's bullet point mode
-  -->
   <div class="flex items-center w-full">
     {#if isBulletPoint}
       <div class="flex items-center" style="

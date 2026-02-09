@@ -1,5 +1,5 @@
 <script>
-  import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
+  import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
   import { treesByDate } from './service.js'
@@ -11,7 +11,7 @@
   const { Task } = getContext('app')
   const { activateInput } = getContext('popover-input')
   const { 
-    draggedItem, scrollCalRect, detectOverlap, 
+    draggedItem, scrollCalRect, detectOverlap, startTaskDrag,
     bestDropzoneID, dropPreviewCSS, hasDropped, resetDragDrop
   } = getContext('drag-drop')
   
@@ -72,15 +72,15 @@
     })
   }}
 >
-  <div class="compact-horizontal select-none">
+  <div class="flex justify-center select-none">
     <div class="center-flex day-name-label"
       class:active-day-name={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
     >
       {DateTime.fromISO(ISODate).toFormat('ccc')}
     </div>
 
-    <div class="center-flex" style="font-size: 16px; font-weight: 300">
-      <div class="center-flex" style="padding: 0px 0px; width: 28px;"
+    <div class="center-flex" style="font-size: 1rem; font-weight: 300">
+      <div class="center-flex" style="padding: 0; width: 28px;"
         class:active-date-number={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
       >
         {DateTime.fromISO(ISODate).toFormat('dd')}
@@ -90,15 +90,21 @@
 
   {#if $headerExpanded}
     {#if $treesByDate[ISODate]}
+      {@const { hasIcon, noIcon } = $treesByDate[ISODate].noStartTime}
       <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
-        {#each $treesByDate[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
+        {#each hasIcon as iconTask (iconTask.id)}
           <DoodleIcon {iconTask} />
         {/each}
       </div>
 
-      <div style="display: flex; flex-direction: column; row-gap: 4px; padding: 0px 4px;">
-        {#each $treesByDate[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
-          <FlexibleDayTask task={flexibleDayTask} />
+      <div class="flex flex-col gap-y-1 px-1">
+        {#each noIcon as task (task.id)}
+          <div draggable="true"  
+            ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })}
+            style:opacity={task.isDone ? '0.9' : '0.7'}
+          >
+            <CalTaskUnit {task} />
+          </div>
         {/each}
         
         {#if $bestDropzoneID === dropzoneID}
@@ -130,11 +136,6 @@
     pointer-events: none;
   }
 
-  .compact-horizontal {
-    display: flex; 
-    justify-content: center;
-  }
-
   .day-header {
     width: var(--width-calendar-day-section);
     font-size: 1.4rem;
@@ -143,7 +144,7 @@
   }
 
   .day-name-label {
-    font-size: 16px;
+    font-size: 1rem;
     margin-bottom: 0px;
     font-weight: 400;
   }
