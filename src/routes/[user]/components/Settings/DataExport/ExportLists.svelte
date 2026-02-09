@@ -3,12 +3,12 @@
 
   let { onExport } = $props()
 
-  function exportLists() {
+  function exportLists () {
     const md = treesToMarkdown($trees)
     onExport(md)
   }
 
-  function treesToMarkdown(treesArray) {
+  function treesToMarkdown (treesArray) {
     if (!treesArray || treesArray.length === 0) {
       return '# Lists\n\nNo tasks found.'
     }
@@ -20,7 +20,7 @@
     return md.trim()
   }
 
-  function formatTaskWithChildren(task, depth = 0) {
+  function formatTaskWithChildren (task, depth = 0) {
     const indent = '  '.repeat(depth)
     const checkbox = task.isDone ? '[x]' : '[ ]'
     const name = task.name || 'Untitled'

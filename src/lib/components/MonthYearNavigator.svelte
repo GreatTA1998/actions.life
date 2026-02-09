@@ -48,6 +48,7 @@
 
     <input 
       type="number" 
+      inputmode="numeric"
       class="year-input" 
       value={selectedYear} 
       oninput={handleYearInput}

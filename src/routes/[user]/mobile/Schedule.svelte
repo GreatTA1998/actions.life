@@ -185,7 +185,7 @@
 </script>
 
 <div class="h-full basis-full flex justify-center">
-  <div class="flex flex-col bg-white" style:max-width={WIDTHS.PANEL_MAX + 'px'}>
+  <div class="flex basis-full flex-col bg-white" style:max-width={WIDTHS.PANEL_MAX + 'px'}>
     <div class="shrink-0">
       <DatePicker
         selected={selectedDate}

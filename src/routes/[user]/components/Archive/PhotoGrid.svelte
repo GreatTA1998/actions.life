@@ -83,7 +83,7 @@
         </div>
       {/each}
 
-      <div use:lazyCallable={getBatch} class="h-[480px] border-solid">
+      <div use:lazyCallable={getBatch} class="h-[480px]">
 
       </div>
     </div>
