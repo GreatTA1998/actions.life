@@ -1,6 +1,6 @@
 <script>
   import { onMount, getContext } from 'svelte'
-  import { page } from '$app/stores'
+  import { page } from '$app/state'
 
   const { Template } = getContext('app')
 
@@ -17,7 +17,7 @@
   })
 
   onMount(async () => {
-    const temp = await Template.getAll({ userID: $page.params.user, includeStats: false })
+    const temp = await Template.getAll({ userID: page.params.user, includeStats: false })
     allTemplates = temp
   })
 
