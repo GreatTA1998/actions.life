@@ -22,7 +22,7 @@
   let inputRef = $state(null)
 
   const debouncedUpdate = createDebouncedFunction(
-    (id, keyValueChanges) => Task.update({ id, keyValueChanges }), 
+    (id, kvChanges) => Task.update({ id, kvChanges }), 
     1000
   )
 
@@ -48,7 +48,7 @@
       {:else}
         <Checkbox fontSize="1.5rem"
           value={task.isDone}
-          onchange={e => Task.update({ id: task.id, keyValueChanges: { isDone: e.target.checked }})}
+          onchange={e => Task.update({ id: task.id, kvChanges: { isDone: e.target.checked }})}
         />
       {/if}
     </div>

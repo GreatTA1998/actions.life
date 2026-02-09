@@ -20,7 +20,7 @@
       value={task.isDone}
       onchange={e => Task.update({
         id: task.id,
-        keyValueChanges: {
+        kvChanges: {
           isDone: e.target.checked
         }
       })}

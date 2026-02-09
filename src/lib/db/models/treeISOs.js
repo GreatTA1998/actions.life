@@ -10,7 +10,7 @@ export async function updateEntireTree ({ treeISOs, batch, parent }) {
   batchUpdate({ nodes, batch, treeISOs })
 }
 
-export async function maintainTreeISOs ({ id, batch, keyValueChanges: changes }) {
+export async function maintainTreeISOs ({ id, batch, kvChanges: changes }) {
   const task = get(tasksCache)[id]
   const crossFamily = await hasChangedFamily({ task, changes })
   if (crossFamily) {

@@ -57,7 +57,7 @@
     if (!circular) {
       Task.update({ 
         id: $draggedItem.id,
-        keyValueChanges: {
+        kvChanges: {
           parentID: task.id,
           orderValue: computeOrderValue(0, task.children),
           persistsOnList: true,
@@ -98,11 +98,11 @@
       
       {#if n === 0}
         <Checkbox value={task.isDone} {fontSize}
-          onchange={e => Task.update({ id: task.id, keyValueChanges: { isDone: e.target.checked }})}
+          onchange={e => Task.update({ id: task.id, kvChanges: { isDone: e.target.checked }})}
         />
       {:else}
         <TaskCaret isCollapsed={task.isCollapsed} {fontSize}
-          onToggle={() => Task.update({ id: task.id, keyValueChanges: { isCollapsed: !task.isCollapsed } })}
+          onToggle={() => Task.update({ id: task.id, kvChanges: { isCollapsed: !task.isCollapsed } })}
         />
       {/if}
     </div>

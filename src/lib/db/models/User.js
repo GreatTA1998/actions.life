@@ -41,10 +41,10 @@ const User = {
     )
   },
 
-  async update (keyValueChanges) {
+  async update (kvChanges) {
     const { uid } = get(user)
     try {
-      const validatedChanges = User.schema.partial().parse(keyValueChanges)
+      const validatedChanges = User.schema.partial().parse(kvChanges)
       await updateFirestoreDoc(`/users/${uid}`, validatedChanges)
     } catch (error) {
       console.error("error in User.update", error)

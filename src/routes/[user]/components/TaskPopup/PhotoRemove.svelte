@@ -15,7 +15,7 @@
       }
       Task.update({ 
         id: task.id,
-        keyValueChanges: { 
+        kvChanges: { 
           imageDownloadURL: '',
           imageFullPath: ''
         }

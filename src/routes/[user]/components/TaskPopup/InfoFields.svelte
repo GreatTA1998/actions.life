@@ -21,7 +21,7 @@
 
     Task.update({
       id: task.id,
-      keyValueChanges: taskUpdates
+      kvChanges: taskUpdates
     })
   }
 </script>

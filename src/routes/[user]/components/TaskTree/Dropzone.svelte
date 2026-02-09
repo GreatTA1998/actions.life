@@ -73,7 +73,7 @@
     if (!circular) {
       Task.update({ 
         id: $draggedItem.id, 
-        keyValueChanges: {
+        kvChanges: {
           parentID,
           orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
           persistsOnList: true, // non-persistent rooms, once dragged to the list, becomes persistent. Otherwise any node could disappear from the complex task structure just because it's scheduled, some day.

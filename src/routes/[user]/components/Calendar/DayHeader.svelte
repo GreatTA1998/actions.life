@@ -39,7 +39,7 @@
   })
 
   function drop_handler ({ id }) {
-    Task.update({ id, keyValueChanges: {
+    Task.update({ id, kvChanges: {
       startTime: '',
       startDateISO: ISODate
     }})

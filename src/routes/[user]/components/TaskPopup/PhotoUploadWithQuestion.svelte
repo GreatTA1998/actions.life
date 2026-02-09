@@ -30,7 +30,7 @@
       <div style="display: flex; align-items: center; column-gap: 12px;">
         {#each [': (', ': |', ': )'] as emotion}
           <button onclick={() => {
-            Task.update({ id: task.id, keyValueChanges: { notes: emotion + ' ' + task.notes }});
+            Task.update({ id: task.id, kvChanges: { notes: emotion + ' ' + task.notes }});
             close({ timeout: 0 });
           }}
           style="width: 32px; height: 32px; outline: 1px solid white; align-items: center; justify-content: center; border-radius: 50%; transform: rotate(90deg)"

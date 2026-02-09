@@ -66,7 +66,7 @@ async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, task, hasS
   try {
     Task.update({ 
       id: task.id, 
-      keyValueChanges: updateObj 
+      kvChanges: updateObj 
     })
   } catch (error) {
     console.error(error)

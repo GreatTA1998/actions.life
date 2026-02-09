@@ -31,7 +31,7 @@
             { text: 'timeline', value: 'timeline' }
           ]} 
           activeValue={task.childrenLayout}
-          onselect={newVal => Task.update({ id: task.id, keyValueChanges: { childrenLayout: newVal } })}
+          onselect={newVal => Task.update({ id: task.id, kvChanges: { childrenLayout: newVal } })}
         />
       </div>
 

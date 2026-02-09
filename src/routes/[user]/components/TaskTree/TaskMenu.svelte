@@ -34,7 +34,7 @@
 
   {#snippet content ()}
     <div style="padding: 8px; display: flex; flex-direction: column; row-gap: 8px;">    
-      <ToggleGroup onselect={newVal => Task.update({ id: task.id, keyValueChanges: { childrenLayout: newVal }})}
+      <ToggleGroup onselect={newVal => Task.update({ id: task.id, kvChanges: { childrenLayout: newVal }})}
         options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
         activeValue={task.childrenLayout} 
       />

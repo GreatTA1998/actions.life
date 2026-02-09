@@ -61,7 +61,7 @@
         prevEndISO: DateTime.utc().plus({ days: previewSpan }).toFormat('yyyy-MM-dd')
       }
     })
-    Task.update({ id: routine.id, keyValueChanges: {
+    Task.update({ id: routine.id, kvChanges: {
       templateID: routine.id
     }})
   }

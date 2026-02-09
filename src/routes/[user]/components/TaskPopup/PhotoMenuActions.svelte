@@ -13,7 +13,7 @@
   let { task } = $props()
 
   function updateLayout(newVal) {
-    Task.update({ id: task.id, keyValueChanges: { photoLayout: newVal }})
+    Task.update({ id: task.id, kvChanges: { photoLayout: newVal }})
   }
 </script> 
 

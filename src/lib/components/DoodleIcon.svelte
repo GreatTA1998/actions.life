@@ -28,7 +28,7 @@
   function toggleDone (iconTask) {
     Task.update({ 
       id: iconTask.id, 
-      keyValueChanges: { isDone: !iconTask.isDone }
+      kvChanges: { isDone: !iconTask.isDone }
     })
   }
 </script>

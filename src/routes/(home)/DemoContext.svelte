@@ -27,12 +27,12 @@
   }
 
   const Task = {
-    update: ({ id, keyValueChanges }) => {
+    update: ({ id, kvChanges }) => {
       firestoreDocs.update(docs => {
         // deep copies of everything
         for (let i = 0; i < docs.length; i++) {
           if (docs[i].id === id) {
-            docs[i] = { ...docs[i], ...keyValueChanges }
+            docs[i] = { ...docs[i], ...kvChanges }
           } else {
             docs[i] = { ...docs[i] }
           }
@@ -258,7 +258,7 @@
     uploadMockPhoto: ({ id }) =>{
       Task.update({
         id,
-        keyValueChanges: {
+        kvChanges: {
           imageDownloadURL: '/optimized_camino.jpg',
           notes: `Tired as hell but the scenery was great. Met some really great people.`
         }

@@ -37,7 +37,7 @@
       User.update({ tags: copy })
       Task.update({
         id: task.id,
-        keyValueChanges: {
+        kvChanges: {
           tagIDs: [...(task.tagIDs || []), id] 
         }
       })
@@ -55,7 +55,7 @@
     }
     Task.update({ 
       id: task.id,
-      keyValueChanges: kvChanges
+      kvChanges: kvChanges
     })
   }
 

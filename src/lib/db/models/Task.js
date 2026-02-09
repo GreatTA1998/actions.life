@@ -78,27 +78,27 @@ const Task = {
     }
   },
 
-  update: async ({ id, keyValueChanges }) => {
+  update: async ({ id, kvChanges }) => {
     try {
       if (get(user).simpleMode) {
-        const { startDateISO, isDone, persistsOnList, isArchived } = keyValueChanges
+        const { startDateISO, isDone, persistsOnList, isArchived } = kvChanges
 
         if (startDateISO || isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
-          keyValueChanges.isArchived = true
+          kvChanges.isArchived = true
         } 
         else if (persistsOnList && !isArchived) {  // only possible via drag-to-list
-          keyValueChanges.startDateISO = ''
-          keyValueChanges.startTime = ''
+          kvChanges.startDateISO = ''
+          kvChanges.startTime = ''
         }
       }
     
-      const validatedChanges = Task.schema.partial().parse(keyValueChanges)
+      const validatedChanges = Task.schema.partial().parse(kvChanges)
       const batch = writeBatch(db)
 
       if (validatedChanges.orderValue) {
         maintainOrderValue(validatedChanges, batch)
       }
-      await maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
+      await maintainTreeISOs({ id, kvChanges: validatedChanges, batch })
       batch.update(
         doc(db, `users/${get(user).uid}/tasks/${id}`), 
         validatedChanges
@@ -110,7 +110,7 @@ const Task = {
       if (validatedChanges.isArchived && !(task.startDateISO || validatedChanges.startDateISO)) {
         showUndoSnackbar(
           `Archiving 1 task from the list area`,
-          () => Task.update({ id, keyValueChanges: { isArchived: false } })
+          () => Task.update({ id, kvChanges: { isArchived: false } })
         )
       }
     }

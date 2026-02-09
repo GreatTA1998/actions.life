@@ -134,7 +134,7 @@
 
     Task.update({
       id: task.id,
-      keyValueChanges: {
+      kvChanges: {
         duration: Math.max(1, task.duration + durationChange)
       }
     })
