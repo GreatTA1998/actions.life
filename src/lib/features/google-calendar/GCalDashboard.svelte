@@ -7,7 +7,7 @@
 
   function toggle (e, calID, account) {
     e.stopPropagation()
-    const oldA = account.selectedCalIDs ?? cals[account.id].map(cal => cal.id)
+    const oldA = account.selectedCalIDs ?? $cals[account.id].map(cal => cal.id)
     const newA = oldA.includes(calID) ? oldA.filter(id => id !== calID) : [...oldA, calID]
     
     GCalAccount.update(account.id, {  
@@ -27,7 +27,8 @@
     <div class="flex flex-col gap-1">
       <h2 style:font-size="0.875rem" class="font-bold">{account.email}</h2>
 
-      <input type="range" min="0.1" max="0.9" step="0.1" onchange={e => updateOpacity(e, account)}
+      <input value={account.opacity} 
+        type="range" min="0.1" max="0.9" step="0.1" onchange={e => updateOpacity(e, account)}
         style="--thumb-color: rgba(200, 200, 200, {account.opacity})"
         class="opacity-slider" 
       />

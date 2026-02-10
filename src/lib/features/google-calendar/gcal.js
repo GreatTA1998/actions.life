@@ -80,13 +80,14 @@ export async function helper (startDT, endDT, calendarIds, calArr, refreshToken,
       for (const event of result.data.events) { // this is wrong, multi-day events can have start and end times see Feb 26 18:00 --> March 4 21:00, re-think the logic
         if (event.start.date && !event.start.dateTime) {
           const d1 = DateTime.fromISO(event.start.date)
-          const d2 = DateTime.fromISO(event.end.date)
+          const d2 = DateTime.fromISO(event.end.date) // probably a conversion error due to implicit timezone conversions, causing an off by 1 bug i.e. event ends at 9th instead of 8th
           let current = d1
           while (current <= d2) { 
-            current = current.plus({ days: 1 })
             const yyyyMMdd = current.toFormat('yyyy-MM-dd')
             if (!dict[yyyyMMdd]) dict[yyyyMMdd] = empty() // since all day event's end interval can exceed our API fetch range
             dict[yyyyMMdd].allDay.push(gcalTask(event, calMap, opacity)) 
+
+            current = current.plus({ days: 1 })
           }
         }
         else if (event.start.dateTime && event.end.dateTime) {
