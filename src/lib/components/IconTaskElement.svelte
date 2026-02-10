@@ -4,7 +4,6 @@
   class:clear-border={!isBulletPoint}
   class:graph-paper-texture={!isBulletPoint}
   class={!isBulletPoint ? calendarBlock : ''}
-
   style="
     --image-download-url: url({task.imageDownloadURL});
     position: relative;
@@ -19,11 +18,6 @@
     row-gap: 4px;
   "
 >
-  <!-- As long as this parent div is correctly sized, the duration adjusting area 
-   will be positioned correctly (it's glued to the bottom of this parent div)
-
-   `min-height` prevents the parent from being super small when it's bullet point mode
-  -->
   <div class="flex items-center w-full gap-1">
     {#if isBulletPoint}
       <div 
@@ -55,7 +49,7 @@
    -->
    <!-- on:drop preventDefault so that the calendar doesn't think we're scheduling a task -->
    <div draggable="true"
-     ondragstart={e => startAdjustingDuration(e)}
+     ondragstart={e =>  startY = getTrueY(e)}
      ondragend={e => adjustDuration(e, task)}
      style="
        cursor: ns-resize;
@@ -82,24 +76,17 @@
 
   const { Task,openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
-  const iconMinPixelHeight = 32
 
   let {
     task = null
   } = $props()
 
+  const iconMinPixelHeight = 32
   let height = $derived(($pixelsPerHour / 60) * task.duration)
   let isBulletPoint = $derived(height < iconMinPixelHeight)
   let startY = 0
 
-  function startAdjustingDuration (e) {
-    startY = getTrueY(e)
-  }
-
   function adjustDuration (e, task) {
-    if (!task.duration) { // quickfix
-      task.duration = 10
-    }
 
     const hoursPerPixel = 1 / $pixelsPerHour
     const minutesPerPixel = 60 * hoursPerPixel

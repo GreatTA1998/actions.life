@@ -25,9 +25,9 @@
 
   <p class="mode-description">
     {#if isSimple}
-      Tasks move between lists and calendar.
+      Tasks move between lists and calendar
     {:else}
-      Tasks persist on lists. Archive them manually.
+      Tasks persist on lists until archived
     {/if}
   </p>
 </div>
