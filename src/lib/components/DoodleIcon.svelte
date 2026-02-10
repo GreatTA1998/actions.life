@@ -28,7 +28,7 @@
   function toggleDone (iconTask) {
     Task.update({ 
       id: iconTask.id, 
-      keyValueChanges: { isDone: !iconTask.isDone }
+      kvChanges: { isDone: !iconTask.isDone }
     })
   }
 </script>
@@ -41,7 +41,7 @@
     class:task-not-done={!iconTask.isDone}
     style="display: block; width: {size}px; height: {size}px; border: 0px solid blue; cursor: pointer;"
     class:radial-glow={iconTask.isDone}
-    class="ios-3d-touch-disable unselectable mobile-no-double-tap-zoom"
+    class="ios-3d-touch-disable select-none mobile-no-double-tap-zoom"
     draggable="true"
     ondragstart={e => startTaskDrag({ e, id: iconTask.id, isFromCal: true })}
   />

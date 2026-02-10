@@ -1,22 +1,21 @@
 <script>
   import { DateTime } from 'luxon'
   import { untrack } from 'svelte'
-  import Popover from './Popover.svelte'
+  import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import DatePicker from './DatePicker.svelte'
+  import { paddingVal, placeholderField } from '$lib/styles/reused.module.css'
 
   let {
     startDateISO = null,
-    willOpen = false,
     ondateselected = () => {}
   } = $props()
 
-  // State
+  let button = $state(null)
   let selected = $state(null)
+  let display = $derived(selected ? selected.toFormat('yyyy-MM-dd') : '')
 
-  // Initialize from startDateISO
   $effect(() => {
     if (startDateISO) {
-      // Capture dependency
       const iso = startDateISO
       
       untrack(() => {
@@ -33,14 +32,9 @@
     }
   })
 
-  // Format for display: "Jul 19"
-  let display = $derived(selected ? selected.toFormat('MMM d') : '')
-
-  // Handle date selection and update local state
-  function handleDateSelected({ mmdd, yyyy }) {
-    if (!mmdd || !yyyy) {
-      selected = null
-    } else {
+  function handleDateSelected ({ mmdd, yyyy }) {
+    if (!mmdd || !yyyy) selected = null
+    else {
       const [month, day] = mmdd.split('/').map(Number)
       const year = Number(yyyy)
       selected = DateTime.fromObject({ year, month, day })
@@ -49,49 +43,33 @@
   }
 </script>
 
-<div class="picker">
-  <Popover {willOpen}>
-    {#snippet activator({ setButtonRef, close })}
-      <button
-        use:setButtonRef
-        type="button"
-        popovertarget="popover"
-        class="input"
+<PopoverMenu>
+  {#snippet activator({ id, anchorName })}
+    <button bind:this={button} popovertarget={id} style:anchor-name={anchorName}>
+      <input onclick={() => button.click()} 
+        readonly 
+        value={display}
+        placeholder="Year and Date" 
+        class="input {placeholderField}" 
+        style:padding="0 {paddingVal}"
       >
-        {display || 'MM/dd'}
-      </button>
-    {/snippet}
+    </button>
+  {/snippet}
 
-    {#snippet content({ close })}
-      <DatePicker
-        selected={selected}
-        ondateselected={handleDateSelected}
-        onclose={close}
-      />
-    {/snippet}
-  </Popover>
-</div>
+  {#snippet content({ close })}
+    <DatePicker
+      {selected}
+      ondateselected={handleDateSelected}
+      onclose={close}
+    />
+  {/snippet}
+</PopoverMenu>
 
 <style>
-  .picker {
-    position: relative;
-    display: inline-block;
-  }
-
   .input {
-    height: 30px;
-    width: 64px;
+    field-sizing: content;
+    min-width: 80px;
     padding: 2px;
-    border: 0;
     border-radius: 4px;
-    font-size: 14px;
-    color: var(--scheduled-info-color, #666);
-    background: transparent;
-    cursor: pointer;
-    text-align: left;
-  }
-
-  .input:focus {
-    outline: none;
   }
 </style>

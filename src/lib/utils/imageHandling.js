@@ -6,7 +6,7 @@ import Task from '$lib/db/models/Task.js'
 
 const storage = getStorage()
 
-export async function singleUpload ({ e, willCompress, taskObject, hasSideEffect }) {
+export async function singleUpload ({ e, willCompress, task, hasSideEffect }) {
   const promises = []
   for (let image of e.target.files) { // in reality it's always one file due to the input limit
     if (image) { // blob file
@@ -16,7 +16,7 @@ export async function singleUpload ({ e, willCompress, taskObject, hasSideEffect
       }
       promises.push(
         uploadImageBlobToFirebase(image, id).then(resultSnapshot => {
-          mergeImageWithTask(resultSnapshot, image, id, taskObject, hasSideEffect)
+          mergeImageWithTask(resultSnapshot, image, id, task, hasSideEffect)
         })
       )
     }
@@ -24,7 +24,7 @@ export async function singleUpload ({ e, willCompress, taskObject, hasSideEffect
   await Promise.all(promises)
 }
 
-async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject, hasSideEffect) {
+async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, task, hasSideEffect) {
   const { metadata } = resultSnapshot 
   const { fullPath, timeCreated } = metadata
 
@@ -56,7 +56,7 @@ async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject
   }
 
   if (hasSideEffect) {
-    if (!taskObject.startDateISO) {
+    if (!task.startDateISO) {
       updateObj.startDateISO = DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd')
       updateObj.startTime = getTimeInHHMM({ dateClassObj })
     }
@@ -65,8 +65,8 @@ async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject
 
   try {
     Task.update({ 
-      id: taskObject.id, 
-      keyValueChanges: updateObj 
+      id: task.id, 
+      kvChanges: updateObj 
     })
   } catch (error) {
     console.error(error)

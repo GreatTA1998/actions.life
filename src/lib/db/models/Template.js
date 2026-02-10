@@ -44,7 +44,7 @@ const Template = {
     this.update({ id, updates })
     const futureInstances = await getAffectedInstances({ id })
     for (const instance of futureInstances) {
-      Task.update({ id: instance.id, keyValueChanges: updates })
+      Task.update({ id: instance.id, kvChanges: updates })
     }
   },
 

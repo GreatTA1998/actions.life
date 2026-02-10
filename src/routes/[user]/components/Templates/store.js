@@ -5,7 +5,7 @@ export const template = writable(null)
 export const templates = writable([])
 export const editingTemplateId = writable('')
 
-export function openTemplateEditor(templateId) {
+export function openTemplateEditor (templateId) {
   editingTemplateId.set(templateId)
   popup.set(true)
 }

@@ -26,14 +26,14 @@ export function generateRecurrenceDTs ({ startDT, endDT, rrStr }) {
 }
 
 export function getPreviewSpan ({ rrStr }) {
-  const kind = getPeriodicity(rrStr)
+  const kind = periodicity(rrStr)
 
   if (kind === 'yearly') return 365 * 2
   else if (kind === 'monthly') return 31 * 2
   else return 7 * 2
 }
 
-export function getPeriodicity (rrStr) {
+export function periodicity (rrStr) {
   if (!rrStr) return 'weekly'
   const lower = rrStr.toLowerCase()
 

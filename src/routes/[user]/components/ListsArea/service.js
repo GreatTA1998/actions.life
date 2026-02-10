@@ -17,15 +17,6 @@ export function listenToTasks (uid) {
       updateCache(persistTasks)
     }
   )
-} 
-
-// TO-DO: bugged, unused for now
-export function cleanup () {
-  for (const unsub of unsubFuncs) {
-    unsub()
-  }
-  cleanupCache(persistTasks)
-  trees.set(null)
 }
 
 function setupListener (ref, callback) {
@@ -47,11 +38,11 @@ function setupListener (ref, callback) {
 
 function buildTreeMap (tasks) {
   trees.set(
-    reconstructTreeInMemory(tasks) // it's actually constructing a forest
+    buildForest(tasks)
   )
 }
 
-export function reconstructTreeInMemory (firestoreTaskDocs) {
+export function buildForest (firestoreTaskDocs) {
   const memoryTree = []
 
   const memo = { '': [] }
@@ -69,10 +60,29 @@ export function reconstructTreeInMemory (firestoreTaskDocs) {
   return memoryTree
 }
 
-function extendTree(node, memo) {
+function extendTree (node, memo) {
   node.children = memo[node.id]
   node.children = node.children.sort((a, b) => a.orderValue - b.orderValue)
   for (const child of node.children) {
     extendTree(child, memo)
   }
+}
+
+export function findSubtree ({ tree, id }) {
+  if (tree.id === id) return tree
+  else {
+    for (const child of tree.children) {
+      const result = findSubtree({ tree: child, id })
+      if (result) return result
+    }
+  }
+}
+
+// TO-DO: bugged, unused for now
+export function cleanup () {
+  for (const unsub of unsubFuncs) {
+    unsub()
+  }
+  cleanupCache(persistTasks)
+  trees.set(null)
 }

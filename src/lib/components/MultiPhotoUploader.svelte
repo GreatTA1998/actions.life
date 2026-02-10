@@ -1,7 +1,7 @@
 <div class="float-button" {style}>
   <!-- `align-items: center` is a quickfix related to mystery height, probably from the invisible input -->
   <div style="display: flex; align-items: center;">
-    <button onclick={openFolderInput} class="responsive-icon-size flexbox content-center">
+    <button onclick={openFolderInput} class="responsive-icon-size flex items-center">
       <MslPhotoLibrary style="font-size: 2.125rem;"/>
     </button>
 
@@ -16,14 +16,15 @@
 </div>  
 
 <script>
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-  import { getRandomID, getTimeInHHMM } from '/src/lib/utils/core.js'
+  import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+  import { getRandomID, getTimeInHHMM } from '$lib/utils/core.js'
   import { compressImage } from '$lib/utils/imageHandling.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
   import MslPhotoLibrary from 'virtual:icons/material-symbols-light/photo-library'
+  import { user } from '$lib/store'
 
-  const { Task, user } = getContext('app')
+  const { Task } = getContext('app')
 
   export let style
 

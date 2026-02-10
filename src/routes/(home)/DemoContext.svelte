@@ -2,13 +2,14 @@
 
 <script>
   import { setContext } from 'svelte'
-  import { writable } from 'svelte/store'
+  import { get, writable } from 'svelte/store'
   import realTask from '$lib/db/models/Task.js'
-  import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'
+  import { buildForest, findSubtree } from '/src/routes/[user]/components/ListsArea/service.js'
 
   let { children } = $props()
 
   const clickedTaskID = writable('')
+  const ancestralTree = writable(null)
   const user = writable({
     uid: 'demo-user',
     maxOrderValue: 100
@@ -26,12 +27,12 @@
   }
 
   const Task = {
-    update: ({ id, keyValueChanges }) => {
+    update: ({ id, kvChanges }) => {
       firestoreDocs.update(docs => {
         // deep copies of everything
         for (let i = 0; i < docs.length; i++) {
           if (docs[i].id === id) {
-            docs[i] = { ...docs[i], ...keyValueChanges }
+            docs[i] = { ...docs[i], ...kvChanges }
           } else {
             docs[i] = { ...docs[i] }
           }
@@ -215,7 +216,7 @@
 
   const tasks = [...habitTasks, ...timelineTasks, ...updateLogTasks]
 
-  // set ids manually
+  // set ids manually (TO-DO: makes the demo brittle)
   for (let i = 0; i < tasks.length; i++) {
     tasks[i].id = tasks[i].name
     tasks[i].orderValue = i + 1
@@ -231,7 +232,18 @@
       temp[task.id] = task
     }
     tasksCache.set(temp)
-    memoryTree.set(reconstructTreeInMemory(docs))
+    memoryTree.set(buildForest(docs))
+  })
+
+  clickedTaskID.subscribe(id => {
+    if (!id) return
+
+    for (const tree of get(memoryTree)) {
+      const result = findSubtree({ id, tree })
+      if (result) {
+        ancestralTree.set(result)
+      }
+    }
   })
 
   setContext('app', {
@@ -240,16 +252,21 @@
     tasksCache, 
     memoryTree,
     clickedTaskID,
+    ancestralTree,
     closeTaskPopup: () => clickedTaskID.set(''),
     openTaskPopup: (task) => clickedTaskID.set(task.id), 
     uploadMockPhoto: ({ id }) =>{
       Task.update({
         id,
-        keyValueChanges: {
+        kvChanges: {
           imageDownloadURL: '/optimized_camino.jpg',
           notes: `Tired as hell but the scenery was great. Met some really great people.`
         }
       })
     }
+  })
+
+  setContext('popover-input', {
+    activateInput: () => {} // quick-fix to avoid error
   })
 </script>

@@ -2,14 +2,14 @@
   import { shareEngravedImage } from '$lib/utils/imageExport.js'
   import MslIosShare from 'virtual:icons/material-symbols-light/ios-share'
   
-  let { taskObject } = $props()
+  let { task } = $props()
   
   let snackbarMessage = $state('')
   
   async function sharePhoto (e) {
     e.stopPropagation()
     try {
-      const { imageDownloadURL, name, startDateISO } = taskObject
+      const { imageDownloadURL, name, startDateISO } = task
       await shareEngravedImage(imageDownloadURL, startDateISO, name)
       snackbarMessage = 'Photo ready to share'
     } catch (error) {
@@ -28,13 +28,13 @@
   .photo-row-action {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 4px;
     color: #333;
-    font-size: 14px;
+    font-size: 0.875rem;
     padding: 4px 8px;
     border-radius: 6px;
     width: 100%;
-    justify-content: flex-start;
   }
 
   .photo-row-label {

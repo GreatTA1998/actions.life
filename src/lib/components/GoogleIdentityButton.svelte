@@ -3,7 +3,13 @@
   import { signInWithPopup, GoogleAuthProvider, browserPopupRedirectResolver } from 'firebase/auth'
   import { firebaseAuth } from '$lib/store'
 
-  let { name = 'Continue with Google', onclick = signInWithGoogle, disabled = false } = $props()
+  let { 
+    name = 'Continue with Google', 
+    onclick = signInWithGoogle, 
+    extraStyle = '',
+    svgSize = '20px',
+    disabled = false
+  } = $props()
 
   async function signInWithGoogle () {
     try {
@@ -34,10 +40,16 @@
   }
 </script>
 
-<button {onclick} {disabled} class="gsi-material-button">
+<button {onclick} {disabled} class="gsi-material-button"
+  style={extraStyle}
+>
   <div class="gsi-material-button-state"></div>
   <div class="gsi-material-button-content-wrapper">
-    <div class="gsi-material-button-icon">
+    <div class="gsi-material-button-icon" 
+      style:width={svgSize}
+      style:min-width={svgSize}
+      style:height={svgSize}
+    >
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink" style="display: block;">
         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
         <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
@@ -77,7 +89,7 @@
     text-align: center;
     -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
     transition: background-color .218s, border-color .218s, box-shadow .218s;
-    vertical-align: middle;
+    vertical-align: middle; /* SUBTLE PROPERTY */
     white-space: nowrap;
     width: auto;
     max-width: 400px;
@@ -85,10 +97,7 @@
   }
 
   .gsi-material-button .gsi-material-button-icon {
-    height: 20px;
     margin-right: 10px;
-    min-width: 20px;
-    width: 20px;
   }
 
   .gsi-material-button .gsi-material-button-content-wrapper {

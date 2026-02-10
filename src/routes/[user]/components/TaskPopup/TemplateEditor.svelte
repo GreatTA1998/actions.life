@@ -3,16 +3,17 @@
   import IconsDisplay from '/src/routes/[user]/components/Templates/components/IconsDisplay/IconsDisplay.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import DurationPicker from '$lib/components/DurationPicker.svelte'
-  import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
+  import TextArea from '$lib/components/TextArea.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
-  import { getPeriodicity } from '$lib/utils/rrule.js'
+  import { periodicity } from '$lib/utils/rrule.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import { getContext, onMount } from 'svelte'
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
   import { template as templateStore } from '/src/routes/[user]/components/Templates/store.js'
+  import { user } from '$lib/store'
 
-  const { Template, user } = getContext('app')
+  const { Template } = getContext('app')
   let { templateID } = $props()
 
   let template = $state(null)
@@ -62,7 +63,7 @@
 {#if template}
   <div class="template-content">
     <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
-      {#if getPeriodicity(template.rrStr) === 'weekly'}
+      {#if periodicity(template.rrStr) === 'weekly'}
         <button onclick={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
           {#if template.iconURL}
             <img src={template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Template icon" />
@@ -82,16 +83,14 @@
     
     <div style="display: flex; gap: 8px; align-items: start; margin-top: 12px;">
       <div style="flex: 1 1 400px;">
-        <UXFormTextArea value={template.notes}
+        <TextArea value={template.notes}
           oninput={e => debouncedUpdate('notes', e.target.value)}
-          fieldLabel=""
           placeholder="Notes..."
         />
       </div>
 
-      <div class="flexbox" style="column-gap: 8px; align-items: center; justify-content: center;">
+      <div class="flex items-center justify-center gap-x-2">
         <MyTimePicker value={template.startTime}
-          oninput={e => debouncedUpdate('startTime', e.target.value)}
           onTimeSelected={hhmm => instantUpdate('startTime', hhmm)}
         />
         <DurationPicker
@@ -105,7 +104,7 @@
       <PeriodicityEditor routine={template} />
     </div>
 
-    <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button flexbox content-center">
+    <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button flex items-center">
       <MslDeleteOutline style="font-size: 1.5rem;"/>
     </button>
   </div>

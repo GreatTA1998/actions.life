@@ -4,12 +4,12 @@
   import PhotoSettings from './PhotoSettings.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
   import DataExport from './DataExport/index.svelte'
-  import ConnectGoogleCalendar from '$lib/components/ConnectGoogleCalendar.svelte'
-  import GoogleCalendarSelector from '$lib/components/GoogleCalendarSelector.svelte'
+  import AddAccount from '$lib/features/google-calendar/AddAccount.svelte'
+  import GCalDashboard from '$lib/features/google-calendar/GCalDashboard.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
   import MslLogout from 'virtual:icons/material-symbols-light/logout'
   import { signOut } from 'firebase/auth'
-  import { user, firebaseAuth } from '$lib/store'
+  import { firebaseAuth } from '$lib/store'
 
   async function handleLogoClick() {
     await signOut($firebaseAuth)
@@ -31,23 +31,21 @@
         <ModeSettings />
       </div>
    
-      <div style="display: flex; flex-direction: column; row-gap: 16px;">
-        <div class="flexbox settings-group" style="flex-direction: column; row-gap: 24px;">
+      <div class="flex flex-col gap-y-4">
+        <div class="flex flex-col gap-y-6 settings-group">
           <div class="title">Calendar</div>
           <GridlineSettings />
 
-          <div style="display: grid; flex-direction: column; gap: 8px;">
-            <ConnectGoogleCalendar clientId="132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com" />
-          
-            {#if $user.google?.refreshToken}
-              <GoogleCalendarSelector />
-            {/if}
+          <div class="grid flex-col gap-2">          
+            <GCalDashboard />
+
+            <AddAccount />
           </div>
         </div>
       </div>
 
       <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
-        <div class="flexbox content-center" style="column-gap: 12px;">
+        <div class="flex items-center gap-x-3">
           <div class="title">Data</div>
           <span class="status">{statusMessage}</span>
         </div>
@@ -88,7 +86,7 @@
 
   .settings-group {
     border-radius: 12px;
-    padding: 12px;
+    padding: 16px;
     background: var(--navbar-bg-color);
   }
 

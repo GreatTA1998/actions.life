@@ -1,4 +1,3 @@
-/** Handles everything data-related for <Calendar/>, from snapshot listeners to tree building. */
 import { updateCache } from '$lib/store'
 import { DateTime } from 'luxon'
 import { pureNumericalHourForm } from '$lib/utils/core.js'
@@ -11,7 +10,6 @@ const listeners = {}
 
 export const treesByID = writable({})
 export const treesByDate = writable({})
-export const googleEventsByDate = writable({})
 
 export function setupCalListener (leftDT, rightDT) {  
   const leftISO = leftDT.toFormat('yyyy-MM-dd')
@@ -92,12 +90,11 @@ export function rebuildRegion (regionTasks, dateISOs) {
 function constructForest (firestoreTaskDocs) {
   const forest = new Map()
   
-  // First pass: create all nodes
   for (const task of firestoreTaskDocs) {
     forest.set(task.id, { ...task, children: [] })
   }
   
-  // Second pass: build the forest (note: due to aliasing, we don't need to process nodes in topological order)
+  // due to aliasing, we don't need to process nodes in topological order
   for (const tree of forest.values()) {
     if (tree.parentID && forest.has(tree.parentID)) { // you can deprecate `forest.has(tree.parentID)` when `rootStartDateISO` is correctly set for all tasks
       forest.get(tree.parentID).children.push(tree)
@@ -151,7 +148,3 @@ function addTaskToDate (task, date, dateToTasks) {
 function emptyState () {
   return { hasStartTime: [], noStartTime: { hasIcon: [], noIcon: [] } }
 }
-
-export default {
-  setupCalListener
-} 

@@ -7,58 +7,54 @@
 
   const { Task } = getContext('app')
 
-  let { taskObj } = $props()
+  let { 
+    task,
+    extraClass = '',
+    fontSize = '1rem'
+  } = $props()
 </script>
 
-<PopoverMenu 
-  {activator} 
-  {content} 
-/>
-
-{#snippet activator ({ setPosition, popovertarget })} 
-  <div style="max-height: 16px; display: flex; align-items: center;">
-    <button {popovertarget} onclick={setPosition} class="menu-icon flexbox content-center">
-      <MslMoreVert style="font-size: 1.5rem;"/>
+<PopoverMenu>
+  {#snippet activator ({ id, anchorName })} 
+    <!-- overflow-hidden is the quickfix for buttons causing overflow  -->
+    <button 
+      popovertarget={id} style:anchor-name={anchorName}
+      style:width="calc(0.75 * {fontSize})"
+      style:height={fontSize}
+      class="{extraClass} overflow-hidden justify-center text-color-[var(--task-action-subtle-color)]" 
+    >
+      <div 
+        style:font-size="calc(1.125 * {fontSize})"
+        class="shrink-0 flex items-center"
+      >
+        <MslMoreVert/>  
+      </div>
     </button>
-  </div>
-{/snippet}
+  {/snippet}
 
-{#snippet content ({ close })} 
-  <div style="padding: 8px; display: flex; flex-direction: column; row-gap: 8px;">    
-    <ToggleGroup onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal }})}
-      options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
-      activeValue={taskObj.childrenLayout} 
-    />
+  {#snippet content ()}
+    <div style="padding: 8px; display: flex; flex-direction: column; row-gap: 8px;">    
+      <ToggleGroup onselect={newVal => Task.update({ id: task.id, kvChanges: { childrenLayout: newVal }})}
+        options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
+        activeValue={task.childrenLayout} 
+      />
 
-    <!-- <div class="menu-divider"></div> -->
-
-    <button class="m-item" onclick={() => { Task.archiveTree({ id: taskObj.id }) }}>
-      <MslInventory2Outline style="font-size: 1.125rem;"/>
-      Archive from list
-    </button>
-  </div>
-{/snippet}
+      <button class="m-item" onclick={() => { Task.archiveTree({ id: task.id }) }}>
+        <MslInventory2Outline style="font-size: 1.125rem;"/>
+        Archive
+      </button>
+    </div>
+  {/snippet}
+</PopoverMenu>
 
 <style>
-  .menu-icon {
-    font-weight: 200;
-    color: var(--task-action-subtle-color);
-  }
-
   .m-item {
     text-align: left;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 400;
     color: rgb(80, 80, 80);
     display: flex;
     align-items: center;
     column-gap: 6px;
-  }
-
-  .menu-divider {
-    height: 1px;
-    background: #ececf0;
-    margin: 4px 0;
-    border: none;
   }
 </style>

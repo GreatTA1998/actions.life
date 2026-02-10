@@ -1,95 +1,77 @@
 <script>
-  import AnimationDiv from './AnimationDiv.svelte'
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import { HEIGHTS, WIDTHS } from '$lib/utils/constants.js'
-  import { activateInput } from '$lib/store/popoverInput.js'
-  import { setContext } from 'svelte'
+  import { getRandomID } from '$lib/utils/core.js'
+  import { getContext, setContext } from 'svelte'
 
   let {
-    cssStyle,
+    style,
     listWidth,
     isLargeFont = false,
-    trees = null
+    trees = null,
+    parentID = ''
   } = $props()
 
-  const anchorID = '--dropzone-root-last'
+  const { activateInput } = getContext('popover-input')
+  const anchorID = `--dropzone-root-last-${getRandomID()}`
   
-  const padding = 6
-  const indent = WIDTHS.INDENT_PER_LEVEL
-
-  // scaled units
-  const scale = isLargeFont ? 2 : 1
-  const dzRootRemHeight = HEIGHTS.ROOT_DROPZONE * scale
-  const dzSubRemHeight = HEIGHTS.SUB_DROPZONE * scale
-  const rootFontSize = 1 * scale // rem =  16px / 32px
-  const subFontSize = 0.875 * scale // rem = 14px / 28px
+  const scale = $derived(isLargeFont ? 2 : 1)
+  const dzRootHeight = $derived(`${(parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE) * scale}rem`)
+  const dzSubHeight = $derived(`${HEIGHTS.SUB_DROPZONE * scale}rem`)
+  const rootFontSize = $derived(`${1 * scale}rem`) // rem =  16px / 32px
+  const subFontSize = $derived(`${0.875 * scale}rem`) // rem = 14px / 28px
 
   setContext('list-config', { 
-    indent, 
-    dzRootRemHeight, 
-    dzSubRemHeight,
-    fullWidth: listWidth - padding,
-    rootFontSize,
-    subFontSize,
-    scale
+    debug: () => false,
+    indent: () => `${WIDTHS.INDENT_PER_LEVEL}px`, 
+    minWidth: () => '240px', // too large = wasteful gap between columns 
+    dzRootHeight: () => dzRootHeight,
+    dzSubHeight: () => dzSubHeight,
+    rootFontSize: () => rootFontSize,
+    subFontSize: () => subFontSize,
   })
 
-  function renderDropzone (idx) {
+  function dzProps (idx, debugColor = 'purple') {
     return {
+      parentID,
       idxInThisLevel: idx,
-      ancestorRoomIDs: [''],
+      ancestorIDs: [''],
       roomsInThisLevel: trees,
-      parentID: '',
-      colorForDebugging: 'purple',
+      debugColor
+    }
+  }
+
+  function onclick (e) {
+    if (e.target === e.currentTarget) {
+      activateInput({ 
+        anchorID, 
+        modifiers: { 
+          persistsOnList: true,
+          parentID
+        }
+      })
     }
   }
 </script>
 
-<div onclick={e => {
-    if (e.target === e.currentTarget) {
-      activateInput({ 
-        anchorID, 
-        modifiers: { persistsOnList: true }
-      })
-    }
-  }}
-  style={cssStyle} 
->
+<div {onclick} {style} class="relative">
   {#if trees}
-    {#each trees as taskObj, i (taskObj.id)}
-      <AnimationDiv {listWidth} id={taskObj.id}>
-        <div class="z-0">
-          <Dropzone {...renderDropzone(i)} />
+    {#each trees as task, i (task.id)}
+      <div style:width={listWidth}>
+        <Dropzone {...dzProps(i)} />
+        
+        <div
+          style:view-transition-name="match-element"
+          style:view-transition-class={parentID ? 'dialog-list-item' : 'list-item'}
+        >  
+          <RecursiveTask {task} depth={1} ancestorIDs={['']} />
         </div>
-
-        <div style="padding: {padding}px" class="list-container">
-          <RecursiveTask {taskObj}
-            depth={1}
-            ancestorRoomIDs={['']}
-          />
-        </div>
-
-        <div style="width: {listWidth}px" class="absolute z-0"> <!-- absolute takes it out of flow, so it'd collapse with consecutive dropzones -->
-          <Dropzone {...renderDropzone(i+1)} />
-        </div>
-      </AnimationDiv>
+      </div>
     {/each}
 
-    <div style="width: {listWidth}px" class="z-0">
-      <Dropzone {...renderDropzone(trees.length)} />
+    <div style:anchor-name={anchorID}> <!-- trick to anchor onto the dropzone from a list click -->
+      <Dropzone {...dzProps(trees.length)} />
     </div>
   {/if}
-  
-  <div id={anchorID} style="anchor-name: {anchorID}; height: 24px; width: {listWidth}px; pointer-events: none;" >
-
-  </div>
 </div>
-
-<style>
-  .list-container {
-    background-color: var(--navbar-bg-color);
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-</style>

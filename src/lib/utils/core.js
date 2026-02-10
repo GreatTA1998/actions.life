@@ -47,9 +47,19 @@ export function round (value, precision) {
 }
 
 export function getRandomColor () {
-  return "hsla(" + ~~(360 * Math.random()) + "," + // hue i.e. the "color"
-                "100%,"+  // 100% saturation i.e. maximize on its vividness and purity
-                "60%,1)"; // 60% lightness (how much black / white mix, otherwise too faded), 1 alpha
+  const h = Math.random();
+  const s = 1;    // 100% saturation
+  const l = 0.6;  // 60% lightness
+
+  // HSL to RGB conversion
+  const a = s * Math.min(l, 1 - l);
+  const f = n => {
+    const k = (n + h * 12) % 12;
+    return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+  };
+
+  const toHex = x => Math.round(x * 255).toString(16).padStart(2, '0');
+  return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
 }
 
 export function getTrueY (e) {
@@ -148,7 +158,7 @@ export function minutes (HHmm) {
   return hours * 60 + minutes
 }
 
-export function formatHours (minutes) {
-  const H = round(minutes / 60, 1)
+export function formatHours (minutes, decimalPlaces = 1) {
+  const H = round(minutes / 60, decimalPlaces)
   return `${H} hr${H !== 1 ? 's' : ''}`
 }

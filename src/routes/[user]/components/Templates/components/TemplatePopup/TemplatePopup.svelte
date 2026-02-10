@@ -4,9 +4,9 @@
   import BasePopup from '$lib/components/BasePopup.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import DurationPicker from '$lib/components/DurationPicker.svelte'
-  import UXFormTextArea from '$lib/components/UXFormTextArea.svelte'
+  import TextArea from '$lib/components/TextArea.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
-  import { getPeriodicity } from '$lib/utils/rrule.js'
+  import { periodicity } from '$lib/utils/rrule.js'
   import { template, closeTemplateEditor } from '../../store.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import Template from '$lib/db/models/Template.js'
@@ -38,7 +38,7 @@
 <BasePopup onClickOutside={closeTemplateEditor}>
   <div class="content-wrapper">
     <div style="display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center;">
-      {#if getPeriodicity($template.rrStr) === 'weekly'}
+      {#if periodicity($template.rrStr) === 'weekly'}
         <button onclick={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
           {#if $template.iconURL}
             <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
@@ -52,7 +52,7 @@
       />
     </div>
 
-    <div class="flexbox" style="align-items: center">
+    <div class="flex items-center">
       {#await Template.getTotalStats({ id: $template.id })}
         <div class="stats">Loading stats...</div>
       {:then { minutesSpent, timesCompleted }}
@@ -68,16 +68,14 @@
     
     <div style="display: flex; gap: 8px; align-items: start;">
       <div style="flex: 1 1 400px;">
-        <UXFormTextArea value={$template.notes}
+        <TextArea value={$template.notes}
           oninput={e => debouncedUpdate('notes', e.target.value)}
-          fieldLabel=""
           placeholder="Notes..."
         />
       </div>
 
-      <div class="flexbox" style="column-gap: 8px; align-items: center; justify-content: center;">
+      <div class="flex items-center justify-center gap-x-2">
         <MyTimePicker value={$template.startTime}
-          oninput={e => debouncedUpdate('startTime', e.target.value)}
           onTimeSelected={hhmm => instantUpdate('startTime', hhmm)}
         />
         <DurationPicker

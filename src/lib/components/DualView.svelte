@@ -2,6 +2,7 @@
   import GripHandle from '$lib/components/GripHandle.svelte'
   import { getContext } from 'svelte'
   import { user } from '$lib/store'
+  import { innerWidth, innerHeight } from 'svelte/reactivity/window'
 
   let { 
     orientation = 'horizontal',
@@ -11,7 +12,7 @@
   } = $props()
   const { User } = getContext('app')
   
-  const windowL = orientation === 'horizontal' ? window.innerWidth : window.innerHeight
+  let windowL = $derived(orientation === 'horizontal' ? innerWidth.current : innerHeight.current)
   let resizing = $state(false)
   let axisL = $state($user[ratioDbField] * 100 * windowL)
 
@@ -44,7 +45,7 @@
 </script>
 
 <div {onpointermove} {onpointerup}
-  class="relative flexbox overflow-hidden w-full h-full" 
+  class="relative flex overflow-hidden w-full h-full" 
   style:flex-direction={orientation === 'horizontal' ? 'row' : 'column'}
 >
   <div class="div-1 min-w-0 min-h-0" style="flex: 0 0 {axisL}px;">    

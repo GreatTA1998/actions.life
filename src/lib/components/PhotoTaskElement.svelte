@@ -1,18 +1,8 @@
-<!-- 
-  TO-DO: unify photo-icon vs icon-photo
-  I often have icon tasks with a photo (i.e. instantiate a routine, attach photo) 
-  but rarely have a photo with an icon. How the app treats both, I have no idea, but it'll have to be addressed in the future. 
--->
-
-<!-- As long as this parent div is correctly sized, the duration adjusting area 
-  will be positioned correctly (it's glued to the bottom of this parent div)
-  `min-height` prevents the parent from being super small when it's bullet point mode
--->
 <div onclick={() => openTaskPopup(task)}
   draggable="true" 
   ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })}
   use:lazyCallable={() => hasIntersected = true}
-  class:calendar-block={true}
+  class={calendarBlock}
   style="
     position: relative;
     display: flex; 
@@ -27,12 +17,18 @@
     background-repeat: no-repeat;
   "
 >
-   <!-- 
-     `1vw`: if it's too wide, it overlaps with the task name for short duration tasks 
-   -->
+  <div 
+    style:background="linear-gradient(rgba(0,0,0,0.7), transparent)"
+    style:padding="var(--left-padding)" 
+    style:border-radius="var(--left-padding)"
+  >
+    <CalTaskUnit {task} color="white" />  
+  </div>
+
+   <!-- `1vw`: if it's too wide, it overlaps with the task name for short duration tasks -->
    <!-- on:drop preventDefault so that the calendar doesn't think we're scheduling a task -->
    <div draggable="true"
-     ondragstart={e => startAdjustingDuration(e)}
+     ondragstart={e => startY = getTrueY(e)}
      ondragend={e => adjustDuration(e, task)}
      style="
        cursor: ns-resize;
@@ -48,57 +44,35 @@
 </div>
 
 <script>
- import { getTrueY } from '$lib/utils/core.js'
- import { lazyCallable } from '/src/lib/utils/svelteActions.js'
- import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
- import { getContext } from 'svelte'
+  import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
+  import { getTrueY } from '$lib/utils/core.js'
+  import { lazyCallable } from '$lib/utils/svelteActions.js'
+  import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
+  import { calendarBlock } from '$lib/styles/reused.module.css'
+  import { getContext } from 'svelte'
 
- const { Task, openTaskPopup} = getContext('app')
- const { startTaskDrag } = getContext('drag-drop')
+  const { Task, openTaskPopup} = getContext('app')
+  const { startTaskDrag } = getContext('drag-drop')
 
- export let task = null // assumes `task` is hydrated
+  let { task = null } = $props() // assumes `task` is hydrated
 
- $: height = ($pixelsPerHour / 60) * task.duration
- $: isBulletPoint = height < 24 // 24px is exactly enough to not crop the checkbox and the task name
+  let startY = $state(0)
+  let hasIntersected = $state(false)
+  let height = $derived(($pixelsPerHour / 60) * task.duration)
+  let isBulletPoint = $derived(height < 24) // 24px is exactly enough to not crop the checkbox and the task name
 
- let startY = 0
- let hasIntersected = false
+  function adjustDuration (e, task) {
+    const hoursPerPixel = 1 / $pixelsPerHour
+    const minutesPerPixel = 60 * hoursPerPixel
 
- function startAdjustingDuration (e) {
-   startY = getTrueY(e)
- }  
+    const newY = getTrueY(e)
+    const durationChange = minutesPerPixel * (newY - startY)
 
- function adjustDuration (e, task) {
-   // quickfix
-   if (!task.duration) {
-     task.duration = 10
-   }
-
-   const hoursPerPixel = 1 / $pixelsPerHour
-   const minutesPerPixel = 60 * hoursPerPixel
-
-   const newY = getTrueY(e)
-   const durationChange = minutesPerPixel * (newY - startY)
-
-   Task.update({
-     id: task.id,
-     keyValueChanges: {
-       duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event
-     }      
-   })
- }
-</script> 
-
-<style>
- :root {
-   --left-padding: 6px;
-
-   --experimental-black: hsla(0, 100%, 0%, 0.6);
- }
-
- .calendar-block {
-   width: 100%;
-   cursor: pointer;
-   border-radius: var(--left-padding);
- }
-</style>
+    Task.update({
+      id: task.id,
+      kvChanges: {
+        duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event
+      }      
+    })
+  }
+</script>

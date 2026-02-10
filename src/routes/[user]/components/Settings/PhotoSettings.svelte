@@ -3,13 +3,11 @@
   import CheckboxSquare from '$lib/components/CheckboxSquare.svelte'
   import { defaultPhotoLayout } from '$lib/store/photoLayout.js'
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
-  import { getContext } from 'svelte'
+  import { user } from '$lib/store'
 
   import MslSplitscreenLeft from 'virtual:icons/material-symbols-light/splitscreen-left'
   import MslSplitscreenTop from 'virtual:icons/material-symbols-light/splitscreen-top'
   import MslFullscreenPortrait from 'virtual:icons/material-symbols-light/fullscreen-portrait'
-
-  const { user } = getContext('app')
 
   async function updateDefaultPhotoLayout (layoutValue) {    
     if ($user) {

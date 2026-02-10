@@ -1,28 +1,10 @@
-import { getFunctions, httpsCallable } from 'firebase/functions'
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions'
+import { app } from '$lib/db/init.js'
 
-export function sendEmail ({ subject, content, toWho }) {
-  const functions = getFunctions()
-  const sendEmail = httpsCallable(functions, 'sendEmail')
-  return new Promise(async resolve => {
-    await sendEmail({ subject, content, toWho })
-    resolve()
-  })
-}
+const functions = getFunctions(app)
+// connectFunctionsEmulator(functions, "127.0.0.1", 5001)
 
-export function exchangeGoogleCode({ code }) {
-  const functions = getFunctions()
-  const fn = httpsCallable(functions, 'exchangeGoogleCode')
-  return fn({ code })
-}
-
-export function fetchGoogleCalendars() {
-  const functions = getFunctions()
-  const fn = httpsCallable(functions, 'fetchGoogleCalendars')
-  return fn()
-}
-
-export function fetchGoogleEvents({ timeMin, timeMax, calendarIds }) {
-  const functions = getFunctions()
-  const fn = httpsCallable(functions, 'fetchGoogleEvents')
-  return fn({ timeMin, timeMax, calendarIds })
+export function cloudFunction (fnName, params = {}) {
+  const fn = httpsCallable(functions, fnName)
+  return fn(params)
 }

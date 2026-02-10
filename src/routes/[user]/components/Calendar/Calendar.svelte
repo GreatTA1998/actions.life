@@ -7,7 +7,7 @@
   import { headerHeight, pixelsPerHour, timestampsColumnWidth } from './store.js'
   import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
   import { setupCalListener, treesByDate } from './service.js'
-  import { getGoogleEvents } from './gcalService.js'
+  import { getAllGCalEvents, fetchAccountsAndCalendars } from '$lib/features/google-calendar/gcal.js'
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'
@@ -32,31 +32,31 @@
   $: if (viewportRight >= triggerRight) addFutureListener()
   $: if (viewportLeft <= triggerLeft) addPastListener()
 
-  onMount(() => {
+  onMount(async () => {
     setupCalListener(
-      originDT.plus({ days: viewportLeft - 2*c }),
-      originDT.plus({ days: viewportRight + 2*c })
-    )
-    getGoogleEvents(
       originDT.plus({ days: viewportLeft - 2*c }),
       originDT.plus({ days: viewportRight + 2*c })
     )
     triggerLeft = viewportLeft - c
     triggerRight = viewportRight + c
-    
     // quickfix, refactor into an action in the future perhaps
     scrollCalRect.set(
       () => scrollParent.getBoundingClientRect() // temporary,  () => {} is more robust across layout changes
     )
-  })
 
+    await fetchAccountsAndCalendars()
+    getAllGCalEvents(
+      originDT.plus({ days: viewportLeft - 2*c }),
+      originDT.plus({ days: viewportRight + 2*c })
+    )
+  })
 
   function addFutureListener () {
     setupCalListener(
       originDT.plus({ days: (triggerRight + c) + 1 }),
       originDT.plus({ days: (triggerRight + c) + 1 + 2*c }) 
     )
-    getGoogleEvents(
+    getAllGCalEvents(
       originDT.plus({ days: (triggerRight + c) + 1 }),
       originDT.plus({ days: (triggerRight + c) + 1 + 2*c })
     )
@@ -68,7 +68,7 @@
       originDT.plus({ days: (triggerLeft - c) - 1 - 2*c }),
       originDT.plus({ days: (triggerLeft - c) - 1 })
     )
-    getGoogleEvents(
+    getAllGCalEvents(
       originDT.plus({ days: (triggerLeft - c) - 1 - 2*c }),
       originDT.plus({ days: (triggerLeft - c) - 1 })
     )
@@ -99,18 +99,18 @@
       use:jumpToToday class="relative hide-scrollbar cal-bg-color" style:overflow="auto" 
       on:scroll={e => scrollX = e.target.scrollLeft + $timestampsColumnWidth }
     >
-      <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flexbox">
+      <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flex">
         <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {24 * $pixelsPerHour}px;"/>
 
         {#if renderedColumnDTs[0]}
           <div class="absolute" style:left="{renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px">
-            <div class="sticky top-0 z-1 flexbox" use:trackHeight={h => headerHeight.set(h)} style="box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);">
+            <div class="sticky top-0 z-1 flex" use:trackHeight={h => headerHeight.set(h)} style="box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);">
               {#each renderedColumnDTs as dt (dt.toMillis())}
                 <DayHeader {dt} />
               {/each}
             </div>
 
-            <div class="flexbox pt-7">
+            <div class="flex pt-7">
               {#each renderedColumnDTs as dt (dt.toMillis())}
                 <DayColumn {dt}/>
               {/each}

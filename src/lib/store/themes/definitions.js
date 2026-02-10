@@ -25,5 +25,14 @@ export const themes = {
       '--navbar-bg-color': '#ffffff',
       '--grid-color': 'rgb(228, 228, 228)'
     }
+  },
+  google: {
+    previewColor: '#f0f4f8',
+    cssVars: {
+      '--todo-list-bg-color': '#ffffff',
+      '--calendar-bg-color': '#f0f4f8',
+      '--navbar-bg-color': '#ffffff',
+      '--grid-color': '#e5e7eb'
+    }
   }
 }

@@ -32,12 +32,12 @@
     border-radius: 24px;
     background-color: white;
 
-    box-shadow: 0px 0px 0px 9999px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 0px 0px 9999px rgba(0, 0, 0, 0.8);
   }
 
   @media (min-width: 768px) {
     .detailed-card-popup {
-      width: 70%;
+      width: 768px;
     }
   }
 </style>

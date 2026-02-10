@@ -3,64 +3,26 @@
 
   let { 
     activator, 
-    content, 
-    menuStyles,
+    content,
     ontoggle = () => {},
     id = getRandomID()
   } = $props()
 
-  let popoverElem = $state(null)
-  let position = $state({ x: 0, y: 0 })
-  let adjustedPosition = $derived(getAdjustedPosition(position, popoverElem))
-
-  function getAdjustedPosition (basePosition, elem) {
-    if (!elem) return basePosition
-
-    const rect = elem.getBoundingClientRect()
-    const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
-    
-    let { x, y } = basePosition
-
-    if (x > viewportWidth - rect.width) x = viewportWidth - rect.width
-    if (x < 0) x = 0
-    if (y + rect.height > viewportHeight) y = viewportHeight - rect.height
-    if (y < 0) y = 0
-    
-    return { x, y }
-  }
-
-  function setPosition (e) {
-    position = { x: e.clientX, y: e.clientY + 8 }
-  }
-
-  function open (e) {
-    popoverElem.showPopover()
-    setPosition(e)
-  }
+  let menu = $state(null)
+  let anchorName = $derived(`--anchor-${id}`)
 
   function close () {
-    popoverElem.hidePopover()
+    menu.hidePopover()
   }
 </script>
 
+{@render activator({ id, anchorName, close })}
 
-{@render activator({ open, close, setPosition, popovertarget: id })}
-
-<div {id} bind:this={popoverElem}
-  popover="auto"
-  style='{menuStyles} left: {adjustedPosition.x}px; top: {adjustedPosition.y}px; margin: 0; padding: 0;'
-  {ontoggle}
-  class="card"
+<div popover {id} {ontoggle} bind:this={menu}
+  class="absolute rounded-xl pragmatic-shadow"
+  style:position-anchor={anchorName}
+  style:position-area="block-end span-inline-end"
+  style:position-try-fallbacks="flip-block, flip-inline, flip-inline flip-block"
 >
-  {@render content({ open, close, setPosition, popovertarget: id })}
+  {@render content({ close })}
 </div>
-
-<style>
-  .card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    border: none;
-  }
-</style>

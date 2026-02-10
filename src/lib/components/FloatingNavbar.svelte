@@ -1,43 +1,44 @@
 <script>
   import { activeView } from '$lib/store'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
-  import MsManageSearch from 'virtual:icons/material-symbols/manage-search'
   import MsHouseOutline from 'virtual:icons/material-symbols/house-outline'
-
+  import MsPhotoCameraBackOutline from 'virtual:icons/material-symbols/photo-camera-back-outline'
+  import MsRepeat from 'virtual:icons/material-symbols/repeat'
+  import MsScheduleOutline from 'virtual:icons/material-symbols/schedule-outline'
+   
   let { position = 'right' } = $props() // or 'bottom'
 
-  let isBottom = $derived(position === 'bottom')
+  let iconSize = $derived(`${position === 'bottom' ? 1.5 : 1.2}rem`)
 
   function onCalClick () {
     if ($activeView === 'CALENDAR') jumpToToday()
-    else changeTo('CALENDAR')
+    else to('CALENDAR')
   }
 
-  function changeTo (view) {
+  function to (view) {
     activeView.set(view)
   }
 </script>
 
-<div class="floating-navbar" 
-  class:bot-nav={isBottom}
-  class:right-nav={!isBottom}
->
-  <button onclick={() => changeTo('SETTINGS')}
-    class="my-btn logo-button" class:active={$activeView === 'SETTINGS'}
-  >
-    <img src="/logo-no-bg.png" alt="Logo" class="logo-img" />
+<div class="floating-navbar {position}">
+  <button onclick={() => to('SETTINGS')} class="logo" class:active={$activeView === 'SETTINGS'}>
+    <img src="/logo-no-bg.png" class="logo-img" />
   </button>
 
-  <button onclick={onCalClick}
-    class="my-btn" class:active={$activeView === 'CALENDAR'}
-  >
-    <MsHouseOutline style="font-size: {isBottom ? 1.5 : 1.2}rem;"/>
+  <button onclick={onCalClick} class:active={$activeView === 'CALENDAR'}>
+    <MsHouseOutline style="font-size: {iconSize}"/>
   </button>
 
-  <button onclick={() => changeTo('DISCOVER')}
-    class="my-btn" class:active={$activeView === 'DISCOVER'}
-  >
-    <MsManageSearch style="font-size: {isBottom ? 1.5 : 1.2}rem;"/>
+  <button onclick={() => to('SCHEDULE')} class:active={$activeView === 'SCHEDULE'}>
+    <MsScheduleOutline style="font-size: {iconSize}"/>
+  </button>
+
+  <button onclick={() => to('ROUTINES')} class:active={$activeView === 'ROUTINES'}>
+    <MsRepeat style="font-size: {iconSize}"/>
+  </button>
+
+  <button onclick={() => to('PHOTOS')} class:active={$activeView === 'PHOTOS'}>
+    <MsPhotoCameraBackOutline style="font-size: {iconSize}"/>
   </button>
 </div>
 
@@ -48,23 +49,25 @@
     --mobile-padding: 2px;
   }
 
+  button {
+    justify-content: center;
+  }
+
   .floating-navbar {
     view-transition-name: floating-navbar;
     view-transition-class: static-ui;
     
     position: fixed;
     z-index: 2;
-
     display: flex;
     border-radius: var(--navbar-radius);
-    
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
   }
 
-  .bot-nav {
-    bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  .bottom {
+    bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
     padding: var(--desktop-padding);
@@ -72,34 +75,17 @@
     gap: 4px;
   }
 
-  .right-nav {
+  .right {
     top: 50%;
-    right: max(16px, env(safe-area-inset-right, 16px));
+    right: 8px;
     transform: translateY(-50%);
     padding: var(--mobile-padding);
     flex-direction: column;
     gap: 4px;
   }
 
-  .logo-img {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-  }
-
-  .my-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .active {
-    font-weight: 600;
-    background: rgba(180 180 180 / 0.2); /* 240, 0 --> 120 (too dark) --> 180 (decent) --> 210 (too faint) --> 195 (too faint) */
-  }
-
-  .bot-nav {
-    & .my-btn {
+  .bottom {
+    & button {
       border-radius: calc(var(--navbar-radius) - var(--desktop-padding));
       flex-direction: row;
       width: 40px;
@@ -109,13 +95,13 @@
       gap: 0;
     }
 
-    & .logo-button {
+    & .logo {
       padding: 0 8px;
     }
   }
 
-  .right-nav {
-    & .my-btn {
+  .right {
+    & button {
       border-radius: calc(var(--navbar-radius) - var(--mobile-padding));
       flex-direction: column;
       width: 32px;
@@ -123,8 +109,19 @@
       gap: 2px;
     }
     
-    & .logo-button {
+    & .logo {
       padding: 4px 0;
     }
+  }
+
+  .logo-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  .active {
+    font-weight: 600;
+    background: rgba(180 180 180 / 0.2); /* 240, 0 --> 120 (too dark) --> 180 (decent) --> 210 (too faint) --> 195 (too faint) */
   }
 </style>

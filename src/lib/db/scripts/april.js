@@ -1,5 +1,5 @@
 import { getFirestoreCollection, updateFirestoreDoc } from '/src/lib/db/helpers.js'
-import { reconstructTreeInMemory } from '/src/routes/[user]/components/ListsArea/service.js'
+import { buildForest } from '/src/routes/[user]/components/ListsArea/service.js'
 import { writeBatch, doc } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { isValidISODate } from '$lib/db/models/Task.js'
@@ -87,7 +87,7 @@ export async function migrateTemplates (uid, testRun = true) {
 export async function fixInvalidStartDateISOs (uid, testRun = true) {
   console.log('testRun = ', testRun)
   const tasks = await getFirestoreCollection(`/users/${uid}/tasks`)
-  const forest = reconstructTreeInMemory(tasks)
+  const forest = buildForest(tasks)
   const batches = []
   let count = 0
   for (const tree of forest) {
@@ -144,7 +144,7 @@ export async function migrateCalendarTasks (uid, testRun = true) {
   console.log('testRun = ', testRun)
   const tasks = await getFirestoreCollection(`/users/${uid}/tasks`)
 
-  const forest = reconstructTreeInMemory(tasks)
+  const forest = buildForest(tasks)
   console.log('forest.length =', forest.length)
   let count = 0
   const batches = []

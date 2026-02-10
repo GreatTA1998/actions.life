@@ -1,7 +1,10 @@
 <script>
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
+  import { paddingVal, placeholderField, fieldGrey, noZoomFS } from '$lib/styles/reused.module.css'
 
   let { value, oninput } = $props()
+
+  let button = $state(null)
 
   const durations = [
     { label: '1m', value: 1 },
@@ -12,69 +15,60 @@
     { label: '20m', value: 20 },
     { label: '30m', value: 30 },
     { label: '40m', value: 40 },
-    { label: '1hr', value: 60 },
-    { label: '2hr', value: 120 },
-    { label: '3hr', value: 180 },
-    { label: '4hr', value: 240 }
+    { label: '50m', value: 50 },
+    { label: '60m', value: 60 },
+    { label: '90m', value: 90 },
+    { label: '120m', value: 120 },
   ];
 
   function select (duration, close) {
     if (oninput) {
-      oninput({ target: { value: duration.value } });
+      oninput({ target: { value: duration.value } })
     }
-    close();
+    close()
   }
 </script>
 
-<PopoverMenu {activator} {content} />
-
-{#snippet activator({ open, close, setPosition })}
-  <div class="duration-input">
-    <input {value} {oninput}
-      onclick={open}
-      type="number" 
-      pattern="[0-9]*"
-      max="1000"
-      min="0"
-      placeholder="30"
+<PopoverMenu>
+  {#snippet activator({ id, anchorName, close })}
+    <button bind:this={button}
+      popovertarget={id}
+      style:anchor-name={anchorName}
+      style:padding="0px {paddingVal}"
+      style:font-size={noZoomFS}
     >
-    <span class="suffix">
-      min
-    </span>
-  </div>
-{/snippet}
-
-{#snippet content({ open, close, setPosition })}
-  <div class="duration-options">
-    {#each durations as duration}
-      <button onclick={() => select(duration, close)}
-        class="duration-button" 
-        class:highlighted-option={value === duration.value}
+      <input onclick={() => button.click()}
+        {value} {oninput} onblur={() => setTimeout(close, 300)}
+        class={placeholderField}
+        type="number" 
+        pattern="[0-9]*"
+        min="0"
       >
-        {duration.label}
-      </button>
-    {/each}
-  </div>
-{/snippet}
+      <span class="pointer-events-none">
+        m
+      </span>
+    </button>
+  {/snippet}
+
+  {#snippet content({ close })}
+    <div class="grid gap-2 p-2" style:grid-template-columns="repeat(3, 1fr)">
+      {#each durations as duration}
+        <button onclick={() => select(duration, close)}
+          style:color={fieldGrey}
+          class="rounded py-2 px-3 {placeholderField}" 
+          class:highlighted-option={value === duration.value}
+        >
+          {duration.label}
+        </button>
+      {/each}
+    </div>
+  {/snippet}
+</PopoverMenu>
 
 <style>
-  .duration-input {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-  }
-
   input {
-    max-width: 80px;
-    height: 30px;
-    padding: 8px 40px 8px 12px; /* extra padding on right for "min" */
-    border: 0px solid #e0e0e0;
+    field-sizing: content;
     border-radius: 6px;
-    outline: none;
-    transition: border-color 0.2s;
-
-    font-size: 0.875rem;
-    color: var(--scheduled-info-color);
   }
 
   input:focus {
@@ -86,31 +80,5 @@
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
-  }
-  input[type=number] {
-    -moz-appearance: textfield;
-  }
-
-  .suffix {
-    position: absolute;
-    right: 12px;
-    color: var(--scheduled-info-color);
-    font-size: 0.875rem;
-    pointer-events: none;
-  }
-
-  .duration-options {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    padding: 8px;
-    max-width: 240px;
-  }
-
-  .duration-button {
-    padding: 6px 10px;
-    font-size: 14px;
-    border-radius: 4px;
-    color: #727272;
   }
 </style>

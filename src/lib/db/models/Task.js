@@ -1,11 +1,12 @@
 import { z } from 'zod'
 import { releaseImage } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
-import { user, tasksCache, showUndoSnackbar } from '$lib/store'
+import { user, tasksCache, cleanupCache, showUndoSnackbar } from '$lib/store'
+import { closeTaskPopup } from '$lib/store/taskPopup.js'
 import { 
   writeBatch, getDocs, increment, 
   collection, query, where, 
-  onSnapshot, doc 
+  onSnapshot, doc
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
@@ -34,6 +35,7 @@ const Task = {
     childrenLayout: z.string().default('normal'), // 'normal' (renaming to 'list' but requires proper migration) or 'timeline'
     photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'thumbnail'
     isCollapsed: z.boolean().default(false),
+    tagIDs: z.array(z.string()).default([]),
     
     // maintained fields
     orderValue: z.number().optional(),
@@ -43,11 +45,11 @@ const Task = {
 
   create: async ({ id, newTaskObj, optimistic = true }) => {
     try {
-      if (firestoreOffline()) return alert('Currently offline')
-      
       const validatedTask = Task.schema.parse(newTaskObj)
       const { parentID, startDateISO } = validatedTask
       const parent = get(tasksCache)[parentID]
+      
+      if (parent?.tagIDs) validatedTask.tagIDs = parent.tagIDs
 
       const { uid } = get(user)
       const batch = writeBatch(db)
@@ -76,29 +78,27 @@ const Task = {
     }
   },
 
-  update: async ({ id, keyValueChanges }) => {
+  update: async ({ id, kvChanges }) => {
     try {
-      if (firestoreOffline()) return alert('Currently offline')
-
       if (get(user).simpleMode) {
-        const { startDateISO, isDone, persistsOnList, isArchived } = keyValueChanges
+        const { startDateISO, isDone, persistsOnList, isArchived } = kvChanges
 
         if (startDateISO || isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
-          keyValueChanges.isArchived = true
+          kvChanges.isArchived = true
         } 
         else if (persistsOnList && !isArchived) {  // only possible via drag-to-list
-          keyValueChanges.startDateISO = ''
-          keyValueChanges.startTime = ''
+          kvChanges.startDateISO = ''
+          kvChanges.startTime = ''
         }
       }
     
-      const validatedChanges = Task.schema.partial().parse(keyValueChanges)
+      const validatedChanges = Task.schema.partial().parse(kvChanges)
       const batch = writeBatch(db)
 
       if (validatedChanges.orderValue) {
-        maintainOrderValue(validatedChanges,batch)
+        maintainOrderValue(validatedChanges, batch)
       }
-      await maintainTreeISOs({ id, keyValueChanges: validatedChanges, batch })
+      await maintainTreeISOs({ id, kvChanges: validatedChanges, batch })
       batch.update(
         doc(db, `users/${get(user).uid}/tasks/${id}`), 
         validatedChanges
@@ -110,7 +110,7 @@ const Task = {
       if (validatedChanges.isArchived && !(task.startDateISO || validatedChanges.startDateISO)) {
         showUndoSnackbar(
           `Archiving 1 task from the list area`,
-          () => Task.update({ id, keyValueChanges: { isArchived: false } })
+          () => Task.update({ id, kvChanges: { isArchived: false } })
         )
       }
     }
@@ -122,13 +122,12 @@ const Task = {
 
   delete: async ({ id }) => {
     return new Promise(async (resolve) => {
-      if (firestoreOffline()) return resolve(alert('Currently offline'))
-
-      const taskObj = get(tasksCache)[id]
-      const treeNodes = await getSubtreeNodes(taskObj)
+      closeTaskPopup()
+      const task = get(tasksCache)[id]
+      const treeNodes = await getSubtreeNodes(task)
 
       // warning: need a way to disable this confirmation when we support sub-tasks for routines
-      if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} tasks in this tree?`)) {
+      if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} actions at once?`)) {
         return resolve([])
       }
 
@@ -139,15 +138,17 @@ const Task = {
         batch.delete(doc(db, `/users/${uid}/tasks/${node.id}`))
       }
       await handleTreeISOsForDeletion({ batch, tasksToDelete: treeNodes }) // modifies `batch` before commiting
+      cleanupCache(treeNodes) // previous operations and sub-operations depend on `tasksCache`
+      
       await batch.commit()
-
+      
       resolve(treeNodes)
     })
   },
 
   archiveTree: async ({ id }) => {
-    const taskObj = get(tasksCache)[id]
-    const tasks = await getSubtreeNodes(taskObj)
+    const task = get(tasksCache)[id]
+    const tasks = await getSubtreeNodes(task)
 
     const { uid } = get(user)
     const batch = writeBatch(db)
@@ -171,8 +172,8 @@ const Task = {
   unarchiveTree: async ({ id }) => {
     const { uid } = get(user)
     const batch = writeBatch(db)
-    const taskObj = get(tasksCache)[id]
-    const tasksToUnarchive = await getSubtreeNodes(taskObj)
+    const task = get(tasksCache)[id]
+    const tasksToUnarchive = await getSubtreeNodes(task)
 
     for (const task of tasksToUnarchive) {
       batch.update(doc(db, `/users/${uid}/tasks/${task.id}`), { 
@@ -234,10 +235,6 @@ function maintainOrderValue (validatedObj, batch) {
       maxOrderValue: increment(diff)
     })
   }
-}
-
-function firestoreOffline () {
-  return !navigator.onLine // not synced with Firestore but temporary solution until Supabase
 }
 
 export default Task

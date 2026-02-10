@@ -43,8 +43,7 @@
     height: 30px;
     border-radius: 50%;
     font-size: 12px;
-    line-height: 30px;
-    text-align: center;
+    justify-content: center;
     color: rgb(170, 170, 170);
     background-color: rgb(100, 100, 100);
     user-select: none;

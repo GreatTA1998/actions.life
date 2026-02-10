@@ -1,16 +1,20 @@
 <div class="grid-container">
   <main class="content-area">
-    {#if $activeView === 'CALENDAR'}
+    {#if $activeView === 'SETTINGS'}
+      <Settings />
+    {:else if $activeView === 'CALENDAR'}
       <DualView orientation="vertical" ratioDbField="listAreaHeightRatio" minL={MOBILE_SAFE_BOTTOM}
         {child1} 
         {child2} 
       />
       {#snippet child1 ()}<Calendar />{/snippet}
-      {#snippet child2 ()}<UnifiedListArea xyScrolling={false}/>{/snippet}
-    {:else if $activeView === 'DISCOVER'}
-      <Discover />
-    {:else if $activeView === 'SETTINGS'}
-      <Settings />
+      {#snippet child2 ()}<ListArea xyScrolling={false}/>{/snippet}
+    {:else if $activeView === 'SCHEDULE'}
+      <Schedule />
+    {:else if $activeView === 'ROUTINES'}
+      <HabitsTab />
+    {:else if $activeView === 'PHOTOS'}
+      <PhotoGrid />
     {/if}
   </main>
 
@@ -18,12 +22,14 @@
 </div>
 
 <script>
-  import UnifiedListArea from '$lib/components/UnifiedListArea.svelte'
+  import ListArea from '$lib/components/ListArea.svelte'
   import Calendar from '/src/routes/[user]/components/Calendar/Calendar.svelte'
   import DualView from '$lib/components/DualView.svelte'
-  import Discover from './Discover.svelte'
   import Settings from '../components/Settings/index.svelte'
   import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
+  import PhotoGrid from '/src/routes/[user]/components/Archive/PhotoGrid.svelte'
+  import HabitsTab from '/src/routes/[user]/mobile/HabitsTab.svelte'
+  import Schedule from '/src/routes/[user]/mobile/Schedule.svelte'
 
   import { MOBILE_SAFE_BOTTOM } from '$lib/utils/constants.js'
   import { activeView } from '$lib/store'
@@ -35,10 +41,6 @@
   })
 </script>
 
-<svelte:head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-</svelte:head>
-
 <style>
   :global(body),
   :global(html) {
@@ -46,7 +48,7 @@
     height: 100%;
     width: 100%;
     position: fixed;
-    touch-action: manipulation;
+    touch-action: manipulation; /* prevents double tap to zoom and therefore tap delays, common mobile optimization */
     overscroll-behavior: none;
   }
 

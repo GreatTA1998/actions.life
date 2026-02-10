@@ -1,19 +1,21 @@
 <script>
-  import { isOverlapping, getOverlapArea, clip, dropPreviewCSS } from '$lib/utils/dragDrop.js'
   import TaskElement from '$lib/components/TaskElement.svelte'
   import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
-  import GoogleEvent from './GoogleEvent.svelte'
+  import GcalEvent from '$lib/features/google-calendar/GCalEvent.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
-  import { activateInput, overrideOptions } from '$lib/store/popoverInput.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
-  import { treesByDate, googleEventsByDate } from './service.js'
-  import { user, timestamps, calSnapInterval } from '$lib/store'
-  import { getContext, onMount, onDestroy } from 'svelte'
+  import { treesByDate } from './service.js'
+  import { user, timestamps, calSnapInterval, googleEventsByDate } from '$lib/store'
+  import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
-  const { draggedItem, hasDropped, matchedDropzones, bestDropzoneID, scrollCalRect, resetDragDrop } = getContext('drag-drop')
+  const { activateInput, overrideOptions } = getContext('popover-input')
+  const { 
+    draggedItem, scrollCalRect, detectOverlap,
+    bestDropzoneID, dropPreviewCSS, hasDropped, resetDragDrop
+  } = getContext('drag-drop')
   
   let { dt } = $props()
 
@@ -23,9 +25,8 @@
   let pixelsPerMinute = $pixelsPerHour / 60
 
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
-  let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')] ?? [])
+  let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
 
-  let intersecting = $state(false)
   let previewTop = $state(null)
   
   let anchorID = $derived(`--day-column-${dropzoneID}`)
@@ -33,8 +34,17 @@
 
   $effect(() => {
     if ($draggedItem && $draggedItem.id) {
-      requestAnimationFrame(checkIntersection)
+      detectOverlap({
+        dropzoneElem: dayColumn,
+        clipRect: calContentArea(),
+        dropzoneID
+      })
     }
+  })
+  
+  $effect(() => {
+    if ($bestDropzoneID === dropzoneID) renderDragPreview()
+    else previewTop = null
   })
 
   $effect(() => {
@@ -42,67 +52,23 @@
       performDrop()
     }
   })
-  
-  onMount(async () => {})
 
-  onDestroy(() => {})
+  function renderDragPreview () {
+    const localTop = $draggedItem.y1 + dayColumn.scrollTop - dayColumn.getBoundingClientRect().top
+    let resultDT = snapToNearestInterval(
+      dt.plus({ hours: localTop / $pixelsPerHour }),
+      $calSnapInterval
+    )
+    previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
+  }
 
-  function realEffectiveArea () {
+  function calContentArea () {
     const { left, right, top, bottom } = $scrollCalRect()
     return {
       left: left + $timestampsColumnWidth, // potentially brittle for mobile mode
       right,
       top: top + $headerHeight,
       bottom
-    }
-  }
-
-  function checkIntersection () {
-    const { x1, x2, y1, y2 } = clip($draggedItem, realEffectiveArea())
-
-    const dayColumnRect = dayColumn.getBoundingClientRect()
-    intersecting = isOverlapping(
-      { x1, x2, y1, y2 }, 
-      dayColumnRect,
-      0.3,
-      0
-    )
-
-    if (intersecting) {
-      // update context-wide state
-      const area = getOverlapArea({ x1, x2, y1, y2 }, dayColumnRect)
-      matchedDropzones.update(obj => {
-        obj[dropzoneID] = {
-          area,
-          left: dayColumnRect.left
-        }
-        return obj
-      })
-      
-      if ($bestDropzoneID === dropzoneID) { // show preview
-        const localTop = $draggedItem.y1 + dayColumn.scrollTop - dayColumnRect.top
-        let resultDT = snapToNearestInterval(
-          dt.plus({ hours: localTop / $pixelsPerHour }),
-          $calSnapInterval
-        )
-        previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
-        // for some reason, getOffset works well but localTop introduces a 1~2px inaccuracy
-        // this is because resultDT is AFTER snapping, whereas localTop is BEFORE snapping
-      }
-
-      else {
-        previewTop = null
-      }
-    }
-
-    else {
-      matchedDropzones.update(obj => {
-        delete obj[dropzoneID]
-        return obj
-      })
-
-      // quickfix, manually remove preview (both places are necessary for clearing the previews)
-      previewTop = null
     }
   }
 
@@ -138,7 +104,7 @@
 
     Task.update({ 
       id,
-      keyValueChanges: {
+      kvChanges: {
         startTime: resultDT.toFormat('HH:mm'),
         startDateISO: resultDT.toFormat('yyyy-MM-dd')
       }
@@ -190,7 +156,7 @@
 
 
 <!-- https://github.com/sveltejs/svelte/issues/6016 -->
-<div bind:this={dayColumn} class="day-column unselectable"
+<div bind:this={dayColumn} class="day-column select-none"
   style="height: {24 * $pixelsPerHour}px;"
   class:grid-y={$user.hasGridlines}
   onclick={e => {
@@ -230,30 +196,29 @@
     </div>
   {/each}
 
-  {#each googleEvents as event (event.id)}
+  {#each googleEvents as event}
     {@const startDT = DateTime.fromISO(event.start.dateTime)}
     <div class="task-absolute" style="
       top: {getOffset({ dt1: dt, dt2: startDT })}px; 
       pointer-events: none;"
     >
-      <GoogleEvent {event} />
+      <GcalEvent {event} />
     </div>
   {/each}
 
-  {#if intersecting && previewTop !== null}
+  {#if previewTop !== null}
     <div class="task-absolute" 
       style="
         top: {previewTop}px; 
         height: {$draggedItem.height}px;
         border-radius: var(--left-padding);
-        {dropPreviewCSS()}
+        {dropPreviewCSS}
       "
     ></div>
   {/if}
   
   <div style="display: grid; place-items: center; width: 100%">
-    <div id={anchorID}
-      style="anchor-name: {anchorID}; top: {yPosition}px; height: {30 * pixelsPerMinute}px;" 
+    <div style="anchor-name: {anchorID}; top: {yPosition}px; height: {30 * pixelsPerMinute}px;" 
       class="my-portal"
     >
 

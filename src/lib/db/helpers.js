@@ -1,6 +1,7 @@
 import {
   doc, setDoc, getDoc, updateDoc, deleteDoc,
-  collection, getDocs, query, where, limit
+  collection, getDocs, query, where, limit,
+  writeBatch, arrayRemove
 } from 'firebase/firestore'
 import { db } from './init'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
@@ -104,3 +105,27 @@ async function deleteImage ({ imageFullPath }) {
   const storage = getStorage()
   await deleteObject(ref(storage, imageFullPath))
 } 
+
+export async function deleteColorTag ({ tagID, user }) {
+  const batch = writeBatch(db)
+  const { uid } = user
+  const affectedTasks = await getFirestoreQuery(
+    query(
+      collection(db, `/users/${uid}/tasks`),
+      where('tagIDs', 'array-contains', tagID)
+    )
+  )
+  for (const task of affectedTasks) {
+    batch.update(firestoreRef(`/users/${uid}/tasks/${task.id}`), {
+      tagIDs: arrayRemove(tagID)
+    })
+  }
+
+  const copy = {...user.tags}
+  delete copy[tagID]
+  batch.update(firestoreRef(`/users/${uid}`), {
+    tags: copy 
+  })
+
+  return await batch.commit()
+}
