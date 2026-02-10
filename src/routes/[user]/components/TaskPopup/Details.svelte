@@ -14,7 +14,7 @@
   import { placeholderFieldLarge } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
 
-  const { Task, tasksCache, clickedTaskID, closeTaskPopup, ancestralTree } = getContext('app')
+  const { Task, tasksCache, clickedTaskID, closeTaskPopup, familyTree } = getContext('app')
 
   let task = $derived($tasksCache[$clickedTaskID])
   let editingRoutine = $state(false)
@@ -89,13 +89,15 @@
       placeholder="Notes"
     />
 
-    <DragDropContext>
-      <TodoList trees={$ancestralTree.children}
-        listWidth="100%"
-        parentID={task.id}
-        style="padding-bottom: 1rem"
-      />
-    </DragDropContext>
+    {#if $familyTree}
+      <DragDropContext>
+        <TodoList trees={$familyTree.children}
+          listWidth="100%"
+          parentID={task.id}
+          style="padding-bottom: 1rem"
+        />
+      </DragDropContext>
+    {/if}
   </div>
 
   <div style="margin-top: auto; margin-bottom: 0; display: flex; align-items: center; width: 100%; column-gap: 12px;">

@@ -1,6 +1,7 @@
 <script>
   import { DateTime } from 'luxon'
   import { pixelsPerHour } from '../../../routes/[user]/components/Calendar/store.js'
+  import { notesFS, titleFS } from '$lib/styles/reused.module.css'
 
   let { 
     event 
@@ -22,10 +23,10 @@
   style:padding="var(--left-padding)"
   style:border-radius="var(--left-padding)"
   style:overflow="hidden"
-  style:font-size="0.875rem"
+  style:font-size={titleFS}
 >
   {event.summary}
-  <p style:font-weight="300" style:font-size="0.75rem">
+  <p style:font-weight="300" style:font-size={notesFS}>
     {event.description}
   </p>
 </div>

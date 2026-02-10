@@ -13,7 +13,7 @@
   let unsub = () => {}
   let totalSize = 0
   const batchSize = 50 // small batch sizes, ironically, causes more wasteful re-renders as size increases
-  let dt = $state(DateTime.now().set({ day: 1 }))
+  let dt = $state(DateTime.now().endOf('month'))
 
   onMount(getBatch)
 

@@ -2,6 +2,7 @@
   import Checkbox from '$lib/components/Checkbox.svelte'
   import ParentBadge from '$lib/components/ParentBadge.svelte'
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
+  import { titleFS } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
 
   const { Task, tasksCache, openTaskPopup } = getContext('app')
@@ -28,8 +29,10 @@
   </div>
 
   <div 
-    style:flex-grow="0" style:color={color}
-    class="task-name truncate select-none" 
+    style:flex-grow="0"
+    style:font-size={titleFS}
+    style:color={color}
+    class="font-medium truncate cursor-pointer select-none" 
     onclick={() => openTaskPopup(task)} 
   >
     {task.name}
@@ -43,11 +46,3 @@
     <ParentBadge {parent} --color={color} />
   {/if}
 </div>
-
-<style>
-  .task-name {
-    font-weight: 500;
-    font-size: 0.8rem;
-    cursor: pointer; 
-  }
-</style>

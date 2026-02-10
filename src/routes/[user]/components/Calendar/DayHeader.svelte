@@ -106,19 +106,19 @@
             <CalTaskUnit {task} />
           </div>
         {/each}
+
+        {#if $googleEventsByDate[ISODate]?.allDay}
+          <div class="flex flex-col gap-y-1">
+            {#each $googleEventsByDate[ISODate].allDay as event}  
+              <GCalAllDay {event} />
+            {/each}
+          </div>
+        {/if}
         
         {#if $bestDropzoneID === dropzoneID}
           <div style="height: 12px; width: 100%; {dropPreviewCSS}"></div>
         {/if}
       </div>
-    {/if}
-
-    {#if $googleEventsByDate[ISODate]?.allDay}
-       <div class="flex flex-col gap-y-1 px-1">
-        {#each $googleEventsByDate[ISODate].allDay as event}  
-          <GCalAllDay {event} />
-        {/each}
-       </div>
     {/if}
   {/if}
 

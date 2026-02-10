@@ -1,4 +1,6 @@
 <script>
+  import { titleFS } from '$lib/styles/reused.module.css'
+
   let { event } = $props()
 </script>
 
@@ -7,7 +9,7 @@
     background-color: {event.backgroundColor};
     color: {event.foregroundColor};
     opacity: {event.opacity};
-    font-size: 0.875rem;
+    font-size: {titleFS};
     border-radius: 6px;
   "
 >

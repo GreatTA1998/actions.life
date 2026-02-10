@@ -3,7 +3,7 @@
   import { 
     user,
     tasksCache, 
-    clickedTaskID, closeTaskPopup, ancestralTree, openTaskPopup
+    clickedTaskID, closeTaskPopup, familyTree, openTaskPopup
   } from '$lib/store'
   import Task from '$lib/db/models/Task.js'
   import User from '$lib/db/models/User.js'
@@ -20,7 +20,7 @@
     GCalAccount,
     tasksCache,
     clickedTaskID,
-    ancestralTree,
+    familyTree,
     openTaskPopup,
     closeTaskPopup,
     uploadImage

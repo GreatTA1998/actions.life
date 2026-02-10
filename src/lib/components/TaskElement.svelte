@@ -24,7 +24,7 @@
 
   {#if !isBulletPoint && task.tagIDs?.length < 2}
     <div style="flex-grow: 1; overflow: hidden;">
-      <div style="font-size: 12px; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
+      <div style="font-size: {notesFS}; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
         {task.notes}
       </div>
     </div>
@@ -53,7 +53,7 @@
 <script>
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import MslCircle from 'virtual:icons/material-symbols-light/circle'
-  import { calendarBlock } from '$lib/styles/reused.module.css'
+  import { calendarBlock, notesFS } from '$lib/styles/reused.module.css'
   import { getTrueY } from '$lib/utils/core.js'
   import { user } from '$lib/store'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'

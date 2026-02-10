@@ -1,36 +1,16 @@
 import { buildForest, findSubtree } from '/src/routes/[user]/components/ListsArea/service.js'
-import { writable, derived } from 'svelte/store'
-import { tasksCache } from './tasksCache.js'
+import { get, writable } from 'svelte/store'
+import { user } from '$lib/store'
+import { tasksCache, updateCache } from './tasksCache.js'
+import { onSnapshot, query, collection, where } from 'firebase/firestore'
+import { db } from '$lib/db/init.js'
 
 export const clickedTaskID = writable('')
+export const familyTree = writable(null)
 
-export const ancestralTree = derived(
-  [clickedTaskID, tasksCache],
-  ([$clickedTaskID, $tasksCache]) => {
-    if (!$tasksCache[$clickedTaskID]) return
+let unsub = () => {}
 
-    const union = buildForest(Object.values($tasksCache)) // calendar's query includes archived tasks
-    for (const rootTree of union) {
-      const result = findSubtree({
-        tree: rootTree,
-        id: $clickedTaskID
-      })
-      if (result) {
-        // note: newly archived nodes are not removed from cache, so can still appear
-        // though at some point this seems like a more fundamental design flaw with the archiving system
-        pruneArchivedNodes(result)
-        return result
-      }
-    }
-  }
-)
-
-function pruneArchivedNodes (tree) {
-  tree.children = tree.children.filter(child => !child.isArchived)
-  for (const child of tree.children) {
-    pruneArchivedNodes(child)
-  }
-}
+clickedTaskID.subscribe($clickedTaskID => listenToAncestralTree($clickedTaskID))
 
 export function openTaskPopup (task) {
   clickedTaskID.set(task.id)
@@ -38,4 +18,37 @@ export function openTaskPopup (task) {
 
 export function closeTaskPopup() {
   clickedTaskID.set('')
+}
+
+function listenToAncestralTree (id) {
+  unsub()
+  
+  if (!id) return
+
+  const task = get(tasksCache)[id]
+  
+  unsub = onSnapshot(
+    query(
+      collection(db, `users/${get(user).uid}/tasks`),
+      where('rootID', '==', task.rootID)
+    ),
+    snapshot => {
+      const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+      updateCache(tasks)
+
+      if (!tasks.find(task => task.id === id)) return 
+
+      const [ancestralTree] = buildForest(tasks)
+      const family = findSubtree({ id, tree: ancestralTree })
+      pruneArchivedNodes(family)
+      familyTree.set(family)
+    }
+  )
+}
+
+function pruneArchivedNodes (tree) {
+  tree.children = tree.children.filter(child => !child.isArchived)
+  for (const child of tree.children) {
+    pruneArchivedNodes(child)
+  }
 }

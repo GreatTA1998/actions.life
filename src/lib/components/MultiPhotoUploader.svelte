@@ -1,6 +1,6 @@
 <div class="float-button" {style}>
   <!-- `align-items: center` is a quickfix related to mystery height, probably from the invisible input -->
-  <div style="display: flex; align-items: center;">
+  <div class="flex items-center">
     <button onclick={openFolderInput} class="responsive-icon-size flex items-center">
       <MslPhotoLibrary style="font-size: 2.125rem;"/>
     </button>
@@ -89,7 +89,7 @@
     else dateClassObj = new Date(timeCreated) // otherwise we set the time to right now.
 
     const newTaskObj = {
-      name: `Photo ${getTimeInHHMM({ dateClassObj })}`,
+      name: '',
       imageDownloadURL,
       imageFullPath: fullPath, // for easy garbage collection
       startTime: getTimeInHHMM({ dateClassObj }),

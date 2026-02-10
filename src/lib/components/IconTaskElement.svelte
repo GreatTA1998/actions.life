@@ -38,7 +38,7 @@
 
   {#if !isBulletPoint}
     <div style="flex-grow: 1; overflow: hidden;">
-      <div style="font-size: 12px; font-weight: 400; color: rgb(20, 20, 20);">
+      <div style="font-size: {notesFS}; font-weight: 400; color: rgb(20, 20, 20);">
         {task.notes || ''}
       </div>
     </div>
@@ -72,7 +72,7 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
-  import { calendarBlock } from '$lib/styles/reused.module.css'
+  import { calendarBlock, notesFS } from '$lib/styles/reused.module.css'
 
   const { Task,openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')

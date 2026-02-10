@@ -4,7 +4,7 @@ import { writable } from 'svelte/store'
 export { calSnapInterval, timestamps } from '/src/routes/[user]/components/Calendar/timestamps.js'
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
-export { clickedTaskID, ancestralTree, openTaskPopup, closeTaskPopup } from './taskPopup.js'
+export { clickedTaskID, familyTree, openTaskPopup, closeTaskPopup } from './taskPopup.js'
 export { tasksCache, updateCache, cleanupCache } from './tasksCache.js'
 
 export const allAccounts = writable([])

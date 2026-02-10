@@ -9,7 +9,7 @@
   let { children } = $props()
 
   const clickedTaskID = writable('')
-  const ancestralTree = writable(null)
+  const familyTree = writable(null)
   const user = writable({
     uid: 'demo-user',
     maxOrderValue: 100
@@ -241,7 +241,7 @@
     for (const tree of get(memoryTree)) {
       const result = findSubtree({ id, tree })
       if (result) {
-        ancestralTree.set(result)
+        familyTree.set(result)
       }
     }
   })
@@ -252,7 +252,7 @@
     tasksCache, 
     memoryTree,
     clickedTaskID,
-    ancestralTree,
+    familyTree,
     closeTaskPopup: () => clickedTaskID.set(''),
     openTaskPopup: (task) => clickedTaskID.set(task.id), 
     uploadMockPhoto: ({ id }) =>{
