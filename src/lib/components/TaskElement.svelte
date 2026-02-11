@@ -18,7 +18,7 @@
     {/if}
     
     <CalTaskUnit {task} 
-      color={(isBulletPoint || task.tagIDs?.length >= 2) ? 'black' : 'white'}
+      color={(isBulletPoint || (task.tagIDs ?? []).length >= 2) ? 'black' : 'white'}
     />
   </div>
 

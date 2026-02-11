@@ -24,7 +24,7 @@ export const WIDTHS = Object.freeze({
   PANEL_MAX: breakpoints.desktop / goldenRatio
 })
 
-export const MOBILE_SAFE_BOTTOM = 48
+export const MOBILE_SAFE_INSET = 48
 
 export function translateJSConstantsToCSSVariables () {
   for (const [key, value] of Object.entries(WIDTHS)) {
