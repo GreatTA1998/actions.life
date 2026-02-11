@@ -29,34 +29,25 @@
   }
 
   function axisValue (e) {
-    if (!isMobile()) return e.clientX
-    else if (isMobile()) return innerHeight.current - e.clientY
+    if (isMobile()) return innerHeight.current - e.clientY
+    else return e.clientX
   }
 </script>
 
 <div class="{isMobile() ? 'w-full' : 'h-full'} relative flex z-1 items-center justify-center touch-none">
-  <div class="resize-handle flex items-center justify-center z-10" 
-    style={isMobile() ? 'height: 0; width: fit-content' : 'height: fit-content; width: 0'}>
-    <div {onpointerdown} {onpointermove} {onpointerup}  
-      class="absolute inline-flex cursor-pointer touch-none" 
+  <div {onpointerdown} {onpointermove} {onpointerup} 
+    class="absolute flex items-center justify-center z-10 w-[48px] h-[48px] cursor-pointer"
+  >
+    <div class:rotate={isMobile()}
+      class="inline-flex touch-none" 
       style:view-transition-name="grip-handle"
       style:view-transition-class="static-ui"
     >
-      {#if isMobile()}
-        <!-- horizontal triple lines-->
-        <svg width="36" height="12" viewBox="0 0 36 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="6" y="2" width="24" height="0.5" fill="var(--grip-color)" />
-          <rect x="0" y="5.75" width="36" height="0.5" fill="var(--grip-color)" />
-          <rect x="6" y="9.5" width="24" height="0.5" fill="var(--grip-color)" />
-        </svg>
-      {:else}
-        <!-- vertical triple lines -->
-        <svg width="12" height="36" viewBox="0 0 12 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="6" width="0.5" height="24" fill="var(--grip-color)" />
-          <rect x="5.75" y="0" width="0.5" height="36" fill="var(--grip-color)" />
-          <rect x="9.5" y="6" width="0.5" height="24" fill="var(--grip-color)" />
-        </svg>
-      {/if}
+      <svg width="12" height="36" viewBox="0 0 12 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="6" width="0.5" height="24" fill="var(--grip-color)" />
+        <rect x="5.75" y="0" width="0.5" height="36" fill="var(--grip-color)" />
+        <rect x="9.5" y="6" width="0.5" height="24" fill="var(--grip-color)" />
+      </svg>
     </div>
   </div>
 </div>
@@ -64,5 +55,10 @@
 <style>
   :root {
     --grip-color: black;
+  }
+
+  .rotate {
+    transform: rotate(90deg);
+    transform-origin: center;
   }
 </style>
