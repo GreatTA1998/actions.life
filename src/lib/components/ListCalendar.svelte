@@ -8,10 +8,9 @@
   import { innerWidth, innerHeight } from 'svelte/reactivity/window'
   import { user } from '$lib/store'
 
-  const half = 0.5 // let's be pragmatic here for now (instead of running a script for pure correctness) since it's an urgent critical fix
   let axisL = $derived(isMobile() ? listAreaH : listAreaW) // since Svelte 5.25, derived is writable
-  let listAreaH = $derived(safe(($user.listHeightSplit || half) * innerHeight.current))
-  let listAreaW = $derived(safe(($user.listWidthSplit || half) * innerWidth.current))
+  let listAreaH = $derived(safe(($user.listHeightSplit || 0.5) * innerHeight.current))
+  let listAreaW = $derived(safe(($user.listWidthSplit || 0.5) * innerWidth.current))
 
   function updateSizing (newVal) {
     if (isMobile()) {
