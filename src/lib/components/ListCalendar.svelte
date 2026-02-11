@@ -23,7 +23,7 @@
 
   function safe (val) {
     if (isMobile()) {
-      return clamp(MOBILE_SAFE_INSET, val, innerHeight.current - MOBILE_SAFE_INSET)
+      return clamp(MOBILE_SAFE_INSET, val, innerHeight.current)
     } else {
       return clamp(0, val, innerWidth.current)
     }
