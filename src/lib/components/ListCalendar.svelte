@@ -9,8 +9,8 @@
   import { user } from '$lib/store'
 
   let axisL = $derived(isMobile() ? listAreaH : listAreaW) // since Svelte 5.25, derived is writable
-  let listAreaH = $derived(safe(($user.listHeightSplit || 0.5) * innerHeight.current))
-  let listAreaW = $derived(safe(($user.listWidthSplit || 0.5) * innerWidth.current))
+  let listAreaH = $derived(safe(($user.listHeightSplit ?? 0.5) * innerHeight.current))
+  let listAreaW = $derived(safe(($user.listWidthSplit ?? 0.5) * innerWidth.current))
 
   function updateSizing (newVal) {
     if (isMobile()) {
