@@ -9,8 +9,8 @@
     "build": "vite build",
     "package": "vite package",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./jsconfig.json",
-    "test:unit": "vitest run",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
+    "test:unit": "svelte-kit sync && vitest run",
     "quality": "npm run check && npm run test:unit && npm run build && npm --prefix functions run lint"
   },
   "devDependencies": {
