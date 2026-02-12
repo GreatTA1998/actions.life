@@ -9,7 +9,7 @@
   import ArtisticBackground from './components/ArtisticBackground.svelte'
   import TopNavbar from './components/TopNavbar.svelte'
   import TaskPopup from '../[user]/components/TaskPopup/TaskPopup.svelte'
-  import GoogleIdentityButton from '$lib/components/GoogleIdentityButton.svelte'
+  import SignInButton from '$lib/components/SignInButton.svelte'
   import { authChecked } from '$lib/store'
   // import AppDetailsSection from './components/AppDetailsSection.svelte'
   // import VisionSection from './components/VisionSection.svelte'
@@ -36,19 +36,24 @@
         <ComparisonTable />
 
         <UpdateLogSection />
+      </DemoContext>
 
-        <div style="display: flex; flex-direction: column; width: 100%; height: 320px; align-items: center; justify-content: flex-start; gap: 2rem;">
-          <GoogleIdentityButton />
-          <div style="display: flex; gap: 1.5rem; opacity: 0.6; font-size: 0.8rem;">
-            <a href="/legal/privacy-policy" style="text-decoration: none; color: inherit;">Privacy Policy</a>
-            <a href="/legal/terms-of-service" style="text-decoration: none; color: inherit;">Terms of Service</a>
-          </div>
+      <div class="flex flex-col w-full h-[320px] items-center gap-8 justify-start">
+        <SignInButton />
+
+        <div style="display: flex; gap: 1.5rem; opacity: 0.6; font-size: 0.8rem;">
+          <a href="/legal/privacy-policy" style="text-decoration: none; color: inherit;">
+            Privacy Policy
+          </a>
+          <a href="/legal/terms-of-service" style="text-decoration: none; color: inherit;">
+            Terms of Service
+          </a>
         </div>
+      </div>
 
         <!-- <TaskPopup /> -->
         <!-- <VisionSection /> -->
         <!-- <AppDetailsSection /> -->
-      </DemoContext>
     </div>
   </div>
 {/if}

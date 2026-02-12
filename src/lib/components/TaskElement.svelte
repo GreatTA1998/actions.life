@@ -22,8 +22,8 @@
     />
   </div>
 
-  {#if !isBulletPoint && task.tagIDs?.length < 2}
-    <div style="flex-grow: 1; overflow: hidden;">
+  {#if !isBulletPoint && (task.tagIDs ?? []).length < 2}
+    <div class="grow-1 overflow-hidden">
       <div style="font-size: {notesFS}; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
         {task.notes}
       </div>

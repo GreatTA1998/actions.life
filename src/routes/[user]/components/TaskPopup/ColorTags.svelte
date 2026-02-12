@@ -24,9 +24,8 @@
 
   function onkeyup (e) {
     if (e.key === 'Enter') {
-      if (value === '') {
-        return
-      }
+      if (value === '') return
+
       const copy = { ...$user.tags }
       const id = getRandomID()
       copy[id] = {

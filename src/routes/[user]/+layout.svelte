@@ -9,20 +9,18 @@
   import { page } from '$app/state'
 
   let { children } = $props()
-  const { User } = getContext('app')
 
-  let unsub = () => {}
+  let unsubscribe = () => {}
   let uid = $derived(page.params.user)
 
   onMount(listenToUser)
 
-  onDestroy(unsub)
+  onDestroy(unsubscribe)
 
   function listenToUser () {
     const ref = doc(db, '/users/' + uid)
-    unsub = onSnapshot(ref, async (snap) => {
-      if (!snap.exists()) User.create()
-      else {
+    unsubscribe = onSnapshot(ref, async (snap) => {
+      if (snap.exists()) {
         user.set({ ...snap.data() })
       }
     })

@@ -18,6 +18,10 @@
     min-width: max-content;
   `
 
+  const simpleLayout = `
+    height: 100%;
+  `
+
   onMount(async () => {
     await tick() // computed sizes from `style` CSS are not ready yet
     logicAreaRect.set(
@@ -31,7 +35,7 @@
     {#snippet children({ trees })}
       <TodoList {trees}
         listWidth={xyScrolling ? 'fit-content' : '100%'}
-        style={xyScrolling ? wrappingColumnLayout : ''}
+        style={xyScrolling ? wrappingColumnLayout : simpleLayout}
         isLargeFont={!xyScrolling}
       />       
     {/snippet}
