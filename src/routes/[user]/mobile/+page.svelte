@@ -1,38 +1,7 @@
-<div class="grid-container">
-  <main class="content-area">
-    {#if $activeView === 'SETTINGS'}
-      <Settings />
-    {:else if $activeView === 'CALENDAR'}
-      <DualView orientation="vertical" ratioDbField="listAreaHeightRatio" minL={MOBILE_SAFE_BOTTOM}
-        {child1} 
-        {child2} 
-      />
-      {#snippet child1 ()}<Calendar />{/snippet}
-      {#snippet child2 ()}<ListArea xyScrolling={false}/>{/snippet}
-    {:else if $activeView === 'SCHEDULE'}
-      <Schedule />
-    {:else if $activeView === 'ROUTINES'}
-      <HabitsTab />
-    {:else if $activeView === 'PHOTOS'}
-      <PhotoGrid />
-    {/if}
-  </main>
-
-  <FloatingNavbar position="right" />
-</div>
-
 <script>
-  import ListArea from '$lib/components/ListArea.svelte'
-  import Calendar from '/src/routes/[user]/components/Calendar/Calendar.svelte'
-  import DualView from '$lib/components/DualView.svelte'
-  import Settings from '../components/Settings/index.svelte'
+  import AppContent from '$lib/components/AppContent.svelte'
   import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
-  import PhotoGrid from '/src/routes/[user]/components/Archive/PhotoGrid.svelte'
-  import HabitsTab from '/src/routes/[user]/mobile/HabitsTab.svelte'
-  import Schedule from '/src/routes/[user]/mobile/Schedule.svelte'
 
-  import { MOBILE_SAFE_BOTTOM } from '$lib/utils/constants.js'
-  import { activeView } from '$lib/store'
   import { isCompact } from '../components/Calendar/store.js'
   import { onMount } from 'svelte'
 
@@ -40,6 +9,14 @@
     isCompact.set(true)
   })
 </script>
+
+<div class="grid-container">
+  <main class="content-area">
+    <AppContent />
+  </main>
+
+  <FloatingNavbar position="right" />
+</div>
 
 <style>
   :global(body),

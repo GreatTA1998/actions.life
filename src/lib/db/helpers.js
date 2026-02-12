@@ -23,11 +23,15 @@ export async function setFirestoreDoc (path, newObject) {
 export function getFirestoreDoc (path) {
   return new Promise(async (resolve, reject) => {
     const ref = firestoreRef(path)
-    const snapshot = await getDoc(ref)
-    if (snapshot.exists()) {
-      resolve({ id: snapshot.id, path: snapshot.ref.path, ...snapshot.data() })
-    } else {
-      reject('Doc doesn not exist for path =', path)
+    try {
+      const snapshot = await getDoc(ref)
+      if (!snapshot.exists()) resolve(null)
+      else {
+        resolve({ id: snapshot.id, path: snapshot.ref.path, ...snapshot.data() })
+      }
+    } catch (error) {
+      console.log('error =', error)
+      reject(error)
     }
   })
 }

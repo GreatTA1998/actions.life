@@ -115,8 +115,8 @@ const Task = {
       }
     }
     catch (error) {
-      alert("Error saving changes to db, please reload")
-      console.error("Error in Task.update: ", error)
+      console.error(`Task.update() error: ${error}`)
+      alert(`Task.update() error: ${error}`)
     }
   },
 

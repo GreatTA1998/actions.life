@@ -3,6 +3,7 @@
   import { getRandomID } from '$lib/utils/core';
   import { getContext, setContext } from 'svelte'
   import { writable } from 'svelte/store'
+  import { noZoomFS } from '$lib/styles/reused.module.css'
 
   let { children } = $props()
 
@@ -82,7 +83,7 @@
     bind:this={input} bind:value={value}
     {onkeydown} onblur={() => inputPopover.hidePopover()}
     class="w-full h-full rounded"
-    style:font-size="clamp(0.75rem, 60cqb, 2rem)"
+    style:font-size="clamp({noZoomFS}, 60cqb, 2rem)"
   >
   <!-- 1. `onblur` detects iOS 26 keyboard exit via the "arrow" key. 2. Must use a () => function as inputPopover is not defined when attached -->
 </div>

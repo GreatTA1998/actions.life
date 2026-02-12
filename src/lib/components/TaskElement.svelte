@@ -18,12 +18,12 @@
     {/if}
     
     <CalTaskUnit {task} 
-      color={(isBulletPoint || task.tagIDs?.length >= 2) ? 'black' : 'white'}
+      color={(isBulletPoint || (task.tagIDs ?? []).length >= 2) ? 'black' : 'white'}
     />
   </div>
 
-  {#if !isBulletPoint && task.tagIDs?.length < 2}
-    <div style="flex-grow: 1; overflow: hidden;">
+  {#if !isBulletPoint && (task.tagIDs ?? []).length < 2}
+    <div class="grow-1 overflow-hidden">
       <div style="font-size: {notesFS}; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
         {task.notes}
       </div>
