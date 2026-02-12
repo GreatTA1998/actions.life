@@ -32,7 +32,7 @@
 </script>
 
 <div class="cal">
-  <MonthYearMenus dt={visibleMonthDT} onChange={({ newVal }) => {
+  <MonthYearMenus dt={visibleMonthDT} onChange={newVal => {
     const { year, month } = newVal
     let dt = visibleMonthDT.set({ year })
     dt = dt.set({ month })

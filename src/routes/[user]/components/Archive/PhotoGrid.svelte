@@ -23,6 +23,12 @@
 
   onDestroy(unsub)
 
+  function onChange (newVal) {
+    const { year, month } = newVal
+    dt = dt.set({ year })
+    dt = dt.set({ month })
+  }
+
   async function getBatch () {
     unsub()
     totalSize += batchSize
@@ -52,7 +58,7 @@
   <MultiPhotoUploader style="position: absolute; right: 1vw; top: 1vw;"/>
 
   <div class="shrink-0 flex items-center">
-    <MonthYearMenus {dt} onChange={({ newVal }) => dt = newVal} />
+    <MonthYearMenus {dt} {onChange} />
 
     <RandomButton onclick={showRandomPhotos} />
   </div>

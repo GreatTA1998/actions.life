@@ -13,7 +13,7 @@
   function handleYearInput (e) {
     const val = parseInt(e.target.value)
     if (!isNaN(val) && val >= 1000 && val <= 9999) {
-      onChange({ newVal: dt.set({ year: val })})
+      onChange(dt.set({ year: val }))
     }
   }
 </script>
@@ -34,7 +34,7 @@
           {#each Array.from({ length: 12 }, (_, i) => i + 1) as m}
             <button style:font-weight={dt.month === m ? '600' : '400'} 
               onclick={() => { 
-                onChange({ newVal: dt.set({ month: m }) })
+                onChange(dt.set({ month: m }))
                 close()
               }}
               class="py-1 px-1 rounded"
