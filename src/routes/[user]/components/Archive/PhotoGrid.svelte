@@ -23,12 +23,6 @@
 
   onDestroy(unsub)
 
-  function onChange (newVal) {
-    const { year, month } = newVal
-    dt = dt.set({ year })
-    dt = dt.set({ month })
-  }
-
   async function getBatch () {
     unsub()
     totalSize += batchSize
@@ -47,6 +41,12 @@
       orderBy('startDateISO', 'desc'),
       limit(size)
     )
+  }
+
+  function onChange (newVal) {
+    const { year, month } = newVal
+    dt = dt.set({ year })
+    dt = dt.set({ month })
   }
   
   function showRandomPhotos () {
