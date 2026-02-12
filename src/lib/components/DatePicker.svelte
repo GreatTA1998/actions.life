@@ -53,6 +53,7 @@
         class:font-bold={dayDT.hasSame(DateTime.now(), 'day')}
         class:selected={dayDT.toISODate() === valueDT?.toISODate()}
         class="w-[36px] h-[36px] justify-center rounded-lg"
+        style:font-size="1rem"
       >
         {dayDT.day}
       </button>
