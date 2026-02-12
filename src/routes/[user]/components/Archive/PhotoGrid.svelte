@@ -1,6 +1,6 @@
 <script>
   import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
-  import MonthYearNavigator from '$lib/components/MonthYearNavigator.svelte'
+  import MonthYearMenus from '$lib/components/MonthYearMenus.svelte'
   import RandomButton from '$lib/components/RandomButton.svelte'
   import { user, updateCache, openTaskPopup } from '$lib/store/index.js'
   import { onMount, onDestroy} from 'svelte'
@@ -52,7 +52,7 @@
   <MultiPhotoUploader style="position: absolute; right: 1vw; top: 1vw;"/>
 
   <div class="shrink-0 flex items-center">
-    <MonthYearNavigator {dt} onChange={({ newVal }) => dt = newVal} />
+    <MonthYearMenus {dt} onChange={({ newVal }) => dt = newVal} />
 
     <RandomButton onclick={showRandomPhotos} />
   </div>

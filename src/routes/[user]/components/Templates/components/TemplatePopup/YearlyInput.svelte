@@ -1,6 +1,6 @@
 <script>
   import { parseYearly } from '$lib/utils/rrule.js'
-  import LuxonDatePicker from '$lib/components/LuxonDatePicker.svelte'
+  import FieldWithDatePicker from '$lib/components/FieldWithDatePicker.svelte'
   import { onMount, getContext } from 'svelte'
 
   const inputStates = getContext('inputStates')
@@ -22,20 +22,20 @@
     return `FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day}`
   }
 
-  function handleDateSelected ({ yyyy, mmdd }) {
-    selectedISO = `${yyyy}-${mmdd.replace('/', '-')}`
-
+  function handleDateSelected (yyyyMMdd) {
+    selectedISO = yyyyMMdd
+    const [yyyy, MM, dd] = yyyyMMdd.split('-')
     inputStates.update(states => ({ 
       ...states,
-      yearly: createRRuleFromDate(mmdd), // NOTE: must be AFTER states, otherwise it gets overriden
+      yearly: createRRuleFromDate(MM + '/' + dd), // NOTE: must be AFTER states, otherwise it gets overriden
     }))
   }
 </script>
 
 <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
-  <LuxonDatePicker
+  <FieldWithDatePicker
     startDateISO={selectedISO}
-    ondateselected={handleDateSelected}
+    onChange={handleDateSelected}
   />
   every year
 </div>
