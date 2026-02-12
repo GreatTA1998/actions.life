@@ -4,8 +4,9 @@
   import ExtendRoutines from '/src/routes/[user]/components/ExtendRoutines.svelte'
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import { user, clickedTaskID } from '$lib/store'
+  import { user, clickedTaskID, firebaseAuth } from '$lib/store'
   import { onMount, onDestroy, getContext } from 'svelte'
+  import { get } from 'svelte/store'
   import { page } from '$app/state'
 
   let { children } = $props()
@@ -21,10 +22,16 @@
   function listenToUser () {
     const ref = doc(db, '/users/' + uid)
     unsub = onSnapshot(ref, async (snap) => {
-      if (!snap.exists()) User.create()
-      else {
-        user.set({ ...snap.data() })
-      }
+      if (!snap.exists()) {
+        const authUID = get(firebaseAuth).currentUser?.uid
+        // Avoid creating docs off stale cache snapshots or wrong route params.
+        if (authUID === uid && !snap.metadata.fromCache) await User.create()
+        return
+      } 
+
+      user.set({ ...snap.data() })
+    }, (error) => {
+      console.error('Error listening to user doc:', error)
     })
   }
 </script>

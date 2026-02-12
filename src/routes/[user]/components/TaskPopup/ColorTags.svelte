@@ -1,9 +1,8 @@
 <script>
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import Task from '$lib/db/models/Task';
-  import User from '$lib/db/models/User'
   import MslMoreVert from 'virtual:icons/material-symbols-light/more-vert'
-  import { deleteColorTag } from '$lib/db/helpers.js'
+  import { createColorTag, updateColorTag, deleteColorTag } from '$lib/db/helpers.js'
   import { user } from '$lib/store'
   import { getRandomID, getRandomColor } from '$lib/utils/core.js'
   import { paddingVal } from '$lib/styles/reused.module.css'
@@ -22,19 +21,22 @@
     '#8E6B8E', // plum
   ]
 
-  function onkeyup (e) {
+  async function onkeyup (e) {
     if (e.key === 'Enter') {
-      if (value === '') {
+      const name = value.trim()
+      if (name === '' || !$user.uid) {
         return
       }
-      const copy = { ...$user.tags }
       const id = getRandomID()
-      copy[id] = {
-        color: getRandomColor(),
-        name: e.target.value
-      }
+      await createColorTag({
+        uid: $user.uid,
+        tagID: id,
+        tag: {
+          color: getRandomColor(),
+          name
+        }
+      })
 
-      User.update({ tags: copy })
       Task.update({
         id: task.id,
         kvChanges: {
@@ -60,12 +62,10 @@
   }
 
   function editTag (id, kvChanges) {
-    const copy = { ...$user.tags }
-    for (const [k, v] of Object.entries(kvChanges)) {
-      copy[id][k] = v
-    }
-    User.update({
-      tags: copy
+    updateColorTag({
+      uid: $user.uid,
+      tagID: id,
+      kvChanges
     })
   }
 </script>
@@ -139,7 +139,7 @@
                 </div>
             
                 <div class="py-1 px-2">
-                  <button onclick={() => deleteColorTag({ tagID: id, user: $user })}>
+                  <button onclick={() => deleteColorTag({ tagID: id, uid: $user.uid })}>
                     Delete
                   </button>  
                 </div>

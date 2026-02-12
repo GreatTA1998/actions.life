@@ -1,5 +1,7 @@
 import { z } from 'zod'
-import { setFirestoreDoc, updateFirestoreDoc } from '$lib/db/helpers.js'
+import { doc, runTransaction } from 'firebase/firestore'
+import { updateFirestoreDoc } from '$lib/db/helpers.js'
+import { db } from '$lib/db/init.js'
 import { user, firebaseAuth } from '$lib/store'
 import { get } from 'svelte/store'
 
@@ -37,10 +39,21 @@ const User = {
   }),
 
   async create () {
-    const validatedUser = User.schema.parse(get(firebaseAuth).currentUser)
-    return await setFirestoreDoc(`/users/${validatedUser.uid}`, 
-      validatedUser
-    )
+    const authUser = get(firebaseAuth).currentUser
+    if (!authUser) return
+
+    try {
+      const validatedUser = User.schema.parse(authUser)
+      const ref = doc(db, 'users', validatedUser.uid)
+
+      return await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(ref)
+        if (snap.exists()) return
+        transaction.set(ref, validatedUser)
+      })
+    } catch (error) {
+      console.error('error in User.create', error)
+    }
   },
 
   async update (kvChanges) {

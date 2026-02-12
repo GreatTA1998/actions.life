@@ -1,7 +1,7 @@
 import {
   doc, setDoc, getDoc, updateDoc, deleteDoc,
   collection, getDocs, query, where, limit,
-  writeBatch, arrayRemove
+  writeBatch, arrayRemove, deleteField
 } from 'firebase/firestore'
 import { db } from './init'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
@@ -106,9 +106,26 @@ async function deleteImage ({ imageFullPath }) {
   await deleteObject(ref(storage, imageFullPath))
 } 
 
-export async function deleteColorTag ({ tagID, user }) {
+export async function createColorTag ({ uid, tagID, tag }) {
+  if (!uid || !tagID) return
+  return updateFirestoreDoc(`/users/${uid}`, {
+    [`tags.${tagID}`]: tag
+  })
+}
+
+export async function updateColorTag ({ uid, tagID, kvChanges }) {
+  if (!uid || !tagID || !kvChanges) return
+  const updateObject = {}
+  for (const [k, v] of Object.entries(kvChanges)) {
+    updateObject[`tags.${tagID}.${k}`] = v
+  }
+  if (Object.keys(updateObject).length === 0) return
+  return updateFirestoreDoc(`/users/${uid}`, updateObject)
+}
+
+export async function deleteColorTag ({ tagID, uid }) {
+  if (!uid || !tagID) return
   const batch = writeBatch(db)
-  const { uid } = user
   const affectedTasks = await getFirestoreQuery(
     query(
       collection(db, `/users/${uid}/tasks`),
@@ -121,10 +138,8 @@ export async function deleteColorTag ({ tagID, user }) {
     })
   }
 
-  const copy = {...user.tags}
-  delete copy[tagID]
   batch.update(firestoreRef(`/users/${uid}`), {
-    tags: copy 
+    [`tags.${tagID}`]: deleteField()
   })
 
   return await batch.commit()
