@@ -15,3 +15,22 @@ actions.life is a SvelteKit PWA that interfaces with Firebase (Firestore, Storag
 ```
 OPENAI_API_KEY=from-web-dashboard
 ```
+
+## Code Quality
+
+Run these before merging changes:
+
+```bash
+npm run check
+npm run test:unit
+npm run build
+npm --prefix functions run lint
+```
+
+Or use the aggregate command:
+
+```bash
+npm run quality
+```
+
+CI enforces the same checks via `.github/workflows/code-quality.yml`.

@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
+import { isValidISODate as validateISODate } from '$lib/utils/dateValidation.js'
 
 const Task = {
   schema: z.object({
@@ -18,7 +19,7 @@ const Task = {
     parentID: z.string().default(''),
     startTime: z.string().default(''),
     startDateISO: z.string().default('')
-      .refine(isValidISODate, {
+      .refine(validateISODate, {
         message: 'startDateISO is not in proper yyyy-MM-dd format'
       })
     ,
@@ -216,13 +217,7 @@ const Task = {
   }
 }
 
-export function isValidISODate (dateStr) {
-  if (dateStr === '') return true
-  const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/
-  if (!isoFormatRegex.test(dateStr)) return false
-  const date = new Date(dateStr)
-  return !isNaN(date.getTime())
-}
+export const isValidISODate = validateISODate
 
 function maintainOrderValue (validatedObj, batch) {
   const { maxOrderValue, uid } = get(user)

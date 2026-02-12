@@ -8,7 +8,10 @@
     "dev": "vite dev",
     "build": "vite build",
     "package": "vite package",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./jsconfig.json",
+    "test:unit": "vitest run",
+    "quality": "npm run check && npm run test:unit && npm run build && npm --prefix functions run lint"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.420",
@@ -18,9 +21,12 @@
     "@vite-pwa/sveltekit": "^1.0.0",
     "sass": "^1.63.5",
     "svelte": "^5.0.0",
+    "svelte-check": "^4.3.6",
+    "typescript": "^5.9.3",
     "unocss": "^66.5.12",
     "unplugin-icons": "^22.5.0",
-    "vite-plugin-devtools-json": "^1.0.0"
+    "vite-plugin-devtools-json": "^1.0.0",
+    "vitest": "^4.0.18"
   },
   "type": "module",
   "dependencies": {

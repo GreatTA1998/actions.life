@@ -10,7 +10,6 @@ const config = {
 	compilerOptions: {
 		warningFilter: (warning) => {
 			return !warning.filename?.includes('node_modules') 
-				&& !warning.code.startsWith('a11y') 
 				&& warning.code !== 'css_unused_selector'
 		}
 	}
