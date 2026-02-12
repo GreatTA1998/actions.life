@@ -29,6 +29,29 @@
     cleanupListeners()
   })
 
+  function onVisibilityChange ({ year, month }) {
+    let newDate = selectedDate.set({ month })
+    helper(newDate.set({ year }))
+  }
+
+  function onChange (yyyyMMdd) {
+    if (!yyyyMMdd) return
+    helper(DateTime.fromISO(yyyyMMdd))
+  }
+
+  function helper (newDate) {
+    selectedDate = newDate
+    const existingIndex = loadedDays.findIndex(d => d.date.hasSame(newDate, 'day'))
+    if (existingIndex !== -1) {
+      const el = document.getElementById(`day-${newDate.toISODate()}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'instant', block: 'start' })
+      }
+    } else {
+      resetAndLoadFrom(newDate)
+    }
+  }
+
   function cleanupListeners() {
     unsubs.forEach(u => u())
     unsubs = []
@@ -49,7 +72,7 @@
     loading = false
   }
 
-  function loadMore() {
+  function loadMore () {
     if (loading || loadedDays.length === 0) return
     
     const lastDay = loadedDays[loadedDays.length - 1].date
@@ -58,7 +81,7 @@
     addDayChunk(nextStart, CHUNK_SIZE)
   }
 
-  function addDayChunk(startDate, count) {
+  function addDayChunk (startDate, count) {
     const newDays = []
     for (let i = 0; i < count; i++) {
       const date = startDate.plus({ days: i })
@@ -96,7 +119,7 @@
     }
   }
 
-  function distributeTasks(fetchedTasks, startRangeISO, endRangeISO) {
+  function distributeTasks (fetchedTasks, startRangeISO, endRangeISO) {
     const taskMap = {}
     fetchedTasks.forEach(t => {
       if (!taskMap[t.startDateISO]) taskMap[t.startDateISO] = []
@@ -116,27 +139,6 @@
       }
       return day
     })
-  }
-
-  function ondateselected({ mmdd, yyyy }) {
-    if (!mmdd || !yyyy) return
-
-    const [month, day] = mmdd.split('/').map(Number)
-    const year = Number(yyyy)
-    const newDate = DateTime.fromObject({ year, month, day }).startOf('day')
-    
-    selectedDate = newDate
-
-    const existingIndex = loadedDays.findIndex(d => d.date.hasSame(newDate, 'day'))
-
-    if (existingIndex !== -1) {
-      const el = document.getElementById(`day-${newDate.toISODate()}`)
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    } else {
-      resetAndLoadFrom(newDate)
-    }
   }
 
   function onscroll (e) {
@@ -187,9 +189,9 @@
 <div class="h-full basis-full flex justify-center">
   <div class="basis-full flex flex-col bg-white" style:max-width={WIDTHS.PANEL_MAX + 'px'}>
     <div class="shrink-0">
-      <DatePicker
-        selected={selectedDate}
-        {ondateselected}
+      <DatePicker valueDT={selectedDate}
+        {onVisibilityChange}
+        {onChange}
       />
     </div>
 
@@ -258,7 +260,7 @@
             </div>
           {/if}
 
-          <div class="border-t border-t-dashed border-[#dadada] py-[2px]"></div>
+          <div class="border-t border-t-dashed border-[#dadada] py-2"></div>
         </div>
       {/each}
     </div>

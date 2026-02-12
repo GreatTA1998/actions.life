@@ -1,48 +1,44 @@
 <script>
   import { DateTime } from 'luxon'
-  import MonthYearNavigator from './MonthYearNavigator.svelte'
+  import MonthYearMenus from './MonthYearMenus.svelte'
 
   let {
-    selected = null,
-    ondateselected = () => {},
+    valueDT = null,
+    onChange = () => {},
+    onVisibilityChange = () => {},
     onclose = () => {}
   } = $props()
 
-  let dt = $state(DateTime.now().startOf('month'))
+  let visibleMonthDT = $derived(valueDT ?? DateTime.now())
 
   let days = $derived.by(() => {
     const grid = []
-    const firstDay = dt.startOf('month')
-    const lastDay = dt.endOf('month')
-  
-    let current = firstDay.startOf('week')
-    while (current <= lastDay.endOf('week')) {
-      grid.push({
-        date: current,
-        isCurrentMonth: current.month === dt.month,
-        isToday: current.hasSame(DateTime.now(), 'day'),
-        isSelected: selected?.hasSame(current, 'day') ?? false
-      })
+    let current = visibleMonthDT.startOf('month')
+    while (current <= visibleMonthDT.endOf('month')) {
+      grid.push(current)
       current = current.plus({ days: 1 })
     }
     return grid
   })
 
-  function selectDate (day) {
-    if (day.isSelected) {
-      ondateselected({ mmdd: '', yyyy: '' })
+  function selectDate (dayDT) {
+    if (dayDT.toISODate() === valueDT?.toISODate()) {
+      onChange('') 
     } else {
-      ondateselected({ 
-        mmdd: day.date.toFormat('MM/dd'), 
-        yyyy: day.date.year 
-      })
+      onChange(dayDT.toISODate())
     }
     onclose()
   }
 </script>
 
 <div class="cal">
-  <MonthYearNavigator {dt} onChange={({ newVal }) => dt = newVal } />
+  <MonthYearMenus dt={visibleMonthDT} onChange={newVal => {
+    const { year, month } = newVal
+    let dt = visibleMonthDT.set({ year })
+    dt = dt.set({ month })
+    visibleMonthDT = dt
+    onVisibilityChange({ year, month })
+  }} />
 
   <div class="weekdays">
     {#each ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as day}
@@ -51,14 +47,14 @@
   </div>
 
   <div class="grid">
-    {#each days as day}
-      <button onclick={() => selectDate(day)}
-        class="day"
-        class:other-month={!day.isCurrentMonth}
-        class:today={day.isToday}
-        class:selected={day.isSelected}
+    {#each days as dayDT, i}
+      <button onclick={() => selectDate(dayDT)}
+        style:grid-column-start={i === 0 ? dayDT.weekday : ''}
+        class:font-bold={dayDT.hasSame(DateTime.now(), 'day')}
+        class:selected={dayDT.toISODate() === valueDT?.toISODate()}
+        class="w-[36px] h-[36px] justify-center rounded-lg"
       >
-        {day.date.day}
+        {dayDT.day}
       </button>
     {/each}
   </div>
@@ -105,30 +101,11 @@
     gap: var(--gap);
   }
 
-  .day {
-    aspect-ratio: 1;
-    border-radius: 8px;
-    font-size: var(--font-size);
-    color: var(--text-primary, #000);
-    justify-content: center;
-    width: var(--touch-target);
-    height: var(--touch-target);
-    min-height: var(--touch-target);
-    min-width: var(--touch-target);
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  .day.other-month {
+  .other-month {
     color: var(--text-disabled, #ccc);
   }
 
-  .day.today {
-    font-weight: 700;
-    color: var(--primary-color);
-  }
-
-  .day.selected {
+  .selected {
     background: var(--primary-color);
     color: white;
     font-weight: 600;
