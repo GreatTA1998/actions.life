@@ -24,10 +24,15 @@
 
   function handleDateSelected (yyyyMMdd) {
     selectedISO = yyyyMMdd
-    const [yyyy, MM, dd] = yyyyMMdd.split('-')
+    
+    let mmdd = ''
+    if (yyyyMMdd) {
+      const [yyyy, MM, dd] = yyyyMMdd.split('-')
+      mmdd = MM + '/' + dd
+    }
     inputStates.update(states => ({ 
       ...states,
-      yearly: createRRuleFromDate(MM + '/' + dd), // NOTE: must be AFTER states, otherwise it gets overriden
+      yearly: createRRuleFromDate(mmdd), // NOTE: must be AFTER states, otherwise it gets overriden
     }))
   }
 </script>
