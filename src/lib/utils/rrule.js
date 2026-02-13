@@ -13,10 +13,16 @@ function rrFloat (dt) {
 }
 
 export function generateRecurrenceDTs ({ startDT, endDT, rrStr }) {
+  if (!rrStr || !startDT?.isValid || !endDT?.isValid) {
+    return []
+  }
+
+  // Use [start of start day, start of day after end day) so occurrences
+  // later in the end day are included even when rrule carries a time component.
   const jsDates = RRule.fromString(rrStr).between(
-    rrFloat(startDT),
-    rrFloat(endDT),
-    true // includes endDT
+    rrFloat(startDT.startOf('day')),
+    rrFloat(endDT.plus({ days: 1 }).startOf('day')),
+    false
   )
   const results = jsDates.map(date => {
     // from rrule's README (seriously)

@@ -29,6 +29,11 @@ export function createTaskInstance ({ template, dt }) {
     id: template.id + '_' + dt.toFormat('yyyy-MM-dd'),
     newTaskObj: instantiateTask({ template, dt }),
     optimistic: false
+  }).then(result => {
+    if (result instanceof Error) {
+      throw result
+    }
+    return result
   })
 }
 
