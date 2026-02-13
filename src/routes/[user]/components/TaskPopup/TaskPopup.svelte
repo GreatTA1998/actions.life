@@ -8,6 +8,7 @@
   const { tasksCache, clickedTaskID, closeTaskPopup } = getContext('app')
 
   const zIndex = 3
+  
   let task = $derived($tasksCache[$clickedTaskID])
 </script>
 
@@ -18,14 +19,11 @@
 }} />
 
 <ModularLayer {zIndex} onClickOutside={closeTaskPopup}>
-  <div 
-    id="task-popup"
+  <div id="task-popup"
     class="base-popup hide-scrollbar" 
-    style="
-      z-index: {zIndex};
-      view-transition-name: task-popup;
-      view-transition-class: static-ui;
-    "
+    style:z-index={zIndex}
+    style:view-transition-name="task-popup"
+    style:view-transition-class="static-ui"
   >
     {#if task}
       <LayoutDecider {task}>

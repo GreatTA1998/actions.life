@@ -105,8 +105,8 @@
 
     <RepeatTask {task} onToggleTemplateEditor={() => editingRoutine = !editingRoutine} isTemplateEditorOpen={editingRoutine}/>
 
-    <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
-      <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button action-button">
+    <div class="ml-auto flex items-center gap-1">
+      <button onclick={e => { e.stopPropagation(); handleDelete() }} class="flex items-center justify-center rounded-full">
         <MslDeleteOutline style="font-size: var(--popup-control);"/>
       </button>
     </div>
@@ -121,21 +121,6 @@
 </div>
 
 <style>
-  .notes-tree-container {
-    width: 100%; 
-    display: flex; 
-    justify-content: space-between;
-    flex-wrap: wrap; 
-    gap: 12px;
-  }
-
-  .action-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-
   .template-editor-section {
     margin-top: 24px;
     padding: 20px;
