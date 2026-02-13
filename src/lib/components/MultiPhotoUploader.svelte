@@ -7,7 +7,7 @@
 
     <input style="display: none;" 
       bind:this={FolderInput}
-      onchange={(e) =>  handleFileChange(e)} 
+      onchange={e => handleFileChange(e)} 
       multiple
       type="file" 
       accept="image/*" 
@@ -22,7 +22,7 @@
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
   import MslPhotoLibrary from 'virtual:icons/material-symbols-light/photo-library'
-  import { user } from '$lib/store'
+  import { user, snackbarState } from '$lib/store'
 
   const { Task } = getContext('app')
 
@@ -37,6 +37,8 @@
   }
 
   async function handleFileChange (e) {
+    snackbarState.set({ isVisible: true, message: 'Uploading...', undoAction: null })
+
     const promises = []
     for (let imageBlobFile of e.target.files) {
       if (imageBlobFile) {
@@ -52,7 +54,8 @@
       }
     }
     await Promise.all(promises)
-    alert('Photos successfully uploaded.')
+
+    snackbarState.set({ isVisible: false, message: '', undoAction: null })
   }
 
   async function uploadImageBlobToFirebase (blobFile, id) {

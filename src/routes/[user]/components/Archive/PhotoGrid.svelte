@@ -39,6 +39,7 @@
       where('imageDownloadURL', '!=', ''),
       where('startDateISO', '<=', dt.toFormat('yyyy-MM-dd')),
       orderBy('startDateISO', 'desc'),
+      orderBy('startTime', 'desc'),
       limit(size)
     )
   }
@@ -72,7 +73,7 @@
           class="relative min-w-[360px] aspect-square cursor-pointer"
         >
           <img src={task.imageDownloadURL} 
-            class="object-cover w-full h-full"
+            class="w-full h-full object-cover "
             loading="lazy"
           />
           <div class="absolute inset-x-0 bottom-0 flex justify-between p-3 text-white"
