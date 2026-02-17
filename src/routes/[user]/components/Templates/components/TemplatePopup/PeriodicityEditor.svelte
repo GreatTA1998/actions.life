@@ -11,15 +11,17 @@
 
   const { Task } = getContext('app')
 
-  export let routine
-  export let isCreating = false
+  let {
+    routine,
+    isCreating = false
+  } = $props()
 
-  let pendingRRStr = ''
-  let deletingTasks = []
-  let addingTasks = []
-  let exceptions = []
+  let pendingRRStr = $state('')
+  let deletingTasks = $state([])
+  let addingTasks = $state([])
+  let exceptions = $state([])
 
-  $: reactToRRStr(pendingRRStr) // TO-DO: make this explicit, it's a crucial detail to be exposed
+  $effect(() => reactToRRStr(pendingRRStr))
 
   async function reactToRRStr (pendingRRStr) {
     if (!routine || pendingRRStr === routine.rrStr) return
@@ -40,17 +42,11 @@
       rrStr: newRRStr
     })
 
-    const newTasks = []
-    for (const dt of DTs) {
-      newTasks.push(
-        instantiateTask({ template: routine, dt })
-      )
-    }
-    return newTasks
+    return DTs.map(dt => instantiateTask({ template: routine, dt }))
   }
 
   async function handleCreate () {
-    propagateChanges()
+    executeChanges()
     const previewSpan = getPreviewSpan({ rrStr: pendingRRStr })
     Template.create({
       id: routine.id,
@@ -67,16 +63,16 @@
   }
   
   async function handleUpdate () {
-    propagateChanges()
+    executeChanges()
     const previewSpan = getPreviewSpan({ rrStr: pendingRRStr })
     Template.update({ id: routine.id, updates: { 
       rrStr: pendingRRStr, 
       previewSpan,
-      prevEndISO: DateTime.now().plus({ days: previewSpan }).toFormat('yyyy-MM-dd')
+      prevEndISO: DateTime.utc().plus({ days: previewSpan }).toFormat('yyyy-MM-dd')
     }})
   }
 
-  function propagateChanges () {
+  function executeChanges () {
     for (const task of deletingTasks) {
       Task.delete({ id: task.id })
     }
@@ -100,12 +96,12 @@
   />
 
   {#if pendingRRStr !== routine.rrStr}
-    <div class="changes-section">
+    <div class="w-full mt-6">
       {#if !isCreating}
         <PreviewChanges {pendingRRStr} {addingTasks} {deletingTasks} {exceptions}/>
       {/if}
 
-      <div class="action-button-container">
+      <div class="flex justify-start mt-4">
         {#if isCreating}
           <RoundButton onclick={handleCreate} backgroundColor="rgb(0, 89, 125)" textColor="white">
             Create routine
@@ -119,16 +115,3 @@
     </div>
   {/if}
 </div>
-
-<style>
-  .changes-section {
-    margin-top: 24px;
-    width: 100%;
-  }
-
-  .action-button-container {
-    display: flex;
-    justify-content: flex-start;
-    margin-top: 16px;
-  }
-</style>

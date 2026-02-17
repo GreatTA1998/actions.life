@@ -1,57 +1,36 @@
 <script>
+  import DaysOfWeekInput from './DaysOfWeekInput.svelte'
   import { getContext } from 'svelte'
-  import { toWeeklyIndices } from '$lib/utils/rrule.js'
+  import { parse } from '$lib/utils/rrule.js'
+  import { SvelteSet } from 'svelte/reactivity'
 
   const inputStates = getContext('inputStates')
-  const days = [, 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] // ISO 8601 standard uses 1-7 for Mon-Sun
+  const days = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
 
-  let indices = toWeeklyIndices($inputStates.weekly) // [1, 3, 7] means Mon, Tue & Sun are selected
+  let pickedDays = $state(
+    new SvelteSet(
+      parse($inputStates.weekly)
+    )
+  )
+  
+  $effect(() => update(pickedDays))
 
-  $: onDaySelect(indices)
-
-  function onDaySelect () {
+  function update () {
     inputStates.update(states => ({ 
       ...states, 
-      weekly: toRRStr(indices) 
+      weekly: rrStr(days.filter(d => pickedDays.has(d)))
     }))
   }
 
-  function toRRStr (indices) {
-    if (!indices.length) return '' // repeating without selected days is considered an invalid recurrence rule
-    else {
-      return `FREQ=WEEKLY;BYDAY=${indices.map(i => days[i]).join(',')}`
-    }
+  function rrStr (days) {
+    return days.length ? `FREQ=WEEKLY;BYDAY=${days.join(',')}` : ''
   }
 
-  function toggle (k) {
-    if (indices.includes(k)) indices = indices.filter(i => i !== k)
-    else indices = [...indices, k].sort((i, j) => i - j)
+  function toggle (day) {
+    pickedDays.delete(day) || pickedDays.add(day)
   }
 </script>
 
-<div style="display: flex; gap: 4px;">
-  {#each { length: 7 } as _, k}
-    <button on:click={() => toggle(k+1)} class="circle" class:highlight={indices.includes(k+1)}>
-      {days[k+1]}
-    </button>
-  {/each}
-</div>
-
-<style>
-  .circle {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    font-size: 12px;
-    justify-content: center;
-    color: rgb(170, 170, 170);
-    background-color: rgb(100, 100, 100);
-    user-select: none;
-  }
-
-  .highlight {
-    background-color: orange;
-    color: black;
-    font-weight: 600;
-  }
-</style>
+<DaysOfWeekInput {pickedDays} 
+  onClick={day => toggle(day)} 
+/>

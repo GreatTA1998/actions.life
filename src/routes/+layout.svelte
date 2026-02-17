@@ -69,9 +69,10 @@
 
 <style>
   :global(:root) {
+    --logo-twig-color: #b34f1b;
     --primary-color: #007aff; /* only date components use this blue */
     --success-color: #188038;
-    --logo-twig-color: #b34f1b;
+    --active: rgb(0, 89, 125);
     --location-indicator-color: var(--logo-twig-color);
     
     --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */

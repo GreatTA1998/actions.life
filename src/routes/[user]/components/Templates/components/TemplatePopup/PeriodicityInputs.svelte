@@ -54,14 +54,13 @@
   }
 
   function activeInputChanged () {
-    if (activeTab === 'weekly') return 'weekly'
-    else if (activeTab === 'monthly') return $monthlyPointer
-    else if (activeTab === 'yearly') return 'yearly'
+    if (activeTab === 'monthly') return $monthlyPointer
+    else return activeTab
   }
 </script>
 
 {#if loaded}
-  <div style="display: flex; flex-direction: column; margin-top: 24px;">
+  <div class="flex flex-col mt-6">
     <Tabs tabs={tabItems} activeTab={activeTab} on:tabChange={e => activeTab = e.detail.tab}/>
 
     {#if activeTab === 'weekly'}
