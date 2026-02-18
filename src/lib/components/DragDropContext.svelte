@@ -2,6 +2,7 @@
   import { setContext } from 'svelte'
   import { writable } from 'svelte/store'
   import { createThrottledFunction } from '$lib/utils/core.js'
+  import { playSound } from '$lib/features/audio.js'
 
   let { children } = $props()
 
@@ -94,6 +95,7 @@
         resolveBest($matchedDropzones)
       )
       hasDropped.set(true)
+      playSound('tap')
     }
   }
 

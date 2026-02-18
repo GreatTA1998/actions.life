@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
+import { playSound } from '$lib/features/audio.js'
 
 const Task = {
   schema: z.object({
@@ -93,6 +94,9 @@ const Task = {
       }
     
       const validatedChanges = Task.schema.partial().parse(kvChanges)
+
+      if (validatedChanges.isDone) playSound('celebration')
+
       const batch = writeBatch(db)
 
       if (validatedChanges.orderValue) {

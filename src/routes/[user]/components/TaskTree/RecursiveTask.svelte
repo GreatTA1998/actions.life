@@ -173,6 +173,11 @@
 </div>
 
 <style>
+  :global(.ghost-negative) {
+    position: absolute;
+    bottom: calc(-1 * var(--heights-sub-dropzone))
+  }
+  
   .done-task {
     background: linear-gradient(to right, rgba(76, 175, 80, 0.04), transparent 50%);
     color: #388e3c;

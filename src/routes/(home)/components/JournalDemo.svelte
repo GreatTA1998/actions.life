@@ -23,8 +23,8 @@
       {/if}
     </div>
 
-    <div class="benefits-explanation">
-      <p>
+    <div class="max-w-[520px] mx-auto">
+      <p class="font-base text-gray-700">
         Instead of keeping a separate journal, you can write directly on any task.
       </p>
     </div>

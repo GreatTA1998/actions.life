@@ -1,6 +1,6 @@
 <script>
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
-  import { paddingVal, placeholderField, fieldGrey, noZoomFS } from '$lib/styles/reused.module.css'
+  import { paddingVal, noZoomFS, placeholderField } from '$lib/styles/reused.module.css'
 
   let { value, oninput } = $props()
 
@@ -54,9 +54,11 @@
     <div class="grid gap-2 p-2" style:grid-template-columns="repeat(3, 1fr)">
       {#each durations as duration}
         <button onclick={() => select(duration, close)}
-          style:color={fieldGrey}
-          class="rounded py-2 px-3 {placeholderField}" 
-          class:highlighted-option={value === duration.value}
+          class={[
+            'rounded py-2 px-3', 
+            placeholderField,
+            value === duration.value ? 'font-semibold' : `text-neutral-500`
+          ]}
         >
           {duration.label}
         </button>
