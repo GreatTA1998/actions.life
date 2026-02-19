@@ -47,14 +47,6 @@
 </script>
 
 <div>
-  {#if !dataReady}
-    <div transition:fade class="w-screen h-screen center z-[99] bg-[var(--offwhite-bg)]">
-      <img src="/logo-no-bg.png" 
-        class="pulse center w-12 h-12 rounded-2xl"
-      />
-    </div>
-  {/if}
-
   <AppContext>
     <DragDropContext>
       {@render children()}
@@ -62,11 +54,21 @@
       <TheSnackbar />
     </DragDropContext>
   </AppContext>
+
+  {#if !dataReady}
+    <div transition:fade 
+      class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
+    </div>
+  {/if}
+
+  {#if !dataReady} <!-- must be separate from the transition block -->
+    <img src="/logo-no-bg.png" 
+      class={['pulse center', 'w-12 h-12 rounded-2xl']}
+    />
+  {/if}
 </div>
 
 <style>
-  /* From Prabhakar's centering solution that works for iOS unlike StackOverflow
-  https://github.com/project-feynman/v3/blob/d864f54d9a69e6cdf0beb7818e8b07a85cebb7eb/src/components/SeeExplanation.vue */
   .center {
     position: absolute;
     top: 50%;
@@ -75,18 +77,11 @@
   }
 
   .pulse {
-    animation: fadeInOut 1.6s ease-out 13 forwards;
+    animation: opacityValues 0.5s ease-in-out infinite alternate;
   }
 
-  @keyframes fadeInOut {
-    0% {
-      opacity: 0.1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 0.1;
-    }
+  @keyframes opacityValues {
+    from { opacity: 0.1; }
+    to   { opacity: 0.9; }
   }
 </style>

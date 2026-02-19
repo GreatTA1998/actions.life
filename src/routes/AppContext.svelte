@@ -36,4 +36,6 @@
   }
 </script>
 
-{@render children()}
+<div class="z-0 relative">
+  {@render children()}
+</div>
