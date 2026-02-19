@@ -1,6 +1,7 @@
 const SOUNDS = {
   tap:         '/sounds/type_01.wav',
-  celebration: '/sounds/celebration.wav'
+  celebration: '/sounds/celebration.wav',
+  swipe: '/sounds/swipe_01.wav'
 }
 
 let ctx = null
