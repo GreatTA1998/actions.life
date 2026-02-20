@@ -30,7 +30,7 @@
 
     font-size: 14px;
     border-radius: 24px;
-    background-color: white;
+    background-color: var(--surface-1);
 
     box-shadow: 0px 0px 0px 9999px rgba(0, 0, 0, 0.8);
   }

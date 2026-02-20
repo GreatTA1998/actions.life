@@ -54,7 +54,7 @@
     width: 200px;
     max-height: 480px;
     overflow-y: auto;
-    background-color: white; 
+    background-color: var(--surface-1); 
     padding: 6px; 
     border-radius: 12px;
   }
@@ -72,7 +72,7 @@
   }
 
   .option-highlight {
-    background-color: rgb(240, 240, 240);
+    background-color: var(--surface-2);
   }
 
   .autocomplete-option:hover {

@@ -138,11 +138,11 @@
     gap: 12px;
     font-size: 0.9rem;
     font-weight: 500;
-    color: #333;
+    color: var(--text-primary);
   }
 
   .range-label .arrow {
-    color: #999;
+    color: var(--text-muted);
   }
 
   .slider-container {
@@ -157,7 +157,7 @@
     left: 8px;
     right: 8px;
     height: 6px;
-    background: #e5e5e5;
+    background: var(--surface-3);
     border-radius: 3px;
   }
 
@@ -187,7 +187,7 @@
     appearance: none;
     width: 18px;
     height: 18px;
-    background: white;
+    background: var(--surface-1);
     border: 2px solid #7c3aed;
     border-radius: 50%;
     cursor: pointer;
@@ -204,7 +204,7 @@
   .slider::-moz-range-thumb {
     width: 18px;
     height: 18px;
-    background: white;
+    background: var(--surface-1);
     border: 2px solid #7c3aed;
     border-radius: 50%;
     cursor: pointer;
@@ -231,12 +231,12 @@
   .tick-line {
     width: 1px;
     height: 6px;
-    background: #ccc;
+    background: var(--border-strong);
   }
 
   .tick-label {
     font-size: 0.65rem;
-    color: #888;
+    color: var(--text-muted);
     margin-top: 2px;
     white-space: nowrap;
   }

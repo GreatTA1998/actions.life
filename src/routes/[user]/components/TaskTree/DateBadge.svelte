@@ -37,7 +37,7 @@
 <style>  
   :global(:root) {
     /* matches recursive task's text color */
-    --clear-color: rgb(80, 80, 80); 
+    --clear-color: var(--text-secondary);
   }
 
   .date-badge {
@@ -54,7 +54,7 @@
   }
 
   .faint {
-    background-color: rgb(231, 231, 231);
-    color: grey;
+    background-color: var(--surface-3);
+    color: var(--text-muted);
   }
 </style>

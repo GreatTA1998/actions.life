@@ -20,6 +20,8 @@ before the problem would happen AND you cannot scroll back up */
 body {
   margin: 0;
   height: 100%;
+  background: var(--app-bg);
+  color: var(--text-primary);
 }
 
 img {

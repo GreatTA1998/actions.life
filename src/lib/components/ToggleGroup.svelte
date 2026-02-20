@@ -20,20 +20,20 @@
   .toggle-btn {
     flex: 1;
     padding: 6px 0;
-    color: #6e6e7a;
+    color: var(--text-muted);
     border-radius: 4px;
     font-size: 0.875rem;
     transition: background 0.15s, color 0.15s;
   }
 
   .toggle-btn.active {
-    background: #e3e6ee;
-    color: #1a1a1a;
+    background: var(--surface-4);
+    color: var(--text-primary);
     font-weight: 500;
   }
 
   .toggle-btn:not(.active):hover {
-    background: #ececf0;
-    color: #444;
+    background: var(--surface-3);
+    color: var(--text-secondary);
   }
 </style>

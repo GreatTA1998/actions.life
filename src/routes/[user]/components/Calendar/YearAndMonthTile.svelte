@@ -26,7 +26,7 @@
   <div 
     style="
       display: flex; justify-content: center; row-gap: 2px;
-      color: {currentDT.toFormat('yyyy-MM') <= DateTime.now().toFormat('yyyy-MM') ? 'black' : '#6d6d6d'};
+      color: {currentDT.toFormat('yyyy-MM') <= DateTime.now().toFormat('yyyy-MM') ? 'var(--text-primary)' : 'var(--text-muted)'};
     "
     class:mobile-compact={$isCompact}
     class:desktop-descriptive={!$isCompact}

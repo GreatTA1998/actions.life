@@ -33,7 +33,7 @@
     display: inline-block;
     width: 36px;
     height: 20px;
-    background-color: #e0e0e0;
+    background-color: var(--surface-3);
     border-radius: 20px;
     transition: background-color 0.2s;
   }
@@ -45,14 +45,14 @@
     width: 16px;
     left: 2px;
     bottom: 2px;
-    background-color: white;
+    background-color: var(--surface-1);
     border-radius: 50%;
     transition: transform 0.2s;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   }
 
   .toggle-switch input:checked + .toggle-slider {
-    background-color: #1a73e8;
+    background-color: var(--primary-color);
   }
 
   .toggle-switch input:checked + .toggle-slider:before {
@@ -62,6 +62,6 @@
   .toggle-label {
     margin-left: 8px;
     font-size: 14px;
-    color: #70757a;
+    color: var(--text-muted);
   }
 </style> 

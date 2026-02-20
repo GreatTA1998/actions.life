@@ -36,17 +36,17 @@
     justify-content: center;
     font-size: 13px;
     font-weight: 500;
-    color: rgba(0, 0, 0, 0.7);
+    color: var(--text-secondary);
     
     opacity: 0.5;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: 1px solid var(--faint-color);
   }
   
   .color-button.active {
     font-weight: 700;
     opacity: 1;
     box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-    border: 1px solid rgba(0,0,0,0.2);
+    border: 1px solid var(--border-strong);
     transform: scale(1.1);
   }
 </style>

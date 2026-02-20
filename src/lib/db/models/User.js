@@ -11,6 +11,7 @@ const User = {
 
     // properties introduced from August 1 2024, maybe
     calendarTheme: z.string().default('offWhite'),
+    colorMode: z.enum(['system', 'light', 'dark']).default('system'),
 
     defaultPhotoLayout: z.string().default('side-by-side'),
     calSnapInterval: z.number().default(1),

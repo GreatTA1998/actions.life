@@ -26,7 +26,7 @@
   .timestamp {
     width: 100%; /* because <div> no longer fills to its parent's width if it's absolutely positioned  */
     text-align: center;
-    color: #6d6d6d;
+    color: var(--text-muted);
     background-color: var(--calendar-bg-color);
     z-index: 2;
     font-size: 12px;

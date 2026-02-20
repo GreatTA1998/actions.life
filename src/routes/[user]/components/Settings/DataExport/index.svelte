@@ -62,7 +62,7 @@
 
 <style>
   pre {
-    background: #f5f5f5;
+    background: var(--surface-2);
     padding: 12px;
     border-radius: 8px;
     font-size: 0.75rem;

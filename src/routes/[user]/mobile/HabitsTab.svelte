@@ -58,7 +58,7 @@
 </script>
 
 <div class="flex w-full justify-center flex-wrap">
-  <div style:width={WIDTHS.PANEL_MAX + 'px'} class="bg-white">
+  <div style:width={WIDTHS.PANEL_MAX + 'px'} class="bg-[var(--surface-1)]">
     {#if topRoutines}
       <div class="flex flex-col py-0 px-2">
         {#each topRoutines as routine (routine.id)}

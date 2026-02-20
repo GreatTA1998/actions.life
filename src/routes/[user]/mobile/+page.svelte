@@ -30,7 +30,7 @@
   }
 
   :global(body) {
-    background: rgb(245, 245, 245); /* 240 > optimal > 220, previously #f1f3f4; */
+    background: var(--app-bg);
   }
   
   .grid-container {

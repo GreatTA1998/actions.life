@@ -55,7 +55,7 @@
 
   .interval-buttons {
     display: flex;
-    background: #f5f5f5;
+    background: var(--surface-2);
     border-radius: 6px;
     padding: 3px;
   }
@@ -67,19 +67,19 @@
     padding: 5px 0;
     font-size: 13px;
     font-weight: 500;
-    color: #555;
+    color: var(--text-secondary);
     min-width: 36px;
     cursor: pointer;
   }
 
   .interval-button.active {
-    background: white;
-    color: #333;
+    background: var(--surface-1);
+    color: var(--text-primary);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
   .unit-label {
     font-size: 13px;
-    color: #777;
+    color: var(--text-muted);
   }
 </style>

@@ -20,7 +20,7 @@
   /* global needed otherwise Uniconify's icons become black */
   :global(.star-icon) {
     font-size: 2.2rem;
-    color: #666;
+    color: var(--text-muted);
   }
 
   .star-button.shine :global(.star-icon) {

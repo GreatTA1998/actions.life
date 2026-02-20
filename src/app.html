@@ -10,6 +10,24 @@
 		<link rel="icon" href="%sveltekit.assets%/logo-no-bg.png">
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/logo-has-bg.png">
 
+		<script>
+			(() => {
+				try {
+					const key = 'actions-life-color-mode'
+					const storedMode = localStorage.getItem(key)
+					const mode = ['system', 'light', 'dark'].includes(storedMode) ? storedMode : 'system'
+					const isDark = mode === 'dark'
+						|| (mode !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+					const root = document.documentElement
+
+					root.classList.toggle('dark', isDark)
+					root.dataset.theme = isDark ? 'dark' : 'light'
+					root.dataset.colorMode = mode
+					root.style.colorScheme = isDark ? 'dark' : 'light'
+				} catch {}
+			})()
+		</script>
+
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
 		%sveltekit.head%
 	</head>

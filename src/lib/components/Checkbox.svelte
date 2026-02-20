@@ -57,7 +57,7 @@
   }
 
   .container input:checked ~ .checkmark {
-    background-color: #509c13;
+    background-color: var(--success-color);
   }
 
   /* Create the checkmark/indicator (hidden when not checked) */

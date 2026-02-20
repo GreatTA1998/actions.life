@@ -140,7 +140,7 @@
     width: var(--width-calendar-day-section);
     font-size: 1.4rem;
     background-color: var(--calendar-bg-color);
-    color: #6d6d6d;
+    color: var(--text-muted);
   }
 
   .day-name-label {
@@ -150,12 +150,12 @@
   }
 
   .active-day-name {
-    color: rgb(30, 30, 30);
+    color: var(--text-primary);
   }
 
   .active-date-number {
     font-weight: 300;
-    color: rgb(60, 60, 60);
+    color: var(--text-secondary);
   }
 
   .center-flex {

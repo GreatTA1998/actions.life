@@ -38,7 +38,7 @@
           {#if stats.has(selectedRoutineID)}
             <div class="flex items-center gap-2">
               <span>{formatHours(stats.get(selectedRoutineID).minutesSpent)}</span>
-              <span style="color: #666;">•</span>
+              <span style="color: var(--text-muted);">•</span>
               <span>completed {stats.get(selectedRoutineID).timesCompleted} times</span>
             </div>
           {/if}

@@ -23,7 +23,7 @@
     <PopoverMenu>
       {#snippet activator ({ id, anchorName })}
         <button popovertarget={id} style:anchor-name={anchorName}>
-          <span class="month-label pb-[2px]" style:border-bottom="1px solid #999">
+          <span class="month-label pb-[2px]" style:border-bottom="1px solid var(--text-muted)">
             {monthName} 
           </span>
         </button>
@@ -70,8 +70,8 @@
    
     width: 5ch;
     font-size: clamp(20px, 5vw, 26px);
-    color: #666;
-    border-bottom: 1px dashed #999;
+    color: var(--text-muted);
+    border-bottom: 1px dashed var(--text-muted);
   }
 
   .year-input::-webkit-outer-spin-button,

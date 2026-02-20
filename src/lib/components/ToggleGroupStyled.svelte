@@ -9,7 +9,7 @@
 <style>
   .toggle-group {
     display: flex;
-    background: #f6f6f7;
+    background: var(--surface-2);
     border-radius: 6px;
     padding: 2px;
     column-gap: 8px;

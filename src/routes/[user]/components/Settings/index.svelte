@@ -80,7 +80,7 @@
     flex-direction: column;
     width: 100%;
     height: 100%;
-    background: rgb(235, 235, 235);
+    background: var(--surface-2);
     overflow-y: auto;
   }
 
@@ -126,7 +126,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    color: #6b6b6b;
+    color: var(--text-muted);
     font-weight: 500;
     padding: 6px 12px;
   }

@@ -23,7 +23,7 @@
       <div 
         class="flex items-center"
         style:margin-right="calc(var(--left-padding) - 2px)" 
-        style:color={task.isDone ? 'rgb(20, 20, 20)' : '#509c13'}
+        style:color={task.isDone ? 'var(--task-name-color)' : 'var(--success-color)'}
       >
         <MslCircle style="font-size: 2px;"/>
       </div>
@@ -38,7 +38,7 @@
 
   {#if !isBulletPoint}
     <div style="flex-grow: 1; overflow: hidden;">
-      <div style="font-size: {notesFS}; font-weight: 400; color: rgb(20, 20, 20);">
+      <div style="font-size: {notesFS}; font-weight: 400; color: var(--task-name-color);">
         {task.notes || ''}
       </div>
     </div>

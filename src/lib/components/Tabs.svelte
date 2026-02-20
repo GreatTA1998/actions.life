@@ -33,7 +33,7 @@
   
   .tabs {
     display: flex;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--faint-color);
   }
   
   .tab-button {
@@ -41,7 +41,7 @@
     background-color: transparent;
     font-size: 0.875rem;
     position: relative;
-    color: #666;
+    color: var(--text-muted);
     font-weight: 500;
   }
   

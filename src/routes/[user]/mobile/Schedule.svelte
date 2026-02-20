@@ -187,7 +187,7 @@
 </script>
 
 <div class="h-full basis-full flex justify-center">
-  <div class="basis-full flex flex-col bg-white" style:max-width={WIDTHS.PANEL_MAX + 'px'}>
+  <div class="basis-full flex flex-col bg-[var(--surface-1)]" style:max-width={WIDTHS.PANEL_MAX + 'px'}>
     <div class="shrink-0">
       <DatePicker valueDT={selectedDate}
         {onVisibilityChange}
@@ -195,7 +195,7 @@
       />
     </div>
 
-    <div class="py-2 px-4 border-y-solid border-gray-100">
+    <div class="py-2 px-4 border-y-solid border-[var(--faint-color)]">
       <SimpleToggle 
         checked={$user.hideRoutines} 
         onchange={e => User.update({ hideRoutines: e.target.checked })} 
@@ -212,7 +212,7 @@
           {#if filteredTasks.length > 0}
             <div class={[
               'text-lg font-semibold p-4',
-              selectedDate.hasSame(day.date, 'day') ? 'text-[var(--primary-color)]' : 'text-[#444]'
+              selectedDate.hasSame(day.date, 'day') ? 'text-[var(--primary-color)]' : 'text-[var(--text-secondary)]'
             ]} 
             >
               <span class="uppercase mr-1">{day.date.toFormat('cccc')}</span>
@@ -230,8 +230,8 @@
                     {:else}
                       <button onclick={() => openTaskPopup(task)}
                         class={[
-                          'bg-[#f5f5f5] rounded-2xl py-1.5 px-3 text-base font-medium justify-start',
-                          task.isDone ? 'text-[#1e8e24]' : 'text-[#555]'
+                          'bg-[var(--surface-2)] rounded-2xl py-1.5 px-3 text-base font-medium justify-start',
+                          task.isDone ? 'text-[var(--success-color)]' : 'text-[var(--text-secondary)]'
                         ]} 
                       >
                         {task.name}
@@ -250,16 +250,16 @@
                     ]}
                   >
                     {#if task.startTime}
-                      <div class="shrink-0 text-lg text-[#222] font-medium">
+                      <div class="shrink-0 text-lg text-[var(--text-primary)] font-medium">
                         {formatTime(task.startTime)}
                       </div>
                     {/if}
                     
                     <div class="min-w-0">
-                      <div class="text-lg text-[#222]">
+                      <div class="text-lg text-[var(--text-primary)]">
                         {task.name}
                       </div>
-                      <div class="text-base text-[#444] font-light truncate">
+                      <div class="text-base text-[var(--text-secondary)] font-light truncate">
                         {task.notes}
                       </div>
                     </div>
@@ -269,7 +269,7 @@
             </div>
           {/if}
 
-          <div class="border-t border-t-dashed border-[#dadada] py-2"></div>
+          <div class="border-t border-t-dashed border-[var(--faint-color)] py-2"></div>
         </div>
       {/each}
     </div>

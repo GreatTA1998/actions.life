@@ -62,8 +62,8 @@
   .export-btn {
     width: 120px;
     padding: 8px 16px;
-    background-color: grey;
-    color: white;
+    background-color: var(--surface-3);
+    color: var(--text-primary);
     border-radius: 6px;
     font-weight: 500;
     font-size: 0.875rem;

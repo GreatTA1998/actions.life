@@ -5,10 +5,10 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D3D1CB;
+  background: var(--surface-3);
 }
 ::-webkit-scrollbar-track {
-  background: #EDECE9;
+  background: var(--surface-2);
 }
 
 .hide-scrollbar {

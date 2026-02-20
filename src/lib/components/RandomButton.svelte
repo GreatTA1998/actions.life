@@ -29,8 +29,8 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background-color: #f8f8f8;
-    color: #888;
+    background-color: var(--surface-2);
+    color: var(--text-muted);
     opacity: 0.7;
     box-shadow: 0 1px 2px rgba(0,0,0,0.08);
     transform-origin: center;
@@ -38,10 +38,10 @@
 
   .random-button:hover {
     opacity: 1;
-    background-color: #f0f0f0;
+    background-color: var(--surface-3);
     transform: rotate(15deg) scale(1.05);
     box-shadow: 0 2px 4px rgba(0,0,0,0.12);
-    color: #555;
+    color: var(--text-secondary);
   }
   
   .random-button.spinning {
@@ -55,8 +55,8 @@
   }
 
   .random-button.active {
-    background-color: #e9f3ff;
-    color: #007bff;
+    background-color: var(--surface-4);
+    color: var(--primary-color);
     opacity: 1;
     transform: rotate(0deg) scale(1);
     box-shadow: 0 2px 4px rgba(0,123,255,0.2);

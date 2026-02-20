@@ -4,18 +4,84 @@
   --success-color: #188038;
   --active: rgb(0, 89, 125);
   --location-indicator-color: var(--logo-twig-color);
-  
+
+  --app-bg: rgb(245, 245, 245);
+  --surface-1: #ffffff;
+  --surface-2: #f5f5f5;
+  --surface-3: #ececf0;
+  --surface-4: #e3e6ee;
+
+  --text-primary: rgb(20, 20, 20);
+  --text-secondary: rgb(80, 80, 80);
+  --text-muted: rgb(110, 110, 122);
+  --text-faint: rgb(120, 120, 120);
+  --text-on-accent: #ffffff;
+
+  --border-subtle: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.2);
+
+  --overlay-subtle: rgba(0, 0, 0, 0.05);
+  --overlay-strong: hsla(0, 0%, 0%, 0.6);
+
+  /* values are hydrated by src/lib/store/themes */
+  --todo-list-bg-light: #f8f9f9;
+  --calendar-bg-light: #f8f9f9;
+  --navbar-bg-light: #ffffff;
+  --grid-color-light: rgb(228, 228, 228);
+
+  --todo-list-bg-dark: #17191b;
+  --calendar-bg-dark: #16181a;
+  --navbar-bg-dark: #1d1f21;
+  --grid-color-dark: #30343a;
+
+  --todo-list-bg-color: var(--todo-list-bg-light);
+  --calendar-bg-color: var(--calendar-bg-light);
+  --navbar-bg-color: var(--navbar-bg-light);
+  --grid-color: var(--grid-color-light);
+
   --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */
-  --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
-  --fine-control-color: rgb(120, 120, 120);
-  --scheduled-info-color: rgb(0, 0, 0);
-  --task-name-color: rgb(0, 0, 0);
+  --task-action-subtle-color: rgba(0,0,0,0.2); /*rgb(120, 120, 120); */
+  --fine-control-color: var(--text-faint);
+  --scheduled-info-color: var(--text-primary);
+  --task-name-color: var(--text-primary);
   --left-padding: 6px; /* only applies to TaskElement, PhotoTaskElement, IconTaskElement */ 
   --width-within-column: 94%;
 
   --calendar-section-left-spacing: 2vw;
-  --experimental-black: hsla(0, 100%, 0%, 0.6);
-  --offwhite-bg: rgb(250, 250, 250);
-  --faint-color: lightgrey;
+  --experimental-black: var(--overlay-strong);
+  --offwhite-bg: var(--app-bg);
+  --faint-color: var(--border-subtle);
   --popup-control: 1.67rem;
+}
+
+html.dark {
+  --primary-color: #6aa7ff;
+  --success-color: #62c177;
+  --active: rgb(119, 176, 214);
+
+  --app-bg: rgb(21, 24, 27);
+  --surface-1: rgb(29, 33, 37);
+  --surface-2: rgb(37, 42, 47);
+  --surface-3: rgb(46, 52, 58);
+  --surface-4: rgb(56, 63, 70);
+
+  --text-primary: rgb(230, 234, 238);
+  --text-secondary: rgb(186, 194, 203);
+  --text-muted: rgb(161, 170, 179);
+  --text-faint: rgb(142, 151, 161);
+  --text-on-accent: #f8fafc;
+
+  --border-subtle: rgba(255, 255, 255, 0.18);
+  --border-strong: rgba(255, 255, 255, 0.28);
+
+  --overlay-subtle: rgba(255, 255, 255, 0.08);
+  --overlay-strong: rgba(0, 0, 0, 0.45);
+
+  --todo-list-bg-color: var(--todo-list-bg-dark);
+  --calendar-bg-color: var(--calendar-bg-dark);
+  --navbar-bg-color: var(--navbar-bg-dark);
+  --grid-color: var(--grid-color-dark);
+
+  --grip-line-color: rgba(255, 255, 255, 0.22);
+  --task-action-subtle-color: rgba(255, 255, 255, 0.35);
 }

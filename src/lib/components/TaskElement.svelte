@@ -10,7 +10,7 @@
     {#if isBulletPoint}
       <div class="flex items-center" style="
           margin-right: calc(var(--left-padding) - 2px);
-          color: {task.isDone ? '#509c13' : 'rgb(20, 20, 20)'};
+          color: {task.isDone ? 'var(--success-color)' : 'var(--task-name-color)'};
         "
       >
         <MslCircle style="font-size: 2px;"/>
@@ -18,13 +18,13 @@
     {/if}
     
     <CalTaskUnit {task} 
-      color={(isBulletPoint || (task.tagIDs ?? []).length >= 2) ? 'black' : 'white'}
+      color={(isBulletPoint || (task.tagIDs ?? []).length >= 2) ? 'var(--task-name-color)' : 'var(--text-on-accent)'}
     />
   </div>
 
   {#if !isBulletPoint && (task.tagIDs ?? []).length < 2}
     <div class="grow-1 overflow-hidden">
-      <div style="font-size: {notesFS}; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
+      <div style="font-size: {notesFS}; font-weight: 300; color: {isBulletPoint ? '' : 'var(--text-on-accent)'};">
         {task.notes}
       </div>
     </div>
@@ -92,7 +92,7 @@
     styles.push(`display: flex`)
     styles.push(`flex-direction: column`)
     styles.push(`row-gap: 4px`)
-    styles.push(`border: ${isBulletPoint ? '' : '1px solid rgba(0,0,0,0.15)'}`)
+    styles.push(`border: ${isBulletPoint ? '' : '1px solid var(--border-subtle)'}`)
 
     if (!isBulletPoint) {
       let bgColor = 'var(--experimental-black)'

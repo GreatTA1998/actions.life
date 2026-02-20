@@ -60,8 +60,8 @@
   } 
 
   .toggle-btn.active {
-    background: #e3e6ee;
-    color: #1a1a1a;
+    background: var(--surface-4);
+    color: var(--text-primary);
     font-weight: 500;
   }
 
