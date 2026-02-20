@@ -5,8 +5,7 @@ import { user, tasksCache, cleanupCache, showUndoSnackbar } from '$lib/store'
 import { closeTaskPopup } from '$lib/store/taskPopup.js'
 import { 
   writeBatch, getDocs, increment, 
-  collection, query, where, 
-  onSnapshot, doc
+  collection, query, where, doc
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
@@ -186,27 +185,6 @@ const Task = {
     }
 
     await batch.commit()
-  },
-
-  listenToUnscheduled: (userUID, callback) => {
-    try {
-      const q = query(
-        collection(db, "users", userUID, "tasks"),
-        where("startDateISO", "==", ""),
-        where("isDone", "==", false)
-      )
-      
-      return onSnapshot(q, (snapshot) => {
-        const tasks = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-        callback(tasks)
-      }, (error) => {
-        console.error("Error in listenToUnscheduled", error)
-        callback([])
-      })
-    } catch (err) {
-      console.error("Error setting up listener in listenToUnscheduled", err)
-      return () => {} // Return a no-op unsubscribe function
-    }
   },
 
   getByDateRange: async (startDate, endDate) => {

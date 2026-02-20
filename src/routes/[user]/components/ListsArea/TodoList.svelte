@@ -29,7 +29,7 @@
     dzRootHeight: () => dzRootHeight,
     dzSubHeight: () => dzSubHeight,
     rootFontSize: () => rootFontSize,
-    subFontSize: () => subFontSize,
+    subFontSize: () => subFontSize
   })
 
   function dzProps (idx, debugColor = 'purple') {
@@ -65,7 +65,10 @@
           style:view-transition-name="match-element"
           style:view-transition-class={parentID ? 'dialog-list-item' : 'list-item'}
         >  
-          <RecursiveTask {task} depth={1} ancestorIDs={['']} />
+          <RecursiveTask {task} 
+            depth={1} 
+            ancestorIDs={['']} 
+          />
         </div>
       </div>
     {/each}

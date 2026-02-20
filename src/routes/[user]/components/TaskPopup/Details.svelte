@@ -80,7 +80,7 @@
 
   <InfoFields {task} />
 
-  <div style="width: 100%; max-width: 100%;">
+  <div class="w-full">
     <!-- TO-FIX: disallow horizontal and vertical overflow! 
       note: 100% width doesn't work because textarea is an inline element 
     -->
@@ -100,7 +100,7 @@
     {/if}
   </div>
 
-  <div style="margin-top: auto; margin-bottom: 0; display: flex; align-items: center; width: 100%; column-gap: 12px;">
+  <div class="mt-auto w-full flex items-center gap-x-3">
     <PhotoUploadWithQuestion {task} />
 
     <RepeatTask {task} onToggleTemplateEditor={() => editingRoutine = !editingRoutine} isTemplateEditorOpen={editingRoutine}/>

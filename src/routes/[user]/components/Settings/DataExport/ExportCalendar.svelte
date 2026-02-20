@@ -7,7 +7,7 @@
   
   let loading = $state(false)
 
-  async function exportCalendar() {
+  async function exportCalendar () {
     try {
       loading = true
       let tasks = await Task.getByDateRange(startDate, endDate)
@@ -60,13 +60,7 @@
 </button>
 
 
-<style>
-  .calendar-export {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
+<style> 
   .export-btn {
     padding: 8px 16px;
     background-color: #7c3aed;
