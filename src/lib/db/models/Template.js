@@ -70,20 +70,18 @@ const Template = {
   },
 
   async getTotalStats ({ id }) {
-    return new Promise(async (resolve) => {
-      const q = query(
-        collection(db, 'users', get(user).uid, 'tasks'), 
-        where('templateID', '==', id), 
-        where('isDone', '==', true)
-      )
-      const [count, minutesSpent] = await Promise.all([
-        getCountFromServer(q).then(snapshot => snapshot.data().count),
-        getAggregateFromServer(q, {
-          minutesSpent: sum('duration')
-        }).then(snapshot => snapshot.data().minutesSpent)
-      ])
-      resolve({ minutesSpent, timesCompleted: count })
-    })
+    const q = query(
+      collection(db, 'users', get(user).uid, 'tasks'), 
+      where('templateID', '==', id), 
+      where('isDone', '==', true)
+    )
+    const [count, minutesSpent] = await Promise.all([
+      getCountFromServer(q).then(snapshot => snapshot.data().count),
+      getAggregateFromServer(q, {
+        minutesSpent: sum('duration')
+      }).then(snapshot => snapshot.data().minutesSpent)
+    ])
+    return { minutesSpent, timesCompleted: count }
   }
 }
 

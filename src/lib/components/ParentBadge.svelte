@@ -1,14 +1,14 @@
 <script>
   import { getContext } from 'svelte'
 
-  let { parent } = $props()
+  let { parentObj } = $props()
   const { openTaskPopup } = getContext('app')
 </script>
 
 <div 
   onclick={e => { 
     e.stopPropagation()
-    openTaskPopup(parent)
+    openTaskPopup(parentObj)
   }} 
   class="glass-pill content-sized" 
   style="
@@ -19,7 +19,7 @@
     background: var(--background, rgba(120, 120, 120, 0.15))
   "
 >
-  {parent.name.split(' ')[0]}
+  {parentObj.name.split(' ')[0]}
 </div>
 
 <style>

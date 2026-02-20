@@ -2,6 +2,9 @@
   import PeriodicityEditor from '/src/routes/[user]/components/Templates/components/TemplatePopup/PeriodicityEditor.svelte'
   import MslRepeat from 'virtual:icons/material-symbols-light/repeat'
   import { user } from '$lib/store'
+  import { getContext } from 'svelte'
+
+  const { openTaskPopup } = getContext('app')
 
   let { task, onToggleTemplateEditor, isTemplateEditorOpen = false } = $props()
   let isCreatingRoutine = $state(false)
@@ -13,38 +16,33 @@
 
   function toggleTemplateEditor (e) {
     e.stopPropagation()
-    onToggleTemplateEditor?.()
+
+    openTaskPopup(task.templateID)
+    // onToggleTemplateEditor?.() // handle creation edge case
   }
 </script>
 
 {#if task.templateID}
-  <button onclick={toggleTemplateEditor} class="my-btn flex" style="color: rgb(0, 89, 125);" class:active={isTemplateEditorOpen}>
-    <MslRepeat style="font-size: var(--popup-control);"/>
+  <button onclick={toggleTemplateEditor} 
+    class={[
+      'text-[rgb(0,89,125)] rounded flex',
+      isTemplateEditorOpen && 'bg-[rgba(0, 89, 125, 0.1)]'
+    ]}
+  >
+    <MslRepeat style="font-size: var(--popup-control)"/>
   </button>
 {:else}
-  <button onclick={toggleCreate} class="my-btn flex" 
-    class:greyed-out={$user.uid === 'demo-user'} disabled={$user.uid === 'demo-user'}
+  <button onclick={toggleCreate} 
+    class={[
+      'text-[rgb(20,20,20)] rounded flex',
+      $user.uid === 'demo-user' && 'text-gray-300 cursor-default'
+    ]}
+    disabled={$user.uid === 'demo-user'}
   >
-    <MslRepeat style="font-size: var(--popup-control);"/>
+    <MslRepeat style="font-size: var(--popup-control)"/>
   </button>
 
   {#if isCreatingRoutine}
     <PeriodicityEditor isCreating routine={{ ...task, rrStr: '' }} />
   {/if}
 {/if}
-
-<style>
-  .my-btn {
-    color: rgb(20, 20, 20);
-    border-radius: 4px;
-  }
-
-  .my-btn.active {
-    background: rgba(0, 89, 125, 0.1);
-  }
-
-  .greyed-out {
-    color: rgb(200, 200, 200);
-    cursor: default;
-  }
-</style> 

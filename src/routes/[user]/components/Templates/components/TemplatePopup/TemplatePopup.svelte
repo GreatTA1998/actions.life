@@ -1,7 +1,6 @@
 <script>
   import PeriodicityEditor from './PeriodicityEditor.svelte'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
-  import BasePopup from '$lib/components/BasePopup.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import DurationPicker from '$lib/components/DurationPicker.svelte'
   import TextArea from '$lib/components/TextArea.svelte'
@@ -10,10 +9,16 @@
   import { template, closeTemplateEditor } from '../../store.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import Template from '$lib/db/models/Template.js'
+  import NewBasePopup from '$lib/components/NewBasePopup.svelte'
+  import PopupTitle from '$lib/components/PopupTitle.svelte'
+  import ColorTags from '$lib/components/ColorTags.svelte'
+  import DragDropContext from '$lib/components/DragDropContext.svelte'
+  import { WIDTHS } from '$lib/utils/constants.js'
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 
-  let iconsMenu = false
+  let iconsMenu = $state(false)
+  let parentObj = $derived($template.parentID ? {} : null)
 
   function handleDelete () {
     if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {
@@ -35,8 +40,9 @@
   }
 </script>
 
-<BasePopup onClickOutside={closeTemplateEditor}>
-  <div class="relative h-full grid gap-[10px] items-center" 
+<NewBasePopup onExit={closeTemplateEditor}>
+  <div class="relative h-full w-screen grid gap-[10px] py-2 px-4" 
+    style:max-width="{WIDTHS.PANEL_MAX}px"
     style:grid-template-columns="auto 1fr"
   >
     {#if periodicity($template.rrStr) === 'weekly'}
@@ -46,21 +52,11 @@
         {/if}
       </button>
     {/if}
-
-    <input value={$template.name} 
-      oninput={e => debouncedUpdate('name', e.target.value)}
-      type="text" placeholder="Untitled" style="width: 100%; font-size: 24px;" class="title-underline-input"
+    
+    <PopupTitle value={$template.name}
+      {parentObj}
+      onInput={value => debouncedUpdate('name', value)}
     />
-  </div>
-
-  <div class="flex items-center">
-    {#await Template.getTotalStats({ id: $template.id })}
-      <div class="stats">Loading stats...</div>
-    {:then { minutesSpent, timesCompleted }}
-      <div class="stats">
-        Completed {timesCompleted} times, spent {formatTime(minutesSpent)}
-      </div>
-    {/await}
   </div>
   
   {#if iconsMenu}
@@ -84,25 +80,39 @@
         oninput={e => instantUpdate("duration", Number(e.target.value))}
       />   
     </div>
+
+    <ColorTags task={$template}/>
   </div>
 
-  <PeriodicityEditor routine={$template} />
+  {#if !$template.parentID}
+    <div class="flex items-center">
+      {#await Template.getTotalStats({ id: $template.id }) 
+        then { minutesSpent, timesCompleted }
+      }
+        <div class="text-[#666] text-xs">
+          Completed {timesCompleted} times, spent {formatTime(minutesSpent)}
+        </div>
+      {/await}
+    </div>
+
+    <PeriodicityEditor routine={$template} />
+  {/if}
+
+  <DragDropContext>
+    <div></div>
+    <!-- <TodoList trees={$familyTree.children}
+      listWidth="100%"
+      parentID={task.id}
+      style="padding-bottom: 1rem"
+    /> -->
+  </DragDropContext>
 
   <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button" style="display: flex; align-items: center; justify-content: center;">
-    <MslDeleteOutline style="font-size: 1.5rem;"/>
+    <MslDeleteOutline style="font-size: 1.5rem"/>
   </button>
-</BasePopup>
+</NewBasePopup>
 
 <style>
-  .title-underline-input { /* @see https://stackoverflow.com/a/3131082/7812829 */
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 23px;
-    font-weight: 700;
-    padding-left: 0px;
-  }
-
   .icon-container {
     width: 48px;
     height: 48px;
@@ -120,12 +130,5 @@
     right: 0px;
     border-radius: 50%;
     padding: 4px;
-  }
-
-  .stats {
-    color: #666;
-    font-size: 12px;
-    margin: 12px 0;
-    line-height: 1.4;
   }
 </style>

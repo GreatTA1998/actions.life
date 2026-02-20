@@ -3,6 +3,7 @@
   --primary-color: #007aff; /* only date components use this blue */
   --success-color: #188038;
   --active: rgb(0, 89, 125);
+  --rhythm-highlight-color: orange;
   --location-indicator-color: var(--logo-twig-color);
   
   --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */

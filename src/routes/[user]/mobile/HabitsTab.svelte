@@ -1,18 +1,15 @@
 <script>
+  // PRE-CONDITION: used within <TemplateContext/>
   import RoutineItem from './RoutineItem.svelte'
   import HabitsTabFullDetails from './HabitsTabFullDetails.svelte'
-  import TemplatePopup from '../components/Templates/components/TemplatePopup/TemplatePopup.svelte'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import MslMoreHoriz from 'virtual:icons/material-symbols-light/more-horiz'
-  import { openTemplateEditor, templates, popup } from '../components/Templates/store.js'
-  import { collection, onSnapshot } from 'firebase/firestore'
+  import { templates } from '../components/Templates/store.js'
   import { WIDTHS } from '$lib/utils/constants.js'
-  import { db } from '$lib/db/init.js'
   import { periodicity } from '$lib/utils/rrule.js'
   import { getContext, onMount } from 'svelte'
-  import { user } from '$lib/store'
 
-  const { Template } = getContext('app')
+  const { Template, openTaskPopup } = getContext('app')
 
   let selectedRoutineID = $state('')
   let stats = $state(new Map())
@@ -42,17 +39,8 @@
     }
   }
 
-  async function listenToRoutines () {
-    const ref = collection(db, '/users/' + $user.uid + '/templates')
-    onSnapshot(ref, async (querySnapshot) => {
-      templates.set(
-        querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })
-      ))
-    })
-  }
-
   function select (routineID) {
-    if (selectedRoutineID === routineID) openTemplateEditor(routineID)
+    if (selectedRoutineID === routineID) openTaskPopup(routineID)
     else selectedRoutineID = routineID
   }
 </script>
@@ -96,14 +84,4 @@
       extraClass="w-screen max-w-[60ch] py-2"
     />
   {/if}
-
-  {#if $popup}
-    <TemplatePopup />
-  {/if}
 </div>
-
-<style>
-  :root {
-    --rhythm-highlight-color: orange;
-  }
-</style>

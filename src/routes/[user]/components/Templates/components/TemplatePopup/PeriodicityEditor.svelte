@@ -48,6 +48,7 @@
   async function handleCreate () {
     executeChanges()
     const previewSpan = getPreviewSpan({ rrStr: pendingRRStr })
+    
     Template.create({
       id: routine.id,
       newTemplate: { 
@@ -57,6 +58,7 @@
         prevEndISO: DateTime.utc().plus({ days: previewSpan }).toFormat('yyyy-MM-dd')
       }
     })
+
     Task.update({ id: routine.id, kvChanges: {
       templateID: routine.id
     }})

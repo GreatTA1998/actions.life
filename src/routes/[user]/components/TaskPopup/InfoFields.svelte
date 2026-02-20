@@ -2,7 +2,7 @@
   import DurationPicker from '$lib/components/DurationPicker.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import FieldWithDatePicker from '$lib/components/FieldWithDatePicker.svelte'
-  import ColorTags from './ColorTags.svelte'
+  import ColorTags from '$lib/components/ColorTags.svelte'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
