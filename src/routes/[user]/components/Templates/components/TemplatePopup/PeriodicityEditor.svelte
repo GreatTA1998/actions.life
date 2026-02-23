@@ -51,7 +51,7 @@
     
     Template.create({
       id: routine.id,
-      newTemplate: { 
+      data: { 
         ...routine, 
         rrStr: pendingRRStr,
         previewSpan,
@@ -79,7 +79,7 @@
       Task.delete({ id: task.id })
     }
     for (const task of addingTasks) {
-      Task.create({ id: getRandomID(), newTaskObj: task })
+      Task.create({ id: getRandomID(), data: task })
     }
     resetPreviewStates()
   }

@@ -54,7 +54,7 @@
   async function createTask (template = { name: value }) {
     const result = await Task.create({
       id: getRandomID(),
-      newTaskObj: {
+      data: {
         ...template,
         ...$overrideOptions, // includes `persistsOnList`
         templateID: typeof template.rrStr === 'string' ? template.id : '' // this is a quickfix, careful about legacy routines with no `rrStr`

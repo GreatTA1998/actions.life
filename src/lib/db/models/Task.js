@@ -43,9 +43,9 @@ const Task = {
     rootID: z.string().optional() 
   }),
 
-  create: async ({ id, newTaskObj, optimistic = true }) => {
+  create: async ({ id, data, optimistic = true }) => {
     try {
-      const validatedTask = Task.schema.parse(newTaskObj)
+      const validatedTask = Task.schema.parse(data)
       const { parentID, startDateISO } = validatedTask
       const parent = get(tasksCache)[parentID]
       

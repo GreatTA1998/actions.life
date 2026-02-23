@@ -1,4 +1,4 @@
-import { buildForest, findSubtree } from '/src/routes/[user]/components/ListsArea/service.js'
+import { buildForest, findSubtree } from '$lib/db/tree.ts'
 import { get, writable } from 'svelte/store'
 import { user } from '$lib/store'
 import { tasksCache, updateCache } from './tasksCache.js'

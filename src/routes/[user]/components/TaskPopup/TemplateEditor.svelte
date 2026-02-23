@@ -18,7 +18,6 @@
 
   let template = $state(null)
   let iconsMenu = $state(false)
-  let unsubscribe = null
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 
@@ -32,16 +31,11 @@
   onMount(() => {
     if (templateID) {
       const docRef = doc(db, `/users/${$user.uid}/templates/${templateID}`)
-      unsubscribe = onSnapshot(docRef, (docSnap) => {
-        if (docSnap.exists()) {
-          template = { ...docSnap.data(), id: docSnap.id }
+      return onSnapshot(docRef, (snap) => {
+        if (snap.exists()) {
+          template = { ...snap.data(), id: snap.id }
         }
       })
-    }
-
-    return () => {
-      if (unsubscribe) unsubscribe()
-      // Don't clear template store to avoid flicker, it will be overwritten on next open
     }
   })
 

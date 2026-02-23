@@ -7,7 +7,7 @@
   import { templates } from '../components/Templates/store.js'
   import { WIDTHS } from '$lib/utils/constants.js'
   import { periodicity } from '$lib/utils/rrule.js'
-  import { getContext, onMount } from 'svelte'
+  import { getContext } from 'svelte'
 
   const { Template, openTaskPopup } = getContext('app')
 
@@ -27,10 +27,6 @@
     }
   })
 
-  onMount(async () => {
-    listenToRoutines()
-  })
-
   async function fetchStatsIfNeeded (routine) {
     if (!stats.has(routine.id)) {
       const result = await Template.getTotalStats({ id: routine.id })
@@ -39,9 +35,9 @@
     }
   }
 
-  function select (routineID) {
-    if (selectedRoutineID === routineID) openTaskPopup(routineID)
-    else selectedRoutineID = routineID
+  function select (routine) {
+    if (selectedRoutineID === routine.id) openTaskPopup(routine)
+    else selectedRoutineID = routine.id
   }
 </script>
 
@@ -50,7 +46,7 @@
     {#if topRoutines}
       <div class="flex flex-col py-0 px-2">
         {#each topRoutines as routine (routine.id)}
-          <RoutineItem onclick={() => select(routine.id)}
+          <RoutineItem onclick={() => select(routine)}
             {routine} {selectedRoutineID} {stats}
           />
         {/each}
@@ -68,7 +64,7 @@
             <!-- pragmatic sizing quickfix for mobile and desktop -->
             <div class="w-screen max-h-[60vh] overflow-y-auto p-2 flex flex-wrap gap-4">
               {#each unstarredRoutines as routine (routine.id)}
-                <RoutineItem onclick={() => { select(routine.id); close(); }}
+                <RoutineItem onclick={() => { select(routine); close(); }}
                   {routine} {selectedRoutineID}
                 />
               {/each}

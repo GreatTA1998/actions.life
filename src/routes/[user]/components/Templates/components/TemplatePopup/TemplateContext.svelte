@@ -7,6 +7,7 @@
     popup, 
     openTemplateEditor, 
     closeTemplateEditor,
+    template,
     templates
   } from '/src/routes/[user]/components/Templates/store.js'
   import { collection, onSnapshot } from 'firebase/firestore'
@@ -40,7 +41,7 @@
 <div>
   {@render children()}
   
-  {#if $popup}
+  {#if $popup && $template}
     <TemplatePopup/>
   {/if}
 </div>

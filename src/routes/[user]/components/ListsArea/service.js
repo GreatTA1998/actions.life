@@ -2,6 +2,7 @@ import { writable } from 'svelte/store'
 import { db } from '$lib/db/init'
 import { updateCache, cleanupCache } from '$lib/store'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
+import { buildForest } from '$lib/db/tree.ts'
 
 let persistTasks
 const unsubFuncs = []
@@ -40,42 +41,6 @@ function buildTreeMap (tasks) {
   trees.set(
     buildForest(tasks)
   )
-}
-
-export function buildForest (firestoreTaskDocs) {
-  const memoryTree = []
-
-  const memo = { '': [] }
-  for (const node of firestoreTaskDocs) {
-    if (!memo[node.parentID]) memo[node.parentID] = []
-    if (!memo[node.id]) memo[node.id] = []
-    memo[node.parentID].push(node)
-  }
-
-  const roots = memo[''].sort((a, b) => a.orderValue - b.orderValue)
-  for (const root of roots) {
-    extendTree(root, memo)
-    memoryTree.push(root)
-  }
-  return memoryTree
-}
-
-function extendTree (node, memo) {
-  node.children = memo[node.id]
-  node.children = node.children.sort((a, b) => a.orderValue - b.orderValue)
-  for (const child of node.children) {
-    extendTree(child, memo)
-  }
-}
-
-export function findSubtree ({ tree, id }) {
-  if (tree.id === id) return tree
-  else {
-    for (const child of tree.children) {
-      const result = findSubtree({ tree: child, id })
-      if (result) return result
-    }
-  }
 }
 
 // TO-DO: bugged, unused for now

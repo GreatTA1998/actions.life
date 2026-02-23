@@ -6,19 +6,23 @@
   import TextArea from '$lib/components/TextArea.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
   import { periodicity } from '$lib/utils/rrule.js'
-  import { template, closeTemplateEditor } from '../../store.js'
+  import { template, templates, closeTemplateEditor, templateTree } from '../../store.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import Template from '$lib/db/models/Template.js'
   import NewBasePopup from '$lib/components/NewBasePopup.svelte'
   import PopupTitle from '$lib/components/PopupTitle.svelte'
   import ColorTags from '$lib/components/ColorTags.svelte'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
+  import PopoverInputContext from '$lib/components/PopoverInputContext.svelte'
+  import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import { WIDTHS } from '$lib/utils/constants.js'
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 
   let iconsMenu = $state(false)
-  let parentObj = $derived($template.parentID ? {} : null)
+  let parentObj = $derived($template.parentID ? 
+    $templates.find(T => T.id === $template.parentID) : null
+  )
 
   function handleDelete () {
     if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {
@@ -27,7 +31,7 @@
     }
   }
 
-  function formatTime(minutes) {
+  function formatTime (minutes) {
     if (minutes < 60) return `${Math.round(minutes)} minutes`
     const hours = Math.round(minutes / 60)
     return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
@@ -46,9 +50,11 @@
     style:grid-template-columns="auto 1fr"
   >
     {#if periodicity($template.rrStr) === 'weekly'}
-      <button onclick={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
+      <button onclick={() => iconsMenu = !iconsMenu} class="size-12 rounded-full"
+        style:box-shadow={iconsMenu ? '0 2px 8px rgba(90, 179, 39, 0.5)' : '0 2px 4px rgba(0, 0, 0, 0.1)'} 
+      >
         {#if $template.iconURL}
-          <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
+          <img src={$template.iconURL} class="size-full rounded-full" />
         {/if}
       </button>
     {/if}
@@ -99,36 +105,18 @@
   {/if}
 
   <DragDropContext>
-    <div></div>
-    <!-- <TodoList trees={$familyTree.children}
-      listWidth="100%"
-      parentID={task.id}
-      style="padding-bottom: 1rem"
-    /> -->
+    <PopoverInputContext>
+      <TodoList trees={$templateTree.children}
+        listWidth="100%"
+        parentID={$template.id}
+        style="padding-bottom: 1rem"
+      />
+    </PopoverInputContext>
   </DragDropContext>
 
-  <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button" style="display: flex; align-items: center; justify-content: center;">
+  <button onclick={e => { e.stopPropagation(); handleDelete() }} 
+    class="absolute bottom-0 right-0 rounded-full p-1"
+  >
     <MslDeleteOutline style="font-size: 1.5rem"/>
   </button>
 </NewBasePopup>
-
-<style>
-  .icon-container {
-    width: 48px;
-    height: 48px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-radius: 50%;
-  }
-  
-  .active {
-    box-shadow: 0 2px 8px rgba(90, 179, 39, 0.5);
-  }
-
-  .delete-button {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    border-radius: 50%;
-    padding: 4px;
-  }
-</style>

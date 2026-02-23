@@ -91,20 +91,17 @@
     if (imageBlobFile.lastModified) dateClassObj = new Date(imageBlobFile.lastModified)
     else dateClassObj = new Date(timeCreated) // otherwise we set the time to right now.
 
-    const newTaskObj = {
+    await Task.create({ id, data: {
       name: '',
       imageDownloadURL,
       imageFullPath: fullPath, // for easy garbage collection
       startTime: getTimeInHHMM({ dateClassObj }),
       startDateISO: DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd'),
       duration: durationForFullDisplay,
-      isDone: true, // so the image isn't blurred,
-      persistsOnList: false 
-      // TO-DO: use $user.defaultPhotoLayout
-    }
-
-    // Use the proper API to create the task
-    await Task.create({ id, newTaskObj });
+      isDone: true, // so the image has full opacity
+      persistsOnList: false,
+      photoLayout: $user.defaultPhotoLayout
+    }})
   }
 </script>
 

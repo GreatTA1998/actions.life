@@ -27,7 +27,7 @@ export function createTaskInstance ({ template, dt }) {
     // ensure idempotence, with deterministic IDs
     // assumes the recurrence is at the resolution of days
     id: template.id + '_' + dt.toFormat('yyyy-MM-dd'),
-    newTaskObj: instantiateTask({ template, dt }),
+    data: instantiateTask({ template, dt }),
     optimistic: false
   })
 }
