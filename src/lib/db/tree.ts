@@ -6,19 +6,24 @@ interface Node {
 
 type Tree = Node & { children: Tree[] }
 
-export function buildForest (docs: Node[]): Tree[] {
+export function nodesByParent (docs: Node[]): Record<string, Node[]> {
   const sorted = docs.toSorted((a, b) => a.orderValue - b.orderValue)
-  const childrenOf: Record<string, Node[]> = { '': [] }
-  for (const doc of sorted) childrenOf[doc.id] = []
-  for (const doc of sorted) childrenOf[doc.parentID]?.push(doc) // `?.push` necessary due to corrupted parentIDs like undefined
+  const R: Record<string, Node[]> = { '': [] }
+  for (const doc of sorted) R[doc.id] = []
+  for (const doc of sorted) R[doc.parentID]?.push(doc) // ?.push(doc)`?.push` necessary due to corrupted parentIDs like undefined
+  return R
+}
+
+export function buildForest (docs: Node[]): Tree[] {
+  const memo = nodesByParent(docs)
 
   function hydrate (node) {
     return { 
       ...node, // spread first, otherwise legacy `.children: []` values will overwrite children
-      children: childrenOf[node.id].map(hydrate)
+      children: memo[node.id].map(hydrate)
     }
   }
-  return childrenOf[''].map(hydrate)
+  return memo[''].map(hydrate)
 }
 
 export function findSubtree ({ tree, id }) {
@@ -30,4 +35,3 @@ export function findSubtree ({ tree, id }) {
     }
   }
 }
-

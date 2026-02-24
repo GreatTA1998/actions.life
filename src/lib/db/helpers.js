@@ -36,35 +36,28 @@ export function getFirestoreDoc (path) {
   })
 }
 
-export function getFirestoreCollection (path) {
-  return new Promise(async (resolve) => {
-    const ref = collection(db, path)
-    const snapshot = await getDocs(ref)
-    const data = []
-    snapshot.forEach((doc) => {
-      data.push({ id: doc.id, path: doc.ref.path, ...doc.data() })
-    })
-    resolve(data)
+export async function getFirestoreCollection (path) {
+  const ref = collection(db, path)
+  const snapshot = await getDocs(ref)
+  const data = []
+  snapshot.forEach((doc) => {
+    data.push({ id: doc.id, path: doc.ref.path, ...doc.data() })
   })
+  return data
 }
 
-export function getFirestoreQuery (query) {
-  return new Promise(async (resolve) => {
-    const snapshot = await getDocs(query)
-    const data = []
-    snapshot.forEach((doc) => {
-      data.push({ id: doc.id, path: doc.ref.path, ...doc.data() })
-    })
-    resolve(data)
+export async function getFirestoreQuery (query) {
+  const snapshot = await getDocs(query)
+  const data = []
+  snapshot.forEach((doc) => {
+    data.push({ id: doc.id, path: doc.ref.path, ...doc.data() })
   })
+  return data
 }
 
-export function updateFirestoreDoc (path, updateObject) {
-  return new Promise(async (resolve) => {
-    const ref = firestoreRef(path)
-    await updateDoc(ref, updateObject)
-    resolve()
-  })
+export async function updateFirestoreDoc (path, updateObject) {
+  const ref = firestoreRef(path)
+  return updateDoc(ref, updateObject)
 }
 
 export function createFirestoreQuery ({ collectionPath, criteriaTerms }) {

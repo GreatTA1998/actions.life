@@ -1,6 +1,7 @@
 <script>
   import DropdownMenu from '$lib/components/DropdownMenu.svelte'
-  import { getRandomID } from '$lib/utils/core';
+  import { getTemplateTree } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
+  import { getRandomID } from '$lib/utils/core'
   import { getContext, setContext } from 'svelte'
   import { writable } from 'svelte/store'
   import { noZoomFS } from '$lib/styles/reused.module.css'
@@ -26,7 +27,7 @@
   function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }) {
     if (inputActive) inputActive = false
     else {
-      // note: although using an anchor variable is more readable, the update gets batched causing synchronicity issues with focus etc.
+      // note: although using an anchor variable is more readable, the store-level update would be batched, causing synchronicity issues with focus etc.
       inputPopover.style.positionAnchor = anchorID 
       menuPopover.style.positionAnchor = anchorID
       inputPopover.showPopover()
@@ -43,7 +44,7 @@
     if (e.newState === 'closed') {
       setTimeout(
         () => {
-          menuPopover.hidePopover() // otherwise clicking a menu item causes the input popover to get destroyed, which terminates the creation of the routine
+          menuPopover?.hidePopover() // otherwise clicking a menu item causes the input popover to get destroyed, which terminates task creation
           inputActive = false
         },
         300 // genius, delay the reset (iOS ontoggle resolves before click)
@@ -51,26 +52,30 @@
     }
   }
 
-  async function createTask (template = { name: value }) {
+  async function instantiateTreeFrom (template) {
+    const result = await getTemplateTree({ template, modifiers: $overrideOptions })
+    $callback(result) // TO-DO return the root node
+    value = '' 
+  }
+
+  async function createTask (name) {
     const result = await Task.create({
       id: getRandomID(),
       data: {
-        ...template,
         ...$overrideOptions, // includes `persistsOnList`
-        templateID: typeof template.rrStr === 'string' ? template.id : '' // this is a quickfix, careful about legacy routines with no `rrStr`
+        name
       }
     })
-    value = ''
     $callback(result)
+    value = ''
   }
 
-  function onkeydown (e) {
+  async function onkeydown (e) {
     if (e.key === 'Enter') {
       if (e.isComposing) return // IME (Input Method Editors), we use keydown to avoid the exhaustive solution mentioned in this article: https://www.stum.de/2016/06/24/handling-ime-events-in-javascript/
       else if (value === '') inputPopover.hidePopover()
       else {
-        createTask({ name: value })
-        value = ''
+        createTask(value)
       }
     }
   }
@@ -91,7 +96,7 @@
 <div bind:this={menuPopover} popover="manual" class="menu-dropdown">
   <DropdownMenu 
     taskName={value} 
-    onSelect={template => createTask(template)}
+    onSelect={template => instantiateTreeFrom(template)}
   />
 </div>
 
