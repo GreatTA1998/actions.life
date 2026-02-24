@@ -4,7 +4,7 @@
   import { setContext } from 'svelte'
   import { get, writable } from 'svelte/store'
   import realTask from '$lib/db/models/Task.js'
-  import { buildForest, findSubtree } from '/src/routes/[user]/components/ListsArea/service.js'
+  import { buildForest, findSubtree } from '$lib/db/tree.ts'
 
   let { children } = $props()
 
