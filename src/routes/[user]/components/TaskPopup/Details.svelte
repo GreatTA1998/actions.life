@@ -5,7 +5,6 @@
   import InfoFields from './InfoFields.svelte'
   import PhotoUploadWithQuestion from './PhotoUploadWithQuestion.svelte'
   import TextArea from '$lib/components/TextArea.svelte'
-  import TemplateEditor from './TemplateEditor.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import PopupTitle from '$lib/components/PopupTitle.svelte'
@@ -18,7 +17,6 @@
 
   let task = $derived($tasksCache[$clickedTaskID])
   let parentObj = $derived(task.parentID ? $tasksCache[task.parentID] : null)
-  let editingRoutine = $state(false)
 
   const debouncedUpdate = createDebouncedFunction(
     (id, kvChanges) => Task.update({ id, kvChanges }), 
@@ -84,10 +82,7 @@
     <PhotoUploadWithQuestion {task} />
 
     <TemplateContext>
-      <RepeatTask {task} 
-        onToggleTemplateEditor={() => editingRoutine = !editingRoutine} 
-        isTemplateEditorOpen={editingRoutine}
-      />
+      <RepeatTask {task} />
     </TemplateContext>
 
     <div class="ml-auto flex items-center gap-1">
@@ -96,27 +91,4 @@
       </button>
     </div>
   </div>
-
-  {#if task.templateID && editingRoutine}
-    <div class="template-editor-section">
-      <h3 class="template-title">Routine Template</h3>
-      <TemplateEditor templateID={task.templateID} />
-    </div>
-  {/if}
 </div>
-
-<style>
-  .template-editor-section {
-    margin-top: 24px;
-    padding: 20px;
-    background: rgba(0, 89, 125, 0.03);
-    border-radius: 8px;
-  }
-
-  .template-title {
-    margin: 0 0 16px 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: rgb(0, 89, 125);
-  }
-</style>

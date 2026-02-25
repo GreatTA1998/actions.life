@@ -10,7 +10,7 @@ import { updateCache, tasksCache } from '$lib/store/tasksCache.js'
 import { getRandomID } from '$lib/utils/core.js'
 
 // only top-level tasks can be templates i.e. parentID === ''
-export async function getTemplateTree ({ template, modifiers = {}, idempotentISO = '' }) {
+export async function instantiateTree ({ template, modifiers = {}, idempotentISO = '' }) {
   const templates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
   const family = templates.filter(T => T.rootID === template.rootID)
   const lookup = nodesByParent(family)

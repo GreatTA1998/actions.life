@@ -1,6 +1,6 @@
 <script>
   import DropdownMenu from '$lib/components/DropdownMenu.svelte'
-  import { getTemplateTree } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
+  import { instantiateTree } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
   import { getRandomID } from '$lib/utils/core'
   import { getContext, setContext } from 'svelte'
   import { writable } from 'svelte/store'
@@ -52,10 +52,14 @@
     }
   }
 
-  async function instantiateTreeFrom (template) {
-    const result = await getTemplateTree({ template, modifiers: $overrideOptions })
-    $callback(result) // TO-DO return the root node
-    value = '' 
+  async function onkeydown (e) {
+    if (e.key === 'Enter') {
+      if (e.isComposing) return // IME (Input Method Editors), we use keydown to avoid the exhaustive solution mentioned in this article: https://www.stum.de/2016/06/24/handling-ime-events-in-javascript/
+      else if (value === '') inputPopover.hidePopover()
+      else {
+        createTask(value)
+      }
+    }
   }
 
   async function createTask (name) {
@@ -69,26 +73,16 @@
     $callback(result)
     value = ''
   }
-
-  async function onkeydown (e) {
-    if (e.key === 'Enter') {
-      if (e.isComposing) return // IME (Input Method Editors), we use keydown to avoid the exhaustive solution mentioned in this article: https://www.stum.de/2016/06/24/handling-ime-events-in-javascript/
-      else if (value === '') inputPopover.hidePopover()
-      else {
-        createTask(value)
-      }
-    }
-  }
 </script>
 
 {@render children()}
 
 <div {ontoggle} bind:this={inputPopover} popover="auto" class="task-input">
   <input 
-    bind:this={input} bind:value={value}
+    bind:this={input} bind:value
     {onkeydown} onblur={() => inputPopover.hidePopover()}
     class="w-full h-full rounded"
-    style:font-size="clamp({noZoomFS}, 60cqb, 2rem)"
+    style:font-size="clamp({noZoomFS}, 40cqb, 2rem)"
   >
   <!-- 1. `onblur` detects iOS 26 keyboard exit via the "arrow" key. 2. Must use a () => function as inputPopover is not defined when attached -->
 </div>
@@ -96,7 +90,11 @@
 <div bind:this={menuPopover} popover="manual" class="menu-dropdown">
   <DropdownMenu 
     taskName={value} 
-    onSelect={template => instantiateTreeFrom(template)}
+    onSelect={async (template) => {
+      const result = await instantiateTree({ template, modifiers: $overrideOptions })
+      $callback(result)
+      value = ''
+    }}    
   />
 </div>
 

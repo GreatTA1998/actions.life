@@ -115,25 +115,27 @@
 </script>
 
 <div class="grid gap-y-4">
-  <PeriodicityInputs 
-    initialRRStr={routine.rrStr}
-    on:update-rr={e => pendingRRStr = e.detail}
-  />
+  {#key routine.rrStr}  
+    <PeriodicityInputs 
+      initialRRStr={routine.rrStr}
+      updateRR={newVal => pendingRRStr = newVal}
+    />
+  {/key}
 
   {#if pendingRRStr !== routine.rrStr}
     <div class="grid gap-y-4">
       {#if !isCreating}
-        <PreviewChanges {pendingRRStr} {addingTasks} {deletingTasks} {exceptions}/>
+        <PreviewChanges {pendingRRStr} 
+          {addingTasks} 
+          {deletingTasks} 
+          {exceptions}
+        />
       {/if}
 
       {#if isCreating}
-        <RoundButton onclick={handleCreate} backgroundColor="rgb(0, 89, 125)" textColor="white">
-          Create routine
-        </RoundButton>
+        <RoundButton onclick={handleCreate}>Create routine</RoundButton>
       {:else}
-        <RoundButton onclick={handleUpdate} backgroundColor="rgb(0, 89, 125)" textColor="white">
-          Apply changes
-        </RoundButton>
+        <RoundButton onclick={handleUpdate}>Apply changes</RoundButton>
       {/if}
     </div>
   {/if}

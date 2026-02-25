@@ -11,7 +11,7 @@ import { templates } from '/src/routes/[user]/components/Templates/store.js'
 const Template = {
   schema: z.object({
     name: z.string(),
-    duration: z.number(),
+    duration: z.number().default(30),
     startTime: z.string().default(''),
     orderValue: z.number(),
     tags: z.string().default(''),
