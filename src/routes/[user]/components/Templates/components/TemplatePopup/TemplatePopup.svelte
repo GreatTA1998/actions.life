@@ -6,7 +6,6 @@
   import TextArea from '$lib/components/TextArea.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
   import { periodicity } from '$lib/utils/rrule.js'
-  import { template, templates, closeTemplateEditor, templateTree } from '../../store.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import Template from '$lib/db/models/Template.js'
   import NewBasePopup from '$lib/components/NewBasePopup.svelte'
@@ -16,6 +15,9 @@
   import PopoverInputContext from '$lib/components/PopoverInputContext.svelte'
   import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import { WIDTHS } from '$lib/utils/constants.js'
+  import { getContext } from 'svelte'
+
+  const { template, templates, templateTree, closeTaskPopup } = getContext('app')
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 
@@ -27,7 +29,7 @@
   function handleDelete () {
     if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {
       Template.delete($template)
-      closeTemplateEditor()
+      closeTaskPopup()
     }
   }
 
@@ -38,7 +40,7 @@
   }
 </script>
 
-<NewBasePopup onExit={closeTemplateEditor}>
+<NewBasePopup onExit={closeTaskPopup}>
   <div class="relative h-full w-screen flex flex-col py-2 px-4 gap-y-6" 
     style:max-width="{WIDTHS.PANEL_MAX}px"
   >

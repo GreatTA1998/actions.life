@@ -12,7 +12,7 @@
   let anchorName = $derived(`--anchor-${id}`)
 
   function close () {
-    menu.hidePopover()
+    menu?.hidePopover() // client components use 300ms delays so `?` is necessary
   }
 </script>
 

@@ -1,10 +1,9 @@
 <script>
   import BasicWhiteboard from './BasicWhiteboard.svelte'
-  import { template } from '../../store.js'
   import { doodleIcons, user } from '$lib/store'
   import { onMount, getContext } from 'svelte'
 
-  const { Icon, Template } = getContext('app')
+  const { Icon, Template, template } = getContext('app')
 
   onMount(async () => {
     const temp = await Icon.getAvailable($user.uid) 

@@ -1,26 +1,38 @@
 <script>
-  import { getContext, setContext, onMount } from 'svelte'
+  import { buildForest, findSubtree } from '$lib/db/tree.ts'
   import { user } from '$lib/store'
   import TemplatePopup from './TemplatePopup.svelte'
   import Template from '$lib/db/models/Template.js'
-  import { 
-    popup, 
-    openTemplateEditor, 
-    closeTemplateEditor,
-    template,
-    templates
-  } from '/src/routes/[user]/components/Templates/store.js'
-  import { collection, onSnapshot } from 'firebase/firestore'
+  import { collection, onSnapshot, query, where } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
+  import { writable, get } from 'svelte/store'
+  import { getContext, setContext, onMount } from 'svelte'
 
   let { children } = $props()
+
+  const clickedTemplateID = writable('')
+  const popup = writable(false)
+  const template = writable(null)
+  const templates = writable([])
+  const templateTree = writable({ children: [] })  
 
   const app = getContext('app')
   setContext('app', {
     ...app,
     Task: Template,
-    openTaskPopup: openTemplateEditor,
-    closeTaskPopup: closeTemplateEditor
+    openTaskPopup ({ id }) {
+      clickedTemplateID.set(id)
+      popup.set(true)
+    },
+    closeTaskPopup: () => { 
+      popup.set(false)
+      clickedTemplateID.set('')
+    },
+    clickedTemplateID,
+    popup, 
+    template, 
+    templates, 
+    templateTree
   })
 
   onMount(() => {
@@ -31,11 +43,26 @@
       ))
     })
   })
-  
-  // TO-DO:
-  // 1. ability to create a routine with sub-tasks 
-  // 2. ability to build the tree and render it (just copy taskPopup.js for the template popup store.js
-  // 3. profit
+
+  $effect(() => {
+    if ($clickedTemplateID === '') return
+
+    const found = $templates.find(T => T.id === $clickedTemplateID)
+    template.set(found)
+
+    return onSnapshot(
+      query(
+        collection(db, `users/${get(user).uid}/templates`),
+        where('rootID', '==', found.rootID)
+      ),
+      snapshot => {
+        const results = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+        const [ancestralTree] = buildForest(results)
+        const family = findSubtree({ id: $clickedTemplateID, tree: ancestralTree })
+        templateTree.set(family)
+      }
+    )
+  })
 </script>
 
 <div>

@@ -1,10 +1,12 @@
 import {
   doc, setDoc, getDoc, updateDoc, deleteDoc,
   collection, getDocs, query, where, limit,
-  writeBatch, arrayRemove
+  writeBatch, arrayRemove, increment
 } from 'firebase/firestore'
 import { db } from './init'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
+import { user } from '$lib/store'
+import { get } from 'svelte/store'
 
 export function firestoreRef (path) {
   return doc(db, path)
@@ -70,11 +72,8 @@ export function createFirestoreQuery ({ collectionPath, criteriaTerms }) {
 }
 
 export function deleteFirestoreDoc (path) {
-  return new Promise(async (resolve) => {
-    const ref = firestoreRef(path)
-    await deleteDoc(ref)
-    resolve()
-  })
+  const ref = firestoreRef(path)
+  return deleteDoc(ref)
 }
 
 async function countImageRefs (uid, collectionName, imageDownloadURL) {
@@ -125,4 +124,17 @@ export async function deleteColorTag ({ tagID, user }) {
   })
 
   return await batch.commit()
+}
+
+export function maintainOrderValue (validatedObj, batch) {
+  const { maxOrderValue, uid } = get(user)
+  if (!validatedObj.orderValue) {
+    validatedObj.orderValue = maxOrderValue + 1 // k = 1
+  }
+  const diff = validatedObj.orderValue - maxOrderValue
+  if (diff > 0) {
+    batch.update(doc(db, 'users', uid), { 
+      maxOrderValue: increment(diff)
+    })
+  }
 }

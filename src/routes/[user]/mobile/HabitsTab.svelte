@@ -4,12 +4,11 @@
   import HabitsTabFullDetails from './HabitsTabFullDetails.svelte'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import MslMoreHoriz from 'virtual:icons/material-symbols-light/more-horiz'
-  import { templates } from '../components/Templates/store.js'
   import { WIDTHS } from '$lib/utils/constants.js'
   import { periodicity } from '$lib/utils/rrule.js'
   import { getContext } from 'svelte'
 
-  const { Template, openTaskPopup } = getContext('app')
+  const { Template, openTaskPopup, templates } = getContext('app')
 
   let selectedRoutineID = $state('')
   let stats = $state(new Map())

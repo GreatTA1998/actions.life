@@ -4,7 +4,7 @@
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
   import { treesByDate } from './service.js'
   import { googleEventsByDate } from '$lib/store'
-  import { headerHeight, headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
+  import { headerHeight, isCompact, timestampsColumnWidth } from './store.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
@@ -88,38 +88,36 @@
     </div>
   </div>
 
-  {#if $headerExpanded}
-    {#if $treesByDate[ISODate]}
-      {@const { hasIcon, noIcon } = $treesByDate[ISODate].noStartTime}
-      <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
-        {#each hasIcon as iconTask (iconTask.id)}
-          <DoodleIcon {iconTask} />
-        {/each}
-      </div>
+  {#if $treesByDate[ISODate]}
+    {@const { hasIcon, noIcon } = $treesByDate[ISODate].noStartTime}
+    <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
+      {#each hasIcon as iconTask (iconTask.id)}
+        <DoodleIcon {iconTask} />
+      {/each}
+    </div>
 
-      <div class="flex flex-col gap-y-1 px-1">
-        {#each noIcon as task (task.id)}
-          <div draggable="true"  
-            ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })}
-            style:opacity={task.isDone ? '0.9' : '0.7'}
-          >
-            <CalTaskUnit {task} />
-          </div>
-        {/each}
+    <div class="flex flex-col gap-y-1 px-1">
+      {#each noIcon as task (task.id)}
+        <div draggable="true"  
+          ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })}
+          style:opacity={task.isDone ? '0.9' : '0.7'}
+        >
+          <CalTaskUnit {task} />
+        </div>
+      {/each}
 
-        {#if $googleEventsByDate[ISODate]?.allDay}
-          <div class="flex flex-col gap-y-1">
-            {#each $googleEventsByDate[ISODate].allDay as event}  
-              <GCalAllDay {event} />
-            {/each}
-          </div>
-        {/if}
-        
-        {#if $bestDropzoneID === dropzoneID}
-          <div style="height: 12px; width: 100%; {dropPreviewCSS}"></div>
-        {/if}
-      </div>
-    {/if}
+      {#if $googleEventsByDate[ISODate]?.allDay}
+        <div class="flex flex-col gap-y-1">
+          {#each $googleEventsByDate[ISODate].allDay as event}  
+            <GCalAllDay {event} />
+          {/each}
+        </div>
+      {/if}
+      
+      {#if $bestDropzoneID === dropzoneID}
+        <div style="height: 12px; width: 100%; {dropPreviewCSS}"></div>
+      {/if}
+    </div>
   {/if}
 
   <div class="task-input" style="anchor-name: {anchorID};">

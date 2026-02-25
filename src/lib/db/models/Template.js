@@ -2,11 +2,19 @@ import Task from './Task.js'
 import { z } from 'zod'
 import { getAffectedInstances } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
 import { db } from '$lib/db/init.js'
-import { updateFirestoreDoc, deleteFirestoreDoc, releaseImage, getFirestoreCollection } from '$lib/db/helpers.js'
+import { updateFirestoreDoc, 
+  deleteFirestoreDoc, 
+  releaseImage, 
+  getFirestoreCollection,
+  maintainOrderValue
+} from '$lib/db/helpers.js'
 import { user } from '$lib/store'
-import { doc, getCountFromServer, sum, getAggregateFromServer, collection, query, setDoc, where } from 'firebase/firestore'
+import { 
+  writeBatch, doc, getCountFromServer, 
+  sum, getAggregateFromServer, collection, 
+  query, where 
+} from 'firebase/firestore'
 import { get } from 'svelte/store'
-import { templates } from '/src/routes/[user]/components/Templates/store.js'
 
 const Template = {
   schema: z.object({
@@ -34,16 +42,28 @@ const Template = {
   }),
 
   async create ({ data, id }) {
+    const batch = writeBatch(db)
+
     if (data.parentID) {
-      data.rootID = get(templates).find(template => template.id === data.parentID).rootID
+      const templates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
+      data.rootID = templates.find(template => template.id === data.parentID).rootID
     } else {
       data.rootID = id
     }
 
-    const validatedTemplate = Template.schema.parse(data)
-    const docRef = doc(db, `/users/${get(user).uid}/templates/${id}`)
+    maintainOrderValue(data, batch) // mutates data and batch
 
-    return setDoc(docRef, validatedTemplate, { merge: true }) // `merge: true` matters for generating periodic tasks
+    const validatedTemplate = Template.schema.parse(data)
+    
+    batch.set(
+      doc(db, `/users/${get(user).uid}/templates/${id}`),
+      validatedTemplate, 
+      { merge: true } // matters for generating periodic tasks
+    ) 
+   
+    await batch.commit()
+
+    return validatedTemplate
   },
 
   async update ({ id, kvChanges }) {

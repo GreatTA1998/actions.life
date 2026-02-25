@@ -1,11 +1,11 @@
 import { z } from 'zod'
-import { releaseImage } from '$lib/db/helpers.js'
+import { releaseImage, maintainOrderValue } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
 import { user, tasksCache, cleanupCache, showUndoSnackbar } from '$lib/store'
 import { closeTaskPopup } from '$lib/store/taskPopup.js'
 import { 
-  writeBatch, getDocs, increment, 
-  collection, query, where, doc
+  writeBatch, getDocs, collection, 
+  query, where, doc
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
@@ -38,31 +38,33 @@ const Task = {
     tagIDs: z.array(z.string()).default([]),
     
     // maintained fields
-    orderValue: z.number().optional(),
-    treeISOs: z.array(z.string()).optional(), 
-    rootID: z.string().optional() 
+    orderValue: z.number(),
+    treeISOs: z.array(z.string()), 
+    rootID: z.string() 
   }),
 
   async create ({ id, data, optimistic = true }) {
-    const validatedTask = Task.schema.parse(data)
     const batch = writeBatch(db)
+    maintainOrderValue(data, batch)
 
-    const { parentID, startDateISO } = validatedTask
+    const { parentID, startDateISO } = data
     const parent = get(tasksCache)[parentID]
-    
-    if (parent?.tagIDs) validatedTask.tagIDs = parent.tagIDs
+
+    data.rootID = parent ? parent.rootID : id
+
+    if (parent?.tagIDs) {
+      data.tagIDs = parent.tagIDs
+    }
 
     let treeISOs = [...(parent?.treeISOs ?? []), startDateISO].filter(Boolean)
     if (startDateISO && parent) { // currently impossible via UI to create a scheduled subtask directly
       await updateEntireTree({ batch, parent, treeISOs })
     }
-    maintainOrderValue(validatedTask, batch)
+    data.treeISOs = treeISOs
 
-    batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), { 
-      ...validatedTask,
-      treeISOs, 
-      rootID: parent ? parent.rootID : id
-    })
+    const validatedTask = Task.schema.parse(data)
+
+    batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), validatedTask)
     
     if (optimistic) batch.commit()
     else await batch.commit() 
@@ -194,19 +196,6 @@ function isValidISODate (dateStr) {
   if (!isoFormatRegex.test(dateStr)) return false
   const date = new Date(dateStr)
   return !isNaN(date.getTime())
-}
-
-function maintainOrderValue (validatedObj, batch) {
-  const { maxOrderValue, uid } = get(user)
-  if (!validatedObj.orderValue) {
-    validatedObj.orderValue = maxOrderValue + 1 // k = 1
-  }
-  const diff = validatedObj.orderValue - maxOrderValue
-  if (diff > 0) {
-    batch.update(doc(db, 'users', uid), { 
-      maxOrderValue: increment(diff)
-    })
-  }
 }
 
 export default Task

@@ -18,7 +18,7 @@
 
 {#if task.templateID}
   <button
-    onclick={() => openTaskPopup(task.templateID)}
+    onclick={() => openTaskPopup({ id: task.templateID })}
     class={['text-[rgb(0,89,125)] rounded flex']}
   >
     <MslRepeat style="font-size: var(--popup-control)"/>
