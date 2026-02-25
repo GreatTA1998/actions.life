@@ -31,12 +31,6 @@
     }
   }
 
-  function formatTime (minutes) {
-    if (minutes < 60) return `${Math.round(minutes)} minutes`
-    const hours = Math.round(minutes / 60)
-    return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
-  }
-
   function instantUpdate (key, value) {
     Template.updateItselfAndFutureInstances({ id: $template.id, updates: {
       [key]: value
@@ -45,39 +39,35 @@
 </script>
 
 <NewBasePopup onExit={closeTemplateEditor}>
-  <div class="relative h-full w-screen grid gap-[10px] py-2 px-4" 
+  <div class="relative h-full w-screen flex flex-col py-2 px-4 gap-y-6" 
     style:max-width="{WIDTHS.PANEL_MAX}px"
-    style:grid-template-columns="auto 1fr"
   >
-    {#if periodicity($template.rrStr) === 'weekly'}
-      <button onclick={() => iconsMenu = !iconsMenu} class="size-12 rounded-full"
-        style:box-shadow={iconsMenu ? '0 2px 8px rgba(90, 179, 39, 0.5)' : '0 2px 4px rgba(0, 0, 0, 0.1)'} 
-      >
-        {#if $template.iconURL}
-          <img src={$template.iconURL} class="size-full rounded-full" />
-        {/if}
-      </button>
-    {/if}
-    
-    <PopupTitle value={$template.name}
-      {parentObj}
-      onInput={value => debouncedUpdate('name', value)}
-    />
-  </div>
-  
-  {#if iconsMenu}
-    <IconsDisplay />
-  {/if}
-  
-  <div class="flex gap-2 items-start">
-    <div style:flex="1 1 400px">
-      <TextArea value={$template.notes}
-        oninput={e => debouncedUpdate('notes', e.target.value)}
-        placeholder="Notes..."
+    <div class="grid gap-[10px]" style:grid-template-columns="auto 1fr">
+      {#if periodicity($template.rrStr) === 'weekly'}
+        <button onclick={() => iconsMenu = !iconsMenu} class="size-12 rounded-full"
+          style:box-shadow={iconsMenu ? '0 2px 8px rgba(90, 179, 39, 0.5)' : '0 2px 4px rgba(0, 0, 0, 0.1)'} 
+        >
+          {#if $template.iconURL}
+            <img src={$template.iconURL} class="size-full rounded-full" />
+          {/if}
+        </button>
+      {/if}
+      
+      <PopupTitle value={$template.name}
+        {parentObj}
+        onInput={value => debouncedUpdate('name', value)}
       />
     </div>
+    
+    {#if iconsMenu}
+      <IconsDisplay />
+    {/if}
 
-    <div class="flex items-center justify-center gap-x-2">
+    {#if !$template.parentID}
+      <PeriodicityEditor routine={$template} />
+    {/if}
+
+    <div class="flex items-center gap-x-2">
       <MyTimePicker value={$template.startTime}
         onTimeSelected={hhmm => instantUpdate('startTime', hhmm)}
       />
@@ -85,38 +75,30 @@
         value={Math.round($template.duration)}
         oninput={e => instantUpdate("duration", Number(e.target.value))}
       />   
+      <ColorTags task={$template}/> 
     </div>
-
-    <ColorTags task={$template}/>
-  </div>
-
-  {#if !$template.parentID}
-    <div class="flex items-center">
-      {#await Template.getTotalStats({ id: $template.id }) 
-        then { minutesSpent, timesCompleted }
-      }
-        <div class="text-[#666] text-xs">
-          Completed {timesCompleted} times, spent {formatTime(minutesSpent)}
-        </div>
-      {/await}
-    </div>
-
-    <PeriodicityEditor routine={$template} />
-  {/if}
-
-  <DragDropContext>
-    <PopoverInputContext>
-      <TodoList trees={$templateTree.children}
-        listWidth="100%"
-        parentID={$template.id}
-        style="padding-bottom: 1rem"
+    
+    <div class="w-full">
+      <TextArea value={$template.notes}
+        oninput={e => debouncedUpdate('notes', e.target.value)}
+        placeholder="Notes..."
       />
-    </PopoverInputContext>
-  </DragDropContext>
+    </div>
 
-  <button onclick={e => { e.stopPropagation(); handleDelete() }} 
-    class="absolute bottom-0 right-0 rounded-full p-1"
-  >
-    <MslDeleteOutline style="font-size: 1.5rem"/>
-  </button>
+    <DragDropContext>
+      <PopoverInputContext>
+        <TodoList trees={$templateTree.children}
+          listWidth="100%"
+          parentID={$template.id}
+          style="padding-bottom: 1rem"
+        />
+      </PopoverInputContext>
+    </DragDropContext>
+
+    <button onclick={e => { e.stopPropagation(); handleDelete() }} 
+      class="absolute bottom-1 right-1 rounded-full p-1"
+    >
+      <MslDeleteOutline style="font-size: 1.5rem"/>
+    </button>
+  </div>
 </NewBasePopup>

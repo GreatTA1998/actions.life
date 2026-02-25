@@ -1,6 +1,6 @@
 <script>
   import { generateRecurrenceDTs } from '$lib/utils/rrule.js'
-  import { createTaskInstance } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
+  import { getTemplateTree } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
   import { DateTime } from 'luxon'
   import { getContext, onMount } from 'svelte'
   import { user } from '$lib/store'
@@ -33,11 +33,20 @@
       startDT, endDT, rrStr: template.rrStr 
     })
     await Promise.all(
-      matchingDTs.map(dt => createTaskInstance({ template, dt }))
+      matchingDTs.map(dt => 
+        getTemplateTree({ 
+          template,
+          modifiers: {
+            startDateISO: dt.toFormat('yyyy-MM-dd'),
+            parentID: '' // quickfix: force no parentID, ensure no parentID from corrupted template
+          },
+          idempotentISO: dt.toFormat('yyyy-MM-dd')
+        })
+      )
     )
-    await Template.update({ 
+    return Template.update({ 
       id: template.id, 
-      updates: { prevEndISO: endDT.toFormat('yyyy-MM-dd') }
+      kvChanges: { prevEndISO: endDT.toFormat('yyyy-MM-dd') }
     })
   }
 </script>

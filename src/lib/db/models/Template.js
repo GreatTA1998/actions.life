@@ -11,20 +11,22 @@ import { templates } from '/src/routes/[user]/components/Templates/store.js'
 const Template = {
   schema: z.object({
     name: z.string(),
-    duration: z.number().default(0),
+    duration: z.number(),
     startTime: z.string().default(''),
-    orderValue: z.number().default(0),
+    orderValue: z.number(),
     tags: z.string().default(''),
     notes: z.string().default(''),
     imageDownloadURL: z.string().default(''),
     iconURL: z.string().default(''),
     parentID: z.string().default(''),
-    rootID: z.string().default(''),
 
     rrStr: z.string().default(''),
     prevEndISO: z.string().default(''),
     previewSpan: z.number().optional(), // needs to be computed
-    isStarred: z.boolean().default(true)
+    isStarred: z.boolean().default(true),
+
+    rootID: z.string(),
+    parentID: z.string().default('')
 
     // TO DEPRECATE
     // notify: z.string().default(''),
@@ -44,9 +46,9 @@ const Template = {
     return setDoc(docRef, validatedTemplate, { merge: true }) // `merge: true` matters for generating periodic tasks
   },
 
-  async update ({ id, updates }) {
+  async update ({ id, kvChanges }) {
     return new Promise(async (resolve) => {
-      const validatedChanges = Template.schema.partial().parse(updates)
+      const validatedChanges = Template.schema.partial().parse(kvChanges)
       await updateFirestoreDoc(`/users/${get(user).uid}/templates/${id}`, validatedChanges)
       resolve()
     })

@@ -1,4 +1,4 @@
-interface Node {
+type Node = {
   id: string
   parentID: string
   orderValue: number

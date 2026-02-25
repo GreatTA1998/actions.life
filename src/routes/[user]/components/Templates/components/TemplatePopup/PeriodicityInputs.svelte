@@ -60,7 +60,7 @@
 </script>
 
 {#if loaded}
-  <div class="flex flex-col mt-6">
+  <div class="flex flex-col">
     <Tabs tabs={tabItems} activeTab={activeTab} on:tabChange={e => activeTab = e.detail.tab}/>
 
     {#if activeTab === 'weekly'}

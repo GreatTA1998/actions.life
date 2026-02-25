@@ -6,76 +6,44 @@ import { nodesByParent } from '$lib/db/tree.ts'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 import { user } from '$lib/store'
 import { get } from 'svelte/store'
-import { updateCache } from '$lib/store/tasksCache.js'
+import { updateCache, tasksCache } from '$lib/store/tasksCache.js'
 import { getRandomID } from '$lib/utils/core.js'
 
-// flawed, should also handle changed dates that falls outside of the original schedule
-// for example, if it routine repeats MWF, but the task is scheduled for Thursday, it was modified
-export function isException (task, template) {
-  if (!task || !template) return false
-  
-  for (const k of Object.keys(task)) {
-    if (['notes', 'imageDownloadURL', 'iconURL'].includes(k)) {      
-      if (task[k] !== template[k]) { 
-        return true
-      }
-    }
-  }
-  return false
-}
-
-// idempotence implicitly requires `startDateISO`
-export async function getTemplateTree ({ template, modifiers, idempotent = false }) {
+// only top-level tasks can be templates i.e. parentID === ''
+export async function getTemplateTree ({ template, modifiers = {}, idempotentISO = '' }) {
   const templates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
-  const family = templates.filter(T => T.rootID === template.id)
-  const root = family.find(T => T.id === template.id)
+  const family = templates.filter(T => T.rootID === template.rootID)
   const lookup = nodesByParent(family)
 
   async function instantiate (node, rootID, modifiers = {}) {  
-    const newID = node.parentID ? getRandomID() : rootID
+    const id = idempotentISO ? `${node.id}_${idempotentISO}` : getRandomID() // ideally we want only the root node to receive this, but this is harmless for now
+    if (rootID === '') rootID = id
     
-    /* treeISOs will be handled automatically as long as
-    parents are created before children and cache is updated */
-    const validatedTask = await Task.create({
-      id: newID,
+    /* treeISOs will be maintained by Task.create() as long as parents are created before children (with `tasksCache` updated) */
+    const validatedTask = await Task.create({ id, optimistic: false,
       data: { 
         ...node,
         ...modifiers,
         rootID,
-        isArchived: !node.parentID,
+        isArchived: rootID === id,
         templateID: (!node.parentID && typeof node.rrStr === 'string') ? node.id : '' // quickfix, careful about legacy routines with no `rrStr` corrupting routine logic
-      },
-      optimistic: false
+      }
     })
     updateCache([validatedTask])
   
     for (const child of lookup[node.id]) {
-      child.parentID = newID
+      child.parentID = id
       instantiate(child, rootID, {})
     }
     return validatedTask
   }
 
-  return instantiate(root, getRandomID(), modifiers)
-}
-
-export async function createTaskInstance ({ template, dt }) {
-  return Task.create({
-    // ensure idempotence, with deterministic IDs
-    // assumes the recurrence is at the resolution of days
-    id: template.id + '_' + dt.toFormat('yyyy-MM-dd'),
-    data: instantiateTask({ template, dt }),
-    optimistic: false
-  })
-}
-
-export function instantiateTask ({ template, dt }) {
-  const newTaskObj = Task.schema.parse(template)
-  newTaskObj.templateID = template.id
-  newTaskObj.startDateISO = dt.toFormat('yyyy-MM-dd')
-  newTaskObj.persistsOnList = false
-  newTaskObj.parentID = '' // quickfix: force no parentID, ensure no parentID from corrupted template
-  return newTaskObj
+  if (modifiers.parentID) {
+    const parent = get(tasksCache)[modifiers.parentID]
+    return instantiate(template, parent.rootID, modifiers)
+  } else {
+    return instantiate(template, '', modifiers)
+  }
 }
 
 export async function getAffectedInstances (template) {

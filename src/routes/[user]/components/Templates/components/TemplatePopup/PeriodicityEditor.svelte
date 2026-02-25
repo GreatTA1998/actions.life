@@ -3,13 +3,11 @@
   import PreviewChanges from './PreviewChanges.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
   import Template from '$lib/db/models/Template.js'
+  import Task from '$lib/db/models/Task.js' // note Task from context is now corrupted by Template
   import { getPreviewSpan, generateRecurrenceDTs } from '$lib/utils/rrule.js'
-  import { instantiateTask, isException, getAffectedInstances } from './instances.js'
+  import { getAffectedInstances } from './instances.js'
   import { getRandomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
-  import { getContext } from 'svelte'
-
-  const { Task } = getContext('app')
 
   let {
     routine,
@@ -25,8 +23,10 @@
 
   async function reactToRRStr (pendingRRStr) {
     if (!routine || pendingRRStr === routine.rrStr) return
-    resetPreviewStates()
+
     const affectedTasks = await getAffectedInstances(routine)
+    
+    resetPreviewStates()
     for (const task of affectedTasks) {
       if (isException(task, routine)) exceptions = [...exceptions, task]
       else deletingTasks = [...deletingTasks, task]
@@ -42,7 +42,15 @@
       rrStr: newRRStr
     })
 
-    return DTs.map(dt => instantiateTask({ template: routine, dt }))
+    return DTs.map(dt => 
+      Task.schema.parse({
+        ...routine,
+        templateID: routine.id,
+        startDateISO: dt.toFormat('yyyy-MM-dd'),
+        isArchived: true,
+        parentID: ''
+      })
+    )
   }
 
   async function handleCreate () {
@@ -67,7 +75,7 @@
   async function handleUpdate () {
     executeChanges()
     const previewSpan = getPreviewSpan({ rrStr: pendingRRStr })
-    Template.update({ id: routine.id, updates: { 
+    Template.update({ id: routine.id, kvChanges: { 
       rrStr: pendingRRStr, 
       previewSpan,
       prevEndISO: DateTime.utc().plus({ days: previewSpan }).toFormat('yyyy-MM-dd')
@@ -84,6 +92,21 @@
     resetPreviewStates()
   }
 
+  // flawed, should also handle changed dates that falls outside of the original schedule
+  // for example, if it routine repeats MWF, but the task is scheduled for Thursday, it was modified
+  function isException (task, template) {
+    if (!task || !template) return false
+    
+    for (const k of Object.keys(task)) {
+      if (['notes', 'imageDownloadURL', 'iconURL'].includes(k)) {      
+        if (task[k] !== template[k]) { 
+          return true
+        }
+      }
+    }
+    return false
+  }
+
   function resetPreviewStates() {
     deletingTasks = []
     addingTasks = []
@@ -91,29 +114,27 @@
   }
 </script>
 
-<div>
+<div class="grid gap-y-4">
   <PeriodicityInputs 
     initialRRStr={routine.rrStr}
     on:update-rr={e => pendingRRStr = e.detail}
   />
 
   {#if pendingRRStr !== routine.rrStr}
-    <div class="w-full mt-6">
+    <div class="grid gap-y-4">
       {#if !isCreating}
         <PreviewChanges {pendingRRStr} {addingTasks} {deletingTasks} {exceptions}/>
       {/if}
 
-      <div class="flex justify-start mt-4">
-        {#if isCreating}
-          <RoundButton onclick={handleCreate} backgroundColor="rgb(0, 89, 125)" textColor="white">
-            Create routine
-          </RoundButton>
-        {:else}
-          <RoundButton onclick={handleUpdate} backgroundColor="rgb(0, 89, 125)" textColor="white">
-            Apply changes
-          </RoundButton>
-        {/if}
-      </div>
+      {#if isCreating}
+        <RoundButton onclick={handleCreate} backgroundColor="rgb(0, 89, 125)" textColor="white">
+          Create routine
+        </RoundButton>
+      {:else}
+        <RoundButton onclick={handleUpdate} backgroundColor="rgb(0, 89, 125)" textColor="white">
+          Apply changes
+        </RoundButton>
+      {/if}
     </div>
   {/if}
 </div>

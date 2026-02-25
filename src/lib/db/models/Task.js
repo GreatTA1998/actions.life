@@ -43,42 +43,34 @@ const Task = {
     rootID: z.string().optional() 
   }),
 
-  create: async ({ id, data, optimistic = true }) => {
-    try {
-      const validatedTask = Task.schema.parse(data)
-      const { parentID, startDateISO } = validatedTask
-      const parent = get(tasksCache)[parentID]
-      
-      if (parent?.tagIDs) validatedTask.tagIDs = parent.tagIDs
+  async create ({ id, data, optimistic = true }) {
+    const validatedTask = Task.schema.parse(data)
+    const batch = writeBatch(db)
 
-      const { uid } = get(user)
-      const batch = writeBatch(db)
+    const { parentID, startDateISO } = validatedTask
+    const parent = get(tasksCache)[parentID]
+    
+    if (parent?.tagIDs) validatedTask.tagIDs = parent.tagIDs
 
-      let treeISOs = [...(parent?.treeISOs ?? []), startDateISO].filter(Boolean)
-      if (startDateISO && parent) { // currently impossible via UI to create a scheduled subtask directly
-        await updateEntireTree({ batch, parent, treeISOs })
-      }
-      maintainOrderValue(validatedTask, batch)
-
-      batch.set(doc(db, `users/${uid}/tasks/${id}`), { 
-        ...validatedTask,
-        treeISOs, 
-        rootID: parent ? parent.rootID : id
-      })
-      
-      if (optimistic) batch.commit()
-      else await batch.commit() 
-
-      return validatedTask
-    } 
-    catch (error) {
-      console.error('Error creating task:', error)
-      alert('Error creating task: ' + error.message)
-      return error
+    let treeISOs = [...(parent?.treeISOs ?? []), startDateISO].filter(Boolean)
+    if (startDateISO && parent) { // currently impossible via UI to create a scheduled subtask directly
+      await updateEntireTree({ batch, parent, treeISOs })
     }
+    maintainOrderValue(validatedTask, batch)
+
+    batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), { 
+      ...validatedTask,
+      treeISOs, 
+      rootID: parent ? parent.rootID : id
+    })
+    
+    if (optimistic) batch.commit()
+    else await batch.commit() 
+
+    return validatedTask
   },
 
-  update: async ({ id, kvChanges }) => {
+  async update ({ id, kvChanges }) {
     try {
       if (get(user).simpleMode) {
         const { startDateISO, isDone, persistsOnList, isArchived } = kvChanges
@@ -123,33 +115,31 @@ const Task = {
     }
   },
 
-  delete: async ({ id }) => {
-    return new Promise(async (resolve) => {
-      closeTaskPopup()
-      const task = get(tasksCache)[id]
-      const treeNodes = await getSubtreeNodes(task)
+  async delete ({ id }) {
+    closeTaskPopup()
+    const task = get(tasksCache)[id]
+    const treeNodes = await getSubtreeNodes(task)
 
-      // warning: need a way to disable this confirmation when we support sub-tasks for routines
-      if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} actions at once?`)) {
-        return resolve([])
-      }
+    // warning: need a way to disable this confirmation when we support sub-tasks for routines
+    if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} actions at once?`)) {
+      return []
+    }
 
-      const batch = writeBatch(db)
-      const { uid } = get(user)
-      for (const node of treeNodes) {
-        if (node.imageFullPath) releaseImage(uid, node)
-        batch.delete(doc(db, `/users/${uid}/tasks/${node.id}`))
-      }
-      await handleTreeISOsForDeletion({ batch, tasksToDelete: treeNodes }) // modifies `batch` before commiting
-      cleanupCache(treeNodes) // previous operations and sub-operations depend on `tasksCache`
-      
-      await batch.commit()
-      
-      resolve(treeNodes)
-    })
+    const batch = writeBatch(db)
+    const { uid } = get(user)
+    for (const node of treeNodes) {
+      if (node.imageFullPath) releaseImage(uid, node)
+      batch.delete(doc(db, `/users/${uid}/tasks/${node.id}`))
+    }
+    await handleTreeISOsForDeletion({ batch, tasksToDelete: treeNodes }) // modifies `batch` before commiting
+    cleanupCache(treeNodes) // previous operations and sub-operations depend on `tasksCache`
+    
+    await batch.commit()
+    
+    return treeNodes
   },
 
-  archiveTree: async ({ id }) => {
+  async archiveTree ({ id }) {
     const task = get(tasksCache)[id]
     const tasks = await getSubtreeNodes(task)
 
@@ -172,7 +162,7 @@ const Task = {
     return tasks
   },
 
-  unarchiveTree: async ({ id }) => {
+  async unarchiveTree ({ id }) {
     const { uid } = get(user)
     const batch = writeBatch(db)
     const task = get(tasksCache)[id]
@@ -187,7 +177,7 @@ const Task = {
     await batch.commit()
   },
 
-  getByDateRange: async (startDate, endDate) => {
+  async getByDateRange (startDate, endDate) {
     const q = query(
       collection(db, 'users', get(user).uid, 'tasks'),
       where('startDateISO', '>=', startDate),
@@ -198,7 +188,7 @@ const Task = {
   }
 }
 
-export function isValidISODate (dateStr) {
+function isValidISODate (dateStr) {
   if (dateStr === '') return true
   const isoFormatRegex = /^\d{4}-\d{2}-\d{2}$/
   if (!isoFormatRegex.test(dateStr)) return false
