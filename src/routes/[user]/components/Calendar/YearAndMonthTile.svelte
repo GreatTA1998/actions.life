@@ -1,10 +1,7 @@
 <script>
-  import { headerExpanded, isCompact } from './store.js'
-  import { treesByDate } from './service.js'
+  import { isCompact } from './store.js'
   import { WIDTHS } from '$lib/utils/constants.js'
   import { DateTime } from 'luxon'
-  import MslExpandLess from 'virtual:icons/material-symbols-light/expand-less'
-  import MslExpandMore from 'virtual:icons/material-symbols-light/expand-more'
 
   let {
     viewportLeft,
@@ -31,7 +28,7 @@
     class:mobile-compact={$isCompact}
     class:desktop-descriptive={!$isCompact}
   >
-    <div>
+    <div class="uppercase">
       {currentDT.toFormat(!$isCompact ? 'LLL' : 'M')}
     </div>
     {#if !$isCompact}
@@ -40,18 +37,6 @@
       </div>
     {/if}
   </div>
-
-  <!-- {#if $treesByDate}
-    <button onclick={() => headerExpanded.set(!$headerExpanded)}
-      class="collapse-arrow"
-    >
-      {#if $headerExpanded}
-        <MslExpandLess style="font-size: 26px;"/>
-      {:else}
-        <MslExpandMore style="font-size: 26px;"/>
-      {/if}
-    </button>
-  {/if} -->
 </div>
 
 <style>
@@ -80,17 +65,5 @@
 
     box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);
     border-right: 1px solid var(--faint-color);
-  }
-
-  .collapse-arrow {
-    position: absolute;
-    bottom: 4px;
-    left: 50%; /* moves the left edge of the arrow to the center */
-    transform: translateX(-50%); /* shifts the arrow back by half its own width */
-    right: auto;
-    font-size: 26px;
-    cursor: pointer;
-    color: var(--fine-control-color);
-    font-weight: 200;
   }
 </style>
