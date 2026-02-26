@@ -8,11 +8,8 @@
   import UpdateLogSection from './components/UpdateLogSection.svelte'
   import ArtisticBackground from './components/ArtisticBackground.svelte'
   import TopNavbar from './components/TopNavbar.svelte'
-  import TaskPopup from '../[user]/components/TaskPopup/TaskPopup.svelte'
   import SignInButton from '$lib/components/SignInButton.svelte'
   import { authChecked } from '$lib/store'
-  // import AppDetailsSection from './components/AppDetailsSection.svelte'
-  // import VisionSection from './components/VisionSection.svelte'
 </script>
 
 {#if $authChecked}
@@ -51,9 +48,6 @@
         </div>
       </div>
 
-        <!-- <TaskPopup /> -->
-        <!-- <VisionSection /> -->
-        <!-- <AppDetailsSection /> -->
     </div>
   </div>
 {/if}
