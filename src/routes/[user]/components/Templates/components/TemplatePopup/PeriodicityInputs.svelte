@@ -28,7 +28,11 @@
 
   let loaded = $state(false) // quickfix to prevent uninitialized input states / timing problems
   let activeTab = $state('weekly')
-  let overallPointer = $derived(activeTab === 'monthly' ? $monthlyPointer : activeTab)
+  let overallPointer = $state(activeTab)
+
+  $effect(() => {
+    overallPointer = activeTab === 'monthly' ? $monthlyPointer : activeTab
+  })
 
   $effect(() => updateRR($inputStates[overallPointer]))
 

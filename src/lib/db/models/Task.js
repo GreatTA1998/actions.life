@@ -38,9 +38,9 @@ const Task = {
     tagIDs: z.array(z.string()).default([]),
     
     // maintained fields
-    orderValue: z.number(),
-    treeISOs: z.array(z.string()), 
-    rootID: z.string() 
+    orderValue: z.number().default(0),
+    treeISOs: z.array(z.string()).default([]), 
+    rootID: z.string().default('') 
   }),
 
   async create ({ id, data, optimistic = true }) {
@@ -69,7 +69,7 @@ const Task = {
     if (optimistic) batch.commit()
     else await batch.commit() 
 
-    return validatedTask
+    return { ...validatedTask, id }
   },
 
   async update ({ id, kvChanges }) {

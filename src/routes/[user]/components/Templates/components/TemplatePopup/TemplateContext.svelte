@@ -51,6 +51,8 @@
     const found = $templates.find(T => T.id === $clickedTemplateID)
     template.set(found)
 
+    if (!found) return
+
     return onSnapshot(
       query(
         collection(db, `users/${get(user).uid}/templates`),
