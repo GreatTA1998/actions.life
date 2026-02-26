@@ -12,7 +12,6 @@
   import PopupTitle from '$lib/components/PopupTitle.svelte'
   import ColorTags from '$lib/components/ColorTags.svelte'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
-  import PopoverInputContext from '$lib/components/PopoverInputContext.svelte'
   import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import { WIDTHS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
@@ -88,13 +87,11 @@
     </div>
 
     <DragDropContext>
-      <PopoverInputContext>
-        <TodoList trees={$templateTree.children}
-          listWidth="100%"
-          parentID={$template.id}
-          style="padding-bottom: 1rem"
-        />
-      </PopoverInputContext>
+      <TodoList trees={$templateTree.children}
+        listWidth="100%"
+        parentID={$template.id}
+        style="padding-bottom: 1rem"
+      />
     </DragDropContext>
 
     <button onclick={e => { e.stopPropagation(); handleDelete() }} 

@@ -11,41 +11,16 @@
   const { Task } = getContext('app')
   const { activateInput } = getContext('popover-input')
   const { 
-    draggedItem, scrollCalRect, detectOverlap, startTaskDrag,
-    bestDropzoneID, dropPreviewCSS, hasDropped, resetDragDrop
+    registerDropzone,
+    draggedItem, scrollCalRect, startTaskDrag,
+    bestDropzoneID, dropPreviewCSS
   } = getContext('drag-drop')
   
   let { dt } = $props()
 
-  let dayHeader = $state(null)
   let ISODate = $derived(dt.toFormat('yyyy-MM-dd'))
   let dropzoneID = $derived('header: ' + dt.toFormat('yyyy-MM-dd'))
   let anchorID = $derived(`--day-header-${dt.toFormat('yyyy-MM-dd')}`)
-
-  $effect(() => {
-    if ($draggedItem && $draggedItem.id) {
-      detectOverlap({
-        dropzoneElem: dayHeader,
-        clipRect: calHeaderArea(),
-        dropzoneID
-      })
-    }
-  })
-
-  $effect(() => {
-    if ($hasDropped && $bestDropzoneID === dropzoneID) {
-      drop_handler($draggedItem)
-    }
-  })
-
-  function drop_handler ({ id }) {
-    Task.update({ id, kvChanges: {
-      startTime: '',
-      startDateISO: ISODate
-    }})
-
-    resetDragDrop()
-  }
 
   function calHeaderArea () {
     // left clipping is most important, everything else is inconsequential
@@ -59,7 +34,15 @@
   }
 </script>
 
-<div bind:this={dayHeader}
+<div 
+  {@attach registerDropzone({
+    clipRectFunction: calHeaderArea,
+    id: dropzoneID,
+    onDrop: () => Task.update({ id: $draggedItem.id, kvChanges: {
+      startTime: '',
+      startDateISO: ISODate
+    }})
+  })}
   class="day-header"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
   style:padding-bottom="0"
@@ -135,9 +118,9 @@
   }
 
   .day-header {
-    width: var(--width-calendar-day-section);
+    width: var(--width-cal-column);
     font-size: 1.4rem;
-    background-color: var(--calendar-bg-color);
+    background-color: var(--cal-bg);
     color: #6d6d6d;
   }
 

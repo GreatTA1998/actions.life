@@ -7,6 +7,7 @@
   import { db } from '$lib/db/init.js'
   import { writable, get } from 'svelte/store'
   import { getContext, setContext, onMount } from 'svelte'
+  import PopoverInputContext from '$lib/components/PopoverInputContext.svelte'
 
   let { children } = $props()
 
@@ -66,10 +67,12 @@
 </script>
 
 <div>
-  {@render children()}
-  
-  {#if $popup && $template}
-    <TemplatePopup/>
-  {/if}
+  <PopoverInputContext>
+    {@render children()}
+    
+    {#if $popup && $template}
+      <TemplatePopup/>
+    {/if}
+  </PopoverInputContext>
 </div>
 

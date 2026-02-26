@@ -61,7 +61,7 @@
     z-index: 3;
 
     width: var(--timestamps-column-width);
-    background: var(--calendar-bg-color);
+    background: var(--cal-bg);
 
     box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);
     border-right: 1px solid var(--faint-color);

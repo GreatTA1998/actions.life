@@ -73,47 +73,41 @@ const Task = {
   },
 
   async update ({ id, kvChanges }) {
-    try {
-      if (get(user).simpleMode) {
-        const { startDateISO, isDone, persistsOnList, isArchived } = kvChanges
+    if (get(user).simpleMode) {
+      const { startDateISO, isDone, persistsOnList, isArchived } = kvChanges
 
-        if (startDateISO || isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
-          kvChanges.isArchived = true
-        } 
-        else if (persistsOnList && !isArchived) {  // only possible via drag-to-list
-          kvChanges.startDateISO = ''
-          kvChanges.startTime = ''
-        }
-      }
-    
-      const validatedChanges = Task.schema.partial().parse(kvChanges)
-
-      if (validatedChanges.isDone) playSound('swipe')
-
-      const batch = writeBatch(db)
-
-      if (validatedChanges.orderValue) {
-        maintainOrderValue(validatedChanges, batch)
-      }
-      await maintainTreeISOs({ id, kvChanges: validatedChanges, batch })
-      batch.update(
-        doc(db, `users/${get(user).uid}/tasks/${id}`), 
-        validatedChanges
-      )
-      batch.commit()
-
-      // specifically protect against done tasks disappearing during simple mode
-      const task = get(tasksCache)[id]
-      if (validatedChanges.isArchived && !(task.startDateISO || validatedChanges.startDateISO)) {
-        showUndoSnackbar(
-          `Archiving 1 task from the list area`,
-          () => Task.update({ id, kvChanges: { isArchived: false } })
-        )
+      if (startDateISO || isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
+        kvChanges.isArchived = true
+      } 
+      else if (persistsOnList && !isArchived) {  // only possible via drag-to-list
+        kvChanges.startDateISO = ''
+        kvChanges.startTime = ''
       }
     }
-    catch (error) {
-      console.error(`Task.update() error: ${error}`)
-      alert(`Task.update() error: ${error}`)
+  
+    const validatedChanges = Task.schema.partial().parse(kvChanges)
+
+    if (validatedChanges.isDone) playSound('swipe')
+
+    const batch = writeBatch(db)
+
+    if (validatedChanges.orderValue) {
+      maintainOrderValue(validatedChanges, batch)
+    }
+    await maintainTreeISOs({ id, kvChanges: validatedChanges, batch })
+    batch.update(
+      doc(db, `users/${get(user).uid}/tasks/${id}`), 
+      validatedChanges
+    )
+    batch.commit()
+
+    // specifically protect against done tasks disappearing during simple mode
+    const task = get(tasksCache)[id]
+    if (validatedChanges.isArchived && !(task.startDateISO || validatedChanges.startDateISO)) {
+      showUndoSnackbar(
+        `Archiving 1 task from the list area`,
+        () => Task.update({ id, kvChanges: { isArchived: false } })
+      )
     }
   },
 

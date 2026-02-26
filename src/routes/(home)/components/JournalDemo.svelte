@@ -10,12 +10,12 @@
 </script>
 
 <div class="demo-section">
-  <div class="demo-header">
+  <div class="text-center">
     <h2>Try the photo button</h2>
   </div>
 
   <div style="display: flex; justify-content: center; gap: 48px;">
-    <div style="min-width: {WIDTHS.CALENDAR_DAY_SECTION}px">
+    <div style="min-width: {WIDTHS.CAL_COLUMN}px">
       {#if !journalTask.imageDownloadURL}
         <TaskElement task={journalTask} />
       {:else} 
@@ -39,10 +39,6 @@
     display: flex;
     flex-direction: column;
     row-gap: 36px;
-  }
-
-  .demo-header {
-    text-align: center;
   }
 
   .demo-header h2 {

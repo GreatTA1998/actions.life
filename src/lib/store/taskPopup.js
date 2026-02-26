@@ -40,15 +40,7 @@ function listenToAncestralTree (id) {
 
       const [ancestralTree] = buildForest(tasks)
       const family = findSubtree({ id, tree: ancestralTree })
-      pruneArchivedNodes(family)
       familyTree.set(family)
     }
   )
-}
-
-function pruneArchivedNodes (tree) {
-  tree.children = tree.children.filter(child => !child.isArchived)
-  for (const child of tree.children) {
-    pruneArchivedNodes(child)
-  }
 }
