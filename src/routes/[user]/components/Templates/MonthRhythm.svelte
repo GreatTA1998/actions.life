@@ -37,6 +37,7 @@
   }
 
   function suffix (num) {
+    if ([11, 12, 13].includes(num)) return 'th'
     switch (num % 10) {
       case 1: return 'st'
       case 2: return 'nd'

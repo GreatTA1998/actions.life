@@ -89,7 +89,7 @@
     </div>
 
     <button onclick={() => openTaskPopup(task)} 
-      class="shrink-1 min-w-[24px] min-h-[24px] truncate text-clip"
+      class="shrink-1 min-w-[24px] min-h-[24px] truncate text-clip justify-start"
       class:done-task={task.isDone}
       style:font-weight={depth === 1 ? 600 : 400}
     >
