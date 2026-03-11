@@ -11,39 +11,38 @@ import { getRandomID } from '$lib/utils/core.js'
 
 // only top-level tasks can be templates i.e. parentID === ''
 export async function instantiateTree ({ template, modifiers = {}, idempotentISO = '' }) {
-  const templates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
-  const family = templates.filter(T => T.rootID === template.rootID)
-  const lookup = nodesByParent(family)
+  const allTemplates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
+  const newTreeID = idempotentISO ? `${template.id}_${idempotentISO}` : getRandomID()
+  const { parentID } = modifiers
 
-  async function instantiate (node, rootID, modifiers = {}) {  
-    const id = idempotentISO ? `${node.id}_${idempotentISO}` : getRandomID() // ideally we want only the root node to receive this, but this is harmless for now
-    if (rootID === '') rootID = id
-    
-    /* treeISOs will be maintained by Task.create() as long as parents are created before children (with `tasksCache` updated) */
-    const validatedTask = await Task.create({ id, optimistic: false,
-      data: { 
-        ...node,
-        ...modifiers,
-        rootID,
-        isArchived: rootID === id,
-        templateID: (!node.parentID && typeof node.rrStr === 'string') ? node.id : '' // quickfix, careful about legacy routines with no `rrStr` corrupting routine logic
-      }
+  return helper({ 
+    node: { ...template, ...modifiers }, 
+    parentID: parentID ? parentID : '',
+    rootID: parentID ? get(tasksCache)[parentID].rootID : newTreeID,
+    id: newTreeID,
+    templateID: (typeof template.rrStr === 'string') ? template.id : '',
+    memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID))
+  })
+}
+
+async function helper ({ node, id, parentID, rootID, templateID, memo }) {
+  const result = await Task.create({ id, optimistic: false, data: { 
+    ...node, parentID, rootID, templateID
+  }}) 
+  updateCache([result])
+
+  // treeISOs will be maintained by Task.create() as long as `parent` and `tasksCache` are created before children
+  for (const child of memo[node.id]) {
+    helper({ 
+      node: child, 
+      parentID: id,
+      rootID,  
+      id: getRandomID(), 
+      templateID: '',
+      memo
     })
-    updateCache([validatedTask])
-  
-    for (const child of lookup[node.id]) {
-      child.parentID = id
-      instantiate(child, rootID, {})
-    }
-    return validatedTask
   }
-
-  if (modifiers.parentID) {
-    const parent = get(tasksCache)[modifiers.parentID]
-    return instantiate(template, parent.rootID, modifiers)
-  } else {
-    return instantiate(template, '', modifiers)
-  }
+  return result
 }
 
 export async function getAffectedInstances (template) {
