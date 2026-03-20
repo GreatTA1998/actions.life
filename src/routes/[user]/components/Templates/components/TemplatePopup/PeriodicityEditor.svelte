@@ -32,6 +32,7 @@
     }
   }
 
+  // TO-DO: fix this
   function simulateChanges (newRRStr) {
     if (!newRRStr) return []
     const DTs = generateRecurrenceDTs({
@@ -45,7 +46,7 @@
         ...routine,
         templateID: routine.id,
         startDateISO: dt.toFormat('yyyy-MM-dd'),
-        isArchived: true,
+        onList: false,
         parentID: ''
       })
     )

@@ -47,7 +47,7 @@
       activateInput({ 
         anchorID, 
         modifiers: { 
-          persistsOnList: true,
+          onList: true,
           parentID
         }
       })

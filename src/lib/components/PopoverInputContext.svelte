@@ -66,7 +66,7 @@
     const result = await Task.create({
       id: randomID(),
       data: {
-        ...$overrideOptions, // includes `persistsOnList`
+        ...$overrideOptions,
         name
       }
     })

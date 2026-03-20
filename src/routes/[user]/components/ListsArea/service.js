@@ -12,7 +12,7 @@ export const trees = writable(null)
 export function listenToTasks (uid) {
   const tasksCollection = collection(db, `users/${uid}/tasks`)
   setupListener(
-    query(tasksCollection, where('persistsOnList', '==', true), where('isArchived', '==', false)),
+    query(tasksCollection, where('onList', '==', true)),
     data => { 
       persistTasks = data 
       updateCache(persistTasks)

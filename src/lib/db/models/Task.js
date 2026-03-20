@@ -29,13 +29,12 @@ const Task = {
     isDone: z.boolean().default(false),
     imageDownloadURL: z.string().default(''),
     imageFullPath: z.string().default(''),
-    tags: z.string().default(''),
-    isArchived: z.boolean().default(false),
-    persistsOnList: z.boolean().default(true),
     childrenLayout: z.string().default('normal'), // 'normal' (renaming to 'list' but requires proper migration) or 'timeline'
     photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'thumbnail'
     isCollapsed: z.boolean().default(false),
     tagIDs: z.array(z.string()).default([]),
+
+    onList: z.boolean(), // now mandatory
     
     // maintained fields
     orderValue: z.number(),
@@ -77,14 +76,12 @@ const Task = {
     return validatedTask
   },
 
-  async update ({ id, kvChanges }) {
+  async update ({ id, kvChanges, undoable = true }) {
     if (get(user).simpleMode) {
-      const { startDateISO, isDone, persistsOnList, isArchived } = kvChanges
-
-      if (startDateISO || isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
-        kvChanges.isArchived = true
+      if (kvChanges.startDateISO || kvChanges.isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
+        kvChanges.onList = false
       } 
-      else if (persistsOnList && !isArchived) {  // only possible via drag-to-list
+      else if (kvChanges.onList) {  // only possible via drag-to-list
         kvChanges.startDateISO = ''
         kvChanges.startTime = ''
       }
@@ -107,12 +104,15 @@ const Task = {
     batch.commit()
 
     // specifically protect against done tasks disappearing during simple mode
-    const task = get(tasksCache)[id]
-    if (validatedChanges.isArchived && !(task.startDateISO || validatedChanges.startDateISO)) {
-      showUndoSnackbar(
-        `Archiving 1 task from the list area`,
-        () => Task.update({ id, kvChanges: { isArchived: false } })
-      )
+   
+    if (undoable) {
+      const task = get(tasksCache)[id]
+      if (validatedChanges.onList === false && !(task.startDateISO || validatedChanges.startDateISO)) {
+        showUndoSnackbar(
+          `Hiding 1 task from the list`,
+          () => Task.update({ id, kvChanges: { onList: true } })
+        )
+      }
     }
   },
 
@@ -149,14 +149,14 @@ const Task = {
 
     for (const task of tasks) {
       batch.update(doc(db, `/users/${uid}/tasks/${task.id}`), { 
-        isArchived: true
+        onList: false
       })
     }
 
     await batch.commit()
 
     showUndoSnackbar(
-      `Archiving ${tasks.length} task${tasks.length > 1 ? 's' : ''} from the list area`,
+      `${tasks.length} task${tasks.length > 1 ? 's' : ''} archived from the list`,
       () => Task.unarchiveTree({ id })
     )
 
@@ -171,7 +171,7 @@ const Task = {
 
     for (const task of tasksToUnarchive) {
       batch.update(doc(db, `/users/${uid}/tasks/${task.id}`), { 
-        isArchived: false
+        onList: true
       })
     }
 

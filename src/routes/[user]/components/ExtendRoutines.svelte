@@ -38,7 +38,8 @@
           template,
           modifiers: {
             startDateISO: dt.toFormat('yyyy-MM-dd'),
-            parentID: '' // quickfix: force no parentID, ensure no parentID from corrupted template
+            parentID: '', // quickfix: force no parentID, ensure no parentID from corrupted template,
+            onList: false
           },
           idempotentISO: dt.toFormat('yyyy-MM-dd')
         })

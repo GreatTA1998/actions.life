@@ -10,8 +10,7 @@
         kvChanges: {
           parentID,
           orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
-          persistsOnList: true, // non-persistent rooms, once dragged to the list, becomes persistent. Otherwise any node could disappear from the complex task structure just because it's scheduled, some day.
-          isArchived: false // otherwise dragging an archived calendar task to the list will cause it to disappear completely
+          onList: true
         }
       })
     }
@@ -21,7 +20,7 @@
     activateInput({
       anchorID,
       modifiers: {
-        persistsOnList: true,
+        onList: true,
         orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
         parentID
       }

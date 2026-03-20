@@ -99,7 +99,7 @@
       startDateISO: DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd'),
       duration: durationForFullDisplay,
       isDone: true, // so the image has full opacity
-      persistsOnList: false,
+      onList: false,
       photoLayout: $user.defaultPhotoLayout
     }})
   }

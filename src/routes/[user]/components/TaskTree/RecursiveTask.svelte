@@ -60,8 +60,7 @@
           kvChanges: {
             parentID: task.id,
             orderValue: computeOrderValue(0, task.children),
-            persistsOnList: true,
-            isArchived: false
+            onList: true
           }
         })
       }

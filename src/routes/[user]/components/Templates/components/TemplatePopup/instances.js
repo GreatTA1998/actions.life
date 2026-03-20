@@ -1,3 +1,4 @@
+// UNIFY WITH `templateContext`
 import Task from '$lib/db/models/Task.js'
 import { DateTime } from 'luxon'
 import { db } from '$lib/db/init.js'
@@ -21,13 +22,14 @@ export async function instantiateTree ({ template, modifiers = {}, idempotentISO
     rootID: parentID ? get(tasksCache)[parentID].rootID : newTreeID,
     id: newTreeID,
     templateID: (typeof template.rrStr === 'string') ? template.id : '',
-    memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID))
+    onList: !!modifiers.onList, // `template.onList` doesn't matter, example: calendar task forged into a template, which instantiates onto the list.
+    memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID)),
   })
 }
 
-async function helper ({ node, id, parentID, rootID, templateID, memo }) {
+async function helper ({ node, id, parentID, rootID, templateID, onList, memo }) {
   const result = await Task.create({ id, optimistic: false, data: { 
-    ...node, parentID, rootID, templateID
+    ...node, parentID, rootID, templateID, onList
   }}) 
   updateCache([result])
 
@@ -39,6 +41,7 @@ async function helper ({ node, id, parentID, rootID, templateID, memo }) {
       rootID,  
       id: randomID(), 
       templateID: '',
+      onList,
       memo
     })
   }

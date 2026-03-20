@@ -51,7 +51,11 @@
     if (e.target !== e.currentTarget) return;
     activateInput({ 
       anchorID, 
-      modifiers: { startDateISO: ISODate, startTime: '', persistsOnList: false }
+      modifiers: { 
+        startDateISO: ISODate, 
+        startTime: '', 
+        onList: false
+      }
     })
   }}
 >

@@ -135,7 +135,7 @@
         modifiers: { 
           startDateISO: newDT.toFormat('yyyy-MM-dd'),
           startTime: newDT.toFormat('HH:mm'),
-          persistsOnList: false
+          onList: false
         },
         onCreate: shiftYPosition
       })
