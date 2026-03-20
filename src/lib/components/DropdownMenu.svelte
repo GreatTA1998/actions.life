@@ -29,9 +29,9 @@
   })
 </script>
 
-{#if taskName.length >= 0}
+{#if taskName.length >= 1}
   <div class="core-shadow cast-shadow w-[200px] max-h-[480px] overflow-y-auto bg-white p-1.5 rounded-xl">
-    {#each searchResults as template (template.id)}      
+    {#each searchResults as template (template.id)}
       <div onclick={() => onSelect(template)}
         class="py-3 px-1 text-xs rounded-xl flex items-center hover:bg-[rgb(240,240,240)]"
       >

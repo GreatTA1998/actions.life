@@ -46,34 +46,30 @@ const Task = {
     const batch = writeBatch(db)
     maintainOrderValue(data, batch)
 
-    const { parentID, startDateISO } = data
-    const parent = get(tasksCache)[parentID]
-
-    data.rootID = parent?.rootID || id
-
-    if (parent?.tagIDs) {
+    const { parentID, startDateISO } = data 
+    
+    if (!parentID) {
+      data.rootID = id
+      data.treeISOs = [startDateISO].filter(Boolean)
+    }
+    else {
+      const parent = get(tasksCache)[parentID]
+      data.rootID = parent.rootID
       data.tagIDs = parent.tagIDs
+      data.treeISOs = [...parent.treeISOs, startDateISO].filter(Boolean) 
+      if (startDateISO) { // though it's currently to create a scheduled subtask via UI
+        await updateEntireTree({ batch, parent, treeISOs: data.treeISOs })
+      }
     }
-
-    let treeISOs = [...(parent?.treeISOs ?? []), startDateISO].filter(Boolean)
-    if (startDateISO && parent) { // currently impossible via UI to create a scheduled subtask directly
-      await updateEntireTree({ batch, parent, treeISOs })
-    }
-    data.treeISOs = treeISOs
 
     const validatedTask = Task.schema.parse(data)
-
-    // temporary code to catch this pesky bug
-    if (validatedTask.parentID === '' && (validatedTask.rootID !== id)) {
-      alert('This solo node has a divergent rootID!')
-    }
-
+    
     batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), validatedTask)
     
     if (optimistic) batch.commit()
     else await batch.commit() 
 
-    return validatedTask
+    return { ...validatedTask, id }
   },
 
   async update ({ id, kvChanges, undoable = true }) {
