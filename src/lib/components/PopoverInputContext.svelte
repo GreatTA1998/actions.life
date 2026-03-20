@@ -42,11 +42,12 @@
 
   function ontoggle (e) {
     if (e.newState === 'closed') {
+      if (value) createTask(value)
       setTimeout(() => inputActive = false, 300) // delay necessary for iOS where `ontoggle` resolves before `onclick`
     }
   }
 
-  function onFinish () {
+  function onSubmit () {
     if (value === '') inputPopover.hidePopover()
     else createTask(value)
   }
@@ -76,7 +77,7 @@
   <!-- `e.isComposing`: IME (Input Method Editors), we use keydown to avoid the exhaustive solution mentioned here: https://www.stum.de/2016/06/24/handling-ime-events-in-javascript/ -->
   <input bind:this={input} 
     bind:value
-    onkeydown={e => e.key === 'Enter' && !e.isComposing && onFinish() } 
+    onkeydown={e => e.key === 'Enter' && !e.isComposing && onSubmit() } 
     class="w-full h-full rounded [border:2px_solid_#2757cf]"
     style:font-size="clamp({noZoomFS}, 40cqb, 2rem)"
   >
@@ -88,7 +89,7 @@
       taskName={value} 
       onSelect={async (template) => {
         value = ''
-        onFinish()
+        onSubmit()
         return instantiateTree({ template, modifiers: $overrideOptions })
       }}    
     />
