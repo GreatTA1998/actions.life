@@ -1,5 +1,5 @@
 import imageCompression from 'browser-image-compression'
-import { getRandomID, getTimeInHHMM } from '$lib/utils/core.js'
+import { randomID, getTimeInHHMM } from '$lib/utils/core.js'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { DateTime } from 'luxon'
 import Task from '$lib/db/models/Task.js'
@@ -10,7 +10,7 @@ export async function singleUpload ({ e, willCompress, task, hasSideEffect }) {
   const promises = []
   for (let image of e.target.files) { // in reality it's always one file due to the input limit
     if (image) { // blob file
-      const id = getRandomID()
+      const id = randomID()
       if (willCompress) {
         image = await compressImage(image)
       }

@@ -50,7 +50,7 @@ const Task = {
     const { parentID, startDateISO } = data
     const parent = get(tasksCache)[parentID]
 
-    data.rootID = parent ? parent.rootID : id
+    data.rootID = parent?.rootID || id
 
     if (parent?.tagIDs) {
       data.tagIDs = parent.tagIDs
@@ -63,6 +63,11 @@ const Task = {
     data.treeISOs = treeISOs
 
     const validatedTask = Task.schema.parse(data)
+
+    // temporary code to catch this pesky bug
+    if (validatedTask.parentID === '' && (validatedTask.rootID !== id)) {
+      alert('This solo node has a divergent rootID!')
+    }
 
     batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), validatedTask)
     

@@ -1,12 +1,18 @@
 import {
   doc, setDoc, getDoc, updateDoc, deleteDoc,
   collection, getDocs, query, where, limit,
-  writeBatch, arrayRemove, increment
+  writeBatch, arrayRemove, increment, onSnapshot
 } from 'firebase/firestore'
 import { db } from './init'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
 import { user } from '$lib/store'
 import { get } from 'svelte/store'
+
+export async function listenTo (q, onUpdate) {
+  return onSnapshot(q, snap => 
+    onUpdate(snap.docs.map(doc => ({ ...doc.data(), id: doc.id })))
+  )
+}
 
 export function firestoreRef (path) {
   return doc(db, path)

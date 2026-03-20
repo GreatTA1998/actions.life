@@ -17,7 +17,7 @@
 
 <script>
   import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-  import { getRandomID, getTimeInHHMM } from '$lib/utils/core.js'
+  import { randomID, getTimeInHHMM } from '$lib/utils/core.js'
   import { compressImage } from '$lib/utils/imageHandling.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
@@ -42,7 +42,7 @@
     const promises = []
     for (let imageBlobFile of e.target.files) {
       if (imageBlobFile) {
-        const id = getRandomID()
+        const id = randomID()
         if ($user.photoCompressWhenAttachingToTask) {
           imageBlobFile = await compressImage(imageBlobFile)
         }

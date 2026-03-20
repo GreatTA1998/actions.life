@@ -1,7 +1,7 @@
 <script>
   import DropdownMenu from '$lib/components/DropdownMenu.svelte'
   import { instantiateTree } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
-  import { getRandomID } from '$lib/utils/core'
+  import { randomID } from '$lib/utils/core'
   import { getContext, setContext } from 'svelte'
   import { writable } from 'svelte/store'
   import { noZoomFS } from '$lib/styles/reused.module.css'
@@ -64,7 +64,7 @@
 
   async function createTask (name) {
     const result = await Task.create({
-      id: getRandomID(),
+      id: randomID(),
       data: {
         ...$overrideOptions, // includes `persistsOnList`
         name

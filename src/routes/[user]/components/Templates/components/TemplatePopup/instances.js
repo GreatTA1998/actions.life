@@ -7,12 +7,12 @@ import { collection, query, where, getDocs } from 'firebase/firestore'
 import { user } from '$lib/store'
 import { get } from 'svelte/store'
 import { updateCache, tasksCache } from '$lib/store/tasksCache.js'
-import { getRandomID } from '$lib/utils/core.js'
+import { randomID } from '$lib/utils/core.js'
 
 // only top-level tasks can be templates i.e. parentID === ''
 export async function instantiateTree ({ template, modifiers = {}, idempotentISO = '' }) {
   const allTemplates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
-  const newTreeID = idempotentISO ? `${template.id}_${idempotentISO}` : getRandomID()
+  const newTreeID = idempotentISO ? `${template.id}_${idempotentISO}` : randomID()
   const { parentID } = modifiers
 
   return helper({ 
@@ -37,7 +37,7 @@ async function helper ({ node, id, parentID, rootID, templateID, memo }) {
       node: child, 
       parentID: id,
       rootID,  
-      id: getRandomID(), 
+      id: randomID(), 
       templateID: '',
       memo
     })
@@ -56,6 +56,7 @@ export async function getAffectedInstances (template) {
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}))
 }
 
+// is this never used?
 export async function deleteFutureInstances (template, uid) {
   const snapshot = await getDocs(
     query(

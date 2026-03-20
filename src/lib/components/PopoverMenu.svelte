@@ -1,11 +1,11 @@
 <script>
-  import { getRandomID } from '$lib/utils/core.js'
+  import { randomID } from '$lib/utils/core.js'
 
   let { 
     activator, 
     content,
     ontoggle = () => {},
-    id = getRandomID()
+    id = randomID()
   } = $props()
 
   let menu = $state(null)

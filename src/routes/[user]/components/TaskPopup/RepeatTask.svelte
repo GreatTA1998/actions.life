@@ -4,29 +4,23 @@
   import { user } from '$lib/store'
   import { getContext } from 'svelte'
 
-  const { openTaskPopup } = getContext('app')
+  const { openTaskPopup, familyTree, forgeTemplates } = getContext('app')
 
   let { task } = $props()
   
   let isCreatingRoutine = $state(false)
-
-  function toggleCreate (e) {
-    e.stopPropagation()
-    isCreatingRoutine = !isCreatingRoutine
-  }
 </script>
 
 {#if task.templateID}
-  <button
-    onclick={() => openTaskPopup({ id: task.templateID })}
-    class={['text-[rgb(0,89,125)] rounded flex']}
+  <button onclick={() => openTaskPopup({ id: task.templateID })}
+    class="text-[rgb(0,89,125)]"
   >
     <MslRepeat style="font-size: var(--popup-control)"/>
   </button>
 {:else}
-  <button onclick={toggleCreate} 
+  <button onclick={() => forgeTemplates($familyTree.id, $familyTree)} 
     class={[
-      'text-[rgb(20,20,20)] rounded flex',
+      'text-[rgb(20,20,20)]',
       $user.uid === 'demo-user' && 'text-gray-300 cursor-default'
     ]}
     disabled={$user.uid === 'demo-user'}

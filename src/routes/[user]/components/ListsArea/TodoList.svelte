@@ -2,7 +2,7 @@
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
   import { HEIGHTS, WIDTHS } from '$lib/utils/constants.js'
-  import { getRandomID } from '$lib/utils/core.js'
+  import { randomID } from '$lib/utils/core.js'
   import { getContext, setContext } from 'svelte'
 
   let {
@@ -14,7 +14,7 @@
   } = $props()
 
   const { activateInput } = getContext('popover-input')
-  const anchorID = `--dropzone-root-last-${getRandomID()}`
+  const anchorID = `--dropzone-root-last-${randomID()}`
   
   const scale = $derived(isLargeFont ? 2 : 1)
   const dzRootHeight = $derived(`${(parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE) * scale}rem`)

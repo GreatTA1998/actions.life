@@ -8,7 +8,7 @@
   import TaskCaret from './TaskCaret.svelte'
   import MslCalendarTodayOutline from 'virtual:icons/material-symbols-light/calendar-today-outline'
   import { user } from '$lib/store'
-  import { getRandomColor, getRandomID } from '$lib/utils/core.js'
+  import { getRandomColor, randomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
@@ -28,7 +28,7 @@
     infoBadge
   } = $props()
 
-  const id = getRandomID()
+  const id = randomID()
   let circular = $derived([task.id, ...ancestorIDs].includes($draggedItem.id))
 
   let n = $derived(task.children.length)

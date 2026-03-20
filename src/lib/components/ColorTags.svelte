@@ -5,7 +5,7 @@
   import MslMoreVert from 'virtual:icons/material-symbols-light/more-vert'
   import { deleteColorTag } from '$lib/db/helpers.js'
   import { user } from '$lib/store'
-  import { getRandomID, getRandomColor } from '$lib/utils/core.js'
+  import { randomID, getRandomColor } from '$lib/utils/core.js'
   import { paddingVal } from '$lib/styles/reused.module.css'
 
   let { task } = $props()
@@ -27,7 +27,7 @@
       if (value === '') return
 
       const copy = { ...$user.tags }
-      const id = getRandomID()
+      const id = randomID()
       copy[id] = {
         color: getRandomColor(),
         name: e.target.value

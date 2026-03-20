@@ -1,7 +1,7 @@
 <script>
   import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
   import { trackHeight } from '$lib/utils/svelteActions.js'
-  import { getRandomID } from '$lib/utils/core.js'
+  import { randomID } from '$lib/utils/core.js'
   import { paddingVal, placeholderField, noZoomFS } from '$lib/styles/reused.module.css'
 
   let { 
@@ -9,7 +9,7 @@
     onTimeSelected = () => {}
   } = $props()
 
-  const id = getRandomID()
+  const id = randomID()
 
   let buttonElem = $state(null)
   let scrollContainer = $state(null)

@@ -40,7 +40,7 @@
 ></div>
 
 <script>
-  import { getRandomID } from '$lib/utils/core.js'
+  import { randomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
@@ -61,7 +61,7 @@
     extraStyle = ''
   } = $props()
 
-  const id = getRandomID()
+  const id = randomID()
   let anchorID = $derived(`--dropzone-${id}`)
   let circular = $derived(ancestorIDs.includes($draggedItem.id))
 </script>

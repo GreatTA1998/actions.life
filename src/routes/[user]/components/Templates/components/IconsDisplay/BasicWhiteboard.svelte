@@ -2,7 +2,7 @@
   import { onMount } from 'svelte'
   import { user, doodleIcons } from '$lib/store'
   import MslColorizeOutline from 'virtual:icons/material-symbols-light/colorize-outline'
-  import { getRandomID } from '$lib/utils/core.js'
+  import { randomID } from '$lib/utils/core.js'
   import ColorPicker from './ColorPicker.svelte'
   import { getContext } from 'svelte'
   const { Icon } = getContext('app')
@@ -38,7 +38,7 @@
   function handleSave () {    
     const dataURL = canvas.toDataURL()
     Icon.uploadDataURL({ 
-      id: getRandomID(), 
+      id: randomID(), 
       iconObject: {
         createdBy: $user.uid,
         name,

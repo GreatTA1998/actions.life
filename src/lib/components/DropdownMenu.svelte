@@ -1,33 +1,32 @@
 <script>
-  import { onMount, getContext } from 'svelte'
-  import { page } from '$app/state'
-
-  const { Template } = getContext('app')
+  import { onMount } from 'svelte'
+  import { listenTo } from '$lib/db/helpers.js'
+  import { db } from '$lib/db/init.js'
+  import { user } from '$lib/store'
+  import { query, where, collection } from 'firebase/firestore'
 
   let { 
     taskName = '',
     onSelect = () => {}
   } = $props()
 
-  let searchResults = $state([])
-  let allTemplates = $state(null)
+  let allTemplates = $state([])
 
-  $effect(() => {
-    searchTaskTemplates(taskName)
-  })
-
-  onMount(async () => {
-    const temp = await Template.getAll({ userID: page.params.user, includeStats: false })
-    allTemplates = temp
-  })
-
-  function searchTaskTemplates () {
-    if (allTemplates === null) return
-
-    searchResults = allTemplates.filter(template => 
+  let searchResults = $derived(
+    allTemplates.filter(template => 
       template.name.toLowerCase().includes(taskName.toLowerCase())
     )
-  }
+  )
+
+  onMount(async () => {
+    return listenTo(
+      query(
+        collection(db, `/users/${$user.uid}/templates`),
+        where('parentID', '==', '')
+      ),
+      (newVals) => allTemplates = newVals
+    )
+  })
 </script>
 
 {#if taskName.length >= 0}

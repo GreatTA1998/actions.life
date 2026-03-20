@@ -6,32 +6,30 @@
   import Task from '$lib/db/models/Task.js' // note Task from context is now corrupted by Template
   import { getPreviewSpan, generateRecurrenceDTs } from '$lib/utils/rrule.js'
   import { getAffectedInstances } from './instances.js'
-  import { getRandomID } from '$lib/utils/core.js'
+  import { randomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
 
-  let {
-    routine,
-    isCreating = false
-  } = $props()
+  let { routine } = $props()
 
   let pendingRRStr = $state('')
   let deletingTasks = $state([])
   let addingTasks = $state([])
   let exceptions = $state([])
 
-  $effect(() => reactToRRStr(pendingRRStr))
+  $effect(() => reactTo(pendingRRStr))
 
-  async function reactToRRStr (pendingRRStr) {
-    if (!routine || pendingRRStr === routine.rrStr) return
-
-    const affectedTasks = await getAffectedInstances(routine)
+  async function reactTo (pendingRRStr) {
+    reset()
     
-    resetPreviewStates()
-    for (const task of affectedTasks) {
-      if (isException(task, routine)) exceptions = [...exceptions, task]
-      else deletingTasks = [...deletingTasks, task]
+    if (pendingRRStr === routine.rrStr) return
+    else {
+      const affectedTasks = await getAffectedInstances(routine)
+      for (const task of affectedTasks) {
+        if (isException(task, routine)) exceptions = [...exceptions, task]
+        else deletingTasks = [...deletingTasks, task]
+      }
+      addingTasks = simulateChanges(pendingRRStr)
     }
-    addingTasks = simulateChanges(pendingRRStr)
   }
 
   function simulateChanges (newRRStr) {
@@ -52,27 +50,8 @@
       })
     )
   }
-
-  async function handleCreate () {
-    executeChanges()
-    const previewSpan = getPreviewSpan({ rrStr: pendingRRStr })
-    
-    Template.create({
-      id: routine.id,
-      data: { 
-        ...routine, 
-        rrStr: pendingRRStr,
-        previewSpan,
-        prevEndISO: DateTime.utc().plus({ days: previewSpan }).toFormat('yyyy-MM-dd')
-      }
-    })
-
-    Task.update({ id: routine.id, kvChanges: {
-      templateID: routine.id
-    }})
-  }
   
-  async function handleUpdate () {
+  async function onUpdate () {
     executeChanges()
     const previewSpan = getPreviewSpan({ rrStr: pendingRRStr })
     Template.update({ id: routine.id, kvChanges: { 
@@ -87,9 +66,9 @@
       Task.delete({ id: task.id })
     }
     for (const task of addingTasks) {
-      Task.create({ id: getRandomID(), data: task })
+      Task.create({ id: randomID(), data: task })
     }
-    resetPreviewStates()
+    reset()
   }
 
   // flawed, should also handle changed dates that falls outside of the original schedule
@@ -107,7 +86,7 @@
     return false
   }
 
-  function resetPreviewStates() {
+  function reset () {
     deletingTasks = []
     addingTasks = []
     exceptions = []
@@ -124,19 +103,13 @@
 
   {#if pendingRRStr !== routine.rrStr}
     <div class="grid gap-y-4">
-      {#if !isCreating}
-        <PreviewChanges {pendingRRStr} 
-          {addingTasks} 
-          {deletingTasks} 
-          {exceptions}
-        />
-      {/if}
+      <PreviewChanges {pendingRRStr} 
+        {addingTasks} 
+        {deletingTasks} 
+        {exceptions}
+      />
 
-      {#if isCreating}
-        <RoundButton onclick={handleCreate}>Create routine</RoundButton>
-      {:else}
-        <RoundButton onclick={handleUpdate}>Apply changes</RoundButton>
-      {/if}
+      <RoundButton onclick={onUpdate}>Apply changes</RoundButton>
     </div>
   {/if}
 </div>

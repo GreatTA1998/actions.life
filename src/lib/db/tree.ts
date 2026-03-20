@@ -4,7 +4,7 @@ type Node = {
   orderValue: number
 }
 
-type Tree = Node & { children: Tree[] }
+export type Tree = Node & { children: Tree[] }
 
 export function nodesByParent (docs: Node[]): Record<string, Node[]> {
   const sorted = docs.toSorted((a, b) => a.orderValue - b.orderValue)
