@@ -13,8 +13,13 @@
   let inputActive = $state(false)
   let inputPopover = $state(null)
   let menuPopover = $state(null)
+
   let input = $state(null)
   let value = $state('')
+  let derivedTask = $derived({
+    ...$overrideOptions,
+    name: value
+  })
 
   const overrideOptions = writable({})
   const callback = writable(() => {})
@@ -40,26 +45,26 @@
     }
   }
 
-  function ontoggle (e) {
-    if (e.newState === 'closed') {
-      if (value) createTask(value)
-      setTimeout(() => inputActive = false, 300) // delay necessary for iOS where `ontoggle` resolves before `onclick`
+  async function onPopoverClose () {
+    if (value) {
+      Task.create({ id: randomID(), data: derivedTask })
+      value = '' 
+    }
+    setTimeout(() => inputActive = false, 300) // delay necessary for iOS where `ontoggle` resolves before `onclick`
+  }
+
+  async function onEnter () {
+    if (value === '') inputPopover.hidePopover()
+    else {
+      const result = await Task.create({ id: randomID(), data: derivedTask })
+      $callback(result)
+      value = '' 
     }
   }
 
-  function onSubmit () {
-    if (value === '') inputPopover.hidePopover()
-    else createTask(value)
-  }
-
-  async function createTask (name) {
-    const result = await Task.create({
-      id: randomID(),
-      data: {
-        ...$overrideOptions,
-        name
-      }
-    })
+  async function onTemplateClick (template) {
+    input.focus() // we lost focus clicking the menu item (reminder: must be synchronous)
+    const result = await instantiateTree({ template, modifiers: $overrideOptions })
     $callback(result)
     value = ''
   }
@@ -68,7 +73,8 @@
 {@render children()}
 
 <!-- `overflow-y-hidden` is a Safari quickfix -->
-<div {ontoggle} bind:this={inputPopover} popover="auto" class="bg-transparent overflow-y-hidden"
+<div ontoggle={e => e.newState === 'closed' && onPopoverClose()}
+  bind:this={inputPopover} popover="auto" class="bg-transparent overflow-y-hidden"
   style:position-area="center"
   style:width="anchor-size(width)"
   style:height="anchor-size(height)"
@@ -77,7 +83,7 @@
   <!-- `e.isComposing`: IME (Input Method Editors), we use keydown to avoid the exhaustive solution mentioned here: https://www.stum.de/2016/06/24/handling-ime-events-in-javascript/ -->
   <input bind:this={input} 
     bind:value
-    onkeydown={e => e.key === 'Enter' && !e.isComposing && onSubmit() } 
+    onkeydown={e => e.key === 'Enter' && !e.isComposing && onEnter() } 
     class="w-full h-full rounded [border:2px_solid_#2757cf]"
     style:font-size="clamp({noZoomFS}, 40cqb, 2rem)"
   >
@@ -87,11 +93,7 @@
   >
     <DropdownMenu 
       taskName={value} 
-      onSelect={async (template) => {
-        value = ''
-        onSubmit()
-        return instantiateTree({ template, modifiers: $overrideOptions })
-      }}    
+      onSelect={template => onTemplateClick(template)}    
     />
   </div>
 </div>
