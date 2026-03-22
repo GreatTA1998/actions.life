@@ -1,38 +1,35 @@
 <script>
   import SharePhotoButton from '$lib/components/SharePhotoButton.svelte'
   import PhotoRemove from './PhotoRemove.svelte'
-  import ToggleGroupStyled from '$lib/components/ToggleGroupStyled.svelte'
   import { getContext } from 'svelte'
-
-  import MslSplitscreenLeft from 'virtual:icons/material-symbols-light/splitscreen-left'
-  import MslSplitscreenTop from 'virtual:icons/material-symbols-light/splitscreen-top'
-  import MslFullscreenPortrait from 'virtual:icons/material-symbols-light/fullscreen-portrait'
+  import MslFullscreen from 'virtual:icons/material-symbols-light/fullscreen'
+  import MslFullscreenExit from 'virtual:icons/material-symbols-light/fullscreen-exit'
 
   const { Task } = getContext('app')
 
   let { task } = $props()
 
-  function updateLayout(newVal) {
+  function updateLayout (newVal) {
     Task.update({ id: task.id, kvChanges: { photoLayout: newVal }})
   }
 </script> 
 
-<div>
-  <ToggleGroupStyled>
-    <button onclick={() => updateLayout('side-by-side')} class="toggle-btn" class:active={task.photoLayout === 'side-by-side'}>
-      <MslSplitscreenLeft style="font-size: 1.25rem;"/>
+<div class="flex" style:width="fit-content">
+  {#if task.photoLayout === 'side-by-side'} 
+    <button onclick={() => updateLayout('full-photo')} 
+      class="justify-start py-2 px-3 gap-x-1 text-[#333]"
+    >
+      <MslFullscreen style="font-size: 1.5rem;"/>
     </button>
-    <button onclick={() => updateLayout('top-and-below')} class="toggle-btn" class:active={task.photoLayout === 'top-and-below'}>
-      <MslSplitscreenTop style="font-size: 1.25rem;"/>
+  {:else}
+    <button onclick={() => updateLayout('side-by-side')}
+      class="justify-start py-1 px-2 gap-x-1 text-[#333]"
+    >
+      <MslFullscreenExit style="font-size: 1.5rem;"/>
     </button>
-    <button onclick={() => updateLayout('full-photo')} class="toggle-btn" class:active={task.photoLayout === 'full-photo'}>
-      <MslFullscreenPortrait style="font-size: 1.25rem;"/>
-    </button>
-  </ToggleGroupStyled>
+  {/if}
 
-  <SharePhotoButton 
-    {task}
-  />
-  
+  <SharePhotoButton {task} />
+
   <PhotoRemove {task} />
 </div>

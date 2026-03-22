@@ -30,7 +30,6 @@ const Template = {
     notes: z.string().default(''),
     imageDownloadURL: z.string().default(''),
     iconURL: z.string().default(''),
-    parentID: z.string().default(''),
 
     rrStr: z.string().default(''),
     prevEndISO: z.string().default(''),

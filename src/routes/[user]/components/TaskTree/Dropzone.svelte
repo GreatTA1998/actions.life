@@ -33,7 +33,7 @@
     height: {parentID === '' ? dzRootHeight() : dzSubHeight()}; 
     border-radius: var(--left-padding);
     border: {debug() ? 1 : 0}px solid {debugColor}; 
-    {$bestDropzoneID === id ? (circular ? 'background-color-red;' : dropPreviewCSS ) : ''};
+    {$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS ) : ''}
     {extraStyle};
   "
 ></div>

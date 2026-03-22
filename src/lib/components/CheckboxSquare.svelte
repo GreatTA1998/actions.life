@@ -1,34 +1,15 @@
 <script>
-  export let value
-  export let onClick
-
-  export let label
+  let { value, onClick, label } = $props()
 </script>
 
-<label class="toggle-label">
-  <input 
-    type="checkbox" 
-    class="checkbox" 
+<label class="flex items-center gap-x-2">
+  <input type="checkbox" 
+    class="size-[16px] accent-stone-800" 
     checked={value}
-    on:click|stopPropagation={onClick}
+    onclick={e => {
+      e.stopPropagation();
+      onClick();
+    }}
   >
-  <span class="checkbox-text">{label}</span>
+  <span class="text-sm">{label}</span>
 </label>
-
-<style>
-  .toggle-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-
-  .checkbox {
-    margin-right: 8px;
-    accent-color: #555;
-    cursor: pointer;
-  }
-
-  .checkbox-text {
-    font-size: 0.875rem;
-  }
-</style>
