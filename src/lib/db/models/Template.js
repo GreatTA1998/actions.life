@@ -1,12 +1,12 @@
 import Task from './Task.js'
 import { z } from 'zod'
-import { getAffectedInstances } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
 import { db } from '$lib/db/init.js'
 import { updateFirestoreDoc, 
   deleteFirestoreDoc, 
   releaseImage, 
   getFirestoreCollection,
-  maintainOrderValue
+  maintainOrderValue,
+  getFirestoreQuery,
 } from '$lib/db/helpers.js'
 import { user } from '$lib/store'
 import { 
@@ -15,6 +15,10 @@ import {
   query, where 
 } from 'firebase/firestore'
 import { get } from 'svelte/store'
+import { DateTime } from 'luxon'
+import { nodesByParent } from '$lib/db/tree.ts'
+import { updateCache, tasksCache } from '$lib/store/tasksCache.js'
+import { randomID } from '$lib/utils/core.js'
 
 const Template = {
   schema: z.object({
@@ -76,14 +80,15 @@ const Template = {
 
   async updateItselfAndFutureInstances ({ id, updates }) {
     this.update({ id, updates })
-    const futureInstances = await getAffectedInstances({ id })
+    const futureInstances = await this.getAffectedInstances({ id })
     for (const instance of futureInstances) {
       Task.update({ id: instance.id, kvChanges: updates })
     }
   },
 
   async delete ({ id, imageDownloadURL = '', imageFullPath = '' }) {
-    const futureInstances = await getAffectedInstances({ id })
+    const futureInstances = await this.getAffectedInstances({ id })
+    
     if (futureInstances.length > 0) {
       if (confirm(`There are ${futureInstances.length} future instances of this template. Delete them also?`)) {
         for (const instance of futureInstances) {
@@ -97,6 +102,18 @@ const Template = {
       await releaseImage(uid, { imageDownloadURL, imageFullPath })
     }
     deleteFirestoreDoc(`/users/${uid}/templates/${id}`)
+  },
+
+  async getAffectedInstances (template) {
+    const taskInstances = await getFirestoreQuery(
+      query(
+        collection(db, 'users', get(user).uid, 'tasks'),
+        where('templateID', '==', template.id),
+        where('startDateISO', '>=', DateTime.now().toFormat('yyyy-MM-dd'))
+      )
+    )
+    updateCache(taskInstances) // Task.delete relies on cache, for example
+    return taskInstances
   },
 
   async getAll () {
@@ -116,7 +133,45 @@ const Template = {
       }).then(snapshot => snapshot.data().minutesSpent)
     ])
     return { minutesSpent, timesCompleted: count }
+  },
+
+  // only top-level tasks can be templates i.e. parentID === ''
+  async instantiateTree ({ template, modifiers = {}, idempotentISO = '' }) {
+    const allTemplates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
+    const newTreeID = idempotentISO ? `${template.id}_${idempotentISO}` : randomID()
+    const { parentID } = modifiers
+
+    return helper({ 
+      node: { ...template, ...modifiers }, 
+      parentID: parentID ? parentID : '',
+      rootID: parentID ? get(tasksCache)[parentID].rootID : newTreeID,
+      id: newTreeID,
+      templateID: (typeof template.rrStr === 'string') ? template.id : '',
+      onList: !!modifiers.onList, // `template.onList` doesn't matter, example: calendar task forged into a template, which instantiates onto the list.
+      memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID)),
+    })
   }
+}
+
+async function helper ({ node, id, parentID, rootID, templateID, onList, memo }) {
+  const result = await Task.create({ id, optimistic: false, data: { 
+    ...node, parentID, rootID, templateID, onList
+  }}) 
+  updateCache([result])
+
+  // treeISOs will be maintained by Task.create() as long as `parent` and `tasksCache` are created before children
+  for (const child of memo[node.id]) {
+    helper({ 
+      node: child, 
+      parentID: id,
+      rootID,  
+      id: randomID(), 
+      templateID: '',
+      onList,
+      memo
+    })
+  }
+  return result
 }
 
 export default Template 

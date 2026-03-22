@@ -56,11 +56,9 @@ export async function getFirestoreCollection (path) {
 
 export async function getFirestoreQuery (query) {
   const snapshot = await getDocs(query)
-  const data = []
-  snapshot.forEach((doc) => {
-    data.push({ id: doc.id, path: doc.ref.path, ...doc.data() })
-  })
-  return data
+  return snapshot.docs.map(
+    doc => ({ ...doc.data(), id: doc.id, path: doc.ref.path })
+  )
 }
 
 export async function updateFirestoreDoc (path, updateObject) {

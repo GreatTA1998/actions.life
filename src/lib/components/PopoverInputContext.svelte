@@ -1,6 +1,5 @@
 <script>
   import DropdownMenu from '$lib/components/DropdownMenu.svelte'
-  import { instantiateTree } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
   import { randomID } from '$lib/utils/core'
   import { getContext, setContext } from 'svelte'
   import { writable } from 'svelte/store'
@@ -8,7 +7,7 @@
 
   let { children } = $props()
 
-  const { Task } = getContext('app')
+  const { Task, Template } = getContext('app')
 
   let inputActive = $state(false)
   let inputPopover = $state(null)
@@ -64,7 +63,7 @@
 
   async function onTemplateClick (template) {
     input.focus() // we lost focus clicking the menu item (reminder: must be synchronous)
-    const result = await instantiateTree({ template, modifiers: $overrideOptions })
+    const result = await Template.instantiateTree({ template, modifiers: $overrideOptions })
     $callback(result)
     value = ''
   }

@@ -1,6 +1,5 @@
 <script>
   import { generateRecurrenceDTs } from '$lib/utils/rrule.js'
-  import { instantiateTree } from '/src/routes/[user]/components/Templates/components/TemplatePopup/instances.js'
   import { DateTime } from 'luxon'
   import { getContext, onMount } from 'svelte'
   import { user } from '$lib/store'
@@ -34,7 +33,7 @@
     })
     await Promise.all(
       matchingDTs.map(dt => 
-        instantiateTree({ 
+        Template.instantiateTree({ 
           template,
           modifiers: {
             startDateISO: dt.toFormat('yyyy-MM-dd'),

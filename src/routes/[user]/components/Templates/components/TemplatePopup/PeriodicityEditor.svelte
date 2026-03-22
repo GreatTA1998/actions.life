@@ -1,59 +1,52 @@
 <script>
   import PeriodicityInputs from './PeriodicityInputs.svelte'
-  import PreviewChanges from './PreviewChanges.svelte'
   import RoundButton from '$lib/components/RoundButton.svelte'
   import Template from '$lib/db/models/Template.js'
   import Task from '$lib/db/models/Task.js' // note Task from context is now corrupted by Template
   import { getPreviewSpan, generateRecurrenceDTs } from '$lib/utils/rrule.js'
-  import { getAffectedInstances } from './instances.js'
   import { randomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
+  import { onMount } from 'svelte'
 
   let { routine } = $props()
 
   let pendingRRStr = $state('')
-  let deletingTasks = $state([])
-  let addingTasks = $state([])
-  let exceptions = $state([])
+  let addingISOs = $derived.by(() => simulateChanges(pendingRRStr))
 
-  $effect(() => reactTo(pendingRRStr))
+  let affectedTasks = $state([])
+  let deletingTasks = $derived(affectedTasks.filter(task => !modified(task)))
+  let preservingTasks = $derived(affectedTasks.filter(task => modified(task)))
 
-  async function reactTo (pendingRRStr) {
-    reset()
-    
-    if (pendingRRStr === routine.rrStr) return
-    else {
-      const affectedTasks = await getAffectedInstances(routine)
-      for (const task of affectedTasks) {
-        if (isException(task, routine)) exceptions = [...exceptions, task]
-        else deletingTasks = [...deletingTasks, task]
-      }
-      addingTasks = simulateChanges(pendingRRStr)
-    }
-  }
+  onMount(async () => {
+    affectedTasks = await Template.getAffectedInstances(routine)
+  })
 
-  // TO-DO: fix this
   function simulateChanges (newRRStr) {
     if (!newRRStr) return []
-    const DTs = generateRecurrenceDTs({
+
+    return generateRecurrenceDTs({
       startDT: DateTime.now(),
       endDT: DateTime.now().plus({ days: getPreviewSpan({ rrStr: newRRStr })}),
       rrStr: newRRStr
-    })
-
-    return DTs.map(dt => 
-      Task.schema.parse({
-        ...routine,
-        templateID: routine.id,
-        startDateISO: dt.toFormat('yyyy-MM-dd'),
-        onList: false,
-        parentID: ''
-      })
-    )
+    }).map(dt => dt.toFormat('yyyy-MM-dd'))
   }
   
-  async function onUpdate () {
-    executeChanges()
+  async function applyChanges () {
+    for (const task of deletingTasks) {
+      Task.delete({ id: task.id })
+    }
+
+    for (const iso of addingISOs) {
+      Task.create({
+        id: randomID(),
+        data: {
+          ...routine,
+          templateID: routine.id,
+          startDateISO: iso,
+          onList: false
+        }
+      })
+    }
     const previewSpan = getPreviewSpan({ rrStr: pendingRRStr })
     Template.update({ id: routine.id, kvChanges: { 
       rrStr: pendingRRStr, 
@@ -62,19 +55,9 @@
     }})
   }
 
-  function executeChanges () {
-    for (const task of deletingTasks) {
-      Task.delete({ id: task.id })
-    }
-    for (const task of addingTasks) {
-      Task.create({ id: randomID(), data: task })
-    }
-    reset()
-  }
-
   // flawed, should also handle changed dates that falls outside of the original schedule
   // for example, if it routine repeats MWF, but the task is scheduled for Thursday, it was modified
-  function isException (task, template) {
+  function modified (task, template) {
     if (!task || !template) return false
     
     for (const k of Object.keys(task)) {
@@ -85,12 +68,6 @@
       }
     }
     return false
-  }
-
-  function reset () {
-    deletingTasks = []
-    addingTasks = []
-    exceptions = []
   }
 </script>
 
@@ -103,14 +80,41 @@
   {/key}
 
   {#if pendingRRStr !== routine.rrStr}
-    <div class="grid gap-y-4">
-      <PreviewChanges {pendingRRStr} 
-        {addingTasks} 
-        {deletingTasks} 
-        {exceptions}
-      />
+    <div class="grid gap-y-2">
+      <div class="flex gap-x-4">
+        <div class="flex flex-col gap-1">
+          {#each addingISOs as iso (iso)}
+            {@render item('+', 'text-[#36a76b]', iso)}
+          {/each}
+        </div>
+    
+        <div class="flex flex-col gap-1">
+          {#each deletingTasks as task}   
+            {@render item('-', 'text-[#e53e3e]', task.startDateISO)}
+          {/each}
+        </div>
+    
+        <div class="flex flex-col gap-1">
+          {#each preservingTasks as task}
+            {@render item('=', 'text-[darkblue]', task.startDateISO)}
+          {/each}
+        </div>
+      </div>
+    
+      <div class="text-sm">
+        {getPreviewSpan({ rrStr: pendingRRStr })} day preview
+      </div>
 
-      <RoundButton onclick={onUpdate}>Apply changes</RoundButton>
+      <RoundButton onclick={applyChanges}>Apply changes</RoundButton>
     </div>
   {/if}
 </div>
+
+{#snippet item (symbol, tailwindClass, startDateISO)}
+  <div class={[tailwindClass, 'flex items-center text-xs gap-x-1']}>
+    <span class="min-w-[8px]">{symbol}</span>
+    <span class="font-medium">
+      {DateTime.fromISO(startDateISO).toFormat('MMM d ccc')}
+    </span>
+  </div>
+{/snippet}
