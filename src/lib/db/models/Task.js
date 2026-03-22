@@ -85,7 +85,7 @@ const Task = {
   
     const validatedChanges = Task.schema.partial().parse(kvChanges)
 
-    if (validatedChanges.isDone) playSound('swipe')
+    if (validatedChanges.isDone) playSound('swipe', 0.1)
 
     const batch = writeBatch(db)
 

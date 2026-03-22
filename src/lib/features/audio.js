@@ -7,10 +7,14 @@ const SOUNDS = {
 let ctx = null
 const buffers = {}
 
-export function playSound (name) {
+export function playSound (name, volume = 1) {
   const src = ctx.createBufferSource()
+  const gainNode = ctx.createGain()
+  gainNode.gain.value = volume
+
   src.buffer = buffers[name]
-  src.connect(ctx.destination)
+  src.connect(gainNode)
+  gainNode.connect(ctx.destination)
   src.start(0)
 }
 
