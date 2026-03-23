@@ -13,7 +13,7 @@
 
   <input style:display="none"
     bind:this={FolderInput}
-    onchange={e => handleFileChange(e)} 
+    onchange={e => forgeTasksFromPhotos(e)} 
     multiple
     type="file" 
     accept="image/*" 
@@ -32,7 +32,7 @@
 
   let FolderInput
 
-  async function handleFileChange (e) {
+  async function forgeTasksFromPhotos (e) {
     snackbarState.set({ isVisible: true, message: 'Uploading...', undoAction: null })
 
     for (let image of e.target.files) {
