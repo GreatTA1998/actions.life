@@ -40,7 +40,7 @@
 </script>
 
 <NewBasePopup onExit={closeTaskPopup}>
-  <div class="relative h-full w-screen flex flex-col py-2 px-4 gap-y-6" 
+  <div class="relative w-screen flex flex-col py-2 px-4 gap-y-6" 
     style:max-width="{WIDTHS.PANEL_MAX}px"
   >
     <div class="grid gap-[10px]" style:grid-template-columns="auto 1fr">
