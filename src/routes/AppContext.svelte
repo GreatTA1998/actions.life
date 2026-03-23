@@ -1,7 +1,6 @@
 <script>
   import { setContext } from 'svelte'
   import { 
-    user,
     tasksCache, 
     clickedTaskID, closeTaskPopup, familyTree, openTaskPopup
   } from '$lib/store'
@@ -10,7 +9,6 @@
   import Template from '$lib/db/models/Template.js'
   import Icon from '$lib/db/models/Icon.js'
   import GCalAccount from '$lib/db/models/GCalAccount.js'
-  import { singleUpload } from '$lib/utils/imageHandling.js'
 
   let { children } = $props()
 
@@ -24,18 +22,8 @@
     clickedTaskID,
     familyTree,
     openTaskPopup,
-    closeTaskPopup,
-    uploadImage
+    closeTaskPopup
   })
-
-  async function uploadImage ({ e, task }) {
-    await singleUpload({ 
-      e,
-      task,
-      willCompress: $user.photoCompressWhenAttachingToTask,
-      hasSideEffect: $user.photoUploadAutoArchive
-    })
-  }
 </script>
 
 <div class="z-0 relative">

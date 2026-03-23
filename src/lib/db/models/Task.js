@@ -10,6 +10,7 @@ import {
 import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
 import { playSound } from '$lib/features/audio.js'
+import { randomID } from '$lib/utils/core.js'
 
 const Task = {
   schema: z.object({
@@ -42,7 +43,7 @@ const Task = {
     rootID: z.string() 
   }),
 
-  async create ({ id, data, optimistic = true }) {
+  async create ({ id = randomID(), data, optimistic = true }) {
     const batch = writeBatch(db)
     maintainOrderValue(data, batch)
 
@@ -97,7 +98,7 @@ const Task = {
       doc(db, `users/${get(user).uid}/tasks/${id}`), 
       validatedChanges
     )
-    batch.commit()
+    await batch.commit()
 
     // specifically protect against done tasks disappearing during simple mode
    
@@ -110,6 +111,7 @@ const Task = {
         )
       }
     }
+    return validatedChanges
   },
 
   async delete ({ id }) {

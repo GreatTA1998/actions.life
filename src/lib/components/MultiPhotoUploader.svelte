@@ -21,12 +21,8 @@
 </div>
 
 <script>
-  import exifr from 'exifr'
   import MslPhotoLibrary from 'virtual:icons/material-symbols-light/photo-library'
-  import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-  import { randomID } from '$lib/utils/core.js'
-  import { compressImage } from '$lib/utils/imageHandling.js'
-  import { DateTime } from 'luxon'
+  import { uploadThenGetMetadata } from '$lib/utils/imageHandling.js'
   import { getContext } from 'svelte'
   import { user, snackbarState } from '$lib/store'
 
@@ -35,46 +31,32 @@
   let { style } = $props()
 
   let FolderInput
-  const storage = getStorage()
 
   async function handleFileChange (e) {
     snackbarState.set({ isVisible: true, message: 'Uploading...', undoAction: null })
 
-    const promises = []
-    for (let imageBlobFile of e.target.files) {
-      const id = randomID()
-      if ($user.photoCompressWhenAttachingToTask) {
-        imageBlobFile = await compressImage(imageBlobFile)
-      }
-      promises.push(
-        uploadBytes(ref(storage, `images/${id}`), imageBlobFile)
-          .then(result => forgeTask(imageBlobFile, result.metadata.fullPath, id))
-      )
+    for (let image of e.target.files) {
+      const { 
+        dt, 
+        orientation, 
+        imageFullPath, 
+        imageDownloadURL 
+      } = await uploadThenGetMetadata(image, $user.photoCompressWhenAttachingToTask)
+
+      Task.create({ data: {
+        imageDownloadURL,
+        imageFullPath, // for easy garbage collection
+
+        isDone: true,
+        startDateISO: dt.toFormat('yyyy-MM-dd'),
+        startTime: dt.toFormat('HH:mm'),
+        duration: orientation === 'landscape' ? 106 : 188,
+
+        onList: false,
+        photoLayout: $user.defaultPhotoLayout
+      }})
     }
-    await Promise.all(promises)
 
     snackbarState.set({ isVisible: false, message: '', undoAction: null })
-  }
-
-  async function forgeTask (imageBlobFile, imageFullPath, id) {
-    const [durationForFullPhoto, imageDownloadURL, jsDateOriginal] = await Promise.all([
-      createImageBitmap(imageBlobFile).then(({ width, height }) => width > height ? 106 : 188),
-      getDownloadURL(ref(storage, imageFullPath)),
-      exifr.parse(imageBlobFile).then(exif => exif.DateTimeOriginal)
-    ])
-    
-    const dt = jsDateOriginal ? DateTime.fromJSDate(jsDateOriginal) : DateTime.fromMillis(imageBlobFile.lastModified)
-
-    await Task.create({ id, data: {
-      name: '',
-      imageDownloadURL,
-      imageFullPath, // for easy garbage collection
-      startTime: dt.toFormat('HH:mm'),
-      startDateISO: dt.toFormat('yyyy-MM-dd'),
-      duration: durationForFullPhoto,
-      isDone: true, // so the image has full opacity
-      onList: false,
-      photoLayout: $user.defaultPhotoLayout
-    }})
   }
 </script>
