@@ -105,13 +105,6 @@ export function twoDigits (number) {
   return (number < 10 ? `0${number}` : `${number}`)
 }
 
-export function getTimeInHHMM ({ dateClassObj }) {
-  const d = dateClassObj
-  const hh = ("0" + d.getHours()).slice(-2) 
-  const mm = ("0" + d.getMinutes()).slice(-2)
-  return hh + ":" + mm
-}
-
 export function sortByUnscheduledThenByOrderValue (array) {
   array.sort((a, b) => {
     // first, put all scheduled / grey-out tasks to the bottom

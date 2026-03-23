@@ -1,5 +1,5 @@
 import imageCompression from 'browser-image-compression'
-import { randomID, getTimeInHHMM } from '$lib/utils/core.js'
+import { randomID } from '$lib/utils/core.js'
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { DateTime } from 'luxon'
 import Task from '$lib/db/models/Task.js'
@@ -57,8 +57,9 @@ async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, task, hasS
 
   if (hasSideEffect) {
     if (!task.startDateISO) {
-      updateObj.startDateISO = DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd')
-      updateObj.startTime = getTimeInHHMM({ dateClassObj })
+      const dt = DateTime.fromJSDate(dateClassObj)
+      updateObj.startDateISO = dt.toFormat('yyyy-MM-dd')
+      updateObj.startTime = dt.toFormat('HH:mm')
     }
     updateObj.isDone = true
   }
@@ -88,7 +89,7 @@ export async function compressImage (file) {
     maxWidthOrHeight: 1920, 
     useWebWorker: true,     // Use web worker for performance
     quality: 0.8,          // JPEG quality (0.1 - 1.0)
-    preserveExif: false,   // Remove EXIF for smaller size
+    preserveExif: true, 
   }
   
   try {
