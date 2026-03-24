@@ -1,5 +1,5 @@
 <script>
-  import { activeView } from '$lib/store'
+  import { activeView, user } from '$lib/store'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
   import MsHouseOutline from 'virtual:icons/material-symbols/house-outline'
   import MsPhotoCameraBackOutline from 'virtual:icons/material-symbols/photo-camera-back-outline'
@@ -22,7 +22,11 @@
 
 <div class="floating-navbar {position}">
   <button onclick={() => to('SETTINGS')} class="logo" class:active={$activeView === 'SETTINGS'}>
-    <img src="/logo-no-bg.png" class="logo-img" />
+    {#if $user.unread || true}
+      <img src="/leaf-2-no-bg.avif" class="size-[40px]" />
+    {:else}
+      <img src="/logo-no-bg.png" class="size-[28px]" />
+    {/if}
   </button>
 
   <button onclick={onCalClick} class:active={$activeView === 'CALENDAR'}>
