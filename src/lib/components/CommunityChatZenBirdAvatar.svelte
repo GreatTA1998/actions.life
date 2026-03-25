@@ -10,7 +10,7 @@
   } = $props()
 
   let sizeClass = $derived(
-    size === 'sm' ? 'size-6 shrink-0' : 'size-9 shrink-0'
+    size === 'sm' ? 'size-6 shrink-0' : 'size-11 shrink-0'
   )
 
   let imgPadClass = $derived(size === 'sm' ? 'p-px' : 'p-0.5')
