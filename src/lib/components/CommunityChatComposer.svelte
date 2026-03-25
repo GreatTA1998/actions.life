@@ -23,10 +23,9 @@
       class="max-h-28 min-h-[2.5rem] w-0 min-w-0 flex-1 resize-none border-0 bg-transparent px-2 py-2.5 text-sm leading-5 text-neutral-800 outline-none placeholder:text-neutral-400"
     ></textarea>
 
-    <button
+    <button onclick={onSend}
       class="justify-center rounded-md size-6 bg-neutral-900 text-white disabled:opacity-40"
       disabled={!value.trim()}
-      onclick={onSend}
     >
       <MslSend style="font-size: 1rem" />
     </button>

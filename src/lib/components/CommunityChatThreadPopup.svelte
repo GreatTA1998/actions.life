@@ -3,6 +3,7 @@
   import CommunityChatThreadPopup from './CommunityChatThreadPopup.svelte'
   import CommunityChatMessageRow from './CommunityChatMessageRow.svelte'
   import CommunityChatComposer from './CommunityChatComposer.svelte'
+  import { replyParticipantUidsForParent } from '$lib/utils/communityChatDisplay.js'
 
   let {
     anchorEl,
@@ -113,9 +114,15 @@
             message={r}
             lineClamp={2}
             replyCount={replyCountFor(r.id)}
+            replyParticipantUids={replyParticipantUidsForParent(messages, r.id)}
             onThreadClick={(e) => {
-              nestedParentId = r.id
-              nestedAnchorEl = e.currentTarget
+              if (nestedParentId === r.id) {
+                nestedParentId = null
+                nestedAnchorEl = null
+              } else {
+                nestedParentId = r.id
+                nestedAnchorEl = e.currentTarget
+              }
             }}
           />
         {/each}

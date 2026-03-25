@@ -7,7 +7,6 @@ const ANONYMOUS_SPECIES = [
   'mallard',
   'wren',
   'heron',
-  'swallow',
   'canary',
   'hummingbird'
 ]
@@ -19,13 +18,31 @@ export function randomAnonymousNickname () {
   return `Anonymous ${speciesLabel}`
 }
 
+/** Relative time from now, e.g. "10 minutes ago", "1 hour ago" (Luxon `toRelative`). */
 export function formatChatTimestamp (ms) {
   const dt = DateTime.fromMillis(ms)
   const now = DateTime.now()
-  if (dt.hasSame(now, 'day')) return dt.toFormat('h:mm a')
-  if (dt.hasSame(now, 'week')) return dt.toFormat('ccc · h:mm a')
-  if (dt.hasSame(now, 'year')) return dt.toFormat('MMM d')
-  return dt.toFormat('MMM d, yyyy')
+  return dt.toRelative({ base: now }) ?? dt.toFormat('MMM d, yyyy')
+}
+
+/**
+ * Distinct replier uids under `parentId`, newest reply first (for Slack-style stacked mini-avatars).
+ * @param {{ parentID: string | null, uid: string, serverTimestamp: number }[]} messages
+ * @param {string} parentId
+ * @param {number} [max]
+ */
+export function replyParticipantUidsForParent (messages, parentId, max = 3) {
+  const replies = messages.filter(m => m.parentID === parentId)
+  replies.sort((a, b) => b.serverTimestamp - a.serverTimestamp)
+  const seen = new Set()
+  const uids = []
+  for (const r of replies) {
+    if (seen.has(r.uid)) continue
+    seen.add(r.uid)
+    uids.push(r.uid)
+    if (uids.length >= max) break
+  }
+  return uids
 }
 
 /** Stable hue 0–360 for avatar background */
@@ -37,7 +54,7 @@ export function chatAvatarHue (uid) {
 
 /** Stable 0–9 index for zen-bird CSS filter presets */
 export function chatAvatarVariant (uid) {
-  return chatAvatarHue(uid) % 10
+  return chatAvatarHue(uid) % 6
 }
 
 export function chatInitials (name) {

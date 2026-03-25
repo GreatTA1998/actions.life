@@ -2,26 +2,25 @@
   import CommunityChatThreadPopup from './CommunityChatThreadPopup.svelte'
   import CommunityChatMessageRow from './CommunityChatMessageRow.svelte'
   import CommunityChatComposer from './CommunityChatComposer.svelte'
-  import { randomAnonymousNickname } from '$lib/utils/communityChatDisplay.js'
-  import { onMount } from 'svelte'
-  import { db } from '$lib/db/init.js'
-  import { getCountFromServer, query, collection } from 'firebase/firestore'
-
+  import {
+    randomAnonymousNickname,
+    replyParticipantUidsForParent
+  } from '$lib/utils/communityChatDisplay.js'
+  
   const demoUid = 'proto-user'
   const demoNickname = 'You'
-
-  let userCount = $state(0)
-  
-  onMount(async () => {
-    console.log('running')
-    userCount = await getCountFromServer(query(collection(db, '/users'))).then(snapshot => snapshot.data().count)
-  })
 
   /** @type {{ id: string, content: string, parentID: string | null, uid: string, nickname: string, serverTimestamp: number }[]} */
   let messages = $state([
     {
       id: 'm1',
-      content: 'Welcome to community chat (prototype). Threads are recursive — open any message to see replies and add your own.',
+      content: `[IMPORTANT] beta.actions.life has newer improvements, but it also has undergone less testing, so has higher risk of bugs.
+        If you want less frequent updates and more predictability, use the stable version: actions.life. Next week's beta update: 
+          - Typing and exiting the calendar input will save the task
+          - Tapping on the calendar is also subject to calendar snapping
+          - Tasks with sub-tasks can be made into a routine too
+          - Xiaomi and Android devices in general will also have the original date and time of photos imprinted on tasks
+      `,
       parentID: null,
       uid: 'sys',
       nickname: randomAnonymousNickname(),
@@ -94,9 +93,8 @@
   }
 </script>
 
-<div class="settings-group flex flex-col gap-3">
-  <div class="title">Community Support</div>
-  <p>{userCount} active users</p>
+<div class="flex flex-col gap-3">
+  <h2 class="text-lg font-semibold">Community Support</h2>
 
   <div
     class="overflow-hidden rounded-xl border border-neutral-200/90 bg-neutral-50/90 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
@@ -107,9 +105,13 @@
           message={m}
           lineClamp={2}
           replyCount={directReplyCount(m.id)}
+          replyParticipantUids={replyParticipantUidsForParent(messages, m.id)}
           onThreadClick={(e) => {
-            openThreadId = m.id
-            threadAnchorEl = e.currentTarget
+            if (openThreadId === m.id) closeThread()
+            else {
+              openThreadId = m.id
+              threadAnchorEl = e.currentTarget
+            }
           }}
         />
       {/each}
@@ -118,7 +120,6 @@
     <CommunityChatComposer
       bind:value={rootDraft}
       onSend={sendRoot}
-      sendLabel="Send message"
     />
   </div>
 </div>
