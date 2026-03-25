@@ -24,7 +24,7 @@
     ></textarea>
 
     <button onclick={onSend}
-      class="justify-center rounded-md size-6 bg-neutral-900 text-white disabled:opacity-40"
+      class="justify-center rounded-md size-6 bg-neutral-900 text-white disabled:opacity-40 cursor-default"
       disabled={!value.trim()}
     >
       <MslSend style="font-size: 1rem" />
