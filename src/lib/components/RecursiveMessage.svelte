@@ -93,53 +93,51 @@
 
     <div class="flex items-center py-0 gap-x-2">
       {#if (isTruncated || expanded)}
-      <button onclick={() => expanded = !expanded}
-        class="border-0 bg-transparent p-0 text-sm font-medium text-neutral-600 underline decoration-neutral-400/80 underline-offset-2"
-      >
-        {expanded ? 'See less' : 'See more'}
-      </button>
-    {/if}
-
-      {#if (expanded || !isTruncated)}
-        <span class="text-sm font-semibold text-neutral-600">
-          {message.nickname}
-        </span>
-        <time class="text-sm text-neutral-600">
-          {time}
-        </time>
-
-        <button
-          popovertarget={popoverID}
-          popovertargetaction="toggle"
-          style:anchor-name={anchorName}
-          class="inline-flex items-center gap-x-3 rounded-md border-0 py-0 text-sm font-normal text-neutral-600 transition-colors"
+        <button onclick={() => expanded = !expanded}
+          class="border-0 bg-transparent p-0 text-sm font-medium text-neutral-600 underline decoration-neutral-400/80 underline-offset-2"
         >
-          {#if replies.length > 0}
-            <div class="flex gap-x-1 items-center">
-              <span class="flex shrink-0 -space-x-1.5 items-center">
-                {#each participantUids as uid, i (uid)}
-                  <span class="relative inline-flex" style="z-index: {3 - i}">
-                    <CommunityChatZenBirdAvatar
-                      {uid}
-                      size="sm"
-                      class="ring-2 ring-neutral-100"
-                    />
-                  </span>
-                {/each}
-              </span>
-              {replies.length} 
-              {replies.length === 1 ? 'reply' : 'replies'}
-            </div>
-          {/if}
-
-          {#if replies.length === 0}
-            <div class="flex gap-x-0.5 items-center text-neutral-600">
-              <IcBaselineReply style="font-size: 0.875rem"/>
-              <span class="text-sm">reply</span>
-            </div>
-          {/if}
+          {expanded ? 'See less' : 'See more'}
         </button>
       {/if}
+
+      <span class="text-sm font-semibold text-neutral-600">
+        {message.nickname}
+      </span>
+      <time class="text-sm text-neutral-600">
+        {time}
+      </time>
+
+      <button
+        popovertarget={popoverID}
+        popovertargetaction="toggle"
+        style:anchor-name={anchorName}
+        class="inline-flex items-center gap-x-3 rounded-md border-0 py-0 text-sm font-normal text-neutral-600 transition-colors"
+      >
+        {#if replies.length > 0}
+          <div class="flex gap-x-1 items-center">
+            <span class="flex shrink-0 -space-x-1.5 items-center">
+              {#each participantUids as uid, i (uid)}
+                <span class="relative inline-flex" style="z-index: {3 - i}">
+                  <CommunityChatZenBirdAvatar
+                    {uid}
+                    size="sm"
+                    class="ring-2 ring-neutral-100"
+                  />
+                </span>
+              {/each}
+            </span>
+            {replies.length} 
+            {replies.length === 1 ? 'reply' : 'replies'}
+          </div>
+        {/if}
+
+        {#if replies.length === 0}
+          <div class="flex gap-x-0.5 items-center text-neutral-600">
+            <IcBaselineReply style="font-size: 0.875rem"/>
+            <span class="text-sm">reply</span>
+          </div>
+        {/if}
+      </button>
     </div>
   </div>
 </article>
