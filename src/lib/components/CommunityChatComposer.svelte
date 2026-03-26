@@ -1,11 +1,31 @@
 <script>
   import MslSend from 'virtual:icons/material-symbols-light/send'
   import TextArea from '$lib/components/TextArea.svelte'
+  import { user } from '$lib/store'
+  import { getContext} from 'svelte'
+  import { randomAnonymousNickname } from '$lib/utils/communityChatDisplay.js'
 
   let {
-    value = $bindable(''),
-    onSend = () => {},
+    parentID = ''
   } = $props()
+
+  const { User, Message } = getContext('app')
+
+  let value = $state('')
+
+  async function sendMessage () {
+    if (!$user.nickname) {
+      await User.update({ nickname: randomAnonymousNickname() }) 
+      // no need for await tick(), latency compensation magic
+    }  
+    await Message.create({
+      parentID,
+      nickname: $user.nickname,
+      content: value.trim(),
+      uid: $user.uid,
+    })
+    value = ''
+  }
 </script>
 
 <div class="p-2">
@@ -14,7 +34,7 @@
       class="min-h-[1rem]"
     />
 
-    <button onclick={onSend}
+    <button onclick={sendMessage}
       class="justify-center rounded-md px-0.5 bg-neutral-900 text-white disabled:opacity-40 cursor-default"
       disabled={!value.trim()}
     >

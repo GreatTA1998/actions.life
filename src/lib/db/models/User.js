@@ -26,6 +26,7 @@ const User = {
 
     hideRoutines: z.boolean().default(true), // for mobile's future view
     lastRanRoutines: z.string().default(''), // for autoExtend.js
+    nickname: z.string().default(''),
 
     // needed temporarily for backwards compatibility
     hasGridlines: z.boolean().default(true),
@@ -45,13 +46,8 @@ const User = {
 
   async update (kvChanges) {
     const { uid } = get(user)
-    try {
-      const validatedChanges = User.schema.partial().parse(kvChanges)
-      await updateFirestoreDoc(`/users/${uid}`, validatedChanges)
-    } catch (error) {
-      console.error("error in User.update", error)
-      alert(`Error calling User.update: ${error.message}`)
-    }
+    const validatedChanges = User.schema.partial().parse(kvChanges)
+    return updateFirestoreDoc(`/users/${uid}`, validatedChanges) 
   }
 }
 

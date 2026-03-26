@@ -26,7 +26,6 @@
   let replies = $state([])
   let replyPopover = $state(/** @type {HTMLElement | null} */ (null))
   let repliesOpen = $state(false)
-  let replyDraft = $state('')
 
   const popoverID = `replies-${getRandomID()}`
   const anchorName = `--anchor-${popoverID}`
@@ -49,15 +48,6 @@
 
   function onPopoverToggle (e) {
     repliesOpen = e.newState === 'open'
-  }
-
-  async function sendReply () {
-    await Message.create({
-      content: replyDraft.trim(),
-      parentID: message.id,
-      uid: $user.uid,
-      nickname: randomAnonymousNickname()
-    })
   }
 
   $effect(() => {
@@ -165,8 +155,7 @@
     </div>
 
     <CommunityChatComposer
-      bind:value={replyDraft}
-      onSend={sendReply}
+      parentID={message.id}
     />
   </div>
 </div>

@@ -8,6 +8,7 @@
   import Task from '$lib/db/models/Task.js'
   import User from '$lib/db/models/User.js'
   import Template from '$lib/db/models/Template.js'
+  import Message from '$lib/db/models/Message.js'
   import GCalAccount from '$lib/db/models/GCalAccount.js'
   import { singleUpload } from '$lib/utils/imageHandling.js'
 
@@ -17,6 +18,7 @@
     User, 
     Task, 
     Template,
+    Message,
     GCalAccount,
     tasksCache,
     clickedTaskID,
