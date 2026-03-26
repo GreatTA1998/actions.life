@@ -7,7 +7,6 @@
   import Message from '$lib/db/models/Message.js'
   import CommunityChatZenBirdAvatar from './CommunityChatZenBirdAvatar.svelte'
   import CommunityChatComposer from './CommunityChatComposer.svelte'
-  import MsReply from 'virtual:icons/material-symbols/reply'
   import IcBaselineReply from 'virtual:icons/ic/baseline-reply'
 
   let {
@@ -168,7 +167,6 @@
     <CommunityChatComposer
       bind:value={replyDraft}
       onSend={sendReply}
-      as="footer"
     />
   </div>
 </div>
