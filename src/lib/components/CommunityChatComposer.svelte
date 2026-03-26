@@ -28,7 +28,7 @@
   }
 </script>
 
-<div class="max-w-full p-2">
+<div class="p-2">
   <div class="flex items-end py-1 px-1 rounded-lg bg-white ring-1 ring-neutral-200/80">
     <TextArea {value} oninput={e => value = e.target.value}
       class="min-h-[1rem]"

@@ -120,7 +120,7 @@
         {/snippet}
 
         {#snippet content ()}
-          <div class="flex flex-col" style="width: {300 - (depth * 48)}px;">
+          <div class="flex flex-col" style="width: {300 - (depth * 60)}px;">
             <div class="min-h-0 flex-1 overflow-y-auto divide-y divide-neutral-100/90">
               {#each replies as reply (reply.id)}
                 {#if !childAncestorIDs.includes(reply.id)}
