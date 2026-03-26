@@ -87,7 +87,7 @@
           <button 
             popovertarget={id}
             style:anchor-name={anchorName}
-            class="shrink-0 inline-flex items-center gap-x-3 rounded-md border-0 py-0 text-sm font-normal text-neutral-600 transition-colors"
+            class="ml-auto shrink-0 gap-x-3 rounded-md border-0 py-0 text-sm font-normal text-neutral-600 transition-colors"
           >
             {#if replies.length > 0}
               <div class="flex gap-x-1 items-center">
