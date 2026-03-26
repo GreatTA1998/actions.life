@@ -22,9 +22,9 @@
 
 <div class="settings-container"> 
   <div class="settings-content">
-    <CommunityChat />
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+      <CommunityChat />
 
-    <div style="flex: 1; display: flex; flex-direction: column; gap: 24px;">
       <div class="settings-group" style="display: flex; flex-direction: column; row-gap: 12px;">
         <div style="display: flex; column-gap: 12px; align-items: center;">
           <div class="title">App</div>
@@ -88,7 +88,6 @@
   }
 
   .settings-group {
-    border-radius: 12px;
     padding: 16px;
     background: var(--navbar-bg-color);
   }
@@ -101,7 +100,6 @@
   .settings-content {
     display: flex;
     flex-direction: row;
-    padding: 24px;
     gap: 80px;
     max-width: 1400px;
     margin: 0 auto;
