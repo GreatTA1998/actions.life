@@ -1,7 +1,7 @@
 <script>
   import Message from '$lib/db/models/Message.js'
   import RecursiveMessage from './RecursiveMessage.svelte'
-  import CommunityChatComposer from './CommunityChatComposer.svelte'
+  import CommunityChatComposer from './NewMessage.svelte'
 
   let roots = $state([])
 

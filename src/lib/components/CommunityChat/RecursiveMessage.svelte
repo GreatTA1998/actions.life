@@ -1,12 +1,12 @@
 <script>
-  import { onMount } from 'svelte'
-  import RecursiveMessage from './RecursiveMessage.svelte'
-  import { formatChatTimestamp } from '$lib/utils/communityChatDisplay.js'
+  import RecursiveMessage from '$lib/components/CommunityChat/RecursiveMessage.svelte'
   import Message from '$lib/db/models/Message.js'
-  import CommunityChatZenBirdAvatar from './CommunityChatZenBirdAvatar.svelte'
-  import CommunityChatComposer from './CommunityChatComposer.svelte'
+  import CommunityChatZenBirdAvatar from './ZenBirdAvatar.svelte'
+  import CommunityChatComposer from './NewMessage.svelte'
   import IcBaselineReply from 'virtual:icons/ic/baseline-reply'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
+  import { DateTime } from 'luxon'
+  import { onMount } from 'svelte'
 
   let {
     message,
@@ -16,7 +16,9 @@
   } = $props()
 
   const lineClamp = 2
-  let time = $derived(formatChatTimestamp(message.serverTimestamp))
+  let time = $derived(
+    DateTime.fromMillis(message.serverTimestamp).toRelative({ base: DateTime.now() })
+  )
   let childAncestorIDs = $derived([...ancestorIDs, message.id])
 
   let bodyEl = $state(/** @type {HTMLParagraphElement | null} */ (null))
@@ -26,14 +28,6 @@
   let participantUids = $derived([...new Set(replies.map(r => r.uid))].slice(-5))
 
   onMount(() => Message.listenByParent(message.id, newVals => replies = newVals))
-
-  function updateTruncation () {
-    if (!bodyEl || !lineClamp || expanded) {
-      isTruncated = false
-      return
-    }
-    isTruncated = bodyEl.scrollHeight > bodyEl.clientHeight // if in the future this fails for Safari, use `+1`
-  }
 
   $effect(() => {
     void message.content
@@ -49,6 +43,14 @@
     ro.observe(bodyEl)
     return () => ro.disconnect()
   })
+
+  function updateTruncation () {
+    if (!bodyEl || !lineClamp || expanded) {
+      isTruncated = false
+      return
+    }
+    isTruncated = bodyEl.scrollHeight > bodyEl.clientHeight // if in the future this fails for Safari, use `+1`
+  }
 </script>
 
 <article class="flex w-full gap-3 p-3 text-left {className}">

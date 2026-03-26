@@ -1,5 +1,3 @@
-import { DateTime } from 'luxon'
-
 export const AVATAR_FILTERS = [
   'hue-rotate(0deg) saturate(0.9) brightness(1.08)',
   'hue-rotate(24deg) saturate(1.18) brightness(0.98)',
@@ -31,11 +29,4 @@ export function randomAnonymousNickname () {
   const species = ANONYMOUS_SPECIES[Math.floor(Math.random() * ANONYMOUS_SPECIES.length)]
   const speciesLabel = species.charAt(0).toUpperCase() + species.slice(1)
   return `Anonymous ${speciesLabel}`
-}
-
-/** Relative time from now, e.g. "10 minutes ago", "1 hour ago" (Luxon `toRelative`). */
-export function formatChatTimestamp (ms) {
-  const dt = DateTime.fromMillis(ms)
-  const now = DateTime.now()
-  return dt.toRelative({ base: now }) ?? dt.toFormat('MMM d, yyyy')
 }

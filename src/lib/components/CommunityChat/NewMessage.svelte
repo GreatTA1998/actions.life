@@ -3,11 +3,9 @@
   import TextArea from '$lib/components/TextArea.svelte'
   import { user } from '$lib/store'
   import { getContext} from 'svelte'
-  import { randomAnonymousNickname, randomAvatarFilter } from '$lib/utils/communityChatDisplay.js'
+  import { randomAnonymousNickname, randomAvatarFilter } from '$lib/components/CommunityChat/nicknameAndAvatar.js'
 
-  let {
-    parentID = ''
-  } = $props()
+  let { parentID = '' } = $props()
 
   const { User, Message } = getContext('app')
 
@@ -38,7 +36,7 @@
       uid: $user.uid,
     })
     value = ''
-  }
+  }  
 </script>
 
 <div class="p-2">

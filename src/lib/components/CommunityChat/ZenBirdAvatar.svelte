@@ -2,7 +2,7 @@
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import {
     AVATAR_FILTERS
-  } from '$lib/utils/communityChatDisplay.js'
+  } from '$lib/components/CommunityChat/nicknameAndAvatar.js'
 
   let {
     avatarFilter = AVATAR_FILTERS[0],

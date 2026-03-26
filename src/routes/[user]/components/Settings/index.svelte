@@ -1,5 +1,5 @@
 <script>
-  import CommunityChat from '$lib/components/CommunityChat.svelte'
+  import CommunityChat from '$lib/components/CommunityChat/index.svelte'
   import ModeSettings from './ModeSettings.svelte'
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
