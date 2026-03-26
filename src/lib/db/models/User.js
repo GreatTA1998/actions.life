@@ -27,6 +27,7 @@ const User = {
     hideRoutines: z.boolean().default(true), // for mobile's future view
     lastRanRoutines: z.string().default(''), // for autoExtend.js
     nickname: z.string().default(''),
+    avatarFilter: z.string().default(''),
 
     // needed temporarily for backwards compatibility
     hasGridlines: z.boolean().default(true),

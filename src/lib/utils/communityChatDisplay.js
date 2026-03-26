@@ -1,5 +1,15 @@
 import { DateTime } from 'luxon'
 
+export const AVATAR_FILTERS = [
+  'hue-rotate(0deg) saturate(0.9) brightness(1.08)',
+  'hue-rotate(24deg) saturate(1.18) brightness(0.98)',
+  'hue-rotate(48deg) saturate(1.22) brightness(1.0)',
+  'hue-rotate(96deg) saturate(1.04) brightness(1.09)',
+  'hue-rotate(136deg) saturate(1.1) brightness(1.03)',
+  'hue-rotate(192deg) saturate(1.06) brightness(1.06)',
+  'hue-rotate(336deg) saturate(0.88) brightness(1.0)',
+]
+
 const ANONYMOUS_SPECIES = [
   'sparrow',
   'bluebird',
@@ -10,6 +20,11 @@ const ANONYMOUS_SPECIES = [
   'canary',
   'hummingbird'
 ]
+
+export function randomAvatarFilter () {
+  const i = Math.floor(Math.random() * AVATAR_FILTERS.length)
+  return AVATAR_FILTERS[i]
+}
 
 /** Random display name: `Anonymous` + one capitalized bird species (e.g. `Anonymous Finch`). */
 export function randomAnonymousNickname () {
@@ -23,42 +38,4 @@ export function formatChatTimestamp (ms) {
   const dt = DateTime.fromMillis(ms)
   const now = DateTime.now()
   return dt.toRelative({ base: now }) ?? dt.toFormat('MMM d, yyyy')
-}
-
-/**
- * Distinct replier uids under `parentId`, newest reply first (for Slack-style stacked mini-avatars).
- * @param {{ parentID: string | null, uid: string, serverTimestamp: number }[]} messages
- * @param {string} parentId
- * @param {number} [max]
- */
-export function replyParticipantUidsForParent (messages, parentId, max = 3) {
-  const replies = messages.filter(m => m.parentID === parentId)
-  replies.sort((a, b) => b.serverTimestamp - a.serverTimestamp)
-  const seen = new Set()
-  const uids = []
-  for (const r of replies) {
-    if (seen.has(r.uid)) continue
-    seen.add(r.uid)
-    uids.push(r.uid)
-    if (uids.length >= max) break
-  }
-  return uids
-}
-
-/** Stable hue 0–360 for avatar background */
-export function chatAvatarHue (uid) {
-  let h = 0
-  for (let i = 0; i < uid.length; i++) h = (h + uid.charCodeAt(i) * (i + 1)) % 360
-  return h
-}
-
-/** Stable 0–9 index for zen-bird CSS filter presets */
-export function chatAvatarVariant (uid) {
-  return chatAvatarHue(uid) % 6
-}
-
-export function chatInitials (name) {
-  const p = name.trim().split(/\s+/).filter(Boolean)
-  if (p.length >= 2) return (p[0][0] + p[1][0]).toUpperCase().slice(0, 2)
-  return name.slice(0, 2).toUpperCase()
 }

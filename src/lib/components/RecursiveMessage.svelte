@@ -52,7 +52,7 @@
 </script>
 
 <article class="flex w-full gap-3 p-3 text-left {className}">
-  <CommunityChatZenBirdAvatar uid={message.uid} />
+  <CommunityChatZenBirdAvatar avatarFilter={message.avatarFilter} />
 
   <div class="min-w-0 flex-1 flex flex-col">
     <p
@@ -96,6 +96,7 @@
                     <span class="relative inline-flex" style="z-index: {3 - i}">
                       <CommunityChatZenBirdAvatar 
                         {uid}
+                        avatarFilter={replies.find(r => r.uid === uid)?.avatarFilter}
                         size="sm"
                         class="ring-2 ring-neutral-100"
                       />

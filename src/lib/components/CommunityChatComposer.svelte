@@ -3,7 +3,7 @@
   import TextArea from '$lib/components/TextArea.svelte'
   import { user } from '$lib/store'
   import { getContext} from 'svelte'
-  import { randomAnonymousNickname } from '$lib/utils/communityChatDisplay.js'
+  import { randomAnonymousNickname, randomAvatarFilter } from '$lib/utils/communityChatDisplay.js'
 
   let {
     parentID = ''
@@ -14,13 +14,26 @@
   let value = $state('')
 
   async function sendMessage () {
-    if (!$user.nickname) {
-      await User.update({ nickname: randomAnonymousNickname() }) 
-      // no need for await tick(), latency compensation magic
-    }  
+    let nickname = $user.nickname
+    let avatarFilter = $user.avatarFilter
+
+    const profileUpdates = {}
+    if (!nickname) {
+      nickname = randomAnonymousNickname()
+      profileUpdates.nickname = nickname
+    }
+    if (!avatarFilter) {
+      avatarFilter = randomAvatarFilter()
+      profileUpdates.avatarFilter = avatarFilter
+    }
+    if (Object.keys(profileUpdates).length > 0) {
+      await User.update(profileUpdates)
+    }
+
     await Message.create({
       parentID,
-      nickname: $user.nickname,
+      nickname,
+      avatarFilter,
       content: value.trim(),
       uid: $user.uid,
     })

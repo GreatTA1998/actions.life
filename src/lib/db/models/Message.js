@@ -8,15 +8,17 @@ const Message = {
     parentID: z.string().default(''),
     uid: z.string().min(1),
     nickname: z.string().trim().min(1),
+    avatarFilter: z.string().trim().min(1),
     serverTimestamp: z.number().int().positive()
   }),
 
-  create: async ({ content, parentID = '', uid, nickname }) => {
+  create: async ({ content, parentID = '', uid, nickname, avatarFilter }) => {
     const payload = Message.schema.parse({
       content,
       parentID,
       uid,
       nickname,
+      avatarFilter,
       serverTimestamp: Date.now()
     })
     await addDoc(collection(db, 'messages'), payload)
