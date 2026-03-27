@@ -1,35 +1,16 @@
 import { tasksCache, user } from '$lib/store'
 import { get } from 'svelte/store'
-import { db } from '$lib/db/init'
+import { db } from '$lib/db/init.js'
 import { getFirestoreDoc } from '$lib/db/helpers.js'
 import { doc, collection, getDocs, query, where } from 'firebase/firestore'
 
-export async function maintainTreeISOsForCreate ({ task, batch }) {
-  if (task.parentID) {
-    const parent = get(tasksCache)[task.parentID]
-
-    if (task.startDateISO) {
-      const root = await getRoot(parent)
-      const nodes = await getSubtreeNodes(root)
-      const result = batchUpdate({ 
-        nodes, 
-        rootID: root.id,
-        treeISOs: [...parent.treeISOs, task.startDateISO],
-        batch
-      })
-      return result
-    }
-    else {
-      return [...parent.treeISOs]
-    }
-  }
-
-  else {
-    return task.startDateISO ? [task.startDateISO] : []
-  }
+export async function updateEntireTree ({ treeISOs, batch, parent }) {
+  const root = await getRoot(parent)
+  const nodes = await getSubtreeNodes(root)
+  batchUpdate({ nodes, batch, treeISOs })
 }
 
-export async function maintainTreeISOs ({ id, batch, keyValueChanges: changes }) {
+export async function maintainTreeISOs ({ id, batch, kvChanges: changes }) {
   const task = get(tasksCache)[id]
   const crossFamily = await hasChangedFamily({ task, changes })
   if (crossFamily) {
@@ -41,19 +22,15 @@ export async function maintainTreeISOs ({ id, batch, keyValueChanges: changes })
 }
 
 async function hasChangedFamily ({ task, changes }) {
-  const { parentID } = changes
-  const parentChanged = (parentID !== undefined && parentID !== task.parentID)
-  
-  let rootChanged = false
-  if (parentChanged) {
+  if (changes.parentID === undefined) return false
+  else if (changes.parentID === task.parentID) return false
+  else {
     const [oldRoot, newRoot] = await Promise.all([
       getRoot(task),
-      getRoot(get(tasksCache)[parentID])
+      getRoot(get(tasksCache)[changes.parentID])
     ])
-    rootChanged = oldRoot !== newRoot
+    return oldRoot !== newRoot
   }
-  
-  return parentChanged && rootChanged
 }
 
 export async function handleCrossTree ({ task, changes, batch }) {
@@ -94,10 +71,9 @@ export async function handleCrossTree ({ task, changes, batch }) {
 }
 
 export async function handleSameTree ({ task, changes, batch }) {
-  if (!task.treeISOs) alert('This task has no treeISOs so operations will fail!')
   const root = await getRoot(task)
   const treeNodes = await getSubtreeNodes(root)
-  const result = batchUpdate({ 
+  batchUpdate({ 
     nodes: treeNodes,
     treeISOs: correctTreeISOs({ 
       prevDate: task.startDateISO, 
@@ -105,8 +81,7 @@ export async function handleSameTree ({ task, changes, batch }) {
       array: [...task.treeISOs] 
     }),
     batch 
-  }) 
-  return result
+  })
 }
 
 function correctTreeISOs ({ prevDate, newDate, array }) {
@@ -122,12 +97,11 @@ function batchUpdate ({ nodes, treeISOs, batch, rootID }) {
     const ref = doc(db, `/users/${get(user).uid}/tasks/${node.id}`)
     batch.update(ref, updateObj)
   }
-  return { treeISOs, rootID }
 }
 
 export async function getRoot (task) {
   if (task === undefined) return undefined
-
+  
   const cacheResult = get(tasksCache)[task.rootID]
   if (cacheResult) return cacheResult
   else {
@@ -145,7 +119,7 @@ export async function getSubtreeNodes (task) {
     query(
       collection(db, `/users/${get(user).uid}/tasks`),
       where('rootID', '==', task.rootID)
-    )
+    ) // to fail fast, only fetch archived tasks
   )
   const nodes = tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
   for (const node of nodes) {
@@ -165,59 +139,48 @@ export async function getSubtreeNodes (task) {
   return result
 }
 
-export function removeOneInstance(array, item) {
+export function removeOneInstance (array, item) {
   const index = array.indexOf(item)
   if (index === -1) return [...array]
   return [...array.slice(0, index), ...array.slice(index + 1)]
 }
 
-export async function handleTreeISOsForDeletion({ tasksToDelete, batch }) {
-  // Handle tree ISOs when deleting tasks
+export async function handleTreeISOsForDeletion ({ tasksToDelete, batch }) {
   if (!tasksToDelete || !tasksToDelete.length) return
   
   const tasksByRoot = {}
-  
-  // Group tasks by their root
+
   for (const task of tasksToDelete) {
-    if (!task.treeISOs || !task.treeISOs.length) continue
+    if (!task.treeISOs.length) continue
     
-    const rootTask = await getRoot(task)
-    if (!rootTask) continue
-    
-    const rootId = rootTask.id
-    if (!tasksByRoot[rootId]) {
-      tasksByRoot[rootId] = { 
-        root: rootTask, 
+    const root = await getRoot(task)
+    if (!tasksByRoot[root.id]) {
+      tasksByRoot[root.id] = { 
+        root, 
         tasksToRemove: [], 
         datesToRemove: [] 
       }
     }
     
     if (task.startDateISO) {
-      tasksByRoot[rootId].datesToRemove.push(task.startDateISO)
+      tasksByRoot[root.id].datesToRemove.push(task.startDateISO)
     }
-    tasksByRoot[rootId].tasksToRemove.push(task)
+    tasksByRoot[root.id].tasksToRemove.push(task)
   }
   
-  // Update tree ISOs for each affected root
-  for (const rootId in tasksByRoot) {
-    const { root, tasksToRemove, datesToRemove } = tasksByRoot[rootId]
+  for (const rootID in tasksByRoot) {
+    const { root, tasksToRemove, datesToRemove } = tasksByRoot[rootID]
     
-    if (!root.treeISOs || !root.treeISOs.length) continue
+    if (!root.treeISOs.length) continue
     
-    // Calculate the new tree ISOs
     let newTreeISOs = [...root.treeISOs]
     for (const date of datesToRemove) {
       newTreeISOs = removeOneInstance(newTreeISOs, date)
     }
-    
-    // Get all nodes in the tree that will remain
     const allTreeNodes = await getSubtreeNodes(root)
     const remainingNodes = allTreeNodes.filter(node => 
       !tasksToRemove.some(task => task.id === node.id)
     )
-    
-    // Update all remaining nodes with the new tree ISOs
     for (const node of remainingNodes) {
       const ref = doc(db, `/users/${get(user).uid}/tasks/${node.id}`)
       batch.update(ref, { treeISOs: newTreeISOs })

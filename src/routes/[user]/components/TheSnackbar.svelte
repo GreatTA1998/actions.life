@@ -9,7 +9,7 @@
         }, SNACKBAR_DURATION)
       }}
     >
-      <span class="message">{$snackbarState.message}</span>
+      <span style="font-weight: 500;">{$snackbarState.message}</span>
 
       {#if $snackbarState.undoAction}
         <button on:click={handleUndo} class="undo-button">
@@ -36,8 +36,7 @@
   .snack-wrap {
     position: fixed;
     bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 24px;
     z-index: 1000;
   }
 
@@ -56,24 +55,12 @@
     animation: fade-in 0.2s ease-out;
   }
 
-  .message {
-    font-weight: 500;
-  }
-
   .undo-button {
-    background: transparent;
-    color: #4A9EFF;
-    border: none;
+    color: #9ecbff;
     padding: 4px 8px;
     font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
     margin-left: auto;
-    font-size: 14px;
-  }
-
-  .undo-button:hover {
-    color: #7AB7FF;
+    font-size: 0.875rem;
   }
 
   @keyframes fade-in {

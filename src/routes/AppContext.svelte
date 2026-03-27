@@ -3,34 +3,35 @@
   import { 
     user,
     tasksCache, 
-    clickedTaskID, closeTaskPopup, ancestralTree, openTaskPopup, willOpenDatePicker,
+    clickedTaskID, closeTaskPopup, familyTree, openTaskPopup
   } from '$lib/store'
   import Task from '$lib/db/models/Task.js'
   import User from '$lib/db/models/User.js'
   import Template from '$lib/db/models/Template.js'
+  import GCalAccount from '$lib/db/models/GCalAccount.js'
   import { singleUpload } from '$lib/utils/imageHandling.js'
 
   let { children } = $props()
 
   setContext('app', {
-    User, user,
+    User, 
     Task, 
     Template,
+    GCalAccount,
     tasksCache,
     clickedTaskID,
-    ancestralTree,
+    familyTree,
     openTaskPopup,
     closeTaskPopup,
-    uploadImage,
-    willOpenDatePicker
+    uploadImage
   })
 
-  async function uploadImage ({ e, taskObject }) {
+  async function uploadImage ({ e, task }) {
     await singleUpload({ 
       e,
-      taskObject,
+      task,
       willCompress: $user.photoCompressWhenAttachingToTask,
-      willArchive: $user.photoUploadAutoArchive,
+      hasSideEffect: $user.photoUploadAutoArchive
     })
   }
 </script>

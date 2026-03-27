@@ -4,45 +4,46 @@
   const { openTaskPopup, Task } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
 
-  export let iconTask
-  export let size = 32 // default for backward compatibility
+  let { 
+    iconTask, 
+    size = 32 // default for backward compatibility
+  } = $props()
 
   let timer
-  let delay = 200
+  let delay = 300
 
-  function handleSingleOrDoubleClick() {
-    if (timer) {
+  function onclick (e) {
+    e.stopPropagation()
+    toggleDone(iconTask)
+   
+    if (timer) { // double click
+      openTaskPopup(iconTask)
+
       clearTimeout(timer)
       timer = null
-
-      Task.update({ 
-        id: iconTask.id, 
-        keyValueChanges: {
-          isDone: !iconTask.isDone
-        }
-      })
     } 
-    else {
-      timer = setTimeout(() => {
-        openTaskPopup(iconTask)
+    else timer = setTimeout(() => timer = null, delay)
+  }
 
-        timer = null
-      }, delay)
-    }
+  function toggleDone (iconTask) {
+    Task.update({ 
+      id: iconTask.id, 
+      kvChanges: { isDone: !iconTask.isDone }
+    })
   }
 </script>
 
 <div style="position: relative;">
   <img
-    on:click|stopPropagation={handleSingleOrDoubleClick}
+    {onclick}
     src={iconTask.iconURL}
     class:clearly-visible={iconTask.isDone}
     class:task-not-done={!iconTask.isDone}
     style="display: block; width: {size}px; height: {size}px; border: 0px solid blue; cursor: pointer;"
     class:radial-glow={iconTask.isDone}
-    class="ios-3d-touch-disable unselectable mobile-no-double-tap-zoom"
+    class="ios-3d-touch-disable select-none mobile-no-double-tap-zoom"
     draggable="true"
-    on:dragstart|self={e => startTaskDrag({ e, id: iconTask.id, isFromCal: true })}
+    ondragstart={e => startTaskDrag({ e, id: iconTask.id, isFromCal: true })}
   />
 </div>
 
@@ -56,7 +57,7 @@
   }
 
   .task-not-done {
-    filter: grayscale(80%) opacity(0.8) blur(0.8px);
+    filter: grayscale(90%) opacity(0.5) blur(0px);
   }
 
   .clearly-visible {

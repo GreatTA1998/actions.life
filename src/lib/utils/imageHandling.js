@@ -6,7 +6,7 @@ import Task from '$lib/db/models/Task.js'
 
 const storage = getStorage()
 
-export async function singleUpload ({ e, willCompress, taskObject, willArchive }) {
+export async function singleUpload ({ e, willCompress, task, hasSideEffect }) {
   const promises = []
   for (let image of e.target.files) { // in reality it's always one file due to the input limit
     if (image) { // blob file
@@ -16,7 +16,7 @@ export async function singleUpload ({ e, willCompress, taskObject, willArchive }
       }
       promises.push(
         uploadImageBlobToFirebase(image, id).then(resultSnapshot => {
-          mergeImageWithTask(resultSnapshot, image, id, taskObject, willArchive)
+          mergeImageWithTask(resultSnapshot, image, id, task, hasSideEffect)
         })
       )
     }
@@ -24,17 +24,18 @@ export async function singleUpload ({ e, willCompress, taskObject, willArchive }
   await Promise.all(promises)
 }
 
-async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject, willArchive) {
+async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, task, hasSideEffect) {
   const { metadata } = resultSnapshot 
   const { fullPath, timeCreated } = metadata
 
   // STEP 0: parallel process to retrieve width & height
   let durationForFullDisplay
   const p1 = createImageBitmap(imageBlobFile).then(bitmap => {
-    const { width, height } = bitmap 
+    // TO-DO: settings
     // these durations will display fully the portrait / landscape iPhone photos on an iPad Air 1180x820
-    if (width > height) durationForFullDisplay = 106
-    else durationForFullDisplay = 188
+    // const { width, height } = bitmap 
+    // if (width > height) durationForFullDisplay = 106
+    // else durationForFullDisplay = 188
   })
 
   // STEP 1: getDownloadURL()
@@ -51,26 +52,21 @@ async function mergeImageWithTask (resultSnapshot, imageBlobFile, id, taskObject
   const updateObj = {
     imageDownloadURL,
     imageFullPath: fullPath, // for easy garbage collection
-    isDone: true
     // note we do NOT change the task's timing based on the photo
   }
 
-  // only auto-hydrate the time if the task isn't already on the calendar
-  if (!taskObject.startDateISO) { 
-    updateObj.startDateISO = DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd')
-    updateObj.startTime = getTimeInHHMM({ dateClassObj })
-    updateObj.duration = durationForFullDisplay
-  }
-
-  // user settings: automations 
-  if (willArchive) {
-    updateObj.isArchived = true
+  if (hasSideEffect) {
+    if (!task.startDateISO) {
+      updateObj.startDateISO = DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd')
+      updateObj.startTime = getTimeInHHMM({ dateClassObj })
+    }
+    updateObj.isDone = true
   }
 
   try {
     Task.update({ 
-      id: taskObject.id, 
-      keyValueChanges: updateObj 
+      id: task.id, 
+      kvChanges: updateObj 
     })
   } catch (error) {
     console.error(error)

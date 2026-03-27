@@ -1,31 +1,34 @@
 <script>
-  import CreateTaskDirectly from '$lib/components/CreateTaskDirectly.svelte'
-  import FlexibleDayTask from '$lib/components/FlexibleDayTask.svelte'
+  import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
+  import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
   import { treesByDate } from './service.js'
-  import { headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
-  import { 
-    isOverlapping, getOverlapArea, clip,
-    dropPreviewCSS 
-  } from '$lib/utils/dragDrop.js'
+  import { googleEventsByDate } from '$lib/store'
+  import { headerHeight, headerExpanded, isCompact, timestampsColumnWidth } from './store.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
   const { Task } = getContext('app')
-  const { draggedItem, hasDropped, bestDropzoneID, scrollCalRect, matchedDropzones, resetDragDrop } = getContext('drag-drop')
+  const { activateInput } = getContext('popover-input')
+  const { 
+    draggedItem, scrollCalRect, detectOverlap, startTaskDrag,
+    bestDropzoneID, dropPreviewCSS, hasDropped, resetDragDrop
+  } = getContext('drag-drop')
   
   let { dt } = $props()
 
-  let isDirectlyCreatingTask = $state(false)
   let dayHeader = $state(null)
-  let intersecting = $state(false)
-  
   let ISODate = $derived(dt.toFormat('yyyy-MM-dd'))
   let dropzoneID = $derived('header: ' + dt.toFormat('yyyy-MM-dd'))
+  let anchorID = $derived(`--day-header-${dt.toFormat('yyyy-MM-dd')}`)
 
   $effect(() => {
     if ($draggedItem && $draggedItem.id) {
-      requestAnimationFrame(checkIntersection)
+      detectOverlap({
+        dropzoneElem: dayHeader,
+        clipRect: calHeaderArea(),
+        dropzoneID
+      })
     }
   })
 
@@ -35,39 +38,8 @@
     }
   })
 
-  function checkIntersection () {
-    const { x1, x2, y1, y2 } = clip($draggedItem, realEffectiveArea())
-
-    const dayHeaderRect = dayHeader.getBoundingClientRect()
-    intersecting = isOverlapping(
-      { x1, x2, y1, y2 }, 
-      dayHeaderRect,
-      0,
-      0
-    )
-
-    if (intersecting) {
-      // update context-wide state
-      const area = getOverlapArea({ x1, x2, y1, y2 }, dayHeaderRect)
-      matchedDropzones.update(obj => {
-        obj[dropzoneID] = {
-          area,
-          left: dayHeaderRect.left
-        }
-        return obj
-      })
-    }
-
-    else {
-      matchedDropzones.update(obj => {
-        delete obj[dropzoneID]
-        return obj
-      })
-    }
-  }
-
   function drop_handler ({ id }) {
-    Task.update({ id, keyValueChanges: {
+    Task.update({ id, kvChanges: {
       startTime: '',
       startDateISO: ISODate
     }})
@@ -75,17 +47,14 @@
     resetDragDrop()
   }
 
-  function onclick (e) {
-    if (e.target === e.currentTarget) {
-      isDirectlyCreatingTask = true
-    }
-  }
-
-  function realEffectiveArea () {
-    const { left, right, top, bottom } = $scrollCalRect()
+  function calHeaderArea () {
+    // left clipping is most important, everything else is inconsequential
+    const { left, right, top } = $scrollCalRect()
     return {
-      left: left + $timestampsColumnWidth,  // left clipping is most important, everything else is inconsequential
-      right, top, bottom
+      left: left + $timestampsColumnWidth, 
+      right, 
+      top, 
+      bottom: top + $headerHeight
     }
   }
 </script>
@@ -93,17 +62,25 @@
 <div bind:this={dayHeader}
   class="day-header"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
-  {onclick}
+  style:padding-bottom="0"
+  onclick={e => {
+    e.stopPropagation()
+    if (e.target !== e.currentTarget) return;
+    activateInput({ 
+      anchorID, 
+      modifiers: { startDateISO: ISODate, startTime: '', persistsOnList: false }
+    })
+  }}
 >
-  <div class="compact-horizontal unselectable">
+  <div class="flex justify-center select-none">
     <div class="center-flex day-name-label"
       class:active-day-name={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
     >
       {DateTime.fromISO(ISODate).toFormat('ccc')}
     </div>
 
-    <div class="center-flex" style="font-size: 16px; font-weight: 300">
-      <div class="center-flex" style="padding: 0px 0px; width: 28px;"
+    <div class="center-flex" style="font-size: 1rem; font-weight: 300">
+      <div class="center-flex" style="padding: 0; width: 28px;"
         class:active-date-number={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
       >
         {DateTime.fromISO(ISODate).toFormat('dd')}
@@ -112,62 +89,62 @@
   </div>
 
   {#if $headerExpanded}
-    <div style="overflow: hidden; margin-top: {$isCompact ? '0' : '4'}px;">
-      {#if $treesByDate[ISODate]}
-        <div style="display: flex; flex-wrap: wrap;">
-          {#each $treesByDate[ISODate].noStartTime.hasIcon as iconTask (iconTask.id)}
-            <DoodleIcon {iconTask} />
-          {/each}
-        </div>
+    {#if $treesByDate[ISODate]}
+      {@const { hasIcon, noIcon } = $treesByDate[ISODate].noStartTime}
+      <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
+        {#each hasIcon as iconTask (iconTask.id)}
+          <DoodleIcon {iconTask} />
+        {/each}
+      </div>
 
-        <div style="display: flex; flex-direction: column; row-gap: 4px; padding: 0px 4px;">
-          {#each $treesByDate[ISODate].noStartTime.noIcon as flexibleDayTask (flexibleDayTask.id)}
-            <FlexibleDayTask task={flexibleDayTask} />
-          {/each}
-          
-          {#if $bestDropzoneID === dropzoneID}
-            <div style="height: 12px; width: 100%; {dropPreviewCSS()}"></div>
-          {/if}
-        </div>
-      {/if}
-    </div>
+      <div class="flex flex-col gap-y-1 px-1">
+        {#each noIcon as task (task.id)}
+          <div draggable="true"  
+            ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })}
+            style:opacity={task.isDone ? '0.9' : '0.7'}
+          >
+            <CalTaskUnit {task} />
+          </div>
+        {/each}
+
+        {#if $googleEventsByDate[ISODate]?.allDay}
+          <div class="flex flex-col gap-y-1">
+            {#each $googleEventsByDate[ISODate].allDay as event}  
+              <GCalAllDay {event} />
+            {/each}
+          </div>
+        {/if}
+        
+        {#if $bestDropzoneID === dropzoneID}
+          <div style="height: 12px; width: 100%; {dropPreviewCSS}"></div>
+        {/if}
+      </div>
+    {/if}
   {/if}
 
-  {#if isDirectlyCreatingTask}
-    <div id="calendar-direct-task-div">
-      <CreateTaskDirectly
-        startDateISO={ISODate}
-        onExit={() => isDirectlyCreatingTask = false}
-      />
-    </div>
-  {/if}
+  <div class="task-input" style="anchor-name: {anchorID};">
+
+  </div>
 </div>
 
 <style>
-  #calendar-direct-task-div {
-    margin-top: 4px;
-    width: 90%; 
+  .task-input {
+    width: 100%; 
+    height: 1.125rem;
     padding-left: 0px; 
     padding-right: 0px;
-  }
-
-  .compact-horizontal {
-    display: flex; 
-    justify-content: center;
+    pointer-events: none;
   }
 
   .day-header {
     width: var(--width-calendar-day-section);
-    padding-top: var(--main-content-top-margin);
-    padding-bottom: 18px;
-
-    font-size: 1.4em;
+    font-size: 1.4rem;
     background-color: var(--calendar-bg-color);
     color: #6d6d6d;
   }
 
   .day-name-label {
-    font-size: 16px;
+    font-size: 1rem;
     margin-bottom: 0px;
     font-weight: 400;
   }

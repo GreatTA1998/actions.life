@@ -27,7 +27,14 @@
 <!-- hover should delay the autoclose -->
 <!-- warning, MUST NOT USE DISPLAY FLEX BECAUSE POPOVER USES DISPLAY NONE TO HIDE ITS STATE -->
 <div popover="manual" bind:this={popover} 
-  style="position: fixed; top: auto; right: auto; bottom: 12px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - 24px); margin: 0;"
+  style="
+    position: fixed; 
+    top: auto; right: auto; bottom: 12px; left: 50%; 
+    transform: translateX(-50%); 
+    width: max-content; 
+    max-width: calc(100vw - 24px); 
+    margin: 0;
+  "
   class="snackbar-stylistic"
   class:loading={loading}
 >
@@ -43,10 +50,7 @@
     border-radius: 8px;
     min-width: 280px;
     transition: box-shadow 300ms ease;
-    position: relative;
-    box-sizing: border-box; /* avoid layout shift when border color changes */
-    border: 1px solid transparent; /* constant border to avoid reflow */
-    /* subtle always-on edge for a premium look */
+    border: 1px solid transparent;
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
   }
 

@@ -1,49 +1,42 @@
 <script>
-  import { doc, onSnapshot, setDoc } from 'firebase/firestore'
+  import PopoverInputContext from '$lib/components/PopoverInputContext.svelte'
+  import TaskPopup from '/src/routes/[user]/components/TaskPopup/TaskPopup.svelte'
+  import ExtendRoutines from '/src/routes/[user]/components/ExtendRoutines.svelte'
+  import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import { user, userInfoFromAuthProvider } from '$lib/store'
-  import { onMount, onDestroy } from 'svelte'
-  import { page } from '$app/stores'
-  import User from '$lib/db/models/User.js'
+  import { user, clickedTaskID } from '$lib/store'
+  import { onMount, onDestroy, getContext } from 'svelte'
+  import { page } from '$app/state'
 
-  let unsub
+  let { children } = $props()
 
-  $: userID = $page.params.user
+  let unsubscribe = () => {}
+  let uid = $derived(page.params.user)
 
-  onMount(() => {
-    listenToUserDoc(userID)
-  })
+  onMount(listenToUser)
 
-  onDestroy(() => {
-    if (unsub) unsub()
-  })
+  onDestroy(unsubscribe)
 
-  function listenToUserDoc (userID) {
-    const ref = doc(db, '/users/' + userID)
-    unsub = onSnapshot(ref, async (snap) => {
-      if (!snap.exists()) {
-        initializeNewFirestoreUser(ref, $userInfoFromAuthProvider)
-      } else {
+  function listenToUser () {
+    const ref = doc(db, '/users/' + uid)
+    unsubscribe = onSnapshot(ref, async (snap) => {
+      if (snap.exists()) {
         user.set({ ...snap.data() })
       }
     })
   }
-
-  async function initializeNewFirestoreUser (ref, authData) {
-    const userObj = User.schema.parse({
-      uid: authData.uid,
-      email: authData.email
-    })
-
-    return await setDoc(ref,
-      userObj,
-      { merge: true }
-    ).catch((err) => console.error('error in initializeNewFirestoreUser', err))
-  }
 </script>
 
 <div>
-  <slot>
+  {#if $user.uid}
+    <ExtendRoutines />
 
-  </slot>
+    <PopoverInputContext>
+      {@render children()}
+      
+      {#if $clickedTaskID}
+        <TaskPopup />
+      {/if}
+    </PopoverInputContext>
+  {/if}
 </div>

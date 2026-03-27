@@ -9,14 +9,12 @@ import { get } from 'svelte/store'
 // for example, if it routine repeats MWF, but the task is scheduled for Thursday, it was modified
 export function isException (task, template) {
   if (!task || !template) {
-    console.log("isException received null/undefined task or template", {task, template})
     return false
   }
   
   for (const k of Object.keys(task)) {
     if (['notes', 'imageDownloadURL', 'iconURL'].includes(k)) {      
       if (task[k] !== template[k]) { 
-        console.log("Exception found =", task.id, k, task[k], template[k])
         return true
       }
     }
@@ -25,11 +23,12 @@ export function isException (task, template) {
 }
 
 export function createTaskInstance ({ template, dt }) {
-  Task.create({
+  return Task.create({
     // ensure idempotence, with deterministic IDs
     // assumes the recurrence is at the resolution of days
     id: template.id + '_' + dt.toFormat('yyyy-MM-dd'),
-    newTaskObj: instantiateTask({ template, dt })
+    newTaskObj: instantiateTask({ template, dt }),
+    optimistic: false
   })
 }
 
@@ -38,6 +37,7 @@ export function instantiateTask ({ template, dt }) {
   newTaskObj.templateID = template.id
   newTaskObj.startDateISO = dt.toFormat('yyyy-MM-dd')
   newTaskObj.persistsOnList = false
+  newTaskObj.parentID = '' // quickfix: force no parentID, ensure no parentID from corrupted template
   return newTaskObj
 }
 

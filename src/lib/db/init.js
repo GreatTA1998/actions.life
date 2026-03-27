@@ -1,5 +1,7 @@
+// WARNING: must restart the server for ANY little change in this file, since HMR will re-run and persistentLocalCache()'s config output is non-identical
 import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore } from 'firebase/firestore'
+import { initializeAuth, browserLocalPersistence, indexedDBLocalPersistence } from 'firebase/auth'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCOVm0X6UUQQcftXf066z_0hFk497j4dNY',
@@ -12,6 +14,11 @@ const firebaseConfig = {
 }
 
 const app = initializeApp(firebaseConfig)
-const db = getFirestore(app, 'schema-compliant')
 
-export { app, db }
+const db = initializeFirestore(app, {}, 'schema-compliant')
+
+const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence]
+})
+
+export { app, db, auth }

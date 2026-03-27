@@ -5,19 +5,21 @@
 
   let { children } = $props()
 
-  const draggedItem = writable(
-    initialItem()
-  )
-
+  const draggedItem = writable(initialItem())
   const matchedDropzones = writable({})
   const bestDropzoneID = writable('')
   const hasDropped = writable(false)
-  const scrollCalRect = writable(() => {})
-  const logicAreaRect = writable(() => {})
+  const scrollCalRect = writable(() => ({ left: 0, top: 0, right: 9999, bottom: 9999 }))
+  const logicAreaRect = writable(() => ({ left: 0, top: 0, right: 9999, bottom: 9999 }))
 
   const frameRate = 60
   const oneThousandMs = 1000
   const throttledPositionUpdate = createThrottledFunction(updateDraggedItemPosition, oneThousandMs/frameRate)
+  const dropPreviewCSS = `
+    background-color: rgba(100, 100, 255, 0.15);
+    border: 1px dashed rgba(100, 100, 255, 0.6);
+    pointer-events: none;
+  `
 
   setContext('drag-drop', {
     draggedItem,
@@ -27,7 +29,10 @@
     scrollCalRect,
     logicAreaRect,
     startTaskDrag,
-    resetDragDrop
+    resetDragDrop,
+    detectOverlap,
+    computeOrderValue,
+    dropPreviewCSS
   })
 
   function startTaskDrag ({ e, id, isFromCal = false }) {
@@ -128,6 +133,70 @@
       kind: '',
       id: ''
     }
+  }
+
+  export function detectOverlap ({ dropzoneElem, clipRect, dropzoneID }) { 
+    const dropzone = clip(
+      dropzoneElem.getBoundingClientRect(),
+      clipRect
+    )
+    if (isOverlapping($draggedItem, dropzone, 0, 0)) { // h_threshold as destructured parameters
+      matchedDropzones.update(obj => {
+        obj[dropzoneID] = {
+          area: getOverlapArea($draggedItem, dropzone),
+          left: dropzone.left
+        }
+        return obj
+      })
+    } else {
+      matchedDropzones.update(obj => {
+        delete obj[dropzoneID]
+        return obj
+      })
+    }
+  }
+
+  function clip (obj, bound) {
+    return {
+      left: Math.max(obj.left, bound.left),
+      right: Math.min(obj.right, bound.right),
+      top: Math.max(obj.top, bound.top), 
+      bottom: Math.min(obj.bottom, bound.bottom)
+    }
+  }
+
+  function isOverlapping ({ x1, x2, y1, y2 }, { top, left, bottom, right }, h_threshold = 0.3, v_threshold = 0) {
+    const hOverlap = Math.max(0, Math.min(x2, right) - Math.max(x1, left))
+    const vOverlap = Math.max(0, Math.min(y2, bottom) - Math.max(y1, top))
+    return hOverlap / (x2 - x1) > h_threshold && vOverlap / (y2 - y1) > v_threshold
+  }
+
+  function getOverlapArea ({ x1, x2, y1, y2 }, { top, left, bottom, right }) {
+    const hOverlap = Math.max(0, Math.min(x2, right) - Math.max(x1, left))
+    const vOverlap = Math.max(0, Math.min(y2, bottom) - Math.max(y1, top))
+    return hOverlap * vOverlap
+  }
+
+  function computeOrderValue (i, rooms) {
+    const k = 1
+    const n = rooms.length
+
+    let newVal
+    if (i === 0) {
+      const top = rooms[0]
+      if (top) newVal = top.orderValue / 1.1 // 1.1 slows down the approach to 0
+      else newVal = k // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
+    }
+    else if (i === n) {
+      const bottom = rooms[n-1] 
+      newVal = bottom.orderValue + k // Task.js will handle `maxOrderValue`
+    }
+    else {
+      const above = rooms[i-1]
+      const below = rooms[i]
+      newVal = (above.orderValue + below.orderValue) / 2
+    }
+    return newVal
   }
 </script>
 

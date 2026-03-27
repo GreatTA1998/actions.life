@@ -1,11 +1,13 @@
 <script>
-  import RecursiveTask from '../../[user]/components/TaskTree/RecursiveTask.svelte'
-  import ToggleGroup from '../../../lib/components/ToggleGroup.svelte'
+  import ToggleGroup from '$lib/components/ToggleGroup.svelte'
+  import TodoList from '../../[user]/components/ListsArea/TodoList.svelte'
+  import { isMobile } from '$lib/utils/core.js'
+  import { WIDTHS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
   const { memoryTree, Task } = getContext('app')
-
-  let taskObj = $derived.by(() => {
+  
+  let task = $derived.by(() => {
     for (const tree of $memoryTree) {
       if (tree.name === 'Walk the Camino de Santiago') {
         return tree
@@ -21,24 +23,22 @@
   </div>
   
   <div class="demo-layout">
-    <div class="task-tree-column">
+    <div>
       <div style="width: 240px;">
-        <ToggleGroup 
+        <ToggleGroup
           options={[
             { text: 'list', value: 'normal' }, 
             { text: 'timeline', value: 'timeline' }
           ]} 
-          activeValue={taskObj.childrenLayout}
-          onselect={newVal => Task.update({ id: taskObj.id, keyValueChanges: { childrenLayout: newVal } })}
+          activeValue={task.childrenLayout}
+          onselect={newVal => Task.update({ id: task.id, kvChanges: { childrenLayout: newVal } })}
         />
       </div>
 
-      <RecursiveTask 
-        taskObj={taskObj}
-        depth={0}
-        willShowCheckbox
-        ancestorRoomIDs={[]}
-        isLargeFont={false}
+      <TodoList trees={[task]}
+        isLargeFont={isMobile()}
+        listWidth={WIDTHS.LIST}
+        cssStyle=""
       />
     </div>
 
@@ -79,17 +79,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 48px;
     align-items: start;
-  }
-
-  .task-tree-column {
-    background: #fafafa;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 20px;
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
   }
 
   .controls-panel {

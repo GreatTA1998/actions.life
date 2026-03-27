@@ -1,13 +1,13 @@
 <div class="float-button" {style}>
   <!-- `align-items: center` is a quickfix related to mystery height, probably from the invisible input -->
-  <div style="display: flex; align-items: center;">
-    <button on:click={openFolderInput} class="material-symbols-outlined responsive-icon-size">
-      photo_library
+  <div class="flex items-center">
+    <button onclick={openFolderInput} class="responsive-icon-size flex items-center">
+      <MslPhotoLibrary style="font-size: 2.125rem;"/>
     </button>
 
     <input style="display: none;" 
       bind:this={FolderInput}
-      on:change={(e) =>  handleFileChange(e)} 
+      onchange={e => handleFileChange(e)} 
       multiple
       type="file" 
       accept="image/*" 
@@ -16,10 +16,13 @@
 </div>  
 
 <script>
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
-  import { getRandomID, getTimeInHHMM } from '/src/lib/utils/core.js'
+  import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+  import { getRandomID, getTimeInHHMM } from '$lib/utils/core.js'
+  import { compressImage } from '$lib/utils/imageHandling.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
+  import MslPhotoLibrary from 'virtual:icons/material-symbols-light/photo-library'
+  import { user, snackbarState } from '$lib/store'
 
   const { Task } = getContext('app')
 
@@ -34,10 +37,15 @@
   }
 
   async function handleFileChange (e) {
+    snackbarState.set({ isVisible: true, message: 'Uploading...', undoAction: null })
+
     const promises = []
-    for (const imageBlobFile of e.target.files) {
+    for (let imageBlobFile of e.target.files) {
       if (imageBlobFile) {
         const id = getRandomID()
+        if ($user.photoCompressWhenAttachingToTask) {
+          imageBlobFile = await compressImage(imageBlobFile)
+        }
         promises.push(
           uploadImageBlobToFirebase(imageBlobFile, id).then(resultSnapshot => {
             createNewScheduledTaskContainingImage(resultSnapshot, imageBlobFile, id)
@@ -46,7 +54,8 @@
       }
     }
     await Promise.all(promises)
-    alert('Photos successfully uploaded.')
+
+    snackbarState.set({ isVisible: false, message: '', undoAction: null })
   }
 
   async function uploadImageBlobToFirebase (blobFile, id) {
@@ -83,7 +92,7 @@
     else dateClassObj = new Date(timeCreated) // otherwise we set the time to right now.
 
     const newTaskObj = {
-      name: `Photo ${getTimeInHHMM({ dateClassObj })}`,
+      name: '',
       imageDownloadURL,
       imageFullPath: fullPath, // for easy garbage collection
       startTime: getTimeInHHMM({ dateClassObj }),

@@ -1,10 +1,10 @@
-import { getFunctions, httpsCallable } from 'firebase/functions'
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions'
+import { app } from '$lib/db/init.js'
 
-export function sendEmail ({ subject, content, toWho }) {
-  const functions = getFunctions()
-  const sendEmail = httpsCallable(functions, 'sendEmail')
-  return new Promise(async resolve => {
-    await sendEmail({ subject, content, toWho })
-    resolve()
-  })
+const functions = getFunctions(app)
+// connectFunctionsEmulator(functions, "127.0.0.1", 5001)
+
+export function cloudFunction (fnName, params = {}) {
+  const fn = httpsCallable(functions, fnName)
+  return fn(params)
 }

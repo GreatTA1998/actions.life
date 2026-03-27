@@ -2,46 +2,56 @@
   import { headerExpanded, isCompact } from './store.js'
   import { treesByDate } from './service.js'
   import { WIDTHS } from '$lib/utils/constants.js'
+  import { DateTime } from 'luxon'
+  import MslExpandLess from 'virtual:icons/material-symbols-light/expand-less'
+  import MslExpandMore from 'virtual:icons/material-symbols-light/expand-more'
 
-  export let viewportLeft
-  export let originDT
-  export let height
+  let {
+    viewportLeft,
+    originDT,
+    height
+  } = $props()
 
-  let exactWidth = $isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS
-
-  $: currentDT = viewportLeft ? originDT.plus({ days: viewportLeft }) : originDT
+  let exactWidth = $derived($isCompact ? WIDTHS.MOBILE_TIME_AXIS : WIDTHS.DESKTOP_TIME_AXIS)
+  let currentDT = $derived(viewportLeft ? originDT.plus({ days: viewportLeft }) : originDT)
 </script>
 
-<div class="corner-label" style="
-  height: {height}px; 
-  --timestamps-column-width: {exactWidth}px;
-">
-  <div style="display: flex; justify-content: center;"
+<div 
+  class="corner-label select-none" 
+  style="
+    height: {height}px; 
+    --timestamps-column-width: {exactWidth}px;
+  "
+>
+  <div 
+    style="
+      display: flex; justify-content: center; row-gap: 2px;
+      color: {currentDT.toFormat('yyyy-MM') <= DateTime.now().toFormat('yyyy-MM') ? 'black' : '#6d6d6d'};
+    "
     class:mobile-compact={$isCompact}
     class:desktop-descriptive={!$isCompact}
   >
-    <div style="color: rgb(0, 0, 0); font-weight: 400; display: inline-block;">
-      {#if !$isCompact}
-        {currentDT.toFormat('LLL')}
-      {:else}
-        {currentDT.toFormat('M')}
-      {/if}
+    <div>
+      {currentDT.toFormat(!$isCompact ? 'LLL' : 'M')}
     </div>
-
     {#if !$isCompact}
-      <div style="font-weight: 200; margin-top: 2px; display: inline-block;">
+      <div>
         {currentDT.toFormat('yyyy')}
       </div>
     {/if}
   </div>
 
-  {#if $treesByDate}
-    <button on:click={() => headerExpanded.set(!$headerExpanded)}
-      class="collapse-arrow material-symbols-outlined"
+  <!-- {#if $treesByDate}
+    <button onclick={() => headerExpanded.set(!$headerExpanded)}
+      class="collapse-arrow"
     >
-      {$headerExpanded ? "expand_less" : "expand_more"}
+      {#if $headerExpanded}
+        <MslExpandLess style="font-size: 26px;"/>
+      {:else}
+        <MslExpandMore style="font-size: 26px;"/>
+      {/if}
     </button>
-  {/if}
+  {/if} -->
 </div>
 
 <style>
@@ -80,7 +90,7 @@
     right: auto;
     font-size: 26px;
     cursor: pointer;
-    color: rgba(110, 110, 110, 0.2);
+    color: var(--fine-control-color);
     font-weight: 200;
   }
 </style>

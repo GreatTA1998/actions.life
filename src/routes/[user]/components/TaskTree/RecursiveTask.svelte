@@ -2,275 +2,180 @@
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
-  import FormField from '$lib/components/FormField.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
-  import TimelineRenderer from './TimelineRenderer.svelte'
+  import Timeline from './Timeline.svelte'
   import TaskMenu from './TaskMenu.svelte'
   import TaskCaret from './TaskCaret.svelte'
-  import { getRandomID, getRandomColor } from '$lib/utils/core.js'
-  import { WIDTHS } from '$lib/utils/constants.js'
+  import MslCalendarTodayOutline from 'virtual:icons/material-symbols-light/calendar-today-outline'
+  import { user } from '$lib/store'
+  import { getRandomColor, getRandomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
   const { Task, openTaskPopup } = getContext('app')
-  const { startTaskDrag } = getContext('drag-drop')
+  const { startTaskDrag,
+    draggedItem, logicAreaRect, detectOverlap, 
+    bestDropzoneID,  dropPreviewCSS, hasDropped, resetDragDrop,
+    computeOrderValue
+   } = getContext('drag-drop')
+  const { indent, rootFontSize, subFontSize, debug } = getContext('list-config')
 
   let {
-    taskObj,
+    task,
     depth,
-    willShowCheckbox = true,
-    ancestorRoomIDs = [], // ancestorRoomIDs prevent a parent from becoming its own parent, creating an infinite cycle
-    isLargeFont = false,
+    ancestorIDs = [], // ancestorIDs prevent a parent from becoming its own parent, creating an infinite cycle
     verticalTimeline,
     infoBadge
   } = $props()
 
-  const colorForDebugging = getRandomColor()
+  const id = getRandomID()
+  let dropzoneElem = $state(null)
+  let circular = $derived([task.id, ...ancestorIDs].includes($draggedItem.id))
 
-  let newSubtaskStringValue = $state('')
-  let isTypingNewSubtask = $state(false)
-  let n = $derived(taskObj.children.length)
-  let depthAdjustedFontSize = $derived.by(() => {
-    let depthAdjustedFontSize = ''
-    switch (depth) {
-      case 0:
-        if (isLargeFont) depthAdjustedFontSize = '32px'
-        else depthAdjustedFontSize = '16px'
-        break
-      default: 
-        if (isLargeFont) depthAdjustedFontSize = '28px'
-        else depthAdjustedFontSize = '14px'
+  let n = $derived(task.children.length)
+  let fontSize = $derived(depth === 1 ? rootFontSize() : subFontSize())
+  let overdue = $derived(!task.isDone && task.startDateISO < DateTime.now().toFormat('yyyy-MM-dd'))
+  const debugColor = getRandomColor()
+
+  $effect(() => {
+    if ($draggedItem && dropzoneElem) {
+      detectOverlap({
+        dropzoneElem,
+        clipRect: $logicAreaRect(),
+        dropzoneID: id
+      })
     }
-    return depthAdjustedFontSize
   })
-  
-  let depthAdjustedFontWeight = $derived(400 - (depth * 0) + (200 * Math.max(1 - depth, 0)))
 
-  function handleCheckboxChange (e) {
-    Task.update({
-      id: taskObj.id,
-      keyValueChanges: { isDone: e.target.checked }
-    })
-  }
-
-  function onEnter (e) {
-    if (newSubtaskStringValue === '') {
-      isTypingNewSubtask = false
+  $effect(() => {
+    if ($hasDropped && $bestDropzoneID === id) {
+      onDrop()
     }
-    else {
-      createSubtask(newSubtaskStringValue)
-      newSubtaskStringValue = ''
-    } 
-  }
+  })
 
-  function createTimelineStep (e) {
-    if (newSubtaskStringValue === '') {
-      isTypingNewSubtask = false
-    }
-    else {
-      Task.create({
-        id: getRandomID(),
-        newTaskObj: {
-          name: newSubtaskStringValue,
-          parentID: taskObj.id,
-          childrenLayout: 'normal'
-          // we purposely don't set `orderValue`,  so it'll be added to the end of the timeline sequentially
+  function onDrop () {
+    if (!circular) {
+      Task.update({ 
+        id: $draggedItem.id,
+        kvChanges: {
+          parentID: task.id,
+          orderValue: computeOrderValue(0, task.children),
+          persistsOnList: true,
+          isArchived: false
         }
       })
-      newSubtaskStringValue = ''
-    } 
-  }
-
-  function createSubtask (name) {
-    const newTaskObj = {
-      name,
-      parentID: taskObj.id, 
-      childrenLayout: 'normal'
     }
-
-    if (n > 0) {
-      newTaskObj.orderValue = (taskObj.children[0].orderValue) / 1.1
-    } 
-    // Task.create(), by default, initializes `$user.maxOrderValue`
-
-    Task.create({ id: getRandomID(), newTaskObj })
+    dropzoneElem.style.background = ''
+    resetDragDrop()
   }
 
-  function renderDropzone (idx) {
+  function dzProps (i) {
     return {
-      ancestorRoomIDs: [taskObj.id, ...ancestorRoomIDs],
-      roomsInThisLevel: taskObj.children,
-      idxInThisLevel: idx,
-      parentID: taskObj.id,
-      colorForDebugging
+      ancestorIDs: [task.id, ...ancestorIDs],
+      roomsInThisLevel: task.children,
+      idxInThisLevel: i,
+      parentID: task.id,
+      debugColor
     }
   }
 </script>
 
-<div style="position: relative; width: 100%; font-weight: {depthAdjustedFontWeight};">
-  <div draggable="true"
-    ondragstart={e => startTaskDrag({ e, id: taskObj.id })}
-    style="font-size: {depthAdjustedFontSize};"
-    class="task-row-container unselectable"
+<div class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
+  <div draggable="true" 
+    bind:this={dropzoneElem}
+    ondragstart={e => startTaskDrag({ e, id: task.id })}
+    style:font-size={fontSize}
+    style="
+      padding: 0 var(--left-padding);
+      border-radius: var(--left-padding);
+      {$bestDropzoneID === id ? dropPreviewCSS : ''}
+      {$bestDropzoneID === id && circular ? 'background-color: red;' : ''}
+    "
+    class="flex items-center gap-x-1 text-[#1a1a1a] select-none"
   >
-    {#if willShowCheckbox}
-      <div style="position: relative; margin-left: 2px; margin-right: 4px;">
-        {@render verticalTimeline?.()}
+    <div class="shrink-0 relative">
+      {@render verticalTimeline?.()}
+      
+      {#if n === 0}
+        <Checkbox value={task.isDone} {fontSize}
+          onchange={e => Task.update({ id: task.id, kvChanges: { isDone: e.target.checked }})}
+        />
+      {:else}
+        <TaskCaret isCollapsed={task.isCollapsed} {fontSize}
+          onToggle={() => Task.update({ id: task.id, kvChanges: { isCollapsed: !task.isCollapsed } })}
+        />
+      {/if}
+    </div>
 
-        <div style="background-color: white; position: relative; padding-top: 2px; padding-bottom: 2px;">
-          {#if n === 0}
-            <Checkbox value={taskObj.isDone}
-              onchange={e => handleCheckboxChange(e)}
-            />
-          {:else}
-            <TaskCaret isCollapsed={taskObj.isCollapsed}
-              onToggle={() => Task.update({ id: taskObj.id, keyValueChanges: { isCollapsed: !taskObj.isCollapsed } })}
-            />
-          {/if}
+    <button onclick={() => openTaskPopup(task)} 
+      class="shrink-1 min-w-[24px] min-h-[24px] truncate text-clip"
+      class:done-task={task.isDone}
+      style:font-weight={depth === 1 ? 600 : 400}
+    >
+      {task.name}
+    </button>
+
+    {#if task.tagIDs}
+      {#each task.tagIDs as tagID}
+        <div class="shrink-0 w-[5px] h-[5px] rounded-[50%]" 
+          style:background-color={$user.tags?.[tagID]?.color}
+        >
         </div>
+      {/each}
+    {/if}
+      
+    {#if infoBadge}
+      {@render infoBadge()}
+    {:else if task.startDateISO}
+      <div class="flex items-center" style:color={overdue ? 'red' : ''}>
+        <MslCalendarTodayOutline style="font-size: 0.75rem"/>
       </div>
     {/if}
 
-    <button onclick={() => openTaskPopup(taskObj)} 
-      class="task-name truncate-to-one-line" 
-      class:done-task={taskObj.isDone} 
-    >
-      {taskObj.name}
-    </button>
-
-    <div style="margin-left: 6px;"></div>
-
-    <div style="display: flex; align-items: center; column-gap: 4px;">
-      {#if infoBadge}
-        {@render infoBadge()}
-      {:else if taskObj.startDateISO}
-        <span class:overdue={!taskObj.isDone && taskObj.startDateISO < DateTime.now().toFormat('yyyy-MM-dd')} 
-          class="material-symbols-outlined" style="font-size: 12px;" 
-        >
-          calendar_today
-        </span>
-      {/if}
-
-      {#if taskObj.isCollapsed && n > 0}
-        <SubtaskCountIndicator {taskObj} onclick={() => openTaskPopup(taskObj)} />
-      {/if}
-    </div>
-
-    <TaskMenu {taskObj} 
-      onSubtaskAdd={() => isTypingNewSubtask = true } 
+    {#if task.isCollapsed && n > 0}
+      <SubtaskCountIndicator extraClass="min-w-fit"       
+        {task} {fontSize}
+        onclick={() => openTaskPopup(task)} 
+      />
+    {/if}
+    
+    <TaskMenu {task} {fontSize} 
+      extraClass="shrink-0"
     />
   </div>
 
-  {#if taskObj.childrenLayout === 'timeline'}
-    <TimelineRenderer
-      {taskObj}
-      children={taskObj.children}
-      parentID={taskObj.id}
-      {depth}
-      {ancestorRoomIDs}
-      {isLargeFont}
-      {colorForDebugging}
-    />
-
-    {#if isTypingNewSubtask}  
-      <FormField
-        fieldLabel="Task Name"
-        value={newSubtaskStringValue}
-        on:input={(e) => newSubtaskStringValue = e.detail.value}
-        on:focus-out={() => {
-          if (newSubtaskStringValue === '') {
-            isTypingNewSubtask = false
-          }
-        }}
-        on:task-entered={e => createTimelineStep(e)}
-      />
-    {/if}
-  {:else}
-    <div style="margin-left: {WIDTHS.INDENT_PER_LEVEL}px;">
-      {#if isTypingNewSubtask}  
-        <FormField
-          fieldLabel="Task Name"
-          value={newSubtaskStringValue}
-          on:input={(e) => newSubtaskStringValue = e.detail.value}
-          on:focus-out={() => {
-            if (newSubtaskStringValue === '') {
-              isTypingNewSubtask = false
-            }
-          }}
-          on:task-entered={(e) => onEnter(e)}
+  <div style:margin-left={indent()}>
+    {#if !task.isCollapsed}
+      {#if task.childrenLayout === 'timeline'}
+        <Timeline children={task.children}
+          parentID={task.id}
+          {depth}
+          {ancestorIDs}
         />
-      {/if}
-
-      {#if !taskObj.isCollapsed}
-        <div class:ghost-negative={n === 0} 
-          style="
-            left: {WIDTHS.INDENT_PER_LEVEL}px;
-            width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
-            z-index: {depth};
-          "
-        >
-          <Dropzone {...renderDropzone(0)} /> 
-        </div>
-
-        {#each taskObj.children as subtaskObj, i (subtaskObj.id)}
+      {:else}
+        {#each task.children as subtask, i (subtask.id)}
+          <Dropzone {...dzProps(i)} /> 
+          
           <RecursiveTask 
-            taskObj={subtaskObj}
+            task={subtask}
             depth={depth+1}
-            {willShowCheckbox}
-            ancestorRoomIDs={[taskObj.id, ...ancestorRoomIDs]}
-            {isLargeFont}
+            ancestorIDs={[task.id, ...ancestorIDs]}
           /> 
-
-          {#if i === n - 1}
-            <!-- notice `left` is a constant, because it'll inherit the parent's cumulative left -->
-            <div class="ghost-negative"
-              style="
-                left: {WIDTHS.INDENT_PER_LEVEL}px;
-                width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
-                z-index: {depth};
-              "
-            >
-              <Dropzone {...renderDropzone(i + 1)} /> 
-            </div>
-          {:else}
-            <div 
-              style="
-                width: {235 - WIDTHS.INDENT_PER_LEVEL * (depth + 1)}px;
-                z-index: {depth};
-              "
-            >
-              <Dropzone {...renderDropzone(i + 1)} /> 
-            </div>
-          {/if}
         {/each}
       {/if}
-    </div>
-  {/if}
+
+      <Dropzone {...dzProps(n)} 
+        extraClass="ghost-negative"
+        extraStyle="left: {indent()}; right: 0; z-index: {depth}" 
+      />
+    {/if}
+  </div>
 </div>
 
 <style>
-  .task-name {
-    min-width: 16px; 
-    min-height: 16px;
-  }
-
-  .overdue {
-    color: red;
-  }
-
-  .task-row-container {
-    display: flex; 
-    align-items: center;
-    min-width: 30px; /* min-width and height to make it easy to delete legacy tasks with no titles */
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    color: rgb(80, 80, 80);
-  }
-
   .done-task {
     background: linear-gradient(to right, rgba(76, 175, 80, 0.04), transparent 50%);
     color: #388e3c;
     border-radius: 4px;
-    transition: background 0.2s, color 0.2s;
   }
 </style> 

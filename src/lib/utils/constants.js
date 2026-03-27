@@ -1,18 +1,30 @@
 export const HEIGHTS = Object.freeze({
-  MAIN_CONTENT_TOP_MARGIN: 20,
-  ROOT_DROPZONE: 24,
-  SUB_DROPZONE: 16,
+  MAIN_CONTENT_TOP_MARGIN: 24, // artificially match the dropzone for now, since CSS vars are hard to convert to rem
+  ROOT_DROPZONE: 1.5, // 1.5rem = 24px (used directly by JS)
+  SUB_DROPZONE: 1, // 1rem = 16px
   NAVBAR: 54,
   CORNER_LABEL: 110,
 })
 
+export const breakpoints = {
+  mobile: 375, // iPhone SE
+  tablet: 768,
+  desktop: 1024
+}
+
+export const goldenRatio = 1.618
+
 export const WIDTHS = Object.freeze({
-  CALENDAR_DAY_SECTION: 200,
+  LIST: 380, // 320 --> 360 for masa
+  CALENDAR_DAY_SECTION: 260, // 8 icons vs 200 6 icons
   CALENDAR_LEFT_PADDING: 16,
   MOBILE_TIME_AXIS: 22,
   DESKTOP_TIME_AXIS: 64,
   INDENT_PER_LEVEL: 24, // unified for both subtasks and dropzones
+  PANEL_MAX: breakpoints.desktop / goldenRatio
 })
+
+export const MOBILE_SAFE_INSET = 48
 
 export function translateJSConstantsToCSSVariables () {
   for (const [key, value] of Object.entries(WIDTHS)) {

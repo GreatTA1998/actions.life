@@ -1,7 +1,5 @@
-<button class="material-symbols-outlined"  
-  {onclick}
->
-  add_photo_alternate
+<button {onclick} class="flex">
+  <MslAddPhotoAlternateOutline style="font-size: var(--popup-control);"/>
 </button>
 
 <input style="display: none;" 
@@ -12,20 +10,22 @@
 >
 
 <script>
+  import MslAddPhotoAlternateOutline from 'virtual:icons/material-symbols-light/add-photo-alternate-outline'
   import { getContext } from 'svelte'
+  import { user } from '$lib/store'
 
-  const { uploadMockPhoto, uploadImage, user } = getContext('app')
-  let { onUpload, onFinished, taskObject } = $props()
+  const { uploadMockPhoto, uploadImage } = getContext('app')
+  let { onUpload, onFinished, task } = $props()
   let FolderInput = $state(null)
 
   function onclick () {
-    if ($user.uid === 'demo-user') uploadMockPhoto(taskObject)
+    if ($user.uid === 'demo-user') uploadMockPhoto(task)
     else FolderInput.click()
   }
  
   async function handleFileChange (e) {
     onUpload()
-    await uploadImage({ e, taskObject })
+    await uploadImage({ e, task })
     onFinished()
   }
 </script>

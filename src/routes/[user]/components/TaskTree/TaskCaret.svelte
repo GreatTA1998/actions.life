@@ -1,26 +1,30 @@
 <script>
-  export let isCollapsed = false
-  export let onToggle = () => {}
+  import MslChevronRight from 'virtual:icons/material-symbols-light/chevron-right'
+  import MslExpandMore from 'virtual:icons/material-symbols-light/expand-more'
+
+  let {
+    isCollapsed = false,
+    onToggle = () => {},
+    fontSize = '1rem'
+  } = $props()
+
+  function animatedToggle () {
+    document.startViewTransition(onToggle)
+  }
 </script>
 
-<button class="caret-button" on:click={onToggle}>
-  <span class="material-symbols-outlined caret-icon">
-    {isCollapsed ? 'chevron_right' : 'expand_more'}
-  </span>
+<button class="flex items-center justify-center" onclick={animatedToggle}
+  style:width={fontSize} style:height={fontSize}
+>
+  <!-- without pointer-events: none, the touch area for this button is based on this large icon, not the small button that contains it -->
+  <div 
+    style:font-size="calc(2 * {fontSize})" 
+    class="shrink-0 flex items-center text-[var(--fine-control-color)] pointer-events-none"
+  >
+    {#if isCollapsed}
+      <MslChevronRight />
+    {:else}
+      <MslExpandMore />
+    {/if}
+  </div>
 </button>
-
-<style>
-  .caret-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 12.5px;
-    width: 12.5px;
-  }
-
-  .caret-icon {
-    font-size: 30px;
-    color: var(--fine-control-color);
-    font-weight: 100;
-  }
-</style> 

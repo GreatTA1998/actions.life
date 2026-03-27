@@ -1,6 +1,5 @@
 <script>
   import DemoContext from './DemoContext.svelte'
-  import { hasFetchedUser } from '$lib/store'
   import HeroSection from './components/HeroSection.svelte'
   import TimelineDemo from './components/TimelineDemo.svelte'
   import HabitDemo from './components/HabitDemo.svelte'
@@ -10,16 +9,14 @@
   import ArtisticBackground from './components/ArtisticBackground.svelte'
   import TopNavbar from './components/TopNavbar.svelte'
   import TaskPopup from '../[user]/components/TaskPopup/TaskPopup.svelte'
-  import LoginGoogle from '$lib/components/LoginGoogle.svelte'
+  import SignInButton from '$lib/components/SignInButton.svelte'
+  import { authChecked } from '$lib/store'
   // import AppDetailsSection from './components/AppDetailsSection.svelte'
   // import VisionSection from './components/VisionSection.svelte'
 </script>
 
-{#if hasFetchedUser}
-  <div
-    style="display: flex; flex-grow: 1; height: 100%; padding: 3%; padding-top: 2%;"
-    class="home-page-background"
-  >
+{#if $authChecked}
+  <div class="home-bg h-full flex grow" style="padding: 3%; padding-top: 2%;">
     <div style="position: absolute; top: 0; left: 0; right: 0;">
       <TopNavbar />
     </div>
@@ -39,21 +36,30 @@
         <ComparisonTable />
 
         <UpdateLogSection />
+      </DemoContext>
 
-        <div style="display: flex; width: 100%; height: 320px; justify-content: center; align-items: start">
-          <LoginGoogle />
+      <div class="flex flex-col w-full h-[320px] items-center gap-8 justify-start">
+        <SignInButton />
+
+        <div style="display: flex; gap: 1.5rem; opacity: 0.6; font-size: 0.8rem;">
+          <a href="/legal/privacy-policy" style="text-decoration: none; color: inherit;">
+            Privacy Policy
+          </a>
+          <a href="/legal/terms-of-service" style="text-decoration: none; color: inherit;">
+            Terms of Service
+          </a>
         </div>
+      </div>
 
-        <TaskPopup />
+        <!-- <TaskPopup /> -->
         <!-- <VisionSection /> -->
         <!-- <AppDetailsSection /> -->
-      </DemoContext>
     </div>
   </div>
 {/if}
 
 <style lang="scss">
-  .home-page-background {
+  .home-bg {
     background: linear-gradient(
       135deg,
       #f7f0e1 0%,
@@ -66,7 +72,7 @@
     overflow-x: hidden;
   }
 
-  .home-page-background > * {
+  .home-bg > * {
     position: relative;
     z-index: 1;
   }

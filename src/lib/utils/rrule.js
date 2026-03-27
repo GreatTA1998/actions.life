@@ -1,33 +1,39 @@
 import { DateTime } from 'luxon'
 
 import * as rrule from 'rrule' // get around the CommonJS vs ES Module issue
-const { RRule } = rrule
+const { RRule, datetime } = rrule
 
 function debug (varName, dt) {
   console.log(`${varName}: ${dt.toFormat('EEE MM-dd HH:mm')} ${dt.zoneName}`)
 }
 
+function rrFloat (dt) {
+  const float = dt.setZone('UTC', { keepLocalTime: true })
+  return datetime(float.year, float.month, float.day)
+}
+
 export function generateRecurrenceDTs ({ startDT, endDT, rrStr }) {
   const jsDates = RRule.fromString(rrStr).between(
-    startDT.setZone('UTC', { keepLocalTime: true }).toJSDate(),
-    endDT.setZone('UTC', { keepLocalTime: true }).toJSDate(),
-    true // includes both startDT & endDT
+    rrFloat(startDT),
+    rrFloat(endDT),
+    true // includes endDT
   )
-  return jsDates.map(date => {
-    const dt = DateTime.fromJSDate(date)
-    return dt.set({ day: date.getDate() }) 
+  const results = jsDates.map(date => {
+    // from rrule's README (seriously)
+    return DateTime.fromJSDate(date).toUTC().setZone('local', { keepLocalTime: true }) // .toJSDate()
   })
+  return results
 }
 
 export function getPreviewSpan ({ rrStr }) {
-  const kind = getPeriodicity(rrStr)
+  const kind = periodicity(rrStr)
 
   if (kind === 'yearly') return 365 * 2
   else if (kind === 'monthly') return 31 * 2
   else return 7 * 2
 }
 
-export function getPeriodicity (rrStr) {
+export function periodicity (rrStr) {
   if (!rrStr) return 'weekly'
   const lower = rrStr.toLowerCase()
 

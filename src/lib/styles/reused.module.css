@@ -1,0 +1,26 @@
+:export {
+  paddingVal: 4px;
+  fieldGrey: #727272;
+  noZoomFS: 1rem; /* iOS zoom triggers if font is below 16px */
+  notesFS: 0.75rem;
+  titleFS: 0.8rem;
+}
+
+.placeholderField {
+  font-size: 1rem; /* iOS zoom triggers if font is below 16px */
+}
+
+.placeholderField::placeholder {
+  font-size: 1rem;
+  opacity: 0.6;
+}
+
+.placeholderFieldLarge::placeholder {
+  opacity: 0.6;
+}
+
+.calendarBlock {
+  width: 100%;
+  cursor: pointer;
+  border-radius: var(--left-padding);
+}

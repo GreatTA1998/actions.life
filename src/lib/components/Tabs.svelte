@@ -43,11 +43,8 @@
   
   .tab-button {
     padding: 8px 16px;
-    border: none;
     background-color: transparent;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
+    font-size: 0.875rem;
     position: relative;
     color: #666;
     font-weight: 500;
@@ -61,7 +58,6 @@
     width: 100%;
     height: 2px;
     background-color: transparent;
-    transition: background-color 0.2s;
   }
   
   .tab-button.active {

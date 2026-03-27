@@ -13,7 +13,7 @@ export const themes = {
     cssVars: {
       '--todo-list-bg-color': 'oklch(0.9 0.1 72.14)',
       '--calendar-bg-color': 'oklch(0.92 0.08 72.71)',
-      '--navbar-bg-color': 'oklch(0.93 0.07 72.54)',
+      '--navbar-bg-color': 'oklch(0.96 0.03 72.54)',
       '--grid-color': 'oklch(0.85 0.09 72.71)'
     }
   },
@@ -22,8 +22,17 @@ export const themes = {
     cssVars: {
       '--todo-list-bg-color': '#f8f9f9',
       '--calendar-bg-color': '#f8f9f9',
-      '--navbar-bg-color': '#f8f9f9',
+      '--navbar-bg-color': '#ffffff',
       '--grid-color': 'rgb(228, 228, 228)'
+    }
+  },
+  google: {
+    previewColor: '#f0f4f8',
+    cssVars: {
+      '--todo-list-bg-color': '#ffffff',
+      '--calendar-bg-color': '#f0f4f8',
+      '--navbar-bg-color': '#ffffff',
+      '--grid-color': '#e5e7eb'
     }
   }
 }

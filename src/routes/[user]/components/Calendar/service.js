@@ -1,11 +1,10 @@
-/** Handles everything data-related for <Calendar/>, from snapshot listeners to tree building. */
 import { updateCache } from '$lib/store'
 import { DateTime } from 'luxon'
 import { pureNumericalHourForm } from '$lib/utils/core.js'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '$lib/db/init'
-import { page } from '$app/stores'
-import { get, writable } from 'svelte/store'
+import { page } from '$app/state'
+import { writable } from 'svelte/store'
 
 const listeners = {}
 
@@ -25,7 +24,7 @@ export function setupCalListener (leftDT, rightDT) {
   }
 }
 
-function divideIntoRegions (leftISO, rightISO, chunkSize = 10) {
+function divideIntoRegions (leftISO, rightISO, chunkSize) {
   const chunks = []
   let currentChunk = []
   let currentDate = DateTime.fromISO(leftISO)
@@ -53,7 +52,7 @@ function divideIntoRegions (leftISO, rightISO, chunkSize = 10) {
 function listenToRegion (dateISOs) {
   return onSnapshot(
     query(
-      collection(db, `/users/${get(page).params.user}/tasks`), 
+      collection(db, `/users/${page.params.user}/tasks`), 
       where('treeISOs', 'array-contains-any', dateISOs)
     ),
     (snapshot) => {
@@ -91,12 +90,11 @@ export function rebuildRegion (regionTasks, dateISOs) {
 function constructForest (firestoreTaskDocs) {
   const forest = new Map()
   
-  // First pass: create all nodes
   for (const task of firestoreTaskDocs) {
     forest.set(task.id, { ...task, children: [] })
   }
   
-  // Second pass: build the forest (note: due to aliasing, we don't need to process nodes in topological order)
+  // due to aliasing, we don't need to process nodes in topological order
   for (const tree of forest.values()) {
     if (tree.parentID && forest.has(tree.parentID)) { // you can deprecate `forest.has(tree.parentID)` when `rootStartDateISO` is correctly set for all tasks
       forest.get(tree.parentID).children.push(tree)
@@ -150,7 +148,3 @@ function addTaskToDate (task, date, dateToTasks) {
 function emptyState () {
   return { hasStartTime: [], noStartTime: { hasIcon: [], noIcon: [] } }
 }
-
-export default {
-  setupCalListener
-} 

@@ -1,10 +1,12 @@
 <script>
   import { releaseImage } from '$lib/db/helpers.js'
+  import MslNoPhotographyOutline from 'virtual:icons/material-symbols-light/no-photography-outline'
   import { getContext } from 'svelte'
+  import { user } from '$lib/store'
 
-  const { Task, user } = getContext('app')
+  const { Task } = getContext('app')
 
-  let { taskObject } = $props()
+  let { task } = $props()
 
   async function confirmDeletePhoto ({ imageFullPath, imageDownloadURL }) {
     if (confirm('Are you sure you want to delete the photo?')) {
@@ -12,8 +14,8 @@
         await releaseImage($user.uid, { imageFullPath, imageDownloadURL })
       }
       Task.update({ 
-        id: taskObject.id,
-        keyValueChanges: { 
+        id: task.id,
+        kvChanges: { 
           imageDownloadURL: '',
           imageFullPath: ''
         }
@@ -22,10 +24,10 @@
   }
 </script>
 
-<button onclick={() => confirmDeletePhoto(taskObject)} 
+<button onclick={() => confirmDeletePhoto(task)} 
   class="photo-row-action" 
 >
-  <span class="material-symbols-outlined">no_photography</span>
+  <MslNoPhotographyOutline style="font-size: 1.125rem;"/>
   <span class="photo-row-label">Remove photo</span>
 </button>
 
@@ -35,25 +37,17 @@
     align-items: center;
     gap: 4px;
     background: none;
-    border: none;
     color: #333;
-    font-size: 14px;
+    font-size: 0.875rem;
     padding: 4px 8px;
     border-radius: 6px;
-    cursor: pointer;
     transition: background 0.2s;
-    font-weight: 400;
     width: 100%;
     justify-content: flex-start;
-    box-sizing: border-box;
-  }
-
-  .photo-row-action .material-symbols-outlined {
-    font-size: 18px;
   }
 
   .photo-row-label {
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 400;
   }
 

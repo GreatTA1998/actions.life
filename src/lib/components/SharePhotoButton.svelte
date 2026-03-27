@@ -1,94 +1,44 @@
 <script>
-  import { onMount } from 'svelte'
-  import { formatDate } from '/src/lib/utils/core.js'
+  import { shareEngravedImage } from '$lib/utils/imageExport.js'
+  import MslIosShare from 'virtual:icons/material-symbols-light/ios-share'
   
-  export let imageURL = ''
-  export let date = ''
-  export let notes = ''
+  let { task } = $props()
   
-  let shareSupported = false
+  let snackbarMessage = $state('')
   
-  onMount(() => {
-    // Check if Web Share API is supported
-    shareSupported = !!navigator.share
-  })
-  
-  async function sharePhoto(event) {
-    event.stopPropagation()
-    
-    if (!imageURL) return
-    
+  async function sharePhoto (e) {
+    e.stopPropagation()
     try {
-      if (navigator.share) {
-        // Use Web Share API (works on mobile)
-        await navigator.share({
-          title: date ? `Photo from ${formatDate(date)}` : 'Shared photo',
-          text: notes || 'Shared from Actions Life',
-          url: imageURL
-        })
-      } else {
-        // Fallback for desktop - copy image URL
-        await navigator.clipboard.writeText(imageURL)
-        alert('Image URL copied to clipboard!')
-      }
+      const { imageDownloadURL, name, startDateISO } = task
+      await shareEngravedImage(imageDownloadURL, startDateISO, name)
+      snackbarMessage = 'Photo ready to share'
     } catch (error) {
-      console.error('Error sharing:', error)
-      // User likely canceled share operation, no need to show error
+      console.error('Error sharing engraved photo:', error)
+      snackbarMessage = 'Failed to share photo. Error sent to developer.'
     }
-  }
-  
-  function downloadPhoto(event) {
-    event.stopPropagation()
-    
-    if (!imageURL) return
-    
-    // Create a temporary link element
-    const link = document.createElement('a')
-    link.href = imageURL
-    link.download = `photo-${date || 'actions-life'}.jpg`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
   }
 </script>
 
-<div>
-  <button 
-    class="photo-row-action"
-    on:click={sharePhoto}
-    title="Share photo"
-  >
-    <span class="material-symbols-outlined">ios_share</span>
-    <span class="photo-row-label">Share</span>
-  </button>
-</div>
+<button onclick={e => sharePhoto(e)} class="photo-row-action">
+  <MslIosShare style="font-size: 1.125rem;"/>
+  <span class="photo-row-label">Share captioned photo</span>
+</button>
 
 <style>
   .photo-row-action {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 4px;
-    background: none;
-    border: none;
     color: #333;
-    font-size: 14px;
+    font-size: 0.875rem;
     padding: 4px 8px;
     border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
-    font-weight: 400;
     width: 100%;
-    justify-content: flex-start;
-    box-sizing: border-box;
-  }
-
-  .photo-row-action .material-symbols-outlined {
-    font-size: 18px;
   }
 
   .photo-row-label {
-    font-size: 14px;
-    font-weight: 400;
+    font-size: 0.875rem;
   }
 
   .photo-row-action:hover {

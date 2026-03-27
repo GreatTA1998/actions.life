@@ -1,21 +1,23 @@
 <script>
   import ModularLayer from '$lib/components/ModularLayer.svelte'
 
-  export let zIndex = 3
-  export let padding = 24
+  let { 
+    zIndex = 3, 
+    padding = 24, 
+    onClickOutside = () => {},
+    children 
+  } = $props()
 </script>
 
-<ModularLayer {zIndex} on:click-outside>
+<ModularLayer {zIndex} {onClickOutside}>
   <div class="detailed-card-popup" style="z-index: {zIndex}; padding: {padding}px">
-    <slot> 
-
-    </slot>
+    {@render children()}
   </div>
 </ModularLayer>
 
 <style>
   .detailed-card-popup {
-    max-height: 90dvh; /* mobile safety, always be able to close the screen */
+    max-height: 80dvh; /* mobile safety, always be able to close the screen */
     min-width: 360px;
 
     width: 100%;
@@ -30,12 +32,12 @@
     border-radius: 24px;
     background-color: white;
 
-    box-shadow: 0px 0px 0px 9999px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 0px 0px 9999px rgba(0, 0, 0, 0.8);
   }
 
   @media (min-width: 768px) {
     .detailed-card-popup {
-      width: 70%;
+      width: 768px;
     }
   }
 </style>

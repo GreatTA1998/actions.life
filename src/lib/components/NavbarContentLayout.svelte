@@ -7,7 +7,7 @@
     </slot>
   </div>
 
-  <div class="row content">
+  <div class="row content hide-scrollbar">
     <slot name="content">
 
     </slot>

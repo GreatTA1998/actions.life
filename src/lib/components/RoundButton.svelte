@@ -1,47 +1,26 @@
 <script>
-  export let backgroundColor = ''
-  export let textColor = ''
-  export let isBordered = false
-  export let isDisabled = false
+  let { 
+    backgroundColor = '',
+    textColor = '',
+    isBordered = false,
+    disabled = false,
+    onclick = () => {},
+    children = null
+  } = $props()
 </script>
 
-{#if isDisabled}
-  <div class="reusable-round-button disabled-button-styling">
-    <slot></slot>
-  </div>
-{:else}
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div
-    on:click
-    class="reusable-round-button glow-on-hover"
-    style="
-      color: {textColor}; 
-      background-color: {backgroundColor};
-      cursor: pointer;  
-      border: {isBordered ? '3px solid cyan' : ''};
-    "
-  >
-    <slot></slot>
-  </div>
-{/if}
+<button {onclick} {disabled}
+  class="justify-center py-[10px] px-[18px] hover-glow"
+  style:border-radius="24px"
+  style:color={textColor}
+  style:background-color={backgroundColor}
+  style:border={isBordered ? '3px solid cyan' : ''}
+>
+  {@render children?.()}
+</button>
 
 <style>
-  .reusable-round-button {
-    display: flex;
-    width: fit-content;
-    justify-content: center;
-    align-items: center;
-    padding: 10px 18px 10px 18px;
-    border-radius: 24px;
-  }
-
-  .glow-on-hover:hover {
+  .hover-glow:hover {
     filter: brightness(105%);
-  }
-
-  .disabled-button-styling {
-    background-color: grey;
-    color: rgb(100, 100, 100);
-    cursor: default;
   }
 </style>

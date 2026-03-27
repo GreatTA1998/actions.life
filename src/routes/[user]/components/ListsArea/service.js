@@ -1,9 +1,10 @@
 import { writable } from 'svelte/store'
 import { db } from '$lib/db/init'
-import { updateCache } from '$lib/store'
+import { updateCache, cleanupCache } from '$lib/store'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 
 let persistTasks
+const unsubFuncs = []
 
 export const trees = writable(null)
 
@@ -16,30 +17,32 @@ export function listenToTasks (uid) {
       updateCache(persistTasks)
     }
   )
-} 
-
-function setupListener (ref, callback) {
-  onSnapshot(ref, snapshot => {
-    const mappedData = snapshot.docs.map(doc => ({
-      ...doc.data(), 
-      id: doc.id
-    }))
-    
-    callback(mappedData)
-
-    if (persistTasks) {
-      buildTreeMap(persistTasks)
-    }
-  })
 }
 
-function buildTreeMap(tasks) {
-  // reconstructTreeInMemory is really constructing a forest
-  const result = reconstructTreeInMemory(tasks)
-  trees.set(result)
-} 
+function setupListener (ref, callback) {
+  unsubFuncs.push(
+    onSnapshot(ref, snapshot => {
+      const mappedData = snapshot.docs.map(doc => ({
+        ...doc.data(), 
+        id: doc.id
+      }))
+      
+      callback(mappedData)
+  
+      if (persistTasks) {
+        buildTreeMap(persistTasks)
+      }
+    })
+  )
+}
 
-export function reconstructTreeInMemory (firestoreTaskDocs) {
+function buildTreeMap (tasks) {
+  trees.set(
+    buildForest(tasks)
+  )
+}
+
+export function buildForest (firestoreTaskDocs) {
   const memoryTree = []
 
   const memo = { '': [] }
@@ -57,10 +60,29 @@ export function reconstructTreeInMemory (firestoreTaskDocs) {
   return memoryTree
 }
 
-function extendTree(node, memo) {
+function extendTree (node, memo) {
   node.children = memo[node.id]
   node.children = node.children.sort((a, b) => a.orderValue - b.orderValue)
   for (const child of node.children) {
     extendTree(child, memo)
   }
+}
+
+export function findSubtree ({ tree, id }) {
+  if (tree.id === id) return tree
+  else {
+    for (const child of tree.children) {
+      const result = findSubtree({ tree: child, id })
+      if (result) return result
+    }
+  }
+}
+
+// TO-DO: bugged, unused for now
+export function cleanup () {
+  for (const unsub of unsubFuncs) {
+    unsub()
+  }
+  cleanupCache(persistTasks)
+  trees.set(null)
 }

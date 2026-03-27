@@ -1,11 +1,9 @@
 <script>
-  import { currentMode } from '$lib/store'
-  import { openTemplateEditor } from '/src/routes/[user]/components/Templates/store.js'
   import PeriodicityEditor from '/src/routes/[user]/components/Templates/components/TemplatePopup/PeriodicityEditor.svelte'
-  import { getContext } from 'svelte'
+  import MslRepeat from 'virtual:icons/material-symbols-light/repeat'
+  import { user } from '$lib/store'
 
-  const { closeTaskPopup, user } = getContext('app')
-  let { taskObject } = $props()
+  let { task, onToggleTemplateEditor, isTemplateEditorOpen = false } = $props()
   let isCreatingRoutine = $state(false)
 
   function toggleCreate (e) {
@@ -13,34 +11,36 @@
     isCreatingRoutine = !isCreatingRoutine
   }
 
-  function redirectToRoutine () {
-    currentMode.set('Templates')
-    openTemplateEditor(taskObject.templateID)
-    closeTaskPopup()
+  function toggleTemplateEditor (e) {
+    e.stopPropagation()
+    onToggleTemplateEditor?.()
   }
 </script>
 
-{#if taskObject.templateID}
-  <button onclick={redirectToRoutine} class="my-btn material-symbols-outlined">
-    repeat
-  </button> 
-
-  <u onclick={redirectToRoutine} style="cursor: pointer;">Manage routine</u>
+{#if task.templateID}
+  <button onclick={toggleTemplateEditor} class="my-btn flex" style="color: rgb(0, 89, 125);" class:active={isTemplateEditorOpen}>
+    <MslRepeat style="font-size: var(--popup-control);"/>
+  </button>
 {:else}
-  <button onclick={toggleCreate} class="my-btn material-symbols-outlined" 
+  <button onclick={toggleCreate} class="my-btn flex" 
     class:greyed-out={$user.uid === 'demo-user'} disabled={$user.uid === 'demo-user'}
   >
-    repeat
+    <MslRepeat style="font-size: var(--popup-control);"/>
   </button>
 
   {#if isCreatingRoutine}
-    <PeriodicityEditor isCreating routine={{ ...taskObject, rrStr: '' }} />
+    <PeriodicityEditor isCreating routine={{ ...task, rrStr: '' }} />
   {/if}
 {/if}
 
 <style>
   .my-btn {
     color: rgb(20, 20, 20);
+    border-radius: 4px;
+  }
+
+  .my-btn.active {
+    background: rgba(0, 89, 125, 0.1);
   }
 
   .greyed-out {

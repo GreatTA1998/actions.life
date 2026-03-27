@@ -51,21 +51,28 @@
 
   async function handleCreate () {
     propagateChanges()
+    const previewSpan = getPreviewSpan({ rrStr: pendingRRStr })
     Template.create({
       id: routine.id,
-      newTemplate: { ...routine, rrStr: pendingRRStr }
+      newTemplate: { 
+        ...routine, 
+        rrStr: pendingRRStr,
+        previewSpan,
+        prevEndISO: DateTime.utc().plus({ days: previewSpan }).toFormat('yyyy-MM-dd')
+      }
     })
-    Task.update({ id: routine.id, keyValueChanges: {
+    Task.update({ id: routine.id, kvChanges: {
       templateID: routine.id
     }})
   }
   
   async function handleUpdate () {
     propagateChanges()
+    const previewSpan = getPreviewSpan({ rrStr: pendingRRStr })
     Template.update({ id: routine.id, updates: { 
       rrStr: pendingRRStr, 
-      previewSpan: getPreviewSpan(pendingRRStr),
-      prevEndISO: DateTime.now().plus({ days: getPreviewSpan(pendingRRStr) }).toFormat('yyyy-MM-dd')
+      previewSpan,
+      prevEndISO: DateTime.now().plus({ days: previewSpan }).toFormat('yyyy-MM-dd')
     }})
   }
 
@@ -94,15 +101,17 @@
 
   {#if pendingRRStr !== routine.rrStr}
     <div class="changes-section">
-      <PreviewChanges {pendingRRStr} {addingTasks} {deletingTasks} {exceptions}/>
+      {#if !isCreating}
+        <PreviewChanges {pendingRRStr} {addingTasks} {deletingTasks} {exceptions}/>
+      {/if}
 
       <div class="action-button-container">
         {#if isCreating}
-          <RoundButton on:click={handleCreate} backgroundColor="rgb(0, 89, 125)" textColor="white">
+          <RoundButton onclick={handleCreate} backgroundColor="rgb(0, 89, 125)" textColor="white">
             Create routine
           </RoundButton>
         {:else}
-          <RoundButton on:click={handleUpdate} backgroundColor="rgb(0, 89, 125)" textColor="white">
+          <RoundButton onclick={handleUpdate} backgroundColor="rgb(0, 89, 125)" textColor="white">
             Apply changes
           </RoundButton>
         {/if}

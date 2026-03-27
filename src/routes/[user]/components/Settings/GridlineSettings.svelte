@@ -1,36 +1,23 @@
 <script>
   import { updateFirestoreDoc } from '$lib/db/helpers.js'
   import { user, calSnapInterval } from '$lib/store'
-  import CheckboxSquare from '$lib/components/CheckboxSquare.svelte'
 
-  const snapIntervals = [1, 5, 10, 15, 30]
+  const snapIntervals = [1, 5, 10, 15, 30, 60]
 
   function updateSettings (interval) {
     updateFirestoreDoc(`users/${$user.uid}`, { calSnapInterval: interval })
   }
-
-  function toggleGridlines () {
-    updateFirestoreDoc(`/users/${$user.uid}`, { 
-      hasGridlines: !$user.hasGridlines 
-    })
-  }
 </script>
 
 <div class="gridlines-container">
-  <CheckboxSquare 
-    value={$user.hasGridlines}
-    onClick={toggleGridlines}
-    label="Show gridlines on calendar"
-  />
-
   <div class="snap-settings">
-    <div class="snap-label">Snap to interval</div>
+    <div class="snap-label">Snap to nearest</div>
     <div class="interval-selector">
       <div class="interval-buttons">
         {#each snapIntervals as interval}
           <button 
             on:click={() => updateSettings(interval)} 
-            class="interval-button"
+            class="interval-button justify-center"
             class:active={$calSnapInterval === interval}
           >
             {interval}
@@ -56,9 +43,8 @@
   }
 
   .snap-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: #555;
+    font-size: 0.875rem;
+    font-weight: 400;
   }
 
   .interval-selector {
@@ -84,11 +70,6 @@
     color: #555;
     min-width: 36px;
     cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .interval-button:hover {
-    background: rgba(0, 0, 0, 0.05);
   }
 
   .interval-button.active {

@@ -8,30 +8,16 @@
   }
 </script>
 
-<div class="color-buttons"> 
-  <button on:click={() => changeTheme('offWhite')} 
-    class="color-button"
-    style:background-color={themes.offWhite.previewColor}
-    class:active={$user.calendarTheme === 'offWhite'}
-  >
-    Cool White
-  </button>
-
-  <button on:click={() => changeTheme('naturalGreen')} 
-    class="color-button"
-    style:background-color={themes.naturalGreen.previewColor}
-    class:active={$user.calendarTheme === 'naturalGreen'}
-  >
-    Leafy Green
-  </button>
-
-  <button on:click={() => changeTheme('sunshineOrange')} 
-    class="color-button"
-    style:background-color={themes.sunshineOrange.previewColor}
-    class:active={$user.calendarTheme === 'sunshineOrange'}
-  >
-    Distant sunrise
-  </button>
+<div class="color-buttons">
+  {#each Object.entries(themes) as [key, theme]}
+    <button on:click={() => changeTheme(key)} 
+      class="color-button"
+      style:background-color={theme.previewColor}
+      class:active={$user.calendarTheme === key}
+      title={key}
+    >
+    </button>
+  {/each}
 </div>
 
 <style>
@@ -43,8 +29,8 @@
   .color-button {
     border-radius: 8px;
     padding: 8px 12px;
-    width: 60px; 
-    height: 60px;
+    width: 24px; 
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -53,11 +39,14 @@
     color: rgba(0, 0, 0, 0.7);
     
     opacity: 0.5;
+    border: 1px solid rgba(0,0,0,0.1);
   }
   
   .color-button.active {
     font-weight: 700;
     opacity: 1;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    border: 1px solid rgba(0,0,0,0.2);
+    transform: scale(1.1);
   }
 </style>

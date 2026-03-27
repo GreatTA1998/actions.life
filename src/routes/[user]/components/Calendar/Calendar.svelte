@@ -4,15 +4,15 @@
   import DayHeader from './DayHeader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
 
-  import { calEarliestHHMM, totalMinutes } from './timestamps.js'
-  import { headerHeight, pixelsPerHour } from './store.js'
+  import { headerHeight, pixelsPerHour, timestampsColumnWidth } from './store.js'
   import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
-  import { setupCalListener } from './service.js'
+  import { setupCalListener, treesByDate } from './service.js'
+  import { getAllGCalEvents, fetchAccountsAndCalendars } from '$lib/features/google-calendar/gcal.js'
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'
 
-  const { scrollCalRect } = getContext('drag-drop') // quickfix
+  const { scrollCalRect } = getContext('drag-drop')
 
   let scrollParent
 
@@ -22,7 +22,7 @@
   let triggerLeft = -Infinity
   let triggerRight = Infinity
 
-  let scrollX = Math.floor(TOTAL_COLUMNS / 2) * COLUMN_WIDTH // divergent from the UI initially
+  let scrollX = Math.floor(TOTAL_COLUMNS / 2) * COLUMN_WIDTH // initially divergent from the UI
 
   $: viewportLeft = Math.floor(scrollX / COLUMN_WIDTH)
   $: viewportRight = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
@@ -30,19 +30,24 @@
   $: updateRenderedColumns(viewportLeft, viewportRight)
   
   $: if (viewportRight >= triggerRight) addFutureListener()
-  $: if (viewportLeft <= triggerLeft) addPastListener()  
+  $: if (viewportLeft <= triggerLeft) addPastListener()
 
-  onMount(() => {
+  onMount(async () => {
     setupCalListener(
       originDT.plus({ days: viewportLeft - 2*c }),
       originDT.plus({ days: viewportRight + 2*c })
     )
     triggerLeft = viewportLeft - c
     triggerRight = viewportRight + c
-    
     // quickfix, refactor into an action in the future perhaps
     scrollCalRect.set(
       () => scrollParent.getBoundingClientRect() // temporary,  () => {} is more robust across layout changes
+    )
+
+    await fetchAccountsAndCalendars()
+    getAllGCalEvents(
+      originDT.plus({ days: viewportLeft - 2*c }),
+      originDT.plus({ days: viewportRight + 2*c })
     )
   })
 
@@ -51,11 +56,19 @@
       originDT.plus({ days: (triggerRight + c) + 1 }),
       originDT.plus({ days: (triggerRight + c) + 1 + 2*c }) 
     )
+    getAllGCalEvents(
+      originDT.plus({ days: (triggerRight + c) + 1 }),
+      originDT.plus({ days: (triggerRight + c) + 1 + 2*c })
+    )
     triggerRight += (1 + 2*c)
   }
 
   function addPastListener () {
     setupCalListener(
+      originDT.plus({ days: (triggerLeft - c) - 1 - 2*c }),
+      originDT.plus({ days: (triggerLeft - c) - 1 })
+    )
+    getAllGCalEvents(
       originDT.plus({ days: (triggerLeft - c) - 1 - 2*c }),
       originDT.plus({ days: (triggerLeft - c) - 1 })
     )
@@ -67,51 +80,54 @@
       renderedLeft = viewportLeft - 2*c
       renderedRight = viewportRight + 2*c
 
-      const [hour, minute] = $calEarliestHHMM.split(':').map(Number)
       renderedColumnDTs = Array.from(
         { length: renderedRight - renderedLeft + 1 },
-        (_, i) => originDT.plus({ days: renderedLeft + i }).set({ hour, minute })
+        (_, i) => originDT.plus({ days: renderedLeft + i })
       )
     }
   }
 </script>
 
-<div class="relative z-0 grid" style="grid-template-rows: auto 1fr; height: 100%;">
-  <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
+{#if Object.keys($treesByDate).length > 0}
+  <div 
+    class="relative z-0 grid h-full" 
+    style="grid-template-rows: auto 1fr; view-transition-name: calendar; view-transition-class: static-ui;"
+  >
+    <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
 
-  <div class="relative" style:overflow="auto" use:jumpToToday on:scroll={e => scrollX = e.target.scrollLeft} id="scroll-parent" bind:this={scrollParent}>
-    <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flexbox">
-      <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {$totalMinutes * ($pixelsPerHour / 60)}px;"/>
+    <div id="scroll-parent" bind:this={scrollParent}
+      use:jumpToToday class="relative hide-scrollbar cal-bg-color" style:overflow="auto" 
+      on:scroll={e => scrollX = e.target.scrollLeft + $timestampsColumnWidth }
+    >
+      <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flex">
+        <Timestamps class="sticky left-0" style="margin-top: {$headerHeight}px; height: {24 * $pixelsPerHour}px;"/>
 
-      {#if renderedColumnDTs[0]}
-        <div class="absolute" style:left="{renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px">
-          <div class="sticky top-0 z-1 flexbox" use:trackHeight={h => headerHeight.set(h)} style="box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);">
-            {#each renderedColumnDTs as dt (dt.toMillis())}
-              <DayHeader {dt} />
-            {/each}
+        {#if renderedColumnDTs[0]}
+          <div class="absolute" style:left="{renderedColumnDTs[0].diff(originDT, 'days').days * COLUMN_WIDTH}px">
+            <div class="sticky top-0 z-1 flex" use:trackHeight={h => headerHeight.set(h)} style="box-shadow: 0 3px 3px -2px rgba(0, 0, 0, 0.1);">
+              {#each renderedColumnDTs as dt (dt.toMillis())}
+                <DayHeader {dt} />
+              {/each}
+            </div>
+
+            <div class="flex pt-7">
+              {#each renderedColumnDTs as dt (dt.toMillis())}
+                <DayColumn {dt}/>
+              {/each}
+            </div>
           </div>
-
-          <div class="flexbox pt-7">
-            {#each renderedColumnDTs as dt (dt.toMillis())}
-              <DayColumn {dt}/>
-            {/each}
-          </div>
-        </div>
-      {/if}
+        {/if}
+      </div>
     </div>
   </div>
-</div>
+{/if}
 
 <style>
   .pt-7 {
     padding-top: 7px; /* timestamp has a height of 14px (despite a font size of 12px), note: this means the island and the massive-content will have a height difference of 7 px */
   }
 
-  #scroll-parent {
+  .cal-bg-color {
     background-color: var(--calendar-bg-color);
-  }
-
-  #scroll-parent::-webkit-scrollbar { /* hide scrollbar in Chrome, Safari and Opera */
-    display: none;
   }
 </style>

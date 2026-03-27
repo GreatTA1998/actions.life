@@ -2,56 +2,30 @@
   onclick={() => openTaskPopup(task)}
   ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })} 
   draggable="true" 
-  class="claude-draggable-item"
-  class:calendar-block={!isBulletPoint}
-  style="
-    position: relative;
-    height: {height}px; 
-    min-height: 12px;
-    font-size: {fontSize}rem;
-    opacity: {task.isDone ? '0.9' : '0.7'};
-    background-color: {isBulletPoint ? '' : 'var(--experimental-black)'};
-    background-image: {task.imageDownloadURL ? `url(${task.imageDownloadURL})` : ''};
-    background-size: contain;
-    background-repeat: no-repeat;
-    padding-left: {isBulletPoint ? '0px' : 'var(--left-padding)'};
-    padding-right: var(--left-padding);
-    display: flex; flex-direction: column; row-gap: 4px;
-  "
+  class={isBulletPoint ? '' : calendarBlock}
+  style={mergedStyle}
+  style:padding-top={isBulletPoint ? '' : 'var(--left-padding)'}
 >
-  <!-- As long as this parent div is correctly sized, the duration adjusting area 
-    will be positioned correctly (it's glued to the bottom of this parent div)
-
-    `min-height` prevents the parent from being super small when it's bullet point mode
-  -->
-  <div style="display: flex; align-items: center; width: 100%;">
+  <div class="flex items-center w-full">
     {#if isBulletPoint}
-      <span class="material-icons" 
-        style="
-          font-size: 2px; 
+      <div class="flex items-center" style="
           margin-right: calc(var(--left-padding) - 2px);
-          color: {task.isDone ? '#509c13' : 'rgb(20, 20, 20)'}; 
+          color: {task.isDone ? '#509c13' : 'rgb(20, 20, 20)'};
         "
       >
-        circle
-      </span>
+        <MslCircle style="font-size: 2px;"/>
+      </div>
     {/if}
-
-    <CalCheckableTaskName 
-      {task} 
-      color={isBulletPoint ? 'black' : 'white'}
+    
+    <CalTaskUnit {task} 
+      color={(isBulletPoint || (task.tagIDs ?? []).length >= 2) ? 'black' : 'white'}
     />
   </div>
-  <!-- End of task name flexbox -->
 
-  {#if !isBulletPoint}
-    {#if task.children.length > 0}
-      <SubtaskCountIndicator taskObj={task} color='white' />
-    {/if}
-
-    <div style="flex-grow: 1; overflow: hidden;">
-      <div style="font-size: 12px; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
-        {task.notes || ''}
+  {#if !isBulletPoint && (task.tagIDs ?? []).length < 2}
+    <div class="grow-1 overflow-hidden">
+      <div style="font-size: {notesFS}; font-weight: 300; color: {isBulletPoint ? '' : 'white'};">
+        {task.notes}
       </div>
     </div>
   {/if}
@@ -77,23 +51,74 @@
 </div>
 
 <script>
-  import CalCheckableTaskName from '$lib/components/CalCheckableTaskName.svelte'
-  import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
+  import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
+  import MslCircle from 'virtual:icons/material-symbols-light/circle'
+  import { calendarBlock, notesFS } from '$lib/styles/reused.module.css'
   import { getTrueY } from '$lib/utils/core.js'
+  import { user } from '$lib/store'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
 
+  import { getMultiColorBgStyles } from '$lib/utils/multiColorRendering.js'
+  
   const { Task, openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
 
   let { 
-    task = null, // this component assumes `task` is hydrated
-    fontSize = 1
-   } = $props()
+    task = null // this component assumes `task` is hydrated
+  } = $props()
 
+  const tagColors = $derived(
+    (task.tagIDs || [])
+      .map(id => $user.tags?.[id]?.color)
+      .filter(Boolean)
+  )
+
+  let startY = $state(0)
   let height = $derived($pixelsPerHour / 60 * task.duration)
   let isBulletPoint = $derived(height < 24) // 24px is exactly enough to not crop the checkbox and the task name
-  let startY = 0
+  let mergedStyle = $derived(getMergedStyle(task))
+  
+  function getMergedStyle () {
+    const styles = []
+    
+    // TO-FIX: these styles are no longer reactive e.g. opacity change when task is marked as done, or duration changes
+    styles.push(`position: relative`)
+    styles.push(`height: ${height}px`)
+    styles.push(`min-height: 12px`)
+    styles.push(`opacity: ${task.isDone ? '0.9' : '0.7'}`)
+    styles.push(`padding-left: ${isBulletPoint ? '0px' : 'var(--left-padding)'}`)
+    styles.push(`padding-right: var(--left-padding)`)
+    styles.push(`display: flex`)
+    styles.push(`flex-direction: column`)
+    styles.push(`row-gap: 4px`)
+    styles.push(`border: ${isBulletPoint ? '' : '1px solid rgba(0,0,0,0.15)'}`)
+
+    if (!isBulletPoint) {
+      let bgColor = 'var(--experimental-black)'
+      const { tagIDs } = task
+      if (tagIDs) {
+        if (tagIDs.length === 1) {
+          bgColor = $user.tags[tagIDs[0]].color
+        } 
+        else if (tagIDs.length >= 2) { 
+          const multiColorStyles = getMultiColorBgStyles(tagColors, 'dots') // or 'gradient'
+          bgColor = multiColorStyles.backgroundColor
+          
+          // NOTE: these are side-effects, additional CSS property changes
+          Object.entries(multiColorStyles).forEach(([k, v]) => {
+            if (k !== 'opacity' && v !== undefined && v !== '') {
+              const cssKey = k.replace(/([A-Z])/g, '-$1').toLowerCase() // Convert camelCase to kebab-case for CSS
+              styles.push(`${cssKey}: ${v}`)
+            }
+          })
+        }
+      }
+
+      styles.push(`background-color: ${bgColor}`)
+    }
+    return styles.join('; ')
+  }
 
   function startAdjustingDuration (e) {
     e.stopPropagation() // DragContext doesn't get involved, duration adjustment is fully handled within this component
@@ -109,26 +134,9 @@
 
     Task.update({
       id: task.id,
-      keyValueChanges: {
+      kvChanges: {
         duration: Math.max(1, task.duration + durationChange)
       }
     })
   }
-</script> 
-
-<style>
-  :root {
-    --left-padding: 6px;
-    --default-task-color: hsla(210, 20%, 36%, 0.6);
-
-    --experimental-purple: hsla(248, 53%, 58%, 0.6);
-    --experimental-red: hsla(0, 100%, 50%, 0.6);
-  }
-
-  .calendar-block {
-    width: 100%;
-    padding-top: var(--left-padding);
-    border-radius: var(--left-padding);
-    cursor: pointer;
-  }
-</style>
+</script>

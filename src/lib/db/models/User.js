@@ -1,14 +1,6 @@
 import { z } from 'zod'
-import { db } from '$lib/db/init.js'
-import {
-  doc,
-  updateDoc,
-  arrayUnion,
-  collection,
-  addDoc
-} from 'firebase/firestore'
-import { updateFirestoreDoc } from '$lib/db/helpers.js'
-import { user } from '$lib/store/index.js'
+import { setFirestoreDoc, updateFirestoreDoc } from '$lib/db/helpers.js'
+import { user, firebaseAuth } from '$lib/store'
 import { get } from 'svelte/store'
 
 const User = {
@@ -17,59 +9,49 @@ const User = {
     email: z.string(),
     maxOrderValue: z.number().default(10),
 
-    // missing properties from August 1
+    // properties introduced from August 1 2024, maybe
     calendarTheme: z.string().default('offWhite'),
-    hasGridlines: z.boolean().default(true),
 
     defaultPhotoLayout: z.string().default('side-by-side'),
-    calEarliestHHMM: z.string().default('06:00'),
-    calLastHHMM: z.string().default('00:00'),
-    calSnapInterval: z.number().default(5),
-    listAreaWidthRatio: z.number().default(0.0022295577727585616), // empirically determined from my account
+    calSnapInterval: z.number().default(1),
+    listAreaWidthRatio: z.number().default(0.00223), // empirically determined from my account
+    listAreaHeightRatio: z.number().default(0.004), // for mobile top-below view, default to 40% of viewport height
+    listWidthSplit: z.number().default(0.5),
+    listHeightSplit: z.number().default(0.5),
 
     // automation settings
+    simpleMode: z.boolean().default(true),
     photoUploadAutoArchive: z.boolean().default(false),
-    photoCompressWhenAttachingToTask: z.boolean().default(false),
+    photoCompressWhenAttachingToTask: z.boolean().default(false), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
 
     hideRoutines: z.boolean().default(true), // for mobile's future view
-    lastRanRoutines: z.string().default('') // for autoExtend.js
+    lastRanRoutines: z.string().default(''), // for autoExtend.js
 
-    // unused
-    // isSubscriber: z.boolean().default(false),
-    // includeRoutinesInEvents: z.boolean().default(false),
+    // needed temporarily for backwards compatibility
+    hasGridlines: z.boolean().default(true),
+    calEarliestHHMM: z.string().default('00:00'),
+    calLastHHMM: z.string().default('23:59'),
+    tags: z.record(z.object({ color: z.string(), name: z.string()})).default({}),
 
-    // to deprecate
-    // FCMTokens: z.array(z.string()).default([]),
-    // phoneNumber: z.string().optional(),
+    selectedGoogleCalendarIds: z.array(z.string()).optional() // to deprecate
   }),
 
-  // TO-DO: CRUD
-  async update (keyValueChanges) {
+  async create () {
+    const validatedUser = User.schema.parse(get(firebaseAuth).currentUser)
+    return await setFirestoreDoc(`/users/${validatedUser.uid}`, 
+      validatedUser
+    )
+  },
+
+  async update (kvChanges) {
     const { uid } = get(user)
     try {
-      const validatedChanges = User.schema.partial().parse(keyValueChanges)
+      const validatedChanges = User.schema.partial().parse(kvChanges)
       await updateFirestoreDoc(`/users/${uid}`, validatedChanges)
     } catch (error) {
       console.error("error in User.update", error)
       alert(`Error calling User.update: ${error.message}`)
     }
-  },
-
-  addIconURL (userUID, name, url, hidden) {
-    return addDoc(collection(db, "users", userUID, "icons"), {
-      url,
-      name,
-      hidden
-    })
-      .then(() => url)
-      .catch((err) => console.error("error in User.addIcon", err))
-  },
-
-  addFCMToken (userUID, FCMToken) {
-    return updateDoc(doc(db, "users", userUID), {
-      FCMTokens: arrayUnion(FCMToken)
-    })
-      .catch((err) => console.error("error in User.update", err))
   }
 }
 
