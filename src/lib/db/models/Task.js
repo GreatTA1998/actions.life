@@ -40,7 +40,7 @@ const Task = {
     // maintained fields
     orderValue: z.number().optional(),
     treeISOs: z.array(z.string()).optional(), 
-    rootID: z.string().optional() 
+    rootID: z.string().optional()
   }),
 
   create: async ({ id, newTaskObj, optimistic = true }) => {

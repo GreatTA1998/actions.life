@@ -87,6 +87,7 @@
     <TextArea value={task.notes}
       oninput={e => debouncedUpdate($clickedTaskID, { notes: e.target.value })}
       placeholder="Notes"
+      class="min-h-[3rem]"
     />
 
     {#if $familyTree}
