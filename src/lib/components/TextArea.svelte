@@ -6,7 +6,7 @@
     value = '',
     placeholder,
     fontSize = '1rem',
-    class: extraClass
+    class: extraClass = ''
   } = $props()
 </script>
 
