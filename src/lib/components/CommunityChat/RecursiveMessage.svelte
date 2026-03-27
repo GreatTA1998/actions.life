@@ -93,14 +93,14 @@
           >
             {#if replies.length > 0}
               <div class="flex gap-x-1 items-center">
-                <span class="flex shrink-0 -space-x-1.5 items-center">
+                <span class="flex shrink-0 -space-x-2 items-center">
                   {#each participantUids as uid, i (uid)}
-                    <span class="relative inline-flex" style="z-index: {3 - i}">
+                    <span class="relative inline-flex" style:z-index={10 - i}>
                       <CommunityChatZenBirdAvatar 
                         {uid}
                         avatarFilter={replies.find(r => r.uid === uid)?.avatarFilter}
                         size="sm"
-                        class="ring-2 ring-neutral-100"
+                        class="ring-1 ring-neutral-100"
                       />
                     </span>
                   {/each}
