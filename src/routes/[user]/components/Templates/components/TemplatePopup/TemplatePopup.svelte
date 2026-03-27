@@ -83,6 +83,7 @@
       <TextArea value={$template.notes}
         oninput={e => debouncedUpdate('notes', e.target.value)}
         placeholder="Notes..."
+        class="min-h-[3rem]"
       />
     </div>
 

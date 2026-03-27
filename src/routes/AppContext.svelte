@@ -8,6 +8,7 @@
   import User from '$lib/db/models/User.js'
   import Template from '$lib/db/models/Template.js'
   import Icon from '$lib/db/models/Icon.js'
+  import Message from '$lib/db/models/Message.js'
   import GCalAccount from '$lib/db/models/GCalAccount.js'
 
   let { children } = $props()
@@ -17,6 +18,7 @@
     Task, 
     Template,
     Icon,
+    Message,
     GCalAccount,
     tasksCache,
     clickedTaskID,
