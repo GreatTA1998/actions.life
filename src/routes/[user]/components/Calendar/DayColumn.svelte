@@ -20,77 +20,42 @@
   let { dt } = $props()
 
   let dayColumn
-  let yPos = $state(0)
   let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
   let pixelsPerMinute = $pixelsPerHour / 60
 
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
   let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
 
-  let previewTop = $state(null)
-  
+  let anchorY = $state(0)
   let anchorID = $derived(`--day-column-${dropzoneID}`)
-  let newDT = $derived(getNewDT(yPos))
-  
-  $effect(() => {
-    if ($bestDropzoneID === dropzoneID) renderDragPreview()
-    else previewTop = null
-  })
 
-  function renderDragPreview () {
-    const localTop = $draggedItem.y1 + dayColumn.scrollTop - dayColumn.getBoundingClientRect().top
-    let resultDT = snapToNearestInterval(
-      dt.plus({ hours: localTop / $pixelsPerHour }),
-      $calSnapInterval
-    )
-    previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
+  function viewportToLocalY (clientY) {
+    return clientY 
+      + dayColumn.scrollTop 
+      - dayColumn.getBoundingClientRect().top 
+      - dayColumn.style.paddingTop
   }
 
-  function getDateTimeFromTask(task) {
-    return DateTime.fromISO(`${task.startDateISO}T${task.startTime}`)
+  function HHmmToLocalY (HHmm) {
+    const [HH, mm] = HHmm.split(':').map(Number)
+    return (60 * HH + mm) * pixelsPerMinute
   }
 
-  function getOffset({ dt1, dt2 }) {
-    let minutesDiff = dt2.diff(dt1, 'minutes').minutes
-    if (minutesDiff < 0) minutesDiff += 24 * 60
-    return ($pixelsPerHour/60) * minutesDiff 
+  function minutesToHHmm (totalMinutes) {
+    const HH = String(Math.floor(totalMinutes / 60)).padStart(2, '0')
+    const mm = String(totalMinutes % 60).padStart(2, '0')
+    return `${HH}:${mm}`
   }
 
-  function snapToNearestInterval (dateTime, interval) {
-    if (interval <= 0) return dateTime
-    
-    const minutes = dateTime.minute
-    const remainder = minutes % interval
-    
-    if (remainder < interval / 2) {
-      return dateTime.set({ minute: minutes - remainder, second: 0, millisecond: 0 })
-    } else {
-      return dateTime.set({ minute: minutes + (interval - remainder), second: 0, millisecond: 0 })
-    }
+  function minutesSinceMidnight (clientY, snapInterval) {
+    const localY = viewportToLocalY(clientY)
+    return snap(localY / pixelsPerMinute, snapInterval)
   }
 
-  function getNewDT (trueY) {
-    const totalMsDistance = (trueY / $pixelsPerHour) * 60 * 60 * 1000
-    return DateTime.fromMillis(dt.toMillis() + totalMsDistance)
-  }
-
-  function shiftYPosition ({ duration }) {
-    const tasksGap = 30
-    yPos += ($pixelsPerHour / 60) * duration + tasksGap
-    overrideOptions.update(options => ({
-      ...options,
-      startDateISO: newDT.toFormat('yyyy-MM-dd'),
-      startTime: newDT.toFormat('HH:mm')
-    }))
-  }
-
-  function getY (e) {
-    return (
-      e.clientY +
-      dayColumn.scrollTop -
-      dayColumn.getBoundingClientRect().top -
-      dayColumn.style.paddingTop
-    )
+  function snap (number, interval) {
+    const remainder = number % interval 
+    if (remainder < interval / 2) return number - remainder
+    else return number - remainder + interval
   }
 </script>
 
@@ -107,53 +72,52 @@
       }
     },
     onDrop () {
-      const { id, y1 } = $draggedItem
-      const { top } = dayColumn.getBoundingClientRect()
-      const localTop = y1 - top + dayColumn.scrollTop
-
-      let resultDT = snapToNearestInterval(
-        dt.plus({ hours: localTop / $pixelsPerHour }),
-        $calSnapInterval
-      )
       Task.update({ 
-        id,
+        id: $draggedItem.id,
         kvChanges: {
-          startTime: resultDT.toFormat('HH:mm'),
-          startDateISO: resultDT.toFormat('yyyy-MM-dd')
+          startTime: minutesToHHmm(minutesSinceMidnight($draggedItem.y1, $calSnapInterval)),
+          startDateISO: dt.toFormat('yyyy-MM-dd')
         }
       })
-      previewTop = null // as supposed to 0 which is a valid position to preview an element
     }
   })}
   style:height="{24 * $pixelsPerHour}px"
   style:border-right="1px solid var(--grid-color)"
   onclick={e => {
     if (e.target === e.currentTarget) {
-      yPos = getY(e)
+      const snappedMinutes = minutesSinceMidnight(e.clientY, $calSnapInterval)
+      anchorY = snappedMinutes * pixelsPerMinute
+
       activateInput({
         anchorID,
         modifiers: { 
-          startDateISO: newDT.toFormat('yyyy-MM-dd'),
-          startTime: newDT.toFormat('HH:mm'),
+          startDateISO: dt.toFormat('yyyy-MM-dd'),
+          startTime: minutesToHHmm(snappedMinutes),
           onList: false
         },
-        onCreate: shiftYPosition
+        onCreate: ({ duration }) => {
+          const tasksGap = 30
+          anchorY += ($pixelsPerHour / 60) * duration + tasksGap
+          overrideOptions.update(options => ({
+            ...options,
+            startDateISO: dt.toFormat('yyyy-MM-dd'),
+            startTime: minutesToHHmm(anchorY / pixelsPerMinute)
+          }))
+        }
       })
     }
   }}
 >
   {#each $timestamps as timestamp}
-    {@const [hour, minute] = timestamp.split(':').map(Number)}
-
     <div class="bg-[var(--grid-color)] absolute w-full h-[1px] pointer-events-none" 
-      style:top="{getOffset({ dt1: dt, dt2: dt.set({ hour, minute }) })}px"
+      style:top="{HHmmToLocalY(timestamp)}px"
     >
     </div>
   {/each}
 
-  {#each scheduledTasks as task, i (task.id)}
+  {#each scheduledTasks as task (task.id)}
     <div class="absolute inset-x-0 mx-auto w-[var(--width-within-column)]" 
-      style:top="{getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px"
+      style:top="{HHmmToLocalY(task.startTime)}px"
     >
       {#if task.imageDownloadURL}
         <PhotoTaskElement {task} />
@@ -168,16 +132,17 @@
   {#each googleEvents as event}
     {@const startDT = DateTime.fromISO(event.start.dateTime)}
     <div class="absolute inset-x-0 mx-auto w-[var(--width-within-column)] pointer-events-none" 
-      style:top="{getOffset({ dt1: dt, dt2: startDT })}px" 
+      style:top="{HHmmToLocalY(startDT.toFormat('HH:mm'))}px" 
     >
       <GcalEvent {event} />
     </div>
   {/each}
 
-  {#if previewTop !== null}
+  {#if $bestDropzoneID === dropzoneID}
+    {@const dragPreviewY = minutesSinceMidnight($draggedItem.y1, $calSnapInterval) * pixelsPerMinute}
     <div class="absolute inset-x-0 mx-auto w-[var(--width-within-column)]" 
       style="
-        top: {previewTop}px; 
+        top: {dragPreviewY}px; 
         height: {$draggedItem.height}px;
         border-radius: var(--left-padding);
         {dropPreviewCSS}
@@ -187,7 +152,7 @@
 
   <div class="absolute w-full pointer-events-none"
     style:anchor-name={anchorID}
-    style:top="{yPos}px"
+    style:top="{anchorY}px"
     style:height="{30 * pixelsPerMinute}px" 
   >
   </div>
