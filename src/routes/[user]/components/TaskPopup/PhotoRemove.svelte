@@ -1,6 +1,6 @@
 <script>
   import { releaseImage } from '$lib/db/helpers.js'
-  import MslNoPhotographyOutline from 'virtual:icons/material-symbols-light/no-photography-outline'
+  import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
   import { getContext } from 'svelte'
   import { user } from '$lib/store'
 
@@ -24,34 +24,6 @@
   }
 </script>
 
-<button onclick={() => confirmDeletePhoto(task)} 
-  class="photo-row-action" 
->
-  <MslNoPhotographyOutline style="font-size: 1.125rem;"/>
-  <span class="photo-row-label">Remove photo</span>
+<button onclick={() => confirmDeletePhoto(task)} class="justify-start py-2 px-3 ">
+  <MslDeleteOutline style="font-size: 1.5rem"/>
 </button>
-
-<style>
-  .photo-row-action {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: none;
-    color: #333;
-    font-size: 0.875rem;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: background 0.2s;
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .photo-row-label {
-    font-size: 0.875rem;
-    font-weight: 400;
-  }
-
-  .photo-row-action:hover {
-    background: rgba(0,0,0,0.05);
-  }
-</style>

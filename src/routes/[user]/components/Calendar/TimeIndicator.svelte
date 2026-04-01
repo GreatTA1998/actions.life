@@ -45,7 +45,7 @@
 <style>
   .current-time-indicator-container {
     position: absolute; 
-    width: var(--width-calendar-day-section);
+    width: var(--width-cal-column);
     pointer-events: none;
   }
 </style>

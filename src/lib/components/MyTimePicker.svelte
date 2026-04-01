@@ -1,15 +1,15 @@
 <script>
   import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
   import { trackHeight } from '$lib/utils/svelteActions.js'
-  import { getRandomID } from '$lib/utils/core.js'
-  import { paddingVal, placeholderField, fieldGrey, noZoomFS } from '$lib/styles/reused.module.css'
+  import { randomID } from '$lib/utils/core.js'
+  import { paddingVal, placeholderField, noZoomFS } from '$lib/styles/reused.module.css'
 
   let { 
     value = '',
     onTimeSelected = () => {}
   } = $props()
 
-  const id = getRandomID()
+  const id = randomID()
 
   let buttonElem = $state(null)
   let scrollContainer = $state(null)
@@ -78,10 +78,11 @@
     >
       {#each hourChoices as hhmm}
         <button onclick={() => { onTimeSelected(hhmm); close(); }}
-          class="rounded py-1 px-2" 
-          style:color={fieldGrey}
+          class={[
+            'rounded py-1 px-2', 
+            value === hhmm ? 'font-semibold' : 'text-neutral-500'
+          ]}
           style:font-size={noZoomFS}
-          class:highlighted-option={value === hhmm}
         >
           {hhmm}
         </button>

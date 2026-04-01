@@ -22,9 +22,6 @@ export async function shareEngravedImage (imageURL, dateISO, title) {
     ctx.drawImage(img, 0, 0)
 
     // 4. Draw gradient overlay at the bottom
-    // The overlay in PhotoGrid is `linear-gradient(transparent, rgba(0,0,0,0.7))`
-    // It seems to cover the bottom part where text is. 
-    // Let's make it cover the bottom 20-25% of the image to ensure text readability.
     const gradientHeight = img.height * 0.3
     const gradient = ctx.createLinearGradient(0, img.height - gradientHeight, 0, img.height)
     gradient.addColorStop(0, 'transparent')

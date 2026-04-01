@@ -9,7 +9,7 @@
     }
   }}
   class="fullscreen-invisible-modular-layer" 
-  style="z-index: {zIndex};"
+  style:z-index={zIndex}
 > 
   {@render children()}
 </div>

@@ -19,29 +19,10 @@
   }
 </script>
 
-<button onclick={e => sharePhoto(e)} class="photo-row-action">
-  <MslIosShare style="font-size: 1.125rem;"/>
-  <span class="photo-row-label">Share captioned photo</span>
+<button onclick={e => sharePhoto(e)} class="justify-start gap-x-1 py-2 px-3">
+  <MslIosShare style="font-size: 1.5rem"/>
+
+  <span class="text-base text-[#333]">
+    Share captioned photo
+  </span>
 </button>
-
-<style>
-  .photo-row-action {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 4px;
-    color: #333;
-    font-size: 0.875rem;
-    padding: 4px 8px;
-    border-radius: 6px;
-    width: 100%;
-  }
-
-  .photo-row-label {
-    font-size: 0.875rem;
-  }
-
-  .photo-row-action:hover {
-    background: rgba(0,0,0,0.05);
-  }
-</style> 

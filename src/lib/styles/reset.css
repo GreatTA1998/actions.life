@@ -58,6 +58,7 @@ button {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   appearance: none; /* auto (browser styling) */
   background: none;
   border: none;

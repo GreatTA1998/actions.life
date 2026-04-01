@@ -8,66 +8,33 @@
   import TaskCaret from './TaskCaret.svelte'
   import MslCalendarTodayOutline from 'virtual:icons/material-symbols-light/calendar-today-outline'
   import { user } from '$lib/store'
-  import { getRandomColor, getRandomID } from '$lib/utils/core.js'
+  import { getRandomColor, randomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
   const { Task, openTaskPopup } = getContext('app')
-  const { startTaskDrag,
-    draggedItem, logicAreaRect, detectOverlap, 
-    bestDropzoneID,  dropPreviewCSS, hasDropped, resetDragDrop,
-    computeOrderValue
+  const { 
+    registerDropzone, 
+    startTaskDrag, draggedItem, logicAreaRect, 
+    bestDropzoneID,  dropPreviewCSS, computeOrderValue
    } = getContext('drag-drop')
   const { indent, rootFontSize, subFontSize, debug } = getContext('list-config')
 
   let {
     task,
     depth,
-    ancestorIDs = [], // ancestorIDs prevent a parent from becoming its own parent, creating an infinite cycle
+    ancestorIDs = [],
     verticalTimeline,
     infoBadge
   } = $props()
 
-  const id = getRandomID()
-  let dropzoneElem = $state(null)
+  const id = randomID()
   let circular = $derived([task.id, ...ancestorIDs].includes($draggedItem.id))
 
   let n = $derived(task.children.length)
   let fontSize = $derived(depth === 1 ? rootFontSize() : subFontSize())
   let overdue = $derived(!task.isDone && task.startDateISO < DateTime.now().toFormat('yyyy-MM-dd'))
   const debugColor = getRandomColor()
-
-  $effect(() => {
-    if ($draggedItem && dropzoneElem) {
-      detectOverlap({
-        dropzoneElem,
-        clipRect: $logicAreaRect(),
-        dropzoneID: id
-      })
-    }
-  })
-
-  $effect(() => {
-    if ($hasDropped && $bestDropzoneID === id) {
-      onDrop()
-    }
-  })
-
-  function onDrop () {
-    if (!circular) {
-      Task.update({ 
-        id: $draggedItem.id,
-        kvChanges: {
-          parentID: task.id,
-          orderValue: computeOrderValue(0, task.children),
-          persistsOnList: true,
-          isArchived: false
-        }
-      })
-    }
-    dropzoneElem.style.background = ''
-    resetDragDrop()
-  }
 
   function dzProps (i) {
     return {
@@ -82,16 +49,29 @@
 
 <div class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
   <div draggable="true" 
-    bind:this={dropzoneElem}
+    {@attach registerDropzone({ 
+      id, 
+      clipRectFunction: $logicAreaRect,
+      onDrop () {
+        if (circular) return 
+
+        Task.update({ 
+          id: $draggedItem.id,
+          kvChanges: {
+            parentID: task.id,
+            orderValue: computeOrderValue(0, task.children),
+            onList: true
+          }
+        })
+      }
+    })}
     ondragstart={e => startTaskDrag({ e, id: task.id })}
     style:font-size={fontSize}
-    style="
-      padding: 0 var(--left-padding);
-      border-radius: var(--left-padding);
-      {$bestDropzoneID === id ? dropPreviewCSS : ''}
-      {$bestDropzoneID === id && circular ? 'background-color: red;' : ''}
+    style="{$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS) : ''}"
+    class="
+      flex items-center gap-x-1 text-[#1a1a1a] select-none
+      px-[var(--left-padding)] rounded-[var(--left-padding)]
     "
-    class="flex items-center gap-x-1 text-[#1a1a1a] select-none"
   >
     <div class="shrink-0 relative">
       {@render verticalTimeline?.()}
@@ -108,7 +88,7 @@
     </div>
 
     <button onclick={() => openTaskPopup(task)} 
-      class="shrink-1 min-w-[24px] min-h-[24px] truncate text-clip"
+      class="shrink-1 min-w-[24px] min-h-[24px] truncate text-clip justify-start"
       class:done-task={task.isDone}
       style:font-weight={depth === 1 ? 600 : 400}
     >
@@ -173,6 +153,11 @@
 </div>
 
 <style>
+  :global(.ghost-negative) {
+    position: absolute;
+    bottom: calc(-1 * var(--heights-sub-dropzone))
+  }
+  
   .done-task {
     background: linear-gradient(to right, rgba(76, 175, 80, 0.04), transparent 50%);
     color: #388e3c;

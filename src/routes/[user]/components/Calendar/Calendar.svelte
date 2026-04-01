@@ -96,7 +96,7 @@
     <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
 
     <div id="scroll-parent" bind:this={scrollParent}
-      use:jumpToToday class="relative hide-scrollbar cal-bg-color" style:overflow="auto" 
+      use:jumpToToday class="relative hide-scrollbar bg-[var(--cal-bg)]" style:overflow="auto" 
       on:scroll={e => scrollX = e.target.scrollLeft + $timestampsColumnWidth }
     >
       <div style:width="{TOTAL_COLUMNS * COLUMN_WIDTH}px" class="relative flex">
@@ -110,7 +110,8 @@
               {/each}
             </div>
 
-            <div class="flex pt-7">
+            <!-- timestamp has a height of 14px (despite a font size of 12px), note: this means the island and the massive-content will have a height difference of 7 px -->
+            <div class="flex pt-[7px]">
               {#each renderedColumnDTs as dt (dt.toMillis())}
                 <DayColumn {dt}/>
               {/each}
@@ -121,13 +122,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  .pt-7 {
-    padding-top: 7px; /* timestamp has a height of 14px (despite a font size of 12px), note: this means the island and the massive-content will have a height difference of 7 px */
-  }
-
-  .cal-bg-color {
-    background-color: var(--calendar-bg-color);
-  }
-</style>

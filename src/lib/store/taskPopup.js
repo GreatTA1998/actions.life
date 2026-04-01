@@ -1,4 +1,4 @@
-import { buildForest, findSubtree } from '/src/routes/[user]/components/ListsArea/service.js'
+import { buildForest, findSubtree } from '$lib/db/tree.ts'
 import { get, writable } from 'svelte/store'
 import { user } from '$lib/store'
 import { tasksCache, updateCache } from './tasksCache.js'
@@ -40,15 +40,7 @@ function listenToAncestralTree (id) {
 
       const [ancestralTree] = buildForest(tasks)
       const family = findSubtree({ id, tree: ancestralTree })
-      pruneArchivedNodes(family)
       familyTree.set(family)
     }
   )
-}
-
-function pruneArchivedNodes (tree) {
-  tree.children = tree.children.filter(child => !child.isArchived)
-  for (const child of tree.children) {
-    pruneArchivedNodes(child)
-  }
 }

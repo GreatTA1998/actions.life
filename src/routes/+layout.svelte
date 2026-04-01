@@ -10,14 +10,18 @@
   import { isMobile } from '$lib/utils/core.js'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
+  import { fade } from 'svelte/transition'
   import '@fontsource-variable/inter'
   import 'virtual:uno.css'
   import 'normalize.css/normalize.css'
+  import '$lib/styles/variables.css'
   import '$lib/styles/view-transitions.css'
   import '$lib/styles/reset.css'
   import '$lib/styles/utility.css'
 
   let { children } = $props()
+
+  let dataReady = $derived($authChecked && (!$loggedIn || $loggedIn && $user.uid && Object.keys($treesByDate).length > 0))
 
   onMount(() => {
     translateJSConstantsToCSSVariables()
@@ -43,73 +47,28 @@
 </script>
 
 <div>
-  <div
-    style="z-index: 99; background: var(--offwhite-bg); width: 100vw; height: 100vh"
-    class="center"
-    class:invisible={$authChecked && (!$loggedIn || $loggedIn && $user.uid && Object.keys($treesByDate).length > 0)}
-  >
-    <img
-      src="/logo-no-bg.png"
-      class="app-loading-logo elementToFadeInAndOut center"
-      alt="logo"
-      style="width: 48px; height: 48px;"
-    />
-  </div>
+  <AppContext>
+    <DragDropContext>
+      {@render children()}
+      
+      <TheSnackbar />
+    </DragDropContext>
+  </AppContext>
 
-  <div>
-    <AppContext>
-      <DragDropContext>
-        {@render children()}
-        
-        <TheSnackbar />
-      </DragDropContext>
-    </AppContext>
-  </div>
+  {#if !dataReady}
+    <div transition:fade 
+      class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
+    </div>
+  {/if}
+
+  {#if !dataReady} <!-- must be separate from the transition block -->
+    <img src="/logo-no-bg.png" 
+      class={['pulse center', 'w-12 h-12 rounded-2xl']}
+    />
+  {/if}
 </div>
 
 <style>
-  :global(:root) {
-    --primary-color: #007aff; /* only date components use this blue */
-    --success-color: #188038;
-    --logo-twig-color: #b34f1b;
-    --location-indicator-color: var(--logo-twig-color);
-    
-    --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */
-    --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
-    --fine-control-color: rgb(120, 120, 120);
-    --scheduled-info-color: rgb(0, 0, 0);
-    --task-name-color: rgb(0, 0, 0);
-    --left-padding: 6px; /* only applies to TaskElement, PhotoTaskElement, IconTaskElement */ 
-    --width-within-column: 94%;
-
-    --calendar-section-left-spacing: 2vw;
-    --experimental-black: hsla(0, 100%, 0%, 0.6);
-    --offwhite-bg: rgb(250, 250, 250);
-    --faint-color: lightgrey;
-    --popup-control: 1.67rem;
-
-    --fs-3: 1rem;
-    --fs-4: 1.125rem;
-  }
-
-  :global(.main-content) {
-    padding: 1rem;
-    overflow-y: auto;
-    height: 100%;
-  }
-
-  /* shared by time pickers, duration pickers etc. overrides local colors (non-global classes takes precedence apparently no matter the ordering) */
-  :global(.highlighted-option) {
-    color: black !important;
-    font-weight: 600 !important;
-  }
-
-  /* Original layout.svelte styles */
-  .invisible {
-    visibility: hidden;
-  }
-  /* From Prabhakar's centering solution that works for iOS unlike StackOverflow
-  https://github.com/project-feynman/v3/blob/d864f54d9a69e6cdf0beb7818e8b07a85cebb7eb/src/components/SeeExplanation.vue */
   .center {
     position: absolute;
     top: 50%;
@@ -117,52 +76,12 @@
     transform: translate(-50%, -50%);
   }
 
-  .elementToFadeInAndOut {
-    animation: fadeInOut 1.4s ease-out 99 forwards;
+  .pulse {
+    animation: opacityValues 0.5s ease-in-out infinite alternate;
   }
 
-  @keyframes fadeInOut {
-    0% {
-      opacity: 0;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-  
-  @media screen and (min-width: 320px) {
-    .app-loading-logo {
-      width: 110px;
-      height: 110px;
-      border-radius: 18px;
-    }
-  }
-  @media screen and (min-width: 768px) {
-    .app-loading-logo {
-      width: 250px;
-      height: 250px;
-      border-radius: 40px;
-    }
-  }
-
-  :global(.ghost-negative) {
-    position: absolute;
-    bottom: calc(-1 * var(--heights-sub-dropzone))
-  }
-
-  :global(.benefits-explanation) {
-    max-width: 520px;
-    margin: 0 auto;
-    padding: 0 0 0 0;
-  }
-
-  :global(.benefits-explanation p) {
-    margin: 0;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #374151;
+  @keyframes opacityValues {
+    from { opacity: 0.1; }
+    to   { opacity: 0.9; }
   }
 </style>

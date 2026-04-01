@@ -43,8 +43,8 @@
     </div>
 
     <div class="controls-panel">
-      <div class="benefits-explanation">
-        <p>
+      <div class="max-w-[520px] mx-auto">
+        <p class="font-base text-gray-700">
           Calendars use fixed timeframes: week, month, and year. But important things often span arbitrary timeframes.
           <br><br>
           Timelines display tasks based on temporal distance. They rewire us to think on longer time horizons.

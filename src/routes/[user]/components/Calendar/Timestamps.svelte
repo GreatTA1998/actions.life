@@ -18,7 +18,7 @@
 
 <style>
   .timestamps {
-    background: var(--calendar-bg-color);
+    background: var(--cal-bg);
     z-index: 2;
     border-right: 1px solid var(--faint-color);
   }
@@ -27,7 +27,7 @@
     width: 100%; /* because <div> no longer fills to its parent's width if it's absolutely positioned  */
     text-align: center;
     color: #6d6d6d;
-    background-color: var(--calendar-bg-color);
+    background-color: var(--cal-bg);
     z-index: 2;
     font-size: 12px;
   }

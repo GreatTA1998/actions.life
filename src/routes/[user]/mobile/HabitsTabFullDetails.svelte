@@ -16,7 +16,7 @@
   } = $props()
 
   async function toggleStar (routineID, value) {
-    await Template.update({ id: routineID, updates: { isStarred: !value } })
+    await Template.update({ id: routineID, kvChanges: { isStarred: !value } })
   }
 </script>
 

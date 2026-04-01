@@ -2,24 +2,21 @@
   import RepeatTask from './RepeatTask.svelte'
   import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
-  import ParentBadge from '$lib/components/ParentBadge.svelte'
   import InfoFields from './InfoFields.svelte'
   import PhotoUploadWithQuestion from './PhotoUploadWithQuestion.svelte'
   import TextArea from '$lib/components/TextArea.svelte'
-  import TemplateEditor from './TemplateEditor.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
+  import PopupTitle from '$lib/components/PopupTitle.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
   import { createDebouncedFunction } from '$lib/utils/core.js'
-  import { placeholderFieldLarge } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
+  import TemplateContext from '/src/routes/[user]/components/Templates/components/TemplatePopup/TemplateContext.svelte'
 
   const { Task, tasksCache, clickedTaskID, closeTaskPopup, familyTree } = getContext('app')
 
   let task = $derived($tasksCache[$clickedTaskID])
-  let editingRoutine = $state(false)
-  let parent = $derived(task.parentID ? $tasksCache[task.parentID] : null)
-  let inputRef = $state(null)
+  let parentObj = $derived(task.parentID ? $tasksCache[task.parentID] : null)
 
   const debouncedUpdate = createDebouncedFunction(
     (id, kvChanges) => Task.update({ id, kvChanges }), 
@@ -53,34 +50,15 @@
       {/if}
     </div>
 
-    <div onclick={() => inputRef.focus()} 
-      class="flex flex-1 items-center gap-x-2 pb-0.5"
-      style="cursor: text; border-bottom: 1px solid var(--faint-color);"
-    >
-      <input bind:this={inputRef} 
-        value={task.name}
-        oninput={e => debouncedUpdate($clickedTaskID, { name: e.target.value })}
-        placeholder="Title"
-        type="text" 
-        class="truncate {placeholderFieldLarge}"
-        style="field-sizing: content; font-size: 1.5rem; font-weight: 700;"
-      >
-
-      {#if parent}
-        <ParentBadge {parent} 
-          --color="var(--task-name-color)" 
-          --font-size="1.2rem" 
-          --padding="0px 8px"
-          --border-radius="24px"
-          --background="rgba(230, 230, 230, 0.15)"
-        />
-      {/if}
-    </div>
+    <PopupTitle value={task.name}
+      {parentObj}
+      onInput={value => debouncedUpdate($clickedTaskID, { name: value })}
+    />
   </div>
 
   <InfoFields {task} />
 
-  <div style="width: 100%; max-width: 100%;">
+  <div class="w-full">
     <!-- TO-FIX: disallow horizontal and vertical overflow! 
       note: 100% width doesn't work because textarea is an inline element 
     -->
@@ -101,10 +79,12 @@
     {/if}
   </div>
 
-  <div style="margin-top: auto; margin-bottom: 0; display: flex; align-items: center; width: 100%; column-gap: 12px;">
+  <div class="mt-auto w-full flex items-center gap-x-3">
     <PhotoUploadWithQuestion {task} />
 
-    <RepeatTask {task} onToggleTemplateEditor={() => editingRoutine = !editingRoutine} isTemplateEditorOpen={editingRoutine}/>
+    <TemplateContext>
+      <RepeatTask {task} />
+    </TemplateContext>
 
     <div class="ml-auto flex items-center gap-1">
       <button onclick={e => { e.stopPropagation(); handleDelete() }} class="flex items-center justify-center rounded-full">
@@ -112,27 +92,4 @@
       </button>
     </div>
   </div>
-
-  {#if task.templateID && editingRoutine}
-    <div class="template-editor-section">
-      <h3 class="template-title">Routine Template</h3>
-      <TemplateEditor templateID={task.templateID} />
-    </div>
-  {/if}
 </div>
-
-<style>
-  .template-editor-section {
-    margin-top: 24px;
-    padding: 20px;
-    background: rgba(0, 89, 125, 0.03);
-    border-radius: 8px;
-  }
-
-  .template-title {
-    margin: 0 0 16px 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: rgb(0, 89, 125);
-  }
-</style>

@@ -9,9 +9,11 @@
 
 <PopoverMenu>
   {#snippet activator ({ id, anchorName })}
-    <button style:display="contents" popovertarget={id} style:anchor-name={anchorName}>
-      <img {style} 
+    <button popovertarget={id} style:display="contents">
+      <img 
+        style:anchor-name={anchorName}
         src={task.imageDownloadURL} 
+        {style} 
       />
     </button>
   {/snippet}

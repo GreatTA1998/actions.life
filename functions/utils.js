@@ -1,4 +1,4 @@
-function getRandomID() {
+function randomID () {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let autoId = '';
   for (let i = 0; i < 20; i++) {
@@ -7,4 +7,4 @@ function getRandomID() {
   return autoId;
 }
 
-exports.getRandomID = getRandomID;
+exports.randomID = randomID;

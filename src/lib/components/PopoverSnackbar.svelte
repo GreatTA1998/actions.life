@@ -12,7 +12,7 @@
   function close ({ timeout = 0 }) {
     // arrow function needed because this context would be lost in `setTimeout` otherwise
     timeoutID = setTimeout(() => {
-      popover.hidePopover()
+      popover?.hidePopover()
     }, 
     timeout)
   }

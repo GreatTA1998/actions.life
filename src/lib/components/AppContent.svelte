@@ -5,6 +5,7 @@
   import HabitsTab from '/src/routes/[user]/mobile/HabitsTab.svelte'
   import Schedule from '/src/routes/[user]/mobile/Schedule.svelte'
   import Settings from '/src/routes/[user]/components/Settings/index.svelte'
+  import TemplateContext from '/src/routes/[user]/components/Templates/components/TemplatePopup/TemplateContext.svelte'
 </script>
 
 {#if $activeView === 'SETTINGS'}
@@ -14,7 +15,9 @@
 {:else if $activeView === 'SCHEDULE'}
   <Schedule />
 {:else if $activeView === 'ROUTINES'}
-  <HabitsTab />
+  <TemplateContext>
+    <HabitsTab />
+  </TemplateContext>
 {:else if $activeView === 'PHOTOS'}
   <PhotoGrid />
 {/if}
