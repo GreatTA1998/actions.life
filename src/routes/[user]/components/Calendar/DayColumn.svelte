@@ -56,7 +56,7 @@
   }
 </script>
 
-<div bind:this={dayColumn} class="relative select-none w-[var(--width-cal-column)] bg-[var(--cal-bg)"
+<div bind:this={dayColumn} class="relative select-none w-[var(--width-cal-column)] bg-[var(--cal-bg)]"
   {@attach registerDropzone({ 
     id: dropzoneID,
     clipRectFunction () {
