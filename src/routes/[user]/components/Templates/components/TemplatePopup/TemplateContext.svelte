@@ -42,7 +42,7 @@
     forgeTemplates
   })
 
-    // children nodes must not have templateIDs, otherwise they'd be able to configure `rrStr` on subtemplates
+  // children nodes must not have templateIDs, otherwise they'd be able to configure `rrStr` on subtemplates
   async function forgeTemplates (id: string, taskTree: Tree) {
     await helper({ 
       node: taskTree, 
@@ -71,14 +71,17 @@
     )
   }
 
-  onMount(() => {
-    const ref = collection(db, '/users/' + $user.uid + '/templates')
-    return onSnapshot(ref, async (snap) => {
+  onMount(() => onSnapshot(
+    query(
+      collection(db, '/users/' + $user.uid + '/templates'), 
+      where('parentID', '==', '')
+    ), 
+    async (snap) => {
       templates.set(
         snap.docs.map(doc => ({ ...doc.data(), id: doc.id })
       ))
-    })
-  })
+    }
+  ))
 
   $effect(() => {
     if ($clickedTemplateID === '') return
