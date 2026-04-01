@@ -8,7 +8,7 @@
   let selectedDays = $state([])
   let isWeeklyPattern = $state(false)
   let weeklyDescription = $state('')
-  let daysText = $derived(selectedDays.map(day => `${day}${suffix(day)}`).join(', '))
+  let daysText = $derived(selectedDays.map(day => day === -1 ? 'last' : `${day}${suffix(day)}`).join(', '))
 
   $effect(() => updateVariables(rrStr))
 
@@ -55,7 +55,7 @@
   {:else}
     <div class="h-0.5 relative bg-gray-200 my-2">
       {#each selectedDays as day}
-        <div style:left="calc({day / 31 * 100}%)"
+        <div style:left="calc({day === -1 ? 100 : day / 31 * 100}%)"
           class="absolute -top-0.5 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[var(--rhythm-highlight-color)]"
         >
         </div>
