@@ -14,7 +14,7 @@ import { randomID } from '$lib/utils/core.js'
 
 const Task = {
   schema: z.object({
-    name: z.string().default('Untitled'),
+    name: z.string().default(''),
     duration: z.number().default(30),
     parentID: z.string().default(''),
     startTime: z.string().default(''),
