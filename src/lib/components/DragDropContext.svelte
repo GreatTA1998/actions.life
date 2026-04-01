@@ -200,7 +200,7 @@
   function registerDropzone ({ clipRectFunction, id, onDrop }) {
     return (node) => {
       $effect(() => {
-        if ($draggedItem) {
+        if ($draggedItem.id) {
           detectOverlap({
             dropzoneElem: node,
             clipRect: clipRectFunction(),
