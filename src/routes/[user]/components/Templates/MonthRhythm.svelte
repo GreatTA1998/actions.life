@@ -8,7 +8,7 @@
   let selectedDays = $state([])
   let isWeeklyPattern = $state(false)
   let weeklyDescription = $state('')
-  let daysText = $derived(selectedDays.map(day => day === -1 ? 'last' : `${day}${suffix(day)}`).join(', '))
+  let daysText = $derived(selectedDays.map(day => day === -1 ? 'last day' : `${day}${suffix(day)}`).join(', '))
 
   $effect(() => updateVariables(rrStr))
 
