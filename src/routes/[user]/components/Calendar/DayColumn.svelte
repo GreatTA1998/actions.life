@@ -30,10 +30,7 @@
   let anchorID = $derived(`--day-column-${dropzoneID}`)
 
   function viewportToLocalY (clientY) {
-    return clientY 
-      + dayColumn.scrollTop 
-      - dayColumn.getBoundingClientRect().top 
-      - dayColumn.style.paddingTop
+    return clientY + dayColumn.scrollTop - dayColumn.getBoundingClientRect().top // assumes no padding
   }
 
   function HHmmToLocalY (HHmm) {
@@ -59,7 +56,7 @@
   }
 </script>
 
-<div bind:this={dayColumn} class="relative select-none w-[var(--width-cal-column)] bg-[var(--cal-bg)]"
+<div bind:this={dayColumn} class="relative select-none w-[var(--width-cal-column)] bg-[var(--cal-bg)"
   {@attach registerDropzone({ 
     id: dropzoneID,
     clipRectFunction () {
