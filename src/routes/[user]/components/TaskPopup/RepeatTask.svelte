@@ -1,5 +1,4 @@
 <script>
-  import PeriodicityEditor from '/src/routes/[user]/components/Templates/components/TemplatePopup/PeriodicityEditor.svelte'
   import MslRepeat from 'virtual:icons/material-symbols-light/repeat'
   import { user } from '$lib/store'
   import { getContext } from 'svelte'
@@ -7,8 +6,6 @@
   const { openTaskPopup, familyTree, forgeTemplates } = getContext('app')
 
   let { task } = $props()
-  
-  let isCreatingRoutine = $state(false)
 </script>
 
 {#if task.templateID}
@@ -27,8 +24,4 @@
   >
     <MslRepeat style="font-size: var(--popup-control)"/>
   </button>
-
-  {#if isCreatingRoutine}
-    <PeriodicityEditor isCreating routine={{ ...task, rrStr: '' }} />
-  {/if}
 {/if}
