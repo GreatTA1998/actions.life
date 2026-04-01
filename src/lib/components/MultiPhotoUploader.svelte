@@ -35,27 +35,21 @@
   async function forgeTasksFromPhotos (e) {
     snackbarState.set({ isVisible: true, message: 'Uploading...', undoAction: null })
 
-    for (let image of e.target.files) {
-      const { 
-        dt, 
-        orientation, 
-        imageFullPath, 
-        imageDownloadURL 
-      } = await uploadThenGetMetadata(image, $user.photoCompressWhenAttachingToTask)
-
-      Task.create({ data: {
-        imageDownloadURL,
-        imageFullPath, // for easy garbage collection
-
-        isDone: true,
-        startDateISO: dt.toFormat('yyyy-MM-dd'),
-        startTime: dt.toFormat('HH:mm'),
-        duration: orientation === 'landscape' ? 106 : 188,
-
-        onList: false,
-        photoLayout: $user.defaultPhotoLayout
-      }})
-    }
+    await Promise.all([...e.target.files].map(image =>
+      uploadThenGetMetadata(image, $user.photoCompressWhenAttachingToTask)
+        .then(({ dt, orientation, imageFullPath, imageDownloadURL }) => {
+          Task.create({ data: {
+            imageDownloadURL,
+            imageFullPath,
+            isDone: true,
+            startDateISO: dt.toFormat('yyyy-MM-dd'),
+            startTime: dt.toFormat('HH:mm'),
+            duration: orientation === 'landscape' ? 106 : 188,
+            onList: false,
+            photoLayout: $user.defaultPhotoLayout
+          }})
+        })
+    ))
 
     snackbarState.set({ isVisible: false, message: '', undoAction: null })
   }
