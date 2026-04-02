@@ -75,8 +75,10 @@
   </div>
 
   {#if selectedRoutineID}
-    <HabitsTabFullDetails {selectedRoutineID} {stats}
-      extraClass="w-screen max-w-[60ch] py-2"
-    />
+    {#key selectedRoutineID}
+      <HabitsTabFullDetails {selectedRoutineID} {stats}
+        extraClass="w-screen max-w-[60ch] py-2"
+      />
+    {/key}
   {/if}
 </div>

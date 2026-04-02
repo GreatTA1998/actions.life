@@ -1,8 +1,8 @@
 <script>
   import ListCalendar from '$lib/components/ListCalendar.svelte'
-  import PhotoGrid from '/src/routes/[user]/components/Archive/PhotoGrid.svelte'
-  import HabitsTab from '/src/routes/[user]/mobile/HabitsTab.svelte'
-  import Schedule from '/src/routes/[user]/mobile/Schedule.svelte'
+  import PhotoGrid from '/src/routes/[user]/components/PhotoGrid.svelte'
+  import HabitsTab from '/src/routes/[user]/components/Routines/HabitsTab.svelte'
+  import Schedule from '/src/routes/[user]/components/Schedule.svelte'
   import Settings from '/src/routes/[user]/components/Settings/index.svelte'
   import TemplateContext from '/src/routes/[user]/components/Templates/components/TemplatePopup/TemplateContext.svelte'
   import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'

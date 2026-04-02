@@ -1,7 +1,7 @@
 <script>
-  import ListenToDoc from '../components/Archive/ListenToDoc.svelte'
-  import ListenToRoutineInstances from '../components/Archive/ListenToRoutineInstances.svelte'
-  import JournalEntries from '../components/Archive/JournalEntries.svelte'
+  import ListenToDoc from './ListenToDoc.svelte'
+  import ListenToRoutineInstances from './ListenToRoutineInstances.svelte'
+  import JournalEntries from './JournalEntries.svelte'
   import StarButton from '$lib/components/StarButton.svelte'
   import { formatHours } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
