@@ -3,23 +3,25 @@
   font-family: 'Inter Variable', sans-serif;
 }
 
+/* gotcha: only enjoy this reset when using Tailwind's flex */
 :where(.flex) > * {
   min-width: 0;
   min-height: 0;
-  /* note: <button> is styled directly with display: inline-flex, so doesn't receive this min-width: 0 */
+  /* <button> is styled directly with display: inline-flex, so doesn't receive `min-width: 0` */
 }
 
 /* prevent accidental going back page */
 /* https://stackoverflow.com/questions/30636930/disable-web-page-navigation-on-swipeback-and-forward?rq=1 */
 html, body {
   overscroll-behavior-x: none;
+  touch-action: manipulation; /* prevents iOS double tap to zoom */
 }
 
 /* adding body { height: 100% } and remove html, body { overflow: hidden} at least allows you to scroll the page back up from the mystery white space, whereas
 before the problem would happen AND you cannot scroll back up */
 body {
   margin: 0;
-  height: 100%;
+  background: rgb(245, 245, 245); /* 240 > optimal > 220, previously #f1f3f4; */
 }
 
 img {

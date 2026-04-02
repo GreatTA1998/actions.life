@@ -7,7 +7,6 @@
   import { goto } from '$app/navigation'
   import { onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
-  import { isMobile } from '$lib/utils/core.js'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
   import { fade } from 'svelte/transition'
@@ -38,7 +37,7 @@
       } 
       
       else {
-        goto(`/${resultUser.uid}/${isMobile() ? 'mobile' : ''}`)
+        goto('/' + resultUser.uid)
         loggedIn.set(true)
         // [user]/+layout.svelte will hydrate `user`
       }

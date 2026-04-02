@@ -3,14 +3,18 @@
   import ListArea from '$lib/components/ListArea.svelte'
   import Calendar from '/src/routes/[user]/components/Calendar/Calendar.svelte'
   import User from '$lib/db/models/User.js'
+  import { isCompact } from '/src/routes/[user]/components/Calendar/store.js'
   import { isMobile } from '$lib/utils/core.js'
   import { MOBILE_SAFE_INSET } from '$lib/utils/constants.js'
   import { innerWidth, innerHeight } from 'svelte/reactivity/window'
   import { user } from '$lib/store'
+  import { onMount } from 'svelte'
 
   let axisL = $derived(isMobile() ? listAreaH : listAreaW) // since Svelte 5.25, derived is writable
   let listAreaH = $derived(safe(($user.listHeightSplit ?? 0.5) * innerHeight.current))
   let listAreaW = $derived(safe(($user.listWidthSplit ?? 0.5) * innerWidth.current))
+
+  onMount(() => isCompact.set(isMobile()))
 
   function updateSizing (newVal) {
     if (isMobile()) {

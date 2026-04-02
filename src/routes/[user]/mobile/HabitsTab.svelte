@@ -40,7 +40,7 @@
   }
 </script>
 
-<div class="flex w-full justify-center flex-wrap">
+<div class="flex w-full justify-center flex-wrap" style:max-height="100%" style:overflow-y="auto">
   <div style:width={WIDTHS.PANEL_MAX + 'px'} class="bg-white">
     {#if topRoutines}
       <div class="flex flex-col py-0 px-2">

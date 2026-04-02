@@ -112,13 +112,12 @@
   })
 </script>
 
-<div>
-  <PopoverInputContext>
-    {@render children()}
-    
-    {#if $popup && $template}
-      <TemplatePopup/>
-    {/if}
-  </PopoverInputContext>
-</div>
+<PopoverInputContext>
+  {@render children()}
+  
+  {#if $popup && $template}
+    <TemplatePopup/>
+  {/if}
+</PopoverInputContext>
+
 
