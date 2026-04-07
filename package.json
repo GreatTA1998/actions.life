@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@iconify-json/logos": "^1.2.11",
     "@iconify/json": "^2.2.420",
     "@sveltejs/adapter-vercel": "^5.10.2",
     "@sveltejs/kit": "2.36.2",

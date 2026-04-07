@@ -2,6 +2,7 @@
   import AppContext from './AppContext.svelte'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
+  import { loadSounds } from '$lib/features/audio.js'
   import { user, authChecked, loggedIn, firebaseAuth } from '$lib/store'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
@@ -20,25 +21,40 @@
 
   let { children } = $props()
 
-  let dataReady = $derived($authChecked && (!$loggedIn || $loggedIn && $user.uid && Object.keys($treesByDate).length > 0))
+  let loading = $state(true)
+
+  $effect(() => {
+    if ($authChecked && $loggedIn && $user.email && Object.keys($treesByDate).length > 0) {
+      loading = false
+    }
+  })
 
   onMount(() => {
+    loadSounds()
+
     translateJSConstantsToCSSVariables()
 
     onAuthStateChanged($firebaseAuth, async (resultUser) => {
       authChecked.set(true) // from cookie, takes around 300 - 500ms
       
       if (page.url.pathname.startsWith('/legal')) return
-
-      else if (!resultUser) {
+    
+      if (!resultUser) {
+        loading = false
         goto('/')
         loggedIn.set(false)
         user.set({})
       } 
+
+      else if (resultUser.isAnonymous) {
+        loading = false
+        loggedIn.set(true)
+      }
       
       else {
         goto('/' + resultUser.uid)
         loggedIn.set(true)
+        // the `$effect` above will later set `loading = false`
         // [user]/+layout.svelte will hydrate `user`
       }
     })
@@ -54,13 +70,13 @@
     </DragDropContext>
   </AppContext>
 
-  {#if !dataReady}
+  {#if loading}
     <div transition:fade 
       class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
     </div>
   {/if}
 
-  {#if !dataReady} <!-- must be separate from the transition block -->
+  {#if loading} <!-- must be separate from the transition block -->
     <img src="/logo-no-bg.png" 
       class={['pulse center', 'w-12 h-12 rounded-2xl']}
     />

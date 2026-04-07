@@ -1,12 +1,12 @@
 <script>
   import { onMount, onDestroy } from 'svelte'
   import { trees, listenToTasks, cleanup } from './service.js'
-  import { page } from '$app/state'
+  import { user } from '$lib/store'
   
   let { children } = $props()
 
   onMount(() => {
-    listenToTasks(page.params.user)
+    listenToTasks($user.uid)
   })
 
   onDestroy(() => {

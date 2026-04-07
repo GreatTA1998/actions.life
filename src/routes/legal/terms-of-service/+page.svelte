@@ -1,12 +1,4 @@
-<script>
-  import TopNavbar from '../../(home)/components/TopNavbar.svelte';
-</script>
-
 <div class="legal-page-background">
-  <div style="position: absolute; top: 0; left: 0; right: 0;">
-    <TopNavbar />
-  </div>
-
   <div class="content-container">
     <h1>Terms of Service</h1>
     <p class="date">Last updated: {new Date().toLocaleDateString()}</p>

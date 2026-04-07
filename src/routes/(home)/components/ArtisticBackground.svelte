@@ -33,10 +33,10 @@
     right: 0;
     bottom: 0;
     background: 
-      radial-gradient(ellipse 1400px 900px at 60% 10%, rgba(230, 245, 255, 0.3) 0%, rgba(210, 235, 255, 0.25) 30%, rgba(190, 220, 255, 0.15) 60%, transparent 80%),
-      radial-gradient(ellipse 1200px 800px at 80% 25%, rgba(200, 230, 255, 0.25) 0%, rgba(180, 210, 245, 0.18) 40%, transparent 70%),
-      radial-gradient(ellipse 1000px 600px at 40% 15%, rgba(220, 240, 255, 0.2) 0%, rgba(200, 225, 250, 0.15) 50%, transparent 75%),
-      radial-gradient(ellipse 600px 400px at 20% 80%, rgba(151, 175, 121, 0.08) 0%, transparent 50%);
+      radial-gradient(ellipse 1400px 900px at 60% 10%, rgba(230, 245, 255, 0.1) 0%, rgba(210, 235, 255, 0.08) 30%, rgba(190, 220, 255, 0.05) 60%, transparent 80%),
+      radial-gradient(ellipse 1200px 800px at 80% 25%, rgba(200, 230, 255, 0.08) 0%, rgba(180, 210, 245, 0.05) 40%, transparent 70%),
+      radial-gradient(ellipse 1000px 600px at 40% 15%, rgba(220, 240, 255, 0.05) 0%, rgba(200, 225, 250, 0.03) 50%, transparent 75%),
+      radial-gradient(ellipse 600px 400px at 20% 80%, rgba(151, 175, 121, 0.03) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
   }

@@ -3,8 +3,8 @@ import { DateTime } from 'luxon'
 import { pureNumericalHourForm } from '$lib/utils/core.js'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '$lib/db/init'
-import { page } from '$app/state'
-import { writable } from 'svelte/store'
+import { writable, get } from 'svelte/store'
+import { user } from '$lib/store'
 
 const listeners = {}
 
@@ -52,7 +52,7 @@ function divideIntoRegions (leftISO, rightISO, chunkSize) {
 function listenToRegion (dateISOs) {
   return onSnapshot(
     query(
-      collection(db, `/users/${page.params.user}/tasks`), 
+      collection(db, `/users/${get(user).uid}/tasks`), 
       where('treeISOs', 'array-contains-any', dateISOs)
     ),
     (snapshot) => {

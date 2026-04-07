@@ -10,7 +10,7 @@ const User = {
     maxOrderValue: z.number().default(10),
 
     // properties introduced from August 1 2024, maybe
-    calendarTheme: z.string().default('offWhite'),
+    calendarTheme: z.string().default('google'),
 
     defaultPhotoLayout: z.string().default('side-by-side'),
     calSnapInterval: z.number().default(1),
@@ -39,8 +39,11 @@ const User = {
   }),
 
   async create () {
-    const validatedUser = User.schema.parse(get(firebaseAuth).currentUser)
-    return await setFirestoreDoc(`/users/${validatedUser.uid}`, 
+    const validatedUser = User.schema.parse({
+      ...get(firebaseAuth).currentUser,
+      email: ''
+    })
+    return setFirestoreDoc(`/users/${validatedUser.uid}`, 
       validatedUser
     )
   },
