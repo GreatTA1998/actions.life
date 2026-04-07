@@ -6,7 +6,7 @@
     <section>
       <h2>1. Introduction</h2>
       <p>
-        Welcome to <strong>actions.life</strong> ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this privacy notice or our practices with regard to your personal information, please contact us.
+        Welcome to <strong>actions.life</strong>. We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this privacy notice or our practices with regard to your personal information, please contact us.
       </p>
     </section>
 

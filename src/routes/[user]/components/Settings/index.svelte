@@ -23,8 +23,6 @@
 <div class="settings-container"> 
   <div class="settings-content">
     <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
-      <CommunityChat />
-
       <div class="settings-group" style="display: flex; flex-direction: column; row-gap: 12px;">
         <div style="display: flex; column-gap: 12px; align-items: center;">
           <div class="title">App</div>
@@ -59,9 +57,11 @@
         <div class="title">Photo</div>
         <PhotoSettings />
       </div>
+
+      <CommunityChat />
     </div>
   </div>
-  
+
   <div class="footer">
     <GithubButton />
 

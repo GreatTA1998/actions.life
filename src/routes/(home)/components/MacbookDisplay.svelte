@@ -9,9 +9,9 @@
   <div class="relative w-full aspect-[16/10] bg-black rounded-t-[20px] p-2 sm:p-3 shadow-2xl border-[1px] border-[#333] flex flex-col">
     
     <!-- Screen Display -->
-    <div class="relative w-full h-full bg-white rounded-[8px] overflow-hidden flex flex-col justify-center items-center [transform:translate3d(0,0,0)]">
+    <div class="relative w-full h-full bg-white rounded-[8px] overflow-auto flex flex-col justify-center items-center [transform:translate3d(0,0,0)]">
       
-      {@render children?.()}
+      {@render children()}
     </div>
   </div>
 

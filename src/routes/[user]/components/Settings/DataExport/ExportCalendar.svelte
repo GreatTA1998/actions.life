@@ -3,8 +3,11 @@
 
   const { Task } = getContext('app')
 
-  let { onExport, startDate, endDate } = $props()
-  
+  let { onExport } = $props()
+
+  const startDate = '0000-01-01'
+  const endDate = '9999-12-31'
+
   let loading = $state(false)
 
   async function exportCalendar () {
@@ -62,8 +65,8 @@
 
 <style> 
   .export-btn {
+    background-color: grey;
     padding: 8px 16px;
-    background-color: #7c3aed;
     color: white;
     border-radius: 6px;
     font-weight: 500;

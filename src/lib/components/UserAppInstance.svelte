@@ -24,31 +24,29 @@
 </script>
 
 {#if $user.uid}
-  <div>
-    <ExtendRoutines />
+  <ExtendRoutines />
 
-    <PopoverInputContext>
-      <div style="height: 100%;">
-        {#if $activeView === 'SETTINGS'}
-          <Settings />
-        {:else if $activeView === 'CALENDAR'}
-          <ListCalendar />
-        {:else if $activeView === 'SCHEDULE'}
-          <Schedule />
-        {:else if $activeView === 'ROUTINES'}
-          <TemplateContext>
-            <HabitsTab />
-          </TemplateContext>
-        {:else if $activeView === 'PHOTOS'}
-          <PhotoGrid />
-        {/if}
-      </div> 
-
-      <FloatingNavbar position={isMobile() ? 'right' : 'bottom'} />
-      
-      {#if $clickedTaskID}
-        <TaskPopup />
+  <PopoverInputContext>
+    <div style:height="100%">
+      {#if $activeView === 'SETTINGS'}
+        <Settings />
+      {:else if $activeView === 'CALENDAR'}
+        <ListCalendar />
+      {:else if $activeView === 'SCHEDULE'}
+        <Schedule />
+      {:else if $activeView === 'ROUTINES'}
+        <TemplateContext>
+          <HabitsTab />
+        </TemplateContext>
+      {:else if $activeView === 'PHOTOS'}
+        <PhotoGrid />
       {/if}
-    </PopoverInputContext>
-  </div>
+    </div> 
+
+    <FloatingNavbar position={isMobile() ? 'right' : 'bottom'} />
+    
+    {#if $clickedTaskID}
+      <TaskPopup />
+    {/if}
+  </PopoverInputContext>
 {/if}

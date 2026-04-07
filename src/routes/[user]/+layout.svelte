@@ -3,4 +3,6 @@
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
 </script>
 
-<UserAppInstance uid={page.params.user}/>
+<div style:height="100dvh">
+  <UserAppInstance uid={page.params.user}/>
+</div>

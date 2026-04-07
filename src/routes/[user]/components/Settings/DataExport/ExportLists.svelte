@@ -55,7 +55,7 @@
 </script>
 
 <button class="export-btn" onclick={exportLists}>
-  Export lists
+  Export list
 </button>
 
 <style>
