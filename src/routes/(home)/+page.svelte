@@ -1,15 +1,11 @@
 <script>
   import DemoContext from './DemoContext.svelte'
-  import TimelineDemo from './components/TimelineDemo.svelte'
-  import HabitDemo from './components/HabitDemo.svelte'
-  import JournalDemo from './components/JournalDemo.svelte'
-  import UpdateLogSection from './components/UpdateLogSection.svelte'
   import ArtisticBackground from './components/ArtisticBackground.svelte'
   import DemoVideo from './components/DemoVideo.svelte'
-  import SignInButton from '$lib/components/SignInButton.svelte'
   import IntegrationCards from './components/IntegrationCards.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
+  import AuthPlayground from './components/AuthPlayground.svelte'
   import LogosChrome from 'virtual:icons/logos/chrome'
   import LogosSafari from 'virtual:icons/logos/safari'
   import { authChecked } from '$lib/store'
@@ -66,9 +62,7 @@
 
       <div class="mt-6"></div>
 
-      <div class="flex flex-col w-full items-center gap-6 justify-start">
-        <SignInButton />
-      </div>
+      <AuthPlayground/>
 
       <footer class="w-full mt-40 py-8 flex justify-end mr-10 gap-6 text-xs text-neutral-400 tracking-tight">
         <a href="/legal/privacy-policy" class="no-underline">Privacy</a>
