@@ -34,9 +34,11 @@
     onAuthStateChanged($firebaseAuth, async (resultUser) => {
       authChecked.set(true) // from cookie, takes around 300 - 500ms
       
-      if (page.url.pathname.startsWith('/legal')) return
+      if (page.url.pathname.startsWith('/legal')) {
+        loading = false
+      }
     
-      if (!resultUser) {
+      else if (!resultUser) {
         loading = false
         goto('/')
         loggedIn.set(false)
