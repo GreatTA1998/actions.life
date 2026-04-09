@@ -1,17 +1,25 @@
 <script>
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import User from '$lib/db/models/User.js'
-  import { getAuth, signInAnonymously } from 'firebase/auth'
+  import { firebaseAuth } from '$lib/store'
+  import { 
+    getAuth, 
+    signInAnonymously,
+    getAdditionalUserInfo,
+  } from 'firebase/auth'
   import { onMount } from 'svelte'
+  import { initializeSeedData } from '$lib/db/seed.js'
 
   let uid = ''
 
   onMount(async () => {
     const result = await signInAnonymously(getAuth())
-    console.log('result =', result)
 
-    // TO-DO: don't call .create() when it's a returning anonymous user
-    await User.create() // it secretly uses auth.currentUser
+    if (getAdditionalUserInfo(result).isNewUser) {
+      await User.create($firebaseAuth.currentUser) 
+      
+      await initializeSeedData()
+    }
     console.log('assumption: mirror doc created, uid =', result.user.uid)
     uid = result.user.uid
   })

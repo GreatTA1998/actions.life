@@ -29,39 +29,22 @@
       </div>
     </div>
   {/if}
-
-    <!-- 
-      `1vw`: if it's too wide, it overlaps with the task name for short duration tasks 
-    -->
-    <!-- on:drop preventDefault so that the calendar doesn't think we're scheduling a task -->
-    <div draggable="true"
-      ondragstart={(e) => startAdjustingDuration(e)}
-      ondragend={(e) => adjustDuration(e, task)}
-      style="
-        cursor: ns-resize;
-        position: absolute;
-        left: -3px; 
-        bottom: {0}px;
-        height: {height/12}px; 
-        min-height: 3px;
-        width: {isBulletPoint ? '20%' : '100%'}; 
-      "
-    >
-  </div>
+  
+  <DurationAdjuster {task} {isBulletPoint} {height} />
 </div>
 
 <script>
+  import DurationAdjuster from '$lib/components/DurationAdjuster.svelte'
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import MslCircle from 'virtual:icons/material-symbols-light/circle'
   import { calendarBlock, notesFS } from '$lib/styles/reused.module.css'
-  import { getTrueY } from '$lib/utils/core.js'
   import { user } from '$lib/store'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
 
   import { getMultiColorBgStyles } from '$lib/utils/multiColorRendering.js'
   
-  const { Task, openTaskPopup } = getContext('app')
+  const { openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
 
   let { 
@@ -74,7 +57,6 @@
       .filter(Boolean)
   )
 
-  let startY = $state(0)
   let height = $derived($pixelsPerHour / 60 * task.duration)
   let isBulletPoint = $derived(height < 24) // 24px is exactly enough to not crop the checkbox and the task name
   let mergedStyle = $derived(getMergedStyle(task))
@@ -118,25 +100,5 @@
       styles.push(`background-color: ${bgColor}`)
     }
     return styles.join('; ')
-  }
-
-  function startAdjustingDuration (e) {
-    e.stopPropagation() // DragContext doesn't get involved, duration adjustment is fully handled within this component
-    startY = getTrueY(e)
-  }
- 
-  function adjustDuration (e, task) {
-    const hoursPerPixel = 1 / $pixelsPerHour
-    const minutesPerPixel = 60 * hoursPerPixel
-
-    const newY = getTrueY(e)
-    const durationChange = minutesPerPixel * (newY - startY)
-
-    Task.update({
-      id: task.id,
-      kvChanges: {
-        duration: Math.max(1, task.duration + durationChange)
-      }
-    })
   }
 </script>

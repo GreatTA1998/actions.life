@@ -62,11 +62,6 @@ export function getRandomColor () {
   return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
 }
 
-export function getTrueY (e) {
-  const ScrollParent = document.getElementById('scroll-parent')
-  return e.clientY + ScrollParent.scrollTop - ScrollParent.getBoundingClientRect().top - ScrollParent.style.paddingTop
-}
-
 // % gives the remainder, not the modulus, see https://stackoverflow.com/a/17323608/7812829
 export function mod (n, m) {
   return ((n % m) + m) % m
@@ -119,7 +114,10 @@ export function formatHours (minutes, decimalPlaces = 1) {
 
 export function getLocalY (container, clientY) {
   const rect = container.getBoundingClientRect()
-  return clientY + container.scrollTop - rect.top // assumes no padding
+  return clientY + container.scrollTop - rect.top
+  // IN CASE WE NEED IT IN THE FUTURE
+  // const { paddingTop } = getComputedStyle(container)
+  //   - parseFloat(paddingTop)
 }
 
 export function getLocalX (container, clientX) {
