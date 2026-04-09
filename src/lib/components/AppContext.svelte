@@ -10,8 +10,17 @@
   import Icon from '$lib/db/models/Icon.js'
   import Message from '$lib/db/models/Message.js'
   import GCalAccount from '$lib/db/models/GCalAccount.js'
+  import { trackWidth, trackHeight } from '$lib/utils/svelteActions.js'
 
   let { children } = $props()
+
+  let dimensions = $state({
+    width: 0,
+    height: 0,
+    appDiv: null
+  })
+
+  setContext('dimensions', dimensions)
 
   setContext('app', {
     User, 
@@ -28,6 +37,9 @@
   })
 </script>
 
-<div class="z-0 relative">
+<div bind:this={dimensions.appDiv} class="z-0 relative h-full"
+  use:trackWidth={w => dimensions.width = w}
+  use:trackHeight={h => dimensions.height = h}
+>
   {@render children()}
 </div>

@@ -1,4 +1,6 @@
 <script>
+  import AppContext from '$lib/components/AppContext.svelte'
+  import DragDropContext from '$lib/components/DragDropContext.svelte'
   import ListCalendar from '$lib/components/ListCalendar.svelte'
   import PhotoGrid from '/src/routes/[user]/components/PhotoGrid.svelte'
   import HabitsTab from '/src/routes/[user]/components/Routines/HabitsTab.svelte'
@@ -9,6 +11,7 @@
   import PopoverInputContext from '$lib/components/PopoverInputContext.svelte'
   import TaskPopup from '/src/routes/[user]/components/TaskPopup/TaskPopup.svelte'
   import ExtendRoutines from '/src/routes/[user]/components/ExtendRoutines.svelte'
+  import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import { activeView } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { doc, onSnapshot } from 'firebase/firestore'
@@ -24,29 +27,35 @@
 </script>
 
 {#if $user.uid}
-  <ExtendRoutines />
+  <AppContext>
+    <DragDropContext>
+      <ExtendRoutines />
 
-  <PopoverInputContext>
-    <div style:height="100%">
-      {#if $activeView === 'SETTINGS'}
-        <Settings />
-      {:else if $activeView === 'CALENDAR'}
-        <ListCalendar />
-      {:else if $activeView === 'SCHEDULE'}
-        <Schedule />
-      {:else if $activeView === 'ROUTINES'}
-        <TemplateContext>
-          <HabitsTab />
-        </TemplateContext>
-      {:else if $activeView === 'PHOTOS'}
-        <PhotoGrid />
-      {/if}
-    </div> 
+      <PopoverInputContext>
+        <div style:height="100%">
+          {#if $activeView === 'SETTINGS'}
+            <Settings />
+          {:else if $activeView === 'CALENDAR'}
+            <ListCalendar />
+          {:else if $activeView === 'SCHEDULE'}
+            <Schedule />
+          {:else if $activeView === 'ROUTINES'}
+            <TemplateContext>
+              <HabitsTab />
+            </TemplateContext>
+          {:else if $activeView === 'PHOTOS'}
+            <PhotoGrid />
+          {/if}
+        </div> 
+        
+        {#if $clickedTaskID}
+          <TaskPopup />
+        {/if}
+      </PopoverInputContext>
+    </DragDropContext>
 
     <FloatingNavbar position={isMobile() ? 'right' : 'bottom'} />
-    
-    {#if $clickedTaskID}
-      <TaskPopup />
-    {/if}
-  </PopoverInputContext>
+
+    <TheSnackbar />
+  </AppContext>
 {/if}

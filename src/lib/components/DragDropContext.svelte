@@ -226,6 +226,6 @@
   }
 </script>
 
-<div {ondragover} {ondrop}>
+<div {ondragover} {ondrop} class="h-full">
   {@render children()}
 </div>

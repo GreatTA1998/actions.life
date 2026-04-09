@@ -1,7 +1,4 @@
 <script>
-  import AppContext from './AppContext.svelte'
-  import DragDropContext from '$lib/components/DragDropContext.svelte'
-  import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import { loadSounds } from '$lib/features/audio.js'
   import { user, authChecked, loggedIn, firebaseAuth } from '$lib/store'
   import { page } from '$app/state'
@@ -62,13 +59,7 @@
 </script>
 
 <div>
-  <AppContext>
-    <DragDropContext>
-      {@render children()}
-      
-      <TheSnackbar />
-    </DragDropContext>
-  </AppContext>
+  {@render children()}
 
   {#if loading}
     <div transition:fade 
