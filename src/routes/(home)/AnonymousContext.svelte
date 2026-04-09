@@ -1,7 +1,7 @@
 <script>
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import User from '$lib/db/models/User.js'
-  import { firebaseAuth } from '$lib/store'
+  import { firebaseAuth, user } from '$lib/store'
   import { 
     getAuth, 
     signInAnonymously,
@@ -16,11 +16,10 @@
     const result = await signInAnonymously(getAuth())
 
     if (getAdditionalUserInfo(result).isNewUser) {
-      await User.create($firebaseAuth.currentUser) 
-      
+      const result = await User.create($firebaseAuth.currentUser) 
+      user.set(result) // needed to read $user.maxOrderValue for seed data
       await initializeSeedData()
     }
-    console.log('assumption: mirror doc created, uid =', result.user.uid)
     uid = result.user.uid
   })
 </script>

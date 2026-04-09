@@ -43,9 +43,10 @@ const User = {
       ...currentUser,
       email: ''
     })
-    return setFirestoreDoc(`/users/${validatedUser.uid}`, 
+    await setFirestoreDoc(`/users/${validatedUser.uid}`, 
       validatedUser
     )
+    return validatedUser
   },
 
   async update (kvChanges) {
