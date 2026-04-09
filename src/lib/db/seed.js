@@ -1,9 +1,11 @@
 import { DateTime } from 'luxon'
 import Task from '$lib/db/models/Task.js'
+import { updateCache } from '$lib/store/tasksCache.js'
 
 export async function initializeSeedData () {
   for (const { id, data } of buildSeedTasks()) {
-    await Task.create({ id, data, optimistic: false })
+    const result = await Task.create({ id, data, optimistic: false })
+    updateCache([result])
   }
 }
 
@@ -18,7 +20,7 @@ function buildSeedTasks (entries = SEED_ENTRIES) {
 }
 
 const PHOTOS = {
-  olaDrawingByDad: 'https://i.imgur.com/mftyC11.jpeg',
+  olaDrawingByDad: 'https://i.imgur.com/Pu7PxCi.jpeg',
   redCrownBird: 'https://i.imgur.com/waIioxd.jpeg'
 }
 
