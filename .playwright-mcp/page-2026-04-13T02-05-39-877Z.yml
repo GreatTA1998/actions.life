@@ -1,0 +1,46 @@
+- generic [ref=e7]:
+  - generic [ref=e10]:
+    - heading "actions.life" [level=1] [ref=e11]
+    - paragraph [ref=e12]: A life calendar for habits, goals and memories
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - img [ref=e17]
+      - generic [ref=e50]: +
+      - img "actions.life" [ref=e51]
+    - generic [ref=e52]:
+      - img [ref=e53]
+      - generic [ref=e62]: +
+      - img "actions.life" [ref=e63]
+  - img [ref=e68]
+  - generic [ref=e74]:
+    - generic [ref=e406]:
+      - generic [ref=e407]: History
+      - generic [ref=e408]:
+        - generic [ref=e409]:
+          - generic [ref=e410]: Fri, Mar 13, 2026
+          - generic [ref=e415] [cursor=pointer]: First draft
+        - generic [ref=e416]:
+          - generic [ref=e417]: Undated
+          - generic [ref=e422] [cursor=pointer]: Tomato
+    - generic [ref=e371]:
+      - button [ref=e372] [cursor=pointer]:
+        - img [ref=e373]
+      - button [ref=e374] [cursor=pointer]:
+        - img [ref=e375]
+      - button [ref=e377] [cursor=pointer]:
+        - img [ref=e378]
+      - button [ref=e380] [cursor=pointer]:
+        - img [ref=e381]
+      - button [ref=e383] [cursor=pointer]:
+        - img [ref=e384]
+      - button [active] [ref=e386] [cursor=pointer]:
+        - img [ref=e387]
+  - button "Continue with Google" [ref=e391] [cursor=pointer]:
+    - generic [ref=e393]:
+      - img [ref=e395]
+      - generic [ref=e401]: Continue with Google
+  - contentinfo [ref=e402]:
+    - link "Privacy" [ref=e403]:
+      - /url: /legal/privacy-policy
+    - link "Terms" [ref=e404]:
+      - /url: /legal/terms-of-service

@@ -1,6 +1,7 @@
 <script>
   import { activeView, user } from '$lib/store'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
+  import MsHistoryOutline from 'virtual:icons/material-symbols/history'
   import MsHouseOutline from 'virtual:icons/material-symbols/house-outline'
   import MsPhotoCameraBackOutline from 'virtual:icons/material-symbols/photo-camera-back-outline'
   import MsRepeat from 'virtual:icons/material-symbols/repeat'
@@ -43,6 +44,10 @@
 
   <button onclick={() => to('PHOTOS')} class:active={$activeView === 'PHOTOS'}>
     <MsPhotoCameraBackOutline style="font-size: {iconSize}"/>
+  </button>
+
+  <button onclick={() => to('HISTORY')} class:active={$activeView === 'HISTORY'}>
+    <MsHistoryOutline style="font-size: {iconSize}"/>
   </button>
 </div>
 

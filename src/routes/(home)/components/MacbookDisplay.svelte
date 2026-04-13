@@ -6,7 +6,7 @@
 <div class="relative flex flex-col items-center w-[90vw] max-w-[900px] mt-12 mx-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
   
   <!-- Screen Assembly -->
-  <div class="relative aspect-[16/10] bg-black rounded-t-[20px] p-2 sm:p-3 shadow-2xl border-[1px] border-[#333] flex flex-col">
+  <div class="relative w-full aspect-[16/10] bg-black rounded-t-[20px] p-2 sm:p-3 shadow-2xl border-[1px] border-[#333] flex flex-col">
     
     <!-- Screen Display -->
     <div class="relative h-full bg-white rounded-[8px] flex flex-col justify-center items-center [transform:translate3d(0,0,0)]">

@@ -3,6 +3,7 @@
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import ListCalendar from '$lib/components/ListCalendar.svelte'
   import PhotoGrid from '/src/routes/[user]/components/PhotoGrid.svelte'
+  import History from '/src/routes/[user]/components/History/index.svelte'
   import HabitsTab from '/src/routes/[user]/components/Routines/HabitsTab.svelte'
   import Schedule from '/src/routes/[user]/components/Schedule.svelte'
   import Settings from '/src/routes/[user]/components/Settings/index.svelte'
@@ -45,6 +46,8 @@
             </TemplateContext>
           {:else if $activeView === 'PHOTOS'}
             <PhotoGrid />
+          {:else if $activeView === 'HISTORY'}
+            <History />
           {/if}
         </div> 
         

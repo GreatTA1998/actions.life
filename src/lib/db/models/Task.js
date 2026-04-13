@@ -3,9 +3,9 @@ import { releaseImage, maintainOrderValue } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
 import { user, tasksCache, cleanupCache, showUndoSnackbar } from '$lib/store'
 import { closeTaskPopup } from '$lib/store/taskPopup.js'
-import { 
-  writeBatch, getDocs, collection, 
-  query, where, doc
+import {
+  writeBatch, getDocs, collection,
+  query, where, doc, onSnapshot
 } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
@@ -36,7 +36,8 @@ const Task = {
     tagIDs: z.array(z.string()).default([]),
 
     onList: z.boolean(), // now mandatory
-    
+    completedAt: z.number().nullable().optional(), // epoch ms; stamped when isDone flips true
+
     // maintained fields
     orderValue: z.number(),
     treeISOs: z.array(z.string()), 
@@ -74,16 +75,22 @@ const Task = {
   },
 
   async update ({ id, kvChanges, undoable = true }) {
+    if (kvChanges.isDone === true && !get(tasksCache)[id]?.isDone) {
+      kvChanges.completedAt = Date.now()
+    } else if (kvChanges.isDone === false) {
+      kvChanges.completedAt = null
+    }
+
     if (get(user).simpleMode) {
       if (kvChanges.startDateISO || kvChanges.isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
         kvChanges.onList = false
-      } 
+      }
       else if (kvChanges.onList) {  // only possible via drag-to-list
         kvChanges.startDateISO = ''
         kvChanges.startTime = ''
       }
     }
-  
+
     const validatedChanges = Task.schema.partial().parse(kvChanges)
 
     if (validatedChanges.isDone) playSound('swipe', 0.1)
@@ -174,6 +181,20 @@ const Task = {
     }
 
     await batch.commit()
+  },
+
+  listenToCompleted (userUID, callback) {
+    const q = query(
+      collection(db, 'users', userUID, 'tasks'),
+      where('isDone', '==', true)
+    )
+    return onSnapshot(q, (snapshot) => {
+      const tasks = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+      callback(tasks)
+    }, (error) => {
+      console.error('Error in listenToCompleted', error)
+      callback([])
+    })
   },
 
   async getByDateRange (startDate, endDate) {
