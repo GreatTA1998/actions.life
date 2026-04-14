@@ -59,21 +59,17 @@ export const SEED_ENTRIES = [
   },
 
   // ── Icon habits ─────────────────────────────────────────────────────
-  // Appear as doodle icons in the calendar day header (today).
-  { id: 'habit-water',    name: 'Water the plant', iconURL: ICON.waterPlant, dayOffset: 0, onList: false },
-  { id: 'habit-drink',    name: 'Drink water',     iconURL: ICON.drinkWater, dayOffset: 0, onList: false },
-  { id: 'habit-meditate', name: 'Meditate',        iconURL: ICON.meditate,   dayOffset: 0, onList: false },
-  { id: 'habit-laundry',  name: 'Dry laundry',     iconURL: ICON.laundry,    dayOffset: 0, onList: false },
+  { id: 'habit-water',    name: 'Water the plant',               iconURL: ICON.waterPlant, dayOffset: 0, onList: false },
+  { id: 'habit-drink',    name: 'Drink water',     isDone: true, iconURL: ICON.drinkWater, dayOffset: 0, onList: false },
+  { id: 'habit-meditate', name: 'Meditate',                      iconURL: ICON.meditate,   dayOffset: 0, onList: false },
+  { id: 'habit-laundry',  name: 'Dry laundry',     isDone: true, iconURL: ICON.laundry,    dayOffset: 0, onList: false },
 
   // ── Timeline ────────────────────────────────────────────────────────
-  // Parent lives in the list area; children are spread across dates so
-  // toggling to "timeline" layout shows temporal distance between them.
   { id: 'project', name: 'Timeline', childrenLayout: 'timeline', onList: true },
   { id: 'project-draft', name: 'First draft',  parentID: 'project', dayOffset: -30, isDone: true, onList: true },
   { id: 'project-final',   name: 'Final submission',    parentID: 'project', dayOffset: 60,  duration: 120, onList: true },
 
   // ── Sub-task tree ───────────────────────────────────────────────────
-  // A simple parent → children hierarchy visible in the list area.
   { id: 'reading',   name: 'Groceries', onList: true },
   { id: 'reading-1', name: 'Tomato', parentID: 'reading', isDone: true, onList: true },
   { id: 'reading-2', name: 'Eggs', parentID: 'reading', onList: true }

@@ -11,6 +11,7 @@
   import Message from '$lib/db/models/Message.js'
   import GCalAccount from '$lib/db/models/GCalAccount.js'
   import { trackWidth, trackHeight } from '$lib/utils/svelteActions.js'
+  import { writable } from 'svelte/store'
 
   let { children } = $props()
 
@@ -33,7 +34,8 @@
     clickedTaskID,
     familyTree,
     openTaskPopup,
-    closeTaskPopup
+    closeTaskPopup,
+    trees: writable(null)
   })
 </script>
 

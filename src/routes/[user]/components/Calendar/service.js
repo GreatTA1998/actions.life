@@ -68,15 +68,12 @@ function listenToRegion (dateISOs) {
 export function rebuildRegion (regionTasks, dateISOs) {
   updateCache(regionTasks)
 
-  // create an array of all task trees (includes subtrees)
-  const regionForest = constructForest(regionTasks)
+  const regionForest = constructForest(regionTasks) // even sub-trees are included individually
 
   // as the query includes tasks arbitrarily spread out over time (even outside of region)
   // only include trees whose root is scheduled within the region
   const scheduledTrees = regionForest.filter(task => task.startDateISO)
 
-  // date --> DayColumn's state
-  // divide into icon, noIcon, hasStartTime etc. the form that <DayColumn/> expects
   const dayColumns = organizeToGroups(scheduledTrees)
   
   treesByDate.update(dict => {

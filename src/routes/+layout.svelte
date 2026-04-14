@@ -32,6 +32,10 @@
     translateJSConstantsToCSSVariables()
 
     onAuthStateChanged($firebaseAuth, async (resultUser) => {
+      console.log('resultUser =', resultUser)
+
+      console.log('$firebaseAuth.currentUser =', $firebaseAuth.currentUser)
+
       authChecked.set(true) // from cookie, takes around 300 - 500ms
       
       if (page.url.pathname.startsWith('/legal')) {
@@ -39,19 +43,23 @@
       }
     
       else if (!resultUser) {
+        console.log('no user')
         loading = false
-        goto('/')
+        // goto('/')
         loggedIn.set(false)
         user.set({})
       } 
 
+      // --> if authChecked
       else if (resultUser.isAnonymous) {
+        console.log('returning anonymous user')
         loading = false
         loggedIn.set(true)
       }
       
       else {
-        goto('/' + resultUser.uid)
+        console.log('returning user, redirecting')
+        // goto('/' + resultUser.uid)
         loggedIn.set(true)
         // the `$effect` above will later set `loading = false`
         // [user]/+layout.svelte will hydrate `user`
@@ -61,7 +69,9 @@
 </script>
 
 <div>
-  {@render children()}
+  {#if $authChecked}
+    {@render children()}
+  {/if}
 
   {#if loading}
     <div transition:fade 

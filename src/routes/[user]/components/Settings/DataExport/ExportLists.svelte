@@ -1,7 +1,8 @@
 <script>
-  import { trees } from '/src/routes/[user]/components/ListsArea/service.js'
+  import { getContext } from 'svelte'
 
   let { onExport } = $props()
+  const { trees } = getContext('app')
 
   function exportLists () {
     const md = treesToMarkdown($trees)
