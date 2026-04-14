@@ -1,5 +1,4 @@
 <script>
-  import DemoContext from './DemoContext.svelte'
   import ArtisticBackground from './components/ArtisticBackground.svelte'
   import DemoVideo from './components/DemoVideo.svelte'
   import IntegrationCards from './components/IntegrationCards.svelte'
@@ -9,8 +8,6 @@
   import LogosChrome from 'virtual:icons/logos/chrome'
   import LogosSafari from 'virtual:icons/logos/safari'
   import { authChecked } from '$lib/store'
-
-  let demoActive = $state(false)
 </script>
 
 {#if $authChecked}
@@ -35,9 +32,7 @@
       </div>
 
       <div class="mt-6"></div>
-    
       <IntegrationCards />
-      
       <DemoVideo/>
       
       <MacbookDisplay>
