@@ -16,8 +16,8 @@
     const result = await signInAnonymously($firebaseAuth)
 
     if (getAdditionalUserInfo(result).isNewUser) {
-      const result = await User.create($firebaseAuth.currentUser) 
-      user.set(result) // needed to read $user.maxOrderValue for seed data
+      const mirrorDoc = await User.create($firebaseAuth.currentUser) 
+      user.set(mirrorDoc) // needed to read $user.maxOrderValue for seed data
       await initializeSeedData()
     }
     uid = result.user.uid

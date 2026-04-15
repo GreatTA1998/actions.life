@@ -40,7 +40,7 @@
     <MacbookDisplay>
       {#if HTMLElement.prototype.hasOwnProperty("popover")}
         <div class="w-full h-full relative">
-          {#if authChecked}
+          {#if $authChecked}
             <AnonymousContext>
               {#snippet children (uid)}
                 {#if uid}
