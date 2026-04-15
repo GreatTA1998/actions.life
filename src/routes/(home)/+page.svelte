@@ -8,12 +8,12 @@
   import AuthPlayground from './components/AuthPlayground.svelte'
   import LogosChrome from 'virtual:icons/logos/chrome'
   import LogosSafari from 'virtual:icons/logos/safari'
-  import { authChecked, firebaseAuth } from '$lib/store'
+  import { authChecked, authUser, firebaseAuth } from '$lib/store'
 </script>
 
 {#if $authChecked}
-  {#if $firebaseAuth.currentUser === null || $firebaseAuth.currentUser.isAnonymous}
-    <div class="home-bg h-full flex grow" style="padding-top: 2%;">
+  {#if $authUser === null || $authUser.isAnonymous}
+    <div class="home-bg h-full flex grow" style:padding-top="2%">
 
     <ArtisticBackground />
     
@@ -40,7 +40,13 @@
         <MacbookDisplay>
           {#if HTMLElement.prototype.hasOwnProperty("popover")}
             <div class="w-full h-full relative">
-              <AnonymousContext/>
+              <AnonymousContext>
+                {#snippet children (uid)}
+                  {#if uid}
+                    <UserAppInstance {uid} />
+                  {/if}
+                {/snippet}
+              </AnonymousContext>
             </div>
           {:else}
             <div onclick={() => demoActive = true} class="relative w-full h-full bg-white flex flex-col items-center justify-center">
@@ -67,7 +73,7 @@
         </footer>
       </div>
     </div>
-  {:else if $firebaseAuth.currentUser.uid}
+  {:else if $authUser.uid}
     <div style:height="100dvh">
       <UserAppInstance uid={$firebaseAuth.currentUser.uid} />
     </div>

@@ -1,5 +1,4 @@
 <script>
-  import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import User from '$lib/db/models/User.js'
   import { firebaseAuth, user } from '$lib/store'
   import { 
@@ -8,6 +7,8 @@
   } from 'firebase/auth'
   import { onMount } from 'svelte'
   import { initializeSeedData } from '$lib/db/seed.js'
+
+  let { children } = $props()
 
   let uid = $state('')
 
@@ -25,6 +26,4 @@
   })
 </script>
 
-{#if uid}
-  <UserAppInstance {uid} />
-{/if}
+{@render children(uid)}

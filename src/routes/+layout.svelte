@@ -1,12 +1,10 @@
 <script>
   import { loadSounds } from '$lib/features/audio.js'
-  import { user, authChecked, loggedIn, firebaseAuth } from '$lib/store'
+  import { user, authUser, authChecked, loggedIn, initialDataReady, firebaseAuth } from '$lib/store'
   import { page } from '$app/state'
-  import { goto } from '$app/navigation'
   import { onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
-  import { treesByDate } from '/src/routes/[user]/components/Calendar/service.js'
   import { fade } from 'svelte/transition'
   import '@fontsource-variable/inter'
   import 'virtual:uno.css'
@@ -21,7 +19,7 @@
   let loading = $state(true)
 
   $effect(() => {
-    if ($authChecked && $loggedIn && $user.email && Object.keys($treesByDate).length > 0) {
+    if ($authChecked && $loggedIn && $user.email && $initialDataReady) {
       loading = false
     }
   })
@@ -37,7 +35,8 @@
       console.log('$firebaseAuth.currentUser =', $firebaseAuth.currentUser)
 
       authChecked.set(true) // from cookie, takes around 300 - 500ms
-      
+      authUser.set($firebaseAuth.currentUser)
+
       if (page.url.pathname.startsWith('/legal')) {
         loading = false
       }
@@ -69,9 +68,7 @@
 </script>
 
 <div>
-  {#if $authChecked}
-    {@render children()}
-  {/if}
+  {@render children()}
 
   {#if loading}
     <div transition:fade 

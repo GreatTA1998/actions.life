@@ -2,7 +2,8 @@
   import { setContext } from 'svelte'
   import { 
     tasksCache, 
-    clickedTaskID, closeTaskPopup, familyTree, openTaskPopup
+    clickedTaskID, closeTaskPopup, familyTree, openTaskPopup,
+    initialDataReady
   } from '$lib/store'
   import Task from '$lib/db/models/Task.js'
   import User from '$lib/db/models/User.js'
@@ -21,6 +22,14 @@
     appDiv: null
   })
 
+  const treesByDate = writable({})
+
+  $effect(() => {
+    if (Object.keys($treesByDate).length > 0) {
+      initialDataReady.set(true)
+    }
+  })
+
   setContext('dimensions', dimensions)
 
   setContext('app', {
@@ -35,7 +44,9 @@
     familyTree,
     openTaskPopup,
     closeTaskPopup,
-    trees: writable(null)
+    treesByDate,
+    trees: writable(null),
+    treesByID: writable({})
   })
 </script>
 
