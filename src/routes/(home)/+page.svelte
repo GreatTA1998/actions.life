@@ -8,7 +8,7 @@
   import AuthPlayground from './components/AuthPlayground.svelte'
   import LogosChrome from 'virtual:icons/logos/chrome'
   import LogosSafari from 'virtual:icons/logos/safari'
-  import { authChecked, authUser, firebaseAuth } from '$lib/store'
+  import { authChecked, authUser } from '$lib/store'
 </script>
 
 {#if $authChecked}
@@ -75,7 +75,7 @@
     </div>
   {:else if $authUser.uid}
     <div style:height="100dvh">
-      <UserAppInstance uid={$firebaseAuth.currentUser.uid} />
+      <UserAppInstance uid={$authUser.uid} />
     </div>
   {/if}
 {/if}

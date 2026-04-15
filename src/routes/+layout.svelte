@@ -1,4 +1,5 @@
 <script>
+  import { goto } from '$app/navigation'
   import { loadSounds } from '$lib/features/audio.js'
   import { user, authUser, authChecked, loggedIn, initialDataReady, firebaseAuth } from '$lib/store'
   import { page } from '$app/state'
@@ -20,9 +21,12 @@
 
   $effect(() => {
     if ($authChecked && $loggedIn && $user.email && $initialDataReady) {
+      console.timeEnd('first meaningful data')
       loading = false
     }
   })
+
+  console.time('first meaningful data')
 
   onMount(() => {
     loadSounds()
@@ -31,8 +35,6 @@
 
     onAuthStateChanged($firebaseAuth, async (resultUser) => {
       console.log('resultUser =', resultUser)
-
-      console.log('$firebaseAuth.currentUser =', $firebaseAuth.currentUser)
 
       authChecked.set(true) // from cookie, takes around 300 - 500ms
       authUser.set($firebaseAuth.currentUser)
@@ -44,24 +46,22 @@
       else if (!resultUser) {
         console.log('no user')
         loading = false
-        // goto('/')
         loggedIn.set(false)
         user.set({})
       } 
 
       // --> if authChecked
       else if (resultUser.isAnonymous) {
-        console.log('returning anonymous user')
+        console.log('anonymous user')
         loading = false
         loggedIn.set(true)
       }
       
       else {
+        // goto('/' + $authUser.uid)
         console.log('returning user, redirecting')
-        // goto('/' + resultUser.uid)
         loggedIn.set(true)
-        // the `$effect` above will later set `loading = false`
-        // [user]/+layout.svelte will hydrate `user`
+        // <UserAppInstance/> above will later set `initialDataReady = true`
       }
     })
   })

@@ -14,6 +14,8 @@
 
   const { scrollCalRect } = getContext('drag-drop')
   const { treesByDate, treesByID } = getContext('app')
+  
+  const { setupCalListener } = createCalendarService({ treesByDate, treesByID })
 
   let scrollParent
 
@@ -34,8 +36,6 @@
   $: if (viewportLeft <= triggerLeft) addPastListener()
 
   onMount(async () => {
-    const { setupCalListener } = createCalendarService({ treesByDate, treesByID })
-
     setupCalListener(
       originDT.plus({ days: viewportLeft - 2*c }),
       originDT.plus({ days: viewportRight + 2*c })

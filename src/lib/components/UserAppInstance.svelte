@@ -21,9 +21,18 @@
 
   let { uid } = $props()
 
-  onMount(() => onSnapshot(doc(db, '/users/' + uid), 
-    async snap => user.set({ ...snap.data() })
-  ))
+  user.set({})
+
+  $inspect('user retrieved =', $user)
+
+  onMount(() => {
+    console.log('fetching user')
+    onSnapshot(
+      doc(db, '/users/' + uid), 
+      snap => user.set({ ...snap.data() })
+    )
+}
+  )
 </script>
 
 {#if $user.uid}
