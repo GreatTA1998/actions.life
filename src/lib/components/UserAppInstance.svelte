@@ -23,15 +23,11 @@
 
   user.set({})
 
-  $inspect('user retrieved =', $user)
-
-  onMount(() => {
-    console.log('fetching user')
+  onMount(() => 
     onSnapshot(
       doc(db, '/users/' + uid), 
       snap => user.set({ ...snap.data() })
     )
-}
   )
 </script>
 

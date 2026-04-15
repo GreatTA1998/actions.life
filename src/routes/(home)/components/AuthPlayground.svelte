@@ -19,7 +19,6 @@
       )
     } catch (e) {
       if (e.code === AuthErrorCodes.CREDENTIAL_ALREADY_IN_USE) {
-        console.log('credentials already in use')
         await signInWithCredential(
           get(firebaseAuth),
           GoogleAuthProvider.credentialFromError(e)

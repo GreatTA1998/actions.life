@@ -16,13 +16,11 @@
     const result = await signInAnonymously($firebaseAuth)
 
     if (getAdditionalUserInfo(result).isNewUser) {
-      console.log('isNewUser, creating new account...')
       const result = await User.create($firebaseAuth.currentUser) 
       user.set(result) // needed to read $user.maxOrderValue for seed data
       await initializeSeedData()
     }
     uid = result.user.uid
-    console.log('after AnonymousContext mount, uid =', uid)
   })
 </script>
 

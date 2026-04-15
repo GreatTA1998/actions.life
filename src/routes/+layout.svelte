@@ -21,12 +21,9 @@
 
   $effect(() => {
     if ($authChecked && $loggedIn && $user.email && $initialDataReady) {
-      console.timeEnd('first meaningful data')
       loading = false
     }
   })
-
-  console.time('first meaningful data')
 
   onMount(() => {
     loadSounds()
@@ -34,8 +31,6 @@
     translateJSConstantsToCSSVariables()
 
     onAuthStateChanged($firebaseAuth, async (resultUser) => {
-      console.log('resultUser =', resultUser)
-
       authChecked.set(true) // from cookie, takes around 300 - 500ms
       authUser.set($firebaseAuth.currentUser)
 
@@ -44,22 +39,20 @@
       }
     
       else if (!resultUser) {
-        console.log('no user')
+        goto('/')
         loading = false
         loggedIn.set(false)
         user.set({})
       } 
 
-      // --> if authChecked
       else if (resultUser.isAnonymous) {
-        console.log('anonymous user')
+        goto('/')
         loading = false
         loggedIn.set(true)
       }
       
-      else {
-        // goto('/' + $authUser.uid)
-        console.log('returning user, redirecting')
+      else if (resultUser.email) {
+        goto('/' + $authUser.uid)
         loggedIn.set(true)
         // <UserAppInstance/> above will later set `initialDataReady = true`
       }
