@@ -51,7 +51,7 @@
           {/if}
         </div>
       {:else}
-        <div onclick={() => demoActive = true} class="relative w-full h-full bg-white flex flex-col items-center justify-center">
+        <div class="relative w-full h-full bg-white flex flex-col items-center justify-center">
           <p>WARNING: the app can't run on your browser and requires the latest version of Chrome or Safari</p>
           <div class="flex items-center gap-4">
             <div class="flex items-center justify-center size-12">
