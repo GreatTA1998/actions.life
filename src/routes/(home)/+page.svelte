@@ -1,7 +1,6 @@
 <script>
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import ArtisticBackground from './components/ArtisticBackground.svelte'
-  import DemoVideo from './components/DemoVideo.svelte'
   import IntegrationCards from './components/IntegrationCards.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
@@ -35,10 +34,8 @@
     </div>
 
     <div class="mt-6"></div>
-
+  
     <IntegrationCards />
-
-    <DemoVideo/>
 
     {#if browser && isMobile()}
       <PhoneDisplay children={simulatedApp} />

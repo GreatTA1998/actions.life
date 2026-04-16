@@ -15,7 +15,7 @@
   }
 </script>
 
-<div class="relative" onclick={togglePlay}>
+<div class="relative w-full aspect-video" onclick={togglePlay}>
   <video 
     bind:this={videoEl}
     src="https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/homePageDemoVideos%2F2026-timeline-demo-for-notion-user.webm?alt=media&token=d7bbfaa3-b2a9-4a3e-8cea-2e81e687a2fb"
