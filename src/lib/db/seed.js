@@ -1,17 +1,22 @@
 import { DateTime } from 'luxon'
 import Task from '$lib/db/models/Task.js'
+import Template from '$lib/db/models/Template.js'
 import { updateCache } from '$lib/store/tasksCache.js'
 
 export async function initializeSeedData () {
-  for (const { id, data } of buildSeedTasks()) {
+  for (const { id, ...data } of SEED_TEMPLATES) { // parallelizable
+    Template.create({ id, data })
+  }
+
+  for (const { id, data } of resolveRelativeDates(SEED_TASKS)) { // must be sequential for `treeISOs` to be handled
     const result = await Task.create({ id, data, optimistic: false })
     updateCache([result])
   }
 }
 
-function buildSeedTasks (entries = SEED_ENTRIES) {
+function resolveRelativeDates (tasks) {
   const today = DateTime.now()
-  return entries.map(({ id, dayOffset, ...data }) => {
+  return tasks.map(({ id, dayOffset, ...data }) => {
     if (dayOffset != null) {
       data.startDateISO = today.plus({ days: dayOffset }).toFormat('yyyy-MM-dd')
     }
@@ -42,7 +47,7 @@ const ICON = {
  * Only "stable" properties are stored here — fields that are computed at
  * creation time (orderValue, treeISOs, rootID) are intentionally omitted.
  */
-export const SEED_ENTRIES = [
+const SEED_TASKS = [
   { id: 'photo-bird', 
     imageDownloadURL: PHOTOS.redCrownBird, 
     dayOffset: 0, 
@@ -59,10 +64,16 @@ export const SEED_ENTRIES = [
   },
 
   // ── Icon habits ─────────────────────────────────────────────────────
-  { id: 'habit-water',    name: 'Water the plant',               iconURL: ICON.waterPlant, dayOffset: 0, onList: false },
-  { id: 'habit-drink',    name: 'Drink water',     isDone: true, iconURL: ICON.drinkWater, dayOffset: 0, onList: false },
-  { id: 'habit-meditate', name: 'Meditate',                      iconURL: ICON.meditate,   dayOffset: 0, onList: false },
-  { id: 'habit-laundry',  name: 'Dry laundry',     isDone: true, iconURL: ICON.laundry,    dayOffset: 0, onList: false },
+  // day 1
+  { id: 'habit-water',    name: 'Water the plant',               iconURL: ICON.waterPlant, dayOffset: 0, onList: false, templateID: 'template-habit-water' },
+  { id: 'habit-drink',    name: 'Drink water',     isDone: true, iconURL: ICON.drinkWater, dayOffset: 0, onList: false, templateID: 'template-habit-drink', duration: 1 },
+  { id: 'habit-meditate', name: 'Meditate',                      iconURL: ICON.meditate,   dayOffset: 0, onList: false, templateID: 'template-habit-meditate' },
+  { id: 'habit-laundry',  name: 'Dry laundry',     isDone: true, iconURL: ICON.laundry,    dayOffset: 0, onList: false, templateID: 'template-habit-laundry' },
+  // day 2
+  { id: 'habit-water-2',    name: 'Water the plant',               iconURL: ICON.waterPlant, dayOffset: 1, onList: false, templateID: 'template-habit-water' },
+  { id: 'habit-drink-2',    name: 'Drink water',     isDone: true, iconURL: ICON.drinkWater, dayOffset: 1, onList: false, templateID: 'template-habit-drink', duration: 1 },
+  { id: 'habit-meditate-2', name: 'Meditate',                      iconURL: ICON.meditate,   dayOffset: 1, onList: false, templateID: 'template-habit-meditate' },
+  { id: 'habit-laundry-2',  name: 'Dry laundry',     isDone: true, iconURL: ICON.laundry,    dayOffset: 1, onList: false, templateID: 'template-habit-laundry' },
 
   // ── Timeline ────────────────────────────────────────────────────────
   { id: 'project', name: 'Timeline', childrenLayout: 'timeline', onList: true },
@@ -73,4 +84,44 @@ export const SEED_ENTRIES = [
   { id: 'reading',   name: 'Groceries', onList: true },
   { id: 'reading-1', name: 'Tomato', parentID: 'reading', isDone: true, onList: true },
   { id: 'reading-2', name: 'Eggs', parentID: 'reading', onList: true }
+]
+
+const RRSTR = {
+  daily: 'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU',
+  weekly: 'FREQ=WEEKLY;BYDAY=MO',
+}
+
+const SEED_TEMPLATES = [
+  {
+    id: 'template-habit-water',
+    name: 'Water the plant',
+    duration: 15,
+    iconURL: ICON.waterPlant,
+    isStarred: true,
+    rrStr: RRSTR.weekly,
+  },
+  {
+    id: 'template-habit-drink',
+    name: 'Drink water',
+    duration: 1,
+    iconURL: ICON.drinkWater,
+    isStarred: true,
+    rrStr: RRSTR.weekly,
+  },
+  {
+    id: 'template-habit-meditate',
+    name: 'Meditate',
+    duration: 15,
+    iconURL: ICON.meditate,
+    isStarred: true,
+    rrStr: RRSTR.daily,
+  },
+  {
+    id: 'template-habit-laundry',
+    name: 'Dry laundry',
+    duration: 10,
+    iconURL: ICON.laundry,
+    isStarred: true,
+    rrStr: RRSTR.weekly,
+  }
 ]
