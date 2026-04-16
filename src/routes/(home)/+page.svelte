@@ -5,10 +5,13 @@
   import IntegrationCards from './components/IntegrationCards.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
+  import PhoneDisplay from './components/PhoneDisplay.svelte'
   import AuthPlayground from './components/AuthPlayground.svelte'
   import LogosChrome from 'virtual:icons/logos/chrome'
   import LogosSafari from 'virtual:icons/logos/safari'
   import { authChecked } from '$lib/store'
+  import { isMobile } from '$lib/utils/core.js'
+  import { browser } from '$app/environment'
 </script>
 
 <div class="home-bg h-full flex grow" style:padding-top="2%">
@@ -36,9 +39,15 @@
     <IntegrationCards />
 
     <DemoVideo/>
+
+    {#if browser && isMobile()}
+      <PhoneDisplay children={simulatedApp} />
+    {:else}
+      <MacbookDisplay children={simulatedApp} />
+    {/if}
     
-    <MacbookDisplay>
-      {#if typeof HTMLElement !== "undefined" && HTMLElement.prototype.hasOwnProperty("popover")}
+    {#snippet simulatedApp ()}
+      {#if browser && HTMLElement.prototype.hasOwnProperty("popover")}
         <div class="w-full h-full relative">
           {#if $authChecked}
             <AnonymousContext>
@@ -63,7 +72,7 @@
           </div>
         </div>
       {/if}
-    </MacbookDisplay>
+    {/snippet}
 
     <div class="mt-6"></div>
 
