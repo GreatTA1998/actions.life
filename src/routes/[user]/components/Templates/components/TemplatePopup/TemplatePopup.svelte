@@ -33,7 +33,7 @@
   }
 
   function instantUpdate (key, value) {
-    Template.updateItselfAndFutureInstances({ id: $template.id, updates: {
+    Template.updateItselfAndFutureInstances({ id: $template.id, kvChanges: {
       [key]: value
     }})
   }

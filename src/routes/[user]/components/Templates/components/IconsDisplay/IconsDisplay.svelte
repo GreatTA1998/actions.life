@@ -11,7 +11,7 @@
   })
 
   async function handleSelectIcon (iconURL = '') {
-    Template.updateItselfAndFutureInstances({ id: $template.id, updates: { iconURL } })
+    Template.updateItselfAndFutureInstances({ id: $template.id, kvChanges: { iconURL } })
   }
 
   function handleDeleteIcon({ id, url }) {
