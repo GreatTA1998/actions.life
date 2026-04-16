@@ -44,6 +44,13 @@
     }
   }
 
+  function ontoggle (e) {
+    if (e.newState === 'closed') {
+      menuPopover.hidePopover() // otherwise `:popover-open` on the menu interferes with BasePopup's ESC logic, even if menu is invisible either way to the user
+      onPopoverClose()
+    }
+  }
+
   async function onPopoverClose () {
     if (value) {
       Task.create({ id: randomID(), data: derivedTask })
@@ -72,8 +79,10 @@
 {@render children()}
 
 <!-- `overflow-y-hidden` is a Safari quickfix -->
-<div ontoggle={e => e.newState === 'closed' && onPopoverClose()}
-  bind:this={inputPopover} popover="auto" class="bg-transparent overflow-y-hidden"
+<div {ontoggle}
+  bind:this={inputPopover} 
+  popover="auto"
+  class="bg-transparent overflow-y-hidden"
   style:position-area="center"
   style:width="anchor-size(width)"
   style:height="anchor-size(height)"
@@ -87,8 +96,11 @@
     style:font-size="clamp({noZoomFS}, 40cqb, 2rem)"
   >
 
-  <div bind:this={menuPopover} popover="manual" 
-    class="fixed rounded-xl" style:top="anchor(bottom)" style:left="anchor(left)"
+  <div bind:this={menuPopover} 
+    popover="manual" 
+    class="fixed rounded-xl" 
+    style:top="anchor(bottom)" 
+    style:left="anchor(left)"
   >
     <DropdownMenu 
       taskName={value} 
