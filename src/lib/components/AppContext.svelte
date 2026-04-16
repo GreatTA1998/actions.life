@@ -82,11 +82,13 @@
     if ($clickedTemplateID === '') return
 
     const result = $templates.find(T => T.id === $clickedTemplateID)
-    if (!result && confirm ('Restore deleted template?')) { // restore the template
-      forgeTemplates(
-        $clickedTemplateID,
-        $familyTree
-      )
+    if (!result) { 
+      if (confirm('Restore previously deleted template?')) {
+        forgeTemplates(
+          $clickedTemplateID,
+          $familyTree
+        )
+      }
       return
     }
 
