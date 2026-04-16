@@ -38,7 +38,7 @@
     <DemoVideo/>
     
     <MacbookDisplay>
-      {#if HTMLElement.prototype.hasOwnProperty("popover")}
+      {#if typeof HTMLElement !== "undefined" && HTMLElement.prototype.hasOwnProperty("popover")}
         <div class="w-full h-full relative">
           {#if $authChecked}
             <AnonymousContext>

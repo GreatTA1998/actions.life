@@ -70,9 +70,9 @@
 
   async function onTemplateClick (template) {
     input.focus() // we lost focus clicking the menu item (reminder: must be synchronous)
+    value = ''
     const result = await Template.instantiateTree({ template, modifiers: $overrideOptions })
     $callback(result)
-    value = ''
   }
 </script>
 

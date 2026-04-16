@@ -1,7 +1,7 @@
-<script>
-  import { setContext } from 'svelte'
+<script lang="ts">
+  import { setContext, onMount } from 'svelte'
   import { 
-    tasksCache, 
+    user, tasksCache, 
     clickedTaskID, closeTaskPopup, familyTree, openTaskPopup,
     initialDataReady
   } from '$lib/store'
@@ -13,6 +13,11 @@
   import GCalAccount from '$lib/db/models/GCalAccount.js'
   import { trackWidth, trackHeight } from '$lib/utils/svelteActions.js'
   import { writable } from 'svelte/store'
+  import { buildForest, findSubtree } from '$lib/db/tree.ts'
+  import type { Tree } from '$lib/db/tree.ts'
+  import { collection, onSnapshot, query, where } from 'firebase/firestore'
+  import { db } from '$lib/db/init.js'
+  import { randomID } from '$lib/utils/core.js'
 
   let { children } = $props()
 
@@ -23,6 +28,11 @@
   })
 
   const treesByDate = writable({})
+
+  const clickedTemplateID = writable('')
+  const template = writable(null)
+  const templates = writable([])
+  const templateTree = writable({ children: [] })  
 
   $effect(() => {
     if (Object.keys($treesByDate).length > 0) {
@@ -44,15 +54,93 @@
     familyTree,
     openTaskPopup,
     closeTaskPopup,
+
     treesByDate,
     trees: writable(null),
-    treesByID: writable({})
+    treesByID: writable({}),
+
+    clickedTemplateID,
+    template,
+    templates,
+    templateTree,
+    forgeTemplates
   })
+
+  onMount(() => onSnapshot(
+    query(
+      collection(db, '/users/' + $user.uid + '/templates'), 
+      where('parentID', '==', '')
+    ), 
+    async (snap) => {
+      templates.set(
+        snap.docs.map(doc => ({ ...doc.data(), id: doc.id })
+      ))
+    }
+  ))
+
+  $effect(() => {
+    if ($clickedTemplateID === '') return
+
+    const result = $templates.find(T => T.id === $clickedTemplateID)
+    if (!result && confirm ('Restore deleted template?')) { // restore the template
+      forgeTemplates(
+        $clickedTemplateID,
+        $familyTree
+      )
+      return
+    }
+
+    template.set(result)
+
+    return onSnapshot(
+      query(
+        collection(db, `users/${$user.uid}/templates`),
+        where('rootID', '==', result.rootID)
+      ),
+      snapshot => {
+        const results = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+        const [ancestralTree] = buildForest(results)
+        const family = findSubtree({ id: $clickedTemplateID, tree: ancestralTree })
+        templateTree.set(family)
+      }
+    )
+  })
+
+  // children nodes must not have templateIDs, otherwise they'd be able to configure `rrStr` on subtemplates
+  async function forgeTemplates (id: string, taskTree: Tree) {
+    await helper({ 
+      node: taskTree, 
+      newID: id,
+      parentID: '', 
+      rootID: id
+    })
+    await Task.update({ id: taskTree.id, kvChanges: {
+      templateID: id
+    }})
+  }
+
+  async function helper ({ node, newID, parentID, rootID }) {
+    await Template.create({ 
+      id: newID, 
+      data: { ...node, parentID } // `rootID` will be handled by Template.create() 
+    })
+
+    await Promise.all(
+      node.children.map(child => helper({
+        node: child, 
+        newID: randomID(), 
+        parentID: newID, 
+        rootID
+      }))
+    )
+  }
 </script>
 
-<div bind:this={dimensions.appDiv} class="z-0 relative h-full"
+<div 
+  bind:this={dimensions.appDiv} 
   use:trackWidth={w => dimensions.width = w}
   use:trackHeight={h => dimensions.height = h}
+  class="z-0 relative h-full"
 >
   {@render children()}
 </div>

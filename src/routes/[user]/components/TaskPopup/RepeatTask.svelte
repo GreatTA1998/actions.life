@@ -1,11 +1,11 @@
 <script>
   import MslRepeat from 'virtual:icons/material-symbols-light/repeat'
-  import { user } from '$lib/store'
   import { getContext } from 'svelte'
 
   const { openTaskPopup, familyTree, forgeTemplates } = getContext('app')
 
   let { task } = $props()
+  let disabled = $state(false)
 </script>
 
 {#if task.templateID}
@@ -15,12 +15,13 @@
     <MslRepeat style="font-size: var(--popup-control)"/>
   </button>
 {:else}
-  <button onclick={() => forgeTemplates($familyTree.id, $familyTree)} 
-    class={[
-      'text-[rgb(20,20,20)]',
-      $user.uid === 'demo-user' && 'text-gray-300 cursor-default'
-    ]}
-    disabled={$user.uid === 'demo-user'}
+  <button {disabled}
+    onclick={async () => {
+      disabled = true;
+      await forgeTemplates($familyTree.id, $familyTree);
+      disabled = false;
+      openTaskPopup({ id: $familyTree.id });
+    }}
   >
     <MslRepeat style="font-size: var(--popup-control)"/>
   </button>
