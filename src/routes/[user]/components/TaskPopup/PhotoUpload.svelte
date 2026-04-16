@@ -1,10 +1,10 @@
-<button {onclick} class="flex">
+<button onclick={() => FolderInput.click()} class="flex">
   <MslAddPhotoAlternateOutline style="font-size: var(--popup-control);"/>
 </button>
 
-<input style="display: none;" 
+<input style:display="none"
   bind:this={FolderInput}
-  onchange={imbuePhotoIntoTask} 
+  onchange={e => imbuePhotoIntoTask(e, task.id, onUpload, onFinished)} 
   type="file" 
   accept="image/*" 
 >
@@ -15,16 +15,12 @@
   import { getContext } from 'svelte'
   import { user } from '$lib/store'
 
-  const { uploadMockPhoto, Task } = getContext('app')
+  const { Task } = getContext('app')
   let { onUpload, onFinished, task } = $props()
-  let FolderInput = $state(null)
 
-  function onclick () {
-    if ($user.uid === 'demo-user') uploadMockPhoto(task)
-    else FolderInput.click()
-  }
+  let FolderInput
  
-  async function imbuePhotoIntoTask (e) {
+  async function imbuePhotoIntoTask (e, id, onUpload, onFinished) {
     onUpload()
 
     let image = e.target.files[0]
@@ -36,7 +32,10 @@
       imageDownloadURL 
     } = await uploadThenGetMetadata(image, $user.photoCompressWhenAttachingToTask)
 
-    const updateObj = { imageDownloadURL, imageFullPath }
+    const updateObj = { 
+      imageDownloadURL, 
+      imageFullPath 
+    }
 
     if ($user.photoUploadAutoArchive) {
       updateObj.isDone = true
@@ -45,7 +44,7 @@
       updateObj.duration = orientation === 'landscape' ? 106 : 188
     }
 
-    await Task.update({ id: task.id, kvChanges: updateObj })
+    await Task.update({ id, kvChanges: updateObj })
 
     onFinished()
   }
