@@ -22,7 +22,7 @@ const User = {
     // automation settings
     simpleMode: z.boolean().default(true),
     photoUploadAutoArchive: z.boolean().default(false),
-    photoCompressWhenAttachingToTask: z.boolean().default(false), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
+    photoCompressWhenAttachingToTask: z.boolean().default(true), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
 
     hideRoutines: z.boolean().default(true), // for mobile's future view
     lastRanRoutines: z.string().default(''), // for autoExtend.js
