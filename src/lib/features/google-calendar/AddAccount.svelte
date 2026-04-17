@@ -40,4 +40,6 @@
   "
 />  
 
-<p style:color="red" style:font-size="0.875rem">{error}</p>
+{#if error}
+  <p class="text-red text-md">{error}</p>
+{/if}

@@ -1,4 +1,13 @@
 export const themes = {
+  google: {
+    previewColor: '#f0f4f8',
+    cssVars: {
+      '--todo-list-bg-color': '#ffffff',
+      '--cal-bg': '#f0f4f8',
+      '--navbar-bg-color': '#ffffff',
+      '--grid-color': '#e5e7eb'
+    }
+  },
   naturalGreen: {
     previewColor: 'hsl(98, 40%, 90%)',
     cssVars: {
@@ -15,15 +24,6 @@ export const themes = {
       '--cal-bg': 'oklch(0.92 0.08 72.71)',
       '--navbar-bg-color': 'oklch(0.96 0.03 72.54)',
       '--grid-color': 'oklch(0.85 0.09 72.71)'
-    }
-  },
-  google: {
-    previewColor: '#f0f4f8',
-    cssVars: {
-      '--todo-list-bg-color': '#ffffff',
-      '--cal-bg': '#f0f4f8',
-      '--navbar-bg-color': '#ffffff',
-      '--grid-color': '#e5e7eb'
     }
   }
 }
