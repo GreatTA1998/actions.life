@@ -4,7 +4,7 @@
   const iphone_16_aspect_ratio = 'aspect-[9/19.5]'
 </script>
 
-<div class="w-[min(88vw,320px)] mx-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+<div class="w-[min(88vw,320px)] mx-auto shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[34px]">
   <div class="{iphone_16_aspect_ratio} rounded-[34px] overflow-hidden outline outline-[6px] outline-black shadow-2xl">
     {@render children()}
   </div>
