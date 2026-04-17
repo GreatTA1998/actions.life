@@ -1,52 +1,20 @@
 <script>
-  import { updateFirestoreDoc } from '/src/lib/db/helpers.js'
-  import { user } from '/src/lib/store'
-  import { themes } from '/src/lib/store/themes'
-  
-  function changeTheme (theme) {
-    updateFirestoreDoc(`/users/${$user.uid}`, { calendarTheme: theme })
-  }
+  import { user } from '$lib/store'
+  import { themes } from '$lib/store/themes'
+  import { getContext } from 'svelte'
+
+  const { User } = getContext('app')
 </script>
 
-<div class="color-buttons">
-  {#each Object.entries(themes) as [key, theme]}
-    <button on:click={() => changeTheme(key)} 
-      class="color-button"
-      style:background-color={theme.previewColor}
-      class:active={$user.calendarTheme === key}
-      title={key}
+<div class="flex gap-x-2">
+  {#each Object.entries(themes) as [name, colors]}
+    <button onclick={() => User.update({ calendarTheme: name })} 
+      style:background-color={colors.previewColor}
+      class={[
+        'size-7 rounded-lg border border-solid',
+        $user.calendarTheme === name ? 'scale-110 shadow-lg border-black/20': 'opacity-50 border-black/10'
+      ]}
     >
     </button>
   {/each}
 </div>
-
-<style>
-  .color-buttons {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .color-button {
-    border-radius: 8px;
-    padding: 8px 12px;
-    width: 24px; 
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.7);
-    
-    opacity: 0.5;
-    border: 1px solid rgba(0,0,0,0.1);
-  }
-  
-  .color-button.active {
-    font-weight: 700;
-    opacity: 1;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-    border: 1px solid rgba(0,0,0,0.2);
-    transform: scale(1.1);
-  }
-</style>

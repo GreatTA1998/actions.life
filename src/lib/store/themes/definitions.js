@@ -17,15 +17,6 @@ export const themes = {
       '--grid-color': 'oklch(0.85 0.09 72.71)'
     }
   },
-  offWhite: {
-    previewColor: '#f8f9f9',
-    cssVars: {
-      '--todo-list-bg-color': '#f8f9f9',
-      '--cal-bg': '#f8f9f9',
-      '--navbar-bg-color': '#ffffff',
-      '--grid-color': 'rgb(228, 228, 228)'
-    }
-  },
   google: {
     previewColor: '#f0f4f8',
     cssVars: {
