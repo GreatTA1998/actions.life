@@ -1,85 +1,29 @@
 <script>
-  import { updateFirestoreDoc } from '$lib/db/helpers.js'
-  import { user, calSnapInterval } from '$lib/store'
-
-  const snapIntervals = [1, 5, 10, 15, 30, 60]
-
-  function updateSettings (interval) {
-    updateFirestoreDoc(`users/${$user.uid}`, { calSnapInterval: interval })
-  }
+  import { calSnapInterval } from '$lib/store'
+  import { getContext } from 'svelte'
+  
+  const { User } = getContext('app')
 </script>
 
-<div class="gridlines-container">
-  <div class="snap-settings">
-    <div class="snap-label">Snap to nearest</div>
-    <div class="interval-selector">
-      <div class="interval-buttons">
-        {#each snapIntervals as interval}
-          <button 
-            on:click={() => updateSettings(interval)} 
-            class="interval-button justify-center"
-            class:active={$calSnapInterval === interval}
-          >
-            {interval}
-          </button>
-        {/each}
-      </div>
-      <span class="unit-label">min</span>
-    </div>
+<div class="flex items-center gap-2">
+  <div class="text-sm text-gray-600">
+    Snap to nearest
   </div>
+
+  <div class="flex bg-neutral-100/80 rounded-md p-1">
+    {#each [1, 30] as interval}
+      <button 
+        onclick={() => User.update({ calSnapInterval: interval })} 
+        class={[
+          'w-8 rounded py-1 text-xs text-gray-600',
+          $calSnapInterval === interval && 'bg-white shadow-sm'
+        ]}
+      >
+        {interval}
+      </button>
+    {/each}
+  </div>
+  <span class="text-sm text-gray-600">
+    minute interval
+  </span>
 </div>
-
-<style>
-  .gridlines-container {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .snap-settings {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .snap-label {
-    font-size: 0.875rem;
-    font-weight: 400;
-  }
-
-  .interval-selector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .interval-buttons {
-    display: flex;
-    background: #f5f5f5;
-    border-radius: 6px;
-    padding: 3px;
-  }
-
-  .interval-button {
-    background: transparent;
-    border: none;
-    border-radius: 4px;
-    padding: 5px 0;
-    font-size: 13px;
-    font-weight: 500;
-    color: #555;
-    min-width: 36px;
-    cursor: pointer;
-  }
-
-  .interval-button.active {
-    background: white;
-    color: #333;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  .unit-label {
-    font-size: 13px;
-    color: #777;
-  }
-</style>

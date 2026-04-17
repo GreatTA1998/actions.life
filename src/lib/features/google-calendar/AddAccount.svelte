@@ -25,7 +25,7 @@
 </script>
 
 <GoogleIdentityButton onclick={handleConnect}
-  name={loading ? 'Connecting...' : 'Add Calendar Account'} disabled={loading}
+  name={loading ? 'Connecting...' : 'Integration'} disabled={loading}
   svgSize="18px"
   extraStyle="
     width: fit-content;
