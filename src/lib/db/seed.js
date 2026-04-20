@@ -77,10 +77,10 @@ const SEED_TASKS = [
   { id: 'habit-meditate-2', name: 'Meditate',                      iconURL: ICON.meditate,   dayOffset: 1, onList: false, templateID: 'template-habit-meditate' },
 
   // ── Sub-task tree ───────────────────────────────────────────────────
-  { id: 'getting-started',   name: 'TO-DO', onList: true },
-  { id: 'drag-me', name: 'Drag me anywhere', parentID: 'getting-started', isDone: true, onList: true },
-  { id: 'create-item', name: 'Create a task (hint: indentation matters)', parentID: 'getting-started', onList: true },
-  { id: 'structured-mode', name: 'Settings > "Structured Mode"', parentID: 'getting-started', onList: true },
+  { id: 'getting-started', onList: true, name: 'TO-DO' },
+  { id: '1', parentID: 'getting-started', onList: true, name: 'Drag me anywhere' },
+  { id: '2', parentID: 'getting-started', onList: true, name: 'Create a task (hint: indentation matters)' },
+  { id: '3', parentID: 'getting-started', onList: true, name: 'Settings > "Structured Mode"'},
 
   // ── Timeline ────────────────────────────────────────────────────────
   { id: 'project', name: 'Example Project', childrenLayout: 'timeline', onList: true },
