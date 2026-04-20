@@ -60,21 +60,19 @@
   })
 </script>
 
-<div>
-  {@render children()}
+{@render children()}
 
-  {#if loading}
-    <div transition:fade 
-      class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
-    </div>
-  {/if}
+{#if loading}
+  <div transition:fade 
+    class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
+  </div>
+{/if}
 
-  {#if loading} <!-- must be separate from the transition block -->
-    <img src="/logo-no-bg.png" 
-      class={['pulse center', 'w-12 h-12 rounded-2xl']}
-    />
-  {/if}
-</div>
+{#if loading} <!-- must be separate from the transition block -->
+  <img src="/logo-no-bg.png" 
+    class={['pulse center', 'w-12 h-12 rounded-2xl']}
+  />
+{/if}
 
 <style>
   .center {

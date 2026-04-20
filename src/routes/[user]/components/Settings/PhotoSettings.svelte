@@ -18,6 +18,6 @@
 
   <CheckboxSquare onClick={() => toggle('photoCompressWhenAttachingToTask')}
     value={$user.photoCompressWhenAttachingToTask}
-    label="Use modern compression (faster upload time)"
+    label="Use modern compression"
   />
 </div>

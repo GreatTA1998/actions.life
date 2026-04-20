@@ -1,13 +1,15 @@
 <script>
   import ApplePhotosLogo from './ApplePhotosLogo.svelte'
   import GoogleCalendarLogo from './GoogleCalendarLogo.svelte'
-  import YoutubeShortsDemo from './YoutubeShortsDemo.svelte'
   import DemoVideo from './DemoVideo.svelte'
-  
+
   const OPTIONS = {
     APPLE_PHOTOS: 'photo-user',
     GOOGLE_CALENDAR: 'google-calendar-user'
-  } 
+  }
+
+  const VERTICAL_DEMO_SRC = 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/homePageDemoVideos%2F2026-timeline-demo-for-notion-user.webm?alt=media&token=d7bbfaa3-b2a9-4a3e-8cea-2e81e687a2fb'
+  const HORIZONTAL_DEMO_SRC = 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/homePageDemoVideos%2F2026-timeline-demo-for-notion-user.webm?alt=media&token=d7bbfaa3-b2a9-4a3e-8cea-2e81e687a2fb'
 
   let audience = $state(OPTIONS.APPLE_PHOTOS)
 </script>
@@ -53,7 +55,7 @@
 </div>
 
 {#if audience === OPTIONS.APPLE_PHOTOS}
-  <YoutubeShortsDemo />
+  <DemoVideo src={VERTICAL_DEMO_SRC} orientation="vertical" />
 {:else if audience === OPTIONS.GOOGLE_CALENDAR}
-  <DemoVideo />
+  <DemoVideo src={HORIZONTAL_DEMO_SRC} orientation="horizontal" />
 {/if}

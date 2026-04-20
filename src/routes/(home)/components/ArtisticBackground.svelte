@@ -1,8 +1,8 @@
 <div class="artistic-background">
   <div class="sky-strokes">
-    <div class="stroke-1"></div>
-    <div class="stroke-2"></div>
-    <div class="stroke-3"></div>
+    <!-- <div class="stroke-1"></div> -->
+    <!-- <div class="stroke-2"></div> -->
+    <!-- <div class="stroke-3"></div> -->
     <div class="stroke-4"></div>
     <div class="stroke-5"></div>
   </div>

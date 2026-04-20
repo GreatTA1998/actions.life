@@ -49,13 +49,16 @@ const ICON = {
  */
 const SEED_TASKS = [
   { id: 'photo-bird', 
+    name: 'Bird-watching with family',
     imageDownloadURL: PHOTOS.redCrownBird, 
     dayOffset: 0, 
     startTime: DateTime.now().toFormat('HH:mm'), 
     onList: false,
-    duration: 106
+    duration: 106,
+    isDone: true
   },
   { id: 'photo-dog', 
+    name: 'Drawing event',
     imageDownloadURL: PHOTOS.olaDrawingByDad, 
     dayOffset: 1, 
     startTime: DateTime.now().toFormat('HH:mm'), 
@@ -70,25 +73,25 @@ const SEED_TASKS = [
   { id: 'habit-meditate', name: 'Meditate',                      iconURL: ICON.meditate,   dayOffset: 0, onList: false, templateID: 'template-habit-meditate' },
   { id: 'habit-laundry',  name: 'Dry laundry',     isDone: true, iconURL: ICON.laundry,    dayOffset: 0, onList: false, templateID: 'template-habit-laundry' },
   // day 2
-  { id: 'habit-water-2',    name: 'Water the plant',               iconURL: ICON.waterPlant, dayOffset: 1, onList: false, templateID: 'template-habit-water' },
   { id: 'habit-drink-2',    name: 'Drink water',     isDone: true, iconURL: ICON.drinkWater, dayOffset: 1, onList: false, templateID: 'template-habit-drink', duration: 1 },
   { id: 'habit-meditate-2', name: 'Meditate',                      iconURL: ICON.meditate,   dayOffset: 1, onList: false, templateID: 'template-habit-meditate' },
-  { id: 'habit-laundry-2',  name: 'Dry laundry',     isDone: true, iconURL: ICON.laundry,    dayOffset: 1, onList: false, templateID: 'template-habit-laundry' },
-
-  // ── Timeline ────────────────────────────────────────────────────────
-  { id: 'project', name: 'Timeline', childrenLayout: 'timeline', onList: true },
-  { id: 'project-draft', name: 'First draft',  parentID: 'project', dayOffset: -30, isDone: true, onList: true },
-  { id: 'project-final',   name: 'Final submission',    parentID: 'project', dayOffset: 60,  duration: 120, onList: true },
 
   // ── Sub-task tree ───────────────────────────────────────────────────
-  { id: 'reading',   name: 'Groceries', onList: true },
-  { id: 'reading-1', name: 'Tomato', parentID: 'reading', isDone: true, onList: true },
-  { id: 'reading-2', name: 'Eggs', parentID: 'reading', onList: true }
+  { id: 'getting-started',   name: 'TO-DO', onList: true },
+  { id: 'drag-me', name: 'Drag me anywhere', parentID: 'getting-started', isDone: true, onList: true },
+  { id: 'create-item', name: 'Create a task (hint: indentation matters)', parentID: 'getting-started', onList: true },
+  { id: 'structured-mode', name: 'Settings > "Structured Mode"', parentID: 'getting-started', onList: true },
+
+  // ── Timeline ────────────────────────────────────────────────────────
+  { id: 'project', name: 'Example Project', childrenLayout: 'timeline', onList: true },
+  { id: 'project-draft', name: 'First draft',  parentID: 'project', dayOffset: -30, isDone: true, onList: true },
+  { id: 'project-final',   name: 'Final submission',    parentID: 'project', dayOffset: 90,  duration: 120, onList: true }
 ]
 
 const RRSTR = {
   daily: 'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU',
-  weekly: 'FREQ=WEEKLY;BYDAY=MO',
+  wedWeekly: 'FREQ=WEEKLY;BYDAY=WE',
+  sunWeekly: 'FREQ=WEEKLY;BYDAY=SU',
 }
 
 const SEED_TEMPLATES = [
@@ -98,7 +101,7 @@ const SEED_TEMPLATES = [
     duration: 15,
     iconURL: ICON.waterPlant,
     isStarred: true,
-    rrStr: RRSTR.weekly,
+    rrStr: RRSTR.wedWeekly,
   },
   {
     id: 'template-habit-drink',
@@ -106,7 +109,7 @@ const SEED_TEMPLATES = [
     duration: 1,
     iconURL: ICON.drinkWater,
     isStarred: true,
-    rrStr: RRSTR.weekly,
+    rrStr: RRSTR.daily,
   },
   {
     id: 'template-habit-meditate',
@@ -122,6 +125,6 @@ const SEED_TEMPLATES = [
     duration: 10,
     iconURL: ICON.laundry,
     isStarred: true,
-    rrStr: RRSTR.weekly,
+    rrStr: RRSTR.sunWeekly,
   }
 ]

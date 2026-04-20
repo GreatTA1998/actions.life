@@ -8,7 +8,7 @@
   import AuthPlayground from './components/AuthPlayground.svelte'
   import LogosChrome from 'virtual:icons/logos/chrome'
   import LogosSafari from 'virtual:icons/logos/safari'
-  import { authChecked } from '$lib/store'
+  import { authChecked, authUser } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { browser } from '$app/environment'
 </script>
@@ -16,8 +16,6 @@
 <div class="home-bg h-full flex grow" style:padding-top="2%">
 
   <ArtisticBackground />
-
-  <div class="absolute inset-0 bg-black/40 z-0 pointer-events-none"></div>
 
   <div style="flex-basis: 100%; min-width: 200px; border-radius: 10px; margin-top: 60px; display: flex; flex-direction: column; gap: 48px; align-items: center;">
     <div class="h-[30vh] flex flex-col items-center justify-center text-center px-4 gap-4">
@@ -46,7 +44,7 @@
     {#snippet simulatedApp ()}
       {#if browser && HTMLElement.prototype.hasOwnProperty("popover")}
         <div class="w-full h-full relative">
-          {#if $authChecked}
+          {#if $authChecked && !$authUser?.email}
             <AnonymousContext>
               {#snippet children (uid)}
                 {#if uid}
@@ -81,15 +79,3 @@
     </footer>
   </div>
 </div>
-
-<style lang="scss">
-  .home-bg {
-    position: relative;
-    overflow-x: hidden;
-  }
-
-  .home-bg > * {
-    position: relative;
-    z-index: 1;
-  }
-</style>

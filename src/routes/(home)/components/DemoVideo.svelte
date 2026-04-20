@@ -1,6 +1,12 @@
 <script>
   import MslPlayArrow from 'virtual:icons/material-symbols-light/play-arrow'
 
+  let {
+    src,
+    orientation = 'horizontal',
+    poster = undefined
+  } = $props()
+
   let videoEl = $state(null)
   let isPlaying = $state(false)
 
@@ -15,14 +21,27 @@
   }
 </script>
 
-<div class="relative w-full aspect-video" onclick={togglePlay}>
-  <video 
+<div
+  class={[
+    'relative',
+    orientation === 'vertical'
+      ? 'w-[min(80vw,300px)] mx-auto aspect-[9/19.5]'
+      : 'w-full aspect-video'
+  ]}
+  onclick={togglePlay}
+>
+  <video
     bind:this={videoEl}
-    src="https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/homePageDemoVideos%2F2026-timeline-demo-for-notion-user.webm?alt=media&token=d7bbfaa3-b2a9-4a3e-8cea-2e81e687a2fb"
-    class="w-full h-auto block rounded-2xl"
+    {src}
+    {poster}
+    class={[
+      'block w-full rounded-2xl',
+      orientation === 'vertical' && 'h-full object-cover'
+    ]}
     playsinline
-  >
-  </video>
+    onplay={() => isPlaying = true}
+    onpause={() => isPlaying = false}
+  ></video>
 
   {#if !isPlaying}
     <div class="absolute bottom-6 left-6 flex items-center gap-3 text-white">
