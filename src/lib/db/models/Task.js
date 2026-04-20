@@ -74,6 +74,7 @@ const Task = {
   },
 
   async update ({ id, kvChanges, undoable = true }) {
+    const oldVal = { ...get(tasksCache)[id] }
     if (get(user).simpleMode) {
       if (kvChanges.startDateISO || kvChanges.isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
         kvChanges.onList = false
@@ -103,7 +104,7 @@ const Task = {
     // specifically protect against done tasks disappearing during simple mode
    
     if (undoable) {
-      if (validatedChanges.onList === false) {
+      if (oldVal.onList === true && validatedChanges.onList === false) {
         showUndoSnackbar(
           `1 task archived from the list`,
           () => Task.update({ id, kvChanges: { onList: true } })

@@ -30,7 +30,7 @@ export const snackbarState = writable({
 })
 
 // can't deprecate this until the undo snackbar is modernized with the Popover API
-export const SNACKBAR_DURATION = 5000
+export const SNACKBAR_DURATION = 3000
 let timeoutId = null
 
 export function showUndoSnackbar(message, undoAction) {
