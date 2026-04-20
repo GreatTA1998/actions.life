@@ -9,7 +9,7 @@
   }
 
   const VERTICAL_DEMO_SRC = 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/homePageDemoVideos%2F2026-timeline-demo-for-notion-user.webm?alt=media&token=d7bbfaa3-b2a9-4a3e-8cea-2e81e687a2fb'
-  const HORIZONTAL_DEMO_SRC = 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/homePageDemoVideos%2F2026-timeline-demo-for-notion-user.webm?alt=media&token=d7bbfaa3-b2a9-4a3e-8cea-2e81e687a2fb'
+  const HORIZONTAL_DEMO_SRC = 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/homePageDemoVideos%2Factions%20v2%20desktop%20v3%204K.mp4?alt=media&token=02c1864e-a82d-4ef4-adc9-1b5c68273118'
 
   let audience = $state(OPTIONS.APPLE_PHOTOS)
 </script>
