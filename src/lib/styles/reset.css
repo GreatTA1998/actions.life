@@ -24,8 +24,10 @@ body {
   background: rgb(245, 245, 245); /* 240 > optimal > 220, previously #f1f3f4; */
 }
 
-img {
+/* From Josh Comeau's "modern CSS reset" */
+img, picture, video, canvas, svg {
   display: block;
+  max-width: 100%;
 }
 
 input {
