@@ -1,35 +1,26 @@
 <script>
-  import { isMobile } from '$lib/utils/core.js'
+  import MuxPlayer from './MuxPlayer.svelte'
 
   let {
-    src,
-    poster = undefined,
     transcript = []
   } = $props()
 
-  let videoEl = $state(null)
-  let scrollEl = $state(null)
-  let currentTime = $state(0)
+  let player = $state(null)
   let showTranscript = $state(true)
 
-  let activeIdx = $derived.by(() => {
-    if (!transcript.length) return -1
-    const next = transcript.findIndex(c => c.t > currentTime)
-    return next === -1 ? transcript.length - 1 : Math.max(0, next - 1)
-  })
-
-  $effect(() => {
-    if (activeIdx < 0 || !scrollEl) return
-    const el = scrollEl.children[activeIdx]
-    if (!el) return
-    const top = el.offsetTop - scrollEl.clientHeight / 2 + el.clientHeight / 2
-    scrollEl.scrollTo({ top, behavior: 'smooth' })
-  })
+  transcript = [
+    { t: 0,    title: 'Quickstart', text: 'Click empty spaces to create a task. Indent your click to create sub-tasks.' }, // 'To create tasks, click on empty spaces, indentation matters'
+    { t: 30,   title: 'Why?', text: 'To unify fragmented lists, reminders and calendars under one unified picture'},
+    { t: 104,  title: 'Calendar as to-do list', text: '' },
+    { t: 130,  title: 'Habits as icons', text: '' },
+    { t: 190,  title: 'Integrated timeline', text: "What's important is rarely urgent. It helps to see long-term priorities often." },
+    { t: 242,  title: 'Conclusion', text: "It's not designed to replace knowledge bases and pen and paper" }
+  ]
 
   function seek (t, e) {
     e.stopPropagation()
-    videoEl.currentTime = t
-    if (videoEl.paused) videoEl.play()
+    player.currentTime = t
+    if (player.paused) player.play()
   }
 
   function timestamp (seconds) {
@@ -39,47 +30,28 @@
   }
 </script>
 
-<!-- TO-DO
-  aspect ratio, ffmpeg faster load, optimized file, separate mobile 
--->
-<div class={['w-9/10 relative']}>
-  <div class={['w-full aspect-video']}>
-    <video
-      bind:this={videoEl}
-      {src}
-      {poster}
-      class={['block w-full rounded-2xl']}
-      playsinline
-      onplay={() => {
-        showTranscript = false;
-        isPlaying = true;
-      }}
-      onpause={() => {
-        showTranscript = true;
-        isPlaying = false;
-      }}
-      ontimeupdate={() => currentTime = videoEl.currentTime}
-      controls
-    ></video>
-  </div>
-   
-  {#if transcript.length && showTranscript && !isMobile()}
+<div class={['w-9/10 relative flex justify-center']}>
+  <MuxPlayer bind:el={player}
+    title="Tutorial"
+    playbackID="8023clBAWKJVnN024ccjV2KZgOq1gVXotRnhzTBQOb2Rg"
+    aspectRatio={15.25/9}
+    onplay={() => showTranscript = false}
+    onpause={() => showTranscript = true}
+  />
+
+  {#if transcript.length && showTranscript}
     <div
       class={[
-        'w-[260px] rounded-xl overflow-hidden',
-        'absolute bottom-24 right-4 bg-black/40 pt-2 pb-2 px-2'
+        'max-h-8/10 w-[240px] rounded-xl overflow-y-auto hide-scrollbar',
+        'absolute top-0 right-0 bg-black/60 backdrop-blur-sm pt-2 pb-2 px-2'
       ]}
     >
-      <div bind:this={scrollEl} class="overflow-y-auto p-2 space-y-2">
+      <div bind:this={scrollEl} class="p-2 space-y-2">
         {#each transcript as cue, i (i)}
-          <button
-            onclick={e => seek(cue.t, e)}
-            class={[
-              'text-white',
-              'block w-full text-left text-sm leading-relaxed'
-            ]}
+          <button onclick={e => seek(cue.t, e)}
+            class={['text-white block text-left leading-relaxed']}
           >
-            <div class="flex gap-x-2 font-medium text-md">
+            <div class="flex gap-x-2 text-xs">
               <span class="text-[hsl(210_100%_88%)]">
                 {timestamp(cue.t)}
               </span>
@@ -87,7 +59,8 @@
                 {cue.title}
               </span>
             </div>
-            <div class="font-normal">
+
+            <div class="text-xs">
               {cue.text} 
             </div>
           </button>

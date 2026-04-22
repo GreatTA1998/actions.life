@@ -10,9 +10,6 @@
     GOOGLE_CALENDAR: 'google-calendar-user'
   }
 
-  const VERTICAL_DEMO_SRC = 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/homePageDemoVideos%2F2026-timeline-demo-for-notion-user.webm?alt=media&token=d7bbfaa3-b2a9-4a3e-8cea-2e81e687a2fb'
-  const HORIZONTAL_DEMO_SRC = 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/homePageDemoVideos%2Fdifferent-border.mp4?alt=media&token=327d5173-8a68-4d20-b9d6-6ae4ba6fe716'
-
   let audience = $state(isMobile() ? OPTIONS.APPLE_PHOTOS : OPTIONS.GOOGLE_CALENDAR)
 </script>
 
@@ -57,20 +54,7 @@
 </div>
 
 {#if audience === OPTIONS.APPLE_PHOTOS}
-  <PortraitVideo src={VERTICAL_DEMO_SRC}
-    title="How to manage photos"
-    description="Without having to delete photos"
-  />
+  <PortraitVideo />
 {:else if audience === OPTIONS.GOOGLE_CALENDAR}
-  <DemoVideo src={HORIZONTAL_DEMO_SRC} 
-    orientation="horizontal"
-    transcript={[
-      { t: 0,    title: 'Quickstart', text: 'Click empty spaces to create a task. Indent your click to create sub-tasks.' }, // 'To create tasks, click on empty spaces, indentation matters'
-      { t: 30,   title: 'Why?', text: 'To unify fragmented lists, reminders and calendars under one unified picture'},
-      { t: 104,  title: 'Calendar as to-do list', text: '' },
-      { t: 130,  title: 'Habits as icons', text: '' },
-      { t: 190,  title: 'Integrated timeline', text: "What's important is rarely urgent. It helps to see long-term priorities often." },
-      { t: 240,  title: 'Conclusion', text: "There are limits to a life calendar, use the simplest structure that works." }
-    ]}
-   />
+  <DemoVideo />
 {/if}
