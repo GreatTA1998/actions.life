@@ -3,14 +3,13 @@
   import GoogleCalendarLogo from './GoogleCalendarLogo.svelte'
   import DemoVideo from './DemoVideo.svelte'
   import PortraitVideo from './PortraitVideo.svelte'
-  import { isMobile } from '$lib/utils/core.js'
 
   const OPTIONS = {
     APPLE_PHOTOS: 'photo-user',
     GOOGLE_CALENDAR: 'google-calendar-user'
   }
 
-  let audience = $state(isMobile() ? OPTIONS.APPLE_PHOTOS : OPTIONS.GOOGLE_CALENDAR)
+  let audience = $state(OPTIONS.GOOGLE_CALENDAR)
 </script>
 
 <div class="flex flex-col items-center gap-12 w-full">

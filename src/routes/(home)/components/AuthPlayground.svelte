@@ -9,14 +9,16 @@
   } from 'firebase/auth'
   import { firebaseAuth } from '$lib/store'
   import { get } from 'svelte/store'
+  import User from '$lib/db/models/User.js'
 
   async function onclick () {
     try {
-      await linkWithPopup(
+      const result = await linkWithPopup(
         get(firebaseAuth).currentUser,
         new GoogleAuthProvider(),
         browserPopupRedirectResolver
       )
+      return User.update({ email: result.user.email })
     } catch (e) {
       if (e.code === AuthErrorCodes.CREDENTIAL_ALREADY_IN_USE) {
         await signInWithCredential(
