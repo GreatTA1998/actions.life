@@ -12,7 +12,8 @@
   } = $props()
 </script>
 
-<div class="rounded-xl overflow-hidden">
+<!-- w-full is required for aspect-ratio to reserve space in advance -->
+<div class="rounded-xl overflow-hidden w-full" style:aspectRatio={aspectRatio}>
   <mux-player
     bind:this={el}
     {title}

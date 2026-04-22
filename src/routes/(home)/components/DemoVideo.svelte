@@ -46,7 +46,7 @@
         'absolute top-0 right-0 bg-black/60 backdrop-blur-sm pt-2 pb-2 px-2'
       ]}
     >
-      <div bind:this={scrollEl} class="p-2 space-y-2">
+      <div class="p-2 space-y-2">
         {#each transcript as cue, i (i)}
           <button onclick={e => seek(cue.t, e)}
             class={['text-white block text-left leading-relaxed']}
