@@ -14,7 +14,7 @@
     { t: 104,  title: 'Calendar as to-do list', text: '' },
     { t: 130,  title: 'Habits as icons', text: '' },
     { t: 190,  title: 'Integrated timeline', text: "What's important is rarely urgent. It helps to see long-term priorities often." },
-    { t: 242,  title: 'Conclusion', text: "It's not designed to replace knowledge bases and pen and paper" }
+    { t: 242,  title: 'Philosophy', text: "It's not designed to replace knowledge bases and pen and paper" }
   ]
 
   function seek (t, e) {
@@ -33,6 +33,7 @@
 <div class={['w-9/10 relative flex justify-center']}>
   <MuxPlayer bind:el={player}
     title="Tutorial"
+    thumbnailTime={221}
     playbackID="8023clBAWKJVnN024ccjV2KZgOq1gVXotRnhzTBQOb2Rg"
     aspectRatio={15.25/9}
     onplay={() => showTranscript = false}
