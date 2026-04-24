@@ -17,16 +17,20 @@
   function formatRelativeTime (dateStr) {
     if (!dateStr) return 'select date'
 
-    const d1 = DateTime.now().startOf('day')
-    const d2 = DateTime.fromISO(dateStr).startOf('day')
-    const { days } = d2.diff(d1, 'days')
-    const wrap = (text) => days < 0 ? `${text} ago` : `in ${text}`
-    const d = Math.abs(days)
+    const today = DateTime.now().startOf('day')
+    const target = DateTime.fromISO(dateStr).startOf('day')
+    const days = Math.round(target.diff(today, 'days').days)
 
-    if (d < 1) return 'today'
-    else if (d < 28) return wrap(`${round(d)}d`)
-    else if (d < 365) return wrap(`${round(d / 30)}mo`)
-    else return wrap(`${round(d / 365)}y`)
+    if (days === 0) return 'today'
+    if (days === 1) return 'tomorrow'
+
+    const d = Math.abs(days)
+    const amount =
+      d < 28 ? `${d}d` :
+      d < 365 ? `${round(d / 30)}mo` :
+      `${round(d / 365)}y`
+
+    return days < 0 ? `${amount} ago` : `in ${amount}`
   } 
 </script>
 
