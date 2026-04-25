@@ -129,7 +129,7 @@
       />
     </div>
 
-    {#if task.notes}
+    {#if task.notes && !task.isCollapsed}
       <button onclick={() => openTaskPopup(task)}
         class="ml-[calc(var(--task-control-width)+0.25rem)] text-left text-[0.72em] text-[#6f6f6f] leading-[1.25] line-clamp-2"
       >
