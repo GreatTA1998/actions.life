@@ -30,6 +30,8 @@
   mux-player {
     display: block; /* common gotcha with tiny gap below video due to inline-block */
 
+    --center-controls: none;
+
     --seek-backward-button: none;
     --seek-forward-button: none;
     --live-button: none;

@@ -1,5 +1,5 @@
 <script>
-  import GoogleIdentityButton from '$lib/components/GoogleIdentityButton.svelte'
+  import GoogleLogo from '$lib/components/GoogleLogo.svelte'
   import {
     AuthErrorCodes,
     GoogleAuthProvider,
@@ -31,10 +31,21 @@
   }
 </script>
 
-<GoogleIdentityButton 
-  {onclick}
-  extraStyle="
-    background: white; 
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 12px rgba(0,0,0,0.05);
-  "
-/>
+<div {onclick}
+  class={[
+    'flex flex-col gap-y-2 p-6 min-w-[240px] flex-1 rounded-[20px] border border-[#e5e5e5]',
+    'shadow-[0_8px_32px_rgba(0,0,0,0.3)]'
+  ]}
+>
+  <div class="flex items-center gap-x-2 font-medium">
+    <div class="size-6">
+      <GoogleLogo />
+    </div>
+    
+    <div>Log in with Google</div>
+  </div>
+
+  <div class="text-sm text-neutral-600">
+    Free for 1 year, no credit card required.
+  </div>
+</div>

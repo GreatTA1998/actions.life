@@ -27,7 +27,7 @@
 
       <div class="text-2xl font-semibold text-[#111]">+</div>
 
-      <img src="/logo-no-bg.png" class="w-10 h-10 object-contain" alt="actions.life" />
+      <img src="/logo-no-bg.png" class="w-10 h-10 object-contain" />
     </div>
 
     <div onclick={() => audience = OPTIONS.GOOGLE_CALENDAR}
