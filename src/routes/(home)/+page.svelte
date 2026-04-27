@@ -21,10 +21,10 @@
     <div class="h-[30vh] flex flex-col items-center justify-center text-center px-4 gap-4">
       <div class="mx-auto py-32 sm:py-48 lg:py-56">
         <div class="text-center">
-          <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-600 sm:text-7xl">
+          <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-500 sm:text-7xl">
             actions.life
           </h1>
-          <p class="mt-4 max-w-[60ch] text-lg font text-pretty text-gray-600 sm:text-xl/8">
+          <p class="mt-4 max-w-[60ch] text-lg font text-pretty text-gray-500 sm:text-xl/8">
             A life calendar for putting important things, from small routines to big dreams, all on one page. Start simple and evolve the structure over time.
           </p>
         </div>

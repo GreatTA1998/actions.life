@@ -15,7 +15,7 @@
   import { getContext } from 'svelte'
   import { user } from '$lib/store'
 
-  const { Task } = getContext('app')
+  const { Task, tasksCache } = getContext('app')
   let { onUpload, onFinished, task } = $props()
 
   let FolderInput
@@ -39,9 +39,12 @@
 
     if ($user.photoUploadAutoArchive) {
       updateObj.isDone = true
-      updateObj.startDateISO = dt.toFormat('yyyy-MM-dd')
-      updateObj.startTime = dt.toFormat('HH:mm')
       updateObj.duration = orientation === 'landscape' ? 106 : 188
+
+      if (!$tasksCache[id].startDateISO) {
+        updateObj.startDateISO = dt.toFormat('yyyy-MM-dd')
+        updateObj.startTime = dt.toFormat('HH:mm')
+      }
     }
 
     await Task.update({ id, kvChanges: updateObj })
