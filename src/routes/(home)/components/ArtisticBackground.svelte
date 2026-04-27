@@ -85,7 +85,7 @@
 
   .sky-strokes .stroke-4 {
     position: absolute;
-    bottom: 80%;
+    top: 20%;
     right: 20%;
     width: 350px;
     height: 60px;
@@ -127,7 +127,7 @@
 
   .orange-strokes .orange-stroke-2 {
     position: absolute;
-    bottom: 90%;
+    top: 10%;
     right: 25%;
     width: 280px;
     height: 45px;

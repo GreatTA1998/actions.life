@@ -12,13 +12,13 @@
   let audience = $state(OPTIONS.GOOGLE_CALENDAR)
 </script>
 
-<div class="flex flex-col items-center gap-12 w-full">
-  <div class="flex justify-center gap-6 w-full max-w-[900px] px-6">
+<div class="flex flex-col items-center gap-x-12 gap-y-4 w-full">
+  <div class="flex justify-center gap-x-4 w-full max-w-[900px] px-6">
     <div onclick={() => audience = OPTIONS.APPLE_PHOTOS}
       class={[
-        'basis-[414px] shrink-1 flex items-center justify-center gap-x-2 sm:gap-x-6 p-8 rounded-[20px] border border-[#e5e5e5]',
-        'shadow-[0_4px_24px_rgba(0,0,0,0.06)]', 
-        audience === OPTIONS.APPLE_PHOTOS && 'shadow-[0_8px_32px_rgba(0,0,0,0.3)]'
+        'basis-[300px] shrink-1 flex items-center justify-center gap-x-2 sm:gap-x-6 p-8 rounded-[20px] border border-black', 
+        'shadow-[0_4px_24px_rgba(0,0,0,0.06)]',
+        audience === OPTIONS.APPLE_PHOTOS ? 'bg-white' : 'bg-[rgb(240, 240, 240)]'
       ]}
     >
       <div class="shrink-0">
@@ -32,9 +32,9 @@
 
     <div onclick={() => audience = OPTIONS.GOOGLE_CALENDAR}
       class={[
-        'basis-[414px] shrink-1 flex items-center justify-center gap-x-2 sm:gap-x-6 p-8 rounded-[20px] border border-[#e5e5e5]',
-        'shadow-[0_4px_24px_rgba(0,0,0,0.06)]', 
-        audience === OPTIONS.GOOGLE_CALENDAR && 'shadow-[0_8px_32px_rgba(0,0,0,0.2)]'
+        'basis-[300px] shrink-1 flex items-center justify-center gap-x-2 sm:gap-x-6 p-8 rounded-[20px] border border-[#e5e5e5]', 
+        'shadow-[0_4px_24px_rgba(0,0,0,0.06)]',
+        audience === OPTIONS.GOOGLE_CALENDAR ?  'bg-white' : 'bg-[rgb(230, 230, 230)]'
       ]}
     >
       <div class="shrink-0"> 
@@ -51,10 +51,10 @@
       <img src="/logo-no-bg.png" class="shrink-0 w-10 h-10 object-contain" />
     </div>
   </div>
-</div>
 
-{#if audience === OPTIONS.APPLE_PHOTOS}
-  <PortraitVideo />
-{:else if audience === OPTIONS.GOOGLE_CALENDAR}
-  <DemoVideo />
-{/if}
+  {#if audience === OPTIONS.APPLE_PHOTOS}
+    <PortraitVideo />
+  {:else if audience === OPTIONS.GOOGLE_CALENDAR}
+    <DemoVideo />
+  {/if}
+</div>
