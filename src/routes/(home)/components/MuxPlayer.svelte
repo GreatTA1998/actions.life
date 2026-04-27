@@ -8,7 +8,10 @@
     onpause = () => {},
     el = $bindable(null),
     aspectRatio = 16/9,
-    thumbnailTime = 0
+    thumbnailTime = 0,
+    autoplay = false,
+    muted = false,
+    playsinline = false
   } = $props()
 
   function onclick (e) {
@@ -28,6 +31,9 @@
     {onplay}
     {onpause}
     style:aspect-ratio={aspectRatio}
+    {autoplay}
+    {muted}
+    {playsinline}
   ></mux-player>
 
   <div class="absolute inset-0" {onclick}></div>

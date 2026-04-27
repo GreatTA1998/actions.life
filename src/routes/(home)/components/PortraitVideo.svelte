@@ -7,5 +7,8 @@
     thumbnailTime={31}
     playbackID="D4J3sXOf02Xb4SvyaX2McdUun43jfrK6KlX8ZKCvUP8g"
     aspectRatio={9/19.47}
+    autoplay
+    muted
+    playsinline
   />
 </div>
