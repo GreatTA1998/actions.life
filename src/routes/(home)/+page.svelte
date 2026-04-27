@@ -24,12 +24,14 @@
           <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-500 sm:text-7xl">
             actions.life
           </h1>
-          <p class="mt-4 max-w-[60ch] text-lg font text-pretty text-gray-500 sm:text-xl/8">
-            A life calendar for putting important things, from small routines to big dreams, all on one page. Start simple and evolve the structure over time.
+          <p class="mt-4 max-w-[60ch] text-lg text-pretty font-normal text-gray-500 sm:text-xl/8">
+            A life calendar that unifies to-do lists, photos, and habits.
           </p>
         </div>
       </div>
     </div>
+
+    <IntegrationCards />
 
     {#if browser && isMobile()}
       <PhoneDisplay children={simulatedApp} />
@@ -64,8 +66,6 @@
         </div>
       {/if}
     {/snippet}
-  
-    <IntegrationCards />
 
     <AuthPlayground/>
 
