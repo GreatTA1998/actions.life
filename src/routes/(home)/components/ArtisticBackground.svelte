@@ -4,11 +4,11 @@
     <!-- <div class="stroke-2"></div> -->
     <!-- <div class="stroke-3"></div> -->
     <div class="stroke-4"></div>
-    <div class="stroke-5"></div>
+    <!-- <div class="stroke-5"></div> -->
   </div>
   
   <div class="orange-strokes">
-    <div class="orange-stroke-1"></div>
+    <!-- <div class="orange-stroke-1"></div> -->
     <div class="orange-stroke-2"></div>
   </div>
 </div>
@@ -85,8 +85,8 @@
 
   .sky-strokes .stroke-4 {
     position: absolute;
-    bottom: 25%;
-    right: 10%;
+    bottom: 80%;
+    right: 20%;
     width: 350px;
     height: 60px;
     background: linear-gradient(-30deg, transparent 0%, rgba(210, 245, 255, 0.25) 30%, rgba(185, 220, 250, 0.2) 55%, rgba(160, 195, 235, 0.12) 80%, transparent 100%);
@@ -96,8 +96,8 @@
 
   .sky-strokes .stroke-5 {
     position: absolute;
-    bottom: 35%;
-    right: 40%;
+    bottom: 80%;
+    right: 80%;
     width: 280px;
     height: 50px;
     background: linear-gradient(-35deg, transparent 0%, rgba(175, 215, 255, 0.22) 35%, rgba(155, 195, 245, 0.18) 65%, rgba(135, 175, 225, 0.1) 85%, transparent 100%);
@@ -116,8 +116,8 @@
 
   .orange-strokes .orange-stroke-1 {
     position: absolute;
-    bottom: 20%;
-    right: 8%;
+    bottom: 85%;
+    right: 80%;
     width: 320px;
     height: 55px;
     background: linear-gradient(55deg, transparent 0%, rgba(255, 200, 140, 0.32) 25%, rgba(245, 180, 120, 0.28) 50%, rgba(235, 160, 100, 0.18) 75%, rgba(225, 140, 80, 0.1) 90%, transparent 100%);
@@ -127,7 +127,7 @@
 
   .orange-strokes .orange-stroke-2 {
     position: absolute;
-    bottom: 30%;
+    bottom: 90%;
     right: 25%;
     width: 280px;
     height: 45px;

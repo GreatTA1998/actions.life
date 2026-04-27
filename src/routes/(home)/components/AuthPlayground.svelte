@@ -46,6 +46,7 @@
   </div>
 
   <div class="text-sm text-neutral-600">
-    Free for 1 year, no credit card required.
-  </div>
+    <!-- Free for 1 year, no credit card required. -->
+    Free forever for early invite users
+  </div> 
 </div>

@@ -10,10 +10,15 @@
     aspectRatio = 16/9,
     thumbnailTime = 0
   } = $props()
+
+  function onclick (e) {
+    e.stopPropagation()
+    el.paused ? el.play() : el.pause()
+  }
 </script>
 
 <!-- w-full is required for aspect-ratio to reserve space in advance -->
-<div class="rounded-xl overflow-hidden w-full" style:aspectRatio={aspectRatio}>
+<div class="relative rounded-xl overflow-hidden w-full">
   <mux-player
     bind:this={el}
     {title}
@@ -24,6 +29,8 @@
     {onpause}
     style:aspect-ratio={aspectRatio}
   ></mux-player>
+
+  <div class="absolute inset-0" {onclick}></div>
 </div>
 
 <style>
