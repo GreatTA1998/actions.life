@@ -70,7 +70,7 @@
     style:--task-control-width={fontSize}
     style="{$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS) : ''}"
     class="
-      flex flex-col max-w-[360px]
+      flex flex-col
       text-[#1a1a1a] select-none
       px-[var(--left-padding)] rounded-[var(--left-padding)]
     "
@@ -131,7 +131,10 @@
 
     {#if task.notes}
       <button onclick={() => openTaskPopup(task)}
-        class="ml-[calc(var(--task-control-width)+0.25rem)] text-left text-[0.72em] text-[#6f6f6f] leading-[1.25] line-clamp-2"
+        class="
+          ml-[calc(var(--task-control-width)+0.25rem)] text-left text-[0.72em] text-[#6f6f6f] leading-[1.25]
+          max-w-[45ch] line-clamp-2
+        "
       >
         {task.notes}
       </button>
