@@ -79,7 +79,7 @@ const SEED_TASKS = [
   // ── Sub-task tree ───────────────────────────────────────────────────
   { id: 'getting-started', onList: true, name: 'TO-DO' },
   { id: '1', parentID: 'getting-started', onList: true, name: 'Drag me anywhere' },
-  { id: '2', parentID: 'getting-started', onList: true, name: 'Create a task (hint: indentation matters)' },
+  { id: '2', parentID: 'getting-started', onList: true, name: 'Create a task', notes: 'Tip: indent your click for sub-tasks' },
   { id: '3', parentID: 'getting-started', onList: true, name: 'Settings > "Structured Mode"'},
 
   // ── Timeline ────────────────────────────────────────────────────────
