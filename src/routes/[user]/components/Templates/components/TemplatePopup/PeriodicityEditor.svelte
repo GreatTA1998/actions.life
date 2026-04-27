@@ -14,8 +14,9 @@
   let addingISOs = $derived.by(() => simulateChanges(pendingRRStr))
 
   let affectedTasks = $state([])
-  let deletingTasks = $derived(affectedTasks.filter(task => !modified(task)))
-  let preservingTasks = $derived(affectedTasks.filter(task => modified(task)))
+  let deletingTasks = $derived(affectedTasks.filter(task => !modified(task, routine)))
+  let preservingTasks = $derived(affectedTasks.filter(task => modified(task, routine)))
+  let preservingISOs = $derived(new Set(preservingTasks.map(task => task.startDateISO)))
 
   onMount(async () => {
     affectedTasks = await Template.getAffectedInstances(routine)
@@ -37,6 +38,8 @@
     }
 
     for (const iso of addingISOs) {
+      if (preservingISOs.has(iso)) continue
+
       Task.create({
         id: randomID(),
         data: {

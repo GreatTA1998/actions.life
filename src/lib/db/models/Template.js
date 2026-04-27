@@ -78,11 +78,11 @@ const Template = {
   },
 
   async updateItselfAndFutureInstances ({ id, updates }) {
-    this.update({ id, updates })
+    await this.update({ id, kvChanges: updates })
     const futureInstances = await this.getAffectedInstances({ id })
-    for (const instance of futureInstances) {
+    await Promise.all(futureInstances.map(instance => 
       Task.update({ id: instance.id, kvChanges: updates })
-    }
+    ))
   },
 
   async delete ({ id, imageDownloadURL = '', imageFullPath = '' }) {
@@ -160,7 +160,7 @@ async function helper ({ node, id, parentID, rootID, templateID, onList, memo })
 
   // treeISOs will be maintained by Task.create() as long as `parent` and `tasksCache` are created before children
   for (const child of memo[node.id]) {
-    helper({ 
+    await helper({ 
       node: child, 
       parentID: id,
       rootID,  
