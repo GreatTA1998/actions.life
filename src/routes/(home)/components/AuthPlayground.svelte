@@ -50,6 +50,6 @@
 
   <div class="text-sm text-neutral-600">
     <!-- Free for 1 year, no credit card required. -->
-    Free forever for early beta users (expires August 1, 2026)
+    Free forever for early beta users
   </div> 
 </div>
