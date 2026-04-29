@@ -43,38 +43,21 @@
       </div>
     </div>
   {/if}
-
-   <!-- 
-     `1vw`: if it's too wide, it overlaps with the task name for short duration tasks 
-   -->
-   <!-- on:drop preventDefault so that the calendar doesn't think we're scheduling a task -->
-   <div draggable="true"
-     ondragstart={e =>  startY = getTrueY(e)}
-     ondragend={e => adjustDuration(e, task)}
-     style="
-       cursor: ns-resize;
-       position: absolute;
-       left: -3px; 
-       bottom: {0}px;
-       height: {height/12}px; 
-       min-height: 3px;
-       width: {isBulletPoint ? '20%' : '100%'}; 
-     "
-  >
-  </div>
+  
+  <DurationAdjuster {task} {isBulletPoint} {height} />
 </div>
 
 <script>
   // Assumes `task` is hydrated
+  import DurationAdjuster from '$lib/components/DurationAdjuster.svelte'
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
   import MslCircle from 'virtual:icons/material-symbols-light/circle'
-  import { getTrueY } from '$lib/utils/core.js'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
   import { calendarBlock, notesFS } from '$lib/styles/reused.module.css'
 
-  const { Task,openTaskPopup } = getContext('app')
+  const { openTaskPopup } = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
 
   let {
@@ -84,23 +67,6 @@
   const iconMinPixelHeight = 32
   let height = $derived(($pixelsPerHour / 60) * task.duration)
   let isBulletPoint = $derived(height < iconMinPixelHeight)
-  let startY = 0
-
-  function adjustDuration (e, task) {
-
-    const hoursPerPixel = 1 / $pixelsPerHour
-    const minutesPerPixel = 60 * hoursPerPixel
-
-    const newY = getTrueY(e)
-    const durationChange = minutesPerPixel * (newY - startY)
-
-    Task.update({
-      id: task.id,
-      kvChanges: {
-        duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event
-      }      
-    })
-  }
 </script> 
 
 <style>

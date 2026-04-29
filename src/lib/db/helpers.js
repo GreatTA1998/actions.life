@@ -92,6 +92,8 @@ async function countImageRefs (uid, collectionName, imageDownloadURL) {
 }
 
 export async function releaseImage (uid, { imageFullPath, imageDownloadURL }) {
+  if (!imageFullPath) return // i.e. a publicly hosted image was used
+  
   const [taskCount, templateCount] = await Promise.all([
     countImageRefs(uid, 'tasks', imageDownloadURL),
     countImageRefs(uid, 'templates', imageDownloadURL)

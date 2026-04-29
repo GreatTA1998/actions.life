@@ -25,54 +25,23 @@
     <CalTaskUnit {task} color="white" />  
   </div>
 
-   <!-- `1vw`: if it's too wide, it overlaps with the task name for short duration tasks -->
-   <!-- on:drop preventDefault so that the calendar doesn't think we're scheduling a task -->
-   <div draggable="true"
-     ondragstart={e => startY = getTrueY(e)}
-     ondragend={e => adjustDuration(e, task)}
-     style="
-       cursor: ns-resize;
-       position: absolute;
-       left: -3px; 
-       bottom: {0}px;
-       height: {height/12}px; 
-       min-height: 3px;
-       width: {isBulletPoint ? '20%' : '100%'}; 
-     "
-   >
- </div>
+  <DurationAdjuster {task} {isBulletPoint} {height} />
 </div>
 
 <script>
+  import DurationAdjuster from '$lib/components/DurationAdjuster.svelte'
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
-  import { getTrueY } from '$lib/utils/core.js'
   import { lazyCallable } from '$lib/utils/svelteActions.js'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { calendarBlock } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
 
-  const { Task, openTaskPopup} = getContext('app')
+  const { openTaskPopup} = getContext('app')
   const { startTaskDrag } = getContext('drag-drop')
 
   let { task = null } = $props() // assumes `task` is hydrated
 
-  let startY = $state(0)
   let hasIntersected = $state(false)
   let height = $derived(($pixelsPerHour / 60) * task.duration)
   let isBulletPoint = $derived(height < 24) // 24px is exactly enough to not crop the checkbox and the task name
-
-  function adjustDuration (e, task) {
-    const hoursPerPixel = 1 / $pixelsPerHour
-    const minutesPerPixel = 60 * hoursPerPixel
-
-    const newY = getTrueY(e)
-    const durationChange = minutesPerPixel * (newY - startY)
-
-    Task.update({
-      id: task.id,
-      kvChanges: {
-        duration: Math.max(1, task.duration + durationChange) // can't have a 0 duration event
-      }      
-    })
-  }
 </script>

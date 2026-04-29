@@ -2,13 +2,12 @@
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
-  import { treesByDate } from './service.js'
   import { googleEventsByDate } from '$lib/store'
   import { headerHeight, isCompact, timestampsColumnWidth } from './store.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
-  const { Task } = getContext('app')
+  const { Task, treesByDate } = getContext('app')
   const { activateInput } = getContext('popover-input')
   const { 
     registerDropzone,

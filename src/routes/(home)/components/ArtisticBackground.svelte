@@ -1,14 +1,14 @@
 <div class="artistic-background">
   <div class="sky-strokes">
-    <div class="stroke-1"></div>
-    <div class="stroke-2"></div>
-    <div class="stroke-3"></div>
+    <!-- <div class="stroke-1"></div> -->
+    <!-- <div class="stroke-2"></div> -->
+    <!-- <div class="stroke-3"></div> -->
     <div class="stroke-4"></div>
-    <div class="stroke-5"></div>
+    <!-- <div class="stroke-5"></div> -->
   </div>
   
   <div class="orange-strokes">
-    <div class="orange-stroke-1"></div>
+    <!-- <div class="orange-stroke-1"></div> -->
     <div class="orange-stroke-2"></div>
   </div>
 </div>
@@ -33,10 +33,10 @@
     right: 0;
     bottom: 0;
     background: 
-      radial-gradient(ellipse 1400px 900px at 60% 10%, rgba(230, 245, 255, 0.3) 0%, rgba(210, 235, 255, 0.25) 30%, rgba(190, 220, 255, 0.15) 60%, transparent 80%),
-      radial-gradient(ellipse 1200px 800px at 80% 25%, rgba(200, 230, 255, 0.25) 0%, rgba(180, 210, 245, 0.18) 40%, transparent 70%),
-      radial-gradient(ellipse 1000px 600px at 40% 15%, rgba(220, 240, 255, 0.2) 0%, rgba(200, 225, 250, 0.15) 50%, transparent 75%),
-      radial-gradient(ellipse 600px 400px at 20% 80%, rgba(151, 175, 121, 0.08) 0%, transparent 50%);
+      radial-gradient(ellipse 1400px 900px at 60% 10%, rgba(230, 245, 255, 0.1) 0%, rgba(210, 235, 255, 0.08) 30%, rgba(190, 220, 255, 0.05) 60%, transparent 80%),
+      radial-gradient(ellipse 1200px 800px at 80% 25%, rgba(200, 230, 255, 0.08) 0%, rgba(180, 210, 245, 0.05) 40%, transparent 70%),
+      radial-gradient(ellipse 1000px 600px at 40% 15%, rgba(220, 240, 255, 0.05) 0%, rgba(200, 225, 250, 0.03) 50%, transparent 75%),
+      radial-gradient(ellipse 600px 400px at 20% 80%, rgba(151, 175, 121, 0.03) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
   }
@@ -85,8 +85,8 @@
 
   .sky-strokes .stroke-4 {
     position: absolute;
-    bottom: 25%;
-    right: 10%;
+    top: 20%;
+    right: 20%;
     width: 350px;
     height: 60px;
     background: linear-gradient(-30deg, transparent 0%, rgba(210, 245, 255, 0.25) 30%, rgba(185, 220, 250, 0.2) 55%, rgba(160, 195, 235, 0.12) 80%, transparent 100%);
@@ -96,8 +96,8 @@
 
   .sky-strokes .stroke-5 {
     position: absolute;
-    bottom: 35%;
-    right: 40%;
+    bottom: 80%;
+    right: 80%;
     width: 280px;
     height: 50px;
     background: linear-gradient(-35deg, transparent 0%, rgba(175, 215, 255, 0.22) 35%, rgba(155, 195, 245, 0.18) 65%, rgba(135, 175, 225, 0.1) 85%, transparent 100%);
@@ -116,8 +116,8 @@
 
   .orange-strokes .orange-stroke-1 {
     position: absolute;
-    bottom: 20%;
-    right: 8%;
+    bottom: 85%;
+    right: 80%;
     width: 320px;
     height: 55px;
     background: linear-gradient(55deg, transparent 0%, rgba(255, 200, 140, 0.32) 25%, rgba(245, 180, 120, 0.28) 50%, rgba(235, 160, 100, 0.18) 75%, rgba(225, 140, 80, 0.1) 90%, transparent 100%);
@@ -127,7 +127,7 @@
 
   .orange-strokes .orange-stroke-2 {
     position: absolute;
-    bottom: 30%;
+    top: 10%;
     right: 25%;
     width: 280px;
     height: 45px;

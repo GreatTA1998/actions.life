@@ -61,7 +61,7 @@
     view-transition-name: floating-navbar;
     view-transition-class: static-ui;
     
-    position: fixed;
+    position: absolute;
     z-index: 2;
     display: flex;
     border-radius: var(--navbar-radius);

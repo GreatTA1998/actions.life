@@ -1,13 +1,9 @@
+<!-- must exist, despite being empty -->
 <script>
-  import NavbarContentLayout from '$lib/components/NavbarContentLayout.svelte'
-  import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
-  import AppContent from '$lib/components/AppContent.svelte'
+  import { page } from '$app/state'
+  import UserAppInstance from '$lib/components/UserAppInstance.svelte'
 </script>
 
-<NavbarContentLayout>
-  <div slot="content" class="grow relative z-0 flex h-full">
-    <AppContent />
-  </div>
-</NavbarContentLayout>
-
-<FloatingNavbar position="bottom" />
+<div style:height="100dvh">
+  <UserAppInstance uid={page.params.user}/>
+</div>

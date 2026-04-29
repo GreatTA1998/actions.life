@@ -17,12 +17,8 @@ const GCalAccount = {
 
   async update (accountID, kvChanges) {
     const { uid } = get(user)
-    try {
-      const validatedChanges = GCalAccount.schema.partial().parse(kvChanges)
-      await updateFirestoreDoc(`/users/${uid}/googleAccounts/${accountID}`, validatedChanges)
-    } catch (error) {
-      console.error("error in GCalAccount.update", error)
-    }
+    const validatedChanges = GCalAccount.schema.partial().parse(kvChanges)
+    return updateFirestoreDoc(`/users/${uid}/googleAccounts/${accountID}`, validatedChanges)
   }
 }
 

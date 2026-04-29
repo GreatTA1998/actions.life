@@ -1,82 +1,77 @@
 <script>
-  import DemoContext from './DemoContext.svelte'
-  import HeroSection from './components/HeroSection.svelte'
-  import TimelineDemo from './components/TimelineDemo.svelte'
-  import HabitDemo from './components/HabitDemo.svelte'
-  import JournalDemo from './components/JournalDemo.svelte'
-  import ComparisonTable from './components/ComparisonTable.svelte'
-  import UpdateLogSection from './components/UpdateLogSection.svelte'
+  import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import ArtisticBackground from './components/ArtisticBackground.svelte'
-  import TopNavbar from './components/TopNavbar.svelte'
-  import TaskPopup from '../[user]/components/TaskPopup/TaskPopup.svelte'
-  import SignInButton from '$lib/components/SignInButton.svelte'
-  import VisitorChoice from './components/VisitorChoice.svelte'
-  import { authChecked } from '$lib/store'
-  // import AppDetailsSection from './components/AppDetailsSection.svelte'
-  // import VisionSection from './components/VisionSection.svelte'
+  import IntegrationCards from './components/IntegrationCards.svelte'
+  import AnonymousContext from './AnonymousContext.svelte'
+  import MacbookDisplay from './components/MacbookDisplay.svelte'
+  import PhoneDisplay from './components/PhoneDisplay.svelte'
+  import AuthPlayground from './components/AuthPlayground.svelte'
+  import LogosChrome from 'virtual:icons/logos/chrome'
+  import LogosSafari from 'virtual:icons/logos/safari'
+  import { authChecked, authUser } from '$lib/store'
+  import { isMobile } from '$lib/utils/core.js'
+  import { browser } from '$app/environment'
 </script>
 
-{#if $authChecked}
-  <VisitorChoice>
-    <div class="home-bg h-full flex grow" style="padding: 3%; padding-top: 2%;">
-      <div style="position: absolute; top: 0; left: 0; right: 0;">
-        <TopNavbar />
-      </div>
+<div class="home-bg h-full flex grow" style:padding-top="2%">
 
-      <ArtisticBackground />
-      
-      <div style="flex-basis: 100%; min-width: 200px; border-radius: 10px; margin-top: 60px; display: flex; flex-direction: column; gap: 120px;">
-        <!-- <DemoContext>
-          <HeroSection />
+  <ArtisticBackground />
 
-          <TimelineDemo />
-
-          <HabitDemo />
-
-          <JournalDemo />
-
-          <ComparisonTable />
-
-          <UpdateLogSection />
-        </DemoContext> -->
-
-        <div class="flex flex-col w-full h-[320px] items-center gap-8 justify-start">
-          <SignInButton />
-
-          <div style="display: flex; gap: 1.5rem; opacity: 0.6; font-size: 0.8rem;">
-            <a href="/legal/privacy-policy" style="text-decoration: none; color: inherit;">
-              Privacy Policy
-            </a>
-            <a href="/legal/terms-of-service" style="text-decoration: none; color: inherit;">
-              Terms of Service
-            </a>
-          </div>
+  <div class="basis-full flex flex-col items-center mt-[60px] gap-x-12 gap-y-24">
+    <div class="h-[30vh] flex flex-col items-center justify-center text-center px-4 gap-4">
+      <div class="mx-auto py-32 sm:py-48 lg:py-56">
+        <div class="text-center">
+          <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-500 sm:text-7xl">
+            actions.life
+          </h1>
+          <p class="mt-4 max-w-[60ch] text-lg text-pretty font-normal text-gray-500 sm:text-xl/8">
+            A life calendar that unifies to-do lists, photos, and habits.
+          </p>
         </div>
-
-          <!-- <TaskPopup /> -->
-          <!-- <VisionSection /> -->
-          <!-- <AppDetailsSection /> -->
       </div>
     </div>
-  </VisitorChoice>
-{/if}
 
-<style lang="scss">
-  .home-bg {
-    background: linear-gradient(
-      135deg,
-      #f7f0e1 0%,
-      #e8f4f0 25%,
-      #d4e8e0 50%,
-      #c8dcd2 75%,
-      #bfd3c7 100%
-    );
-    position: relative;
-    overflow-x: hidden;
-  }
+    <IntegrationCards />
 
-  .home-bg > * {
-    position: relative;
-    z-index: 1;
-  }
-</style>
+    {#if browser && isMobile()}
+      <PhoneDisplay children={simulatedApp} />
+    {:else}
+      <MacbookDisplay children={simulatedApp} />
+    {/if}
+    
+    {#snippet simulatedApp ()}
+      {#if browser && HTMLElement.prototype.hasOwnProperty("popover")}
+        <div class="w-full h-full relative">
+          {#if $authChecked && !$authUser?.email}
+            <AnonymousContext>
+              {#snippet children (uid)}
+                {#if uid}
+                  <UserAppInstance {uid} />
+                {/if}
+              {/snippet}
+            </AnonymousContext>
+          {/if}
+        </div>
+      {:else}
+        <div class="relative w-full h-full bg-white flex flex-col items-center justify-center">
+          <p>WARNING: the app can't run on your browser and requires the latest version of Chrome or Safari</p>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center justify-center size-12">
+              <LogosChrome class="w-[4.4rem] h-[4.4rem] drop-shadow-sm" />
+            </div>
+            <div class="flex items-center justify-center size-13">
+              <LogosSafari class="w-20 h-20 drop-shadow-sm" />
+            </div>
+          </div>
+        </div>
+      {/if}
+    {/snippet}
+
+    <AuthPlayground/>
+
+    <footer class="w-full mt-40 py-8 flex justify-end mr-10 gap-6 text-xs text-neutral-400 tracking-tight">
+      <a href="/legal/privacy-policy" class="no-underline">Privacy</a>
+      <a href="/legal/terms-of-service" class="no-underline">Terms</a>
+    </footer>
+  </div>
+</div>

@@ -4,13 +4,13 @@
   import IconTaskElement from '$lib/components/IconTaskElement.svelte'
   import GcalEvent from '$lib/features/google-calendar/GCalEvent.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
+  import { getLocalY } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
-  import { treesByDate } from './service.js'
   import { timestamps, calSnapInterval, googleEventsByDate } from '$lib/store'
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
+  const { Task, treesByDate } = getContext('app')
   const { activateInput, overrideOptions } = getContext('popover-input')
   const { 
     registerDropzone,
@@ -29,10 +29,6 @@
   let anchorY = $state(0)
   let anchorID = $derived(`--day-column-${dropzoneID}`)
 
-  function viewportToLocalY (clientY) {
-    return clientY + dayColumn.scrollTop - dayColumn.getBoundingClientRect().top // assumes no padding
-  }
-
   function HHmmToLocalY (HHmm) {
     const [HH, mm] = HHmm.split(':').map(Number)
     return (60 * HH + mm) * pixelsPerMinute
@@ -45,7 +41,7 @@
   }
 
   function minutesSinceMidnight (clientY, snapInterval) {
-    const localY = viewportToLocalY(clientY)
+    const localY = getLocalY(dayColumn, clientY)
     return snap(localY / pixelsPerMinute, snapInterval)
   }
 

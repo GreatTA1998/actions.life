@@ -17,7 +17,6 @@
     justify-content: center;
     padding: 8px;
     border-radius: 6px;
-    transition: all 0.2s ease;
     background: transparent;
     border: none;
     text-decoration: none;
@@ -25,7 +24,6 @@
 
   .github-link svg {
     opacity: 1;
-    transition: opacity 0.2s ease;
     filter: sepia(20%) saturate(80%) hue-rotate(80deg);
   }
 </style>

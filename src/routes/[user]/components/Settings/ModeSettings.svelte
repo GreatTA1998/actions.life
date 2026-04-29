@@ -7,56 +7,31 @@
   let isSimple = $derived($user.simpleMode)
 </script>
 
-<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-  <div class="mode-toggle">
+<div class="flex flex-col gap-y-2">
+  <div class="flex w-fit bg-black/5 border border-solid border-black/5 rounded-lg">
     <button onclick={() => User.update({ simpleMode: true })} 
-      class="mode-button"
-      class:active={isSimple}
+      class={[
+        'text-gray-600 font-medium py-1 px-4 rounded-md text-sm',
+        isSimple && 'bg-white core-shadow cast-shadow'
+      ]}
     >
-      Simple
+      Simple Mode
     </button>
     <button onclick={() => User.update({ simpleMode: false })} 
-      class="mode-button"
-      class:active={!isSimple}
+      class={[
+        'text-gray-600 font-medium py-1 px-4 rounded-md text-sm',
+        !isSimple && 'bg-white core-shadow cast-shadow'
+      ]}
     >
-      Structured
+      Structured Mode
     </button>
   </div>
 
-  <p class="mode-description">
+  <div class="text-sm text-gray-600 px-1 leading-[1.5]">
     {#if isSimple}
-      Tasks move between lists and calendar
+      Tasks move between list and calendar, and are auto-archived when completed.
     {:else}
-      Tasks persist on lists until archived
+      Tasks stay visible on the list until archived.
     {/if}
-  </p>
+  </div>
 </div>
-
-<style>
-
-  .mode-toggle {
-    display: flex;
-    background: #f0f0f0;
-    border-radius: 6px;
-    padding: 3px;
-  }
-
-  .mode-button {
-    border-radius: 4px;
-    padding: 4px 12px;
-    font-weight: 500;
-    color: #777;
-  }
-
-  .mode-button.active {
-    background: white;
-    color: #333;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  .mode-description {
-    font-size: 1rem;
-    margin: 0;
-    padding: 0 8px;
-  }
-</style>

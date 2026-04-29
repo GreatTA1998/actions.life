@@ -7,6 +7,9 @@ export { user } from './userStore.js'
 export { clickedTaskID, familyTree, openTaskPopup, closeTaskPopup } from './taskPopup.js'
 export { tasksCache, updateCache, cleanupCache } from './tasksCache.js'
 
+export const authUser = writable(null) // reactive version of firebaseAuth.currentUser (= to resultUser from onAuthStateChanged)
+export const initialDataReady = writable(false)
+
 export const allAccounts = writable([])
 export const cals = writable({})
 export const googleEventsByDate = writable({})
@@ -27,7 +30,7 @@ export const snackbarState = writable({
 })
 
 // can't deprecate this until the undo snackbar is modernized with the Popover API
-export const SNACKBAR_DURATION = 5000
+export const SNACKBAR_DURATION = 3000
 let timeoutId = null
 
 export function showUndoSnackbar(message, undoAction) {

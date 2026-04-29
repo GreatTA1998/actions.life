@@ -74,11 +74,12 @@ const Task = {
   },
 
   async update ({ id, kvChanges, undoable = true }) {
+    const oldVal = { ...get(tasksCache)[id] }
     if (get(user).simpleMode) {
       if (kvChanges.startDateISO || kvChanges.isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
         kvChanges.onList = false
       } 
-      else if (kvChanges.onList) {  // only possible via drag-to-list
+      else if (kvChanges.onList) {  // only possible via drag-to-list AND undoing a list -> cal drag
         kvChanges.startDateISO = ''
         kvChanges.startTime = ''
       }
@@ -103,12 +104,11 @@ const Task = {
     // specifically protect against done tasks disappearing during simple mode
    
     if (undoable) {
-      const task = get(tasksCache)[id]
-      if (validatedChanges.onList === false && !(task.startDateISO || validatedChanges.startDateISO)) {
+      if (oldVal.onList === true && validatedChanges.onList === false) {
         showUndoSnackbar(
-          `Hiding 1 task from the list`,
+          `1 task archived from the list`,
           () => Task.update({ id, kvChanges: { onList: true } })
-        )
+        ) // simple mode will automatically reset `startDateISO` and `startTime`
       }
     }
     return validatedChanges

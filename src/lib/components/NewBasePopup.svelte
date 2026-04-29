@@ -38,6 +38,8 @@
 
 <style>
   .base-popup {
+    overscroll-behavior: contain; /* game-changer: content outside the popup don't scroll */
+
     width: fit-content;
     height: fit-content;
     max-height: 100dvh;

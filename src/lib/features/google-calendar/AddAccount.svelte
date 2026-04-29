@@ -25,7 +25,7 @@
 </script>
 
 <GoogleIdentityButton onclick={handleConnect}
-  name={loading ? 'Connecting...' : 'Add Calendar Account'} disabled={loading}
+  name={loading ? 'Connecting...' : 'Integration'} disabled={loading}
   svgSize="18px"
   extraStyle="
     width: fit-content;
@@ -40,4 +40,6 @@
   "
 />  
 
-<p style:color="red" style:font-size="0.875rem">{error}</p>
+{#if error}
+  <p class="text-red text-md">{error}</p>
+{/if}

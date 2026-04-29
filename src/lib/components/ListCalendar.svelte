@@ -3,28 +3,34 @@
   import ListArea from '$lib/components/ListArea.svelte'
   import Calendar from '/src/routes/[user]/components/Calendar/Calendar.svelte'
   import User from '$lib/db/models/User.js'
+  import { isCompact } from '/src/routes/[user]/components/Calendar/store.js'
   import { isMobile } from '$lib/utils/core.js'
   import { MOBILE_SAFE_INSET } from '$lib/utils/constants.js'
-  import { innerWidth, innerHeight } from 'svelte/reactivity/window'
   import { user } from '$lib/store'
+  import { onMount, getContext } from 'svelte'
+
+  let dimensions  = getContext('dimensions')
+  let { width, height } = $derived(dimensions)
 
   let axisL = $derived(isMobile() ? listAreaH : listAreaW) // since Svelte 5.25, derived is writable
-  let listAreaH = $derived(safe(($user.listHeightSplit ?? 0.5) * innerHeight.current))
-  let listAreaW = $derived(safe(($user.listWidthSplit ?? 0.5) * innerWidth.current))
+  let listAreaH = $derived(safe(($user.listHeightSplit ?? 0.5) * height))
+  let listAreaW = $derived(safe(($user.listWidthSplit ?? 0.5) * width))
+
+  onMount(() => isCompact.set(isMobile()))
 
   function updateSizing (newVal) {
     if (isMobile()) {
-      User.update({ listHeightSplit: safe(newVal) / innerHeight.current })
+      User.update({ listHeightSplit: safe(newVal) / height})
     } else {
-      User.update({ listWidthSplit: safe(newVal) / innerWidth.current })
+      User.update({ listWidthSplit: safe(newVal) / width })
     }
   }
 
   function safe (val) {
     if (isMobile()) {
-      return clamp(MOBILE_SAFE_INSET, val, innerHeight.current)
+      return clamp(MOBILE_SAFE_INSET, val, height)
     } else {
-      return clamp(0, val, innerWidth.current)
+      return clamp(0, val, width)
     }
   }
 
@@ -34,7 +40,7 @@
 </script>
 
 <div style:flex-direction={isMobile() ? 'column-reverse' : 'row'}
-  class="w-full h-full relative flex overflow-hidden" 
+  class="h-full relative flex" 
 >
   <div style:flex="0 0 {axisL}px" class="relative z-1">    
     <ListArea xyScrolling={!isMobile()} />

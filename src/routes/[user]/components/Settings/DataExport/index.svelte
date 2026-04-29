@@ -1,15 +1,11 @@
 <script>
   import ExportLists from './ExportLists.svelte'
   import ExportCalendar from './ExportCalendar.svelte'
-  import DateRangeSlider from '$lib/components/DateRangeSlider.svelte'
-  import { DateTime } from 'luxon'
 
   let { onFinish } = $props()
 
   let previewMD = $state('')
   let tokenEstimate = $state(0)
-  let startDate = $state(DateTime.now().minus({ months: 12 }).toISODate())
-  let endDate = $state(DateTime.now().toISODate())
 
   const PREVIEW_LIMIT = 1500
   const CLIPBOARD_TOKEN_LIMIT = 15000
@@ -43,11 +39,7 @@
   <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
     <ExportLists {onExport} />
 
-    <ExportCalendar {onExport} {startDate} {endDate} />
-    
-    <div style="flex: 1;">
-      <DateRangeSlider bind:startDate bind:endDate />
-    </div>
+    <ExportCalendar {onExport} />
   </div>
 
   {#if previewMD}

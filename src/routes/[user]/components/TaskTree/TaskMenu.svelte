@@ -33,28 +33,18 @@
   {/snippet}
 
   {#snippet content ()}
-    <div style="padding: 8px; display: flex; flex-direction: column; row-gap: 8px;">    
+    <div class="flex flex-col p-2 gap-y-2">    
       <ToggleGroup onselect={newVal => Task.update({ id: task.id, kvChanges: { childrenLayout: newVal }})}
         options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
         activeValue={task.childrenLayout} 
       />
 
-      <button class="m-item" onclick={() => { Task.archiveTree({ id: task.id }) }}>
-        <MslInventory2Outline style="font-size: 1.125rem;"/>
+      <button onclick={() => Task.archiveTree(task) }
+        class="text-left text-base gap-x-[6px] text-neutral-600" 
+      >
+        <MslInventory2Outline style="font-size: 1.125rem"/>
         Archive
       </button>
     </div>
   {/snippet}
 </PopoverMenu>
-
-<style>
-  .m-item {
-    text-align: left;
-    font-size: 1rem;
-    font-weight: 400;
-    color: rgb(80, 80, 80);
-    display: flex;
-    align-items: center;
-    column-gap: 6px;
-  }
-</style>
