@@ -20,7 +20,7 @@
   let loading = $state(true)
 
   $effect(() => {
-    if ($authChecked && $loggedIn && $user.email && $initialDataReady) {
+    if ($authChecked && $loggedIn && $user.uid && $initialDataReady) {
       loading = false
     }
   })
