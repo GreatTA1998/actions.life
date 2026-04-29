@@ -1,109 +1,44 @@
 <script>
-  import { rruleToWeekday, positionToOccurrence, parseMonthlyTypeI } from '$lib/utils/rrule.js'
+  import { nth, parse } from '$lib/utils/rrule.js'
 
-  export let rrStr = null
+  let { rrStr = '' } = $props()
+
+  const dayLabels = { MO: 'Mon', TU: 'Tue', WE: 'Wed', TH: 'Thu', FR: 'Fri', SA: 'Sat', SU: 'Sun' }
   
-  let selectedDays = []
-  let isWeeklyPattern = false
-  let weeklyDescription = ''
-  
-  const weekdayShortNames = {
-    'monday': 'Mon',
-    'tuesday': 'Tue',
-    'wednesday': 'Wed',
-    'thursday': 'Thu',
-    'friday': 'Fri',
-    'saturday': 'Sat',
-    'sunday': 'Sun'
-  }
-  
-  const ordinalLabels = {
-    'first': '1st',
-    'second': '2nd',
-    'third': '3rd',
-    'fourth': '4th'
-  }
-  
-  $: {
+  let selectedDays = $state([])
+  let isWeeklyPattern = $state(false)
+  let weeklyDescription = $state('')
+  let daysText = $derived(selectedDays.map(day => day === -1 ? 'last day' : `${day}${suffix(day)}`).join(', '))
+
+  $effect(() => updateVariables(rrStr))
+
+  function updateVariables () {
     if (rrStr.includes('FREQ=MONTHLY') && rrStr.includes('BYDAY=')) {
       isWeeklyPattern = true
-      weeklyDescription = createWeeklyDescription(rrStr)
-      selectedDays = [] // No days to display in the line
+      weeklyDescription = describeTypeII(rrStr)
+      selectedDays = []
     } 
     else {
       isWeeklyPattern = false
-      selectedDays = [...parseMonthlyTypeI(rrStr)]
+      selectedDays = parse(rrStr)
     }
-  } 
+  }
   
-  // Format days for display (e.g., "5th, 20th")
-  $: daysText = selectedDays.length > 0 
-    ? selectedDays
-        .map(day => `${day}${getOrdinalSuffix(day)}`)
-        .join(', ')
-    : 'Not scheduled'
-  
-  // Create a natural language description for weekly patterns
-  function createWeeklyDescription(rrStr) {
-    const bydayMatch = rrStr.match(/BYDAY=([^;]*)/)
-    if (!bydayMatch) return 'Not scheduled'
-    
-    const bydayParts = bydayMatch[1].split(',')
-    if (bydayParts.length === 0) return 'Not scheduled'
-    
-    // Extract positions and weekday
-    let weekday = ''
-    const positions = []
-    
-    bydayParts.forEach(part => {
-      const posMatch = part.match(/([+\-]\d+)([A-Z]{2})/)
-      if (posMatch) {
-        const pos = posMatch[1]
-        const day = posMatch[2]
-        
-        // Only need the weekday once
-        if (!weekday) {
-          // Convert from RRule code to weekday then to short name
-          const weekdayId = rruleToWeekday[day]
-          weekday = weekdayId ? weekdayShortNames[weekdayId] : day
-        }
-        
-        // Convert from position to occurrence then to ordinal label
-        const occId = positionToOccurrence[pos]
-        const ordinal = occId ? ordinalLabels[occId] : pos
-        
-        if (ordinal) {
-          positions.push(ordinal)
-        }
-      }
-    })
-    
-    if (positions.length === 0 || !weekday) return 'Not scheduled'
-    
-    // Sort positions based on their numeric value
-    positions.sort((a, b) => {
-      const aNum = parseInt(a)
-      const bNum = parseInt(b)
-      return aNum - bNum
-    })
-    
-    // Format the positions with proper conjunction
-    let positionsText
-    if (positions.length === 1) {
-      positionsText = positions[0]
-    } else if (positions.length === 2) {
-      positionsText = `${positions[0]} & ${positions[1]}`
-    } else {
-      const lastPos = positions.pop()
-      positionsText = `${positions.join(', ')} & ${lastPos}`
-    }
-    
-    return `${positionsText} ${weekday}`
+  function describeTypeII (rrStr) {
+    const { weeks, days } = parse(rrStr)
+    if (!weeks.length || !days.length) return 'Not scheduled'
+
+    const positions = weeks.sort((a, b) => a - b).map(w => nth[w])
+    const posText = positions.length <= 2
+      ? positions.join(' & ')
+      : `${positions.slice(0, -1).join(', ')} & ${positions.at(-1)}`
+
+    return `${posText} ${dayLabels[days[0]] ?? days[0]}`
   }
 
-  function getOrdinalSuffix(day) {
-    if (day > 3 && day < 21) return 'th'
-    switch (day % 10) {
+  function suffix (num) {
+    if ([11, 12, 13].includes(num)) return 'th'
+    switch (num % 10) {
       case 1: return 'st'
       case 2: return 'nd'
       case 3: return 'rd'
@@ -112,54 +47,22 @@
   }
 </script>
 
-<div class="rhythm-container">
+<div class="w-[120px] flex flex-col px-1">
   {#if isWeeklyPattern}
-    <div class="weekly-text">
+    <div class="mt-1 text-xs text-neutral-600">
       {weeklyDescription}
     </div>
   {:else}
-    <div class="rhythm-line">
+    <div class="h-0.5 relative bg-gray-200 my-2">
       {#each selectedDays as day}
-        <div class="day-marker" style="left: calc({day / 31 * 100}%)"></div>
+        <div style:left="calc({day === -1 ? 100 : day / 31 * 100}%)"
+          class="absolute -top-0.5 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[var(--rhythm-highlight-color)]"
+        >
+        </div>
       {/each}
     </div>
-    <div class="days-text">{daysText}</div>
+    <div class="text-xs text-neutral-600">
+      {daysText}
+    </div>
   {/if}
 </div>
-
-<style>
-  .rhythm-container {
-    width: 120px;
-    display: flex;
-    flex-direction: column;
-    gap: 0px;
-    padding: 0 3px;
-    box-sizing: border-box;
-  }
-
-  .rhythm-line {
-    height: 2px;
-    background-color: rgb(223, 223, 223);
-    position: relative;
-    margin: 8px 0;
-  }
-
-  .day-marker {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: var(--rhythm-highlight-color);
-    top: -2px;
-    transform: translateX(-50%);
-  }
-
-  .days-text, .weekly-text {
-    font-size: 10px;
-    color: rgb(80, 80, 80);
-  }
-  
-  .weekly-text {
-    margin-top: 5px;
-  }
-</style> 

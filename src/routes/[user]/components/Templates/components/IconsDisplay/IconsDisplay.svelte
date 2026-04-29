@@ -1,10 +1,9 @@
 <script>
   import BasicWhiteboard from './BasicWhiteboard.svelte'
-  import { template } from '../../store.js'
   import { doodleIcons, user } from '$lib/store'
   import { onMount, getContext } from 'svelte'
 
-  const { Icon, Template } = getContext('app')
+  const { Icon, Template, template } = getContext('app')
 
   onMount(async () => {
     const temp = await Icon.getAvailable($user.uid) 
@@ -24,15 +23,14 @@
 </script>
 
 <div>
-  <div style="margin-top: 16px; display: flex; width: 100%; flex-wrap: wrap;">
+  <div class="mt-4 flex w-full flex-wrap">
     {#if $doodleIcons}
       {#each $doodleIcons as doodleIcon}
-        <div style="position: relative;">
+        <div class="relative">
           <button onclick={() => handleSelectIcon($template.iconURL === doodleIcon.url ? '' : doodleIcon.url)}>
             <img src={doodleIcon.url}
               style="width: 48px; height: 48px;"
               class:orange-border={$template.iconURL === doodleIcon.url}
-              alt="hand-drawn icon"
             />
           </button>
 

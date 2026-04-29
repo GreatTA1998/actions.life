@@ -12,7 +12,7 @@
     color = 'var(--task-name-color)'
   } = $props()
 
-  let parent = $derived(task.parentID ? $tasksCache[task.parentID] : null)
+  let parentObj = $derived(task.parentID ? $tasksCache[task.parentID] : null)
 </script>
 
 <div class="flex items-center gap-x-1 w-full">
@@ -42,7 +42,7 @@
     <SubtaskCountIndicator {task} {color} extraClass="min-w-fit"/>
   {/if}
 
-  {#if parent}
-    <ParentBadge {parent} --color={color} />
+  {#if parentObj}
+    <ParentBadge {parentObj} --color={color} />
   {/if}
 </div>

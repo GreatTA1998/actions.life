@@ -1,133 +1,56 @@
-<div class="float-button" {style}>
-  <!-- `align-items: center` is a quickfix related to mystery height, probably from the invisible input -->
-  <div class="flex items-center">
-    <button onclick={openFolderInput} class="responsive-icon-size flex items-center">
-      <MslPhotoLibrary style="font-size: 2.125rem;"/>
-    </button>
+<div>
+  <button onclick={() => FolderInput.click()}
+    class={[
+      'flex items-center z-1', 
+      'size-[50px] rounded-[30px] bg-[hsla(98,40%,92%,0.4)]'
+    ]}
+    style:border="1px solid var(--faint-color)"
+    style:box-shadow="0 2px 8px rgba(0, 0, 0, 0.15)"
+    {style}
+  >
+    <MslPhotoLibrary style="font-size: 2.125rem"/>
+  </button>
 
-    <input style="display: none;" 
-      bind:this={FolderInput}
-      onchange={e => handleFileChange(e)} 
-      multiple
-      type="file" 
-      accept="image/*" 
-    >
-  </div>
-</div>  
+  <input style:display="none"
+    bind:this={FolderInput}
+    onchange={e => forgeTasksFromPhotos(e)} 
+    multiple
+    type="file" 
+    accept="image/*" 
+  >
+</div>
 
 <script>
-  import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-  import { getRandomID, getTimeInHHMM } from '$lib/utils/core.js'
-  import { compressImage } from '$lib/utils/imageHandling.js'
-  import { DateTime } from 'luxon'
-  import { getContext } from 'svelte'
   import MslPhotoLibrary from 'virtual:icons/material-symbols-light/photo-library'
+  import { uploadThenGetMetadata } from '$lib/utils/imageHandling.js'
+  import { getContext } from 'svelte'
   import { user, snackbarState } from '$lib/store'
 
   const { Task } = getContext('app')
 
-  export let style
-
-  const storage = getStorage()
+  let { style } = $props()
 
   let FolderInput
 
-  function openFolderInput () {
-    FolderInput.click()
-  }
-
-  async function handleFileChange (e) {
+  async function forgeTasksFromPhotos (e) {
     snackbarState.set({ isVisible: true, message: 'Uploading...', undoAction: null })
 
-    const promises = []
-    for (let imageBlobFile of e.target.files) {
-      if (imageBlobFile) {
-        const id = getRandomID()
-        if ($user.photoCompressWhenAttachingToTask) {
-          imageBlobFile = await compressImage(imageBlobFile)
-        }
-        promises.push(
-          uploadImageBlobToFirebase(imageBlobFile, id).then(resultSnapshot => {
-            createNewScheduledTaskContainingImage(resultSnapshot, imageBlobFile, id)
-          })
-        )
-      }
-    }
-    await Promise.all(promises)
+    await Promise.all([...e.target.files].map(image =>
+      uploadThenGetMetadata(image, $user.photoCompressWhenAttachingToTask)
+        .then(({ dt, orientation, imageFullPath, imageDownloadURL }) => {
+          Task.create({ data: {
+            imageDownloadURL,
+            imageFullPath,
+            isDone: true,
+            startDateISO: dt.toFormat('yyyy-MM-dd'),
+            startTime: dt.toFormat('HH:mm'),
+            duration: orientation === 'landscape' ? 106 : 188,
+            onList: false,
+            photoLayout: $user.defaultPhotoLayout
+          }})
+        })
+    ))
 
     snackbarState.set({ isVisible: false, message: '', undoAction: null })
   }
-
-  async function uploadImageBlobToFirebase (blobFile, id) {
-    return new Promise(async (resolve) => {
-      const storageRef = ref(storage, `images/${id}`)
-      const snapshot = await uploadBytes(storageRef, blobFile)
-      resolve(snapshot)
-    })
-  }
-
-  async function createNewScheduledTaskContainingImage (resultSnapshot, imageBlobFile, id) {
-
-    const { metadata } = resultSnapshot 
-    const { fullPath, timeCreated } = metadata
-
-    // STEP 0: parallel process to retrieve width & height
-    let durationForFullDisplay
-    const p1 = createImageBitmap(imageBlobFile).then(bitmap => {
-      const { width, height } = bitmap 
-      // these durations will display fully the portrait / landscape iPhone photos on an iPad Air 1180x820
-      if (width > height) durationForFullDisplay = 106
-      else durationForFullDisplay = 188
-    })
-
-    // STEP 1: getDownloadURL()
-    let imageDownloadURL 
-    const p2 = getDownloadURL(ref(storage, fullPath)).then(url => imageDownloadURL = url)
-    
-    await Promise.all([p1, p2]).catch(err => console.error('error in creNewSchedueledTasksContainingImage PromiseAll', err));
-
-    // STEP 2: create a task scheduled at the same time the photo is taken
-    let dateClassObj 
-    if (imageBlobFile.lastModified) dateClassObj = new Date(imageBlobFile.lastModified)
-    else dateClassObj = new Date(timeCreated) // otherwise we set the time to right now.
-
-    const newTaskObj = {
-      name: '',
-      imageDownloadURL,
-      imageFullPath: fullPath, // for easy garbage collection
-      startTime: getTimeInHHMM({ dateClassObj }),
-      startDateISO: DateTime.fromJSDate(dateClassObj).toFormat('yyyy-MM-dd'),
-      duration: durationForFullDisplay,
-      isDone: true, // so the image isn't blurred,
-      persistsOnList: false 
-      // TO-DO: use $user.defaultPhotoLayout
-    }
-
-    // Use the proper API to create the task
-    await Task.create({ id, newTaskObj });
-  }
 </script>
-
-<style>
-  .float-button {
-    position: absolute; 
-    right: 1vw; 
-    bottom: 1vw; 
-    z-index: 1; 
-    border: 1px solid var(--faint-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); 
-    height: 50px;
-    width: 50px;
-    border-radius: 30px;  
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: hsl(98, 40%, 92%, 0.4);
-  }
-
-  .responsive-icon-size {
-    font-size: 34px;
-    color: black;
-    font-weight: 300;
-  }
-</style>

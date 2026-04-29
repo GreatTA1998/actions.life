@@ -1,31 +1,35 @@
 <script>
   import PeriodicityEditor from './PeriodicityEditor.svelte'
   import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
-  import BasePopup from '$lib/components/BasePopup.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import DurationPicker from '$lib/components/DurationPicker.svelte'
   import TextArea from '$lib/components/TextArea.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
   import { periodicity } from '$lib/utils/rrule.js'
-  import { template, closeTemplateEditor } from '../../store.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import Template from '$lib/db/models/Template.js'
+  import NewBasePopup from '$lib/components/NewBasePopup.svelte'
+  import PopupTitle from '$lib/components/PopupTitle.svelte'
+  import ColorTags from '$lib/components/ColorTags.svelte'
+  import DragDropContext from '$lib/components/DragDropContext.svelte'
+  import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
+  import { WIDTHS } from '$lib/utils/constants.js'
+  import { getContext } from 'svelte'
+
+  const { template, templates, templateTree, closeTaskPopup } = getContext('app')
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 
-  let iconsMenu = false
+  let iconsMenu = $state(false)
+  let parentObj = $derived($template.parentID ? 
+    $templates.find(T => T.id === $template.parentID) : null
+  )
 
   function handleDelete () {
     if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {
       Template.delete($template)
-      closeTemplateEditor()
+      closeTaskPopup()
     }
-  }
-
-  function formatTime(minutes) {
-    if (minutes < 60) return `${Math.round(minutes)} minutes`
-    const hours = Math.round(minutes / 60)
-    return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
   }
 
   function instantUpdate (key, value) {
@@ -35,47 +39,36 @@
   }
 </script>
 
-<BasePopup onClickOutside={closeTemplateEditor}>
-  <div class="relative h-full grid gap-[10px] items-center" 
-    style:grid-template-columns="auto 1fr"
+<NewBasePopup onExit={closeTaskPopup}>
+  <div class="relative w-screen flex flex-col py-2 px-4 gap-y-6" 
+    style:max-width="{WIDTHS.PANEL_MAX}px"
   >
-    {#if periodicity($template.rrStr) === 'weekly'}
-      <button onclick={() => iconsMenu = !iconsMenu} class="icon-container" class:active={iconsMenu}>
-        {#if $template.iconURL}
-          <img src={$template.iconURL} style="width: 100%; height: 100%; border-radius: 50%;" alt="Task icon" />
-        {/if}
-      </button>
-    {/if}
-
-    <input value={$template.name} 
-      oninput={e => debouncedUpdate('name', e.target.value)}
-      type="text" placeholder="Untitled" style="width: 100%; font-size: 24px;" class="title-underline-input"
-    />
-  </div>
-
-  <div class="flex items-center">
-    {#await Template.getTotalStats({ id: $template.id })}
-      <div class="stats">Loading stats...</div>
-    {:then { minutesSpent, timesCompleted }}
-      <div class="stats">
-        Completed {timesCompleted} times, spent {formatTime(minutesSpent)}
-      </div>
-    {/await}
-  </div>
-  
-  {#if iconsMenu}
-    <IconsDisplay />
-  {/if}
-  
-  <div class="flex gap-2 items-start">
-    <div style:flex="1 1 400px">
-      <TextArea value={$template.notes}
-        oninput={e => debouncedUpdate('notes', e.target.value)}
-        placeholder="Notes..."
+    <div class="grid gap-[10px]" style:grid-template-columns="auto 1fr">
+      {#if periodicity($template.rrStr) === 'weekly'}
+        <button onclick={() => iconsMenu = !iconsMenu} class="size-12 rounded-full"
+          style:box-shadow={iconsMenu ? '0 2px 8px rgba(90, 179, 39, 0.5)' : '0 2px 4px rgba(0, 0, 0, 0.1)'} 
+        >
+          {#if $template.iconURL}
+            <img src={$template.iconURL} class="size-full rounded-full" />
+          {/if}
+        </button>
+      {/if}
+      
+      <PopupTitle value={$template.name}
+        {parentObj}
+        onInput={value => debouncedUpdate('name', value)}
       />
     </div>
+    
+    {#if iconsMenu}
+      <IconsDisplay />
+    {/if}
 
-    <div class="flex items-center justify-center gap-x-2">
+    {#if !$template.parentID}
+      <PeriodicityEditor routine={$template} />
+    {/if}
+
+    <div class="flex items-center gap-x-2">
       <MyTimePicker value={$template.startTime}
         onTimeSelected={hhmm => instantUpdate('startTime', hhmm)}
       />
@@ -83,49 +76,29 @@
         value={Math.round($template.duration)}
         oninput={e => instantUpdate("duration", Number(e.target.value))}
       />   
+      <ColorTags task={$template}/> 
     </div>
+    
+    <div class="w-full">
+      <TextArea value={$template.notes}
+        oninput={e => debouncedUpdate('notes', e.target.value)}
+        placeholder="Notes..."
+        class="min-h-[3rem]"
+      />
+    </div>
+
+    <DragDropContext>
+      <TodoList trees={$templateTree.children}
+        listWidth="100%"
+        parentID={$template.id}
+        style="padding-bottom: 1rem"
+      />
+    </DragDropContext>
+
+    <button onclick={e => { e.stopPropagation(); handleDelete() }} 
+      class="absolute bottom-1 right-1 rounded-full p-1"
+    >
+      <MslDeleteOutline style="font-size: 1.5rem"/>
+    </button>
   </div>
-
-  <PeriodicityEditor routine={$template} />
-
-  <button onclick={e => { e.stopPropagation(); handleDelete() }} class="delete-button" style="display: flex; align-items: center; justify-content: center;">
-    <MslDeleteOutline style="font-size: 1.5rem;"/>
-  </button>
-</BasePopup>
-
-<style>
-  .title-underline-input { /* @see https://stackoverflow.com/a/3131082/7812829 */
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 23px;
-    font-weight: 700;
-    padding-left: 0px;
-  }
-
-  .icon-container {
-    width: 48px;
-    height: 48px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-radius: 50%;
-  }
-  
-  .active {
-    box-shadow: 0 2px 8px rgba(90, 179, 39, 0.5);
-  }
-
-  .delete-button {
-    position: absolute;
-    bottom: 0px;
-    right: 0px;
-    border-radius: 50%;
-    padding: 4px;
-  }
-
-  .stats {
-    color: #666;
-    font-size: 12px;
-    margin: 12px 0;
-    line-height: 1.4;
-  }
-</style>
+</NewBasePopup>

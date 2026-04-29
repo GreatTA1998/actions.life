@@ -5,7 +5,7 @@
   import MslMoreVert from 'virtual:icons/material-symbols-light/more-vert'
   import { deleteColorTag } from '$lib/db/helpers.js'
   import { user } from '$lib/store'
-  import { getRandomID, getRandomColor } from '$lib/utils/core.js'
+  import { randomID, getRandomColor } from '$lib/utils/core.js'
   import { paddingVal } from '$lib/styles/reused.module.css'
 
   let { task } = $props()
@@ -27,7 +27,7 @@
       if (value === '') return
 
       const copy = { ...$user.tags }
-      const id = getRandomID()
+      const id = randomID()
       copy[id] = {
         color: getRandomColor(),
         name: e.target.value
@@ -72,7 +72,7 @@
 <PopoverMenu>
   {#snippet activator ({ id, anchorName })}
     <button popovertarget={id}
-      class="flex items-center gap-x-1 min-w-[16px] min-h-[16px] justify-center rounded" 
+      class="flex items-center gap-x-1 min-w-[16px] min-h-[16px] rounded" 
       style:anchor-name={anchorName}
       style:padding="0px {paddingVal}"
     >
@@ -100,7 +100,7 @@
               style:opacity={selected ? '1' : '0.5'}
               style:filter="grayscale({ selected ? '0%' : '10%'})"
               style:color={selected ? 'black' : 'grey'}
-              class="grow flex gap-x-2 px-1"
+              class="grow flex justify-start gap-x-2 px-1"
             >
               {@render circle(tag.color, '1.125rem')}
 

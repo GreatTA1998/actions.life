@@ -8,11 +8,11 @@
   import { onMount, setContext, createEventDispatcher } from 'svelte'
   import { writable } from 'svelte/store'
 
-  export let initialRRStr = ''
+  let { 
+    initialRRStr,
+    updateRR = () => {}
+  } = $props()
 
-  let overallPointer = 'weekly'
-
-  let activeTab = 'weekly'
   const tabItems = [{ label: 'Weekly', value: 'weekly' }, { label: 'Monthly', value: 'monthly' }, { label: 'Yearly', value: 'yearly' }]
 
   const inputStates = writable({ 
@@ -26,11 +26,11 @@
   setContext('inputStates', inputStates)
   setContext('monthlyPointer', monthlyPointer)
 
-  let loaded = false // quickfix to prevent uninitialized input states / timing problems
-  const dispatch = createEventDispatcher()
+  let loaded = $state(false) // quickfix to prevent uninitialized input states / timing problems
+  let activeTab = $state('weekly')
+  let overallPointer = $derived(activeTab === 'monthly' ? $monthlyPointer : activeTab)
 
-  $: overallPointer = activeInputChanged(activeTab, $monthlyPointer)
-  $: dispatch('update-rr', $inputStates[overallPointer])
+  $effect(() => updateRR($inputStates[overallPointer]))
 
   onMount(() => {
     activeTab = periodicity(initialRRStr)
@@ -52,16 +52,10 @@
       overallPointer = 'yearly'
     }
   }
-
-  function activeInputChanged () {
-    if (activeTab === 'weekly') return 'weekly'
-    else if (activeTab === 'monthly') return $monthlyPointer
-    else if (activeTab === 'yearly') return 'yearly'
-  }
 </script>
 
 {#if loaded}
-  <div style="display: flex; flex-direction: column; margin-top: 24px;">
+  <div class="flex flex-col">
     <Tabs tabs={tabItems} activeTab={activeTab} on:tabChange={e => activeTab = e.detail.tab}/>
 
     {#if activeTab === 'weekly'}

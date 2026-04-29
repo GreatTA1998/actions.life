@@ -7,185 +7,115 @@
   import { DateTime } from 'luxon'
   import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
   import { treesByDate } from './service.js'
-  import { user, timestamps, calSnapInterval, googleEventsByDate } from '$lib/store'
+  import { timestamps, calSnapInterval, googleEventsByDate } from '$lib/store'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
   const { activateInput, overrideOptions } = getContext('popover-input')
   const { 
-    draggedItem, scrollCalRect, detectOverlap,
-    bestDropzoneID, dropPreviewCSS, hasDropped, resetDragDrop
+    registerDropzone,
+    draggedItem, scrollCalRect, bestDropzoneID, dropPreviewCSS
   } = getContext('drag-drop')
   
   let { dt } = $props()
 
   let dayColumn
-  let yPosition = $state(null)
   let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
   let pixelsPerMinute = $pixelsPerHour / 60
 
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
   let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
 
-  let previewTop = $state(null)
-  
+  let anchorY = $state(0)
   let anchorID = $derived(`--day-column-${dropzoneID}`)
-  let newDT = $derived(getNewDT(yPosition))
 
-  $effect(() => {
-    if ($draggedItem && $draggedItem.id) {
-      detectOverlap({
-        dropzoneElem: dayColumn,
-        clipRect: calContentArea(),
-        dropzoneID
-      })
-    }
-  })
-  
-  $effect(() => {
-    if ($bestDropzoneID === dropzoneID) renderDragPreview()
-    else previewTop = null
-  })
-
-  $effect(() => {
-    if ($hasDropped && $bestDropzoneID === dropzoneID) {
-      performDrop()
-    }
-  })
-
-  function renderDragPreview () {
-    const localTop = $draggedItem.y1 + dayColumn.scrollTop - dayColumn.getBoundingClientRect().top
-    let resultDT = snapToNearestInterval(
-      dt.plus({ hours: localTop / $pixelsPerHour }),
-      $calSnapInterval
-    )
-    previewTop = getOffset({ dt1: dt, dt2: resultDT }) 
+  function viewportToLocalY (clientY) {
+    return clientY + dayColumn.scrollTop - dayColumn.getBoundingClientRect().top // assumes no padding
   }
 
-  function calContentArea () {
-    const { left, right, top, bottom } = $scrollCalRect()
-    return {
-      left: left + $timestampsColumnWidth, // potentially brittle for mobile mode
-      right,
-      top: top + $headerHeight,
-      bottom
-    }
+  function HHmmToLocalY (HHmm) {
+    const [HH, mm] = HHmm.split(':').map(Number)
+    return (60 * HH + mm) * pixelsPerMinute
   }
 
-  function getY (e) {
-    return (
-      e.clientY +
-      dayColumn.scrollTop -
-      dayColumn.getBoundingClientRect().top -
-      dayColumn.style.paddingTop
-    )
+  function minutesToHHmm (totalMinutes) {
+    const HH = String(Math.floor(totalMinutes / 60)).padStart(2, '0')
+    const mm = String(totalMinutes % 60).padStart(2, '0')
+    return `${HH}:${mm}`
   }
 
-  function getDateTimeFromTask(task) {
-    return DateTime.fromISO(`${task.startDateISO}T${task.startTime}`)
+  function minutesSinceMidnight (clientY, snapInterval) {
+    const localY = viewportToLocalY(clientY)
+    return snap(localY / pixelsPerMinute, snapInterval)
   }
 
-  function getOffset({ dt1, dt2 }) {
-    let minutesDiff = dt2.diff(dt1, 'minutes').minutes
-    if (minutesDiff < 0) minutesDiff += 24 * 60
-    return ($pixelsPerHour/60) * minutesDiff 
-  }
-
-  function performDrop () {
-    const { id, y1 } = $draggedItem
-
-    const { top } = dayColumn.getBoundingClientRect()
-    const localTop = y1 - top + dayColumn.scrollTop
-
-    let resultDT = snapToNearestInterval(
-      dt.plus({ hours: localTop / $pixelsPerHour }),
-      $calSnapInterval
-    )
-
-    Task.update({ 
-      id,
-      kvChanges: {
-        startTime: resultDT.toFormat('HH:mm'),
-        startDateISO: resultDT.toFormat('yyyy-MM-dd')
-      }
-    })
-
-    resetDragDrop()
-    
-    previewTop = null // quickfix
-  }
-
-  // Function to snap a DateTime to the nearest interval (in minutes)
-  function snapToNearestInterval (dateTime, interval) {
-    if (interval <= 0) return dateTime; // No snapping if interval is invalid
-    
-    const minutes = dateTime.minute;
-    const remainder = minutes % interval;
-    
-    if (remainder < interval / 2) {
-      // Round down
-      return dateTime.set({ minute: minutes - remainder, second: 0, millisecond: 0 });
-    } else {
-      // Round up
-      return dateTime.set({ minute: minutes + (interval - remainder), second: 0, millisecond: 0 });
-    }
-  }
-
-  function getNewDT (trueY) {
-    const calendarStartAsMs = dt.toMillis()
-
-    const totalHoursDistance = trueY / $pixelsPerHour;
-    const totalMsDistance = totalHoursDistance * 60 * 60 * 1000
-
-    // Add them together: https://stackoverflow.com/a/12795802/7812829
-    const resultantTimeInMs = calendarStartAsMs + totalMsDistance
-
-    return DateTime.fromMillis(resultantTimeInMs)
-  }
-
-  function shiftYPosition ({ duration }) {
-    const tasksGap = 30
-    yPosition += ($pixelsPerHour / 60) * duration + tasksGap
-    overrideOptions.update(options => ({
-      ...options,
-      startDateISO: newDT.toFormat('yyyy-MM-dd'),
-      startTime: newDT.toFormat('HH:mm')
-    }))
+  function snap (number, interval) {
+    const remainder = number % interval 
+    if (remainder < interval / 2) return number - remainder
+    else return number - remainder + interval
   }
 </script>
 
-
-<!-- https://github.com/sveltejs/svelte/issues/6016 -->
-<div bind:this={dayColumn} class="day-column select-none"
-  style="height: {24 * $pixelsPerHour}px;"
-  class:grid-y={$user.hasGridlines}
+<div bind:this={dayColumn} class="relative select-none w-[var(--width-cal-column)] bg-[var(--cal-bg)]"
+  {@attach registerDropzone({ 
+    id: dropzoneID,
+    clipRectFunction () {
+      const { left, right, top, bottom } = $scrollCalRect()
+      return {
+        left: left + $timestampsColumnWidth, // potentially brittle for mobile mode
+        right,
+        top: top + $headerHeight,
+        bottom
+      }
+    },
+    onDrop () {
+      Task.update({ 
+        id: $draggedItem.id,
+        kvChanges: {
+          startTime: minutesToHHmm(minutesSinceMidnight($draggedItem.y1, $calSnapInterval)),
+          startDateISO: dt.toFormat('yyyy-MM-dd')
+        }
+      })
+    }
+  })}
+  style:height="{24 * $pixelsPerHour}px"
+  style:border-right="1px solid var(--grid-color)"
   onclick={e => {
     if (e.target === e.currentTarget) {
-      yPosition = getY(e)
+      const snappedMinutes = minutesSinceMidnight(e.clientY, $calSnapInterval)
+      anchorY = snappedMinutes * pixelsPerMinute
+
       activateInput({
         anchorID,
         modifiers: { 
-          startDateISO: newDT.toFormat('yyyy-MM-dd'),
-          startTime: newDT.toFormat('HH:mm'),
-          persistsOnList: false
+          startDateISO: dt.toFormat('yyyy-MM-dd'),
+          startTime: minutesToHHmm(snappedMinutes),
+          onList: false
         },
-        onCreate: shiftYPosition
+        onCreate: ({ duration }) => {
+          const tasksGap = 30
+          anchorY += ($pixelsPerHour / 60) * duration + tasksGap
+          overrideOptions.update(options => ({
+            ...options,
+            startDateISO: dt.toFormat('yyyy-MM-dd'),
+            startTime: minutesToHHmm(anchorY / pixelsPerMinute)
+          }))
+        }
       })
     }
   }}
 >
-  {#if $draggedItem.id || $user.hasGridlines}
-    {#each $timestamps as timestamp, i}
-      {@const [hour, minute] = timestamp.split(':').map(Number)}
-      <div class="gridline" 
-        style="top: {getOffset({ dt1: dt, dt2: dt.set({ hour, minute }) })}px;"
-      >
-      </div>
-    {/each}
-  {/if}
+  {#each $timestamps as timestamp}
+    <div class="bg-[var(--grid-color)] absolute w-full h-[1px] pointer-events-none" 
+      style:top="{HHmmToLocalY(timestamp)}px"
+    >
+    </div>
+  {/each}
 
-  {#each scheduledTasks as task, i (task.id)}
-    <div class="task-absolute" style="top: {getOffset({ dt1: dt, dt2: getDateTimeFromTask(task) })}px;">
+  {#each scheduledTasks as task (task.id)}
+    <div class="absolute inset-x-0 mx-auto w-[var(--width-within-column)]" 
+      style:top="{HHmmToLocalY(task.startTime)}px"
+    >
       {#if task.imageDownloadURL}
         <PhotoTaskElement {task} />
       {:else if task.iconURL}
@@ -198,31 +128,30 @@
 
   {#each googleEvents as event}
     {@const startDT = DateTime.fromISO(event.start.dateTime)}
-    <div class="task-absolute" style="
-      top: {getOffset({ dt1: dt, dt2: startDT })}px; 
-      pointer-events: none;"
+    <div class="absolute inset-x-0 mx-auto w-[var(--width-within-column)] pointer-events-none" 
+      style:top="{HHmmToLocalY(startDT.toFormat('HH:mm'))}px" 
     >
       <GcalEvent {event} />
     </div>
   {/each}
 
-  {#if previewTop !== null}
-    <div class="task-absolute" 
+  {#if $bestDropzoneID === dropzoneID}
+    {@const dragPreviewY = minutesSinceMidnight($draggedItem.y1, $calSnapInterval) * pixelsPerMinute}
+    <div class="absolute inset-x-0 mx-auto w-[var(--width-within-column)]" 
       style="
-        top: {previewTop}px; 
+        top: {dragPreviewY}px; 
         height: {$draggedItem.height}px;
         border-radius: var(--left-padding);
         {dropPreviewCSS}
       "
     ></div>
   {/if}
-  
-  <div style="display: grid; place-items: center; width: 100%">
-    <div style="anchor-name: {anchorID}; top: {yPosition}px; height: {30 * pixelsPerMinute}px;" 
-      class="my-portal"
-    >
 
-    </div>
+  <div class="absolute w-full pointer-events-none"
+    style:anchor-name={anchorID}
+    style:top="{anchorY}px"
+    style:height="{30 * pixelsPerMinute}px" 
+  >
   </div>
 
   {#if dt.hasSame(DateTime.now(), 'day')}
@@ -231,41 +160,3 @@
     />
   {/if}
 </div>
-
-<style lang="scss">
-  .my-portal {
-    position: absolute;
-    width: 100%; /* quickfix: iOS centering is unreliable with --width-within-column */
-    padding: 0;
-    pointer-events: none;
-  }
-
-  .task-absolute {
-    position: absolute; 
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-    width: var(--width-within-column);
-  }
-
-  .gridline {
-    position: absolute;
-    width: 100%;
-    height: 1px;
-    background-color: var(--grid-color);
-    pointer-events: none; /** otherwise it'll block clicks on the day column (deadzone) */
-  }
-
-  /* DO NOT REMOVE, BREAKS DRAG-AND-DROP AND DURATION ADJUSTMENT */
-  .day-column {
-    position: relative;
-    overflow-x: hidden;
-    width: var(--width-calendar-day-section);
-    background-color: var(--calendar-bg-color);
-  }
-
-  .grid-y {
-    border-right: 1px solid var(--grid-color);
-  }
-</style>

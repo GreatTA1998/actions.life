@@ -5,7 +5,8 @@
     oninput,
     value = '',
     placeholder,
-    fontSize = '1rem'
+    fontSize = '1rem',
+    class: extraClass = ''
   } = $props()
 </script>
 
@@ -13,7 +14,7 @@
   {value}
   {oninput}
   {placeholder}
-  class="w-full min-h-[48px] rounded {placeholderField}"
+  class="w-full rounded {placeholderField} {extraClass}"
   style:padding="0 {paddingVal}"
   style:field-sizing="content"
   style:font-size={fontSize}

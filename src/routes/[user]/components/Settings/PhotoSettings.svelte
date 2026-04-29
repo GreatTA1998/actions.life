@@ -1,46 +1,16 @@
 <script>
-  import ToggleGroupStyled from '$lib/components/ToggleGroupStyled.svelte'
   import CheckboxSquare from '$lib/components/CheckboxSquare.svelte'
-  import { defaultPhotoLayout } from '$lib/store/photoLayout.js'
-  import { updateFirestoreDoc } from '$lib/db/helpers.js'
   import { user } from '$lib/store'
+  import { getContext } from 'svelte'
 
-  import MslSplitscreenLeft from 'virtual:icons/material-symbols-light/splitscreen-left'
-  import MslSplitscreenTop from 'virtual:icons/material-symbols-light/splitscreen-top'
-  import MslFullscreenPortrait from 'virtual:icons/material-symbols-light/fullscreen-portrait'
-
-  async function updateDefaultPhotoLayout (layoutValue) {    
-    if ($user) {
-      try {
-        updateFirestoreDoc(`/users/${$user.uid}`, { 
-          defaultPhotoLayout: layoutValue 
-        })
-      } catch (error) {
-        console.error("Failed to save photo layout preference:", error);
-      }
-    }
-  }
+  const { User } = getContext('app')
 
   function toggle (fieldName) {
-    updateFirestoreDoc(`/users/${$user.uid}`, { 
-      [fieldName]: !!!$user[fieldName] 
-    })
+    User.update({ [fieldName]: !$user[fieldName] })
   }
 </script>
 
-<div class="photo-settings">  
-  <ToggleGroupStyled>
-    <button onclick={() => updateDefaultPhotoLayout('side-by-side')} class="toggle-btn" class:active={$defaultPhotoLayout === 'side-by-side'}>
-      <MslSplitscreenLeft style="font-size: 1.25rem;"/>
-    </button>
-    <button onclick={() => updateDefaultPhotoLayout('top-and-below')} class="toggle-btn" class:active={$defaultPhotoLayout === 'top-and-below'}>
-      <MslSplitscreenTop style="font-size: 1.25rem;"/>
-    </button>
-    <button onclick={() => updateDefaultPhotoLayout('full-photo')} class="toggle-btn" class:active={$defaultPhotoLayout === 'full-photo'}>
-      <MslFullscreenPortrait style="font-size: 1.25rem;"/>
-    </button>
-  </ToggleGroupStyled>
-
+<div class="flex flex-col gap-y-3">  
   <CheckboxSquare onClick={() => toggle('photoUploadAutoArchive')}
     value={$user.photoUploadAutoArchive}
     label="Apply photo's date to task, and mark as done"
@@ -51,23 +21,3 @@
     label="Lightly compress photos"
   />
 </div>
-
-<style>
-  .toggle-btn {
-    display: flex;
-    align-items: center;
-    padding: 4px;
-  } 
-
-  .toggle-btn.active {
-    background: #e3e6ee;
-    color: #1a1a1a;
-    font-weight: 500;
-  }
-
-  .photo-settings {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-</style>

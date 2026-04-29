@@ -1,18 +1,14 @@
 <script>
+  // PRE-CONDITION: used within <TemplateContext/>
   import RoutineItem from './RoutineItem.svelte'
   import HabitsTabFullDetails from './HabitsTabFullDetails.svelte'
-  import TemplatePopup from '../components/Templates/components/TemplatePopup/TemplatePopup.svelte'
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
   import MslMoreHoriz from 'virtual:icons/material-symbols-light/more-horiz'
-  import { openTemplateEditor, templates, popup } from '../components/Templates/store.js'
-  import { collection, onSnapshot } from 'firebase/firestore'
   import { WIDTHS } from '$lib/utils/constants.js'
-  import { db } from '$lib/db/init.js'
   import { periodicity } from '$lib/utils/rrule.js'
-  import { getContext, onMount } from 'svelte'
-  import { user } from '$lib/store'
+  import { getContext } from 'svelte'
 
-  const { Template } = getContext('app')
+  const { Template, openTaskPopup, templates } = getContext('app')
 
   let selectedRoutineID = $state('')
   let stats = $state(new Map())
@@ -30,10 +26,6 @@
     }
   })
 
-  onMount(async () => {
-    listenToRoutines()
-  })
-
   async function fetchStatsIfNeeded (routine) {
     if (!stats.has(routine.id)) {
       const result = await Template.getTotalStats({ id: routine.id })
@@ -42,18 +34,9 @@
     }
   }
 
-  async function listenToRoutines () {
-    const ref = collection(db, '/users/' + $user.uid + '/templates')
-    onSnapshot(ref, async (querySnapshot) => {
-      templates.set(
-        querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })
-      ))
-    })
-  }
-
-  function select (routineID) {
-    if (selectedRoutineID === routineID) openTemplateEditor(routineID)
-    else selectedRoutineID = routineID
+  function select (routine) {
+    if (selectedRoutineID === routine.id) openTaskPopup(routine)
+    else selectedRoutineID = routine.id
   }
 </script>
 
@@ -62,7 +45,7 @@
     {#if topRoutines}
       <div class="flex flex-col py-0 px-2">
         {#each topRoutines as routine (routine.id)}
-          <RoutineItem onclick={() => select(routine.id)}
+          <RoutineItem onclick={() => select(routine)}
             {routine} {selectedRoutineID} {stats}
           />
         {/each}
@@ -80,7 +63,7 @@
             <!-- pragmatic sizing quickfix for mobile and desktop -->
             <div class="w-screen max-h-[60vh] overflow-y-auto p-2 flex flex-wrap gap-4">
               {#each unstarredRoutines as routine (routine.id)}
-                <RoutineItem onclick={() => { select(routine.id); close(); }}
+                <RoutineItem onclick={() => { select(routine); close(); }}
                   {routine} {selectedRoutineID}
                 />
               {/each}
@@ -96,14 +79,4 @@
       extraClass="w-screen max-w-[60ch] py-2"
     />
   {/if}
-
-  {#if $popup}
-    <TemplatePopup />
-  {/if}
 </div>
-
-<style>
-  :root {
-    --rhythm-highlight-color: orange;
-  }
-</style>

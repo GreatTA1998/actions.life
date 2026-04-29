@@ -2,15 +2,16 @@
   import { setContext } from 'svelte'
   import { writable } from 'svelte/store'
   import { createThrottledFunction } from '$lib/utils/core.js'
+  import { playSound } from '$lib/features/audio.js'
 
   let { children } = $props()
 
-  const draggedItem = writable(initialItem())
+  const draggedItem = writable(Empty())
   const matchedDropzones = writable({})
   const bestDropzoneID = writable('')
   const hasDropped = writable(false)
-  const scrollCalRect = writable(() => ({ left: 0, top: 0, right: 9999, bottom: 9999 }))
-  const logicAreaRect = writable(() => ({ left: 0, top: 0, right: 9999, bottom: 9999 }))
+  const scrollCalRect = writable(() => ({ left: 0, top: 0, right: Infinity, bottom: Infinity }))
+  const logicAreaRect = writable(() => ({ left: 0, top: 0, right: Infinity, bottom: Infinity }))
 
   const frameRate = 60
   const oneThousandMs = 1000
@@ -18,21 +19,17 @@
   const dropPreviewCSS = `
     background-color: rgba(100, 100, 255, 0.15);
     border: 1px dashed rgba(100, 100, 255, 0.6);
-    pointer-events: none;
   `
 
   setContext('drag-drop', {
     draggedItem,
-    matchedDropzones,
     bestDropzoneID,
-    hasDropped,
+    dropPreviewCSS,
     scrollCalRect,
     logicAreaRect,
     startTaskDrag,
-    resetDragDrop,
-    detectOverlap,
     computeOrderValue,
-    dropPreviewCSS
+    registerDropzone
   })
 
   function startTaskDrag ({ e, id, isFromCal = false }) {
@@ -40,7 +37,7 @@
     // don't call preventDefault(), otherwise drag doesn't even start
     e.stopPropagation() // stops rare occasions where the entire UI gets dragged (which'd be scary)
     e.dataTransfer.setData("text/plain", id) // without this iOS won't activate drag!
-    resetDragDrop() // defensive programming for now
+    reset()
 
     const { top, left, width, height } = e.target.getBoundingClientRect()
     
@@ -61,7 +58,6 @@
 
       return i
     })
-    // TO-DO: include the whole task object otherwise treeISOs related logic will fail
   }
 
   function ondragover (e) {
@@ -94,6 +90,7 @@
         resolveBest($matchedDropzones)
       )
       hasDropped.set(true)
+      playSound('tap')
     }
   }
 
@@ -115,14 +112,14 @@
     return bestDropzoneID
   }
 
-  function resetDragDrop () {
-    draggedItem.set(initialItem())
+  function reset () {
+    draggedItem.set(Empty())
     matchedDropzones.set({})
     bestDropzoneID.set('')
     hasDropped.set(false)
   }
 
-  function initialItem () {
+  function Empty () {
     return {
       x1: null,
       y1: null,
@@ -197,6 +194,35 @@
       newVal = (above.orderValue + below.orderValue) / 2
     }
     return newVal
+  }
+
+  // attachment factory pattern (to pass in arbitrary parameters via currying)
+  function registerDropzone ({ clipRectFunction, id, onDrop }) {
+    return (node) => {
+      $effect(() => {
+        if ($draggedItem.id) {
+          detectOverlap({
+            dropzoneElem: node,
+            clipRect: clipRectFunction(),
+            dropzoneID: id
+          })
+        }
+      })
+      
+      $effect(() => {
+        if ($hasDropped && $bestDropzoneID === id) {
+          onDrop()
+          reset()
+        }
+      })
+      
+      return () => {
+        matchedDropzones.update(obj => {
+          delete obj[id]
+          return obj
+        })
+      }
+    }
   }
 </script>
 

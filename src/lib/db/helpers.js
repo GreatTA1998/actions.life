@@ -1,10 +1,18 @@
 import {
   doc, setDoc, getDoc, updateDoc, deleteDoc,
   collection, getDocs, query, where, limit,
-  writeBatch, arrayRemove
+  writeBatch, arrayRemove, increment, onSnapshot
 } from 'firebase/firestore'
 import { db } from './init'
 import { deleteObject, getStorage, ref } from 'firebase/storage'
+import { user } from '$lib/store'
+import { get } from 'svelte/store'
+
+export async function listenTo (q, onUpdate) {
+  return onSnapshot(q, snap => 
+    onUpdate(snap.docs.map(doc => ({ ...doc.data(), id: doc.id })))
+  )
+}
 
 export function firestoreRef (path) {
   return doc(db, path)
@@ -36,35 +44,26 @@ export function getFirestoreDoc (path) {
   })
 }
 
-export function getFirestoreCollection (path) {
-  return new Promise(async (resolve) => {
-    const ref = collection(db, path)
-    const snapshot = await getDocs(ref)
-    const data = []
-    snapshot.forEach((doc) => {
-      data.push({ id: doc.id, path: doc.ref.path, ...doc.data() })
-    })
-    resolve(data)
+export async function getFirestoreCollection (path) {
+  const ref = collection(db, path)
+  const snapshot = await getDocs(ref)
+  const data = []
+  snapshot.forEach((doc) => {
+    data.push({ id: doc.id, path: doc.ref.path, ...doc.data() })
   })
+  return data
 }
 
-export function getFirestoreQuery (query) {
-  return new Promise(async (resolve) => {
-    const snapshot = await getDocs(query)
-    const data = []
-    snapshot.forEach((doc) => {
-      data.push({ id: doc.id, path: doc.ref.path, ...doc.data() })
-    })
-    resolve(data)
-  })
+export async function getFirestoreQuery (query) {
+  const snapshot = await getDocs(query)
+  return snapshot.docs.map(
+    doc => ({ ...doc.data(), id: doc.id, path: doc.ref.path })
+  )
 }
 
-export function updateFirestoreDoc (path, updateObject) {
-  return new Promise(async (resolve) => {
-    const ref = firestoreRef(path)
-    await updateDoc(ref, updateObject)
-    resolve()
-  })
+export async function updateFirestoreDoc (path, updateObject) {
+  const ref = firestoreRef(path)
+  return updateDoc(ref, updateObject)
 }
 
 export function createFirestoreQuery ({ collectionPath, criteriaTerms }) {
@@ -77,11 +76,8 @@ export function createFirestoreQuery ({ collectionPath, criteriaTerms }) {
 }
 
 export function deleteFirestoreDoc (path) {
-  return new Promise(async (resolve) => {
-    const ref = firestoreRef(path)
-    await deleteDoc(ref)
-    resolve()
-  })
+  const ref = firestoreRef(path)
+  return deleteDoc(ref)
 }
 
 async function countImageRefs (uid, collectionName, imageDownloadURL) {
@@ -132,4 +128,17 @@ export async function deleteColorTag ({ tagID, user }) {
   })
 
   return await batch.commit()
+}
+
+export function maintainOrderValue (validatedObj, batch) {
+  const { maxOrderValue, uid } = get(user)
+  if (!validatedObj.orderValue) {
+    validatedObj.orderValue = maxOrderValue + 1 // k = 1
+  }
+  const diff = validatedObj.orderValue - maxOrderValue
+  if (diff > 0) {
+    batch.update(doc(db, 'users', uid), { 
+      maxOrderValue: increment(diff)
+    })
+  }
 }

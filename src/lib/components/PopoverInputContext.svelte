@@ -1,19 +1,24 @@
 <script>
   import DropdownMenu from '$lib/components/DropdownMenu.svelte'
-  import { getRandomID } from '$lib/utils/core';
+  import { randomID } from '$lib/utils/core'
   import { getContext, setContext } from 'svelte'
   import { writable } from 'svelte/store'
   import { noZoomFS } from '$lib/styles/reused.module.css'
 
   let { children } = $props()
 
-  const { Task } = getContext('app')
+  const { Task, Template } = getContext('app')
 
   let inputActive = $state(false)
   let inputPopover = $state(null)
   let menuPopover = $state(null)
+
   let input = $state(null)
   let value = $state('')
+  let derivedTask = $derived({
+    ...$overrideOptions,
+    name: value
+  })
 
   const overrideOptions = writable({})
   const callback = writable(() => {})
@@ -26,7 +31,7 @@
   function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }) {
     if (inputActive) inputActive = false
     else {
-      // note: although using an anchor variable is more readable, the update gets batched causing synchronicity issues with focus etc.
+      // note: using an anchor variable would be more readable, but the store-level update would be batched, causing synchronicity issues with focus etc.
       inputPopover.style.positionAnchor = anchorID 
       menuPopover.style.positionAnchor = anchorID
       inputPopover.showPopover()
@@ -39,82 +44,55 @@
     }
   }
 
-  function ontoggle (e) {
-    if (e.newState === 'closed') {
-      setTimeout(
-        () => {
-          menuPopover.hidePopover() // otherwise clicking a menu item causes the input popover to get destroyed, which terminates the creation of the routine
-          inputActive = false
-        },
-        300 // genius, delay the reset (iOS ontoggle resolves before click)
-      )
+  async function onPopoverClose () {
+    if (value) {
+      Task.create({ id: randomID(), data: derivedTask })
+      value = '' 
+    }
+    setTimeout(() => inputActive = false, 300) // delay necessary for iOS where `ontoggle` resolves before `onclick`
+  }
+
+  async function onEnter () {
+    if (value === '') inputPopover.hidePopover()
+    else {
+      const result = await Task.create({ id: randomID(), data: derivedTask })
+      $callback(result)
+      value = '' 
     }
   }
 
-  async function createTask (template = { name: value }) {
-    const result = await Task.create({
-      id: getRandomID(),
-      newTaskObj: {
-        ...template,
-        ...$overrideOptions, // includes `persistsOnList`
-        templateID: typeof template.rrStr === 'string' ? template.id : '' // this is a quickfix, careful about legacy routines with no `rrStr`
-      }
-    })
-    value = ''
+  async function onTemplateClick (template) {
+    input.focus() // we lost focus clicking the menu item (reminder: must be synchronous)
+    const result = await Template.instantiateTree({ template, modifiers: $overrideOptions })
     $callback(result)
-  }
-
-  function onkeydown (e) {
-    if (e.key === 'Enter') {
-      if (e.isComposing) return // IME (Input Method Editors), we use keydown to avoid the exhaustive solution mentioned in this article: https://www.stum.de/2016/06/24/handling-ime-events-in-javascript/
-      else if (value === '') inputPopover.hidePopover()
-      else {
-        createTask({ name: value })
-        value = ''
-      }
-    }
+    value = ''
   }
 </script>
 
 {@render children()}
 
-<div {ontoggle} bind:this={inputPopover} popover="auto" class="task-input">
-  <input 
-    bind:this={input} bind:value={value}
-    {onkeydown} onblur={() => inputPopover.hidePopover()}
-    class="w-full h-full rounded"
-    style:font-size="clamp({noZoomFS}, 60cqb, 2rem)"
+<!-- `overflow-y-hidden` is a Safari quickfix -->
+<div ontoggle={e => e.newState === 'closed' && onPopoverClose()}
+  bind:this={inputPopover} popover="auto" class="bg-transparent overflow-y-hidden"
+  style:position-area="center"
+  style:width="anchor-size(width)"
+  style:height="anchor-size(height)"
+  style:container-type="size"
+>
+  <!-- `e.isComposing`: IME (Input Method Editors), we use keydown to avoid the exhaustive solution mentioned here: https://www.stum.de/2016/06/24/handling-ime-events-in-javascript/ -->
+  <input bind:this={input} 
+    bind:value
+    onkeydown={e => e.key === 'Enter' && !e.isComposing && onEnter() } 
+    class="w-full h-full rounded [border:2px_solid_#2757cf]"
+    style:font-size="clamp({noZoomFS}, 40cqb, 2rem)"
   >
-  <!-- 1. `onblur` detects iOS 26 keyboard exit via the "arrow" key. 2. Must use a () => function as inputPopover is not defined when attached -->
+
+  <div bind:this={menuPopover} popover="manual" 
+    class="fixed rounded-xl" style:top="anchor(bottom)" style:left="anchor(left)"
+  >
+    <DropdownMenu 
+      taskName={value} 
+      onSelect={template => onTemplateClick(template)}    
+    />
+  </div>
 </div>
-
-<div bind:this={menuPopover} popover="manual" class="menu-dropdown">
-  <DropdownMenu 
-    taskName={value} 
-    onSelect={template => createTask(template)}
-  />
-</div>
-
-<style>
-  .task-input {
-    position-area: center;
-    width: anchor-size(width);
-    height: anchor-size(height);
-    container-type: size;
-
-    background: transparent;
-    overflow-y: hidden; /** Safari-specific fix */
-  }
-
-  input:focus {
-    border: 2px solid #2757cf;
-  }
-
-  .menu-dropdown {
-    position: fixed; 
-    top: anchor(bottom); 
-    left: anchor(left);
-
-    border-radius: 12px;
-  }
-</style>

@@ -9,18 +9,19 @@ function debug (varName, dt) {
 
 function rrFloat (dt) {
   const float = dt.setZone('UTC', { keepLocalTime: true })
-  return datetime(float.year, float.month, float.day)
+  return datetime(float.year, float.month, float.day) // 00:00 UTC (displayed as <offset> local time)
 }
 
 export function generateRecurrenceDTs ({ startDT, endDT, rrStr }) {
-  const jsDates = RRule.fromString(rrStr).between(
+  const rule = new RRule({ ...RRule.parseString(rrStr), dtstart: rrFloat(startDT) })
+  const jsDates = rule.between(
     rrFloat(startDT),
     rrFloat(endDT),
     true // includes endDT
   )
   const results = jsDates.map(date => {
     // from rrule's README (seriously)
-    return DateTime.fromJSDate(date).toUTC().setZone('local', { keepLocalTime: true }) // .toJSDate()
+    return DateTime.fromJSDate(date).toUTC().setZone('local', { keepLocalTime: true })
   })
   return results
 }
@@ -38,77 +39,46 @@ export function periodicity (rrStr) {
   const lower = rrStr.toLowerCase()
 
   if (lower.includes('freq=monthly')) return 'monthly'
-  if (lower.includes('freq=yearly')) return 'yearly'
-  else {
-    return 'weekly'
-  }
+  else if (lower.includes('freq=yearly')) return 'yearly'
+  else return 'weekly'
 }
 
-export function parseRecurrenceString (rrStr) { 
-  if (!rrStr) return 
-  const rr = rrStr.toLowerCase() // be careful between rrStr and rr
-
-  if (rr.includes('freq=weekly')) return toWeeklyIndices(rrStr) 
-  else if (rr.includes('freq=monthly')) {
-    if (rr.includes('bymonthday')) return parseMonthlyTypeI(rrStr)
-    else if (rr.includes('byday')) return parseMonthlyTypeII(rrStr)
-  } 
-  else if (rr.includes('freq=yearly')) return parseYearly(rrStr)
+export function parse (rrStr) {
+  if (!rrStr) return null
+  else if (rrStr.includes('FREQ=WEEKLY')) return parseWeekly(rrStr)
+  else if (rrStr.includes('FREQ=MONTHLY')) {
+    if (rrStr.includes('BYMONTHDAY')) return parseMonthlyTypeI(rrStr)
+    else if (rrStr.includes('BYDAY')) return parseMonthlyTypeII(rrStr)
+  }
+  else if (rrStr.includes('FREQ=YEARLY')) return parseYearly(rrStr)
 }
 
-export function toWeeklyIndices (rrStr) {
-  const days = [, 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'] // note: this is not DRY
-  const dayParts = rrStr?.match(/(?<=BYDAY=)[^;]*/) // BYDAY=TU,FR becomes TU,FR
-  if (!dayParts) return []
-  else {
-    return dayParts[0].split(',').map(day => days.indexOf(day))
-  }
+export function parseWeekly (rrStr) {
+  const result = rrStr?.match(/BYDAY=([^;]*)/)
+  return result ? result[1].split(',') : []
 }
 
 export function parseMonthlyTypeI (rrStr) {
-  const selectedDays = new Set()
-  const bymonthdayMatch = rrStr.match(/BYMONTHDAY=([^;]*)/)
-  if (bymonthdayMatch) {
-    const days = bymonthdayMatch[1].split(',').map(Number)
-    days.forEach(day => selectedDays.add(day))
-  }
-  return selectedDays
+  const match = rrStr.match(/BYMONTHDAY=([^;]*)/)
+  if (!match) return []
+  return match[1].split(',').map(Number)
 }
 
 export function parseMonthlyTypeII (rrStr) {
-  const weekPos = new Set()
-  const selectedWeekdays = []
+  const match = rrStr.match(/BYDAY=([^;]*)/)
+  if (!match) return { weeks: [], days: [] }
 
-  const bydayMatch = rrStr.match(/BYDAY=([^;]*)/)
-  if (bydayMatch) {
-    const bydayParts = bydayMatch[1].split(',')
-    
-    const weekdaysFound = new Set()
-    
-    bydayParts.forEach(part => {
-      const posMatch = part.match(/([+\-]\d+)([A-Z]{2})/)
-      if (posMatch) {
-        const pos = posMatch[1]
-        const day = posMatch[2]
-        
-        // Convert position to occurrence id
-        const occId = positionToOccurrence[pos]
-        if (occId) {
-          weekPos.add(occId)
-        }
-        
-        // Add weekday to our selected weekdays
-        const weekdayId = rruleToWeekday[day]
-        if (weekdayId && !weekdaysFound.has(weekdayId)) {
-          weekdaysFound.add(weekdayId)
-          selectedWeekdays.push(weekdayId)
-        }
-      }
-    })
-    selectedWeekdays.sort()
-    
-    return { weekPos, selectedWeekdays }
+  const weeks = new Set()
+  const days = new Set()
+
+  for (const part of match[1].split(',')) {
+    const m = part.match(/([+\-]\d+)([A-Z]{2})/)
+    if (m) {
+      weeks.add(parseInt(m[1]))
+      days.add(m[2])
+    }
   }
+  return { weeks: [...weeks].sort(), days: [...days] }
 }
 
 export function parseYearly (rrStr) {
@@ -123,30 +93,4 @@ export function parseYearly (rrStr) {
   }
 }
 
-export const weekdayToRRule = {
-  monday: 'MO',
-  tuesday: 'TU',
-  wednesday: 'WE',
-  thursday: 'TH',
-  friday: 'FR',
-  saturday: 'SA',
-  sunday: 'SU'
-}
-
-export const occurrenceToPosition = {
-  first: '+1',
-  second: '+2',
-  third: '+3',
-  fourth: '+4'
-}
-
-export const positionToOccurrence = {
-  '+1': 'first',
-  '+2': 'second',
-  '+3': 'third',
-  '+4': 'fourth'
-}
-
-export const rruleToWeekday = Object.fromEntries(
-  Object.entries(weekdayToRRule).map(([key, value]) => [value, key])
-) 
+export const nth = [, '1st', '2nd', '3rd', '4th'] 

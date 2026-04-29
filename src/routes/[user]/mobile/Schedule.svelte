@@ -204,14 +204,17 @@
     </div>
 
     <div {onscroll} bind:this={scrollContainer}
-      style:flex="1"
-      class="overflow-y-auto scroll-smooth pb-[80px]" 
+      class="flex-1 overflow-y-auto scroll-smooth pb-[80px]" 
     >
       {#each loadedDays as day, i (day.dateISO)}
         {@const filteredTasks = $user.hideRoutines ? day.tasks.filter(t => !t.templateID) : day.tasks}
         <div class="day-section" id="day-{day.dateISO}">
           {#if filteredTasks.length > 0}
-            <div class="day-title p-4" class:highlight={selectedDate.hasSame(day.date, 'day')}>
+            <div class={[
+              'text-lg font-semibold p-4',
+              selectedDate.hasSame(day.date, 'day') ? 'text-[var(--primary-color)]' : 'text-[#444]'
+            ]} 
+            >
               <span class="uppercase mr-1">{day.date.toFormat('cccc')}</span>
               <span>{day.date.toFormat('MMM d')}</span>
             </div>
@@ -220,14 +223,16 @@
           {#if filteredTasks.length > 0}
             <div class="pb-4">
               {#if getRoutineTasks(filteredTasks).length > 0}
-                <div class="flex items-center flex-wrap gap-3 py-3 px-4">
+                <div class="flex items-center flex-wrap gap-3 px-4 pb-4">
                   {#each getRoutineTasks(filteredTasks) as task (task.id)}
                     {#if task.iconURL}
                       <DoodleIcon iconTask={task} size={40} />
                     {:else}
                       <button onclick={() => openTaskPopup(task)}
-                        class="routine-pill" 
-                        style:color={task.isDone ? '#1e8e24' : ''}
+                        class={[
+                          'bg-[#f5f5f5] rounded-2xl py-1.5 px-3 text-base font-medium justify-start',
+                          task.isDone ? 'text-[#1e8e24]' : 'text-[#555]'
+                        ]} 
                       >
                         {task.name}
                       </button>
@@ -236,23 +241,27 @@
                 </div>
               {/if}
 
-              <div class="flex flex-col">
+              <div class="flex flex-col px-4">
                 {#each getRegularTasks(filteredTasks) as task (task.id)}
                   <button onclick={() => openTaskPopup(task)}
-                    class="gap-x-4 text-left py-2 px-4" 
-                    class:done-gradient={task.isDone}
+                    class={[
+                      'text-left justify-start gap-x-4 py-1',
+                      task.isDone && 'bg-gradient-to-r from-[rgba(76,175,80,0.04)] to-transparent'
+                    ]}
                   >
                     {#if task.startTime}
-                      <div class="shrink-0 event-time">
+                      <div class="shrink-0 text-lg text-[#222] font-medium">
                         {formatTime(task.startTime)}
                       </div>
                     {/if}
                     
                     <div class="min-w-0">
-                      <div class="event-name">{task.name}</div>
-                      {#if task.notes}
-                        <div class="event-notes truncate">{task.notes}</div>
-                      {/if}
+                      <div class="text-lg text-[#222]">
+                        {task.name}
+                      </div>
+                      <div class="text-base text-[#444] font-light truncate">
+                        {task.notes}
+                      </div>
                     </div>
                   </button>
                 {/each}
@@ -266,46 +275,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  .day-title {
-    font-size: var(--fs-4);
-    color: #444;
-    font-weight: 600;
-  }
-  
-  .day-title.highlight {
-    color: var(--primary-color);
-  }
-
-  .routine-pill {
-    background: #f5f5f5;
-    border-radius: 16px;
-    padding: 6px 12px;
-
-    font-size: var(--fs-3);
-    color: #555;
-    font-weight: 500;
-  }
-  
-  .done-gradient {
-    background: linear-gradient(to right, rgba(76, 175, 80, 0.04), transparent);
-  }
-
-  .event-time {
-    font-size: var(--fs-4);
-    color: #222;
-    font-weight: 500;
-  }
-
-  .event-name {
-    font-size: var(--fs-4);
-    color: #222;
-  }
-
-  .event-notes {
-    font-size: var(--fs-3);
-    color: #444;
-    font-weight: 300;
-  }
-</style>

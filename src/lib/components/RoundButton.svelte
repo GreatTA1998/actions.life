@@ -1,7 +1,7 @@
 <script>
   let { 
-    backgroundColor = '',
-    textColor = '',
+    backgroundColor = 'rgb(0, 89, 125)',
+    textColor = 'white',
     isBordered = false,
     disabled = false,
     onclick = () => {},

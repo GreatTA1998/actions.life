@@ -5,15 +5,19 @@
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
   import { user, clickedTaskID } from '$lib/store'
-  import { onMount, onDestroy, getContext } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { page } from '$app/state'
+  import { loadSounds } from '$lib/features/audio.js'
 
   let { children } = $props()
 
   let unsubscribe = () => {}
   let uid = $derived(page.params.user)
 
-  onMount(listenToUser)
+  onMount(() => {
+    listenToUser()
+    loadSounds()
+  })
 
   onDestroy(unsubscribe)
 

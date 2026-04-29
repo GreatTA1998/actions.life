@@ -4,17 +4,18 @@
 
 <input style="display: none;" 
   bind:this={FolderInput}
-  onchange={handleFileChange} 
+  onchange={imbuePhotoIntoTask} 
   type="file" 
   accept="image/*" 
 >
 
 <script>
+  import { uploadThenGetMetadata } from '$lib/utils/imageHandling.js'
   import MslAddPhotoAlternateOutline from 'virtual:icons/material-symbols-light/add-photo-alternate-outline'
   import { getContext } from 'svelte'
   import { user } from '$lib/store'
 
-  const { uploadMockPhoto, uploadImage } = getContext('app')
+  const { uploadMockPhoto, Task } = getContext('app')
   let { onUpload, onFinished, task } = $props()
   let FolderInput = $state(null)
 
@@ -23,9 +24,29 @@
     else FolderInput.click()
   }
  
-  async function handleFileChange (e) {
+  async function imbuePhotoIntoTask (e) {
     onUpload()
-    await uploadImage({ e, task })
+
+    let image = e.target.files[0]
+
+    const { 
+      dt, 
+      orientation, 
+      imageFullPath, 
+      imageDownloadURL 
+    } = await uploadThenGetMetadata(image, $user.photoCompressWhenAttachingToTask)
+
+    const updateObj = { imageDownloadURL, imageFullPath }
+
+    if ($user.photoUploadAutoArchive) {
+      updateObj.isDone = true
+      updateObj.startDateISO = dt.toFormat('yyyy-MM-dd')
+      updateObj.startTime = dt.toFormat('HH:mm')
+      updateObj.duration = orientation === 'landscape' ? 106 : 188
+    }
+
+    await Task.update({ id: task.id, kvChanges: updateObj })
+
     onFinished()
   }
 </script>

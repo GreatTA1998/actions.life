@@ -16,7 +16,7 @@ export const goldenRatio = 1.618
 
 export const WIDTHS = Object.freeze({
   LIST: 380, // 320 --> 360 for masa
-  CALENDAR_DAY_SECTION: 260, // 8 icons vs 200 6 icons
+  CAL_COLUMN: 260, // 8 icons vs 200 6 icons
   CALENDAR_LEFT_PADDING: 16,
   MOBILE_TIME_AXIS: 22,
   DESKTOP_TIME_AXIS: 64,
