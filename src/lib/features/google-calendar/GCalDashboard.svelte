@@ -5,9 +5,17 @@
 
   const { GCalAccount } = getContext('app')
 
+  function getCalendarList (account) {
+    return $cals[account.id] ?? []
+  }
+
+  function getSelectedCalIDs (account) {
+    return account.selectedCalIDs ?? getCalendarList(account).map(cal => cal.id)
+  }
+
   function toggle (e, calID, account) {
     e.stopPropagation()
-    const oldA = account.selectedCalIDs ?? $cals[account.id].map(cal => cal.id)
+    const oldA = getSelectedCalIDs(account)
     const newA = oldA.includes(calID) ? oldA.filter(id => id !== calID) : [...oldA, calID]
     
     GCalAccount.update(account.id, {  
@@ -34,8 +42,8 @@
       />
       
       <div style:opacity={account.opacity}>
-        {#each $cals[account.id] as cal (cal.id)}
-          {@const visible = account.selectedCalIDs}
+        {#each getCalendarList(account) as cal (cal.id)}
+          {@const visible = getSelectedCalIDs(account)}
 
           <label 
             class="flex items-center gap-2 cursor-pointer py-1"

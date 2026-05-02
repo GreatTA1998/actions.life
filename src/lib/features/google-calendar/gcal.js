@@ -41,12 +41,15 @@ export async function getAllGCalEvents (startDT, endDT) {
   const calendars = get(cals)
    
   for (const account of accounts) {
-    if (account.selectedCalIDs.length > 0) {
+    const calendarList = calendars[account.id] ?? []
+    const selectedCalIDs = account.selectedCalIDs ?? calendarList.map(cal => cal.id)
+
+    if (selectedCalIDs.length > 0 && calendarList.length > 0) {
       helper(
         startDT, 
         endDT, 
-        account.selectedCalIDs, 
-        calendars[account.id], 
+        selectedCalIDs,
+        calendarList,
         account.refreshToken.value,
         account.opacity
       )
