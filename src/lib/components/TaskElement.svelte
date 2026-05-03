@@ -8,7 +8,7 @@
     ]}
     style={`
       height: ${height}px;
-      opacity: ${task.isDone ? '0.9' : '0.7'};`
+      opacity: ${task.isDone ? '1.0' : '0.7'};`
     }
   >
     <div class="flex items-center w-full">
@@ -47,7 +47,7 @@
     ]}
     style={`
       height: ${height}px;
-      opacity: ${task.isDone ? '0.9' : '0.7'};
+      opacity: ${task.isDone ? '1.0' : '0.7'};
       background-color: rgba(0, 0, 0, 0.02);
       border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
     `}
