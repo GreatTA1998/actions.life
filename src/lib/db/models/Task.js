@@ -75,7 +75,7 @@ const Task = {
   async update ({ id, kvChanges, undoable = true }) {
     const oldVal = { ...get(tasksCache)[id] }
     if (get(user).simpleMode) {
-      if (kvChanges.startDateISO || kvChanges.isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
+      if (kvChanges.startDateISO) { // via datepicker, drag-to-calendar, checkbox, or photo upload
         kvChanges.onList = false
       } 
       else if (kvChanges.onList) {  // only possible via drag-to-list AND undoing a list -> cal drag
