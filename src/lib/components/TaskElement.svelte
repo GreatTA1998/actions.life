@@ -48,7 +48,7 @@
     style={`
       height: ${height}px;
       opacity: ${task.isDone ? '1.0' : '0.7'};
-      background-color: rgba(0, 0, 0, 0.02);
+      background-color: rgba(0, 0, 0, 0.01);
       border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
     `}
     style:background-image={hasIntersected && task.imageDownloadURL
