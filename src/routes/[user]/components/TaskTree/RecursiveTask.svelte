@@ -5,7 +5,6 @@
   import Checkbox from '$lib/components/Checkbox.svelte'
   import Timeline from './Timeline.svelte'
   import TaskMenu from './TaskMenu.svelte'
-  import TaskCaret from './TaskCaret.svelte'
   import MslCalendarTodayOutline from 'virtual:icons/material-symbols-light/calendar-today-outline'
   import { user } from '$lib/store'
   import { getRandomColor, randomID } from '$lib/utils/core.js'
@@ -79,19 +78,15 @@
       <div class="shrink-0 relative">
         {@render verticalTimeline?.()}
         
-        {#if n === 0}
-          <Checkbox value={task.isDone} {fontSize}
-            onchange={e => Task.update({ id: task.id, kvChanges: { isDone: e.target.checked }})}
-          />
-        {:else}
-          <TaskCaret isCollapsed={task.isCollapsed} {fontSize}
-            onToggle={() => Task.update({ id: task.id, kvChanges: { isCollapsed: !task.isCollapsed } })}
-          />
-        {/if}
+        <Checkbox value={task.isDone} {fontSize}
+          onchange={e => Task.update({ id: task.id, 
+            kvChanges: { isDone: e.target.checked }
+          })}
+        />
       </div>
 
       <button onclick={() => openTaskPopup(task)} 
-        class="shrink-1 min-w-[24px] min-h-[24px] text-left flex leading-[1.25]"
+        class="shrink-1 min-w-[1ch] min-h-[24px] text-left flex leading-[1.25]"
         class:done-task={task.isDone}
         style:font-weight={depth === 1 ? 600 : 400}
       >
@@ -117,10 +112,17 @@
         </div>
       {/if}
 
-      {#if task.isCollapsed && n > 0}
+      {#if n > 0}
         <SubtaskCountIndicator extraClass="min-w-fit"       
           {task} {fontSize}
-          onclick={() => openTaskPopup(task)} 
+          onclick={() => 
+            document.startViewTransition(() => {
+              Task.update({ 
+                id: task.id, 
+                kvChanges: { isCollapsed: !task.isCollapsed } 
+              })
+            })
+          } 
         />
       {/if}
       

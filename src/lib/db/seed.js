@@ -9,7 +9,7 @@ export async function initializeSeedData () {
   }
 
   for (const { id, data } of resolveRelativeDates(SEED_TASKS)) { // must be sequential for `treeISOs` to be handled
-    const result = await Task.create({ id, data, optimistic: false })
+    const result = await Task.create({ id, data })
     updateCache([result])
   }
 }

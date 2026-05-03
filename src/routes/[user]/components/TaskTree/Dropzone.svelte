@@ -23,6 +23,12 @@
         onList: true,
         orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
         parentID
+      },
+      onCreate () {
+        overrideOptions.set({
+          ...$overrideOptions,
+          orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel)
+        })
       }
     })
   }}
@@ -48,7 +54,7 @@
     draggedItem, logicAreaRect, computeOrderValue
   } = getContext('drag-drop')
   const { dzRootHeight, dzSubHeight, minWidth, debug } = getContext('list-config')
-  const { activateInput } = getContext('popover-input')
+  const { activateInput, overrideOptions } = getContext('popover-input')
 
   let {
     ancestorIDs,

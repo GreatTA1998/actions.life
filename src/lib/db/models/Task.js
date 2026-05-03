@@ -43,7 +43,7 @@ const Task = {
     rootID: z.string() 
   }),
 
-  async create ({ id = randomID(), data, optimistic = true }) {
+  async create ({ id = randomID(), data }) {
     const batch = writeBatch(db)
     maintainOrderValue(data, batch)
 
@@ -67,8 +67,7 @@ const Task = {
     
     batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), validatedTask)
     
-    if (optimistic) batch.commit()
-    else await batch.commit() 
+    await batch.commit()
 
     return { ...validatedTask, id }
   },

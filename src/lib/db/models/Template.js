@@ -153,7 +153,7 @@ const Template = {
 }
 
 async function helper ({ node, id, parentID, rootID, templateID, onList, memo }) {
-  const result = await Task.create({ id, optimistic: false, data: { 
+  const result = await Task.create({ id, data: { 
     ...node, parentID, rootID, templateID, onList
   }}) 
   updateCache([result])
