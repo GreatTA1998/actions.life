@@ -47,9 +47,8 @@
     ]}
     style={`
       height: ${height}px;
-      opacity: ${task.isDone ? '1.0' : '0.7'};
-      background-color: rgba(0, 0, 0, 0.01);
-      border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.05)'};
+      background-color: rgba(0, 0, 50, 0.04);
+      border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
     `}
     style:background-image={hasIntersected && task.imageDownloadURL
       ? `linear-gradient(rgba(0, 0, 0, 0.5), transparent), url(${task.imageDownloadURL})`
@@ -59,6 +58,7 @@
     <div 
       style:padding="var(--left-padding)"
       style:border-radius="var(--left-padding)"
+      style:opacity={task.isDone ? '1.0' : '0.7'}
     >
       <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'black'}>
         {#snippet icon ()}
@@ -87,7 +87,10 @@
     </div>
       
     {#if !task.imageDownloadURL}
-      <div class="grow-1 overflow-hidden" style:padding-left="var(--left-padding)">
+      <div class="grow-1 overflow-hidden" 
+        style:padding-left="var(--left-padding)"   
+        style:opacity={task.isDone ? '1.0' : '0.7'}
+      >
         <div style="
           font-size: {notesFS}; 
           font-weight: 300; 
