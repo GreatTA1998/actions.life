@@ -3,11 +3,7 @@
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getLocalY } from '$lib/utils/core.js'
 
-  let { 
-    task,
-    isBulletPoint,
-    height,
-  } = $props()
+  let { task, height } = $props()
 
   const dimensions = getContext('dimensions')
   const { Task } = getContext('app')
@@ -36,11 +32,11 @@
   style="
     cursor: ns-resize;
     position: absolute;
-    left: -3px; 
-    bottom: {0}px;
-    height: {height/12}px; 
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: {height/12}px;
     min-height: 3px;
-    width: {isBulletPoint ? '20%' : '100%'}; 
   "
 >
 </div>

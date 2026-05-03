@@ -78,7 +78,9 @@
     {@const { hasIcon, noIcon } = $treesByDate[ISODate].noStartTime}
     <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
       {#each hasIcon as iconTask (iconTask.id)}
-        <DoodleIcon {iconTask} />
+        <DoodleIcon {iconTask} 
+          extraStyle={iconTask.isDone ? '' : 'filter: grayscale(90%) opacity(0.5)'} 
+        />
       {/each}
     </div>
 

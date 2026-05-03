@@ -4,12 +4,14 @@
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
   import { titleFS } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
+  import { user } from '$lib/store'
 
   const { Task, tasksCache, openTaskPopup } = getContext('app')
 
   let { 
     task = null, 
-    color = 'var(--task-name-color)'
+    color = 'var(--task-name-color)',
+    icon
   } = $props()
 
   let parentObj = $derived(task.parentID ? $tasksCache[task.parentID] : null)
@@ -17,15 +19,19 @@
 
 <div class="flex items-center gap-x-1 w-full">
   <div style:flex-shrink="0">
-    <Checkbox
-      value={task.isDone}
-      onchange={e => Task.update({
-        id: task.id,
-        kvChanges: {
-          isDone: e.target.checked
-        }
-      })}
-    />
+    {#if task.iconURL}
+      {@render icon()}
+    {:else}
+      <Checkbox
+        value={task.isDone}
+        onchange={e => Task.update({
+          id: task.id,
+          kvChanges: {
+            isDone: e.target.checked
+          }
+        })}
+      />
+    {/if}
   </div>
 
   <div 
@@ -44,5 +50,14 @@
 
   {#if parentObj}
     <ParentBadge {parentObj} --color={color} />
+  {/if}
+
+  {#if task.tagIDs}
+    {#each task.tagIDs as tagID (tagID)}
+      <div class="shrink-0 w-[5px] h-[5px] rounded-[50%]" 
+        style:background-color={$user.tags?.[tagID]?.color}
+      >
+      </div>
+    {/each}
   {/if}
 </div>

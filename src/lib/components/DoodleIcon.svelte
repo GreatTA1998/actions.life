@@ -6,7 +6,8 @@
 
   let { 
     iconTask, 
-    size = 32 // default for backward compatibility
+    size = 32, // default for backward compatibility
+    extraStyle = ''
   } = $props()
 
   let timer
@@ -33,19 +34,23 @@
   }
 </script>
 
-<div style="position: relative;">
-  <img
-    {onclick}
-    src={iconTask.iconURL}
-    class:clearly-visible={iconTask.isDone}
-    class:task-not-done={!iconTask.isDone}
-    style="display: block; width: {size}px; height: {size}px; border: 0px solid blue; cursor: pointer;"
-    class:radial-glow={iconTask.isDone}
-    class="ios-3d-touch-disable select-none mobile-no-double-tap-zoom"
-    draggable="true"
-    ondragstart={e => startTaskDrag({ e, id: iconTask.id, isFromCal: true })}
-  />
-</div>
+<img
+  {onclick}
+  src={iconTask.iconURL}
+  class:clearly-visible={iconTask.isDone}
+  class:task-not-done={!iconTask.isDone}
+  style="
+    display: block; 
+    width: {size}px; 
+    height: {size}px; 
+    cursor: pointer;
+    transform-origin: center;
+    {extraStyle};
+  "
+  class="ios-3d-touch-disable select-none mobile-no-double-tap-zoom"
+  draggable="true"
+  ondragstart={e => startTaskDrag({ e, id: iconTask.id, isFromCal: true })}
+/>
 
 <style>
   .ios-3d-touch-disable {
@@ -54,13 +59,5 @@
 
   .mobile-no-double-tap-zoom {
     touch-action: manipulation; /* see https://x.com/JohnPhamous/status/1909293861547262141 */
-  }
-
-  .task-not-done {
-    filter: grayscale(90%) opacity(0.5) blur(0px);
-  }
-
-  .clearly-visible {
-    opacity: 1;
   }
 </style>

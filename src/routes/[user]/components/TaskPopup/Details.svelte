@@ -41,7 +41,10 @@
   <div class="flex items-center gap-x-2">
     <div class="shrink">
       {#if task.iconURL}
-        <DoodleIcon iconTask={task} size={48} />
+        <DoodleIcon iconTask={task} 
+          size={48}
+          extraStyle={task.isDone ? '' : 'filter: grayscale(90%) opacity(0.5)'}
+        />
       {:else}
         <Checkbox fontSize="1.5rem"
           value={task.isDone}
