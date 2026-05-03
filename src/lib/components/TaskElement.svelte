@@ -48,7 +48,8 @@
     style={`
       height: ${height}px;
       opacity: ${task.isDone ? '0.9' : '0.7'};
-      background-color: var(--experimental-black);
+      background-color: rgba(0, 0, 0, 0.02);
+      border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
     `}
     style:background-image={hasIntersected && task.imageDownloadURL
       ? `linear-gradient(rgba(0, 0, 0, 0.5), transparent), url(${task.imageDownloadURL})`
@@ -59,23 +60,39 @@
       style:padding="var(--left-padding)"
       style:border-radius="var(--left-padding)"
     >
-      <CalTaskUnit {task} color="white">
+      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'black'}>
         {#snippet icon ()}
-          <DoodleIcon iconTask={task} size={14} 
-            extraStyle="
-              transform: scale(1.5);
-              {task.isDone ? 
-                'filter: brightness(0) invert(1)' : 
-                'filter: brightness(0) invert(1) opacity(0.5)'}
-            "
-          />
+          {#if task.imageDownloadURL}
+            <DoodleIcon iconTask={task} size={14} 
+              extraStyle="
+                transform: scale(1.5);
+                {task.isDone ? 
+                  'filter: brightness(0) invert(1)' : 
+                  'filter: brightness(0) invert(1) opacity(0.5)'}
+              "
+            />
+          {:else}
+            <DoodleIcon iconTask={task} size={14} 
+              extraStyle="
+                transform: scale(1.5);
+                {task.isDone ? 
+                  '' : 
+                  'filter: grayscale(90%) opacity(0.5)'
+                }
+              "
+            />
+          {/if}
         {/snippet}
       </CalTaskUnit>
     </div>
       
     {#if !task.imageDownloadURL}
       <div class="grow-1 overflow-hidden" style:padding-left="var(--left-padding)">
-        <div style="font-size: {notesFS}; font-weight: 300; color: white;">
+        <div style="
+          font-size: {notesFS}; 
+          font-weight: 300; 
+          color: {task.imageDownloadURL ? 'white' : 'black'};"
+        >
           {task.notes}
         </div>
       </div>
