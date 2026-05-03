@@ -47,7 +47,7 @@
     ]}
     style={`
       height: ${height}px;
-      background-color: rgba(0, 0, 50, 0.04);
+      background-color: rgba(250, 250, 250, 0.4);
       border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
     `}
     style:background-image={hasIntersected && task.imageDownloadURL
