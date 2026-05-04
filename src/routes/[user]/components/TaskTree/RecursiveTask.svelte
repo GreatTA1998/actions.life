@@ -81,16 +81,7 @@
         
 
         {#if task.iconURL}
-          <DoodleIcon 
-            iconTask={task} 
-            size="1em"
-            extraStyle="
-              transform: scale(1.5);
-              {task.isDone ? 
-                '' : 
-                'filter: grayscale(90%) opacity(0.5)'}
-            " 
-          />
+          <DoodleIcon iconTask={task} size="1em" scaleToFit />
         {:else}
           <Checkbox value={task.isDone} {fontSize}
             onchange={e => Task.update({ id: task.id, 
@@ -103,7 +94,7 @@
       <button onclick={() => openTaskPopup(task)} 
         style:color="#262626"
         class="shrink-1 min-w-[1ch] min-h-[24px] text-left flex leading-[1.25]"
-        style:font-weight={depth === 1 ? 600 : 400}
+        style:font-weight={depth === 1 ? 600 : 500}
       >
         <span class="truncate text-clip">
           {task.name}

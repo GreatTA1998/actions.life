@@ -11,14 +11,7 @@
     <div class="flex items-center w-full">
       <CalTaskUnit {task} color="#262626">
         {#snippet icon ()}
-          <DoodleIcon iconTask={task} size={14} 
-            extraStyle="
-              transform: scale(1.5);
-              {task.isDone ? 
-                '' : 
-                'filter: grayscale(90%) opacity(0.5)'}
-            "
-          />
+          <DoodleIcon iconTask={task} size={14} scaleToFit />
         {/snippet}
       </CalTaskUnit>
 
@@ -51,26 +44,12 @@
     >
       <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : '#262626'}>
         {#snippet icon ()}
-          {#if task.imageDownloadURL}
-            <DoodleIcon iconTask={task} size={14} 
-              extraStyle="
-                transform: scale(1.5);
-                {task.isDone ? 
-                  'filter: brightness(0) invert(1)' : 
-                  'filter: brightness(0) invert(1) opacity(0.5)'}
-              "
-            />
-          {:else}
-            <DoodleIcon iconTask={task} size={14} 
-              extraStyle="
-                transform: scale(1.5);
-                {task.isDone ? 
-                  '' : 
-                  'filter: grayscale(90%) opacity(0.5)'
-                }
-              "
-            />
-          {/if}
+          <DoodleIcon 
+            iconTask={task} 
+            size={14} 
+            whiteVariant={task.imageDownloadURL}
+            scaleToFit 
+          />
         {/snippet}
       </CalTaskUnit>
     </div>
