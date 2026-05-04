@@ -3,6 +3,7 @@
   import Dropzone from './Dropzone.svelte'
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
+  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import Timeline from './Timeline.svelte'
   import TaskMenu from './TaskMenu.svelte'
   import MslCalendarTodayOutline from 'virtual:icons/material-symbols-light/calendar-today-outline'
@@ -78,16 +79,30 @@
       <div class="shrink-0 relative">
         {@render verticalTimeline?.()}
         
-        <Checkbox value={task.isDone} {fontSize}
-          onchange={e => Task.update({ id: task.id, 
-            kvChanges: { isDone: e.target.checked }
-          })}
-        />
+
+        {#if task.iconURL}
+          <DoodleIcon 
+            iconTask={task} 
+            size="1em"
+            extraStyle="
+              transform: scale(1.5);
+              {task.isDone ? 
+                '' : 
+                'filter: grayscale(90%) opacity(0.5)'}
+            " 
+          />
+        {:else}
+          <Checkbox value={task.isDone} {fontSize}
+            onchange={e => Task.update({ id: task.id, 
+              kvChanges: { isDone: e.target.checked }
+            })}
+          />
+        {/if}
       </div>
 
       <button onclick={() => openTaskPopup(task)} 
+        style:color="#262626"
         class="shrink-1 min-w-[1ch] min-h-[24px] text-left flex leading-[1.25]"
-        class:done-task={task.isDone}
         style:font-weight={depth === 1 ? 600 : 400}
       >
         <span class="truncate text-clip">
@@ -133,10 +148,9 @@
 
     {#if task.notes}
       <button onclick={() => openTaskPopup(task)}
-        class="
-          ml-[calc(var(--task-control-width)+0.25rem)] text-left text-[0.72em] text-[#6f6f6f] leading-[1.25]
-          max-w-[45ch] line-clamp-2
-        "
+        style:margin-left="calc(var(--task-control-width) + 0.25rem)"
+        class="text-left text-xs leading-[1.25] max-w-[45ch] line-clamp-2"
+        style:color="oklch(43.9% 0 0)"
       >
         {task.notes}
       </button>
@@ -175,11 +189,5 @@
   :global(.ghost-negative) {
     position: absolute;
     bottom: calc(-1 * var(--heights-sub-dropzone))
-  }
-  
-  .done-task {
-    background: linear-gradient(to right, rgba(76, 175, 80, 0.04), transparent 50%);
-    color: #388e3c;
-    border-radius: 4px;
   }
 </style> 

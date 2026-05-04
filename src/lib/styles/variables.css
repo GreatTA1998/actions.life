@@ -7,10 +7,9 @@
   --location-indicator-color: var(--logo-twig-color);
   
   --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */
-  --task-action-subtle-color: rgb(0,0,0,0.2); /*rgb(120, 120, 120); */
-  --fine-control-color: rgb(120, 120, 120);
+  --fine-control-color: rgb(0,0,0,0.5);
   --scheduled-info-color: rgb(0, 0, 0);
-  --task-name-color: rgb(0, 0, 0);
+  --task-name-color: #262626; /* text-neutral-800 */ 
   --left-padding: 6px; /* only applies to TaskElement, PhotoTaskElement, IconTaskElement */ 
   --width-within-column: 94%;
 

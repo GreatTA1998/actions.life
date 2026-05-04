@@ -6,9 +6,11 @@
 
   let { 
     iconTask, 
-    size = 32, // default for backward compatibility
+    size = 32, // number => px, or any CSS length string (e.g. '1em')
     extraStyle = ''
   } = $props()
+
+  let cssSize = $derived(typeof size === 'number' ? `${size}px` : size)
 
   let timer
   let delay = 300
@@ -41,8 +43,8 @@
   class:task-not-done={!iconTask.isDone}
   style="
     display: block; 
-    width: {size}px; 
-    height: {size}px; 
+    width: {cssSize}; 
+    height: {cssSize}; 
     cursor: pointer;
     transform-origin: center;
     {extraStyle};

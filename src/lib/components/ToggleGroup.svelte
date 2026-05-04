@@ -11,7 +11,7 @@
   {#each options as option}
     <button onclick={() => onselect(option.value)} 
       class={[
-        'p-2 text-[#6e6e7a] rounded text-sm',
+        'p-2 text-[#6e6e7a] rounded',
         option.value === activeValue && 'bg-[#e3e6ee] text-[#1a1a1a] font-medium'
       ]}
       class:active={option.value === activeValue}

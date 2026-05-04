@@ -79,7 +79,7 @@
     <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
       {#each hasIcon as iconTask (iconTask.id)}
         <DoodleIcon {iconTask} 
-          extraStyle={iconTask.isDone ? '' : 'filter: grayscale(90%) opacity(0.5)'} 
+          extraStyle={iconTask.isDone ? '' : 'filter: grayscale(100%) opacity(0.6)'} 
         />
       {/each}
     </div>
@@ -88,7 +88,6 @@
       {#each noIcon as task (task.id)}
         <div draggable="true"  
           ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })}
-          style:opacity={task.isDone ? '0.9' : '0.7'}
         >
           <CalTaskUnit {task} />
         </div>

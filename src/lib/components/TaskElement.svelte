@@ -6,20 +6,10 @@
     class={[
       'relative min-h-[12px] flex flex-col gap-y-1',
     ]}
-    style={`
-      height: ${height}px;
-      opacity: ${task.isDone ? '1.0' : '0.7'};`
-    }
+    style={`height: ${height}px;`}
   >
     <div class="flex items-center w-full">
-      <div class="flex items-center" style="
-        margin-right: calc(var(--left-padding) - 2px);
-        color: {task.isDone ? '#509c13' : 'rgb(20, 20, 20)'};"
-      >
-        <MslCircle style="font-size: 2px;"/>
-      </div>
-
-      <CalTaskUnit {task} color="black">
+      <CalTaskUnit {task} color="#262626">
         {#snippet icon ()}
           <DoodleIcon iconTask={task} size={14} 
             extraStyle="
@@ -41,7 +31,7 @@
     ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })} 
     draggable="true" 
     class={[
-      'relative flex flex-col min-h-[24px] gap-y-1',
+      'relative flex flex-col min-h-[24px] gap-y-0',
       'bg-cover bg-center bg-no-repeat',
       calendarBlock
     ]}
@@ -58,9 +48,8 @@
     <div 
       style:padding="var(--left-padding)"
       style:border-radius="var(--left-padding)"
-      style:opacity={task.isDone ? '1.0' : '0.7'}
     >
-      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'black'}>
+      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : '#262626'}>
         {#snippet icon ()}
           {#if task.imageDownloadURL}
             <DoodleIcon iconTask={task} size={14} 
@@ -88,13 +77,11 @@
       
     {#if !task.imageDownloadURL}
       <div class="grow-1 overflow-hidden" 
-        style:padding-left="var(--left-padding)"   
-        style:opacity={task.isDone ? '1.0' : '0.7'}
+        style:padding="0 var(--left-padding)"
       >
         <div style="
-          font-size: {notesFS}; 
-          font-weight: 300; 
-          color: {task.imageDownloadURL ? 'white' : 'black'};"
+          color: {task.imageDownloadURL ? 'white' : 'oklch(43.9% 0 0)'};"
+          class="text-xs"
         >
           {task.notes}
         </div>
@@ -109,7 +96,6 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import DurationAdjuster from '$lib/components/DurationAdjuster.svelte'
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
-  import MslCircle from 'virtual:icons/material-symbols-light/circle'
   import { lazyCallable } from '$lib/utils/svelteActions.js'
   import { calendarBlock, notesFS } from '$lib/styles/reused.module.css'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
