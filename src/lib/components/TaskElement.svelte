@@ -38,7 +38,7 @@
       : 'none'}
     use:lazyCallable={() => hasIntersected = true}
   >
-    <div 
+    <div class="shrink-0"
       style:padding="var(--left-padding)"
       style:border-radius="var(--left-padding)"
     >
