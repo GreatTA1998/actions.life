@@ -10,7 +10,8 @@
   let { 
     task,
     extraClass = '',
-    fontSize = '1rem'
+    fontSize = '1rem',
+    color = 'var(--fine-control-color)'
   } = $props()
 </script>
 
@@ -19,9 +20,10 @@
     <!-- overflow-hidden is the quickfix for buttons causing overflow  -->
     <button 
       popovertarget={id} style:anchor-name={anchorName}
+      onclick={e => e.stopPropagation()}
       style:width="calc(0.75 * {fontSize})"
       style:height={fontSize}
-      style:color="var(--fine-control-color)"
+      style:color
       class="{extraClass} overflow-hidden justify-center" 
     >
       <div 

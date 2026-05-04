@@ -7,6 +7,7 @@
   import Timeline from './Timeline.svelte'
   import TaskMenu from './TaskMenu.svelte'
   import MslCalendarTodayOutline from 'virtual:icons/material-symbols-light/calendar-today-outline'
+  import { lazyCallable } from '$lib/utils/svelteActions.js'
   import { user } from '$lib/store'
   import { getRandomColor, randomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
@@ -34,6 +35,8 @@
   let n = $derived(task.children.length)
   let fontSize = $derived(depth === 1 ? rootFontSize() : subFontSize())
   let overdue = $derived(!task.isDone && task.startDateISO < DateTime.now().toFormat('yyyy-MM-dd'))
+  let hasImage = $derived(!!task.imageDownloadURL)
+  let hasIntersected = $state(false)
   const debugColor = getRandomColor()
 
   function dzProps (i) {
@@ -47,7 +50,7 @@
   }
 </script>
 
-<div class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
+<div onclick={() => openTaskPopup(task)} class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
   <div draggable="true"
     {@attach registerDropzone({ 
       id, 
@@ -68,12 +71,18 @@
     ondragstart={e => startTaskDrag({ e, id: task.id })}
     style:font-size={fontSize}
     style:--task-control-width={fontSize}
+    use:lazyCallable={() => hasIntersected = true}
+    style:background-image={hasIntersected && hasImage
+      ? `linear-gradient(rgba(0, 0, 0, 0.5), transparent), url(${task.imageDownloadURL})`
+      : 'none'}
     style="{$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS) : ''}"
-    class="
-      flex flex-col
-      text-[#1a1a1a] select-none
-      px-[var(--left-padding)] rounded-[var(--left-padding)]
-    "
+    class={[
+      'flex flex-col select-none',
+      'px-[var(--left-padding)] rounded-[var(--left-padding)]',
+      hasImage 
+        ? 'py-[var(--left-padding)] text-white bg-cover bg-center bg-no-repeat'
+        : 'text-[#1a1a1a]'
+    ]}
   >
     <div class="flex items-center gap-x-1">
       <div class="shrink-0 relative">
@@ -81,7 +90,7 @@
         
 
         {#if task.iconURL}
-          <DoodleIcon iconTask={task} size="1em" scaleToFit />
+          <DoodleIcon iconTask={task} size="1rem" scaleToFit whiteVariant={hasImage} />
         {:else}
           <Checkbox value={task.isDone} {fontSize}
             onchange={e => Task.update({ id: task.id, 
@@ -91,8 +100,8 @@
         {/if}
       </div>
 
-      <button onclick={() => openTaskPopup(task)} 
-        style:color="#262626"
+      <button
+        style:color={hasImage ? 'white' : '#262626'}
         class="shrink-1 min-w-[1ch] min-h-[24px] text-left flex leading-[1.25]"
         style:font-weight={depth === 1 ? 600 : 500}
       >
@@ -121,27 +130,28 @@
       {#if n > 0}
         <SubtaskCountIndicator extraClass="min-w-fit"       
           {task} {fontSize}
-          onclick={() => 
+          onclick={e => {    
+            e.stopPropagation()      
             document.startViewTransition(() => {
               Task.update({ 
                 id: task.id, 
                 kvChanges: { isCollapsed: !task.isCollapsed } 
               })
             })
-          } 
+          }}
         />
       {/if}
       
-      <TaskMenu {task} {fontSize} 
+      <TaskMenu {task} {fontSize} color={hasImage ? 'white' : 'var(--fine-control-color)'}
         extraClass="shrink-0"
       />
     </div>
 
     {#if task.notes}
-      <button onclick={() => openTaskPopup(task)}
+      <button
         style:margin-left="calc(var(--task-control-width) + 0.25rem)"
         class="text-left text-xs leading-[1.25] max-w-[45ch] line-clamp-2"
-        style:color="oklch(43.9% 0 0)"
+        style:color={hasImage ? 'white' : 'oklch(43.9% 0 0)'}
       >
         {task.notes}
       </button>

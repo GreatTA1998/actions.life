@@ -54,18 +54,16 @@
       </CalTaskUnit>
     </div>
       
-    {#if !task.imageDownloadURL}
-      <div class="grow-1 overflow-hidden" 
-        style:padding="0 var(--left-padding)"
+    <div class="grow-1 overflow-hidden" 
+      style:padding="0 var(--left-padding)"
+    >
+      <div style="
+        color: {task.imageDownloadURL ? 'white' : 'oklch(43.9% 0 0)'};"
+        class="text-xs"
       >
-        <div style="
-          color: {task.imageDownloadURL ? 'white' : 'oklch(43.9% 0 0)'};"
-          class="text-xs"
-        >
-          {task.notes}
-        </div>
+        {task.notes}
       </div>
-    {/if}
+    </div>
 
     <DurationAdjuster {task} {height} />
   </div>
