@@ -34,7 +34,7 @@
       border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
     `}
     style:background-image={hasIntersected && task.imageDownloadURL
-      ? `linear-gradient(rgba(0, 0, 0, 0.5), transparent), url(${task.imageDownloadURL})`
+      ? `linear-gradient(rgba(0, 0, 0, 0.25), transparent), url(${task.imageDownloadURL})`
       : 'none'}
     use:lazyCallable={() => hasIntersected = true}
   >

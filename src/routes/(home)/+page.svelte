@@ -11,6 +11,14 @@
   import { authChecked, authUser } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { browser } from '$app/environment'
+  import { onMount } from 'svelte'
+
+  let browserSupported = $state(false)
+
+  onMount(() => {
+    browserSupported = HTMLElement.prototype.hasOwnProperty("popover") 
+      && CSS.supports('anchor-name: --x')
+  })
 </script>
 
 <div class="home-bg h-full flex grow" style:padding-top="2%">
@@ -40,7 +48,7 @@
     {/if}
     
     {#snippet simulatedApp ()}
-      {#if browser && HTMLElement.prototype.hasOwnProperty("popover")}
+      {#if browserSupported}
         <div class="w-full h-full relative">
           {#if $authChecked && !$authUser?.email}
             <AnonymousContext>
@@ -67,7 +75,11 @@
       {/if}
     {/snippet}
 
-    <AuthPlayground/>
+    {#if browserSupported}
+      <AuthPlayground/>
+    {:else}
+      <p>WARNING: the app can't run on your browser and requires the latest version of Chrome or Safari</p>
+    {/if}
 
     <footer class="w-full mt-40 py-8 flex justify-end mr-10 gap-6 text-xs text-neutral-400 tracking-tight">
       <a href="/legal/privacy-policy" class="no-underline">Privacy</a>
