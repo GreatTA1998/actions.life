@@ -16,19 +16,31 @@
   import { isMobile } from '$lib/utils/core.js'
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import { user, clickedTaskID } from '$lib/store'
-  import { onMount } from 'svelte'
+  import { user, clickedTaskID, initialDataReady } from '$lib/store'
+  import { browser } from '$app/environment'
 
   let { uid } = $props()
 
-  user.set({})
+  $effect(() => {
+    uid
+    initialDataReady.set(false)
+    user.set({})
 
-  onMount(() => 
-    onSnapshot(
-      doc(db, '/users/' + uid), 
-      snap => user.set({ ...snap.data() })
+    if (!browser) return
+
+    return onSnapshot(
+      doc(db, '/users/' + uid),
+      (snap) => {
+        if (snap.exists()) {
+          initialDataReady.set(true)
+          user.set({ ...(snap.data() ?? {}), uid })
+        }
+        else {
+          initialDataReady.set(false)
+        }
+      }
     )
-  )
+  })
 </script>
 
 {#if $user.uid}
