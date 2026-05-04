@@ -2,8 +2,7 @@
   import { setContext, onMount } from 'svelte'
   import { 
     user, tasksCache, 
-    clickedTaskID, closeTaskPopup, familyTree, openTaskPopup,
-    initialDataReady
+    clickedTaskID, closeTaskPopup, familyTree, openTaskPopup
   } from '$lib/store'
   import Task from '$lib/db/models/Task.js'
   import User from '$lib/db/models/User.js'
@@ -33,12 +32,6 @@
   const template = writable(null)
   const templates = writable([])
   const templateTree = writable({ children: [] })  
-
-  $effect(() => {
-    if (Object.keys($treesByDate).length > 0) {
-      initialDataReady.set(true)
-    }
-  })
 
   setContext('dimensions', dimensions)
 

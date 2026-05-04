@@ -20,7 +20,7 @@
   let loading = $state(true)
 
   $effect(() => {
-    if ($authChecked && $loggedIn && $user.email && $initialDataReady) {
+    if ($authChecked && $loggedIn && $user.uid && $initialDataReady) {
       loading = false
     }
   })
@@ -54,7 +54,7 @@
       else if (resultUser.email) {
         goto('/' + $authUser.uid)
         loggedIn.set(true)
-        // <UserAppInstance/> above will later set `initialDataReady = true`
+        // <UserAppInstance/> sets `initialDataReady` when `/users/{uid}` exists in Firestore
       }
     })
   })
