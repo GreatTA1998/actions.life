@@ -11,7 +11,7 @@
 
   let audience = $state(OPTIONS.GOOGLE_CALENDAR)
   let player = $state(null)
-  let activeTitle = $state('To-do lists')
+  let activeTitle = $state('Motivation')
 
   function seek (t, e) {
     e.stopPropagation()
@@ -28,10 +28,10 @@
 
 <div class="flex flex-col items-center gap-x-12 gap-y-4 w-full">
   <div class="flex justify-center gap-x-4 w-8/10">
-    {@render card(TwigLogo, 10, 'To-do lists', 'Put lists inside the calendar')}
-    {@render card(TwigLogoWithLeaf, 62, 'Habits', 'Use icons to save space')}
-    {@render card(GCalLogo, 396, 'Events', 'Integrate with Google Calendar')}
-    {@render card(PhotosLogo, 316, 'Photos', 'Organize photos by events')}
+    {@render card(TwigLogo, 10, 'Motivation', 'Fragmented pages. Duplication. Forget to check it.')}
+    {@render card(TwigLogoWithLeaf, 62, 'Design philosophy', 'One page only. Combination of simple concepts. No direct concept of lists. Achieved with tasks and sub-tasks.')}
+    {@render card(TwigLogoWithLeaf, 396, 'Advanced Features', 'Timeline. Subroutines. Icons. Practice journal. Behavioral change. Going beyond the traditional capabilities of a calendar.')}
+    {@render card(PhotosLogo, 316, 'Ecosystem', 'Integrate photos and shared events. Designed to complement Notion.')}
   </div>
 
   {#if audience === OPTIONS.APPLE_PHOTOS}
