@@ -50,7 +50,7 @@
   }
 </script>
 
-<div onclick={() => openTaskPopup(task)} class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
+<div class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
   <div draggable="true"
     {@attach registerDropzone({ 
       id, 
@@ -72,15 +72,15 @@
     style:font-size={fontSize}
     style:--task-control-width={fontSize}
     use:lazyCallable={() => hasIntersected = true}
-    style:background-image={hasIntersected && hasImage
+    style:background-image={hasIntersected && hasImage && false
       ? `linear-gradient(rgba(0, 0, 0, 0.5), transparent), url(${task.imageDownloadURL})`
       : 'none'}
     style="{$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS) : ''}"
     class={[
       'flex flex-col select-none',
-      'px-[var(--left-padding)] rounded-[var(--left-padding)]',
-      hasImage 
-        ? 'py-[var(--left-padding)] text-white bg-cover bg-center bg-no-repeat'
+      'px-[var(--left-padding)]',
+      hasImage && false 
+        ? 'text-white bg-cover bg-center bg-no-repeat'
         : 'text-[#1a1a1a]'
     ]}
   >
@@ -100,15 +100,19 @@
         {/if}
       </div>
 
-      <button
-        style:color={hasImage ? 'white' : '#262626'}
+      <button onclick={() => openTaskPopup(task)}
+        style:color="var(--task-name-color)"
         class="shrink-1 min-w-[1ch] min-h-[24px] text-left flex leading-[1.25]"
-        style:font-weight={depth === 1 ? 600 : 500}
+        style:font-weight={depth === 1 ? 600 : 400}
       >
-        <span class="truncate text-clip">
+        <span class="truncate text-clip max-w-[440px]">
           {task.name}
         </span>
       </button>
+
+      {#if task.imageDownloadURL}
+        <img onclick={() => openTaskPopup(task)} src={task.imageDownloadURL} class="w-auto shrink-0 rounded-sm" style:height="1lh">
+      {/if}
 
       {#if task.tagIDs}
         {#each task.tagIDs as tagID (tagID)}
@@ -122,7 +126,7 @@
       {#if infoBadge}
         {@render infoBadge()}
       {:else if task.startDateISO}
-        <div class="flex items-center min-h-[24px]" style:color={overdue ? 'red' : ''}>
+        <div onclick={() => openTaskPopup(task)} class="flex items-center min-h-[24px]" style:color={overdue ? 'red' : ''}>
           <MslCalendarTodayOutline style="font-size: 0.75rem"/>
         </div>
       {/if}
@@ -130,19 +134,18 @@
       {#if n > 0}
         <SubtaskCountIndicator extraClass="min-w-fit"       
           {task} {fontSize}
-          onclick={e => {    
-            e.stopPropagation()      
+          onclick={() =>   
             document.startViewTransition(() => {
               Task.update({ 
                 id: task.id, 
                 kvChanges: { isCollapsed: !task.isCollapsed } 
               })
             })
-          }}
+          }
         />
       {/if}
       
-      <TaskMenu {task} {fontSize} color={hasImage ? 'white' : 'var(--fine-control-color)'}
+      <TaskMenu {task} {fontSize} color="var(--fine-control-color)"
         extraClass="shrink-0"
       />
     </div>

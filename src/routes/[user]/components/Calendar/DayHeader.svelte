@@ -78,7 +78,7 @@
     {@const { hasIcon, noIcon } = $treesByDate[ISODate].noStartTime}
     <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
       {#each hasIcon as iconTask (iconTask.id)}
-        <DoodleIcon {iconTask} />
+        <DoodleIcon {iconTask} size="32px" />
       {/each}
     </div>
 

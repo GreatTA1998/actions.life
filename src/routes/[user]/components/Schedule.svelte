@@ -256,9 +256,16 @@
                     {/if}
                     
                     <div class="min-w-0">
-                      <div class="text-lg text-[#222]">
-                        {task.name}
+                      <div class="flex items-center gap-x-1">
+                        <div class="text-lg text-[#222]">
+                          {task.name}
+                        </div>
+                        
+                        {#if task.imageDownloadURL}
+                          <img onclick={() => openTaskPopup(task)} src={task.imageDownloadURL} class="w-auto shrink-0 rounded-sm" style:height="1lh">
+                        {/if}
                       </div>
+
                       <div class="text-base text-[#444] font-light truncate">
                         {task.notes}
                       </div>

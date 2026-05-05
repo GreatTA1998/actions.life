@@ -6,13 +6,12 @@
 
   let { 
     iconTask, 
-    size = 32, // number => px, or any CSS length string (e.g. '1em')
+    size = '32px',
     extraStyle = '',
     whiteVariant = false,
     scaleToFit = false
   } = $props()
 
-  let cssSize = $derived(typeof size === 'number' ? `${size}px` : size)
   let timer = null
 
   function onclick (e) {
@@ -36,13 +35,11 @@
   }
 </script>
 
-<img
-  {onclick}
+<img {onclick}
   src={iconTask.iconURL}
   style="
-    display: block;
-    width: {cssSize};
-    height: {cssSize};
+    width: {size};
+    height: {size};
     cursor: pointer;
     transform-origin: center;
     {extraStyle};

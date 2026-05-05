@@ -20,7 +20,6 @@
     <!-- overflow-hidden is the quickfix for buttons causing overflow  -->
     <button 
       popovertarget={id} style:anchor-name={anchorName}
-      onclick={e => e.stopPropagation()}
       style:width="calc(0.75 * {fontSize})"
       style:height={fontSize}
       style:color

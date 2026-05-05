@@ -9,9 +9,9 @@
     style={`height: ${height}px;`}
   >
     <div class="flex items-center w-full">
-      <CalTaskUnit {task} color="#262626">
+      <CalTaskUnit {task} color="var(--task-name-color)">
         {#snippet icon ()}
-          <DoodleIcon iconTask={task} size={14} scaleToFit />
+          <DoodleIcon iconTask={task} size="14px" scaleToFit />
         {/snippet}
       </CalTaskUnit>
 
@@ -30,7 +30,7 @@
     ]}
     style={`
       height: ${height}px;
-      background-color: rgba(250, 250, 250, 0.4);
+      background-color: rgba(250, 250, 250, 0.1);
       border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
     `}
     style:background-image={hasIntersected && task.imageDownloadURL
@@ -42,11 +42,11 @@
       style:padding="var(--left-padding)"
       style:border-radius="var(--left-padding)"
     >
-      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : '#262626'}>
+      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'}>
         {#snippet icon ()}
           <DoodleIcon 
             iconTask={task} 
-            size={14} 
+            size="16px" 
             whiteVariant={task.imageDownloadURL}
             scaleToFit 
           />
@@ -74,7 +74,7 @@
   import DurationAdjuster from '$lib/components/DurationAdjuster.svelte'
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import { lazyCallable } from '$lib/utils/svelteActions.js'
-  import { calendarBlock, notesFS } from '$lib/styles/reused.module.css'
+  import { calendarBlock } from '$lib/styles/reused.module.css'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
   
