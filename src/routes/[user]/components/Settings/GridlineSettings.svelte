@@ -11,7 +11,7 @@
   </div>
 
   <div class="flex bg-neutral-100/80 rounded-md p-1">
-    {#each [1, 30] as interval}
+    {#each [1, 5, 30] as interval}
       <button 
         onclick={() => User.update({ calSnapInterval: interval })} 
         class={[

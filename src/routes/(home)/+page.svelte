@@ -25,15 +25,15 @@
 
   <ArtisticBackground />
 
-  <div class="basis-full flex flex-col items-center mt-[60px] gap-x-12 gap-y-24">
+  <div class="basis-full flex flex-col items-center mt-[60px] gap-x-12 gap-y-20">
     <div class="h-[30vh] flex flex-col items-center justify-center text-center px-4 gap-4">
       <div class="mx-auto py-32 sm:py-48 lg:py-56">
         <div class="text-center">
           <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-500 sm:text-7xl">
             actions.life
           </h1>
-          <p class="mt-4 max-w-[60ch] text-lg text-pretty font-normal text-gray-500 sm:text-xl/8">
-            A life calendar that unifies to-do lists, photos, and habits.
+          <p class="mt-4 max-w-[60ch] text-pretty text-gray-600 md:text-2xl sm:text-xl/8">
+            A calendar that combines to-do lists, habits and photos
           </p>
         </div>
       </div>

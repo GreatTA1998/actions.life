@@ -1,5 +1,5 @@
 <div class="p-[6px]">
-  <svg class="size-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 122.88">
+  <svg class="size-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 122.88">
     <polygon fill="#FFFFFF" points="93.78,29.1 29.1,29.1 29.1,93.78 93.78,93.78 93.78,29.1"/>
     <polygon fill="#F72A25" points="93.78,122.88 122.88,93.78 93.78,93.78 93.78,122.88"/>
     <polygon fill="#FBBC04" points="122.88,29.1 93.78,29.1 93.78,93.78 122.88,93.78 122.88,29.1"/>

@@ -80,7 +80,6 @@ const SEED_TASKS = [
   { id: 'getting-started', onList: true, name: 'TO-DO' },
   { id: '1', parentID: 'getting-started', onList: true, name: 'Drag me anywhere' },
   { id: '2', parentID: 'getting-started', onList: true, name: 'Create a task', notes: 'Click on any empty space (hint: indent for sub-tasks)' },
-  { id: '3', parentID: 'getting-started', onList: true, name: 'Settings > "Structured Mode"'},
 
   // ── Timeline ────────────────────────────────────────────────────────
   { id: 'project', name: 'Example Project', childrenLayout: 'timeline', onList: true },
