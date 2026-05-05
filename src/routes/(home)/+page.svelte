@@ -33,7 +33,7 @@
             actions.life
           </h1>
           <p class="mt-4 max-w-[60ch] text-pretty text-gray-600 md:text-2xl sm:text-xl/8">
-            A calendar that combines to-do lists, habits and photos
+            One page for important things
           </p>
         </div>
       </div>

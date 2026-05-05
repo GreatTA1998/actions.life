@@ -11,6 +11,7 @@
 
   let audience = $state(OPTIONS.GOOGLE_CALENDAR)
   let player = $state(null)
+  let activeTitle = $state('To-do lists')
 
   function seek (t, e) {
     e.stopPropagation()
@@ -26,11 +27,11 @@
 </script>
 
 <div class="flex flex-col items-center gap-x-12 gap-y-4 w-full">
-  <div class="flex justify-center gap-x-4 w-8/10 px-6">
-    {@render card(TwigLogo, 0, 'Basics', 'Put to-do lists anywhere on the calendar')}
-    {@render card(TwigLogoWithLeaf, 62, 'Advanced', 'Introduces timelines, sub-routines and icon habits')}
-    {@render card(PhotosLogo, 316, 'Photos', 'Organize photos around calendar events, with captions')}
-    {@render card(GCalLogo, 396, 'Integrations', 'Display events from multiple Google accounts')}
+  <div class="flex justify-center gap-x-4 w-8/10">
+    {@render card(TwigLogo, 10, 'To-do lists', 'Put lists inside the calendar')}
+    {@render card(TwigLogoWithLeaf, 62, 'Habits', 'Use icons to save space')}
+    {@render card(GCalLogo, 396, 'Events', 'Integrate with Google Calendar')}
+    {@render card(PhotosLogo, 316, 'Photos', 'Organize photos by events')}
   </div>
 
   {#if audience === OPTIONS.APPLE_PHOTOS}
@@ -58,19 +59,24 @@
 
 {#snippet card (logoSnippet, s, title, description)}
   <div 
-    onclick={(e) => seek(s, e)}
-    class="rounded-xl w-[360px] pt-1 pb-2 px-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)] bg-white"
+    onclick={e => {
+      activeTitle = title
+      seek(s, e);
+    }}
+    class="rounded-xl w-[360px] pt-1 pb-2 px-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
+    style:background-color={title === activeTitle ? 'var(--offwhite-bg)' : 'rgb(230, 230, 230)'}
   >
     <div class="flex items-center gap-x-2">
       <div>
         {@render logoSnippet()}
       </div>  
       <p class="font-bold text-neutral-700">{title}</p>
-    </div>
-    <div class="text-neutral-600 text-sm">{description}
-      <span class="text-xs">
+      <span class="text-sm">
         (<span style:color="#065fd4">{timestamp(s)}</span>)
       </span>
+    </div>
+    <div class="text-neutral-600 text-sm">
+      {description}
     </div>
   </div>
 {/snippet}
