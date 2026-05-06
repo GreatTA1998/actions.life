@@ -29,7 +29,7 @@
     <IntegrationCard
       title="Motivation"
       points={[
-        { t: 20, label: 'A calendar that is long-term oriented and aspirational.' },
+        { t: 20, label: 'A life calendar that is long-term oriented.' },
         // { t: 30, label: "Lists that can be seen together and less fragmented." },
       ]}
       {activeTime}
@@ -55,7 +55,7 @@
       title="Advanced"
       points={[
         { t: 396, label: 'Icon habits and sub-routines' },
-        { t: 490, label: 'Review time-spent, and past notes' }
+        { t: 490, label: 'Review time-spent and notes' }
       ]}
       {activeTime}
       onseek={seek}
