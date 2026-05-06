@@ -3,7 +3,7 @@
   import { listenTo } from '$lib/db/helpers.js'
   import { db } from '$lib/db/init.js'
   import { user } from '$lib/store'
-  import { query, where, collection } from 'firebase/firestore'
+  import { collection } from 'firebase/firestore'
 
   let { 
     taskName = '',
@@ -20,13 +20,17 @@
 
   onMount(async () => {
     return listenTo(
-      query(
-        collection(db, `/users/${$user.uid}/templates`),
-        where('parentID', '==', '')
-      ),
-      (newVals) => allTemplates = newVals
+      collection(db, `/users/${$user.uid}/templates`),
+      (newVals) => allTemplates = newVals.filter(isTopLevelTemplate)
     )
   })
+
+  function isTopLevelTemplate (template) {
+    if (Object.prototype.hasOwnProperty.call(template, 'parentID')) {
+      return template.parentID === ''
+    }
+    return true
+  }
 </script>
 
 {#if taskName.length >= 1}
