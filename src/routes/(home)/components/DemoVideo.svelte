@@ -8,11 +8,9 @@
 
 <div class={['w-8/10 relative flex justify-center']}>
   <MuxPlayer bind:el={player}
-    title="Tutorial"
+    title="Introduction"
     thumbnailTime={221}
-    playbackID="I94NCWZHUcVY3NXS1LStz4n5FDUMKAETB600nTfIwxTw"
-    aspectRatio={13.85/9}
-    onplay={() => showTranscript = false}
-    onpause={() => showTranscript = true}
+    playbackID="pT200rx1N01x02vDqcUNnshYqAGdGKJBFKLY2Gk01jtpSrc"
+    aspectRatio={16.25/9}
   />
 </div>

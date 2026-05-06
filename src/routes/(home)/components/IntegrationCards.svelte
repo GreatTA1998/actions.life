@@ -1,6 +1,8 @@
 <script>
   import ApplePhotosLogo from './ApplePhotosLogo.svelte'
   import GoogleCalendarLogo from './GoogleCalendarLogo.svelte'
+  import NotionLogo from './NotionLogo.svelte'
+  import IntegrationCard from './IntegrationCard.svelte'
   import DemoVideo from './DemoVideo.svelte'
   import PortraitVideo from './PortraitVideo.svelte'
 
@@ -11,27 +13,70 @@
 
   let audience = $state(OPTIONS.GOOGLE_CALENDAR)
   let player = $state(null)
-  let activeTitle = $state('Motivation')
+  let activeTime = $state(1)
 
   function seek (t, e) {
     e.stopPropagation()
+    activeTime = t
+    if (!player) return
     player.currentTime = t
     if (player.paused) player.play()
-  }
-
-  function timestamp (seconds) {
-    const mm = Math.floor(seconds / 60);
-    const ss = seconds % 60 
-    return `${mm}:${ss.toString().padStart(2, '0')}`;
   }
 </script>
 
 <div class="flex flex-col items-center gap-x-12 gap-y-4 w-full">
-  <div class="flex justify-center gap-x-4 w-8/10">
-    {@render card(TwigLogo, 10, 'Motivation', 'Fragmented pages. Duplication. Forget to check it.')}
-    {@render card(TwigLogoWithLeaf, 62, 'Design philosophy', 'One page only. Combination of simple concepts. No direct concept of lists. Achieved with tasks and sub-tasks.')}
-    {@render card(TwigLogoWithLeaf, 396, 'Advanced Features', 'Timeline. Subroutines. Icons. Practice journal. Behavioral change. Going beyond the traditional capabilities of a calendar.')}
-    {@render card(PhotosLogo, 316, 'Ecosystem', 'Integrate photos and shared events. Designed to complement Notion.')}
+  <div class="flex justify-center items-start gap-x-4 w-8/10">
+    <IntegrationCard
+      title="Motivation"
+      points={[
+        { t: 20, label: 'A calendar that is long-term oriented and aspirational.' },
+        // { t: 30, label: "Lists that can be seen together and less fragmented." },
+      ]}
+      {activeTime}
+      onseek={seek}
+    >
+      <!-- <img src="/logo-no-bg.png" alt="" /> -->
+    </IntegrationCard>
+
+    <IntegrationCard
+      title="Basics"
+      points={[
+        { t: 110, label: 'One page only' },
+        { t: 170, label: 'Minimize concepts' },
+        { t: 190, label: 'Tasks and sub-tasks enable lists and timelines.'}
+      ]}
+      {activeTime}
+      onseek={seek}
+    >
+      <img src="/logo-no-bg.png" style:transform="scale(1.0)" />
+    </IntegrationCard>
+
+    <IntegrationCard
+      title="Advanced"
+      points={[
+        { t: 396, label: 'Icon habits and sub-routines' },
+        { t: 490, label: 'Review time-spent, and past notes' }
+      ]}
+      {activeTime}
+      onseek={seek}
+    >
+      <img src="/leaf-2-no-bg.avif" style:transform="scale(1.4)" />
+    </IntegrationCard>
+
+    <IntegrationCard
+      title="Ecosystem"
+      points={[
+        { t: 316, label: 'Meaningful system for photos' },
+        { t: 350, label: 'Google Calendar integration' },
+        { t: 380, label: 'Pairs well with Notion & Linear' }
+      ]}
+      {activeTime}
+      onseek={seek}
+    >
+      <ApplePhotosLogo />
+      <GoogleCalendarLogo />
+      <NotionLogo />
+    </IntegrationCard>
   </div>
 
   {#if audience === OPTIONS.APPLE_PHOTOS}
@@ -40,43 +85,3 @@
     <DemoVideo bind:player />
   {/if}
 </div>
-
-{#snippet TwigLogo ()}
-  <img src="/logo-no-bg.png" class="size-[28px]" />
-{/snippet}
-
-{#snippet TwigLogoWithLeaf ()}
-  <img src="/leaf-2-no-bg.avif" class="size-[40px]" />
-{/snippet}
-
-{#snippet GCalLogo ()}
-  <GoogleCalendarLogo/>
-{/snippet}
-
-{#snippet PhotosLogo ()}
-  <ApplePhotosLogo/>
-{/snippet}
-
-{#snippet card (logoSnippet, s, title, description)}
-  <div 
-    onclick={e => {
-      activeTitle = title
-      seek(s, e);
-    }}
-    class="rounded-xl w-[360px] pt-1 pb-2 px-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)]"
-    style:background-color={title === activeTitle ? 'var(--offwhite-bg)' : 'rgb(230, 230, 230)'}
-  >
-    <div class="flex items-center gap-x-2">
-      <div>
-        {@render logoSnippet()}
-      </div>  
-      <p class="font-bold text-neutral-700">{title}</p>
-      <span class="text-sm">
-        (<span style:color="#065fd4">{timestamp(s)}</span>)
-      </span>
-    </div>
-    <div class="text-neutral-600 text-sm">
-      {description}
-    </div>
-  </div>
-{/snippet}
