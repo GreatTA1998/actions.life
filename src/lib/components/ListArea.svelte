@@ -4,7 +4,7 @@
   import { getContext, onMount, tick } from 'svelte'
   import { db } from '$lib/db/init'
   import { updateCache, cleanupCache } from '$lib/store'
-  import { collection, query, where, onSnapshot } from 'firebase/firestore'
+  import { collection, onSnapshot } from 'firebase/firestore'
   import { buildForest } from '$lib/db/tree.ts'
 
   let { xyScrolling } = $props()
@@ -38,12 +38,17 @@
   function listenToTasks (uid) {
     const tasksCollection = collection(db, `users/${uid}/tasks`)
     setupListener(
-      query(tasksCollection, where('onList', '==', true)),
+      tasksCollection,
       data => { 
-        persistTasks = data 
+        persistTasks = data.filter(taskBelongsOnList)
         updateCache(persistTasks)
       }
     )
+  }
+
+  function taskBelongsOnList (task) {
+    if (typeof task.onList === 'boolean') return task.onList
+    return task.persistsOnList === true && task.isArchived !== true
   }
 
   function setupListener (ref, callback) {

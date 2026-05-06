@@ -67,16 +67,22 @@
   })
 
   onMount(() => onSnapshot(
-    query(
-      collection(db, '/users/' + $user.uid + '/templates'), 
-      where('parentID', '==', '')
-    ), 
+    collection(db, '/users/' + $user.uid + '/templates'),
     async (snap) => {
       templates.set(
-        snap.docs.map(doc => ({ ...doc.data(), id: doc.id })
-      ))
+        snap.docs
+          .map(doc => ({ ...doc.data(), id: doc.id }))
+          .filter(isTopLevelTemplate)
+      )
     }
   ))
+
+  function isTopLevelTemplate (template) {
+    if (Object.prototype.hasOwnProperty.call(template, 'parentID')) {
+      return template.parentID === ''
+    }
+    return true
+  }
 
   $effect(() => {
     if ($clickedTemplateID === '') return
