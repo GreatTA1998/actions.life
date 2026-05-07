@@ -33,7 +33,7 @@
             actions.life
           </h1>
           <p class="mt-4 max-w-[60ch] text-pretty text-gray-600 md:text-2xl sm:text-xl/8">
-            Everything important on one page
+            Put everything important on one page
           </p>
         </div>
       </div>
