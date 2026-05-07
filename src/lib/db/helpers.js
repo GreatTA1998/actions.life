@@ -9,7 +9,7 @@ import { user } from '$lib/store'
 import { get } from 'svelte/store'
 
 export async function listenTo (q, onUpdate) {
-  return onSnapshot(q, snap => 
+  return onSnapshot(q, snap =>
     onUpdate(snap.docs.map(doc => ({ ...doc.data(), id: doc.id })))
   )
 }
@@ -19,13 +19,8 @@ export function firestoreRef (path) {
 }
 
 export async function setFirestoreDoc (path, newObject) {
-  try {
-    const ref = firestoreRef(path)
-    return await setDoc(ref, newObject, { merge: true })
-  } catch (error) {
-    console.error('error in setFirestoreDoc, CRUD', error)
-    console.error('payload was =', newObject)
-  }
+  const ref = firestoreRef(path)
+  return setDoc(ref, newObject, { merge: true })
 }
 
 export function getFirestoreDoc (path) {
@@ -93,7 +88,7 @@ async function countImageRefs (uid, collectionName, imageDownloadURL) {
 
 export async function releaseImage (uid, { imageFullPath, imageDownloadURL }) {
   if (!imageFullPath) return // i.e. a publicly hosted image was used
-  
+
   const [taskCount, templateCount] = await Promise.all([
     countImageRefs(uid, 'tasks', imageDownloadURL),
     countImageRefs(uid, 'templates', imageDownloadURL)
@@ -106,7 +101,7 @@ export async function releaseImage (uid, { imageFullPath, imageDownloadURL }) {
 async function deleteImage ({ imageFullPath }) {
   const storage = getStorage()
   await deleteObject(ref(storage, imageFullPath))
-} 
+}
 
 export async function deleteColorTag ({ tagID, user }) {
   const batch = writeBatch(db)
@@ -126,7 +121,7 @@ export async function deleteColorTag ({ tagID, user }) {
   const copy = {...user.tags}
   delete copy[tagID]
   batch.update(firestoreRef(`/users/${uid}`), {
-    tags: copy 
+    tags: copy
   })
 
   return await batch.commit()
@@ -139,7 +134,7 @@ export function maintainOrderValue (validatedObj, batch) {
   }
   const diff = validatedObj.orderValue - maxOrderValue
   if (diff > 0) {
-    batch.update(doc(db, 'users', uid), { 
+    batch.update(doc(db, 'users', uid), {
       maxOrderValue: increment(diff)
     })
   }
