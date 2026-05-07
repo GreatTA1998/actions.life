@@ -29,7 +29,7 @@
     <IntegrationCard
       title="Motivation"
       points={[
-        { t: 20, label: 'A life calendar that is long-term oriented.' },
+        { t: 32, label: 'A life calendar that encourages action' },
         // { t: 30, label: "Lists that can be seen together and less fragmented." },
       ]}
       {activeTime}
@@ -41,9 +41,8 @@
     <IntegrationCard
       title="Basics"
       points={[
-        { t: 110, label: 'One page only' },
-        { t: 170, label: 'Minimize concepts' },
-        { t: 190, label: 'Tasks and sub-tasks enable lists and timelines.'}
+        { t: 200, label: 'Tasks and sub-tasks' },
+        { t: 344, label: 'Timelines'}
       ]}
       {activeTime}
       onseek={seek}
@@ -54,8 +53,8 @@
     <IntegrationCard
       title="Advanced"
       points={[
-        { t: 396, label: 'Icon habits and sub-routines' },
-        { t: 490, label: 'Review time-spent and notes' }
+        { t: 428, label: 'Icon habits and sub-routines' },
+        { t: 490, label: 'Time spent & practice journals' }
       ]}
       {activeTime}
       onseek={seek}
@@ -66,9 +65,7 @@
     <IntegrationCard
       title="Ecosystem"
       points={[
-        { t: 316, label: 'Meaningful system for photos' },
-        { t: 350, label: 'Google Calendar integration' },
-        { t: 380, label: 'Pairs well with Notion & Linear' }
+        { t: 635, label: 'Designed to complement other tools' }
       ]}
       {activeTime}
       onseek={seek}

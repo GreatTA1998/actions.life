@@ -40,7 +40,7 @@
     </div>
   </button>
 
-  <p class="px-2 m-0 text-[13px] leading-[1.6] tracking-[-0.003em] text-[#646464]">
+  <p class="px-2 m-0 text-sm leading-[1.6] text-neutral-600">
     {#each points as p, i (p.t)}
       {@const active = p.t === activeTime}
       <span
@@ -48,8 +48,8 @@
         tabindex="0"
         onclick={e => onseek(p.t, e)}
         onkeydown={e => e.key === 'Enter' && onseek(p.t, e)}
-        class={['cursor-pointer rounded-[3px] transition-colors', active && 'text-[#1e1e1e]']}
-      >{p.label} <span class={active ? 'text-[#065fd4]' : 'text-black/[0.28]'}>({timestamp(p.t)})</span></span>{i < points.length - 1 ? '. ' : ''}
+        class={['cursor-pointer rounded-[3px] transition-colors', active && 'text-neutral-600']}
+      >{p.label} <span class={active ? 'text-[#065fd4]' : 'text-black/[0.28]'}>({timestamp(p.t)})</span></span>{i < points.length - 1 ? '. ' : '. '}
     {/each}
   </p>
 </div>

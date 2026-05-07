@@ -16,7 +16,7 @@
   let browserSupported = $state(false)
 
   onMount(() => {
-    browserSupported = HTMLElement.prototype.hasOwnProperty("popover") 
+    browserSupported = HTMLElement.prototype.hasOwnProperty("popover")
       && CSS.supports('anchor-name: --x')
   })
 </script>
@@ -33,7 +33,7 @@
             actions.life
           </h1>
           <p class="mt-4 max-w-[60ch] text-pretty text-gray-600 md:text-2xl sm:text-xl/8">
-            Put everything important on one page
+            Everything important on one page
           </p>
         </div>
       </div>
@@ -46,7 +46,7 @@
     {:else}
       <MacbookDisplay children={simulatedApp} />
     {/if}
-    
+
     {#snippet simulatedApp ()}
       {#if browserSupported}
         <div class="w-full h-full relative">
