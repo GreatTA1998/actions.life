@@ -28,14 +28,7 @@
     type="button"
   >
     <p class="text-md font-medium text-neutral-800">{title}</p>
-    <div
-      class="flex items-center justify-end gap-1.5 self-stretch max-h-full
-             [&>svg]:size-7 [&>svg]:object-contain
-             [&>img]:size-7 [&>img]:object-contain
-             [&>div]:w-7 [&>div]:h-full [&>div]:flex [&>div]:items-center [&>div]:justify-center
-             [&>div>svg]:size-7 [&>div>svg]:object-contain
-             [&>div>img]:size-7 [&>div>img]:object-contain"
-    >
+    <div class="flex items-center justify-end gap-1.5 self-stretch max-h-full">
       {@render children?.()}
     </div>
   </button>

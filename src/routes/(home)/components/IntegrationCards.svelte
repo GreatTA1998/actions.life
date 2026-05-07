@@ -29,7 +29,7 @@
     <IntegrationCard
       title="Motivation"
       points={[
-        { t: 32, label: 'A life calendar that encourages action' },
+        { t: 32, label: 'A life calendar that includes long-term aspirations' },
         // { t: 30, label: "Lists that can be seen together and less fragmented." },
       ]}
       {activeTime}
@@ -47,7 +47,7 @@
       {activeTime}
       onseek={seek}
     >
-      <img src="/logo-no-bg.png" style:transform="scale(1.0)" />
+      <img src="/logo-no-bg.png" class="size-7 object-contain" style:transform="scale(1.0)" />
     </IntegrationCard>
 
     <IntegrationCard
@@ -59,7 +59,7 @@
       {activeTime}
       onseek={seek}
     >
-      <img src="/leaf-2-no-bg.avif" style:transform="scale(1.4)" />
+      <img src="/leaf-2-no-bg.avif" class="size-7 object-contain" style:transform="scale(1.4)" />
     </IntegrationCard>
 
     <IntegrationCard

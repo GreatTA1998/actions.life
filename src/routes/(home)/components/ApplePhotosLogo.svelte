@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 100 100" class="size-10 drop-shadow-sm">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 100 100" class="size-7 drop-shadow-sm">
   <path fill="#FF7E7B" d="M35.8 38c.9 0 1.7.1 2.5.3-.2-.8-.3-1.7-.3-2.5V23c0-.6.1-1.1.1-1.6-4.7-3.5-11.4-3.1-15.6 1.1s-4.6 10.9-1.1 15.6c.5-.1 1.1-.1 1.6-.1h12.8z" style="fill:#ff7e7b"></path>
   <path fill="#FF6F3F" d="M49.2 47.7c-.6 0-1.1-.1-1.7-.2.1.5.2 1.1.2 1.7.3-.2.5-.4.8-.7.2-.3.4-.5.7-.8z" style="fill:#ff6f3f"></path>
   <path fill="#FFAC00" d="M48.5 31.5c.6.6 1.2 1.3 1.6 2 .5-.7 1-1.4 1.6-2l9-9c.4-.4.7-.7 1.1-1C61.2 15.6 56.1 11 50 11c-6.1 0-11.1 4.5-11.9 10.4.5.3.9.7 1.3 1.1l9.1 9z" style="fill:#ffac00"></path>
