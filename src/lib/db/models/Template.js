@@ -2,7 +2,6 @@ import Task from './Task.js'
 import { z } from 'zod'
 import { db } from '$lib/db/init.js'
 import { updateFirestoreDoc, 
-  deleteFirestoreDoc, 
   releaseImage, 
   getFirestoreCollection,
   maintainOrderValue,
@@ -29,6 +28,7 @@ const Template = {
     tags: z.string().default(''),
     notes: z.string().default(''),
     imageDownloadURL: z.string().default(''),
+    imageFullPath: z.string().default(''),
     iconURL: z.string().default(''),
 
     rrStr: z.string().default(''),
@@ -66,11 +66,8 @@ const Template = {
   },
 
   async update ({ id, kvChanges }) {
-    return new Promise(async (resolve) => {
-      const validatedChanges = Template.schema.partial().parse(kvChanges)
-      await updateFirestoreDoc(`/users/${get(user).uid}/templates/${id}`, validatedChanges)
-      resolve()
-    })
+    const validatedChanges = Template.schema.partial().parse(kvChanges)
+    return updateFirestoreDoc(`/users/${get(user).uid}/templates/${id}`, validatedChanges)
   },
 
   async updateItselfAndFutureInstances ({ id, kvChanges }) {
@@ -81,22 +78,31 @@ const Template = {
     }
   },
 
-  async delete ({ id, imageDownloadURL = '', imageFullPath = '' }) {
+  async delete ({ id }) {
+    const { uid } = get(user)
     const futureInstances = await this.getAffectedInstances({ id })
-    
-    if (futureInstances.length > 0) {
-      if (confirm(`There are ${futureInstances.length} future instances of this template. Delete them also?`)) {
-        for (const instance of futureInstances) {
-          Task.delete({ id: instance.id })
-        }
+
+    if (futureInstances.length && confirm(`There are ${futureInstances.length} future instances of this template. Delete them also?`)) {
+      for (const instance of futureInstances) {
+        Task.delete({ id: instance.id }) // cascades subroutine task instances via getSubtreeNodes
       }
     }
-   
-    const { uid } = get(user)
-    if (imageDownloadURL && imageFullPath) {
-      await releaseImage(uid, { imageDownloadURL, imageFullPath })
+
+    const batch = writeBatch(db)
+    const allTemplates = await getFirestoreCollection(`/users/${uid}/templates`)
+    const memo = nodesByParent(allTemplates)
+    
+    function deleteSubtree (nodeID) {
+      const node = allTemplates.find(template => template.id === nodeID)
+      releaseImage(uid, node) // warning: not atomic (excluded from batch)
+      batch.delete(doc(db, `/users/${uid}/templates/${nodeID}`))
+      for (const child of memo[nodeID]) {
+        deleteSubtree(child.id)
+      }
     }
-    deleteFirestoreDoc(`/users/${uid}/templates/${id}`)
+
+    deleteSubtree(id)
+    return batch.commit()
   },
 
   async getAffectedInstances (template) {
