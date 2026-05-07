@@ -12,7 +12,7 @@
   import Message from '$lib/db/models/Message.js'
   import GCalAccount from '$lib/db/models/GCalAccount.js'
   import { trackWidth, trackHeight } from '$lib/utils/svelteActions.js'
-  import { writable } from 'svelte/store'
+  import { writable, derived } from 'svelte/store'
   import { buildForest, findSubtree } from '$lib/db/tree.ts'
   import type { Tree } from '$lib/db/tree.ts'
   import { collection, onSnapshot, query, where } from 'firebase/firestore'
@@ -30,9 +30,11 @@
   const treesByDate = writable({})
 
   const clickedTemplateID = writable('')
-  const template = writable(null)
-  const templates = writable([])
-  const templateTree = writable({ children: [] })  
+  const templates = writable<any[]>([])
+  const templatesByID = derived(templates, $t => new Map($t.map(x => [x.id, x])))
+  const routines = derived(templates, $t => $t.filter(x => x.parentID === ''))
+  const template = derived([templatesByID, clickedTemplateID], ([$byID, $id]) => $byID.get($id))
+  const templateTree = writable({ children: [] })
 
   $effect(() => {
     if (Object.keys($treesByDate).length > 0) {
@@ -62,48 +64,37 @@
     clickedTemplateID,
     template,
     templates,
+    templatesByID,
+    routines,
     templateTree,
     forgeTemplates
   })
 
   onMount(() => onSnapshot(
-    query(
-      collection(db, '/users/' + $user.uid + '/templates'), 
-      where('parentID', '==', '')
-    ), 
-    async (snap) => {
-      templates.set(
-        snap.docs.map(doc => ({ ...doc.data(), id: doc.id })
-      ))
-    }
+    collection(db, `users/${$user.uid}/templates`),
+    snap => templates.set(snap.docs.map(d => ({ ...d.data(), id: d.id })))
   ))
 
   $effect(() => {
-    if ($clickedTemplateID === '') return
+    const id = $clickedTemplateID
+    if (!id) return
 
-    const result = $templates.find(T => T.id === $clickedTemplateID)
-    if (!result) { 
+    const result = $templatesByID.get(id)
+    if (!result) {
       if (confirm('Restore previously deleted template?')) {
-        forgeTemplates(
-          $clickedTemplateID,
-          $familyTree
-        )
+        forgeTemplates(id, $familyTree)
       }
       return
     }
-
-    template.set(result)
 
     return onSnapshot(
       query(
         collection(db, `users/${$user.uid}/templates`),
         where('rootID', '==', result.rootID)
       ),
-      snapshot => {
-        const results = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-        const [ancestralTree] = buildForest(results)
-        const family = findSubtree({ id: $clickedTemplateID, tree: ancestralTree })
-        templateTree.set(family)
+      snap => {
+        const [tree] = buildForest(snap.docs.map(d => ({ ...d.data(), id: d.id })))
+        templateTree.set(findSubtree({ id, tree }))
       }
     )
   })

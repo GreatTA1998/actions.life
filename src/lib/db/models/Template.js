@@ -38,10 +38,6 @@ const Template = {
 
     rootID: z.string(),
     parentID: z.string().default('')
-
-    // TO DEPRECATE
-    // notify: z.string().default(''),
-    // lastGeneratedTask: z.string().default(''),
   }),
 
   async create ({ data, id }) {

@@ -8,14 +8,14 @@
   import { periodicity } from '$lib/utils/rrule.js'
   import { getContext } from 'svelte'
 
-  const { Template, openTaskPopup, templates } = getContext('app')
+  const { Template, openTaskPopup, routines } = getContext('app')
 
   let selectedRoutineID = $state('')
   let stats = $state(new Map())
   
   const rank = { weekly: 0, monthly: 1, yearly: 2 }
-  let unstarredRoutines = $derived($templates.filter(r => !r.isStarred).sort((a, b) => rank[periodicity(a.rrStr)] - rank[periodicity(b.rrStr)]))
-  let starredRoutines = $derived($templates.filter(r => r.isStarred))
+  let unstarredRoutines = $derived($routines.filter(r => !r.isStarred).sort((a, b) => rank[periodicity(a.rrStr)] - rank[periodicity(b.rrStr)]))
+  let starredRoutines = $derived($routines.filter(r => r.isStarred))
   let topRoutines = $derived([...starredRoutines].sort((a, b) => {
     return (stats.get(b.id)?.minutesSpent ?? 0) - (stats.get(a.id)?.minutesSpent ?? 0)
   }))
