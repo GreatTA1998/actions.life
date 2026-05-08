@@ -113,13 +113,13 @@ const Task = {
     return validatedChanges
   },
 
-  async delete ({ id }) {
+  async delete ({ id, willConfirm = true }) {
     closeTaskPopup()
     const task = get(tasksCache)[id]
     const treeNodes = await getSubtreeNodes(task)
 
     // warning: need a way to disable this confirmation when we support sub-tasks for routines
-    if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} actions at once?`)) {
+    if (willConfirm && treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} actions at once?`)) {
       return []
     }
 

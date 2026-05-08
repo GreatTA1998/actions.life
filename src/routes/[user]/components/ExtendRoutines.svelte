@@ -3,14 +3,27 @@
   import { DateTime } from 'luxon'
   import { getContext, onMount } from 'svelte'
   import { user } from '$lib/store'
+  import { runTransaction, doc } from 'firebase/firestore'
+  import { db } from '$lib/db/init.js'
 
-  const { User, Template } = getContext('app')
+  const { Template } = getContext('app')
 
   onMount(async () => {
     const today = DateTime.utc().toFormat('yyyy-MM-dd')
-    if (today > $user.lastRanRoutines) { 
+    const userRef = doc(db, `/users/${$user.uid}`)
+
+    // prevent race condition from two devices opening the app
+    const claimed = await runTransaction(db, async (tx) => {
+      const snap = await tx.get(userRef)
+      if (today > snap.data().lastRanRoutines) {
+        tx.update(userRef, { lastRanRoutines: today })
+        return true
+      }
+      return false
+    })
+
+    if (claimed) {
       const templates = await Template.getAll()
-      
       await Promise.all(
         templates
           .filter(t => t.rrStr)
@@ -19,11 +32,9 @@
               startDT: DateTime.fromISO(template.prevEndISO).plus({ days: 1 }), // startOf('day'), is needed technically, but rrFloat also removes timing
               endDT: DateTime.utc().plus({ days: template.previewSpan }), // startOf('day')
               template
-            }).catch(e => console.error(`Failed to extend template ${template.id}:`, e))
+            })
           )
       )
-      
-      await User.update({ lastRanRoutines: today })
     }
   })
 
@@ -37,10 +48,8 @@
           template,
           modifiers: {
             startDateISO: dt.toFormat('yyyy-MM-dd'),
-            parentID: '', // quickfix: force no parentID, ensure no parentID from corrupted template,
             onList: false
-          },
-          idempotentISO: dt.toFormat('yyyy-MM-dd')
+          }
         })
       )
     )

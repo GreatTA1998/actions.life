@@ -100,7 +100,7 @@ export async function releaseImage (uid, { imageFullPath, imageDownloadURL }) {
 
 async function deleteImage ({ imageFullPath }) {
   const storage = getStorage()
-  await deleteObject(ref(storage, imageFullPath))
+  return deleteObject(ref(storage, imageFullPath))
 }
 
 export async function deleteColorTag ({ tagID, user }) {

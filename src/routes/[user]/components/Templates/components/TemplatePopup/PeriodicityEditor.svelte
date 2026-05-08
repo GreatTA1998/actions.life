@@ -31,19 +31,17 @@
   }
   
   async function applyChanges () {
-    for (const task of deletingTasks) {
-      Task.delete({ id: task.id })
-    }
+    await Promise.all(
+      deletingTasks.map(({ id }) => Task.delete({ id, willConfirm: false }))  
+    )
 
     for (const iso of addingISOs) {
       Template.instantiateTree({
         template: routine,
         modifiers: {
           startDateISO: iso,
-          parentID: '', // mirror ExtendRoutines: defend against a corrupted template's parentID
           onList: false
-        },
-        idempotentISO: iso
+        }
       })
     }
 

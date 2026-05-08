@@ -137,16 +137,16 @@ const Template = {
   },
 
   // only top-level tasks can be templates i.e. parentID === ''
-  async instantiateTree ({ template, modifiers = {}, idempotentISO = '' }) {
+  async instantiateTree ({ template, modifiers = {} }) {
     const allTemplates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
-    const newTreeID = idempotentISO ? `${template.id}_${idempotentISO}` : randomID()
+    const id = randomID()
     const { parentID } = modifiers
 
     return helper({ 
+      id,
       node: { ...template, ...modifiers }, 
       parentID: parentID ? parentID : '',
-      rootID: parentID ? get(tasksCache)[parentID].rootID : newTreeID, // danger: only works for task instances hence "instantiateTree", wait till proper refactor
-      id: newTreeID,
+      rootID: parentID ? get(tasksCache)[parentID].rootID : id, // danger: only works for task instances hence "instantiateTree", wait till proper refactor
       templateID: (typeof template.rrStr === 'string') ? template.id : '',
       onList: !!modifiers.onList, // `template.onList` doesn't matter, example: calendar task forged into a template, which instantiates onto the list.
       memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID)),
