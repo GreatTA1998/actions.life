@@ -7,7 +7,7 @@
 
   let { children } = $props()
 
-  const { Task, Template } = getContext('app')
+  const { Task } = getContext('app')
 
   let inputActive = $state(false)
   let inputPopover = $state(null)
@@ -71,7 +71,8 @@
   async function onTemplateClick (template) {
     input.focus() // we lost focus clicking the menu item (reminder: must be synchronous)
     value = ''
-    const result = await Template.instantiateTree({ template, modifiers: $overrideOptions })
+    // `Task` can be overriden as `Template`
+    const result = await Task.fromTemplate({ template, modifiers: $overrideOptions })
     $callback(result)
   }
 </script>

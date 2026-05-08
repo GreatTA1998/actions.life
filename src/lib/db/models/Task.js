@@ -1,7 +1,8 @@
 import { z } from 'zod'
-import { releaseImage, maintainOrderValue } from '$lib/db/helpers.js'
+import { releaseImage, maintainOrderValue, getFirestoreCollection } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
 import { user, tasksCache, cleanupCache, showUndoSnackbar } from '$lib/store'
+import { updateCache } from '$lib/store/tasksCache.js'
 import { closeTaskPopup } from '$lib/store/taskPopup.js'
 import { 
   writeBatch, getDocs, collection, 
@@ -11,6 +12,7 @@ import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
 import { playSound } from '$lib/features/audio.js'
 import { randomID } from '$lib/utils/core.js'
+import { nodesByParent } from '$lib/db/tree.ts'
 
 const Task = {
   schema: z.object({
@@ -183,7 +185,44 @@ const Task = {
     )
     const snapshot = await getDocs(q)
     return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+  },
+
+  async fromTemplate ({ template, modifiers = {} }) {
+    const allTemplates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
+    const id = randomID()
+    const { parentID } = modifiers
+
+    return instantiate({
+      id,
+      node: { ...template, ...modifiers },
+      parentID: parentID || '',
+      rootID: parentID ? get(tasksCache)[parentID].rootID : id,
+      templateID: (typeof template.rrStr === 'string') ? template.id : '',
+      onList: !!modifiers.onList,  // `template.onList` doesn't matter, example: calendar task forged into a template, which instantiates onto the list.
+      memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID))
+    })
   }
+}
+
+async function instantiate ({ node, id, parentID, rootID, templateID, onList, memo }) {
+  const result = await Task.create({ id, data: {
+    ...node, parentID, rootID, templateID, onList
+  }})
+  updateCache([result])
+  // treeISOs will be maintained by Task.create() as long as `parent` and `tasksCache` are created before children
+
+  for (const child of memo[node.id]) {
+    instantiate({
+      node: child,
+      parentID: id,
+      rootID,
+      id: randomID(),
+      templateID: '',
+      onList,
+      memo
+    })
+  }
+  return result
 }
 
 function isValidISODate (dateStr) {

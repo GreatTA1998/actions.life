@@ -5,6 +5,7 @@
   import { user } from '$lib/store'
   import { runTransaction, doc } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
+  import Task from '$lib/db/models/Task.js'
 
   const { Template } = getContext('app')
 
@@ -44,7 +45,7 @@
     })
     await Promise.all(
       matchingDTs.map(dt => 
-        Template.instantiateTree({ 
+        Task.fromTemplate({ 
           template,
           modifiers: {
             startDateISO: dt.toFormat('yyyy-MM-dd'),

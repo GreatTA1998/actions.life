@@ -36,7 +36,7 @@
     )
 
     for (const iso of addingISOs) {
-      Template.instantiateTree({
+      Task.fromTemplate({
         template: routine,
         modifiers: {
           startDateISO: iso,

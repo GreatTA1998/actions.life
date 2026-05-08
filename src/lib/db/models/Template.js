@@ -16,7 +16,7 @@ import {
 import { get } from 'svelte/store'
 import { DateTime } from 'luxon'
 import { nodesByParent } from '$lib/db/tree.ts'
-import { updateCache, tasksCache } from '$lib/store/tasksCache.js'
+import { updateCache } from '$lib/store/tasksCache.js'
 import { randomID } from '$lib/utils/core.js'
 
 const Template = {
@@ -37,7 +37,9 @@ const Template = {
     isStarred: z.boolean().default(true),
 
     rootID: z.string(),
-    parentID: z.string().default('')
+    parentID: z.string().default(''),
+    isDone: z.boolean().default(false),
+    isCollapsed: z.boolean().default(false)
   }),
 
   async create ({ data, id }) {
@@ -136,39 +138,28 @@ const Template = {
     return { minutesSpent, timesCompleted: count }
   },
 
-  // only top-level tasks can be templates i.e. parentID === ''
-  async instantiateTree ({ template, modifiers = {} }) {
+  async fromTemplate ({ template, modifiers = {} }) {
     const allTemplates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
-    const id = randomID()
-    const { parentID } = modifiers
 
-    return helper({ 
-      id,
-      node: { ...template, ...modifiers }, 
-      parentID: parentID ? parentID : '',
-      rootID: parentID ? get(tasksCache)[parentID].rootID : id, // danger: only works for task instances hence "instantiateTree", wait till proper refactor
-      templateID: (typeof template.rrStr === 'string') ? template.id : '',
-      onList: !!modifiers.onList, // `template.onList` doesn't matter, example: calendar task forged into a template, which instantiates onto the list.
-      memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID)),
+    return clone({
+      id: randomID(),
+      node: { ...template, ...modifiers },
+      parentID: modifiers.parentID || '',
+      memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID))
     })
   }
 }
 
-async function helper ({ node, id, parentID, rootID, templateID, onList, memo }) {
-  const result = await Task.create({ id, data: { 
-    ...node, parentID, rootID, templateID, onList
-  }}) 
-  updateCache([result])
+// `rootID` and `orderValue` are taken care of in Template.create()
+async function clone ({ node, id, parentID, memo }) {
+  const { orderValue, rrStr, prevEndISO, previewSpan, ...rest } = node // recurrence fields are dropped because only top-level routines may recur.
+  const result = await Template.create({ id, data: { ...rest, parentID } })
 
-  // treeISOs will be maintained by Task.create() as long as `parent` and `tasksCache` are created before children
   for (const child of memo[node.id]) {
-    helper({ 
-      node: child, 
+    clone({
+      node: child,
+      id: randomID(),
       parentID: id,
-      rootID,  
-      id: randomID(), 
-      templateID: '',
-      onList,
       memo
     })
   }
