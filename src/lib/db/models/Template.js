@@ -141,6 +141,7 @@ const Template = {
     const allTemplates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
     const newTreeID = idempotentISO ? `${template.id}_${idempotentISO}` : randomID()
     const { parentID } = modifiers
+    const useIdempotentIDs = Boolean(idempotentISO)
 
     return helper({ 
       node: { ...template, ...modifiers }, 
@@ -150,11 +151,13 @@ const Template = {
       templateID: (typeof template.rrStr === 'string') ? template.id : '',
       onList: !!modifiers.onList, // `template.onList` doesn't matter, example: calendar task forged into a template, which instantiates onto the list.
       memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID)),
+      idempotentISO,
+      useIdempotentIDs
     })
   }
 }
 
-async function helper ({ node, id, parentID, rootID, templateID, onList, memo }) {
+async function helper ({ node, id, parentID, rootID, templateID, onList, memo, idempotentISO, useIdempotentIDs }) {
   const result = await Task.create({ id, data: { 
     ...node, parentID, rootID, templateID, onList
   }}) 
@@ -162,14 +165,20 @@ async function helper ({ node, id, parentID, rootID, templateID, onList, memo })
 
   // treeISOs will be maintained by Task.create() as long as `parent` and `tasksCache` are created before children
   for (const child of memo[node.id]) {
-    helper({ 
+    const childTaskID = (useIdempotentIDs && idempotentISO)
+      ? `${child.id}_${idempotentISO}`
+      : randomID()
+
+    await helper({ 
       node: child, 
       parentID: id,
       rootID,  
-      id: randomID(), 
+      id: childTaskID,
       templateID: '',
       onList,
-      memo
+      memo,
+      idempotentISO,
+      useIdempotentIDs
     })
   }
   return result

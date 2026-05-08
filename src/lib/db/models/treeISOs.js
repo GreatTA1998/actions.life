@@ -148,16 +148,15 @@ export function removeOneInstance (array, item) {
 export async function handleTreeISOsForDeletion ({ tasksToDelete, batch }) {
   if (!tasksToDelete || !tasksToDelete.length) return
   
+  const deletedIDs = new Set(tasksToDelete.map(task => task.id))
   const tasksByRoot = {}
 
   for (const task of tasksToDelete) {
-    if (!task.treeISOs.length) continue
-    
     const root = await getRoot(task)
+    if (!root) continue
     if (!tasksByRoot[root.id]) {
       tasksByRoot[root.id] = { 
         root, 
-        tasksToRemove: [], 
         datesToRemove: [] 
       }
     }
@@ -165,11 +164,10 @@ export async function handleTreeISOsForDeletion ({ tasksToDelete, batch }) {
     if (task.startDateISO) {
       tasksByRoot[root.id].datesToRemove.push(task.startDateISO)
     }
-    tasksByRoot[root.id].tasksToRemove.push(task)
   }
   
   for (const rootID in tasksByRoot) {
-    const { root, tasksToRemove, datesToRemove } = tasksByRoot[rootID]
+    const { root, datesToRemove } = tasksByRoot[rootID]
     
     if (!root.treeISOs.length) continue
     
@@ -178,9 +176,7 @@ export async function handleTreeISOsForDeletion ({ tasksToDelete, batch }) {
       newTreeISOs = removeOneInstance(newTreeISOs, date)
     }
     const allTreeNodes = await getSubtreeNodes(root)
-    const remainingNodes = allTreeNodes.filter(node => 
-      !tasksToRemove.some(task => task.id === node.id)
-    )
+    const remainingNodes = allTreeNodes.filter(node => !deletedIDs.has(node.id))
     for (const node of remainingNodes) {
       const ref = doc(db, `/users/${get(user).uid}/tasks/${node.id}`)
       batch.update(ref, { treeISOs: newTreeISOs })
