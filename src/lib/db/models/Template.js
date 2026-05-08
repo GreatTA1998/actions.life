@@ -145,7 +145,7 @@ const Template = {
     return helper({ 
       node: { ...template, ...modifiers }, 
       parentID: parentID ? parentID : '',
-      rootID: parentID ? get(tasksCache)[parentID].rootID : newTreeID,
+      rootID: parentID ? get(tasksCache)[parentID].rootID : newTreeID, // danger: only works for task instances hence "instantiateTree", wait till proper refactor
       id: newTreeID,
       templateID: (typeof template.rrStr === 'string') ? template.id : '',
       onList: !!modifiers.onList, // `template.onList` doesn't matter, example: calendar task forged into a template, which instantiates onto the list.

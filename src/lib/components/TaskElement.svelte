@@ -11,7 +11,7 @@
     <div class="flex items-center w-full">
       <CalTaskUnit {task} color="var(--task-name-color)">
         {#snippet icon ()}
-          <DoodleIcon iconTask={task} size="14px" scaleToFit />
+          <DoodleIcon iconTask={task} size={titleFS} scaleToFit />
         {/snippet}
       </CalTaskUnit>
 
@@ -46,7 +46,7 @@
         {#snippet icon ()}
           <DoodleIcon 
             iconTask={task} 
-            size="16px" 
+            size={titleFS} 
             whiteVariant={task.imageDownloadURL}
             scaleToFit 
           />
@@ -76,6 +76,7 @@
   import { lazyCallable } from '$lib/utils/svelteActions.js'
   import { calendarBlock } from '$lib/styles/reused.module.css'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
+  import { titleFS } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
   
   const { openTaskPopup } = getContext('app')

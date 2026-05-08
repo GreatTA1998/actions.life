@@ -23,6 +23,7 @@
       {@render icon()}
     {:else}
       <Checkbox
+        fontSize={titleFS}
         value={task.isDone}
         onchange={e => Task.update({
           id: task.id,
@@ -45,7 +46,7 @@
   </div>
 
   {#if task.children.length > 0}
-    <SubtaskCountIndicator {task} {color} extraClass="min-w-fit"/>
+    <SubtaskCountIndicator {task} {color} fontSize={titleFS} extraClass="min-w-fit"/>
   {/if}
 
   {#if parentObj}

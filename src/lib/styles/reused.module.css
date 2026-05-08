@@ -2,7 +2,7 @@
   paddingVal: 4px;
   noZoomFS: 1rem; /* iOS zoom triggers if font is below 16px */
   notesFS: 0.75rem;
-  titleFS: 0.8rem;
+  titleFS: 0.875rem;
 }
 
 .placeholderField {

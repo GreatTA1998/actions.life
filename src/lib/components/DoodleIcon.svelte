@@ -44,7 +44,7 @@
     transform-origin: center;
     {extraStyle};
   "
-  style:transform={scaleToFit ? 'scale(1.5)' : ''}
+  style:transform={scaleToFit ? 'scale(1.6)' : ''}
   class={[
     iconTask.isDone ? 'complete' : 'incomplete',
     whiteVariant && 'monochrome',

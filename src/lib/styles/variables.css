@@ -6,7 +6,6 @@
   --rhythm-highlight-color: orange;
   --location-indicator-color: var(--logo-twig-color);
   
-  --grip-line-color: rgba(0,0,0,0.175); /* 0.15 too faint for mf, 0.2 too prominent for me */
   --fine-control-color: rgb(0,0,0,0.5);
   --scheduled-info-color: rgb(0, 0, 0);
   --task-name-color: oklch(43.9% 0 0); /* text-neutral-600 */ 
