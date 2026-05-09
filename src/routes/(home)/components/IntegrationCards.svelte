@@ -39,7 +39,7 @@
     </IntegrationCard>
 
     <IntegrationCard
-      title="Breakthrough"
+      title="Insight"
       points={[
         { t: 149, label: 'Almost everything important requires us to act.' },
       ]}
