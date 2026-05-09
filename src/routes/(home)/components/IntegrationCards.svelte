@@ -27,9 +27,9 @@
 <div class="flex flex-col items-center gap-x-12 gap-y-4 w-full">
   <div class="flex justify-center items-start gap-x-4 w-8/10">
     <IntegrationCard
-      title="Motivation"
+      title="Problem"
       points={[
-        { t: 32, label: 'A life calendar that includes long-term aspirations' },
+        { t: 32, label: "Important things are often excluded from calendars." },
         // { t: 30, label: "Lists that can be seen together and less fragmented." },
       ]}
       {activeTime}
@@ -39,10 +39,9 @@
     </IntegrationCard>
 
     <IntegrationCard
-      title="Basics"
+      title="Breakthrough"
       points={[
-        { t: 200, label: 'Tasks and sub-tasks' },
-        { t: 344, label: 'Timelines'}
+        { t: 149, label: 'Almost everything important requires us to act.' },
       ]}
       {activeTime}
       onseek={seek}
@@ -51,10 +50,11 @@
     </IntegrationCard>
 
     <IntegrationCard
-      title="Advanced"
+      title="Demo"
       points={[
-        { t: 428, label: 'Icon habits and sub-routines' },
-        { t: 490, label: 'Time spent & practice journals' }
+        { t: 266, label: 'Basics'},
+        { t: 397, label: 'Timelines'},
+        { t: 492, label: 'Icon habits and sub-routines' }
       ]}
       {activeTime}
       onseek={seek}
@@ -65,7 +65,7 @@
     <IntegrationCard
       title="Ecosystem"
       points={[
-        { t: 635, label: 'Designed to complement other tools' }
+        { t: 748, label: 'Designed to complement other tools' }
       ]}
       {activeTime}
       onseek={seek}
