@@ -3,13 +3,14 @@
   import MonthYearMenus from '$lib/components/MonthYearMenus.svelte'
   import RandomButton from '$lib/components/RandomButton.svelte'
   import { user, updateCache, openTaskPopup } from '$lib/store/index.js'
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { DateTime } from 'luxon'
   import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
   import { lazyCallable } from '$lib/utils/svelteActions.js'
 
   let photos = $state(null)
+  let unsub = () => {}
   let totalSize = 0
   const batchSize = 50 // small batch sizes, ironically, causes more wasteful re-renders as size increases
   let dt = $state(DateTime.now().endOf('month'))
@@ -18,9 +19,12 @@
 
   $effect(() => getBatch(dt))
 
+  onDestroy(() => unsub())
+
   async function getBatch () {
+    unsub()
     totalSize += batchSize
-    return onSnapshot(pseudoPaginationQuery(totalSize), snapshot => {
+    unsub = onSnapshot(pseudoPaginationQuery(totalSize), snapshot => {
       const resultDocs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
       updateCache(resultDocs)
       photos = resultDocs
