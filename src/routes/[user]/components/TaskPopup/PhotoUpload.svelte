@@ -13,7 +13,7 @@
   import { uploadThenGetMetadata } from '$lib/utils/imageHandling.js'
   import MslAddPhotoAlternateOutline from 'virtual:icons/material-symbols-light/add-photo-alternate-outline'
   import { getContext } from 'svelte'
-  import { user } from '$lib/store'
+  import { updateCache, user } from '$lib/store'
 
   const { Task, tasksCache } = getContext('app')
   let { onUpload, onFinished, task } = $props()
@@ -22,6 +22,7 @@
  
   async function imbuePhotoIntoTask (e, id, onUpload, onFinished) {
     onUpload()
+    const taskAtUpload = $tasksCache[id] ?? task
 
     let image = e.target.files[0]
 
@@ -37,11 +38,14 @@
       imageFullPath 
     }
 
+    const currentTask = $tasksCache[id] ?? taskAtUpload
+    if (!$tasksCache[id] && currentTask?.id === id) updateCache([currentTask])
+
     if ($user.photoUploadAutoArchive) {
       updateObj.isDone = true
       updateObj.duration = orientation === 'landscape' ? 106 : 188
 
-      if (!$tasksCache[id].startDateISO) {
+      if (currentTask && !currentTask.startDateISO) {
         updateObj.startDateISO = dt.toFormat('yyyy-MM-dd')
         updateObj.startTime = dt.toFormat('HH:mm')
       }
