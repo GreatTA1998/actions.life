@@ -7,6 +7,7 @@ export { user } from './userStore.js'
 export { clickedTaskID, familyTree, openTaskPopup, closeTaskPopup } from './taskPopup.js'
 export { tasksCache, updateCache, cleanupCache } from './tasksCache.js'
 
+export let loading = writable(true)
 export const authUser = writable(null) // reactive version of firebaseAuth.currentUser (= to resultUser from onAuthStateChanged)
 export const initialDataReady = writable(false)
 

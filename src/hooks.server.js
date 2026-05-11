@@ -1,8 +1,8 @@
-import { reportError } from '$lib/utils/errorReporting.js'
+import { reportError } from '$lib/utils/errors.js'
 
 export function handleError ({ event, error }) {
   reportError({ 
-    subject: 'Svelte handleError triggered', 
+    subject: 'handleError from hooks.server.js', 
     content: event.url.pathname + '\n' + error.stack 
   })
 }
@@ -13,5 +13,5 @@ export async function handle ({ event, resolve }) {
   if (event.url.hostname.includes('ngrok')) {
     event.locals.authDomain = event.url.origin;
   }
-  return resolve(event);
+  return resolve(event)
 }

@@ -1,7 +1,7 @@
 <script>
   import { goto } from '$app/navigation'
   import { loadSounds } from '$lib/features/audio.js'
-  import { user, authUser, authChecked, loggedIn, initialDataReady, firebaseAuth } from '$lib/store'
+  import { user, authUser, authChecked, loggedIn, initialDataReady, firebaseAuth, loading } from '$lib/store'
   import { page } from '$app/state'
   import { onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
@@ -17,15 +17,13 @@
 
   let { children } = $props()
 
-  let loading = $state(true)
-
   $effect(() => {
     if ($authChecked && $loggedIn && $user.email && $initialDataReady) {
-      loading = false
+      loading.set(false)
     }
   })
 
-  onMount(() => {
+  onMount(() => {    
     loadSounds()
 
     translateJSConstantsToCSSVariables()
@@ -35,19 +33,19 @@
       authUser.set($firebaseAuth.currentUser)
 
       if (page.url.pathname.startsWith('/legal')) {
-        loading = false
+        loading.set(false)
       }
     
       else if (!resultUser) {
         goto('/')
-        loading = false
+        loading.set(false)
         loggedIn.set(false)
         user.set({})
       } 
 
       else if (resultUser.isAnonymous) {
         goto('/')
-        loading = false
+        loading.set(false)
         loggedIn.set(true)
       }
       
@@ -62,13 +60,13 @@
 
 {@render children()}
 
-{#if loading}
+{#if $loading}
   <div transition:fade 
     class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
   </div>
 {/if}
 
-{#if loading} <!-- must be separate from the transition block -->
+{#if $loading} <!-- must be separate from the transition block -->
   <img src="/logo-no-bg.png" 
     class={['pulse center', 'w-12 h-12 rounded-2xl']}
   />
