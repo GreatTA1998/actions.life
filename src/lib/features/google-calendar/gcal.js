@@ -39,27 +39,36 @@ export async function fetchAccountsAndCalendars () {
 export async function getAllGCalEvents (startDT, endDT) {
   const accounts = get(allAccounts)
   const calendars = get(cals)
+  const eventFetches = []
    
   for (const account of accounts) {
-    if (account.selectedCalIDs.length > 0) {
-      helper(
+    const selectedCalIDs = Array.isArray(account.selectedCalIDs) ? account.selectedCalIDs : []
+    const calArr = Array.isArray(calendars[account.id]) ? calendars[account.id] : []
+
+    if (selectedCalIDs.length > 0 && calArr.length > 0) {
+      eventFetches.push(helper(
         startDT, 
         endDT, 
-        account.selectedCalIDs, 
-        calendars[account.id], 
+        selectedCalIDs, 
+        calArr, 
         account.refreshToken.value,
         account.opacity
-      )
+      ))
     }
   }
+
+  await Promise.allSettled(eventFetches)
 }
 
 export async function helper (startDT, endDT, calendarIds, calArr, refreshToken, opacity = 0.4) {
   try {  
+    const safeCalendarIds = Array.isArray(calendarIds) ? calendarIds : []
+    if (safeCalendarIds.length === 0) return
+
     const result = await cloudFunction('fetchGoogleEvents', { 
       timeMin: startDT.startOf('day').toISO(),
       timeMax: endDT.endOf('day').toISO(),
-      calendarIds,
+      calendarIds: safeCalendarIds,
       refreshToken
     })
 
@@ -75,7 +84,8 @@ export async function helper (startDT, endDT, calendarIds, calArr, refreshToken,
       for (const dt of dtsInRange) {
         dict[dt] = empty()
       }
-      const calMap = new Map(calArr.map(cal => [cal.id, cal]))
+      const safeCalArr = Array.isArray(calArr) ? calArr : []
+      const calMap = new Map(safeCalArr.map(cal => [cal.id, cal]))
       
       for (const event of result.data.events) { // this is wrong, multi-day events can have start and end times see Feb 26 18:00 --> March 4 21:00, re-think the logic
         if (event.start.date && !event.start.dateTime) {
@@ -108,11 +118,12 @@ export async function helper (startDT, endDT, calendarIds, calArr, refreshToken,
     }
   } catch (e) {
     console.error("Failed to fetch Google Events", e)
-    throw e // Fail fast - let caller handle if needed
   }
 }
 
 function gcalTask (event, calMap, opacity) {
+  const calMeta = calMap.get(event.calendarId) || {}
+
   return {
     opacity,
     id: event.id,
@@ -120,8 +131,8 @@ function gcalTask (event, calMap, opacity) {
     summary: event.summary,
     start: event.start, // { dateTime: ..., timeZone: ... }
     end: event.end,
-    backgroundColor: calMap.get(event.calendarId).backgroundColor,
-    foregroundColor: calMap.get(event.calendarId).foregroundColor,
+    backgroundColor: calMeta.backgroundColor || '#4285F4',
+    foregroundColor: calMeta.foregroundColor || '#ffffff',
     description: event.description
   }
 }
