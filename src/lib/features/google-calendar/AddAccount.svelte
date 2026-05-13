@@ -18,7 +18,6 @@
       console.error(err)
       error = err.message
     } finally {
-      console.log('finally clause')
       loading = false
     }
   }

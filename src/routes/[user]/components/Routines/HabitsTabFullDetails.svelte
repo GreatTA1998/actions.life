@@ -1,4 +1,5 @@
 <script>
+  import TaskPopupContext from '$lib/components/TaskPopupContext.svelte'
   import ListenToDoc from '$lib/components/ListenToDoc.svelte'
   import ListenToRoutineInstances from './ListenToRoutineInstances.svelte'
   import JournalEntries from './JournalEntries.svelte'
@@ -42,7 +43,9 @@
           {/if}
         </div>
         
-        <JournalEntries routineInstances={instances}/>
+        <TaskPopupContext>
+          <JournalEntries routineInstances={instances}/>
+        </TaskPopupContext>
       {/snippet}
     </ListenToDoc>
   </ListenToRoutineInstances>
