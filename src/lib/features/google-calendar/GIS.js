@@ -20,7 +20,6 @@ export function initiateGoogleConnect (clientId, scope = 'https://www.googleapis
       callback: async (response) => {
         if (response.code) {
           try {
-            console.log('Received auth code, exchanging for tokens...')
             await cloudFunction('exchangeGoogleCode', { code: response.code })
             resolve()
           } catch (error) {
@@ -31,7 +30,7 @@ export function initiateGoogleConnect (clientId, scope = 'https://www.googleapis
           console.error('GIS Error:', response.error)
           reject(new Error(response.error))
         } else {
-          console.log('Unknown callback error, response =', response)
+          console.error('Unknown callback error, response =', response)
           reject(new Error('Unknown callback error'))
         }
       },
