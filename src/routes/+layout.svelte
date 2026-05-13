@@ -1,4 +1,5 @@
 <script>
+  import { reportError } from '$lib/utils/errors.js'
   import { goto } from '$app/navigation'
   import { loadSounds } from '$lib/features/audio.js'
   import { user, authUser, authChecked, loggedIn, initialDataReady, firebaseAuth, loading } from '$lib/store'

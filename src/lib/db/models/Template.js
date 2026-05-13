@@ -86,7 +86,7 @@ const Template = {
 
     if (futureInstances.length && confirm(`There are ${futureInstances.length} future instances of this template. Delete them also?`)) {
       for (const instance of futureInstances) {
-        Task.delete({ id: instance.id }) // cascades subroutine task instances via getSubtreeNodes
+        Task.delete({ id: instance.id, willConfirm: false }) // cascades subroutine task instances via getSubtreeNodes
       }
     }
 
