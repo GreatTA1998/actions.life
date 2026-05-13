@@ -15,10 +15,6 @@
 
   let input = $state(null)
   let value = $state('')
-  let derivedTask = $derived({
-    ...$overrideOptions,
-    name: value
-  })
 
   const overrideOptions = writable({})
   const callback = writable(() => {})
@@ -53,7 +49,7 @@
 
   async function onPopoverClose () {
     if (value) {
-      Task.create({ id: randomID(), data: derivedTask })
+      Task.create({ id: randomID(), data: { name: value, ...$overrideOptions } })
       value = '' 
     }
     setTimeout(() => inputActive = false, 300) // delay necessary for iOS where `ontoggle` resolves before `onclick`
@@ -62,9 +58,10 @@
   async function onEnter () {
     if (value === '') inputPopover.hidePopover()
     else {
-      const result = await Task.create({ id: randomID(), data: derivedTask })
-      $callback(result)
+      const data = { name: value, ...$overrideOptions }
       value = '' 
+      const result = await Task.create({ id: randomID(), data })
+      $callback(result)
     }
   }
 
