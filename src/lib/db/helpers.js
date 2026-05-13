@@ -8,10 +8,16 @@ import { deleteObject, getStorage, ref } from 'firebase/storage'
 import { user } from '$lib/store'
 import { get } from 'svelte/store'
 
-export async function listenTo (q, onUpdate) {
-  return onSnapshot(q, snap =>
+export function listenToCollection (q, onUpdate) {
+  return onSnapshot(q, snap => {
     onUpdate(snap.docs.map(doc => ({ ...doc.data(), id: doc.id })))
-  )
+  })
+}
+
+export function listenToDoc (q, onUpdate) {
+  return onSnapshot(q, doc => {
+    onUpdate(doc.data())
+  })
 }
 
 export function firestoreRef (path) {

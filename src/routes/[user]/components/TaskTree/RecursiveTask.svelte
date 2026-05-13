@@ -13,7 +13,8 @@
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
-  const { Task, openTaskPopup } = getContext('app')
+  const { Task } = getContext('app')
+  const { openTaskPopup } = getContext('task-popup')
   const { 
     registerDropzone, 
     startTaskDrag, draggedItem, logicAreaRect, 
@@ -88,7 +89,6 @@
       <div class="shrink-0 relative">
         {@render verticalTimeline?.()}
         
-
         {#if task.iconURL}
           <DoodleIcon iconTask={task} size="1rem" scaleToFit whiteVariant={hasImage} />
         {:else}

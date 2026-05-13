@@ -1,5 +1,5 @@
 <script>
-  import ListenToDoc from './ListenToDoc.svelte'
+  import ListenToDoc from '$lib/components/ListenToDoc.svelte'
   import ListenToRoutineInstances from './ListenToRoutineInstances.svelte'
   import JournalEntries from './JournalEntries.svelte'
   import StarButton from '$lib/components/StarButton.svelte'
@@ -24,10 +24,8 @@
   <ListenToRoutineInstances templateID={selectedRoutineID} userID={$user.uid}
     let:routineInstances={instances}
   >
-    <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}
-      let:theDoc={selectedRoutine}
-    >
-      {#if selectedRoutine}
+    <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}>
+      {#snippet children(selectedRoutine)}
         <div class="shrink-0 mb-5 px-4">
           <div class="flex items-center gap-2 mb-2">
             <h2>{selectedRoutine.name}</h2>
@@ -45,8 +43,7 @@
         </div>
         
         <JournalEntries routineInstances={instances}/>
-        
-      {/if}
+      {/snippet}
     </ListenToDoc>
   </ListenToRoutineInstances>
 </div>

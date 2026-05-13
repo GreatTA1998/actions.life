@@ -1,4 +1,4 @@
-import { tasksCache, user } from '$lib/store'
+import { user } from '$lib/store'
 import { get } from 'svelte/store'
 import { db } from '$lib/db/init.js'
 import { getFirestoreDoc } from '$lib/db/helpers.js'
@@ -11,7 +11,7 @@ export async function updateEntireTree ({ treeISOs, batch, parent }) {
 }
 
 export async function maintainTreeISOs ({ id, batch, kvChanges: changes }) {
-  const task = get(tasksCache)[id]
+  const task =  await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
   const crossFamily = await hasChangedFamily({ task, changes })
   if (crossFamily) {
     await handleCrossTree({ task, changes, batch })
@@ -25,9 +25,10 @@ async function hasChangedFamily ({ task, changes }) {
   if (changes.parentID === undefined) return false
   else if (changes.parentID === task.parentID) return false
   else {
+    const parent = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${changes.parentID}`)
     const [oldRoot, newRoot] = await Promise.all([
       getRoot(task),
-      getRoot(get(tasksCache)[changes.parentID])
+      getRoot(parent)
     ])
     return oldRoot !== newRoot
   }
@@ -37,7 +38,7 @@ export async function handleCrossTree ({ task, changes, batch }) {
   let movedTree = [] // 1 or more nodes
   let prevFamily = [] // 1 or more nodes
   let newFamily = [] // 0 or more nodes
-  const newParent = get(tasksCache)[changes.parentID]
+  const newParent = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${changes.parentID}`)
   
   await Promise.all([
     getSubtreeNodes(task).then(nodes => movedTree = nodes),
@@ -101,15 +102,8 @@ function batchUpdate ({ nodes, treeISOs, batch, rootID }) {
 
 export async function getRoot (task) {
   if (task === undefined) return undefined
-  
-  const cacheResult = get(tasksCache)[task.rootID]
-  if (cacheResult) return cacheResult
-  else {
-    const rootDoc = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${task.rootID}`)
-    get(tasksCache)[rootDoc.id] = rootDoc
-    
-    return rootDoc
-  }
+
+  return getFirestoreDoc(`/users/${get(user).uid}/tasks/${task.rootID}`)
 }
 
 export async function getSubtreeNodes (task) {
@@ -122,9 +116,6 @@ export async function getSubtreeNodes (task) {
     ) // to fail fast, only fetch archived tasks
   )
   const nodes = tasksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-  for (const node of nodes) {
-    get(tasksCache)[node.id] = node
-  }
   
   const result = [task]
   helper(task, result)

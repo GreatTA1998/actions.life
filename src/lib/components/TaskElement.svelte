@@ -79,7 +79,7 @@
   import { titleFS } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
   
-  const { openTaskPopup } = getContext('app')
+  const { openTaskPopup } = getContext('task-popup')
   const { startTaskDrag } = getContext('drag-drop')
 
   let { task = null } = $props() // assumes `task` is hydrated

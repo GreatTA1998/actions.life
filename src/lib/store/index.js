@@ -4,8 +4,6 @@ import { writable } from 'svelte/store'
 export { calSnapInterval, timestamps } from '/src/routes/[user]/components/Calendar/timestamps.js'
 export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
-export { clickedTaskID, familyTree, openTaskPopup, closeTaskPopup } from './taskPopup.js'
-export { tasksCache, updateCache, cleanupCache } from './tasksCache.js'
 
 export let loading = writable(true)
 export const authUser = writable(null) // reactive version of firebaseAuth.currentUser (= to resultUser from onAuthStateChanged)

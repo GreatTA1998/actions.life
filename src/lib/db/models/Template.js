@@ -16,7 +16,6 @@ import {
 import { get } from 'svelte/store'
 import { DateTime } from 'luxon'
 import { nodesByParent } from '$lib/db/tree.ts'
-import { updateCache } from '$lib/store/tasksCache.js'
 import { randomID } from '$lib/utils/core.js'
 
 const Template = {
@@ -115,7 +114,6 @@ const Template = {
         where('startDateISO', '>=', DateTime.now().toFormat('yyyy-MM-dd'))
       )
     )
-    updateCache(taskInstances) // Task.delete relies on cache, for example
     return taskInstances
   },
 

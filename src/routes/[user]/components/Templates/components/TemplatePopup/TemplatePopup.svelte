@@ -16,7 +16,8 @@
   import { WIDTHS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
-  const { template, templatesByID, templateTree, closeTaskPopup } = getContext('app')
+  const { template, templatesByID, templateTree } = getContext('uniquely-template')
+  const { closeTaskPopup } = getContext('task-popup')
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 

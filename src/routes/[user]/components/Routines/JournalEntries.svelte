@@ -1,6 +1,8 @@
 <script>
-  import { formatDate, round } from '/src/lib/utils/core.js'
-  import { openTaskPopup } from '/src/lib/store'
+  import { formatDate, round } from '$lib/utils/core.js'
+  import { getContext } from 'svelte'
+  
+  const { openTaskPopup } = getContext('task-popup')
 
   export let routineInstances = null
 

@@ -13,10 +13,11 @@
   import { getContext } from 'svelte'
   import TemplateContext from '/src/routes/[user]/components/Templates/components/TemplatePopup/TemplateContext.svelte'
 
-  const { Task, tasksCache, clickedTaskID, closeTaskPopup, familyTree } = getContext('app')
+  let { task } = $props()
 
-  let task = $derived($tasksCache[$clickedTaskID])
-  let parentObj = $derived(task.parentID ? $tasksCache[task.parentID] : null)
+  const { Task } = getContext('app')
+  const taskPopup = getContext('task-popup')
+  const { closeTaskPopup, ancestralTree } = taskPopup
 
   const debouncedUpdate = createDebouncedFunction(
     (id, kvChanges) => Task.update({ id, kvChanges }), 
@@ -52,9 +53,10 @@
       {/if}
     </div>
 
-    <PopupTitle value={task.name}
-      {parentObj}
-      onInput={value => debouncedUpdate($clickedTaskID, { name: value })}
+    <PopupTitle 
+      value={task.name}
+      onInput={value => debouncedUpdate(task.id, { name: value })}
+      parentID={task.parentID}
     />
   </div>
 
@@ -65,20 +67,18 @@
       note: 100% width doesn't work because textarea is an inline element 
     -->
     <TextArea value={task.notes}
-      oninput={e => debouncedUpdate($clickedTaskID, { notes: e.target.value })}
+      oninput={e => debouncedUpdate(task.id, { notes: e.target.value })}
       placeholder="Notes"
       class="min-h-[3rem]"
     />
 
-    {#if $familyTree}
-      <DragDropContext>
-        <TodoList trees={$familyTree.children}
-          listWidth="100%"
-          parentID={task.id}
-          style="padding-bottom: 1rem"
-        />
-      </DragDropContext>
-    {/if}
+    <DragDropContext>
+      <TodoList trees={$ancestralTree.children}
+        listWidth="100%"
+        parentID={task.id}
+        style="padding-bottom: 1rem"
+      />
+    </DragDropContext>
   </div>
 
   <div class="mt-auto w-full flex items-center gap-x-3">

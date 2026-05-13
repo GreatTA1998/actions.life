@@ -10,11 +10,12 @@ const limit = 10
 
 export async function reportError ({ subject, content }) {
   loading.set(false)
-  alert(`UNEXPECTED ERROR ${subject}: ${content}`)
+  // alert(`UNEXPECTED ERROR ${subject}: ${content}`)
 
   if (!dev && logs < limit) {
     setFirestoreDoc(`/errors/${randomID()}`, {
-      subject, content,
+      subject, 
+      content,
       uid: get(user).uid || '',
       email: get(user).email || '',
       utc: DateTime.now().toFormat('yyyy-MM-dd'),
