@@ -10,7 +10,6 @@ exports.sendEmail = onCall(async (request) => {
   )
 
   const { toWho, subject, content } = request.data
-  console.log('functions sending email to:', toWho)
  
   const result = await client.sendEmail({
     "From": "elton@explanations.io",
@@ -21,6 +20,5 @@ exports.sendEmail = onCall(async (request) => {
     "MessageStream": "outbound"
   })
 
-  console.log('finished sending email')
   return { success: true, result }
 })

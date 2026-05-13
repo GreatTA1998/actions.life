@@ -8,7 +8,9 @@
   import { periodicity } from '$lib/utils/rrule.js'
   import { getContext } from 'svelte'
 
-  const { Template, openTaskPopup, routines } = getContext('app')
+  const { Template } = getContext('app')
+  const { openTaskPopup } = getContext('task-popup')
+  const { routines } = getContext('uniquely-template')
 
   let selectedRoutineID = $state('')
   let stats = $state(new Map())

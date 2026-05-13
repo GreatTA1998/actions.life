@@ -1,5 +1,5 @@
 import {
-  doc, setDoc, getDoc, updateDoc, deleteDoc,
+  doc, setDoc, getDoc, getDocFromCache, updateDoc, deleteDoc,
   collection, getDocs, query, where, limit,
   writeBatch, arrayRemove, increment, onSnapshot
 } from 'firebase/firestore'
@@ -8,10 +8,16 @@ import { deleteObject, getStorage, ref } from 'firebase/storage'
 import { user } from '$lib/store'
 import { get } from 'svelte/store'
 
-export async function listenTo (q, onUpdate) {
-  return onSnapshot(q, snap =>
+export function listenToCollection (q, onUpdate) {
+  return onSnapshot(q, snap => {
     onUpdate(snap.docs.map(doc => ({ ...doc.data(), id: doc.id })))
-  )
+  })
+}
+
+export function listenToDoc (q, onUpdate) {
+  return onSnapshot(q, doc => {
+    onUpdate(doc.data())
+  })
 }
 
 export function firestoreRef (path) {
@@ -23,20 +29,16 @@ export async function setFirestoreDoc (path, newObject) {
   return setDoc(ref, newObject, { merge: true })
 }
 
-export function getFirestoreDoc (path) {
-  return new Promise(async (resolve, reject) => {
-    const ref = firestoreRef(path)
-    try {
-      const snapshot = await getDoc(ref)
-      if (!snapshot.exists()) resolve(null)
-      else {
-        resolve({ id: snapshot.id, path: snapshot.ref.path, ...snapshot.data() })
-      }
-    } catch (error) {
-      console.log('error =', error)
-      reject(error)
-    }
-  })
+export async function getFirestoreDoc (path) {
+  const ref = firestoreRef(path)
+
+  try {
+    const cached = await getDocFromCache(ref)
+    return { id: cached.id, path: cached.ref.path, ...cached.data() }
+  } catch (error) {
+    const result = await getDoc(ref)
+    return { id: result.id, path: result.ref.path, ...result.data() }
+  }
 }
 
 export async function getFirestoreCollection (path) {

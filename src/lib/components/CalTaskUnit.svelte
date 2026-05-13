@@ -2,19 +2,19 @@
   import Checkbox from '$lib/components/Checkbox.svelte'
   import ParentBadge from '$lib/components/ParentBadge.svelte'
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
+  import ListenToDoc from '$lib/components/ListenToDoc.svelte'
   import { titleFS } from '$lib/styles/reused.module.css'
   import { getContext } from 'svelte'
   import { user } from '$lib/store'
 
-  const { Task, tasksCache, openTaskPopup } = getContext('app')
+  const { Task } = getContext('app')
+  const { openTaskPopup } = getContext('task-popup')
 
   let { 
     task = null, 
     color = 'var(--task-name-color)',
     icon
   } = $props()
-
-  let parentObj = $derived(task.parentID ? $tasksCache[task.parentID] : null)
 </script>
 
 <div class="flex items-center gap-x-1 w-full">
@@ -49,8 +49,12 @@
     <SubtaskCountIndicator {task} {color} fontSize={titleFS} extraClass="min-w-fit"/>
   {/if}
 
-  {#if parentObj}
-    <ParentBadge {parentObj} --color={color} />
+  {#if task.parentID}
+    <ListenToDoc docPath="/users/{$user.uid}/tasks/{task.parentID}">
+      {#snippet children (parentObj)}
+        <ParentBadge {parentObj} --color={color} />
+      {/snippet}
+    </ListenToDoc>
   {/if}
 
   {#if task.tagIDs}

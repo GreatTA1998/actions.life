@@ -5,21 +5,19 @@
   import Details from './Details.svelte'
   import { getContext } from 'svelte'
 
-  const { tasksCache, clickedTaskID, closeTaskPopup } = getContext('app')
-  
-  let task = $derived($tasksCache[$clickedTaskID])
+  const { closeTaskPopup } = getContext('task-popup')
+
+  let { task } = $props()
 </script>
 
 <NewBasePopup onExit={closeTaskPopup}>
-  {#if task}
-    <LayoutDecider {task}>
-      {#snippet photo (style)}
-        <ClickableImage {task} {style} />
-      {/snippet}
+  <LayoutDecider {task}>
+    {#snippet photo (style)}
+      <ClickableImage {task} {style} />
+    {/snippet}
 
-      {#snippet info ()}
-        <Details />
-      {/snippet}
-    </LayoutDecider>
-  {/if}
+    {#snippet info ()}
+      <Details {task} />
+    {/snippet}
+  </LayoutDecider>
 </NewBasePopup>

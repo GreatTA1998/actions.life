@@ -5,6 +5,7 @@ import { reportError } from '$lib/utils/errors.js'
 firebaseAuth.set(auth)
 
 export function handleError ({ event, error }) {
+  console.error(event, error)
   reportError({ 
     subject: 'handleError from hooks.client.js', 
     content: event.url.pathname + '\n' + error.stack

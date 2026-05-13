@@ -1,7 +1,8 @@
 <script>
   import { getContext } from 'svelte'
 
-  const { openTaskPopup, Task } = getContext('app')
+  const { Task } = getContext('app')
+  const { openTaskPopup } = getContext('task-popup')
   const { startTaskDrag } = getContext('drag-drop')
 
   let { 

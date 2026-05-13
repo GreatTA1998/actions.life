@@ -3,7 +3,6 @@
   import { DateTime } from 'luxon'
   import { collection, query, where, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
-  import { openTaskPopup, updateCache } from '$lib/store/index.js'
   import { onMount, onDestroy, tick, getContext } from 'svelte'
   import DatePicker from '$lib/components/DatePicker.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
@@ -11,6 +10,7 @@
   import { WIDTHS } from '$lib/utils/constants.js'
 
   const { User } = getContext('app')
+  const { openTaskPopup } = getContext('task-popup')
 
   let selectedDate = $state(DateTime.now().startOf('day'))
   let loadedDays = $state([]) 
@@ -107,7 +107,6 @@
 
       const unsub = onSnapshot(q, (snapshot) => {
         const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-        updateCache(tasks)
         distributeTasks(tasks, startISO, endISO)
       }, (error) => {
         console.error("Error listening to tasks:", error)

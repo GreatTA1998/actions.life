@@ -2,12 +2,15 @@
   import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
   import MonthYearMenus from '$lib/components/MonthYearMenus.svelte'
   import RandomButton from '$lib/components/RandomButton.svelte'
-  import { user, updateCache, openTaskPopup } from '$lib/store/index.js'
+  import { user } from '$lib/store/index.js'
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
   import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
   import { lazyCallable } from '$lib/utils/svelteActions.js'
+  import { getContext } from 'svelte'
+
+  const { openTaskPopup } = getContext('task-popup')
 
   let photos = $state(null)
   let totalSize = 0
@@ -22,7 +25,6 @@
     totalSize += batchSize
     return onSnapshot(pseudoPaginationQuery(totalSize), snapshot => {
       const resultDocs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-      updateCache(resultDocs)
       photos = resultDocs
     })
   }

@@ -1,9 +1,7 @@
 import { z } from 'zod'
-import { releaseImage, maintainOrderValue, getFirestoreCollection } from '$lib/db/helpers.js'
+import { releaseImage, maintainOrderValue, getFirestoreDoc, getFirestoreCollection } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
-import { user, tasksCache, cleanupCache, showUndoSnackbar } from '$lib/store'
-import { updateCache } from '$lib/store/tasksCache.js'
-import { closeTaskPopup } from '$lib/store/taskPopup.js'
+import { user, showUndoSnackbar } from '$lib/store'
 import { 
   writeBatch, getDocs, collection, 
   query, where, doc
@@ -56,7 +54,7 @@ const Task = {
       data.treeISOs = [startDateISO].filter(Boolean)
     }
     else {
-      const parent = get(tasksCache)[parentID]
+      const parent = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${parentID}`)
       data.rootID = parent.rootID
       data.tagIDs = parent.tagIDs
       data.treeISOs = [...parent.treeISOs, startDateISO].filter(Boolean) 
@@ -75,7 +73,7 @@ const Task = {
   },
 
   async update ({ id, kvChanges, undoable = true }) {
-    const oldVal = { ...get(tasksCache)[id] }
+    const oldVal = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
     if (get(user).simpleMode) {
       if (kvChanges.startDateISO) { // via datepicker, drag-to-calendar, checkbox, or photo upload
         kvChanges.onList = false
@@ -116,8 +114,7 @@ const Task = {
   },
 
   async delete ({ id, willConfirm = true }) {
-    closeTaskPopup()
-    const task = get(tasksCache)[id]
+    const task = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
     const treeNodes = await getSubtreeNodes(task)
 
     // warning: need a way to disable this confirmation when we support sub-tasks for routines
@@ -132,7 +129,6 @@ const Task = {
       batch.delete(doc(db, `/users/${uid}/tasks/${node.id}`))
     }
     await handleTreeISOsForDeletion({ batch, tasksToDelete: treeNodes }) // modifies `batch` before commiting
-    cleanupCache(treeNodes) // previous operations and sub-operations depend on `tasksCache`
     
     await batch.commit()
     
@@ -140,7 +136,7 @@ const Task = {
   },
 
   async archiveTree ({ id }) {
-    const task = get(tasksCache)[id]
+    const task = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
     const tasks = await getSubtreeNodes(task)
 
     const { uid } = get(user)
@@ -165,7 +161,7 @@ const Task = {
   async unarchiveTree ({ id }) {
     const { uid } = get(user)
     const batch = writeBatch(db)
-    const task = get(tasksCache)[id]
+    const task = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
     const tasksToUnarchive = await getSubtreeNodes(task)
 
     for (const task of tasksToUnarchive) {
@@ -191,12 +187,17 @@ const Task = {
     const allTemplates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
     const id = randomID()
     const { parentID } = modifiers
+    let rootID = id
+    if (parentID) {
+      const parent = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${parentID}`)
+      rootID = parent.rootID
+    }
 
     return instantiate({
       id,
       node: { ...template, ...modifiers },
       parentID: parentID || '',
-      rootID: parentID ? get(tasksCache)[parentID].rootID : id,
+      rootID,
       templateID: (typeof template.rrStr === 'string') ? template.id : '',
       onList: !!modifiers.onList,  // `template.onList` doesn't matter, example: calendar task forged into a template, which instantiates onto the list.
       memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID))
@@ -208,8 +209,7 @@ async function instantiate ({ node, id, parentID, rootID, templateID, onList, me
   const result = await Task.create({ id, data: {
     ...node, parentID, rootID, templateID, onList
   }})
-  updateCache([result])
-  // treeISOs will be maintained by Task.create() as long as `parent` and `tasksCache` are created before children
+  // treeISOs will be maintained by Task.create() as long as `parent` are created before children
 
   for (const child of memo[node.id]) {
     instantiate({
