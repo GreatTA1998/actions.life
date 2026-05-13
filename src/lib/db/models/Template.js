@@ -33,7 +33,7 @@ const Template = {
 
     rrStr: z.string().default(''),
     prevEndISO: z.string().default(''),
-    previewSpan: z.number().optional(), // needs to be computed
+    previewSpan: z.number().default(14), // needs to be computed
     isStarred: z.boolean().default(true),
 
     rootID: z.string(),

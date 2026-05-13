@@ -31,9 +31,6 @@ export function createCalendarService ({ treesByDate, treesByID }) {
       (snapshot) => {
         const tasks = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
         rebuildRegion(tasks, dateISOs)
-      }, 
-      (error) => {
-        console.error('Error in listenToDateChunk:', error)
       }
     )
   }

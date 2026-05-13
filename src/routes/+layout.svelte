@@ -28,34 +28,43 @@
 
     translateJSConstantsToCSSVariables()
 
-    onAuthStateChanged($firebaseAuth, async (resultUser) => {
-      authChecked.set(true) // from cookie, takes around 300 - 500ms
-      authUser.set($firebaseAuth.currentUser)
-
-      if (page.url.pathname.startsWith('/legal')) {
-        loading.set(false)
-      }
-    
-      else if (!resultUser) {
-        goto('/')
-        loading.set(false)
-        loggedIn.set(false)
-        user.set({})
-      } 
-
-      else if (resultUser.isAnonymous) {
-        goto('/')
-        loading.set(false)
-        loggedIn.set(true)
-      }
-      
-      else if (resultUser.email) {
-        goto('/' + $authUser.uid)
-        loggedIn.set(true)
-        // <UserAppInstance/> above will later set `initialDataReady = true`
-      }
-    })
+    onAuthStateChanged($firebaseAuth, onResult, onError)
   })
+
+  function onResult (resultUser) {
+    authChecked.set(true) // from cookie, takes around 300 - 500ms
+    authUser.set($firebaseAuth.currentUser)
+
+    if (page.url.pathname.startsWith('/legal')) {
+      loading.set(false)
+    }
+  
+    else if (!resultUser) {
+      goto('/')
+      loading.set(false)
+      loggedIn.set(false)
+      user.set({})
+    } 
+
+    else if (resultUser.isAnonymous) {
+      goto('/')
+      loading.set(false)
+      loggedIn.set(true)
+    }
+    
+    else if (resultUser.email) {
+      goto('/' + $authUser.uid)
+      loggedIn.set(true)
+      // <UserAppInstance/> above will later set `initialDataReady = true`
+    }
+  }
+
+  async function onError (error) {
+    reportError({
+      subject: 'onAuthStateChanged () failed',
+      content: `code: ${error.code ?? ''}\nmessage: ${error.message}\nstack: ${error.stack ?? ''}`
+    })
+  }
 </script>
 
 {@render children()}

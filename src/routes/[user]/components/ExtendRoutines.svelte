@@ -27,7 +27,7 @@
       const templates = await Template.getAll()
       await Promise.all(
         templates
-          .filter(t => t.rrStr)
+          .filter(t => t.rrStr && t.prevEndISO)
           .map(template => 
             extendRoutine({ 
               startDT: DateTime.fromISO(template.prevEndISO).plus({ days: 1 }), // startOf('day'), is needed technically, but rrFloat also removes timing

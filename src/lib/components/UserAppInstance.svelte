@@ -12,6 +12,7 @@
   import TaskPopup from '/src/routes/[user]/components/TaskPopup/TaskPopup.svelte'
   import ExtendRoutines from '/src/routes/[user]/components/ExtendRoutines.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
+  import { reportError } from '$lib/utils/errors.js'
   import { activeView } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { doc, onSnapshot } from 'firebase/firestore'
@@ -26,7 +27,13 @@
   onMount(() => 
     onSnapshot(
       doc(db, '/users/' + uid), 
-      snap => user.set({ ...snap.data() })
+      snap => user.set({ ...snap.data() }),
+      error => {
+        reportError({
+          subject: 'onSnapshot () for /users/uid failed',
+          content: `code: ${error.code ?? ''}\nmessage: ${error.message}\nstack: ${error.stack ?? ''}`
+        })
+      }
     )
   )
 </script>
