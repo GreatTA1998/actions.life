@@ -30,7 +30,7 @@ async function hasChangedFamily ({ task, changes }) {
       getRoot(task),
       getRoot(parent)
     ])
-    return oldRoot !== newRoot
+    return oldRoot.id !== newRoot.id
   }
 }
 
