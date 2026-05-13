@@ -22,6 +22,7 @@
       snapshot => {
         const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
         const [tree] = buildForest(tasks)
+        // warning: tree is undefined if the task is deleted from <TaskPopup/>, same with <Template/>
         ancestralTree.set(findSubtree({ id, tree }))
       }
     )

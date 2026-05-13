@@ -28,16 +28,16 @@
     <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}>
       {#snippet children(selectedRoutine)}
         <div class="shrink-0 mb-5 px-4">
-          <div class="flex items-center gap-2 mb-2">
-            <h2>{selectedRoutine.name}</h2>
+          <div class="flex items-center gap-2">
+            <h2 class="text-[1.625rem] font-semibold tracking-[-0.02em] leading-tight">{selectedRoutine.name}</h2>
             <StarButton isStarred={selectedRoutine.isStarred}
               onToggle={() => toggleStar(selectedRoutineID, selectedRoutine.isStarred)}
             />
           </div>
           {#if stats.has(selectedRoutineID)}
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-neutral-500 tabular-nums">
               <span>{formatHours(stats.get(selectedRoutineID).minutesSpent)}</span>
-              <span style="color: #666;">•</span>
+              <span class="text-neutral-300 select-none" aria-hidden="true">·</span>
               <span>completed {stats.get(selectedRoutineID).timesCompleted} times</span>
             </div>
           {/if}
@@ -50,11 +50,3 @@
     </ListenToDoc>
   </ListenToRoutineInstances>
 </div>
-
-<style>
-  h2 {
-    margin: 0;
-    font-size: 1.75rem;
-    font-weight: 600;
-  }
-</style>

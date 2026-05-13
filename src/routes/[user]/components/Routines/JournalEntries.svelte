@@ -1,232 +1,74 @@
 <script>
   import { formatDate, round } from '$lib/utils/core.js'
+  import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
-  
+
   const { openTaskPopup } = getContext('task-popup')
 
-  export let routineInstances = null
+  let { routineInstances = null } = $props()
 
-  function calculateGapSize(currentDate, nextDate) {
-    if (!currentDate || !nextDate) return 32
-    
-    const daysDiff = Math.floor((new Date(currentDate) - new Date(nextDate)) / (1000 * 60 * 60 * 24))
-    
-    if (daysDiff < 1) return 24
-    if (daysDiff < 3) return 32
-    if (daysDiff < 7) return 48
-    if (daysDiff < 14) return 64
-    if (daysDiff < 30) return 96
-    if (daysDiff < 45) return 128
-    if (daysDiff < 90) return 192
-    return 256
+  let filteredInstances = $derived(routineInstances?.filter(hasContent) || [])
+
+  function hasContent (instance) {
+    return !!(instance.notes?.trim() || instance.imageDownloadURL)
   }
 
-  function formatDuration(minutes) {
+  function formatDuration (minutes) {
     if (!minutes) return ''
+    
     const roundedMinutes = round(minutes, 0)
     const hours = Math.floor(roundedMinutes / 60)
     const remainingMins = roundedMinutes % 60
+
+    if (hours === 0) return `${remainingMins} mins`
     
-    if (hours === 0) {
-      return `${remainingMins} mins`
-    }
     if (remainingMins === 0) {
       return `${hours} hr${hours > 1 ? 's' : ''}`
     }
     return `${hours} hr${hours > 1 ? 's' : ''} ${remainingMins} mins`
   }
 
-  export function formatTime(timeStr) {
-    if (!timeStr) return ''
-    const [hours, minutes] = timeStr.split(':').map(Number)
-    if (isNaN(hours) || isNaN(minutes)) return ''
-    const period = hours >= 12 ? 'PM' : 'AM'
-    const displayHours = hours % 12 || 12
-    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`
+  function formatTime (HHmm) {
+    const dt = DateTime.fromFormat(HHmm, 'H:mm', { locale: 'en-US' })
+    return dt.toFormat('h:mm a')
   }
 
-
-  function hasContent(instance) {
-    return !!(instance.notes?.trim() || instance.imageDownloadURL)
-  }
-
-  $: filteredInstances = routineInstances?.filter(hasContent) || []
 </script>
 
 <div class="p-4">
-  <div class="journal-entries">
+  <div class="flex w-full flex-col gap-[10px]">
     {#if filteredInstances.length > 0}
-      {#each filteredInstances as instance, i (instance.id)}
-        {@const nextInstance = filteredInstances[i + 1]}
-        {@const gapSize = calculateGapSize(instance.startDateISO, nextInstance?.startDateISO)}
-        <div 
-          on:click={() => openTaskPopup(instance)} 
-          class="entry-wrapper" 
-          style="margin-bottom: {gapSize}px;"
+      {#each filteredInstances as instance (instance.id)}
+        <div
+          class="flex gap-y-1 px-3 py-2 flex-col rounded-xl border border-solid border-[rgb(15_23_42_/_6%)] bg-[rgb(15_23_42_/_2.5%)]"
+          onclick={() => openTaskPopup(instance)}
         >
-          <div class="journal-entry">
-            <div class="journal-entry-header">
-              <div class="date-time">
-                <span class="date">{formatDate(instance.startDateISO)}</span>
-                {#if instance.startTime}
-                  <span class="time">{formatTime(instance.startTime)}</span>
-                {/if}
-              </div>
-              {#if instance.duration}
-                <div class="duration">{formatDuration(instance.duration)}</div>
+          <div class="flex items-baseline justify-between gap-3">
+            <div class="flex min-w-0 flex-wrap items-baseline gap-1.5 text-sm">
+              <span class="font-semibold tracking-[-0.015em] text-slate-900">{formatDate(instance.startDateISO)}</span>
+              {#if instance.startTime}
+                <span class="font-normal text-slate-500">{formatTime(instance.startTime)}</span>
               {/if}
             </div>
-            <div class="journal-entry-notes">
-              {#if instance.imageDownloadURL}
-                <img src={instance.imageDownloadURL} alt="Task" class="entry-image" />
-              {/if}
-              <div class="entry-text">{instance.notes || ''}</div>
-            </div>
+            {#if instance.duration}
+              <span class="shrink-0 text-xs font-medium tracking-[-0.01em] text-slate-500 tabular-nums">{formatDuration(instance.duration)}</span>
+            {/if}
+          </div>
+          <div class="flex flex-col gap-2 text-sm leading-[1.45] text-slate-600">
+            {#if instance.imageDownloadURL}
+              <img
+                src={instance.imageDownloadURL}
+                class="h-auto max-h-[300px] w-fit self-start rounded-lg object-contain object-left-top"
+              />
+            {/if}
+            <div class="break-words">{instance.notes}</div>
           </div>
         </div>
       {/each}
-    {:else if routineInstances && routineInstances.length === 0}
-      <div class="empty-state">
-        <p>No instances yet</p>
-      </div>
-    {:else if routineInstances && filteredInstances.length === 0}
-      <div class="empty-state">
-        <p>No entries with notes or images</p>
+    {:else if routineInstances}
+      <div class="px-4 py-[44px] text-center text-sm text-slate-500">
+        <p>{routineInstances.length === 0 ? 'No instances yet' : 'No entries with notes or images'}</p>
       </div>
     {/if}
   </div>
 </div>
-
-<style>
-  .journal-entries {
-    --timeline-left: 4px;
-    --content-padding-left: 16px;
-    --content-start: calc(var(--timeline-left) + var(--content-padding-left));
-    
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    position: relative;
-  }
-
-  .journal-entries::before {
-    content: '';
-    position: absolute;
-    left: var(--timeline-left);
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background-color: #ddd;
-  }
-
-  .entry-wrapper {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    position: relative;
-    cursor: pointer;
-  }
-
-  .journal-entry {
-    width: 100%;
-    padding-left: var(--content-start);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .journal-entry::before {
-    content: '';
-    position: absolute;
-    left: calc(var(--timeline-left) + 1px);
-    top: 15px;
-    width: 8px;
-    height: 8px;
-    background: white;
-    border: 2px solid #666;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .journal-entry-header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    position: relative;
-    min-height: 24px;
-    padding-top: 4px;
-  }
-
-  .date-time {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    line-height: 1.2;
-  }
-
-  .date {
-    font-weight: 500;
-  }
-
-  .time {
-    color: #666;
-  }
-
-  .duration {
-    position: absolute;
-    right: 0;
-    font-size: 0.9em;
-    color: #666;
-    border-radius: 4px;
-  }
-
-  .journal-entry-notes {
-    color: rgb(55, 55, 55);
-    line-height: 1.6;
-    padding-right: 20px;
-    display: flex; 
-    align-items: flex-start;
-    column-gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .entry-image {
-    height: 300px;
-    width: auto;
-    max-width: 100%;
-    object-fit: contain;
-    flex-shrink: 0;
-  }
-
-  .entry-text {
-    flex: 1;
-    min-width: 0;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
-
-  @media (max-width: 768px) {
-    .journal-entry-notes {
-      flex-direction: column;
-    }
-
-    .entry-image {
-      width: 100%;
-      height: auto;
-      max-height: 300px;
-      margin-bottom: 8px;
-    }
-
-    .entry-text {
-      width: 100%;
-    }
-  }
-
-  .empty-state {
-    padding: 40px 20px;
-    text-align: center;
-    color: #666;
-  }
-</style>
