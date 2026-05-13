@@ -1,11 +1,8 @@
-import { reportError } from '$lib/utils/errors.js'
+//// we don't expect load function errors because we have none
+//// https://svelte.dev/tutorial/kit/handleerror
+// export function handleError ({ event, error }) {
 
-export function handleError ({ event, error }) {
-  reportError({ 
-    subject: 'handleError from hooks.server.js', 
-    content: event.url.pathname + '\n' + error.stack 
-  })
-}
+// }
 
 // enables iOS localhost / ngrok to work with Firebase auth
 export async function handle ({ event, resolve }) {
