@@ -15,7 +15,7 @@
 
   function formatDuration (minutes) {
     if (!minutes) return ''
-    
+
     const roundedMinutes = round(minutes, 0)
     const hours = Math.floor(roundedMinutes / 60)
     const remainingMins = roundedMinutes % 60
@@ -32,7 +32,6 @@
     const dt = DateTime.fromFormat(HHmm, 'H:mm', { locale: 'en-US' })
     return dt.toFormat('h:mm a')
   }
-
 </script>
 
 <div class="p-4">
