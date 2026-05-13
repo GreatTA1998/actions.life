@@ -17,36 +17,36 @@
   } = $props()
 
   async function toggleStar (routineID, value) {
-    await Template.update({ id: routineID, kvChanges: { isStarred: !value } })
+    return Template.update({ id: routineID, kvChanges: { isStarred: !value } })
   }
 </script>
 
 <div class={extraClass}>
-  <ListenToRoutineInstances templateID={selectedRoutineID} userID={$user.uid}
-    let:routineInstances={instances}
-  >
-    <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}>
-      {#snippet children(selectedRoutine)}
-        <div class="shrink-0 mb-5 px-4">
-          <div class="flex items-center gap-2">
-            <h2 class="text-[1.625rem] font-semibold tracking-[-0.02em] leading-tight">{selectedRoutine.name}</h2>
-            <StarButton isStarred={selectedRoutine.isStarred}
-              onToggle={() => toggleStar(selectedRoutineID, selectedRoutine.isStarred)}
-            />
-          </div>
-          {#if stats.has(selectedRoutineID)}
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-neutral-500 tabular-nums">
-              <span>{formatHours(stats.get(selectedRoutineID).minutesSpent)}</span>
-              <span class="text-neutral-300 select-none" aria-hidden="true">·</span>
-              <span>completed {stats.get(selectedRoutineID).timesCompleted} times</span>
-            </div>
-          {/if}
+  <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}>
+    {#snippet children(selectedRoutine)}
+      <div class="shrink-0 mb-5 px-4">
+        <div class="flex items-center gap-2">
+          <h2 class="text-[1.625rem] font-semibold tracking-[-0.02em] leading-tight">{selectedRoutine.name}</h2>
+          <StarButton isStarred={selectedRoutine.isStarred}
+            onToggle={() => toggleStar(selectedRoutineID, selectedRoutine.isStarred)}
+          />
         </div>
-        
-        <TaskPopupContext>
-          <JournalEntries routineInstances={instances}/>
-        </TaskPopupContext>
-      {/snippet}
-    </ListenToDoc>
-  </ListenToRoutineInstances>
+        {#if stats.has(selectedRoutineID)}
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-neutral-500 tabular-nums">
+            <span>{formatHours(stats.get(selectedRoutineID).minutesSpent)}</span>
+            <span class="text-neutral-300 select-none" aria-hidden="true">·</span>
+            <span>completed {stats.get(selectedRoutineID).timesCompleted} times</span>
+          </div>
+        {/if}
+      </div>
+      
+      <TaskPopupContext>
+        <ListenToRoutineInstances templateID={selectedRoutineID}>  
+          {#snippet children (routineInstances)}
+            <JournalEntries {routineInstances}/>
+          {/snippet}
+        </ListenToRoutineInstances>
+      </TaskPopupContext>
+    {/snippet}
+  </ListenToDoc>
 </div>
