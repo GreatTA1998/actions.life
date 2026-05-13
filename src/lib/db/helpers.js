@@ -1,5 +1,5 @@
 import {
-  doc, setDoc, getDoc, updateDoc, deleteDoc,
+  doc, setDoc, getDoc, getDocFromCache, updateDoc, deleteDoc,
   collection, getDocs, query, where, limit,
   writeBatch, arrayRemove, increment, onSnapshot
 } from 'firebase/firestore'
@@ -29,20 +29,15 @@ export async function setFirestoreDoc (path, newObject) {
   return setDoc(ref, newObject, { merge: true })
 }
 
-export function getFirestoreDoc (path) {
-  return new Promise(async (resolve, reject) => {
-    const ref = firestoreRef(path)
-    try {
-      const snapshot = await getDoc(ref)
-      if (!snapshot.exists()) resolve(null)
-      else {
-        resolve({ id: snapshot.id, path: snapshot.ref.path, ...snapshot.data() })
-      }
-    } catch (error) {
-      console.log('error =', error)
-      reject(error)
-    }
-  })
+export async function getFirestoreDoc (path) {
+  const ref = firestoreRef(path)
+  const cached = await getDocFromCache(ref)
+  if (cached.exists()) {
+    return { id: cached.id, path: cached.ref.path, ...cached.data() }
+  } else {
+    const snapshot = await getDoc(ref)
+    return { id: snapshot.id, path: snapshot.ref.path, ...snapshot.data() }
+  }
 }
 
 export async function getFirestoreCollection (path) {

@@ -11,7 +11,7 @@ export async function updateEntireTree ({ treeISOs, batch, parent }) {
 }
 
 export async function maintainTreeISOs ({ id, batch, kvChanges: changes }) {
-  const task =  await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
+  const task = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
   const crossFamily = await hasChangedFamily({ task, changes })
   if (crossFamily) {
     await handleCrossTree({ task, changes, batch })
