@@ -31,12 +31,13 @@ export async function setFirestoreDoc (path, newObject) {
 
 export async function getFirestoreDoc (path) {
   const ref = firestoreRef(path)
-  const cached = await getDocFromCache(ref)
-  if (cached.exists()) {
+
+  try {
+    const cached = await getDocFromCache(ref)
     return { id: cached.id, path: cached.ref.path, ...cached.data() }
-  } else {
-    const snapshot = await getDoc(ref)
-    return { id: snapshot.id, path: snapshot.ref.path, ...snapshot.data() }
+  } catch (error) {
+    const result = await getDoc(ref)
+    return { id: result.id, path: result.ref.path, ...result.data() }
   }
 }
 

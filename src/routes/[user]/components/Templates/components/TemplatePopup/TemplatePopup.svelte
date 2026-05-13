@@ -53,9 +53,11 @@
         </button>
       {/if}
       
-      <PopupTitle value={$template.name}
-        {parentObj}
+      <PopupTitle 
+        value={$template.name}
         onInput={value => debouncedUpdate('name', value)}
+        parentID={$template.parentID}
+        collection="templates"
       />
     </div>
     

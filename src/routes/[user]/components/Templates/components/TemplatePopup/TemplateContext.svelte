@@ -38,7 +38,6 @@
     ...taskPopupContext,
     openTaskPopup ({ id }) {
       clickedTemplateID.set(id)
-      console.log('clickedTemplateID =', $clickedTemplateID)
       popup.set(true)
     },
     closeTaskPopup: () => { 

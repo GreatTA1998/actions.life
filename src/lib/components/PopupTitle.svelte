@@ -7,7 +7,8 @@
   let {
     value = '',
     onInput = () => {},
-    parentID = ''
+    parentID = '',
+    collection = 'tasks'
   } = $props()
 
   let inputRef = $state(null)
@@ -26,7 +27,7 @@
     style="field-sizing: content; font-size: 1.5rem; font-weight: 700;"
   >
   {#if parentID}
-    <ListenToDoc docPath="/users/{$user.uid}/tasks/{parentID}">
+    <ListenToDoc docPath="/users/{$user.uid}/{collection}/{parentID}">
       {#snippet children (parentObj)}
         <ParentBadge {parentObj} 
           --color="var(--task-name-color)" 
