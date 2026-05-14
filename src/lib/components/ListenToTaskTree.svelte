@@ -7,7 +7,7 @@
   import { getContext } from 'svelte'
 
   let { rootID, id, children } = $props()
-  const { ancestralTree } = getContext('task-popup')
+  const { ancestralTree, closeTaskPopup } = getContext('task-popup')
 
   $effect(
     () => listenToAncestralTree({ rootID, id })
@@ -20,10 +20,12 @@
         where('rootID', '==', rootID)
       ),
       snapshot => {
-        const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-        const [tree] = buildForest(tasks)
-        // warning: tree is undefined if the task is deleted from <TaskPopup/>, same with <Template/>
-        ancestralTree.set(findSubtree({ id, tree }))
+        const [tree] = buildForest(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })))
+        if (tree) {
+          ancestralTree.set(findSubtree({ id, tree }))
+        } else {
+          closeTaskPopup()
+        }
       }
     )
   }
