@@ -9,9 +9,7 @@ const User = {
     email: z.string(),
     maxOrderValue: z.number().default(10),
 
-    // properties introduced from August 1 2024, maybe
-    calendarTheme: z.string().default('naturalGreen'),
-
+    calendarTheme: z.string().default('mutedEarth'),
     defaultPhotoLayout: z.string().default('side-by-side'),
     calSnapInterval: z.number().default(5),
     listAreaWidthRatio: z.number().default(0.00223), // empirically determined from my account
