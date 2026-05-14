@@ -154,7 +154,7 @@
       <button
         style:margin-left="calc(var(--task-control-width) + 0.25rem)"
         class="text-left text-xs leading-[1.25] max-w-[45ch] line-clamp-2"
-        style:color={hasImage ? 'white' : 'oklch(43.9% 0 0)'}
+        style:color="oklch(43.9% 0 0)"
       >
         {task.notes}
       </button>
