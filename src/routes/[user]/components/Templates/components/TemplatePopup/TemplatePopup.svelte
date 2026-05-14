@@ -16,13 +16,12 @@
   import { WIDTHS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
-  const { template, templatesByID, templateTree } = getContext('uniquely-template')
+  const { template, templateTree } = getContext('uniquely-template')
   const { closeTaskPopup } = getContext('task-popup')
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 
   let iconsMenu = $state(false)
-  let parentObj = $derived($templatesByID.get($template.parentID))
 
   function handleDelete () {
     if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {

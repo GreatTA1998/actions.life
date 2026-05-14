@@ -3,7 +3,8 @@
   import { doodleIcons, user } from '$lib/store'
   import { onMount, getContext } from 'svelte'
 
-  const { Icon, Template, template } = getContext('app')
+  const { Icon, Template } = getContext('app')
+  const { template } = getContext('uniquely-template')
 
   onMount(async () => {
     const temp = await Icon.getAvailable($user.uid) 
@@ -44,7 +45,7 @@
     {/if}
   </div>
 
-  <div style="margin-top: 16px; display: flex; justify-content: center;">
+  <div class="flex justify-center mt-4">
     <BasicWhiteboard />
   </div>
 </div>
@@ -76,9 +77,5 @@
     font-size: 12px;
     padding: 0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-
-  .delete span {
-    font-size: 12px;
   }
 </style>
