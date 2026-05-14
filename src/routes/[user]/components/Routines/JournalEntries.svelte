@@ -7,12 +7,9 @@
 
   let { routineInstances = [] } = $props()
 
-  let filteredInstances = $derived(routineInstances.filter(hasContent))
-  let fetched = $state(false)
-
-  function hasContent (instance) {
-    return !!(instance.notes?.trim() || instance.imageDownloadURL)
-  }
+  let hasContent = $derived(routineInstances.filter(
+    instance => !!(instance.notes?.trim() || instance.imageDownloadURL)
+  ))
 
   function formatDuration (minutes) {
     if (!minutes) return ''
@@ -37,12 +34,12 @@
 
 <div class="p-4">
   <div class="flex w-full flex-col gap-[10px]">
-    {#if fetched && routineInstances.length === 0}
+    {#if hasContent.length === 0}
       <div class="px-4 py-[44px] text-center text-sm text-slate-500">
-        <p>No entries with notes or images yet</p>
+        No entries with notes or images yet
       </div>
     {:else}
-      {#each filteredInstances as instance (instance.id)}
+      {#each hasContent as instance (instance.id)}
         <div
           class="flex gap-y-1 px-3 py-2 flex-col rounded-xl border border-solid border-[rgb(15_23_42_/_6%)] bg-[rgb(15_23_42_/_2.5%)]"
           onclick={() => openTaskPopup(instance)}
