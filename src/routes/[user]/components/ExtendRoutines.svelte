@@ -5,6 +5,7 @@
   import { user } from '$lib/store'
   import { runTransaction, doc } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
+  import { reportError } from '$lib/utils/errors.js'
   import Task from '$lib/db/models/Task.js'
 
   const { Template } = getContext('app')
@@ -33,6 +34,12 @@
               startDT: DateTime.fromISO(template.prevEndISO).plus({ days: 1 }), // startOf('day'), is needed technically, but rrFloat also removes timing
               endDT: DateTime.utc().plus({ days: template.previewSpan }), // startOf('day')
               template
+            }).catch(error => {
+              console.error(error)
+              reportError({ 
+                subject: `extendRoutine failed for ${template.id}`, 
+                content: `error.message = ${error.message}` 
+              })
             })
           )
       )
