@@ -13,11 +13,11 @@
 <div class="flex flex-col gap-y-3">  
   <CheckboxSquare onClick={() => toggle('photoUploadAutoArchive')}
     value={$user.photoUploadAutoArchive}
-    label="Apply photo's date to task, and mark as done"
+    label="Auto-apply photo info to attached task"
   />
 
   <CheckboxSquare onClick={() => toggle('photoCompressWhenAttachingToTask')}
     value={$user.photoCompressWhenAttachingToTask}
-    label="Lightly compress photos"
+    label="Use modern compression"
   />
 </div>

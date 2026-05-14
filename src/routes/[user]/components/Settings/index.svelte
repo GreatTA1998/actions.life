@@ -10,7 +10,7 @@
   import GithubButton from '$lib/components/GithubButton.svelte'
   import MslLogout from 'virtual:icons/material-symbols-light/logout'
   import { signOut } from 'firebase/auth'
-  import { firebaseAuth } from '$lib/store'
+  import { firebaseAuth, allAccounts } from '$lib/store'
 
   async function handleLogoClick() {
     await signOut($firebaseAuth)
@@ -23,8 +23,6 @@
 <div class="settings-container"> 
   <div class="settings-content">
     <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
-      <CommunityChat />
-
       <div class="settings-group" style="display: flex; flex-direction: column; row-gap: 12px;">
         <div style="display: flex; column-gap: 12px; align-items: center;">
           <div class="title">App</div>
@@ -36,14 +34,17 @@
    
       <div class="flex flex-col gap-y-4">
         <div class="flex flex-col gap-y-6 settings-group">
-          <div class="title">Calendar</div>
-          <GridlineSettings />
 
-          <div class="grid flex-col gap-2">          
-            <GCalDashboard />
-
+          <div class="flex gap-x-3 items-center">
+            <div class="title">Calendar</div>
             <AddAccount />
           </div>
+
+          <GridlineSettings />
+          
+          {#if $allAccounts.length > 0}
+            <GCalDashboard />
+          {/if}
         </div>
       </div>
 
@@ -59,9 +60,11 @@
         <div class="title">Photo</div>
         <PhotoSettings />
       </div>
+
+      <CommunityChat />
     </div>
   </div>
-  
+
   <div class="footer">
     <GithubButton />
 

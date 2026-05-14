@@ -62,14 +62,9 @@ export function getRandomColor () {
   return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
 }
 
-export function getTrueY (e) {
-  const ScrollParent = document.getElementById('scroll-parent')
-  return e.clientY + ScrollParent.scrollTop - ScrollParent.getBoundingClientRect().top - ScrollParent.style.paddingTop
-}
-
 // % gives the remainder, not the modulus, see https://stackoverflow.com/a/17323608/7812829
 export function mod (n, m) {
-  return ((n % m) + m) % m;
+  return ((n % m) + m) % m
 }
 
 export function randomID () {
@@ -91,55 +86,16 @@ export function getDateInMMDD (dateClassObject) {
 
 export function getHHMM (dateClassObj) {
   const d = dateClassObj
-  const hh = ensureTwoDigits(d.getHours()) 
-  const mm = ensureTwoDigits(d.getMinutes())
-  return hh + ":" + mm
+  const hh = twoDigits(d.getHours()) 
+  const mm = twoDigits(d.getMinutes())
+  return hh + ':' + mm
 }
 
 // now format to hh:mm format to be compatible with old API
-export function ensureTwoDigits (number) {
-  return (number < 10 ? `0${number}` : `${number}`)
-}
 
 export function twoDigits (number) {
   return (number < 10 ? `0${number}` : `${number}`)
 }
-
-export function sortByUnscheduledThenByOrderValue (array) {
-  array.sort((a, b) => {
-    // first, put all scheduled / grey-out tasks to the bottom
-    // !! is great for situations where you're sorting
-    // simply based on whether they have the property defined.
-    if (!!a.startDate !== !!b.startDate) {
-      return !!a.startDate - !!b.startDate
-    }
-    else {
-      return a.orderValue - b.orderValue
-    }
-  })
-  return array
-}
-
-export function sortByOrderValue(array) {
-  array.sort((a, b) => {
-    // If both elements have "orderValue", compare them directly
-    if (a.orderValue !== undefined && b.orderValue !== undefined) {
-      return a.orderValue - b.orderValue;
-    }
-
-    // If only one element has "orderValue", place it first
-    if (a.orderValue !== undefined) {
-      return -1;
-    }
-    if (b.orderValue !== undefined) {
-      return 1;
-    }
-
-    // If neither element has "orderValue", maintain their original order
-    return 0;
-  });
-  return array;
-} 
 
 // TO-DO: make it reactive in the future
 export function isMobile () {
@@ -154,4 +110,17 @@ export function minutes (HHmm) {
 export function formatHours (minutes, decimalPlaces = 1) {
   const H = round(minutes / 60, decimalPlaces)
   return `${H} hr${H !== 1 ? 's' : ''}`
+}
+
+export function getLocalY (container, clientY) {
+  const rect = container.getBoundingClientRect()
+  return clientY + container.scrollTop - rect.top
+  // IN CASE WE NEED IT IN THE FUTURE
+  // const { paddingTop } = getComputedStyle(container)
+  //   - parseFloat(paddingTop)
+}
+
+export function getLocalX (container, clientX) {
+  const rect = container.getBoundingClientRect()
+  return clientX + container.scrollLeft - rect.left
 }

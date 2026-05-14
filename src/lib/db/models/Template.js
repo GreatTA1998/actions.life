@@ -77,11 +77,11 @@ const Template = {
     })
   },
 
-  async updateItselfAndFutureInstances ({ id, updates }) {
-    this.update({ id, updates })
+  async updateItselfAndFutureInstances ({ id, kvChanges }) {
+    this.update({ id, kvChanges })
     const futureInstances = await this.getAffectedInstances({ id })
     for (const instance of futureInstances) {
-      Task.update({ id: instance.id, kvChanges: updates })
+      Task.update({ id: instance.id, kvChanges })
     }
   },
 

@@ -48,7 +48,7 @@
 </script>
 
 <div class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
-  <div draggable="true" 
+  <div draggable="true"
     {@attach registerDropzone({ 
       id, 
       clipRectFunction: $logicAreaRect,
@@ -67,61 +67,78 @@
     })}
     ondragstart={e => startTaskDrag({ e, id: task.id })}
     style:font-size={fontSize}
+    style:--task-control-width={fontSize}
     style="{$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS) : ''}"
     class="
-      flex items-center gap-x-1 text-[#1a1a1a] select-none
+      flex flex-col
+      text-[#1a1a1a] select-none
       px-[var(--left-padding)] rounded-[var(--left-padding)]
     "
   >
-    <div class="shrink-0 relative">
-      {@render verticalTimeline?.()}
-      
-      {#if n === 0}
-        <Checkbox value={task.isDone} {fontSize}
-          onchange={e => Task.update({ id: task.id, kvChanges: { isDone: e.target.checked }})}
-        />
-      {:else}
-        <TaskCaret isCollapsed={task.isCollapsed} {fontSize}
-          onToggle={() => Task.update({ id: task.id, kvChanges: { isCollapsed: !task.isCollapsed } })}
+    <div class="flex items-center gap-x-1">
+      <div class="shrink-0 relative">
+        {@render verticalTimeline?.()}
+        
+        {#if n === 0}
+          <Checkbox value={task.isDone} {fontSize}
+            onchange={e => Task.update({ id: task.id, kvChanges: { isDone: e.target.checked }})}
+          />
+        {:else}
+          <TaskCaret isCollapsed={task.isCollapsed} {fontSize}
+            onToggle={() => Task.update({ id: task.id, kvChanges: { isCollapsed: !task.isCollapsed } })}
+          />
+        {/if}
+      </div>
+
+      <button onclick={() => openTaskPopup(task)} 
+        class="shrink-1 min-w-[24px] min-h-[24px] text-left flex leading-[1.25]"
+        class:done-task={task.isDone}
+        style:font-weight={depth === 1 ? 600 : 400}
+      >
+        <span class="truncate text-clip">
+          {task.name}
+        </span>
+      </button>
+
+      {#if task.tagIDs}
+        {#each task.tagIDs as tagID (tagID)}
+          <div class="shrink-0 w-[5px] h-[5px] rounded-[50%]" 
+            style:background-color={$user.tags?.[tagID]?.color}
+          >
+          </div>
+        {/each}
+      {/if}
+        
+      {#if infoBadge}
+        {@render infoBadge()}
+      {:else if task.startDateISO}
+        <div class="flex items-center min-h-[24px]" style:color={overdue ? 'red' : ''}>
+          <MslCalendarTodayOutline style="font-size: 0.75rem"/>
+        </div>
+      {/if}
+
+      {#if task.isCollapsed && n > 0}
+        <SubtaskCountIndicator extraClass="min-w-fit"       
+          {task} {fontSize}
+          onclick={() => openTaskPopup(task)} 
         />
       {/if}
+      
+      <TaskMenu {task} {fontSize} 
+        extraClass="shrink-0"
+      />
     </div>
 
-    <button onclick={() => openTaskPopup(task)} 
-      class="shrink-1 min-w-[24px] min-h-[24px] truncate text-clip justify-start"
-      class:done-task={task.isDone}
-      style:font-weight={depth === 1 ? 600 : 400}
-    >
-      {task.name}
-    </button>
-
-    {#if task.tagIDs}
-      {#each task.tagIDs as tagID}
-        <div class="shrink-0 w-[5px] h-[5px] rounded-[50%]" 
-          style:background-color={$user.tags?.[tagID]?.color}
-        >
-        </div>
-      {/each}
+    {#if task.notes}
+      <button onclick={() => openTaskPopup(task)}
+        class="
+          ml-[calc(var(--task-control-width)+0.25rem)] text-left text-[0.72em] text-[#6f6f6f] leading-[1.25]
+          max-w-[45ch] line-clamp-2
+        "
+      >
+        {task.notes}
+      </button>
     {/if}
-      
-    {#if infoBadge}
-      {@render infoBadge()}
-    {:else if task.startDateISO}
-      <div class="flex items-center" style:color={overdue ? 'red' : ''}>
-        <MslCalendarTodayOutline style="font-size: 0.75rem"/>
-      </div>
-    {/if}
-
-    {#if task.isCollapsed && n > 0}
-      <SubtaskCountIndicator extraClass="min-w-fit"       
-        {task} {fontSize}
-        onclick={() => openTaskPopup(task)} 
-      />
-    {/if}
-    
-    <TaskMenu {task} {fontSize} 
-      extraClass="shrink-0"
-    />
   </div>
 
   <div style:margin-left={indent()}>

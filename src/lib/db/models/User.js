@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { setFirestoreDoc, updateFirestoreDoc } from '$lib/db/helpers.js'
-import { user, firebaseAuth } from '$lib/store'
+import { user } from '$lib/store'
 import { get } from 'svelte/store'
 
 const User = {
@@ -10,7 +10,7 @@ const User = {
     maxOrderValue: z.number().default(10),
 
     // properties introduced from August 1 2024, maybe
-    calendarTheme: z.string().default('offWhite'),
+    calendarTheme: z.string().default('google'),
 
     defaultPhotoLayout: z.string().default('side-by-side'),
     calSnapInterval: z.number().default(1),
@@ -22,7 +22,7 @@ const User = {
     // automation settings
     simpleMode: z.boolean().default(true),
     photoUploadAutoArchive: z.boolean().default(false),
-    photoCompressWhenAttachingToTask: z.boolean().default(false), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
+    photoCompressWhenAttachingToTask: z.boolean().default(true), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
 
     hideRoutines: z.boolean().default(true), // for mobile's future view
     lastRanRoutines: z.string().default(''), // for autoExtend.js
@@ -38,11 +38,15 @@ const User = {
     selectedGoogleCalendarIds: z.array(z.string()).optional() // to deprecate
   }),
 
-  async create () {
-    const validatedUser = User.schema.parse(get(firebaseAuth).currentUser)
-    return await setFirestoreDoc(`/users/${validatedUser.uid}`, 
+  async create (currentUser) {
+    const validatedUser = User.schema.parse({
+      ...currentUser,
+      email: ''
+    })
+    await setFirestoreDoc(`/users/${validatedUser.uid}`, 
       validatedUser
     )
+    return validatedUser
   },
 
   async update (kvChanges) {

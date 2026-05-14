@@ -4,15 +4,18 @@
   import DayHeader from './DayHeader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
 
+  import { createCalendarService } from './service-v2'
   import { headerHeight, pixelsPerHour, timestampsColumnWidth } from './store.js'
   import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
-  import { setupCalListener, treesByDate } from './service.js'
   import { getAllGCalEvents, fetchAccountsAndCalendars } from '$lib/features/google-calendar/gcal.js'
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'
 
   const { scrollCalRect } = getContext('drag-drop')
+  const { treesByDate, treesByID } = getContext('app')
+  
+  const { setupCalListener } = createCalendarService({ treesByDate, treesByID })
 
   let scrollParent
 

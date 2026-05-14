@@ -1,10 +1,14 @@
 <script>
-  import { isMobile } from '$lib/utils/core.js'
-  import { innerHeight } from 'svelte/reactivity/window'
+  import { isMobile, getLocalX, getLocalY } from '$lib/utils/core.js'
+  import { getContext } from 'svelte'
+
   let {
     onInput = () => {},
     onChange = () => {}
   } = $props()
+
+  let dimensions = getContext('dimensions')
+  let { height, appDiv } = $derived(dimensions)
   
   let resizing = false
 
@@ -28,8 +32,8 @@
   }
 
   function axisValue (e) {
-    if (isMobile()) return innerHeight.current - e.clientY
-    else return e.clientX
+    if (isMobile()) return height - getLocalY(appDiv, e.clientY)
+    else return getLocalX(appDiv, e.clientX)
   }
 </script>
 
