@@ -11,6 +11,7 @@
   import { firebaseAuth } from '$lib/store'
   import { get } from 'svelte/store'
   import User from '$lib/db/models/User.js'
+  import { goto } from '$app/navigation'
 
   async function onclick () {
     try {
@@ -19,7 +20,8 @@
         new GoogleAuthProvider(),
         browserPopupRedirectResolver
       )
-      return User.update({ email: result.user.email })
+      await User.update({ email: result.user.email })
+      goto(`/${result.user.uid}`) // `onAuthStateChanged` doesn't trigger with account linking
     } catch (e) {
       if (e.code === AuthErrorCodes.CREDENTIAL_ALREADY_IN_USE) {
         await signInWithCredential(

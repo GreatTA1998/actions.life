@@ -81,7 +81,7 @@
           {@render circle($user.tags[id]?.color)}
         {/each}
       {:else}
-        {@render circle('var(--experimental-black)')}
+        {@render circle('var(--placeholder-color)')}
       {/if}
     </button> 
   {/snippet}

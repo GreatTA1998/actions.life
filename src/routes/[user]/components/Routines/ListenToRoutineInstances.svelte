@@ -1,28 +1,32 @@
 <script>
   import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
-  import { onMount } from 'svelte'
+  import { user } from '$lib/store'
 
-  export let templateID = ''
-  export let userID = ''
+  let { 
+    templateID = '', 
+    children = () => {}
+  } = $props()
 
-  let routineInstances = null
+  let routineInstances = $state(null)
   
-  onMount(() => onSnapshot(
-    query(
-      collection(db, '/users/' + userID + '/tasks'),
-      where('templateID', '==', templateID),
-      orderBy('startDateISO', 'desc')
-    ),
-    querySnapshot => {
-      const temp = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-      temp.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
-      routineInstances = temp
-    })
+  $effect(
+    () => onSnapshot(
+      query(
+        collection(db, '/users/' + $user.uid + '/tasks'),
+        where('templateID', '==', templateID),
+        orderBy('startDateISO', 'desc')
+      ),
+      querySnapshot => {
+        const temp = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+        temp.sort((a, b) => new Date(b.startDateISO) - new Date(a.startDateISO))
+        routineInstances = temp
+      }
+    ) 
   )
 </script>
 
-<slot {routineInstances}>
-
-</slot>
+{#if routineInstances}
+  {@render children(routineInstances)}
+{/if}
 

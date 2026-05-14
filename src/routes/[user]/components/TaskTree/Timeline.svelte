@@ -15,14 +15,14 @@
     ancestorIDs = []
   } = $props()
   
-  const { openTaskPopup } = getContext('app')
+  const { openTaskPopup } = getContext('task-popup')
 
   const defaultPxPerDay = 0.4
   const dropzoneHeight = 16
   const squareHeight = 12.5
   const debugColor = getRandomColor()
 
-  let allSorted = $derived(children.sort(chronologically))
+  let allSorted = $derived([...children].sort(chronologically))
   let contentHeights = $state({})
   let { 
     dayDiffs, 

@@ -1,4 +1,3 @@
-import { updateCache } from '$lib/store'
 import { DateTime } from 'luxon'
 import { pureNumericalHourForm } from '$lib/utils/core.js'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
@@ -31,16 +30,11 @@ export function createCalendarService ({ treesByDate, treesByID }) {
       (snapshot) => {
         const tasks = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
         rebuildRegion(tasks, dateISOs)
-      }, 
-      (error) => {
-        console.error('Error in listenToDateChunk:', error)
       }
     )
   }
 
   function rebuildRegion (regionTasks, dateISOs) {
-    updateCache(regionTasks)
-
     const regionForest = constructForest(regionTasks) // even sub-trees are included individually
 
     // as the query includes tasks arbitrarily spread out over time (even outside of region)

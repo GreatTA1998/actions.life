@@ -1,7 +1,5 @@
 <script>
   import TaskElement from '$lib/components/TaskElement.svelte'
-  import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
-  import IconTaskElement from '$lib/components/IconTaskElement.svelte'
   import GcalEvent from '$lib/features/google-calendar/GCalEvent.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
   import { getLocalY } from '$lib/utils/core.js'
@@ -112,13 +110,7 @@
     <div class="absolute inset-x-0 mx-auto w-[var(--width-within-column)]" 
       style:top="{HHmmToLocalY(task.startTime)}px"
     >
-      {#if task.imageDownloadURL}
-        <PhotoTaskElement {task} />
-      {:else if task.iconURL}
-        <IconTaskElement {task} />
-      {:else}
-        <TaskElement {task} />
-      {/if}
+      <TaskElement {task} />
     </div>
   {/each}
 

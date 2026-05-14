@@ -1,11 +1,14 @@
 <script>
   import ParentBadge from '$lib/components/ParentBadge.svelte'
+  import ListenToDoc from '$lib/components/ListenToDoc.svelte'
   import { placeholderFieldLarge } from '$lib/styles/reused.module.css'
+  import { user } from '$lib/store'
 
   let {
     value = '',
     onInput = () => {},
-    parentObj
+    parentID = '',
+    collection = 'tasks'
   } = $props()
 
   let inputRef = $state(null)
@@ -23,13 +26,17 @@
     class="truncate text-clip {placeholderFieldLarge}"
     style="field-sizing: content; font-size: 1.5rem; font-weight: 700;"
   >
-  {#if parentObj}
-    <ParentBadge {parentObj} 
-      --color="var(--task-name-color)" 
-      --font-size="1.2rem" 
-      --padding="0px 8px"
-      --border-radius="24px"
-      --background="rgba(230, 230, 230, 0.15)"
-    />
+  {#if parentID}
+    <ListenToDoc docPath="/users/{$user.uid}/{collection}/{parentID}">
+      {#snippet children (parentObj)}
+        <ParentBadge {parentObj} 
+          --color="var(--task-name-color)" 
+          --font-size="1.2rem" 
+          --padding="0px 8px"
+          --border-radius="24px"
+          --background="rgba(230, 230, 230, 0.15)"
+        />
+      {/snippet}
+    </ListenToDoc>
   {/if}
 </div>

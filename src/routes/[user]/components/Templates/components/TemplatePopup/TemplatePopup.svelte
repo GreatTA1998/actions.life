@@ -16,14 +16,12 @@
   import { WIDTHS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
-  const { template, templates, templateTree, closeTaskPopup } = getContext('app')
+  const { template, templateTree } = getContext('uniquely-template')
+  const { closeTaskPopup } = getContext('task-popup')
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 
   let iconsMenu = $state(false)
-  let parentObj = $derived($template.parentID ? 
-    $templates.find(T => T.id === $template.parentID) : null
-  )
 
   function handleDelete () {
     if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {
@@ -54,9 +52,11 @@
         </button>
       {/if}
       
-      <PopupTitle value={$template.name}
-        {parentObj}
+      <PopupTitle 
+        value={$template.name}
         onInput={value => debouncedUpdate('name', value)}
+        parentID={$template.parentID}
+        collection="templates"
       />
     </div>
     

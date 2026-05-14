@@ -11,21 +11,29 @@
   import { authChecked, authUser } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { browser } from '$app/environment'
+  import { onMount } from 'svelte'
+
+  let browserSupported = $state(false)
+
+  onMount(() => {
+    browserSupported = HTMLElement.prototype.hasOwnProperty("popover")
+      && CSS.supports('anchor-name: --x')
+  })
 </script>
 
 <div class="home-bg h-full flex grow" style:padding-top="2%">
 
   <ArtisticBackground />
 
-  <div class="basis-full flex flex-col items-center mt-[60px] gap-x-12 gap-y-24">
+  <div class="basis-full flex flex-col items-center mt-[60px] gap-x-12 gap-y-20">
     <div class="h-[30vh] flex flex-col items-center justify-center text-center px-4 gap-4">
       <div class="mx-auto py-32 sm:py-48 lg:py-56">
         <div class="text-center">
           <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-500 sm:text-7xl">
             actions.life
           </h1>
-          <p class="mt-4 max-w-[60ch] text-lg text-pretty font-normal text-gray-500 sm:text-xl/8">
-            A life calendar that unifies to-do lists, photos, and habits.
+          <p class="mt-4 max-w-[60ch] text-pretty text-gray-600 md:text-2xl sm:text-xl/8">
+            Put everything important on one page
           </p>
         </div>
       </div>
@@ -38,9 +46,9 @@
     {:else}
       <MacbookDisplay children={simulatedApp} />
     {/if}
-    
+
     {#snippet simulatedApp ()}
-      {#if browser && HTMLElement.prototype.hasOwnProperty("popover")}
+      {#if browserSupported}
         <div class="w-full h-full relative">
           {#if $authChecked && !$authUser?.email}
             <AnonymousContext>
@@ -67,7 +75,11 @@
       {/if}
     {/snippet}
 
-    <AuthPlayground/>
+    {#if browserSupported}
+      <AuthPlayground/>
+    {:else}
+      <p>WARNING: the app can't run on your browser and requires the latest version of Chrome or Safari</p>
+    {/if}
 
     <footer class="w-full mt-40 py-8 flex justify-end mr-10 gap-6 text-xs text-neutral-400 tracking-tight">
       <a href="/legal/privacy-policy" class="no-underline">Privacy</a>

@@ -1,5 +1,6 @@
 <script>
   import AppContext from '$lib/components/AppContext.svelte'
+  import TaskPopupContext from '$lib/components/TaskPopupContext.svelte'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
   import ListCalendar from '$lib/components/ListCalendar.svelte'
   import PhotoGrid from '/src/routes/[user]/components/PhotoGrid.svelte'
@@ -9,14 +10,14 @@
   import TemplateContext from '/src/routes/[user]/components/Templates/components/TemplatePopup/TemplateContext.svelte'
   import FloatingNavbar from '$lib/components/FloatingNavbar.svelte'
   import PopoverInputContext from '$lib/components/PopoverInputContext.svelte'
-  import TaskPopup from '/src/routes/[user]/components/TaskPopup/TaskPopup.svelte'
   import ExtendRoutines from '/src/routes/[user]/components/ExtendRoutines.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
+  import { reportError } from '$lib/utils/errors.js'
   import { activeView } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import { user, clickedTaskID } from '$lib/store'
+  import { user } from '$lib/store'
   import { onMount } from 'svelte'
 
   let { uid } = $props()
@@ -26,7 +27,13 @@
   onMount(() => 
     onSnapshot(
       doc(db, '/users/' + uid), 
-      snap => user.set({ ...snap.data() })
+      snap => user.set({ ...snap.data() }),
+      error => {
+        reportError({
+          subject: 'onSnapshot () for /users/uid failed',
+          content: `code: ${error.code ?? ''}\nmessage: ${error.message}\nstack: ${error.stack ?? ''}`
+        })
+      }
     )
   )
 </script>
@@ -37,25 +44,23 @@
       <ExtendRoutines />
 
       <PopoverInputContext>
-        <div style:height="100%">
-          {#if $activeView === 'SETTINGS'}
-            <Settings />
-          {:else if $activeView === 'CALENDAR'}
-            <ListCalendar />
-          {:else if $activeView === 'SCHEDULE'}
-            <Schedule />
-          {:else if $activeView === 'ROUTINES'}
-            <TemplateContext>
-              <HabitsTab />
-            </TemplateContext>
-          {:else if $activeView === 'PHOTOS'}
-            <PhotoGrid />
-          {/if}
-        </div> 
-        
-        {#if $clickedTaskID}
-          <TaskPopup />
-        {/if}
+        <TaskPopupContext>
+          <div style:height="100%">
+            {#if $activeView === 'SETTINGS'}
+              <Settings />
+            {:else if $activeView === 'CALENDAR'}
+              <ListCalendar />
+            {:else if $activeView === 'SCHEDULE'}
+              <Schedule />
+            {:else if $activeView === 'ROUTINES'}
+              <TemplateContext>
+                <HabitsTab />
+              </TemplateContext>
+            {:else if $activeView === 'PHOTOS'}
+              <PhotoGrid />
+            {/if}
+          </div> 
+        </TaskPopupContext>
       </PopoverInputContext>
     </DragDropContext>
 

@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import Task from '$lib/db/models/Task.js'
 import Template from '$lib/db/models/Template.js'
-import { updateCache } from '$lib/store/tasksCache.js'
 
 export async function initializeSeedData () {
   for (const { id, ...data } of SEED_TEMPLATES) { // parallelizable
@@ -9,8 +8,7 @@ export async function initializeSeedData () {
   }
 
   for (const { id, data } of resolveRelativeDates(SEED_TASKS)) { // must be sequential for `treeISOs` to be handled
-    const result = await Task.create({ id, data, optimistic: false })
-    updateCache([result])
+    const result = await Task.create({ id, data })
   }
 }
 
@@ -41,8 +39,7 @@ const ICON = {
  *   id        – stable document ID
  *   dayOffset – (optional) days from today → becomes startDateISO at build time
  *
- * Parents MUST appear before their children (Task.create reads the parent
- * from tasksCache to compute rootID / treeISOs).
+ * Parents MUST appear before their children (Task.create reads the parent rootID and treeISOs)
  *
  * Only "stable" properties are stored here — fields that are computed at
  * creation time (orderValue, treeISOs, rootID) are intentionally omitted.
@@ -80,7 +77,6 @@ const SEED_TASKS = [
   { id: 'getting-started', onList: true, name: 'TO-DO' },
   { id: '1', parentID: 'getting-started', onList: true, name: 'Drag me anywhere' },
   { id: '2', parentID: 'getting-started', onList: true, name: 'Create a task', notes: 'Click on any empty space (hint: indent for sub-tasks)' },
-  { id: '3', parentID: 'getting-started', onList: true, name: 'Settings > "Structured Mode"'},
 
   // ── Timeline ────────────────────────────────────────────────────────
   { id: 'project', name: 'Example Project', childrenLayout: 'timeline', onList: true },

@@ -1,19 +1,20 @@
 import { auth } from '$lib/db/init.js'
 import { firebaseAuth } from '$lib/store'
-import { reportError } from '$lib/utils/errorReporting.js'
+import { reportError } from '$lib/utils/errors.js'
 
 firebaseAuth.set(auth)
 
 export function handleError ({ event, error }) {
+  console.error(event, error)
   reportError({ 
-    subject: 'Svelte handleError triggered', 
-    content: event.url.pathname + '\n' + error.stack 
+    subject: 'handleError from hooks.client.js', 
+    content: event.url.pathname + '\n' + error.stack
   })
 }
 
 window.onerror = (msg, src, line, col, error) => {
   reportError({
-    subject: 'window.onerror triggered',
+    subject: 'window.onerror',
     content: `
       pathname: ${window.location.pathname} \n
       msg: ${msg} \n
@@ -27,7 +28,7 @@ window.onerror = (msg, src, line, col, error) => {
 
 window.onunhandledrejection = (error) => {
   reportError({
-    subject: 'window.onunhandledrejection triggered',
+    subject: 'window.onunhandledrejection',
     content: `
       pathname: ${window.location.pathname} \n
       message: ${error.reason?.message} \n

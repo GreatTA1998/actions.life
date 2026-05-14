@@ -12,10 +12,11 @@
 <script>
   import { uploadThenGetMetadata } from '$lib/utils/imageHandling.js'
   import MslAddPhotoAlternateOutline from 'virtual:icons/material-symbols-light/add-photo-alternate-outline'
+  import { getFirestoreDoc } from '$lib/db/helpers.js'
   import { getContext } from 'svelte'
   import { user } from '$lib/store'
 
-  const { Task, tasksCache } = getContext('app')
+  const { Task } = getContext('app')
   let { onUpload, onFinished, task } = $props()
 
   let FolderInput
@@ -41,7 +42,9 @@
       updateObj.isDone = true
       updateObj.duration = orientation === 'landscape' ? 106 : 188
 
-      if (!$tasksCache[id].startDateISO) {
+      const task = await getFirestoreDoc(`/users/${$user.uid}/tasks/${id}`)
+
+      if (!task.startDateISO) {
         updateObj.startDateISO = dt.toFormat('yyyy-MM-dd')
         updateObj.startTime = dt.toFormat('HH:mm')
       }

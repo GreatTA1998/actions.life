@@ -2,9 +2,9 @@ export const themes = {
   google: {
     previewColor: '#f0f4f8',
     cssVars: {
-      '--todo-list-bg-color': '#ffffff',
+      '--todo-list-bg-color': 'var(--offwhite-bg)',
       '--cal-bg': '#f0f4f8',
-      '--navbar-bg-color': '#ffffff',
+      '--navbar-bg-color': 'var(--offwhite-bg)',
       '--grid-color': '#e5e7eb'
     }
   },

@@ -3,7 +3,6 @@
   import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import { getContext, onMount, tick } from 'svelte'
   import { db } from '$lib/db/init'
-  import { updateCache, cleanupCache } from '$lib/store'
   import { collection, query, where, onSnapshot } from 'firebase/firestore'
   import { buildForest } from '$lib/db/tree.ts'
 
@@ -39,10 +38,7 @@
     const tasksCollection = collection(db, `users/${uid}/tasks`)
     setupListener(
       query(tasksCollection, where('onList', '==', true)),
-      data => { 
-        persistTasks = data 
-        updateCache(persistTasks)
-      }
+      (data) => persistTasks = data 
     )
   }
 
@@ -74,7 +70,6 @@
     for (const unsub of unsubFuncs) {
       unsub()
     }
-    cleanupCache(persistTasks)
     trees.set(null)
   }
 </script>
