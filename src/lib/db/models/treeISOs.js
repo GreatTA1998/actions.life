@@ -22,15 +22,13 @@ export async function maintainTreeISOs ({ id, batch, kvChanges: changes }) {
 }
 
 async function hasChangedFamily ({ task, changes }) {
+  if (changes.parentID === task.parentID) return false // drag-drop is a frequent operation, optimization helps
+
   if (changes.parentID === undefined) return false
-  else if (changes.parentID === task.parentID) return false
+  else if (changes.parentID === '') return task.parentID !== ''
   else {
     const parent = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${changes.parentID}`)
-    const [oldRoot, newRoot] = await Promise.all([
-      getRoot(task),
-      getRoot(parent)
-    ])
-    return oldRoot.id !== newRoot.id
+    return task.rootID !== parent.rootID
   }
 }
 
@@ -38,8 +36,11 @@ export async function handleCrossTree ({ task, changes, batch }) {
   let movedTree = [] // 1 or more nodes
   let prevFamily = [] // 1 or more nodes
   let newFamily = [] // 0 or more nodes
-  const newParent = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${changes.parentID}`)
-  
+
+  let newParent = undefined
+  if (changes.parentID) {
+    newParent = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${changes.parentID}`)
+  }
   await Promise.all([
     getSubtreeNodes(task).then(nodes => movedTree = nodes),
     getRoot(task).then(getSubtreeNodes).then(nodes => prevFamily = nodes),
