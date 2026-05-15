@@ -1,6 +1,6 @@
 <script>
   import PopoverMenu  from '$lib/components/PopoverMenu.svelte'
-  import { trackHeight } from '$lib/utils/svelteActions.js'
+  import { fieldSizingContent, trackHeight } from '$lib/utils/svelteActions.js'
   import { randomID } from '$lib/utils/core.js'
   import { paddingVal, placeholderField, noZoomFS } from '$lib/styles/reused.module.css'
 
@@ -12,7 +12,6 @@
   const id = randomID()
 
   let buttonElem = $state(null)
-  let scrollContainer = $state(null)
   let menuHeight = $state(0)
 
   const start = 8
@@ -47,7 +46,6 @@
 </script>
 
 <PopoverMenu {id}
-  bind:this={scrollContainer}
   ontoggle={e => {
     if (e.newState === 'open') {
       const scrollContainer = document.getElementById(id)
@@ -66,7 +64,7 @@
         class={placeholderField}
         style:anchor-name={anchorName}
         style:padding="0 {paddingVal}"
-        style:field-sizing="content"
+        use:fieldSizingContent
       />
     </button>
   {/snippet}

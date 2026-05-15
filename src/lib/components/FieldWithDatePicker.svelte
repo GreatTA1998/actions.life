@@ -3,6 +3,7 @@
   import DatePicker from './DatePicker.svelte'
   import { paddingVal, placeholderField } from '$lib/styles/reused.module.css'
   import { DateTime } from 'luxon'
+  import { fieldSizingContent } from '$lib/utils/svelteActions.js'
 
   let {
     startDateISO = '',
@@ -21,7 +22,7 @@
         placeholder="Year and Date" 
         class="input {placeholderField} rounded min-w-[80px]" 
         style:padding="0 {paddingVal}"
-        style:field-sizing="content"
+        use:fieldSizingContent
       >
     </button>
   {/snippet}

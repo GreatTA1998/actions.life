@@ -7,6 +7,7 @@
   import { user } from '$lib/store'
   import { randomID, getRandomColor } from '$lib/utils/core.js'
   import { paddingVal } from '$lib/styles/reused.module.css'
+  import { fieldSizingContent } from '$lib/utils/svelteActions.js'
 
   let { task } = $props()
 
@@ -133,7 +134,7 @@
                         close();
                       }
                     }} 
-                    style:field-sizing="content"
+                    use:fieldSizingContent
                   >
                 </div>
             

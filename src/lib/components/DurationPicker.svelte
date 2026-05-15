@@ -1,5 +1,6 @@
 <script>
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
+  import { fieldSizingContent } from '$lib/utils/svelteActions.js'
   import { paddingVal, noZoomFS, placeholderField } from '$lib/styles/reused.module.css'
 
   let { value, oninput } = $props()
@@ -43,6 +44,7 @@
         type="number" 
         pattern="[0-9]*"
         min="0"
+        use:fieldSizingContent
       >
       <span class="pointer-events-none">
         m
@@ -69,7 +71,6 @@
 
 <style>
   input {
-    field-sizing: content;
     border-radius: 6px;
   }
 
@@ -77,7 +78,11 @@
     border-color: #007bff;
   }
 
-  /* Remove spinner buttons */
+  /* Remove spinner buttons (WebKit + Firefox number spinbox) */
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;

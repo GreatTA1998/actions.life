@@ -74,6 +74,10 @@
     border-bottom: 1px dashed #999;
   }
 
+  .year-input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
   .year-input::-webkit-outer-spin-button,
   .year-input::-webkit-inner-spin-button {
     -webkit-appearance: none;

@@ -24,7 +24,15 @@
     }
   })
 
-  onMount(() => {    
+  onMount(async () => {    
+    if (!HTMLElement.prototype.hasOwnProperty("popover")) {
+      await import('@oddbird/popover-polyfill')
+    }
+    if (!CSS.supports('anchor-name: --x')) {
+      const { default: anchorPolyfill } = await import('@oddbird/css-anchor-positioning/fn')
+      await anchorPolyfill()
+    }
+
     loadSounds()
 
     translateJSConstantsToCSSVariables()

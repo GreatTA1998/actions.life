@@ -1,6 +1,7 @@
 <script>
   import ParentBadge from '$lib/components/ParentBadge.svelte'
   import ListenToDoc from '$lib/components/ListenToDoc.svelte'
+  import { fieldSizingContent } from '$lib/utils/svelteActions.js'
   import { placeholderFieldLarge } from '$lib/styles/reused.module.css'
   import { user } from '$lib/store'
 
@@ -24,7 +25,9 @@
     placeholder="Title"
     type="text" 
     class="truncate text-clip {placeholderFieldLarge}"
-    style="field-sizing: content; font-size: 1.5rem; font-weight: 700;"
+    style:font-size="1.5rem"
+    style:font-weight="700"
+    use:fieldSizingContent
   >
   {#if parentID}
     <ListenToDoc docPath="/users/{$user.uid}/{collection}/{parentID}">
