@@ -18,17 +18,43 @@
 
   let { children } = $props()
 
+  function supportsPopoverAPI () {
+    return (
+      'popover' in HTMLElement.prototype &&
+      'showPopover' in HTMLElement.prototype &&
+      'hidePopover' in HTMLElement.prototype &&
+      'togglePopover' in HTMLElement.prototype
+    )
+  }
+
+  function supportsAnchorPositioningForPopoverInput () {
+    if (typeof CSS === 'undefined' || typeof CSS.supports !== 'function') return false
+
+    const requiredFeatures = [
+      'anchor-name: --x',
+      'position-anchor: --x',
+      'top: anchor(bottom)',
+      'left: anchor(left)',
+      'width: anchor-size(width)',
+      'height: anchor-size(height)',
+      'position-area: center'
+    ]
+
+    return requiredFeatures.every((feature) => CSS.supports(feature))
+  }
+
   $effect(() => {
     if ($authChecked && $loggedIn && $user.email && $initialDataReady) {
       loading.set(false)
     }
   })
 
-  onMount(async () => {    
-    if (!HTMLElement.prototype.hasOwnProperty("popover")) {
+  onMount(async () => {
+    if (!supportsPopoverAPI()) {
       await import('@oddbird/popover-polyfill')
     }
-    if (!CSS.supports('anchor-name: --x')) {
+    // Safari can report partial anchor support while missing anchor-size()/position-area.
+    if (!supportsAnchorPositioningForPopoverInput()) {
       const { default: anchorPolyfill } = await import('@oddbird/css-anchor-positioning/fn')
       await anchorPolyfill()
     }
@@ -86,6 +112,7 @@
 
 {#if $loading} <!-- must be separate from the transition block -->
   <img src="/logo-no-bg.png" 
+    alt="Loading logo"
     class={['pulse center', 'w-12 h-12 rounded-2xl']}
   />
 {/if}
