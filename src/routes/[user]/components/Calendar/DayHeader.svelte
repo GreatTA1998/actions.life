@@ -3,7 +3,7 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
   import { googleEventsByDate } from '$lib/store'
-  import { headerHeight, isCompact, timestampsColumnWidth } from './store.js'
+  import { headerHeight, isCompact, calColumnWidth, timestampsColumnWidth } from './store.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
@@ -43,6 +43,7 @@
     }})
   })}
   class="day-header"
+  style:width="{$calColumnWidth}px"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
   style:padding-bottom="0"
   onclick={e => {
@@ -118,7 +119,6 @@
   }
 
   .day-header {
-    width: var(--width-cal-column);
     font-size: 1.4rem;
     background-color: var(--cal-bg);
     color: #6d6d6d;

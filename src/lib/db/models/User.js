@@ -18,7 +18,7 @@ const User = {
     listHeightSplit: z.number().default(0.5),
 
     // automation settings
-    simpleMode: z.boolean().default(true),
+    simpleMode: z.boolean().default(false),
     photoUploadAutoArchive: z.boolean().default(false),
     photoCompressWhenAttachingToTask: z.boolean().default(true), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
 
@@ -27,11 +27,9 @@ const User = {
     nickname: z.string().default(''),
     avatarFilter: z.string().default(''),
 
-    // needed temporarily for backwards compatibility
-    hasGridlines: z.boolean().default(true),
-    calEarliestHHMM: z.string().default('00:00'),
-    calLastHHMM: z.string().default('23:59'),
     tags: z.record(z.object({ color: z.string(), name: z.string()})).default({}),
+    pixelsPerHour: z.number().default(80),
+    calColumnWidth: z.number().default(260),
 
     selectedGoogleCalendarIds: z.array(z.string()).optional() // to deprecate
   }),

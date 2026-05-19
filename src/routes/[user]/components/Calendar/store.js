@@ -1,9 +1,11 @@
-import { writable, derived } from 'svelte/store'
+import { writable, derived, get } from 'svelte/store'
 import { WIDTHS, HEIGHTS } from '$lib/utils/constants.js'
+import { user } from '$lib/store'
 
 export const headerHeight = writable(HEIGHTS.CORNER_LABEL)
 
-export const pixelsPerHour = writable(80)
+export const pixelsPerHour = derived(user, $user => $user.pixelsPerHour || 80)
+export const calColumnWidth = derived(user, $user => $user.calColumnWidth || 260)
 
 export const isCompact = writable(false) 
 

@@ -13,7 +13,7 @@
     border-radius: 6px;
   "
 >
-  <span class="truncate">
+  <div class="truncate text-clip">
     {event.summary}
-  </span>
+  </div>
 </div>

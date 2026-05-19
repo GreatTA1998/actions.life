@@ -16,6 +16,7 @@
   } = $props()
   
   const { openTaskPopup } = getContext('task-popup')
+  const { subFontSize } = getContext('list-config')
 
   const defaultPxPerDay = 0.4
   const dropzoneHeight = 16
@@ -117,7 +118,10 @@
 </script>
 
 {#each allSorted as child, i (child.id)}
-  <Dropzone {...dzProps(i)} />
+  <!-- checkbox, padding, gap-x-1, blue border -->
+  <Dropzone {...dzProps(i)} 
+    extraStyle="margin-left: calc({subFontSize()} + var(--left-padding) + 4px - 2px)"
+  />
 
   <div style:margin-bottom="{margins[i]}px"
     class="relative flex items-center"

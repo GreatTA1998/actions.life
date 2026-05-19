@@ -16,16 +16,17 @@
   const { activateInput } = getContext('popover-input')
   const anchorID = `--dropzone-root-last-${randomID()}`
   
-  const scale = $derived(isLargeFont ? 2 : 1)
+  const scale = $derived(isLargeFont ? 1.5 : 1)
   const dzRootHeight = $derived(`${(parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE) * scale}rem`)
   const dzSubHeight = $derived(`${HEIGHTS.SUB_DROPZONE * scale}rem`)
   const rootFontSize = $derived(`${1 * scale}rem`) // rem =  16px / 32px
   const subFontSize = $derived(`${0.875 * scale}rem`) // rem = 14px / 28px
+  const indent = $derived(`${WIDTHS.INDENT_PER_LEVEL * scale}px`)
 
   setContext('list-config', { 
     debug: () => false,
-    indent: () => `${WIDTHS.INDENT_PER_LEVEL}px`, 
     minWidth: () => '240px', // too large = wasteful gap between columns 
+    indent: () => indent, 
     dzRootHeight: () => dzRootHeight,
     dzSubHeight: () => dzSubHeight,
     rootFontSize: () => rootFontSize,
