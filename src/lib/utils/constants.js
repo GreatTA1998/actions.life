@@ -1,3 +1,7 @@
+export const COLORS = Object.freeze({
+  OVERLAY_DARKEST: 'rgba(0,0,0,0.5)'
+})
+
 export const HEIGHTS = Object.freeze({
   MAIN_CONTENT_TOP_MARGIN: 24, // artificially match the dropzone for now, since CSS vars are hard to convert to rem
   ROOT_DROPZONE: 1.5, // 1.5rem = 24px (used directly by JS)
