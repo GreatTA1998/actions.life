@@ -3,8 +3,6 @@
   import { getContext } from 'svelte'
   
   const { User } = getContext('app')
-
-  const dense = $derived($user.pixelsPerHour === 40)
 </script>
 
 <div class="flex items-center gap-2">
@@ -12,26 +10,38 @@
     <button 
       onclick={() => User.update({ 
         pixelsPerHour: 80,
-        calColumnWidth: 260
+        calColumnWidth: 260 // 8 habits
       })} 
       class={[
         'text-gray-600 font-medium py-1 px-4 rounded-md text-sm',
-        !dense && 'bg-white core-shadow cast-shadow'
+        $user.pixelsPerHour === 80 && 'bg-white core-shadow cast-shadow'
       ]}
     >
-      Normal
+      Standard
     </button>
     <button 
       onclick={() => User.update({ 
-        pixelsPerHour: 40,
-        calColumnWidth: 100
+        pixelsPerHour: 50, 
+        calColumnWidth: 160 // 5 habits
       })} 
       class={[
         'text-gray-600 font-medium py-1 px-4 rounded-md text-sm',
-        dense && 'bg-white core-shadow cast-shadow'
+        $user.pixelsPerHour === 50 && 'bg-white core-shadow cast-shadow'
       ]}
     >
-      High density
+      Dense
+    </button>
+    <button 
+      onclick={() => User.update({ 
+        pixelsPerHour: 31, 
+        calColumnWidth: 100 // 3 habits
+      })} 
+      class={[
+        'text-gray-600 font-medium py-1 px-4 rounded-md text-sm',
+        $user.pixelsPerHour === 31 && 'bg-white core-shadow cast-shadow'
+      ]}
+    >
+      Mini
     </button>
   </div>
 </div>

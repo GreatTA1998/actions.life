@@ -171,10 +171,7 @@
         />
       {:else}
         {#each task.children as subtask, i (subtask.id)}
-          <!-- checkbox, padding, gap-x-1, blue border -->
-          <Dropzone {...dzProps(i)}
-            extraStyle="margin-left: calc({fontSize} + var(--left-padding) + 4px - 2px)"
-          /> 
+          <Dropzone {...dzProps(i)} /> 
           
           <RecursiveTask 
             task={subtask}
@@ -184,10 +181,9 @@
         {/each}
       {/if}
 
-      <!-- checkbox, padding, gap-x-1, blue border -->
       <Dropzone {...dzProps(n)} 
         extraClass="ghost-negative"
-        extraStyle="left: calc({indent()} + {fontSize} + var(--left-padding) + 4px - 2px); right: 0; z-index: {depth}" 
+        extraStyle="left: {indent()}; right: 0; z-index: {depth}" 
       />
     {/if}
   </div>
