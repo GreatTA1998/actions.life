@@ -17,7 +17,7 @@
         $user.pixelsPerHour === 80 && 'bg-white core-shadow cast-shadow'
       ]}
     >
-      Standard
+      Spacious
     </button>
     <button 
       onclick={() => User.update({ 
