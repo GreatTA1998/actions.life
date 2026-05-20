@@ -30,7 +30,7 @@
     ]}
     style={`
       height: ${height}px;
-      background-color: rgba(256, 256, 256, 0.4);
+      background-color: rgba(255, 255, 255, 0.4);
       border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
     `}
     style:background-image={hasIntersected && task.imageDownloadURL

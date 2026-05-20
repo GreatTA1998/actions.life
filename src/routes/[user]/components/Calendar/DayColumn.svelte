@@ -19,7 +19,7 @@
 
   let dayColumn
   let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
-  let pixelsPerMinute = $pixelsPerHour / 60
+  let pixelsPerMinute = $derived($pixelsPerHour / 60)
 
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
   let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
