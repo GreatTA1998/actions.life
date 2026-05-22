@@ -90,7 +90,7 @@
         {@render verticalTimeline?.()}
         
         {#if task.iconURL}
-          <DoodleIcon iconTask={task} size="1rem" scaleToFit whiteVariant={hasImage} />
+          <DoodleIcon iconTask={task} size="1rem" scaleToFit />
         {:else}
           <Checkbox value={task.isDone} {fontSize}
             onchange={e => Task.update({ id: task.id, 

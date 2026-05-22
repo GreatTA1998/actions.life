@@ -24,6 +24,7 @@
   style:border-radius="var(--left-padding)"
   style:overflow="hidden"
   style:font-size={titleFS}
+  class="truncate text-clip"
 >
   {event.summary}
   <p style:font-weight="300" style:font-size={notesFS}>

@@ -5,8 +5,8 @@
   import YearAndMonthTile from './YearAndMonthTile.svelte'
 
   import { createCalendarService } from './service-v2'
-  import { headerHeight, pixelsPerHour, timestampsColumnWidth } from './store.js'
-  import { TOTAL_COLUMNS, COLUMN_WIDTH, c, originDT } from './constants.js'
+  import { originDT, TOTAL_COLUMNS } from './constants.js'
+  import { headerHeight, pixelsPerHour, timestampsColumnWidth, calColumnWidth } from './store.js'
   import { getAllGCalEvents, fetchAccountsAndCalendars } from '$lib/features/google-calendar/gcal.js'
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
@@ -16,6 +16,9 @@
   const { treesByDate, treesByID } = getContext('app')
   
   const { setupCalListener } = createCalendarService({ treesByDate, treesByID })
+
+  const c = 4 // for "cushion"
+  const COLUMN_WIDTH = $calColumnWidth
 
   let scrollParent
 

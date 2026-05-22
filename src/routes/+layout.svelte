@@ -48,7 +48,7 @@
     } 
 
     else if (resultUser.isAnonymous) {
-      goto('/')
+      goto('/', { noScroll: true }) // otherwise new visitor gets scroll reset to top when anonymousLogin resolves
       loading.set(false)
       loggedIn.set(true)
     }

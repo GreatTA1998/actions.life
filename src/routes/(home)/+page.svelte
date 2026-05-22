@@ -6,14 +6,12 @@
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
   import AuthPlayground from './components/AuthPlayground.svelte'
-  import LogosChrome from 'virtual:icons/logos/chrome'
-  import LogosSafari from 'virtual:icons/logos/safari'
   import { authChecked, authUser } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { browser } from '$app/environment'
   import { onMount } from 'svelte'
 
-  let browserSupported = $state(false)
+  let browserSupported = $state(true)
 
   onMount(() => {
     browserSupported = HTMLElement.prototype.hasOwnProperty("popover")
@@ -41,6 +39,12 @@
 
     <IntegrationCards />
 
+    {#if !browserSupported}
+      <p class="text-center text-amber-700 px-4 max-w-[60ch]">
+        WARNING: some features may not work on your browser. Please use the latest Chrome or Safari.
+      </p>
+    {/if}
+
     {#if browser && isMobile()}
       <PhoneDisplay children={simulatedApp} />
     {:else}
@@ -48,38 +52,20 @@
     {/if}
 
     {#snippet simulatedApp ()}
-      {#if browserSupported}
-        <div class="w-full h-full relative">
-          {#if $authChecked && !$authUser?.email}
-            <AnonymousContext>
-              {#snippet children (uid)}
-                {#if uid}
-                  <UserAppInstance {uid} />
-                {/if}
-              {/snippet}
-            </AnonymousContext>
-          {/if}
-        </div>
-      {:else}
-        <div class="relative w-full h-full bg-white flex flex-col items-center justify-center">
-          <p>WARNING: the app can't run on your browser and requires the latest version of Chrome or Safari</p>
-          <div class="flex items-center gap-4">
-            <div class="flex items-center justify-center size-12">
-              <LogosChrome class="w-[4.4rem] h-[4.4rem] drop-shadow-sm" />
-            </div>
-            <div class="flex items-center justify-center size-13">
-              <LogosSafari class="w-20 h-20 drop-shadow-sm" />
-            </div>
-          </div>
-        </div>
-      {/if}
+      <div class="w-full h-full relative">
+        {#if $authChecked && !$authUser?.email}
+          <AnonymousContext>
+            {#snippet children (uid)}
+              {#if uid}
+                <UserAppInstance {uid} />
+              {/if}
+            {/snippet}
+          </AnonymousContext>
+        {/if}
+      </div>
     {/snippet}
 
-    {#if browserSupported}
-      <AuthPlayground/>
-    {:else}
-      <p>WARNING: the app can't run on your browser and requires the latest version of Chrome or Safari</p>
-    {/if}
+    <AuthPlayground/>
 
     <footer class="w-full mt-40 py-8 flex justify-end mr-10 gap-6 text-xs text-neutral-400 tracking-tight">
       <a href="/legal/privacy-policy" class="no-underline">Privacy</a>

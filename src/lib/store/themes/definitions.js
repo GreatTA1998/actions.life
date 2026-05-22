@@ -9,11 +9,11 @@ export const themes = {
     }
   },
   naturalGreen: {
-    previewColor: 'hsl(98, 40%, 92%)',
+    previewColor: 'hsl(98, 40%, 90%)',
     cssVars: {
-      '--todo-list-bg-color': 'hsl(100, 40%, 90%)',
-      '--cal-bg': 'hsl(98, 40%, 92%)',
-      '--navbar-bg-color': 'hsla(98, 30%, 94%)',
+      '--todo-list-bg-color': 'hsl(100, 40%, 86%)',
+      '--cal-bg': 'hsl(98, 40%, 88%)',
+      '--navbar-bg-color': 'hsla(98, 30%, 90%)',
       '--grid-color': 'hsl(98, 30%, 80%)'
     }
   },

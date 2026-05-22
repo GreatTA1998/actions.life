@@ -39,7 +39,7 @@
     style:flex-grow="0"
     style:font-size={titleFS}
     style:color={color}
-    class="font-medium truncate cursor-pointer select-none" 
+    class="font-medium truncate text-clip cursor-pointer select-none" 
     onclick={() => openTaskPopup(task)} 
   >
     {task.name}

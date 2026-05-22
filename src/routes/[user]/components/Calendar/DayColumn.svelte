@@ -4,7 +4,7 @@
   import TimeIndicator from './TimeIndicator.svelte'
   import { getLocalY } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
-  import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
+  import { pixelsPerHour, calColumnWidth, headerHeight, timestampsColumnWidth } from './store.js'
   import { timestamps, calSnapInterval, googleEventsByDate } from '$lib/store'
   import { getContext } from 'svelte'
 
@@ -19,7 +19,7 @@
 
   let dayColumn
   let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
-  let pixelsPerMinute = $pixelsPerHour / 60
+  let pixelsPerMinute = $derived($pixelsPerHour / 60)
 
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
   let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
@@ -50,7 +50,7 @@
   }
 </script>
 
-<div bind:this={dayColumn} class="relative select-none w-[var(--width-cal-column)] bg-[var(--cal-bg)]"
+<div bind:this={dayColumn} class="relative select-none bg-[var(--cal-bg)]"
   {@attach registerDropzone({ 
     id: dropzoneID,
     clipRectFunction () {
@@ -72,6 +72,7 @@
       })
     }
   })}
+  style:width="{$calColumnWidth}px"
   style:height="{24 * $pixelsPerHour}px"
   style:border-right="1px solid var(--grid-color)"
   onclick={e => {
