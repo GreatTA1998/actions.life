@@ -1,34 +1,10 @@
 <script>
   import GoogleLogo from '$lib/components/GoogleLogo.svelte'
   import MslArrowOutward from 'virtual:icons/material-symbols-light/arrow-outward'
-  import {
-    AuthErrorCodes,
-    GoogleAuthProvider,
-    linkWithPopup,
-    signInWithCredential,
-    browserPopupRedirectResolver,
-  } from 'firebase/auth'
-  import { firebaseAuth } from '$lib/store'
-  import { get } from 'svelte/store'
-  import User from '$lib/db/models/User.js'
+  import { signInWithGoogle } from '$lib/features/google-calendar/GIS.js'
 
   async function onclick () {
-    try {
-      const result = await linkWithPopup(
-        get(firebaseAuth).currentUser,
-        new GoogleAuthProvider(),
-        browserPopupRedirectResolver
-      )
-      return User.update({ email: result.user.email })
-    } catch (e) {
-      if (e.code === AuthErrorCodes.CREDENTIAL_ALREADY_IN_USE) {
-        await signInWithCredential(
-          get(firebaseAuth),
-          GoogleAuthProvider.credentialFromError(e)
-        )
-      } 
-      else throw e
-    }
+    await signInWithGoogle()
   }
 </script>
 

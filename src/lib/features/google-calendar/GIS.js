@@ -1,51 +1,24 @@
 import { cloudFunction } from '$lib/utils/cloudFunctions.js'
+import { firebaseAuth } from '$lib/store'
+import { get } from 'svelte/store'
+import {
+  AuthErrorCodes,
+  GoogleAuthProvider,
+  linkWithCredential,
+  signInWithCredential,
+} from 'firebase/auth'
+import User from '$lib/db/models/User.js'
 
-/**
- * Initiates the Google OAuth2 Authorization Code Flow.
- * @param {string} clientId - Your Google Cloud Client ID.
- * @param {string} scope - Space-separated list of scopes.
- * @returns {Promise<void>}
- */
-export function initiateGoogleConnect (clientId, scope = 'https://www.googleapis.com/auth/calendar openid email') {
-  return new Promise((resolve, reject) => {
-    if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-      reject(new Error('Google Identity Services script not loaded.'))
-      return
-    }
+export const GOOGLE_CLIENT_ID =
+  '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com'
 
-    const client = google.accounts.oauth2.initCodeClient({
-      client_id: clientId,
-      scope: scope,
-      ux_mode: 'popup',
-      callback: async (response) => {
-        if (response.code) {
-          try {
-            console.log('Received auth code, exchanging for tokens...')
-            await cloudFunction('exchangeGoogleCode', { code: response.code })
-            resolve()
-          } catch (error) {
-            console.error('Error exchanging code:', error)
-            reject(error)
-          }
-        } else if (response.error) {
-          console.error('GIS Error:', response.error)
-          reject(new Error(response.error))
-        } else {
-          console.log('Unknown callback error, response =', response)
-          reject(new Error('Unknown callback error'))
-        }
-      },
-      error_callback: (error) => {
-        console.error('GIS Error Callback:', error);
-        reject(new Error(error.type === 'popup_closed' ? 'Authorization cancelled' : error.message));
-      }
-    })
-
-    client.requestCode()
-  })
+const SCOPES = {
+  login: 'openid email profile',
+  calendar: 'https://www.googleapis.com/auth/calendar openid email',
 }
 
 export function loadGoogleIdentityServices () {
+  if (typeof google !== 'undefined' && google.accounts?.oauth2) return Promise.resolve()
   return new Promise((resolve, reject) => {
     const script = document.createElement('script')
     script.src = 'https://accounts.google.com/gsi/client'
@@ -54,4 +27,47 @@ export function loadGoogleIdentityServices () {
     script.onerror = () => reject(new Error('Failed to load Google Identity Services script.'))
     document.head.appendChild(script)
   })
+}
+
+function requestGoogleAuthCode (scope) {
+  return new Promise((resolve, reject) => {
+    const client = google.accounts.oauth2.initCodeClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope,
+      ux_mode: 'popup',
+      callback: (response) => {
+        if (response.code) resolve(response.code)
+        else reject(new Error(response.error || 'Authorization failed'))
+      },
+      error_callback: (error) => {
+        reject(new Error(error.type === 'popup_closed' ? 'Authorization cancelled' : error.message))
+      },
+    })
+    client.requestCode()
+  })
+}
+
+async function exchangeCode (code) {
+  const { data } = await cloudFunction('exchangeGoogleCode', { code })
+  return data
+}
+
+export async function signInWithGoogle () {
+  await loadGoogleIdentityServices()
+  const { idToken, email } = await exchangeCode(await requestGoogleAuthCode(SCOPES.login))
+  const auth = get(firebaseAuth)
+  const credential = GoogleAuthProvider.credential(idToken)
+  try {
+    await linkWithCredential(auth.currentUser, credential)
+  } catch (e) {
+    if (e.code === AuthErrorCodes.CREDENTIAL_ALREADY_IN_USE) {
+      await signInWithCredential(auth, credential)
+    } else throw e
+  }
+  await User.update({ email })
+}
+
+export async function connectGoogleCalendar () {
+  await loadGoogleIdentityServices()
+  await exchangeCode(await requestGoogleAuthCode(SCOPES.calendar))
 }
