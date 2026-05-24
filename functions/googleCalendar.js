@@ -34,26 +34,26 @@ exports.exchangeGoogleCode = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET
     const googleUserId = payload.sub
     const googleEmail = payload.email
 
-    const ref = db.doc(`users/${request.auth.uid}/googleAccounts/${googleUserId}`)
-     
-    // TO-DO: use factory functions instead of misusing Zod
-    await ref.set({
-      email: googleEmail,
-      id: googleUserId,
-      refreshToken: { 
-        value: tokens.refresh_token,
-        lastUsed: '' // after 6 months of inactivity
-      },
-      accessToken: {
-        value: tokens.access_token,
-        expiryDate: tokens.expiry_date // 1 hour after issuance
-      },
-      scope: tokens.scope,
-      selectedCalIDs: [],
-      opacity: 0.9
-    }, { merge: true })
+    if (tokens.scope?.includes('calendar') && tokens.refresh_token) {
+      const ref = db.doc(`users/${request.auth.uid}/googleAccounts/${googleUserId}`)
+      await ref.set({
+        email: googleEmail,
+        id: googleUserId,
+        refreshToken: {
+          value: tokens.refresh_token,
+          lastUsed: '',
+        },
+        accessToken: {
+          value: tokens.access_token,
+          expiryDate: tokens.expiry_date,
+        },
+        scope: tokens.scope,
+        selectedCalIDs: [],
+        opacity: 0.9,
+      }, { merge: true })
+    }
 
-    return { success: true, googleUserId, email: googleEmail }
+    return { success: true, googleUserId, email: googleEmail, idToken: tokens.id_token }
   } catch (error) {
     console.error('Error exchanging token:', error);
     throw new HttpsError('internal', 'Failed to exchange authorization code', error.message);

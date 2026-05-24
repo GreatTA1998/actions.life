@@ -1,51 +1,31 @@
 import { cloudFunction } from '$lib/utils/cloudFunctions.js'
+import { firebaseAuth } from '$lib/store'
+import { get } from 'svelte/store'
+import {
+  AuthErrorCodes,
+  GoogleAuthProvider,
+  linkWithCredential,
+  signInWithCredential,
+} from 'firebase/auth'
+import User from '$lib/db/models/User.js'
+import { ensureAnonymousSession } from '$lib/auth/anonymous.js'
 
-/**
- * Initiates the Google OAuth2 Authorization Code Flow.
- * @param {string} clientId - Your Google Cloud Client ID.
- * @param {string} scope - Space-separated list of scopes.
- * @returns {Promise<void>}
- */
-export function initiateGoogleConnect (clientId, scope = 'https://www.googleapis.com/auth/calendar openid email') {
-  return new Promise((resolve, reject) => {
-    if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-      reject(new Error('Google Identity Services script not loaded.'))
-      return
-    }
+export const GOOGLE_CLIENT_ID =
+  '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com'
 
-    const client = google.accounts.oauth2.initCodeClient({
-      client_id: clientId,
-      scope: scope,
-      ux_mode: 'popup',
-      callback: async (response) => {
-        if (response.code) {
-          try {
-            console.log('Received auth code, exchanging for tokens...')
-            await cloudFunction('exchangeGoogleCode', { code: response.code })
-            resolve()
-          } catch (error) {
-            console.error('Error exchanging code:', error)
-            reject(error)
-          }
-        } else if (response.error) {
-          console.error('GIS Error:', response.error)
-          reject(new Error(response.error))
-        } else {
-          console.log('Unknown callback error, response =', response)
-          reject(new Error('Unknown callback error'))
-        }
-      },
-      error_callback: (error) => {
-        console.error('GIS Error Callback:', error);
-        reject(new Error(error.type === 'popup_closed' ? 'Authorization cancelled' : error.message));
-      }
-    })
+const OAUTH_STORAGE_KEY = 'google_oauth_pending'
 
-    client.requestCode()
-  })
+const SCOPES = {
+  login: 'openid email profile',
+  calendar: 'https://www.googleapis.com/auth/calendar openid email',
+}
+
+export function getGoogleRedirectUri () {
+  return `${window.location.origin}/auth/google/callback`
 }
 
 export function loadGoogleIdentityServices () {
+  if (typeof google !== 'undefined' && google.accounts?.oauth2) return Promise.resolve()
   return new Promise((resolve, reject) => {
     const script = document.createElement('script')
     script.src = 'https://accounts.google.com/gsi/client'
@@ -54,4 +34,70 @@ export function loadGoogleIdentityServices () {
     script.onerror = () => reject(new Error('Failed to load Google Identity Services script.'))
     document.head.appendChild(script)
   })
+}
+
+function savePendingOAuth (pending) {
+  sessionStorage.setItem(OAUTH_STORAGE_KEY, JSON.stringify(pending))
+}
+
+function consumePendingOAuth () {
+  const raw = sessionStorage.getItem(OAUTH_STORAGE_KEY)
+  sessionStorage.removeItem(OAUTH_STORAGE_KEY)
+  if (!raw) throw new Error('OAuth session expired. Please try again.')
+  return JSON.parse(raw)
+}
+
+async function exchangeCode (code, redirect_uri) {
+  const { data } = await cloudFunction('exchangeGoogleCode', { code, redirect_uri })
+  return data
+}
+
+/** Full-page redirect to Google (WebKit-safe). Resumes on /auth/google/callback. */
+export async function startGoogleAuth (flow, { returnTo } = {}) {
+  if (flow === 'login') await ensureAnonymousSession()
+  await loadGoogleIdentityServices()
+
+  const state = crypto.randomUUID()
+  savePendingOAuth({ flow, state, returnTo: returnTo || null })
+
+  google.accounts.oauth2.initCodeClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: SCOPES[flow],
+    ux_mode: 'redirect',
+    redirect_uri: getGoogleRedirectUri(),
+    state,
+  }).requestCode()
+}
+
+/** GIS sign-in: anonymous first, then link Google on callback (same uid). */
+export function signInWithGoogle () {
+  return startGoogleAuth('login')
+}
+
+export function connectGoogleCalendar () {
+  const returnTo = typeof window !== 'undefined' ? window.location.pathname : null
+  return startGoogleAuth('calendar', { returnTo })
+}
+
+export async function completeGoogleAuth (code, urlState) {
+  const { flow, state, returnTo } = consumePendingOAuth()
+  if (urlState !== state) throw new Error('Invalid OAuth state')
+
+  const redirect_uri = getGoogleRedirectUri()
+  const { idToken } = await exchangeCode(code, redirect_uri)
+  const auth = get(firebaseAuth)
+
+  if (flow === 'login') {
+    const credential = GoogleAuthProvider.credential(idToken)
+    try {
+      await linkWithCredential(auth.currentUser, credential)
+    } catch (e) {
+      if (e.code === AuthErrorCodes.CREDENTIAL_ALREADY_IN_USE) {
+        await signInWithCredential(auth, credential)
+      } else throw e
+    }
+    await User.update({ email: auth.currentUser.email })
+  }
+
+  return { redirectTo: returnTo || `/${auth.currentUser.uid}` }
 }

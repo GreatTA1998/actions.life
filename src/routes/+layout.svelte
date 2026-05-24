@@ -34,7 +34,7 @@
       authChecked.set(true) // from cookie, takes around 300 - 500ms
       authUser.set($firebaseAuth.currentUser)
 
-      if (page.url.pathname.startsWith('/legal')) {
+      if (page.url.pathname.startsWith('/legal') || page.url.pathname.startsWith('/auth/google')) {
         loading = false
       }
     

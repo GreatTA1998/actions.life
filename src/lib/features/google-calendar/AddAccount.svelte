@@ -1,24 +1,18 @@
 <script>
-  import { initiateGoogleConnect, loadGoogleIdentityServices } from '$lib/features/google-calendar/GIS.js'
+  import { connectGoogleCalendar } from '$lib/features/google-calendar/GIS.js'
   import GoogleIdentityButton from '$lib/components/GoogleIdentityButton.svelte'
-  
-  // Ideally, expose this via a public environment variable in SvelteKit ($env/static/public)
-  const clientId = '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com'
+
   let loading = $state(false)
   let error = $state('')
 
-  async function handleConnect() {
+  async function handleConnect () {
     loading = true
     error = ''
     try {
-      await loadGoogleIdentityServices()
-      await initiateGoogleConnect(clientId)
-      window.location.reload()
+      await connectGoogleCalendar()
     } catch (err) {
       console.error(err)
       error = err.message
-    } finally {
-      console.log('finally clause')
       loading = false
     }
   }
