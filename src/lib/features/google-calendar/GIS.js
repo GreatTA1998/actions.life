@@ -8,6 +8,7 @@ import {
   signInWithCredential,
 } from 'firebase/auth'
 import User from '$lib/db/models/User.js'
+import { ensureAnonymousSession } from '$lib/auth/anonymous.js'
 
 export const GOOGLE_CLIENT_ID =
   '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com'
@@ -52,7 +53,9 @@ async function exchangeCode (code) {
   return data
 }
 
+/** GIS sign-in: anonymous session first, then link Google (same uid, keeps demo data). */
 export async function signInWithGoogle () {
+  await ensureAnonymousSession()
   await loadGoogleIdentityServices()
   const { idToken, email } = await exchangeCode(await requestGoogleAuthCode(SCOPES.login))
   const auth = get(firebaseAuth)
