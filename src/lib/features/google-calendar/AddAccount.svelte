@@ -10,11 +10,9 @@
     error = ''
     try {
       await connectGoogleCalendar()
-      window.location.reload()
     } catch (err) {
       console.error(err)
       error = err.message
-    } finally {
       loading = false
     }
   }
