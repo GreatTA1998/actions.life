@@ -15,7 +15,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 
-const db = initializeFirestore(app, {}, 'schema-compliant')
+const db = initializeFirestore(
+  app, 
+  { 
+    experimentalForceLongPolling: true,
+    useFetchStreams: false
+  }, 
+  'schema-compliant'
+)
 
 const auth = initializeAuth(app, {
   persistence: [indexedDBLocalPersistence, browserLocalPersistence]
