@@ -2,6 +2,7 @@
   import GoogleLogo from '$lib/components/GoogleLogo.svelte'
   import MslArrowOutward from 'virtual:icons/material-symbols-light/arrow-outward'
   import { loadGoogleIdentityServices } from '$lib/features/google-calendar/GIS.js'
+  import { page } from '$app/state'
 
   async function onclick () {
     await loadGoogleIdentityServices()
@@ -9,7 +10,7 @@
       client_id: '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com',
       scope: 'openid email https://www.googleapis.com/auth/calendar.readonly',
       ux_mode: 'redirect',
-      redirect_uri: window.location.origin + '/auth/google/callback',
+      redirect_uri: page.url.origin + '/auth/google/callback',
     })
 
     client.requestCode()

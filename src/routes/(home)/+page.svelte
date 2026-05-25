@@ -5,7 +5,7 @@
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
-  import AuthPlayground from './components/AuthPlayground.svelte'
+  import AuthPlayground from './components/SignInCard.svelte'
   import { authChecked, authUser } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { browser } from '$app/environment'

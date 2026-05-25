@@ -12,6 +12,7 @@
   import { get } from 'svelte/store'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
+  import { reportError } from '$lib/utils/errors.js'
 
   onMount(async () => {
     const code = page.url.searchParams.get('code')
@@ -33,7 +34,10 @@
           get(firebaseAuth), credential
         )
       } 
-      else throw error
+      else reportError({
+        subject: 'linkWithCredential error',
+        content: `Error = ${error}`
+      })
     }
   })
 </script>
