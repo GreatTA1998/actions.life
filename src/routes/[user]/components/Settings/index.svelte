@@ -20,77 +20,68 @@
   let statusMessage = $state('')
 </script>
 
-<div class="settings-container"> 
-  <div class="settings-content">
-    <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
-      <div class="settings-group" style="display: flex; flex-direction: column; row-gap: 12px;">
-        <div style="display: flex; column-gap: 12px; align-items: center;">
-          <div class="title">App</div>
-          
-          <ColorSettings />
+<div class="flex flex-col size-full overflow-y-auto bg-[rgb(235,235,235)]"> 
+  <div style="display: flex; flex-direction: column; gap: 12px;" class="flex">
+    <div class="settings-group">
+      <div class="flex gap-x-3 items-center">
+        <div class="title">App</div>
+        
+        <ColorSettings />
+      </div>
+      <ModeSettings />
+    </div>
+  
+    <div class="settings-group">
+      <div class="flex flex-col gap-y-6">
+
+        <div class="flex gap-x-3 items-center">
+          <div class="title">Calendar</div>
+          <AddAccount />
         </div>
-        <ModeSettings />
+
+        <GridlineSettings />
+        
+        {#if $allAccounts.length > 0}
+          <GCalDashboard />
+        {/if}
       </div>
-   
-      <div class="flex flex-col gap-y-4">
-        <div class="flex flex-col gap-y-6 settings-group">
+    </div>
 
-          <div class="flex gap-x-3 items-center">
-            <div class="title">Calendar</div>
-            <AddAccount />
-          </div>
-
-          <GridlineSettings />
-          
-          {#if $allAccounts.length > 0}
-            <GCalDashboard />
-          {/if}
-        </div>
+    <div class="settings-group">
+      <div class="flex items-center gap-x-3">
+        <div class="title">Data</div>
+        <span class="text-sm text-[var(--success-color)]">{statusMessage}</span>
       </div>
 
-      <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
-        <div class="flex items-center gap-x-3">
-          <div class="title">Data</div>
-          <span class="status">{statusMessage}</span>
-        </div>
-        <DataExport onFinish={message => statusMessage = message}/>
-      </div>
+      <DataExport onFinish={message => statusMessage = message}/>
+    </div>
 
-      <div style="display: flex; flex-direction: column; row-gap: 16px;" class="settings-group">
-        <div class="title">Photo</div>
-        <PhotoSettings />
-      </div>
+    <div class="settings-group">
+      <div class="title">Photo</div>
+      <PhotoSettings />
+    </div>
 
+    <div class="shrink-0">
       <CommunityChat />
     </div>
-  </div>
 
-  <div class="footer">
-    <GithubButton />
-
-    <button onclick={handleLogoClick} class="logout-button">
-      <MslLogout style="font-size: 1.4rem;"/>
-      <span>Sign out</span>
-    </button>
+    <div class="flex items-center justify-end py-6">
+      <GithubButton />
+  
+      <button onclick={handleLogoClick} class="flex items-center gap-1.5 text-[#6b6b6b] font-medium py-1.5 px-3">
+        <MslLogout style="font-size: 1.4rem;"/>
+        <span>Sign out</span>
+      </button>
+    </div>
   </div>
 </div>
 
 <style>
-  .status {
-    color: var(--success-color);
-    font-size: 0.875rem;
-  }
-
-  .settings-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    background: rgb(235, 235, 235);
-    overflow-y: auto;
-  }
-
   .settings-group {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column; 
+    row-gap: 16px;
     padding: 16px;
     background: var(--navbar-bg-color);
   }
@@ -98,40 +89,5 @@
   .title {
     font-size: 1rem;
     font-weight: 600;
-  }
-
-  .settings-content {
-    display: flex;
-    flex-direction: row;
-    gap: 80px;
-    max-width: 1400px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-
-  .settings-description {
-    font-size: 0.875rem;
-    margin-bottom: 24px;
-    line-height: 1.6;
-  }
-
-  .footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 24px 64px;
-    max-width: 1400px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  .logout-button {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: #6b6b6b;
-    font-weight: 500;
-    padding: 6px 12px;
   }
 </style>
