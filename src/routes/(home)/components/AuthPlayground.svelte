@@ -1,36 +1,18 @@
 <script>
   import GoogleLogo from '$lib/components/GoogleLogo.svelte'
   import MslArrowOutward from 'virtual:icons/material-symbols-light/arrow-outward'
-  import {
-    AuthErrorCodes,
-    GoogleAuthProvider,
-    linkWithPopup,
-    signInWithCredential,
-    browserPopupRedirectResolver,
-  } from 'firebase/auth'
-  import { firebaseAuth } from '$lib/store'
-  import { get } from 'svelte/store'
-  import User from '$lib/db/models/User.js'
-  import { goto } from '$app/navigation'
+  import { loadGoogleIdentityServices } from '$lib/features/google-calendar/GIS.js'
 
   async function onclick () {
-    try {
-      const result = await linkWithPopup(
-        get(firebaseAuth).currentUser,
-        new GoogleAuthProvider(),
-        browserPopupRedirectResolver
-      )
-      await User.update({ email: result.user.email })
-      goto(`/${result.user.uid}`) // `onAuthStateChanged` doesn't trigger with account linking
-    } catch (e) {
-      if (e.code === AuthErrorCodes.CREDENTIAL_ALREADY_IN_USE) {
-        await signInWithCredential(
-          get(firebaseAuth),
-          GoogleAuthProvider.credentialFromError(e)
-        )
-      } 
-      else throw e
-    }
+    await loadGoogleIdentityServices()
+    const client = google.accounts.oauth2.initCodeClient({
+      client_id: '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com',
+      scope: 'openid email https://www.googleapis.com/auth/calendar.readonly',
+      ux_mode: 'redirect',
+      redirect_uri: window.location.origin + '/auth/google/callback',
+    })
+
+    client.requestCode()
   }
 </script>
 

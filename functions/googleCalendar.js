@@ -16,6 +16,23 @@ function createAuthClient (redirectUri = 'postmessage') {
   )
 }
 
+exports.signInCallback = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
+  const { code, redirect_uri } = request.data // need the newly added account too
+  const authClient = createAuthClient(redirect_uri)
+
+  const { tokens } = await authClient.getToken(code)
+    
+  authClient.verifyIdToken({
+    idToken: tokens.id_token,
+    audience: GOOGLE_CLIENT_ID.value()
+  })
+
+  return {
+    idToken: tokens.id_token,
+    accessToken: tokens.access_token
+  }
+})
+
 exports.exchangeGoogleCode = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'The function must be called while authenticated.')
 
