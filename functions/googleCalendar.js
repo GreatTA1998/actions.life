@@ -17,64 +17,30 @@ function createAuthClient (redirectUri = 'postmessage') {
 }
 
 exports.signInCallback = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
-  const { code, redirect_uri } = request.data // need the newly added account too
+  const { authorizationCode, redirect_uri } = request.data // need the newly added account too
   const authClient = createAuthClient(redirect_uri)
 
-  const { tokens } = await authClient.getToken(code)
+  const { tokens } = await authClient.getToken(authorizationCode)
     
-  authClient.verifyIdToken({
+  const ticket = await authClient.verifyIdToken({
     idToken: tokens.id_token,
     audience: GOOGLE_CLIENT_ID.value()
   })
+  const { sub, email } = ticket.getPayload()
 
-  return {
-    idToken: tokens.id_token,
-    accessToken: tokens.access_token
-  }
+  return { tokens, email, id: sub }
 })
 
 exports.exchangeGoogleCode = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
-  if (!request.auth) throw new HttpsError('unauthenticated', 'The function must be called while authenticated.')
-
   const { code, redirect_uri } = request.data // need the newly added account too
   const authClient = createAuthClient(redirect_uri)
-
-  try {
-    const { tokens } = await authClient.getToken(code)
-    
-    const ticket = await authClient.verifyIdToken({
-      idToken: tokens.id_token,
-      audience: GOOGLE_CLIENT_ID.value()
-    })
-    
-    const payload = ticket.getPayload()
-    const googleUserId = payload.sub
-    const googleEmail = payload.email
-
-    const ref = db.doc(`users/${request.auth.uid}/googleAccounts/${googleUserId}`)
-     
-    // TO-DO: use factory functions instead of misusing Zod
-    await ref.set({
-      email: googleEmail,
-      id: googleUserId,
-      refreshToken: { 
-        value: tokens.refresh_token,
-        lastUsed: '' // after 6 months of inactivity
-      },
-      accessToken: {
-        value: tokens.access_token,
-        expiryDate: tokens.expiry_date // 1 hour after issuance
-      },
-      scope: tokens.scope,
-      selectedCalIDs: [],
-      opacity: 0.9
-    }, { merge: true })
-
-    return { success: true, googleUserId, email: googleEmail }
-  } catch (error) {
-    console.error('Error exchanging token:', error);
-    throw new HttpsError('internal', 'Failed to exchange authorization code', error.message);
-  }
+  const { tokens } = await authClient.getToken(code)
+  const ticket = await authClient.verifyIdToken({
+    idToken: tokens.id_token,
+    audience: GOOGLE_CLIENT_ID.value()
+  })
+  const { sub, email } = ticket.getPayload()
+  return { tokens, email, id: sub }
 })
 
 exports.fetchGoogleCalendars = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {

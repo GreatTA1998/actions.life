@@ -1,25 +1,29 @@
 <script>
-  import { initiateGoogleConnect, loadGoogleIdentityServices } from '$lib/features/google-calendar/GIS.js'
+  import { loadGoogleIdentityServices } from '$lib/features/google-calendar/GIS.js'
   import GoogleIdentityButton from '$lib/components/GoogleIdentityButton.svelte'
+  import { cloudFunction } from '$lib/utils/cloudFunctions.js'
+  import GCalAccount from '$lib/db/models/GCalAccount.js'
   
   // Ideally, expose this via a public environment variable in SvelteKit ($env/static/public)
-  const clientId = '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com'
+  const client_id = '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com'
+  const scope = 'openid email https://www.googleapis.com/auth/calendar.readonly'
+  
   let loading = $state(false)
-  let error = $state('')
 
-  async function handleConnect() {
+  async function handleConnect () {
     loading = true
-    error = ''
-    try {
-      await loadGoogleIdentityServices()
-      await initiateGoogleConnect(clientId)
-      window.location.reload()
-    } catch (err) {
-      console.error(err)
-      error = err.message
-    } finally {
-      loading = false
-    }
+    await loadGoogleIdentityServices()
+
+    const client = google.accounts.oauth2.initCodeClient({
+      client_id, scope,
+      ux_mode: 'popup',
+      callback: async ({ code }) => {
+        const { data: { email, id, token } } = await cloudFunction('exchangeGoogleCode', { code })
+        GCalAccount.create(email, id, token)
+      }
+    })
+
+    client.requestCode()
   }
 </script>
 
@@ -37,8 +41,4 @@
     padding: 8px 16px;
     vertical-align: baseline;
   "
-/>  
-
-{#if error}
-  <p class="text-red text-md">{error}</p>
-{/if}
+/>

@@ -9,8 +9,6 @@ export let loading = writable(true)
 export const authUser = writable(null) // reactive version of firebaseAuth.currentUser (= to resultUser from onAuthStateChanged)
 export const initialDataReady = writable(false)
 
-export const allAccounts = writable([])
-export const cals = writable({})
 export const googleEventsByDate = writable({})
 
 export const firebaseAuth = writable(null)

@@ -10,7 +10,7 @@
   import GithubButton from '$lib/components/GithubButton.svelte'
   import MslLogout from 'virtual:icons/material-symbols-light/logout'
   import { signOut } from 'firebase/auth'
-  import { firebaseAuth, allAccounts } from '$lib/store'
+  import { firebaseAuth } from '$lib/store'
 
   async function handleLogoClick() {
     await signOut($firebaseAuth)
@@ -20,11 +20,11 @@
   let statusMessage = $state('')
 </script>
 
-<div class="flex flex-col size-full overflow-y-auto bg-[rgb(235,235,235)]"> 
-  <div style="display: flex; flex-direction: column; gap: 12px;" class="flex">
+<div class="flex flex-col h-full overflow-y-auto bg-[rgb(235,235,235)]"> 
+  <div class="flex flex-col gap-3">
     <div class="settings-group">
       <div class="flex gap-x-3 items-center">
-        <div class="title">App</div>
+        <h2>App</h2>
         
         <ColorSettings />
       </div>
@@ -35,29 +35,29 @@
       <div class="flex flex-col gap-y-6">
 
         <div class="flex gap-x-3 items-center">
-          <div class="title">Calendar</div>
+          <h2>Calendar</h2>
           <AddAccount />
         </div>
 
         <GridlineSettings />
         
-        {#if $allAccounts.length > 0}
-          <GCalDashboard />
-        {/if}
+        <GCalDashboard />
       </div>
     </div>
 
     <div class="settings-group">
       <div class="flex items-center gap-x-3">
-        <div class="title">Data</div>
-        <span class="text-sm text-[var(--success-color)]">{statusMessage}</span>
+        <h2>Data</h2>
+        <span class="text-sm text-[var(--success-color)]">
+          {statusMessage}
+        </span>
       </div>
 
       <DataExport onFinish={message => statusMessage = message}/>
     </div>
 
     <div class="settings-group">
-      <div class="title">Photo</div>
+      <h2>Photo</h2>
       <PhotoSettings />
     </div>
 
@@ -86,7 +86,7 @@
     background: var(--navbar-bg-color);
   }
 
-  .title {
+  h2 {
     font-size: 1rem;
     font-weight: 600;
   }
