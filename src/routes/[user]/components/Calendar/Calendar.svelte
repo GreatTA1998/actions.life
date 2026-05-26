@@ -11,6 +11,7 @@
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'
+  import { googleEventsByDate } from '$lib/store'
 
   const { scrollCalRect } = getContext('drag-drop')
   const { treesByDate, treesByID } = getContext('app')
@@ -50,6 +51,7 @@
       () => scrollParent.getBoundingClientRect() // temporary,  () => {} is more robust across layout changes
     )
 
+    googleEventsByDate.set({}) // quickfix for duplicates on localhost reload
     getAllGCalEvents(
       originDT.plus({ days: viewportLeft - 2*c }),
       originDT.plus({ days: viewportRight + 2*c })
