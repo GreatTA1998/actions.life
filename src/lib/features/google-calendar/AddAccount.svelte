@@ -18,7 +18,7 @@
       client_id, scope,
       ux_mode: 'popup',
       callback: async ({ code }) => {
-        const { data: { email, id, token } } = await cloudFunction('exchangeGoogleCode', { code })
+        const { data: { email, id, token } } = await cloudFunction('exchangeForTokens', { code })
         GCalAccount.create(email, id, token)
       }
     })

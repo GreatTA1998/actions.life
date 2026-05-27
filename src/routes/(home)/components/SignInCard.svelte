@@ -10,7 +10,7 @@
       client_id: '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com',
       scope: 'openid email https://www.googleapis.com/auth/calendar.readonly',
       ux_mode: 'redirect',
-      redirect_uri: page.url.origin + '/auth/google/callback',
+      redirect_uri: page.url.origin + '/auth/callback',
     })
 
     client.requestCode()

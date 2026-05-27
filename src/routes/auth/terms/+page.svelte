@@ -2,7 +2,7 @@
   <div class="mx-auto max-w-3xl space-y-8 rounded-xl bg-white/90 p-6 text-gray-600 leading-relaxed shadow-sm sm:p-10">
     <header class="space-y-2">
       <h1 class="text-3xl font-semibold text-gray-900 sm:text-4xl">Terms of Service</h1>
-      <p class="text-sm text-gray-500">Last updated: {new Date().toLocaleDateString()}</p>
+      <p class="text-sm text-gray-500">Last updated: 2026-05-27</p>
     </header>
 
     <section class="space-y-3">
