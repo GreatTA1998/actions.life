@@ -25,6 +25,9 @@
 
     try { // first-time user
       const result = await linkWithCredential($firebaseAuth.currentUser, credential)
+      console.log('success with linkWithCredential')
+      console.log('result =', result)
+      console.log('result.user.uid =', result.user.uid)
       await Promise.all([
         User.update({ email: result.user.email }),
         GCalAccount.create(email, id, tokens)
