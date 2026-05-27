@@ -32,6 +32,7 @@
       ]) 
       goto('/' + result.user.uid)
       loggedIn.set(true)
+      setupCalendarsOfAccount(tokens.refresh_token, id)
     } catch (error) { // returning user
       if (error.code === AuthErrorCodes.CREDENTIAL_ALREADY_IN_USE) {
         const result = await signInWithCredential($firebaseAuth, credential)
@@ -40,6 +41,15 @@
       } 
       else throw error
     }
+  }
+
+  async function setupCalendarsOfAccount (refreshToken, id) {
+    const { data: { calendars } } = await cloudFunction('fetchGoogleCalendars',{ refreshToken })
+
+    return GCalAccount.update(id, {
+      allCals: calendars,
+      selectedCalIDs: calendars.map(cal => cal.id)
+    })
   }
 </script>
 
