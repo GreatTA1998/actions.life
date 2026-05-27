@@ -9,7 +9,7 @@
   import User from '$lib/db/models/User.js'
   import GCalAccount from '$lib/db/models/GCalAccount.js'
   import { cloudFunction } from '$lib/utils/cloudFunctions.js'
-  import { firebaseAuth, loggedIn } from '$lib/store'
+  import { firebaseAuth, loggedIn, user } from '$lib/store'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
 
@@ -25,9 +25,7 @@
 
     try { // first-time user
       const result = await linkWithCredential($firebaseAuth.currentUser, credential)
-      console.log('success with linkWithCredential')
-      console.log('result =', result)
-      console.log('result.user.uid =', result.user.uid)
+      user.update(u => ({ ...u, uid: result.user.uid })) // GCalAccount implicitly depends on get(user)
       await Promise.all([
         User.update({ email: result.user.email }),
         GCalAccount.create(email, id, tokens)

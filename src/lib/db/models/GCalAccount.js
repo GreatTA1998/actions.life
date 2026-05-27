@@ -27,13 +27,18 @@ const GCalAccount = {
     }
 
     const validatedChanges = GCalAccount.schema.partial().parse(kvChanges)
-    return setFirestoreDoc(`/users/${uid}/googleAccounts/${id}`, validatedChanges)
+    return setFirestoreDoc(
+      `/users/${get(user).uid}/googleAccounts/${id}`, 
+      validatedChanges
+    )
   },
 
   async update (accountID, kvChanges) {
-    const { uid } = get(user)
     const validatedChanges = GCalAccount.schema.partial().parse(kvChanges)
-    return updateFirestoreDoc(`/users/${uid}/googleAccounts/${accountID}`, validatedChanges)
+    return updateFirestoreDoc(
+      `/users/${get(user).uid}/googleAccounts/${accountID}`, 
+      validatedChanges
+    )
   }
 }
 
