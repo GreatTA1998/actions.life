@@ -23,7 +23,7 @@ const GCalAccount = {
       accessToken: { value: access_token },
       selectedCalIDs: [],
       allCals: [],
-      opacity: 0.9
+      opacity: 0.5
     }
 
     const validatedChanges = GCalAccount.schema.partial().parse(kvChanges)
