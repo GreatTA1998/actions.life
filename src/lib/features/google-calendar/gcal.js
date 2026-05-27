@@ -93,4 +93,3 @@ function gcalTask (event, calMap, opacity) {
 function empty () {
   return { hasStartTime: [], allDay: [] }
 }
-
