@@ -2,7 +2,7 @@
   import TaskElement from '$lib/components/TaskElement.svelte'
   import GcalEvent from '$lib/features/google-calendar/GCalEvent.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
-  import { getLocalY } from '$lib/utils/core.js'
+  import { getLocalY, snap } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, calColumnWidth, headerHeight, timestampsColumnWidth } from './store.js'
   import { timestamps, calSnapInterval, googleEventsByDate } from '$lib/store'
@@ -41,12 +41,6 @@
   function minutesSinceMidnight (clientY, snapInterval) {
     const localY = getLocalY(dayColumn, clientY)
     return snap(localY / pixelsPerMinute, snapInterval)
-  }
-
-  function snap (number, interval) {
-    const remainder = number % interval 
-    if (remainder < interval / 2) return number - remainder
-    else return number - remainder + interval
   }
 </script>
 
