@@ -5,6 +5,7 @@
     GoogleAuthProvider,
     AuthErrorCodes
   } from 'firebase/auth'
+  import { setupCalendarsOfAccount } from '$lib/features/google-calendar/gcal.js'
   import { onMount } from 'svelte'
   import User from '$lib/db/models/User.js'
   import GCalAccount from '$lib/db/models/GCalAccount.js'
@@ -41,15 +42,6 @@
       } 
       else throw error
     }
-  }
-
-  async function setupCalendarsOfAccount (refreshToken, id) {
-    const { data: { calendars } } = await cloudFunction('fetchGoogleCalendars',{ refreshToken })
-
-    return GCalAccount.update(id, {
-      allCals: calendars,
-      selectedCalIDs: calendars.map(cal => cal.id)
-    })
   }
 </script>
 

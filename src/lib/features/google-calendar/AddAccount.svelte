@@ -1,8 +1,9 @@
 <script>
-  import { loadGoogleIdentityServices } from '$lib/features/google-calendar/GIS.js'
   import GoogleIdentityButton from '$lib/components/GoogleIdentityButton.svelte'
-  import { cloudFunction } from '$lib/utils/cloudFunctions.js'
   import GCalAccount from '$lib/db/models/GCalAccount.js'
+  import { loadGoogleIdentityServices } from '$lib/features/google-calendar/GIS.js'
+  import { cloudFunction } from '$lib/utils/cloudFunctions.js'
+  import { setupCalendarsOfAccount } from '$lib/features/google-calendar/gcal.js'
   
   // Ideally, expose this via a public environment variable in SvelteKit ($env/static/public)
   const client_id = '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com'
@@ -18,8 +19,12 @@
       client_id, scope,
       ux_mode: 'popup',
       callback: async ({ code }) => {
-        const { data: { email, id, token } } = await cloudFunction('exchangeForTokens', { code })
-        GCalAccount.create(email, id, token)
+        const { 
+          data: { tokens, email, id } 
+        } = await cloudFunction('exchangeForTokens', { authorizationCode: code }) 
+        
+        await GCalAccount.create(email, id, tokens)
+        setupCalendarsOfAccount(tokens.refresh_token, id)
       }
     })
 

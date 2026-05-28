@@ -15,7 +15,7 @@ function createAuthClient (redirectUri = 'postmessage') {
 
 exports.exchangeForTokens = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
   const { authorizationCode, redirect_uri } = request.data
-  const authClient = createAuthClient(redirect_uri)
+  const authClient = createAuthClient(redirect_uri) // won't break for a popup flow even if redirect_uri is undefined
   const { tokens } = await authClient.getToken(authorizationCode)
   const ticket = await authClient.verifyIdToken({
     idToken: tokens.id_token,

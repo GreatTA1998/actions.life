@@ -3,8 +3,18 @@ import { user, googleEventsByDate } from '$lib/store'
 import { get, writable } from 'svelte/store'
 import { DateTime } from 'luxon'
 import { getFirestoreCollection } from '$lib/db/helpers.js'
+import GCalAccount from '$lib/db/models/GCalAccount.js'
 
 export const allAccounts = writable([])
+
+export async function setupCalendarsOfAccount (refreshToken, id) {
+  const { data: { calendars } } = await cloudFunction('fetchGoogleCalendars',{ refreshToken })
+
+  return GCalAccount.update(id, {
+    allCals: calendars,
+    selectedCalIDs: calendars.map(cal => cal.id)
+  })
+}
 
 export async function getAllGCalEvents (startDT, endDT) {
   const gcalAccounts = await getFirestoreCollection(`/users/${get(user).uid}/googleAccounts`) 
