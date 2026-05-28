@@ -48,5 +48,5 @@
 
 <div {onpointerdown} {onpointermove} {onpointerup}
   class="absolute z-1 touch-none cursor-ns-resize top-auto bottom-0 inset-x-0"
-  style:height="clamp(4px, {(task.duration * ppm) * 1/5}px, 24px)"
+  style:height="clamp(2px, {(task.duration * ppm) * 1/5}px, 24px)"
 ></div>

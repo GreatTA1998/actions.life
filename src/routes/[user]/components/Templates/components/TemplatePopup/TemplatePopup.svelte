@@ -38,8 +38,10 @@
 </script>
 
 <NewBasePopup onExit={closeTaskPopup}>
-  <div class="relative w-screen flex flex-col py-2 px-4 gap-y-6" 
+  <div class="relative w-screen flex-col py-2 px-4 gap-y-6" 
+    style:display="flex"
     style:max-width="{WIDTHS.PANEL_MAX}px"
+    style:max-height="80dvh"
   >
     <div class="grid gap-[10px]" style:grid-template-columns="auto 1fr">
       {#if periodicity($template.rrStr) === 'weekly'}
