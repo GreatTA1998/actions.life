@@ -1,4 +1,4 @@
-<div class="relative">
+<div class="relative z-0">
   {#if height < 24 && !task.imageDownloadURL}
     <div 
       onclick={() => openTaskPopup(task)}
