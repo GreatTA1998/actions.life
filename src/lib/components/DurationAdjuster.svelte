@@ -33,7 +33,26 @@
       onInput()
       dragging = false
       e.currentTarget.releasePointerCapture(e.pointerId)
+      suppressGhostClick()
     }
+  }
+
+  // iOS standalone web apps dispatch the synthetic post-touch click through a native
+  // gesture recognizer that races our async touchend preventDefault, so it leaks through
+  // nondeterministically. Swallow the next click in the capture phase instead, with a
+  // window long enough to outlast iOS's ~300-350ms tap deferral.
+  function suppressGhostClick () {
+    const cleanup = () => {
+      clearTimeout(timer)
+      window.removeEventListener('click', swallow, true)
+    }
+    const swallow = e => {
+      e.stopPropagation()
+      e.preventDefault()
+      cleanup()
+    }
+    const timer = setTimeout(cleanup, 400)
+    window.addEventListener('click', swallow, true)
   }
 
   function updateDuration (e) {
