@@ -105,7 +105,7 @@
         class="shrink-1 min-w-[1ch] min-h-[24px] text-left flex leading-[1.25]"
         style:font-weight={depth === 1 ? 600 : 400}
       >
-        <span class="truncate text-clip max-w-[440px]">
+        <span class="truncate text-clip">
           {task.name}
         </span>
       </button>
@@ -151,7 +151,7 @@
     </div>
 
     {#if task.notes}
-      <button
+      <button onclick={() => openTaskPopup(task)}
         style:margin-left="calc(var(--task-control-width) + 0.25rem)"
         class="text-left text-xs leading-[1.25] max-w-[45ch] line-clamp-2"
         style:color="oklch(43.9% 0 0)"

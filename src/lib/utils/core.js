@@ -124,3 +124,9 @@ export function getLocalX (container, clientX) {
   const rect = container.getBoundingClientRect()
   return clientX + container.scrollLeft - rect.left
 }
+
+export function snap (number, interval) {
+  const remainder = number % interval
+  if (remainder < interval / 2) return number - remainder
+  else return number - remainder + interval
+}

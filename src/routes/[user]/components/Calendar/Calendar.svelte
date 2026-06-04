@@ -7,10 +7,11 @@
   import { createCalendarService } from './service-v2'
   import { originDT, TOTAL_COLUMNS } from './constants.js'
   import { headerHeight, pixelsPerHour, timestampsColumnWidth, calColumnWidth } from './store.js'
-  import { getAllGCalEvents, fetchAccountsAndCalendars } from '$lib/features/google-calendar/gcal.js'
+  import { getAllGCalEvents } from '$lib/features/google-calendar/gcal.js'
   import { jumpToToday } from './autoScrolling.js'
   import { trackHeight } from '$lib/utils/svelteActions.js'
   import { onMount, getContext } from 'svelte'
+  import { googleEventsByDate } from '$lib/store'
 
   const { scrollCalRect } = getContext('drag-drop')
   const { treesByDate, treesByID } = getContext('app')
@@ -50,7 +51,7 @@
       () => scrollParent.getBoundingClientRect() // temporary,  () => {} is more robust across layout changes
     )
 
-    await fetchAccountsAndCalendars()
+    googleEventsByDate.set({}) // quickfix for duplicates on localhost reload
     getAllGCalEvents(
       originDT.plus({ days: viewportLeft - 2*c }),
       originDT.plus({ days: viewportRight + 2*c })

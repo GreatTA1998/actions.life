@@ -1,5 +1,6 @@
 import {
-  doc, setDoc, getDoc, getDocFromCache, updateDoc, deleteDoc,
+  doc, setDoc, getDoc, getDocFromCache, getDocsFromCache,
+  updateDoc, deleteDoc,
   collection, getDocs, query, where, limit,
   writeBatch, arrayRemove, increment, onSnapshot
 } from 'firebase/firestore'
@@ -43,12 +44,18 @@ export async function getFirestoreDoc (path) {
 
 export async function getFirestoreCollection (path) {
   const ref = collection(db, path)
-  const snapshot = await getDocs(ref)
-  const data = []
-  snapshot.forEach((doc) => {
-    data.push({ id: doc.id, path: doc.ref.path, ...doc.data() })
-  })
-  return data
+  const cached = await getDocsFromCache(ref)
+  if (cached.empty) { // unlike `getDocFromCache`, no error gets thrown
+    const network = await getDocs(ref)
+    return network.docs.map(
+      doc => ({ id: doc.id, path: doc.ref.path, ...doc.data() })
+    )
+  }
+  else {
+    return cached.docs.map(
+      doc => ({ id: doc.id, path: doc.ref.path, ...doc.data() })
+    )
+  }
 }
 
 export async function getFirestoreQuery (query) {

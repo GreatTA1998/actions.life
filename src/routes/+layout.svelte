@@ -2,7 +2,7 @@
   import { reportError } from '$lib/utils/errors.js'
   import { goto } from '$app/navigation'
   import { loadSounds } from '$lib/features/audio.js'
-  import { user, authUser, authChecked, loggedIn, initialDataReady, firebaseAuth, loading } from '$lib/store'
+  import { loading, user, authUser, authChecked, loggedIn, initialDataReady, firebaseAuth } from '$lib/store'
   import { page } from '$app/state'
   import { onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
@@ -32,11 +32,15 @@
     onAuthStateChanged($firebaseAuth, onResult, onError)
   })
 
-  function onResult (resultUser) {
+  async function onResult (resultUser) {
     authChecked.set(true) // from cookie, takes around 300 - 500ms
     authUser.set($firebaseAuth.currentUser)
 
-    if (page.url.pathname.startsWith('/legal')) {
+    if (page.url.pathname.startsWith('/auth/callback')) {
+      // let /auth/callback/+page.svelte handle redirecting
+    }
+
+    else if (page.url.pathname.startsWith('/auth')) {
       loading.set(false)
     }
   
@@ -71,8 +75,8 @@
 {@render children()}
 
 {#if $loading}
-  <div transition:fade 
-    class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
+  <div transition:fade class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
+
   </div>
 {/if}
 

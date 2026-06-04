@@ -1,12 +1,9 @@
 const { defineString, defineSecret } = require('firebase-functions/params')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { google } = require('googleapis')
-const { getFirestore } = require('firebase-admin/firestore')
 
 const GOOGLE_CLIENT_ID = defineString('GOOGLE_CLIENT_ID')
 const GOOGLE_CLIENT_SECRET = defineSecret('GOOGLE_CLIENT_SECRET')
-
-const db = getFirestore('schema-compliant') // cursor bot says first argument is app, second is a string ID. It works for now so we won't change it.
 
 function createAuthClient (redirectUri = 'postmessage') {
   return new google.auth.OAuth2(
@@ -16,49 +13,19 @@ function createAuthClient (redirectUri = 'postmessage') {
   )
 }
 
-exports.exchangeGoogleCode = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
-  if (!request.auth) throw new HttpsError('unauthenticated', 'The function must be called while authenticated.')
-
-  const { code, redirect_uri } = request.data // need the newly added account too
-  const authClient = createAuthClient(redirect_uri)
-
-  try {
-    const { tokens } = await authClient.getToken(code)
-    
-    const ticket = await authClient.verifyIdToken({
-      idToken: tokens.id_token,
-      audience: GOOGLE_CLIENT_ID.value()
-    })
-    
-    const payload = ticket.getPayload()
-    const googleUserId = payload.sub
-    const googleEmail = payload.email
-
-    const ref = db.doc(`users/${request.auth.uid}/googleAccounts/${googleUserId}`)
-     
-    // TO-DO: use factory functions instead of misusing Zod
-    await ref.set({
-      email: googleEmail,
-      id: googleUserId,
-      refreshToken: { 
-        value: tokens.refresh_token,
-        lastUsed: '' // after 6 months of inactivity
-      },
-      accessToken: {
-        value: tokens.access_token,
-        expiryDate: tokens.expiry_date // 1 hour after issuance
-      },
-      scope: tokens.scope,
-      selectedCalIDs: [],
-      opacity: 0.9
-    }, { merge: true })
-
-    return { success: true, googleUserId, email: googleEmail }
-  } catch (error) {
-    console.error('Error exchanging token:', error);
-    throw new HttpsError('internal', 'Failed to exchange authorization code', error.message);
-  }
+exports.exchangeForTokens = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
+  const { authorizationCode, redirect_uri } = request.data
+  const authClient = createAuthClient(redirect_uri) // won't break for a popup flow even if redirect_uri is undefined
+  const { tokens } = await authClient.getToken(authorizationCode)
+  const ticket = await authClient.verifyIdToken({
+    idToken: tokens.id_token,
+    audience: GOOGLE_CLIENT_ID.value() // prevents against Confused Deputy attacks
+  })
+  const { sub, email } = ticket.getPayload()
+  return { tokens, email, id: sub }
 })
+
+// Warning: exports.exchangeGoogleCode is still used on beta and main as of 2026-05-27. Deprecate safely on 2026-08-27.
 
 exports.fetchGoogleCalendars = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
   if (!request.auth) {

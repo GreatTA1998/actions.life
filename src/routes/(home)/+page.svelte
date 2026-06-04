@@ -5,7 +5,7 @@
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
-  import AuthPlayground from './components/AuthPlayground.svelte'
+  import AuthPlayground from './components/SignInCard.svelte'
   import { authChecked, authUser } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { browser } from '$app/environment'
@@ -68,8 +68,8 @@
     <AuthPlayground/>
 
     <footer class="w-full mt-40 py-8 flex justify-end mr-10 gap-6 text-xs text-neutral-400 tracking-tight">
-      <a href="/legal/privacy-policy" class="no-underline">Privacy</a>
-      <a href="/legal/terms-of-service" class="no-underline">Terms</a>
+      <a href="/auth/privacy" class="no-underline">Privacy</a>
+      <a href="/auth/terms" class="no-underline">Terms</a>
     </footer>
   </div>
 </div>
