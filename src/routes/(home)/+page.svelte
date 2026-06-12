@@ -28,10 +28,10 @@
       <div class="mx-auto py-32 sm:py-48 lg:py-56">
         <div class="text-center">
           <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-500 sm:text-7xl">
-            Life calendar
+            actions.life
           </h1>
           <p class="mt-4 max-w-[60ch] text-pretty text-gray-600 md:text-3xl sm:text-xl/8">
-            See the big picture and act on what's important
+            List and calendar on one page
           </p>
         </div>
       </div>
