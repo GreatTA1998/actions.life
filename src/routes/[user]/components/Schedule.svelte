@@ -97,25 +97,15 @@
     const startISO = startDate.toISODate()
     const endISO = startDate.plus({ days: count - 1 }).toISODate()
     
-    try {
-      const ref = collection(db, '/users/' + $user.uid + '/tasks')
-      const q = query(
-        ref,
-        where('startDateISO', '>=', startISO),
-        where('startDateISO', '<=', endISO)
-      )
-
-      const unsub = onSnapshot(q, (snapshot) => {
+    const ref = collection(db, '/users/' + $user.uid + '/tasks')
+    const q = query(ref, where('startDateISO', '>=', startISO), where('startDateISO', '<=', endISO))
+    
+    unsubs.push(
+      onSnapshot(q, snapshot => {
         const tasks = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
         distributeTasks(tasks, startISO, endISO)
-      }, (error) => {
-        console.error("Error listening to tasks:", error)
       })
-      
-      unsubs.push(unsub)
-    } catch (err) {
-      console.error("Error setting up listener:", err)
-    }
+    )
   }
 
   function distributeTasks (fetchedTasks, startRangeISO, endRangeISO) {
@@ -167,17 +157,13 @@
       }
     }
   }
-  
-  function isRoutine (task) {
-    return !!(task.templateID || task.iconURL)
+
+  function getFlexible (tasks) {
+    return tasks.filter(task => !task.startTime)
   }
 
-  function getRoutineTasks (tasks) {
-    return tasks.filter(isRoutine)
-  }
-
-  function getRegularTasks (tasks) {
-    return tasks.filter(t => !isRoutine(t))
+  function getScheduled (tasks) {
+    return tasks.filter(task => !!task.startTime)
   }
 
   function formatTime (isoTime) {
@@ -202,30 +188,25 @@
       />
     </div>
 
-    <div {onscroll} bind:this={scrollContainer}
-      class="flex-1 overflow-y-auto scroll-smooth pb-[80px]" 
-    >
-      {#each loadedDays as day, i (day.dateISO)}
-        {@const filteredTasks = $user.hideRoutines ? day.tasks.filter(t => !t.templateID) : day.tasks}
+    <div {onscroll} bind:this={scrollContainer} class="flex-1 overflow-y-auto scroll-smooth pb-[80px]" >
+      {#each loadedDays as day (day.dateISO)}
+        {@const isoTasks = $user.hideRoutines ? day.tasks.filter(t => !t.templateID) : day.tasks}
         <div class="day-section" id="day-{day.dateISO}">
-          {#if filteredTasks.length > 0}
-            <div class={[
-              'text-lg font-semibold p-4',
-              selectedDate.hasSame(day.date, 'day') ? 'text-[var(--primary-color)]' : 'text-[#444]'
-            ]} 
-            >
-              <span class="uppercase mr-1">{day.date.toFormat('cccc')}</span>
-              <span>{day.date.toFormat('MMM d')}</span>
-            </div>
-          {/if}
-
-          {#if filteredTasks.length > 0}
-            <div class="pb-4">
-              {#if getRoutineTasks(filteredTasks).length > 0}
-                <div class="flex items-center flex-wrap gap-3 px-4 pb-4">
-                  {#each getRoutineTasks(filteredTasks) as task (task.id)}
+          {#if isoTasks.length > 0}
+            <div class="flex flex-col gap-y-1 py-4">
+              <div class={[
+                'px-4 text-lg font-semibold',
+                selectedDate.hasSame(day.date, 'day') ? 'text-[var(--primary-color)]' : 'text-[#444]'
+              ]}
+              >
+                <span class="uppercase mr-1">{day.date.toFormat('cccc')}</span>
+                <span>{day.date.toFormat('MMM d')}</span>
+              </div>
+          
+                <div class="flex items-center flex-wrap gap-1 px-4">
+                  {#each getFlexible(isoTasks) as task (task.id)}
                     {#if task.iconURL}
-                      <DoodleIcon iconTask={task} size={40} />
+                      <DoodleIcon iconTask={task} size="40px" />
                     {:else}
                       <button onclick={() => openTaskPopup(task)}
                         class={[
@@ -238,44 +219,47 @@
                     {/if}
                   {/each}
                 </div>
-              {/if}
 
-              <div class="flex flex-col px-4">
-                {#each getRegularTasks(filteredTasks) as task (task.id)}
-                  <button onclick={() => openTaskPopup(task)}
-                    class={[
-                      'text-left justify-start gap-x-4 py-1',
-                      task.isDone && 'bg-gradient-to-r from-[rgba(76,175,80,0.04)] to-transparent'
-                    ]}
-                  >
-                    {#if task.startTime}
-                      <div class="shrink-0 text-lg text-[#222] font-medium">
-                        {formatTime(task.startTime)}
-                      </div>
-                    {/if}
-                    
-                    <div class="min-w-0">
-                      <div class="flex items-center gap-x-1">
-                        <div class="text-lg text-[#222]">
-                          {task.name}
+                <div class="flex flex-col">
+                  {#each getScheduled(isoTasks) as task (task.id)}
+                    <button onclick={() => openTaskPopup(task)}
+                      class={[
+                        'text-left justify-start gap-x-4 py-1 px-4',
+                        task.isDone && 'bg-gradient-to-r from-[rgba(76,175,80,0.04)] to-transparent'
+                      ]}
+                    >
+                      {#if task.startTime}
+                        <div class="shrink-0 text-lg text-[#222] font-medium">
+                          {formatTime(task.startTime)}
                         </div>
-                        
-                        {#if task.imageDownloadURL}
-                          <img onclick={() => openTaskPopup(task)} src={task.imageDownloadURL} class="w-auto shrink-0 rounded-sm" style:height="1lh">
-                        {/if}
-                      </div>
+                      {/if}
+                      
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-x-1 text-lg">
+                          {#if task.iconURL}
+                            <DoodleIcon iconTask={task} size="1lh" />
+                          {/if}
+                          
+                          <div class="text-[#222]">
+                            {task.name}
+                          </div>
+                          
+                          {#if task.imageDownloadURL}
+                            <img onclick={() => openTaskPopup(task)} src={task.imageDownloadURL} class="w-auto shrink-0 rounded-sm" style:height="1lh">
+                          {/if}
+                        </div>
 
-                      <div class="text-base text-[#444] font-light truncate">
-                        {task.notes}
+                        <div class="text-base text-[#444] font-light truncate">
+                          {task.notes}
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                {/each}
-              </div>
+                    </button>
+                  {/each}
+                </div>
             </div>
           {/if}
-
-          <div class="border-t border-t-dashed border-[#dadada] py-2"></div>
+          
+          <div class="border-t border-t-dashed border-[#dadada] h-[16px]"></div>
         </div>
       {/each}
     </div>

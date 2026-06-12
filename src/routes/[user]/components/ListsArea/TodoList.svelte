@@ -24,7 +24,7 @@
   const indent = $derived(`${WIDTHS.INDENT_PER_LEVEL * scale}px`)
 
   setContext('list-config', { 
-    debug: () => true,
+    debug: () => false,
     indent: () => indent, 
     dzRootHeight: () => dzRootHeight,
     dzSubHeight: () => dzSubHeight,
