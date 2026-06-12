@@ -224,7 +224,7 @@
                   {#each getScheduled(isoTasks) as task (task.id)}
                     <button onclick={() => openTaskPopup(task)}
                       class={[
-                        'text-left justify-start gap-x-4 py-1 px-4',
+                        'text-left justify-start gap-x-2 py-1 px-4',
                         task.isDone && 'bg-gradient-to-r from-[rgba(76,175,80,0.04)] to-transparent'
                       ]}
                     >
@@ -240,7 +240,7 @@
                             <DoodleIcon iconTask={task} size="1lh" />
                           {/if}
                           
-                          <div class="text-[#222]">
+                          <div class="text-[#222] text-truncate text-clip">
                             {task.name}
                           </div>
                           
