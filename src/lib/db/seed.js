@@ -55,7 +55,7 @@ const SEED_TASKS = [
     isDone: true
   },
   { id: 'photo-dog', 
-    name: 'Drawing event',
+    name: 'Drawing with friends',
     imageDownloadURL: PHOTOS.olaDrawingByDad, 
     dayOffset: 1, 
     startTime: DateTime.now().toFormat('HH:mm'), 

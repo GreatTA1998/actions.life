@@ -25,7 +25,6 @@
 
   setContext('list-config', { 
     debug: () => false,
-    minWidth: () => '240px', // too large = wasteful gap between columns 
     indent: () => indent, 
     dzRootHeight: () => dzRootHeight,
     dzSubHeight: () => dzSubHeight,
@@ -74,8 +73,8 @@
       </div>
     {/each}
 
-    <div style:anchor-name={anchorID}> <!-- trick to anchor onto the dropzone from a list click -->
-      <Dropzone {...dzProps(trees.length)} />
+    <div style:anchor-name={anchorID}>
+      <Dropzone {...dzProps(trees.length)} extraClass="w-[240px]" />
     </div>
   {/if}
 </div>

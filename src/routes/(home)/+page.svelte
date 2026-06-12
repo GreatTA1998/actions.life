@@ -1,7 +1,7 @@
 <script>
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import ArtisticBackground from './components/ArtisticBackground.svelte'
-  import IntegrationCards from './components/IntegrationCards.svelte'
+  import IntegrationCards from './components/CardsAndVideo.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
@@ -30,8 +30,8 @@
           <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-500 sm:text-7xl">
             actions.life
           </h1>
-          <p class="mt-4 max-w-[60ch] text-pretty text-gray-600 md:text-2xl sm:text-xl/8">
-            Put everything important on one page
+          <p class="mt-4 max-w-[60ch] text-pretty text-gray-600 md:text-3xl sm:text-xl/8">
+            List and calendar on one page
           </p>
         </div>
       </div>
