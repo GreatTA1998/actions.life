@@ -73,11 +73,8 @@
       </div>
     {/each}
 
-    <div 
-      style:anchor-name={anchorID} 
-      style:width={listWidth}
-    >
-      <Dropzone {...dzProps(trees.length)} />
+    <div style:anchor-name={anchorID}>
+      <Dropzone {...dzProps(trees.length)} extraClass="w-[240px]" />
     </div>
   {/if}
 </div>
