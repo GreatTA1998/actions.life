@@ -24,8 +24,7 @@
   const indent = $derived(`${WIDTHS.INDENT_PER_LEVEL * scale}px`)
 
   setContext('list-config', { 
-    debug: () => false,
-    minWidth: () => '240px', // too large = wasteful gap between columns 
+    debug: () => true,
     indent: () => indent, 
     dzRootHeight: () => dzRootHeight,
     dzSubHeight: () => dzSubHeight,
@@ -74,7 +73,10 @@
       </div>
     {/each}
 
-    <div style:anchor-name={anchorID}> <!-- trick to anchor onto the dropzone from a list click -->
+    <div 
+      style:anchor-name={anchorID} 
+      style:width={listWidth}
+    >
       <Dropzone {...dzProps(trees.length)} />
     </div>
   {/if}
