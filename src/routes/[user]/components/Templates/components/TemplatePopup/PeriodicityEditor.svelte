@@ -4,7 +4,6 @@
   import Template from '$lib/db/models/Template.js'
   import Task from '$lib/db/models/Task.js' // note Task from context is now corrupted by Template
   import { getPreviewSpan, generateRecurrenceDTs } from '$lib/utils/rrule.js'
-  import { randomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { onMount } from 'svelte'
 
@@ -14,8 +13,8 @@
   let addingISOs = $derived.by(() => simulateChanges(pendingRRStr))
 
   let affectedTasks = $state([])
-  let deletingTasks = $derived(affectedTasks.filter(task => !modified(task)))
-  let preservingTasks = $derived(affectedTasks.filter(task => modified(task)))
+  let deletingTasks = $derived(affectedTasks.filter(task => !modified(task, routine)))
+  let preservingTasks = $derived(affectedTasks.filter(task => modified(task, routine)))
 
   onMount(async () => {
     affectedTasks = await Template.getAffectedInstances(routine)
@@ -32,21 +31,20 @@
   }
   
   async function applyChanges () {
-    for (const task of deletingTasks) {
-      Task.delete({ id: task.id })
-    }
+    await Promise.all(
+      deletingTasks.map(({ id }) => Task.delete({ id, willConfirm: false }))  
+    )
 
     for (const iso of addingISOs) {
-      Task.create({
-        id: randomID(),
-        data: {
-          ...routine,
-          templateID: routine.id,
+      Task.fromTemplate({
+        template: routine,
+        modifiers: {
           startDateISO: iso,
           onList: false
         }
       })
     }
+
     const previewSpan = getPreviewSpan({ rrStr: pendingRRStr })
     Template.update({ id: routine.id, kvChanges: { 
       rrStr: pendingRRStr, 
@@ -59,15 +57,8 @@
   // for example, if it routine repeats MWF, but the task is scheduled for Thursday, it was modified
   function modified (task, template) {
     if (!task || !template) return false
-    
-    for (const k of Object.keys(task)) {
-      if (['notes', 'imageDownloadURL', 'iconURL'].includes(k)) {      
-        if (task[k] !== template[k]) { 
-          return true
-        }
-      }
-    }
-    return false
+    return ['notes', 'imageDownloadURL', 'iconURL']
+      .some(k => task[k] !== template[k])
   }
 </script>
 

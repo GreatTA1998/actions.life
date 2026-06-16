@@ -23,13 +23,18 @@
         onList: true,
         orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
         parentID
+      },
+      onCreate () {
+        overrideOptions.set({
+          ...$overrideOptions,
+          orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel)
+        })
       }
     })
   }}
   class="select-none {extraClass}"
   style="
     anchor-name: {anchorID};
-    min-width: {minWidth()};
     height: {parentID === '' ? dzRootHeight() : dzSubHeight()}; 
     border-radius: var(--left-padding);
     border: {debug() ? 1 : 0}px solid {debugColor}; 
@@ -47,8 +52,8 @@
     registerDropzone, bestDropzoneID, dropPreviewCSS,
     draggedItem, logicAreaRect, computeOrderValue
   } = getContext('drag-drop')
-  const { dzRootHeight, dzSubHeight, minWidth, debug } = getContext('list-config')
-  const { activateInput } = getContext('popover-input')
+  const { dzRootHeight, dzSubHeight, debug } = getContext('list-config')
+  const { activateInput, overrideOptions } = getContext('popover-input')
 
   let {
     ancestorIDs,

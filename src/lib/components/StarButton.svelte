@@ -8,7 +8,7 @@
   } = $props()
 </script>
 
-<button onclick={onToggle} class="shrink-0 justify-center p-1">
+<button onclick={onToggle} class="shrink-0">
   {#if isStarred}
     <MslStar class="star-icon shine"/>
   {:else}
@@ -23,7 +23,7 @@
     color: #666;
   }
 
-  .star-button.shine :global(.star-icon) {
+  :global(.star-icon.shine) {
     color: #ffa726;
   }
 </style>

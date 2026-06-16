@@ -3,7 +3,7 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
   import { googleEventsByDate } from '$lib/store'
-  import { headerHeight, isCompact, timestampsColumnWidth } from './store.js'
+  import { headerHeight, isCompact, calColumnWidth, timestampsColumnWidth } from './store.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
@@ -43,6 +43,7 @@
     }})
   })}
   class="day-header"
+  style:width="{$calColumnWidth}px"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
   style:padding-bottom="0"
   onclick={e => {
@@ -78,7 +79,7 @@
     {@const { hasIcon, noIcon } = $treesByDate[ISODate].noStartTime}
     <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
       {#each hasIcon as iconTask (iconTask.id)}
-        <DoodleIcon {iconTask} />
+        <DoodleIcon {iconTask} size="32px" />
       {/each}
     </div>
 
@@ -86,7 +87,6 @@
       {#each noIcon as task (task.id)}
         <div draggable="true"  
           ondragstart={e => startTaskDrag({ e, id: task.id, isFromCal: true })}
-          style:opacity={task.isDone ? '0.9' : '0.7'}
         >
           <CalTaskUnit {task} />
         </div>
@@ -115,13 +115,10 @@
   .task-input {
     width: 100%; 
     height: 1.125rem;
-    padding-left: 0px; 
-    padding-right: 0px;
     pointer-events: none;
   }
 
   .day-header {
-    width: var(--width-cal-column);
     font-size: 1.4rem;
     background-color: var(--cal-bg);
     color: #6d6d6d;

@@ -1,5 +1,6 @@
 <script>
-  import ListenToDoc from './ListenToDoc.svelte'
+  import TaskPopupContext from '$lib/components/TaskPopupContext.svelte'
+  import ListenToDoc from '$lib/components/ListenToDoc.svelte'
   import ListenToRoutineInstances from './ListenToRoutineInstances.svelte'
   import JournalEntries from './JournalEntries.svelte'
   import StarButton from '$lib/components/StarButton.svelte'
@@ -16,45 +17,36 @@
   } = $props()
 
   async function toggleStar (routineID, value) {
-    await Template.update({ id: routineID, kvChanges: { isStarred: !value } })
+    return Template.update({ id: routineID, kvChanges: { isStarred: !value } })
   }
 </script>
 
 <div class={extraClass}>
-  <ListenToRoutineInstances templateID={selectedRoutineID} userID={$user.uid}
-    let:routineInstances={instances}
-  >
-    <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}
-      let:theDoc={selectedRoutine}
-    >
-      {#if selectedRoutine}
-        <div class="shrink-0 mb-5 px-4">
-          <div class="flex items-center gap-2 mb-2">
-            <h2>{selectedRoutine.name}</h2>
-            <StarButton isStarred={selectedRoutine.isStarred}
-              onToggle={() => toggleStar(selectedRoutineID, selectedRoutine.isStarred)}
-            />
-          </div>
-          {#if stats.has(selectedRoutineID)}
-            <div class="flex items-center gap-2">
-              <span>{formatHours(stats.get(selectedRoutineID).minutesSpent)}</span>
-              <span style="color: #666;">•</span>
-              <span>completed {stats.get(selectedRoutineID).timesCompleted} times</span>
-            </div>
-          {/if}
+  <ListenToDoc docPath={'/users/' + $user.uid + '/templates/' + selectedRoutineID}>
+    {#snippet children(selectedRoutine)}
+      <div class="shrink-0 mb-5 px-4">
+        <div class="flex items-center gap-2">
+          <h2 class="text-[1.625rem] font-semibold tracking-[-0.02em] leading-tight">{selectedRoutine.name}</h2>
+          <StarButton isStarred={selectedRoutine.isStarred}
+            onToggle={() => toggleStar(selectedRoutineID, selectedRoutine.isStarred)}
+          />
         </div>
-        
-        <JournalEntries routineInstances={instances}/>
-        
-      {/if}
-    </ListenToDoc>
-  </ListenToRoutineInstances>
+        {#if stats.has(selectedRoutineID)}
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-neutral-500 tabular-nums">
+            <span>{formatHours(stats.get(selectedRoutineID).minutesSpent)}</span>
+            <span class="text-neutral-300 select-none" aria-hidden="true">·</span>
+            <span>completed {stats.get(selectedRoutineID).timesCompleted} times</span>
+          </div>
+        {/if}
+      </div>
+      
+      <TaskPopupContext>
+        <ListenToRoutineInstances templateID={selectedRoutineID}>  
+          {#snippet children (routineInstances)}
+            <JournalEntries {routineInstances}/>
+          {/snippet}
+        </ListenToRoutineInstances>
+      </TaskPopupContext>
+    {/snippet}
+  </ListenToDoc>
 </div>
-
-<style>
-  h2 {
-    margin: 0;
-    font-size: 1.75rem;
-    font-weight: 600;
-  }
-</style>

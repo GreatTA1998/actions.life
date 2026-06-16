@@ -1,7 +1,7 @@
-import { originDT, COLUMN_WIDTH } from './constants.js'
+import { originDT } from './constants.js'
 import { DateTime } from 'luxon'
 import { get } from 'svelte/store'
-import { timestampsColumnWidth, pixelsPerHour } from './store.js'
+import { calColumnWidth, timestampsColumnWidth, pixelsPerHour } from './store.js'
 
 export function jumpToToday (node = document.getElementById('scroll-parent')) {
   const now = DateTime.now()
@@ -9,7 +9,7 @@ export function jumpToToday (node = document.getElementById('scroll-parent')) {
   const headroom = 48
 
   node.scrollTo({
-    left: todayIndex * COLUMN_WIDTH - get(timestampsColumnWidth),
+    left: todayIndex * get(calColumnWidth) - get(timestampsColumnWidth),
     top: (now.hour + now.minute / 60) * get(pixelsPerHour) - headroom,
     behavior: 'instant'
   })

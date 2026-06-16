@@ -1,3 +1,7 @@
+export const COLORS = Object.freeze({
+  OVERLAY_DARKEST: 'rgba(0,0,0,0.5)'
+})
+
 export const HEIGHTS = Object.freeze({
   MAIN_CONTENT_TOP_MARGIN: 24, // artificially match the dropzone for now, since CSS vars are hard to convert to rem
   ROOT_DROPZONE: 1.5, // 1.5rem = 24px (used directly by JS)
@@ -16,11 +20,10 @@ export const goldenRatio = 1.618
 
 export const WIDTHS = Object.freeze({
   LIST: 380, // 320 --> 360 for masa
-  CAL_COLUMN: 260, // 8 icons vs 200 6 icons
   CALENDAR_LEFT_PADDING: 16,
   MOBILE_TIME_AXIS: 22,
   DESKTOP_TIME_AXIS: 64,
-  INDENT_PER_LEVEL: 24, // unified for both subtasks and dropzones
+  INDENT_PER_LEVEL: 32, // such that mobile's 1.5 scale --> 48px
   PANEL_MAX: breakpoints.desktop / goldenRatio
 })
 

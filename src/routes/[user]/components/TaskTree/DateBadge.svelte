@@ -48,7 +48,7 @@
     white-space: nowrap;
     flex-shrink: 0;
     font-size: 12px;
-    background-color: var(--experimental-black);
+    background-color: hsla(0, 100%, 0%, 0.6);
     color: white;
     padding: 2px 4px;
     border-radius: 6px;

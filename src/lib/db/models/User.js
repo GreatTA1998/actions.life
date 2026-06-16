@@ -9,18 +9,16 @@ const User = {
     email: z.string(),
     maxOrderValue: z.number().default(10),
 
-    // properties introduced from August 1 2024, maybe
-    calendarTheme: z.string().default('google'),
-
+    calendarTheme: z.string().default('mutedEarth'),
     defaultPhotoLayout: z.string().default('side-by-side'),
-    calSnapInterval: z.number().default(1),
+    calSnapInterval: z.number().default(5),
     listAreaWidthRatio: z.number().default(0.00223), // empirically determined from my account
     listAreaHeightRatio: z.number().default(0.004), // for mobile top-below view, default to 40% of viewport height
     listWidthSplit: z.number().default(0.5),
     listHeightSplit: z.number().default(0.5),
 
     // automation settings
-    simpleMode: z.boolean().default(true),
+    simpleMode: z.boolean().default(false),
     photoUploadAutoArchive: z.boolean().default(false),
     photoCompressWhenAttachingToTask: z.boolean().default(true), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
 
@@ -29,11 +27,9 @@ const User = {
     nickname: z.string().default(''),
     avatarFilter: z.string().default(''),
 
-    // needed temporarily for backwards compatibility
-    hasGridlines: z.boolean().default(true),
-    calEarliestHHMM: z.string().default('00:00'),
-    calLastHHMM: z.string().default('23:59'),
     tags: z.record(z.object({ color: z.string(), name: z.string()})).default({}),
+    pixelsPerHour: z.number().default(80),
+    calColumnWidth: z.number().default(260),
 
     selectedGoogleCalendarIds: z.array(z.string()).optional() // to deprecate
   }),

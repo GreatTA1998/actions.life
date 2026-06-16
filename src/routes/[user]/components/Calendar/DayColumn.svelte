@@ -1,12 +1,10 @@
 <script>
   import TaskElement from '$lib/components/TaskElement.svelte'
-  import PhotoTaskElement from '$lib/components/PhotoTaskElement.svelte'
-  import IconTaskElement from '$lib/components/IconTaskElement.svelte'
   import GcalEvent from '$lib/features/google-calendar/GCalEvent.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
-  import { getLocalY } from '$lib/utils/core.js'
+  import { getLocalY, snap } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
-  import { pixelsPerHour, headerHeight, timestampsColumnWidth } from './store.js'
+  import { pixelsPerHour, calColumnWidth, headerHeight, timestampsColumnWidth } from './store.js'
   import { timestamps, calSnapInterval, googleEventsByDate } from '$lib/store'
   import { getContext } from 'svelte'
 
@@ -21,7 +19,7 @@
 
   let dayColumn
   let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
-  let pixelsPerMinute = $pixelsPerHour / 60
+  let pixelsPerMinute = $derived($pixelsPerHour / 60)
 
   let scheduledTasks = $derived($treesByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
   let googleEvents = $derived($googleEventsByDate[dt.toFormat('yyyy-MM-dd')]?.hasStartTime ?? [])
@@ -44,15 +42,9 @@
     const localY = getLocalY(dayColumn, clientY)
     return snap(localY / pixelsPerMinute, snapInterval)
   }
-
-  function snap (number, interval) {
-    const remainder = number % interval 
-    if (remainder < interval / 2) return number - remainder
-    else return number - remainder + interval
-  }
 </script>
 
-<div bind:this={dayColumn} class="relative select-none w-[var(--width-cal-column)] bg-[var(--cal-bg)]"
+<div bind:this={dayColumn} class="relative select-none bg-[var(--cal-bg)]"
   {@attach registerDropzone({ 
     id: dropzoneID,
     clipRectFunction () {
@@ -74,6 +66,7 @@
       })
     }
   })}
+  style:width="{$calColumnWidth}px"
   style:height="{24 * $pixelsPerHour}px"
   style:border-right="1px solid var(--grid-color)"
   onclick={e => {
@@ -112,13 +105,7 @@
     <div class="absolute inset-x-0 mx-auto w-[var(--width-within-column)]" 
       style:top="{HHmmToLocalY(task.startTime)}px"
     >
-      {#if task.imageDownloadURL}
-        <PhotoTaskElement {task} />
-      {:else if task.iconURL}
-        <IconTaskElement {task} />
-      {:else}
-        <TaskElement {task} />
-      {/if}
+      <TaskElement {task} />
     </div>
   {/each}
 

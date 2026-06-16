@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import { COLORS } from '$lib/utils/constants.js'
 
 export async function shareEngravedImage (imageURL, dateISO, title) {
   try {
@@ -25,7 +26,7 @@ export async function shareEngravedImage (imageURL, dateISO, title) {
     const gradientHeight = img.height * 0.3
     const gradient = ctx.createLinearGradient(0, img.height - gradientHeight, 0, img.height)
     gradient.addColorStop(0, 'transparent')
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0.7)')
+    gradient.addColorStop(1, COLORS.OVERLAY_DARKEST)
     
     ctx.fillStyle = gradient
     ctx.fillRect(0, img.height - gradientHeight, img.width, gradientHeight)

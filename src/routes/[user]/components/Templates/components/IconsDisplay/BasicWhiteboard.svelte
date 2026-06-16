@@ -118,7 +118,7 @@
   }
 </script>
 
-<div style="display: flex; ">
+<div style="display: flex">
   <div>
     <div
       style="display: flex; justify-content: space-around; margin-bottom: 8px; width: 240px;"
@@ -169,8 +169,9 @@
     <label for="public">Public:</label>
     <input id="public" type="checkbox" bind:checked={isShareable} />
   </div>
-</div>
+
   <ColorPicker {showColorPicker} {handleColorChange} {toggleColorPicker} />
+</div>
 
 <style>
   #whiteboard {

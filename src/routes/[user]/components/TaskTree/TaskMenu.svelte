@@ -10,7 +10,8 @@
   let { 
     task,
     extraClass = '',
-    fontSize = '1rem'
+    fontSize = '1rem',
+    color = 'var(--fine-control-color)'
   } = $props()
 </script>
 
@@ -21,7 +22,8 @@
       popovertarget={id} style:anchor-name={anchorName}
       style:width="calc(0.75 * {fontSize})"
       style:height={fontSize}
-      class="{extraClass} overflow-hidden justify-center text-color-[var(--task-action-subtle-color)]" 
+      style:color
+      class="{extraClass} overflow-hidden justify-center" 
     >
       <div 
         style:font-size="calc(1.125 * {fontSize})"
@@ -40,7 +42,7 @@
       />
 
       <button onclick={() => Task.archiveTree(task) }
-        class="text-left text-base gap-x-[6px] text-neutral-600" 
+        class="text-left gap-x-[6px] text-neutral-600" 
       >
         <MslInventory2Outline style="font-size: 1.125rem"/>
         Archive

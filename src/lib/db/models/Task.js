@@ -1,8 +1,7 @@
 import { z } from 'zod'
-import { releaseImage, maintainOrderValue } from '$lib/db/helpers.js'
+import { releaseImage, maintainOrderValue, getFirestoreDoc, getFirestoreCollection } from '$lib/db/helpers.js'
 import { get } from 'svelte/store'
-import { user, tasksCache, cleanupCache, showUndoSnackbar } from '$lib/store'
-import { closeTaskPopup } from '$lib/store/taskPopup.js'
+import { user, showUndoSnackbar } from '$lib/store'
 import { 
   writeBatch, getDocs, collection, 
   query, where, doc
@@ -11,6 +10,7 @@ import { db } from '$lib/db/init.js'
 import { maintainTreeISOs, updateEntireTree, handleTreeISOsForDeletion, getSubtreeNodes } from './treeISOs.js'
 import { playSound } from '$lib/features/audio.js'
 import { randomID } from '$lib/utils/core.js'
+import { nodesByParent } from '$lib/db/tree.ts'
 
 const Task = {
   schema: z.object({
@@ -43,7 +43,7 @@ const Task = {
     rootID: z.string() 
   }),
 
-  async create ({ id = randomID(), data, optimistic = true }) {
+  async create ({ id = randomID(), data }) {
     const batch = writeBatch(db)
     maintainOrderValue(data, batch)
 
@@ -54,7 +54,7 @@ const Task = {
       data.treeISOs = [startDateISO].filter(Boolean)
     }
     else {
-      const parent = get(tasksCache)[parentID]
+      const parent = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${parentID}`)
       data.rootID = parent.rootID
       data.tagIDs = parent.tagIDs
       data.treeISOs = [...parent.treeISOs, startDateISO].filter(Boolean) 
@@ -67,16 +67,15 @@ const Task = {
     
     batch.set(doc(db, `users/${get(user).uid}/tasks/${id}`), validatedTask)
     
-    if (optimistic) batch.commit()
-    else await batch.commit() 
+    await batch.commit()
 
     return { ...validatedTask, id }
   },
 
   async update ({ id, kvChanges, undoable = true }) {
-    const oldVal = { ...get(tasksCache)[id] }
+    const oldVal = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
     if (get(user).simpleMode) {
-      if (kvChanges.startDateISO || kvChanges.isDone) { // via datepicker, drag-to-calendar, checkbox, or photo upload
+      if (kvChanges.startDateISO) { // via datepicker, drag-to-calendar, checkbox, or photo upload
         kvChanges.onList = false
       } 
       else if (kvChanges.onList) {  // only possible via drag-to-list AND undoing a list -> cal drag
@@ -114,13 +113,12 @@ const Task = {
     return validatedChanges
   },
 
-  async delete ({ id }) {
-    closeTaskPopup()
-    const task = get(tasksCache)[id]
+  async delete ({ id, willConfirm = true }) {
+    const task = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
     const treeNodes = await getSubtreeNodes(task)
 
     // warning: need a way to disable this confirmation when we support sub-tasks for routines
-    if (treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} actions at once?`)) {
+    if (willConfirm && treeNodes.length >= 2 && !confirm(`Are you sure you want to delete ${treeNodes.length} actions at once?`)) {
       return []
     }
 
@@ -131,7 +129,6 @@ const Task = {
       batch.delete(doc(db, `/users/${uid}/tasks/${node.id}`))
     }
     await handleTreeISOsForDeletion({ batch, tasksToDelete: treeNodes }) // modifies `batch` before commiting
-    cleanupCache(treeNodes) // previous operations and sub-operations depend on `tasksCache`
     
     await batch.commit()
     
@@ -139,7 +136,7 @@ const Task = {
   },
 
   async archiveTree ({ id }) {
-    const task = get(tasksCache)[id]
+    const task = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
     const tasks = await getSubtreeNodes(task)
 
     const { uid } = get(user)
@@ -164,7 +161,7 @@ const Task = {
   async unarchiveTree ({ id }) {
     const { uid } = get(user)
     const batch = writeBatch(db)
-    const task = get(tasksCache)[id]
+    const task = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${id}`)
     const tasksToUnarchive = await getSubtreeNodes(task)
 
     for (const task of tasksToUnarchive) {
@@ -184,7 +181,48 @@ const Task = {
     )
     const snapshot = await getDocs(q)
     return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+  },
+
+  async fromTemplate ({ template, modifiers = {} }) {
+    const allTemplates = await getFirestoreCollection(`/users/${get(user).uid}/templates`)
+    const id = randomID()
+    const { parentID } = modifiers
+    let rootID = id
+    if (parentID) {
+      const parent = await getFirestoreDoc(`/users/${get(user).uid}/tasks/${parentID}`)
+      rootID = parent.rootID
+    }
+
+    return instantiate({
+      id,
+      node: { ...template, ...modifiers },
+      parentID: parentID || '',
+      rootID,
+      templateID: (typeof template.rrStr === 'string') ? template.id : '',
+      onList: !!modifiers.onList,  // `template.onList` doesn't matter, example: calendar task forged into a template, which instantiates onto the list.
+      memo: nodesByParent(allTemplates.filter(T => T.rootID === template.rootID))
+    })
   }
+}
+
+async function instantiate ({ node, id, parentID, rootID, templateID, onList, memo }) {
+  const result = await Task.create({ id, data: {
+    ...node, parentID, rootID, templateID, onList
+  }})
+  // treeISOs will be maintained by Task.create() as long as `parent` are created before children
+
+  for (const child of memo[node.id]) {
+    instantiate({
+      node: child,
+      parentID: id,
+      rootID,
+      id: randomID(),
+      templateID: '',
+      onList,
+      memo
+    })
+  }
+  return result
 }
 
 function isValidISODate (dateStr) {

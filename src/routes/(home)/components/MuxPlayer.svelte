@@ -34,6 +34,7 @@
     {autoplay}
     {muted}
     {playsinline}
+    default-hidden-captions
   ></mux-player>
 
   <div class="absolute inset-0" {onclick}></div>
@@ -42,8 +43,6 @@
 <style>
   mux-player {
     display: block; /* common gotcha with tiny gap below video due to inline-block */
-
-    --center-controls: none;
 
     --seek-backward-button: none;
     --seek-forward-button: none;

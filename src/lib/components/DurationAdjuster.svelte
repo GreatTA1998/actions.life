@@ -1,46 +1,69 @@
 <script>
-  import { getContext } from 'svelte'
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
-  import { getLocalY } from '$lib/utils/core.js'
+  import { minutes } from '$lib/utils/core.js'
 
   let { 
-    task,
-    isBulletPoint,
-    height,
+    task, 
+    onChange = () => {},
+    onInput = () => {}
   } = $props()
 
-  const dimensions = getContext('dimensions')
-  const { Task } = getContext('app')
-
+  let dragging = $state(false)
   let startY = 0
+  let startDuration = 0
+  let ppm = $derived($pixelsPerHour / 60)
 
-  function adjustDuration (e, task) {
-    const minutesPerPixel = 60 * (1 / $pixelsPerHour)
+  function onpointerdown (e) {
+    e.preventDefault()
+    e.currentTarget.setPointerCapture(e.pointerId)
+    dragging = true
+    startY = e.clientY
+    startDuration = task.duration
+  }
 
-    const newY = getLocalY(dimensions.appDiv, e.clientY)
-    const durationChange = minutesPerPixel * (newY - startY)
+  function onpointermove (e) {
+    if (dragging) {
+      updateDuration(e)
+    }
+  }
 
-    Task.update({
-      id: task.id,
-      kvChanges: {
-        duration: Math.max(1, task.duration + durationChange)
-      }
-    })
+  function onpointerup (e) {
+    if (dragging) {
+      updateDuration(e) // prevents setting duration to 0 on an immediate pointerdown -> pointerup
+      onInput()
+      dragging = false
+      e.currentTarget.releasePointerCapture(e.pointerId)
+      suppressGhostClick()
+    }
+  }
+
+  // iOS standalone web apps dispatch the synthetic post-touch click through a native
+  // gesture recognizer that races our async touchend preventDefault, so it leaks through
+  // nondeterministically. Swallow the next click in the capture phase instead, with a
+  // window long enough to outlast iOS's ~300-350ms tap deferral.
+  function suppressGhostClick () {
+    const cleanup = () => {
+      clearTimeout(timer)
+      window.removeEventListener('click', swallow, true)
+    }
+    const swallow = e => {
+      e.stopPropagation()
+      e.preventDefault()
+      cleanup()
+    }
+    const timer = setTimeout(cleanup, 400)
+    window.addEventListener('click', swallow, true)
+  }
+
+  function updateDuration (e) {
+    const end = minutes(task.startTime) + startDuration + (e.clientY - startY) / ppm
+    onChange(Math.max(1, end - minutes(task.startTime)))
   }
 </script>
 
-<div 
-  draggable="true"
-  ondragstart={e => startY = getLocalY(dimensions.appDiv, e.clientY)}
-  ondragend={e => adjustDuration(e, task)}
-  style="
-    cursor: ns-resize;
-    position: absolute;
-    left: -3px; 
-    bottom: {0}px;
-    height: {height/12}px; 
-    min-height: 3px;
-    width: {isBulletPoint ? '20%' : '100%'}; 
-  "
->
-</div>
+<div {onpointerdown} {onpointermove} {onpointerup}
+  ontouchend={e => e.preventDefault()}
+  class="absolute z-1 touch-none cursor-ns-resize top-auto bottom-0 inset-x-0"
+  style:height="clamp(2px, {(task.duration * ppm) * 1/3}px, 24px)"
+  style:transform="translateY(50%)"
+></div>

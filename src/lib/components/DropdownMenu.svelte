@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte'
-  import { listenTo } from '$lib/db/helpers.js'
+  import { listenToCollection } from '$lib/db/helpers.js'
   import { db } from '$lib/db/init.js'
   import { user } from '$lib/store'
   import { query, where, collection } from 'firebase/firestore'
@@ -19,7 +19,7 @@
   )
 
   onMount(async () => {
-    return listenTo(
+    return listenToCollection(
       query(
         collection(db, `/users/${$user.uid}/templates`),
         where('parentID', '==', '')

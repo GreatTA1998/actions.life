@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { updateFirestoreDoc } from '$lib/db/helpers.js'
+import { setFirestoreDoc, updateFirestoreDoc } from '$lib/db/helpers.js'
 import { user } from '$lib/store'
 import { get } from 'svelte/store'
 
@@ -7,18 +7,38 @@ const GCalAccount = {
   schema: z.object({
     id: z.string(),
     email: z.string().email(),
-    refreshToken: z.object({
-      value: z.string()
-    }),
-    accessToken: z.string().optional(),
+    refreshToken: z.object({ value: z.string() }),
+    accessToken: z.object({ value: z.string() }),
     opacity: z.number().default(0.9),
-    selectedCalIDs: z.array(z.string()).default([])
+    selectedCalIDs: z.array(z.string()),
+    allCals: z.array(z.record(z.any()))
   }),
 
-  async update (accountID, kvChanges) {
-    const { uid } = get(user)
+  async create (email, id, { refresh_token, access_token, scope }) {
+    const kvChanges = {
+      email, 
+      id,
+      scope,
+      refreshToken: { value: refresh_token },
+      accessToken: { value: access_token },
+      selectedCalIDs: [],
+      allCals: [],
+      opacity: 0.5
+    }
+
     const validatedChanges = GCalAccount.schema.partial().parse(kvChanges)
-    return updateFirestoreDoc(`/users/${uid}/googleAccounts/${accountID}`, validatedChanges)
+    return setFirestoreDoc(
+      `/users/${get(user).uid}/googleAccounts/${id}`, 
+      validatedChanges
+    )
+  },
+
+  async update (accountID, kvChanges) {
+    const validatedChanges = GCalAccount.schema.partial().parse(kvChanges)
+    return updateFirestoreDoc(
+      `/users/${get(user).uid}/googleAccounts/${accountID}`, 
+      validatedChanges
+    )
   }
 }
 

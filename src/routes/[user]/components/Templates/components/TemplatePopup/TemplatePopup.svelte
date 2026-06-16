@@ -16,14 +16,12 @@
   import { WIDTHS } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
-  const { template, templates, templateTree, closeTaskPopup } = getContext('app')
+  const { template, templateTree } = getContext('uniquely-template')
+  const { closeTaskPopup } = getContext('task-popup')
 
   const debouncedUpdate = createDebouncedFunction(instantUpdate, 1000)
 
   let iconsMenu = $state(false)
-  let parentObj = $derived($template.parentID ? 
-    $templates.find(T => T.id === $template.parentID) : null
-  )
 
   function handleDelete () {
     if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {
@@ -40,8 +38,10 @@
 </script>
 
 <NewBasePopup onExit={closeTaskPopup}>
-  <div class="relative w-screen flex flex-col py-2 px-4 gap-y-6" 
+  <div class="relative w-screen flex-col py-2 px-4 gap-y-6" 
+    style:display="flex"
     style:max-width="{WIDTHS.PANEL_MAX}px"
+    style:max-height="80dvh"
   >
     <div class="grid gap-[10px]" style:grid-template-columns="auto 1fr">
       {#if periodicity($template.rrStr) === 'weekly'}
@@ -54,9 +54,11 @@
         </button>
       {/if}
       
-      <PopupTitle value={$template.name}
-        {parentObj}
+      <PopupTitle 
+        value={$template.name}
         onInput={value => debouncedUpdate('name', value)}
+        parentID={$template.parentID}
+        collection="templates"
       />
     </div>
     

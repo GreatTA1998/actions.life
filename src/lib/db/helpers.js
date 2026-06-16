@@ -1,5 +1,6 @@
 import {
-  doc, setDoc, getDoc, updateDoc, deleteDoc,
+  doc, setDoc, getDoc, getDocFromCache, getDocsFromCache,
+  updateDoc, deleteDoc,
   collection, getDocs, query, where, limit,
   writeBatch, arrayRemove, increment, onSnapshot
 } from 'firebase/firestore'
@@ -8,10 +9,16 @@ import { deleteObject, getStorage, ref } from 'firebase/storage'
 import { user } from '$lib/store'
 import { get } from 'svelte/store'
 
-export async function listenTo (q, onUpdate) {
-  return onSnapshot(q, snap => 
+export function listenToCollection (q, onUpdate) {
+  return onSnapshot(q, snap => {
     onUpdate(snap.docs.map(doc => ({ ...doc.data(), id: doc.id })))
-  )
+  })
+}
+
+export function listenToDoc (q, onUpdate) {
+  return onSnapshot(q, doc => {
+    onUpdate(doc.data())
+  })
 }
 
 export function firestoreRef (path) {
@@ -19,39 +26,36 @@ export function firestoreRef (path) {
 }
 
 export async function setFirestoreDoc (path, newObject) {
-  try {
-    const ref = firestoreRef(path)
-    return await setDoc(ref, newObject, { merge: true })
-  } catch (error) {
-    console.error('error in setFirestoreDoc, CRUD', error)
-    console.error('payload was =', newObject)
-  }
+  const ref = firestoreRef(path)
+  return setDoc(ref, newObject, { merge: true })
 }
 
-export function getFirestoreDoc (path) {
-  return new Promise(async (resolve, reject) => {
-    const ref = firestoreRef(path)
-    try {
-      const snapshot = await getDoc(ref)
-      if (!snapshot.exists()) resolve(null)
-      else {
-        resolve({ id: snapshot.id, path: snapshot.ref.path, ...snapshot.data() })
-      }
-    } catch (error) {
-      console.log('error =', error)
-      reject(error)
-    }
-  })
+export async function getFirestoreDoc (path) {
+  const ref = firestoreRef(path)
+
+  try {
+    const cached = await getDocFromCache(ref)
+    return { id: cached.id, path: cached.ref.path, ...cached.data() }
+  } catch (error) {
+    const result = await getDoc(ref)
+    return { id: result.id, path: result.ref.path, ...result.data() }
+  }
 }
 
 export async function getFirestoreCollection (path) {
   const ref = collection(db, path)
-  const snapshot = await getDocs(ref)
-  const data = []
-  snapshot.forEach((doc) => {
-    data.push({ id: doc.id, path: doc.ref.path, ...doc.data() })
-  })
-  return data
+  const cached = await getDocsFromCache(ref)
+  if (cached.empty) { // unlike `getDocFromCache`, no error gets thrown
+    const network = await getDocs(ref)
+    return network.docs.map(
+      doc => ({ id: doc.id, path: doc.ref.path, ...doc.data() })
+    )
+  }
+  else {
+    return cached.docs.map(
+      doc => ({ id: doc.id, path: doc.ref.path, ...doc.data() })
+    )
+  }
 }
 
 export async function getFirestoreQuery (query) {
@@ -93,7 +97,7 @@ async function countImageRefs (uid, collectionName, imageDownloadURL) {
 
 export async function releaseImage (uid, { imageFullPath, imageDownloadURL }) {
   if (!imageFullPath) return // i.e. a publicly hosted image was used
-  
+
   const [taskCount, templateCount] = await Promise.all([
     countImageRefs(uid, 'tasks', imageDownloadURL),
     countImageRefs(uid, 'templates', imageDownloadURL)
@@ -105,8 +109,8 @@ export async function releaseImage (uid, { imageFullPath, imageDownloadURL }) {
 
 async function deleteImage ({ imageFullPath }) {
   const storage = getStorage()
-  await deleteObject(ref(storage, imageFullPath))
-} 
+  return deleteObject(ref(storage, imageFullPath))
+}
 
 export async function deleteColorTag ({ tagID, user }) {
   const batch = writeBatch(db)
@@ -126,7 +130,7 @@ export async function deleteColorTag ({ tagID, user }) {
   const copy = {...user.tags}
   delete copy[tagID]
   batch.update(firestoreRef(`/users/${uid}`), {
-    tags: copy 
+    tags: copy
   })
 
   return await batch.commit()
@@ -139,7 +143,7 @@ export function maintainOrderValue (validatedObj, batch) {
   }
   const diff = validatedObj.orderValue - maxOrderValue
   if (diff > 0) {
-    batch.update(doc(db, 'users', uid), { 
+    batch.update(doc(db, 'users', uid), {
       maxOrderValue: increment(diff)
     })
   }

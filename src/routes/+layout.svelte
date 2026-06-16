@@ -1,7 +1,8 @@
 <script>
+  import { reportError } from '$lib/utils/errors.js'
   import { goto } from '$app/navigation'
   import { loadSounds } from '$lib/features/audio.js'
-  import { user, authUser, authChecked, loggedIn, initialDataReady, firebaseAuth } from '$lib/store'
+  import { loading, user, authUser, authChecked, loggedIn, initialDataReady, firebaseAuth } from '$lib/store'
   import { page } from '$app/state'
   import { onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
@@ -17,58 +18,72 @@
 
   let { children } = $props()
 
-  let loading = $state(true)
-
   $effect(() => {
     if ($authChecked && $loggedIn && $user.email && $initialDataReady) {
-      loading = false
+      loading.set(false)
     }
   })
 
-  onMount(() => {
+  onMount(() => {    
     loadSounds()
 
     translateJSConstantsToCSSVariables()
 
-    onAuthStateChanged($firebaseAuth, async (resultUser) => {
-      authChecked.set(true) // from cookie, takes around 300 - 500ms
-      authUser.set($firebaseAuth.currentUser)
-
-      if (page.url.pathname.startsWith('/legal')) {
-        loading = false
-      }
-    
-      else if (!resultUser) {
-        goto('/')
-        loading = false
-        loggedIn.set(false)
-        user.set({})
-      } 
-
-      else if (resultUser.isAnonymous) {
-        goto('/')
-        loading = false
-        loggedIn.set(true)
-      }
-      
-      else if (resultUser.email) {
-        goto('/' + $authUser.uid)
-        loggedIn.set(true)
-        // <UserAppInstance/> above will later set `initialDataReady = true`
-      }
-    })
+    onAuthStateChanged($firebaseAuth, onResult, onError)
   })
+
+  async function onResult (resultUser) {
+    authChecked.set(true) // from cookie, takes around 300 - 500ms
+    authUser.set($firebaseAuth.currentUser)
+
+    if (page.url.pathname.startsWith('/auth/callback')) {
+      loading.set(false)
+      // let /auth/callback/+page.svelte handle redirecting
+    }
+
+    else if (page.url.pathname.startsWith('/auth')) {
+      loading.set(false)
+    }
+  
+    else if (!resultUser) {
+      goto('/')
+      loading.set(false)
+      loggedIn.set(false)
+      user.set({})
+    } 
+
+    else if (resultUser.isAnonymous) {
+      goto('/', { noScroll: true }) // otherwise new visitor gets scroll reset to top when anonymousLogin resolves
+      loading.set(false)
+      loggedIn.set(true)
+    }
+    
+    else if (resultUser.email) {
+      goto('/' + $authUser.uid)
+      loggedIn.set(true)
+      // <UserAppInstance/> above will later set `initialDataReady = true`
+    }
+  }
+
+  async function onError (error) {
+    reportError({
+      subject: 'onAuthStateChanged () failed',
+      content: `code: ${error.code ?? ''}\nmessage: ${error.message}\nstack: ${error.stack ?? ''}`
+    })
+  }
 </script>
 
-{@render children()}
+<div class="relative z-0">
+  {@render children()}
+</div>
 
-{#if loading}
-  <div transition:fade 
-    class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
+{#if $loading}
+  <div transition:fade class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
+
   </div>
 {/if}
 
-{#if loading} <!-- must be separate from the transition block -->
+{#if $loading} <!-- must be separate from the transition block -->
   <img src="/logo-no-bg.png" 
     class={['pulse center', 'w-12 h-12 rounded-2xl']}
   />

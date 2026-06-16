@@ -1,13 +1,16 @@
 <script>
   import MultiPhotoUploader from '$lib/components/MultiPhotoUploader.svelte'
   import MonthYearMenus from '$lib/components/MonthYearMenus.svelte'
-  import RandomButton from '$lib/components/RandomButton.svelte'
-  import { user, updateCache, openTaskPopup } from '$lib/store/index.js'
+  import { COLORS } from '$lib/utils/constants.js'
+  import { user } from '$lib/store/index.js'
   import { onMount } from 'svelte'
   import { DateTime } from 'luxon'
   import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
   import { lazyCallable } from '$lib/utils/svelteActions.js'
+  import { getContext } from 'svelte'
+
+  const { openTaskPopup } = getContext('task-popup')
 
   let photos = $state(null)
   let totalSize = 0
@@ -22,7 +25,6 @@
     totalSize += batchSize
     return onSnapshot(pseudoPaginationQuery(totalSize), snapshot => {
       const resultDocs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-      updateCache(resultDocs)
       photos = resultDocs
     })
   }
@@ -43,10 +45,6 @@
     dt = dt.set({ year })
     dt = dt.set({ month })
   }
-  
-  function showRandomPhotos () {
-    // TO BE RE-IMPLEMENTED
-  }
 </script>
 
 <div class="h-full basis-full flex flex-col relative">
@@ -54,8 +52,6 @@
 
   <div class="shrink-0 flex items-center">
     <MonthYearMenus {dt} {onChange} />
-
-    <RandomButton onclick={showRandomPhotos} />
   </div>
   
   <div class="flex-1 overflow-y-auto hide-scrollbar">
@@ -71,7 +67,7 @@
             loading="lazy"
           />
           <div class="absolute inset-x-0 bottom-0 flex justify-between p-3 text-white"
-            style:background="linear-gradient(transparent, rgba(0,0,0,0.7))"
+            style:background="linear-gradient(transparent, {COLORS.OVERLAY_DARKEST})"
           >
             <div class="truncate">
               {task.name}

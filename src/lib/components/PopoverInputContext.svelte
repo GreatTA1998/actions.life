@@ -7,7 +7,7 @@
 
   let { children } = $props()
 
-  const { Task, Template } = getContext('app')
+  const { Task } = getContext('app')
 
   let inputActive = $state(false)
   let inputPopover = $state(null)
@@ -15,10 +15,6 @@
 
   let input = $state(null)
   let value = $state('')
-  let derivedTask = $derived({
-    ...$overrideOptions,
-    name: value
-  })
 
   const overrideOptions = writable({})
   const callback = writable(() => {})
@@ -53,7 +49,7 @@
 
   async function onPopoverClose () {
     if (value) {
-      Task.create({ id: randomID(), data: derivedTask })
+      Task.create({ id: randomID(), data: { name: value, ...$overrideOptions } })
       value = '' 
     }
     setTimeout(() => inputActive = false, 300) // delay necessary for iOS where `ontoggle` resolves before `onclick`
@@ -62,16 +58,18 @@
   async function onEnter () {
     if (value === '') inputPopover.hidePopover()
     else {
-      const result = await Task.create({ id: randomID(), data: derivedTask })
-      $callback(result)
+      const data = { name: value, ...$overrideOptions }
       value = '' 
+      const result = await Task.create({ id: randomID(), data })
+      $callback(result)
     }
   }
 
   async function onTemplateClick (template) {
     input.focus() // we lost focus clicking the menu item (reminder: must be synchronous)
     value = ''
-    const result = await Template.instantiateTree({ template, modifiers: $overrideOptions })
+    // `Task` can be overriden as `Template`
+    const result = await Task.fromTemplate({ template, modifiers: $overrideOptions })
     $callback(result)
   }
 </script>
