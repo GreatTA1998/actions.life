@@ -45,6 +45,6 @@
   }
 </script>
 
-<div>
-
+<div class="p-4">
+  Welcome! Preparing your account...
 </div>

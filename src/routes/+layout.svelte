@@ -37,6 +37,7 @@
     authUser.set($firebaseAuth.currentUser)
 
     if (page.url.pathname.startsWith('/auth/callback')) {
+      loading.set(false)
       // let /auth/callback/+page.svelte handle redirecting
     }
 
@@ -72,7 +73,9 @@
   }
 </script>
 
-{@render children()}
+<div class="relative z-0">
+  {@render children()}
+</div>
 
 {#if $loading}
   <div transition:fade class={['center', 'w-screen h-screen bg-[var(--offwhite-bg)]']}>
