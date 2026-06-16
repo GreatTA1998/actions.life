@@ -9,8 +9,6 @@
       <p>
         actions.life integrates with the Google Calendar API to display 
         events together on the main calendar. We do not keep a separate copy of your calendar data.
-
-        In general, we store the minimum data required for the app to function, such as email, tasks and settings. 
       </p>
         
       <p>
