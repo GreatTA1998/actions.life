@@ -1,7 +1,7 @@
 <script>
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import ArtisticBackground from './components/ArtisticBackground.svelte'
-  import IntegrationCards from './components/CardsAndVideo.svelte'
+  import DemoVideo from './components/DemoVideo.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <IntegrationCards />
+    <DemoVideo />
 
     {#if !browserSupported}
       <p class="text-center text-amber-700 px-4 max-w-[60ch]">

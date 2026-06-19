@@ -13,11 +13,6 @@
     muted = false,
     playsinline = false
   } = $props()
-
-  function onclick (e) {
-    e.stopPropagation()
-    el.paused ? el.play() : el.pause()
-  }
 </script>
 
 <!-- w-full is required for aspect-ratio to reserve space in advance -->
@@ -30,14 +25,12 @@
     accent-color=""
     {onplay}
     {onpause}
-    style:aspect-ratio={aspectRatio}
     {autoplay}
     {muted}
     {playsinline}
     default-hidden-captions
+    style:aspect-ratio={aspectRatio}
   ></mux-player>
-
-  <div class="absolute inset-0" {onclick}></div>
 </div>
 
 <style>

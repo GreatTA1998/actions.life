@@ -40,7 +40,7 @@
         tabindex="0"
         onclick={e => onseek(p.t, e)}
         class={['rounded-[3px] transition-colors', active && 'text-neutral-600']}
-      >{p.label} </span>{i < points.length - 1 ? '. ' : '. '}
+      >{p.label} </span>
     {/each}
   </p>
 </div>
