@@ -98,14 +98,11 @@
     let maxOverlap = 0
     let bestDropzoneID = ''
     for (const [dropzoneID, { area, left }] of Object.entries(dropzones)) {
-      const overlap = area
-      if (overlap === maxOverlap) {
-        if (left > dropzones[bestDropzoneID].left) {
-          bestDropzoneID = dropzoneID
-        }
+      if (area === maxOverlap && left > dropzones[bestDropzoneID].left) {
+        bestDropzoneID = dropzoneID
       }
-      if (overlap > maxOverlap) {
-        maxOverlap = overlap
+      else if (area > maxOverlap) {
+        maxOverlap = area
         bestDropzoneID = dropzoneID
       }
     }
@@ -132,46 +129,30 @@
     }
   }
 
-  export function detectOverlap ({ dropzoneElem, clipRect, dropzoneID }) { 
-    const dropzone = clip(
-      dropzoneElem.getBoundingClientRect(),
-      clipRect
-    )
-    if (isOverlapping($draggedItem, dropzone, 0, 0)) { // h_threshold as destructured parameters
-      matchedDropzones.update(obj => {
-        obj[dropzoneID] = {
-          area: getOverlapArea($draggedItem, dropzone),
-          left: dropzone.left
-        }
-        return obj
-      })
-    } else {
-      matchedDropzones.update(obj => {
-        delete obj[dropzoneID]
-        return obj
-      })
-    }
+  const normalizedHeight = 12 // so oversized drag items (due to tall duration) can target small dropzones
+
+  export function detectOverlap ({ dropzoneElem, clipRect, dropzoneID, normalizeDragItemHeight }) {
+    const { x1, y1, x2, y2 } = $draggedItem
+    const item = { left: x1, top: y1, right: x2, bottom: normalizeDragItemHeight ? y1 + normalizedHeight : y2 }
+    const dropzone = intersect(dropzoneElem.getBoundingClientRect(), clipRect)
+    const overlap = intersect(item, dropzone)
+
+    matchedDropzones.update(zones => {
+      if (overlap.width > 0 && overlap.height > 0) {
+        zones[dropzoneID] = { area: overlap.width * overlap.height, left: dropzone.left }
+      } else {
+        delete zones[dropzoneID]
+      }
+      return zones
+    })
   }
 
-  function clip (obj, bound) {
-    return {
-      left: Math.max(obj.left, bound.left),
-      right: Math.min(obj.right, bound.right),
-      top: Math.max(obj.top, bound.top), 
-      bottom: Math.min(obj.bottom, bound.bottom)
-    }
-  }
-
-  function isOverlapping ({ x1, x2, y1, y2 }, { top, left, bottom, right }, h_threshold = 0.3, v_threshold = 0) {
-    const hOverlap = Math.max(0, Math.min(x2, right) - Math.max(x1, left))
-    const vOverlap = Math.max(0, Math.min(y2, bottom) - Math.max(y1, top))
-    return hOverlap / (x2 - x1) > h_threshold && vOverlap / (y2 - y1) > v_threshold
-  }
-
-  function getOverlapArea ({ x1, x2, y1, y2 }, { top, left, bottom, right }) {
-    const hOverlap = Math.max(0, Math.min(x2, right) - Math.max(x1, left))
-    const vOverlap = Math.max(0, Math.min(y2, bottom) - Math.max(y1, top))
-    return hOverlap * vOverlap
+  function intersect (a, b) {
+    const left = Math.max(a.left, b.left)
+    const top = Math.max(a.top, b.top)
+    const right = Math.min(a.right, b.right)
+    const bottom = Math.min(a.bottom, b.bottom)
+    return { left, top, right, bottom, width: right - left, height: bottom - top }
   }
 
   function computeOrderValue (i, rooms) {
@@ -197,14 +178,15 @@
   }
 
   // attachment factory pattern (to pass in arbitrary parameters via currying)
-  function registerDropzone ({ clipRectFunction, id, onDrop }) {
+  function registerDropzone ({ clipRectFunction, id, onDrop, normalizeDragItemHeight = false }) {
     return (node) => {
       $effect(() => {
         if ($draggedItem.id) {
           detectOverlap({
             dropzoneElem: node,
             clipRect: clipRectFunction(),
-            dropzoneID: id
+            dropzoneID: id,
+            normalizeDragItemHeight
           })
         }
       })
