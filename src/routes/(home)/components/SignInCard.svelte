@@ -19,7 +19,7 @@
 
 <div {onclick}
   class={[
-    'relative flex flex-col gap-y-2 py-4 px-8 min-w-[240px] flex-1 rounded-[20px] border border-[#e5e5e5]',
+    'cursor-pointer relative flex flex-col gap-y-2 py-4 px-8 min-w-[240px] flex-1 rounded-[20px] border border-[#e5e5e5]',
     'shadow-[0_8px_32px_rgba(0,0,0,0.3)]'
   ]}
 >
