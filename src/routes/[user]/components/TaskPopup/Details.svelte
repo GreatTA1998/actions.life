@@ -1,4 +1,5 @@
 <script>
+  import ColorTags from '$lib/components/ColorTags.svelte'
   import RepeatTask from './RepeatTask.svelte'
   import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import DragDropContext from '$lib/components/DragDropContext.svelte'
@@ -87,6 +88,8 @@
     <TemplateContext>
       <RepeatTask {task} />
     </TemplateContext>
+
+    <ColorTags {task} />
 
     <div class="ml-auto flex items-center gap-1">
       <button onclick={e => { e.stopPropagation(); handleDelete() }} class="flex items-center justify-center rounded-full">

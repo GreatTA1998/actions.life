@@ -5,6 +5,36 @@
   let { value, oninput } = $props()
 
   let button = $state(null)
+  let inputElem = $state(null)
+
+  const MIN_MINUTES = 1
+  const MAX_DIGITS = 3
+
+  const toMinutes = v => Math.max(MIN_MINUTES, Math.floor(Number(v)) || MIN_MINUTES)
+
+  const emit = minutes => oninput?.({ target: { value: minutes } })
+
+  // Mirror the external value into the field, but never while it's being edited
+  // (that would fight the user's caret).
+  function syncExternalValue (node) {
+    if (document.activeElement !== node) node.value = toMinutes(value)
+  }
+
+  // Keep only digits as the user types. An empty field emits '' so the parent
+  // knows it's mid-edit; the blur handler then enforces the minimum.
+  function onInput (e) {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, MAX_DIGITS)
+    e.target.value = digits
+    emit(digits === '' ? '' : Number(digits))
+  }
+
+  function onBlur (e, close) {
+    if (Number(e.target.value) < MIN_MINUTES) {
+      e.target.value = MIN_MINUTES
+      emit(MIN_MINUTES)
+    }
+    setTimeout(close, 300)
+  }
 
   const durations = [
     { label: '1m', value: 1 },
@@ -21,10 +51,11 @@
     { label: '120m', value: 120 },
   ];
 
+  // The input still holds focus when a menu item is clicked, so
+  // syncExternalValue's focus guard would skip it. Write the field directly.
   function select (duration, close) {
-    if (oninput) {
-      oninput({ target: { value: duration.value } })
-    }
+    emit(duration.value)
+    if (inputElem) inputElem.value = duration.value
     close()
   }
 </script>
@@ -36,17 +67,19 @@
       style:anchor-name={anchorName}
       style:padding="0px {paddingVal}"
       style:font-size={noZoomFS}
+      style:column-gap="1px"
     >
       <input onclick={() => button.click()}
-        {value} {oninput} onblur={() => setTimeout(close, 300)}
-        class={placeholderField}
-        type="number" 
-        pattern="[0-9]*"
-        min="0"
+        bind:this={inputElem}
+        {@attach syncExternalValue}
+        inputmode="numeric"
+        oninput={onInput}
+        onblur={e => onBlur(e, close)}
+        class={[placeholderField, 'text-right focus:border-[#007bff]']}
+        style:field-sizing="content"
+        style:padding="0"
       >
-      <span class="pointer-events-none">
-        m
-      </span>
+      <span class="pointer-events-none">m</span>
     </button>
   {/snippet}
 
@@ -66,21 +99,3 @@
     </div>
   {/snippet}
 </PopoverMenu>
-
-<style>
-  input {
-    field-sizing: content;
-    border-radius: 6px;
-  }
-
-  input:focus {
-    border-color: #007bff;
-  }
-
-  /* Remove spinner buttons */
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-</style>
