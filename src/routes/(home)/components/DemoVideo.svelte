@@ -1,76 +1,80 @@
 <script>
   import IntegrationCard from './IntegrationCard.svelte'
   import MuxPlayer from './MuxPlayer.svelte'
+  import { onMount } from 'svelte'
+
+  const CHAPTER_WINDOW = 15
 
   let player = $state(null)
-  let activeTime = $state(1)
-  let isPlaying = $state(false)
+  let currentTime = $state(0)
 
-  $effect(() => {
-    if (player) isPlaying = !player.paused
+  onMount(() => {
+    const ontimeupdate = () => { currentTime = player.currentTime }
+    player.addEventListener('timeupdate', ontimeupdate)
+    return () => player.removeEventListener('timeupdate', ontimeupdate)
   })
+
+  function isChapterActive (t) {
+    return currentTime >= t && currentTime < t + CHAPTER_WINDOW
+  }
 
   function onseek (t, e) {
     e.stopPropagation()
-    activeTime = t
     if (!player) return
     player.currentTime = t
+    currentTime = t
     if (player.paused) player.play()
   }
 </script>
 
-<div class="flex flex-col items-center w-full">
-  <div class="w-9/10 md:w-8/10 relative">
-    <div class="absolute top-[2%] left-[1%] w-fit flex flex-col gap-1 md:gap-2.5 z-10 pointer-events-none
-      {isPlaying ? 'opacity-0 [&>*]:pointer-events-none' : 'opacity-100 [&>*]:pointer-events-auto'}"
-    >
+<div class="flex w-full flex-col gap-4 md:flex-row md:items-start">
+  <aside class="relative flex flex-col gap-2.5 md:basis-[min(280px,32%)] md:shrink-0">
+    <div class="flex flex-col gap-1.5 md:gap-2.5">
       <IntegrationCard
         title="Natural hierarchy"
         points={[
-          { t: 56, label: "Any task can become a list" },
+          { t: 98, label: "Any task can become a list" },
         ]}
-        t={56}
-        {activeTime}
+        t={98}
+        active={isChapterActive(98)}
         {onseek}
       />
 
       <IntegrationCard
         title="Icon habits"
         points={[
-          { t: 102, label: 'Display reminders efficiently' },
+          { t: 153, label: 'Display reminders efficiently' },
         ]}
-        {activeTime}
+        active={isChapterActive(153)}
         {onseek}
-        t={102}
+        t={153}
       />
 
       <IntegrationCard
         title="Integrated timelines"
         points={[
-          { t: 161, label: 'See long-term priorities every day'}
+          { t: 191, label: 'See long-term priorities every day'}
         ]}
-        {activeTime}
+        active={isChapterActive(191)}
         {onseek}
-        t={161}
+        t={191}
       />
 
       <IntegrationCard
-        title="Captioned photos"
+        title="Photos"
         points={[
-          { t: 187, label: "Write about special memories" },
+          { t: 248, label: "Write about special memories" },
         ]}
-        {activeTime}
+        active={isChapterActive(248)}
         {onseek}
-        t={187}
+        t={248}
       />
     </div>
+  </aside>
 
-    <MuxPlayer bind:el={player} 
-      onplay={() => isPlaying = true}
-      onpause={() => isPlaying = false}
-      thumbnailTime={234}
-      playbackID="fIdCROW8GN00FnyhmwPx9jYIasj8NltltGXL00TLtH4q8"
-      aspectRatio={1816/1080}
-    />
-  </div>
+  <MuxPlayer bind:el={player}
+    thumbnailTime={323}
+    playbackID="0082oMnMQmCHidjKdIviqG01pCWr7QU1xZhzdiGPHxRTY"
+    aspectRatio={1896/1080}
+  />
 </div>

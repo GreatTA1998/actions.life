@@ -16,7 +16,7 @@
 </script>
 
 <!-- w-full is required for aspect-ratio to reserve space in advance -->
-<div class="relative rounded-xl overflow-hidden w-full">
+<div class="relative w-full rounded-2xl overflow-hidden border border-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_32px_rgba(80,120,180,0.12)]">
   <mux-player
     bind:this={el}
     {title}
@@ -28,7 +28,6 @@
     {autoplay}
     {muted}
     {playsinline}
-    default-hidden-captions
     style:aspect-ratio={aspectRatio}
   ></mux-player>
 </div>
