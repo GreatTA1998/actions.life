@@ -29,7 +29,7 @@
     if (task.imageDownloadURL && !confirm("Are you sure you want to delete this task and its image?")) {
       return
     }
-    if (task.notes && !confirm("Are you sure you want to delete this task and its notes?")) {
+    if (task.notes && !confirm(`Are you sure you want to delete ${task.name} and its notes?`)) {
       return
     }
     await Task.delete({ 
