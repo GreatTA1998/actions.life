@@ -85,5 +85,13 @@
         {/if}
       </div>
     {/snippet}
+
+    <div class="flex gap-x-4 h-[48px]">
+      <div class="ml-auto"></div>
+
+      <a href="/auth/privacy">Privacy Policy</a>
+  
+      <a href="/auth/terms">Terms of Service</a>
+    </div>
   </div>
 </div>
