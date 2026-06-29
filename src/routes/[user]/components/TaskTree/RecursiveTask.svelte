@@ -67,7 +67,8 @@
             onList: true
           }
         })
-      }
+      },
+      normalizeDragItemHeight: true
     })}
     ondragstart={e => startTaskDrag({ e, id: task.id })}
     style:font-size={fontSize}
@@ -77,6 +78,7 @@
       ? `linear-gradient(rgba(0, 0, 0, 0.5), transparent), url(${task.imageDownloadURL})`
       : 'none'}
     style="{$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS) : ''}"
+    style:border-radius="var(--left-padding)"
     class={[
       'flex flex-col select-none',
       'px-[var(--left-padding)]',

@@ -18,10 +18,10 @@
       <input onclick={() => button.click()} 
         readonly 
         value={startDateISO}
-        placeholder="Year and Date" 
+        placeholder="Year & Date" 
         class="input {placeholderField} rounded min-w-[80px]" 
         style:padding="0 {paddingVal}"
-        style:field-sizing="content"
+        style:width="{10+0}ch"
       >
     </button>
   {/snippet}

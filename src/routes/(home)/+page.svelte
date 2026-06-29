@@ -1,8 +1,9 @@
 <script>
-  import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import ArtisticBackground from './components/ArtisticBackground.svelte'
-  import IntegrationCards from './components/CardsAndVideo.svelte'
+  import UserAppInstance from '$lib/components/UserAppInstance.svelte'
+  import DemoVideo from './components/DemoVideo.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
+  import SectionHeader from './components/SectionHeader.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
   import SignInCard from './components/SignInCard.svelte'
@@ -19,37 +20,57 @@
   })
 </script>
 
-<div class="home-bg h-full flex grow" style:padding-top="2%">
 
+<div class="relative min-h-screen">
   <ArtisticBackground />
 
-  <div class="basis-full flex flex-col items-center mt-[60px] gap-x-12 gap-y-20">
-    <div class="h-[30vh] flex flex-col items-center justify-center text-center px-4 gap-4">
-      <div class="mx-auto py-32 sm:py-48 lg:py-56">
-        <div class="text-center">
-          <h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-500 sm:text-7xl">
-            actions.life
-          </h1>
-          <p class="mt-4 max-w-[60ch] text-pretty text-gray-600 md:text-3xl sm:text-xl/8">
-            List and calendar on one page
-          </p>
+  <div class="relative z-1 flex flex-col mx-auto px-[clamp(1rem,5vw,4rem)]">
+    <div class="mt-40 mb-30">
+      <div class="grid grid-cols-4 gap-y-[clamp(1.5rem,2vw,3rem)] max-[900px]:grid-cols-1">
+        <h1 class="col-span-full text-left font-semibold tracking-tight leading-[1.4] text-[clamp(2.4rem,1.25rem+1.7vw,3.75rem)] text-gray-600">
+          actions.life is a one page life calendar
+        </h1>
+        <div class="col-span-3 max-w-[52ch] text-pretty text-md leading-[1.6] text-gray-600 max-[900px]:col-span-1">
+          Combine the to-do list and calendar.
+          Focus deeply on one thing without the fear of neglecting other things.
+          Adjust future plans with drag-and-drop and log past memories with photos. 
+          Be reminded of small habits and long-term dreams in the same place.
         </div>
       </div>
     </div>
 
-    <IntegrationCards />
+    <div class="my-20 flex flex-col gap-y-4">
+      <SectionHeader
+        title="Demo video"
+        subtitle="Skip to any section with chapter cards"
+      />
+      <DemoVideo />
+    </div>
 
-    {#if !browserSupported}
-      <p class="text-center text-amber-700 px-4 max-w-[60ch]">
-        WARNING: some features may not work on your browser. Please use the latest Chrome or Safari.
-      </p>
-    {/if}
+    <div class="my-20 mx-auto flex w-8/10 max-md:w-[min(88vw,320px)] flex-col gap-6">
+      <SectionHeader
+        title="Playground"
+        subtitle="No login required"
+      />
 
-    {#if browser && isMobile()}
-      <PhoneDisplay children={simulatedApp} />
-    {:else}
-      <MacbookDisplay children={simulatedApp} />
-    {/if}
+      <div class="flex flex-col gap-8 pb-8">
+        {#if !browserSupported}
+          <p class="text-amber-700 text-[0.9375rem]">
+            WARNING: some features may not work on your browser. Please use the latest Chrome or Safari.
+          </p>
+        {/if}
+
+        {#if browser && isMobile()}
+          <PhoneDisplay children={simulatedApp} />
+        {:else}
+          <MacbookDisplay children={simulatedApp} />
+        {/if}
+      </div>
+    </div>
+
+    <div class="flex items-center justify-center mt-12 mb-54">
+      <SignInCard/>
+    </div>
 
     {#snippet simulatedApp ()}
       <div class="w-full h-full relative">
@@ -65,11 +86,12 @@
       </div>
     {/snippet}
 
-    <SignInCard />
+    <div class="flex gap-x-4 h-[48px]">
+      <div class="ml-auto"></div>
 
-    <footer class="w-full mt-40 py-8 flex justify-end mr-10 gap-6 text-xs text-neutral-400 tracking-tight">
-      <a href="/auth/privacy" class="no-underline">Privacy</a>
-      <a href="/auth/terms" class="no-underline">Terms</a>
-    </footer>
+      <a href="/auth/privacy">Privacy Policy</a>
+  
+      <a href="/auth/terms">Terms of Service</a>
+    </div>
   </div>
 </div>

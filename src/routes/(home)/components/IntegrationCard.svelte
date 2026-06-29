@@ -2,12 +2,10 @@
   let {
     title,
     points,
-    activeTime,
+    active = false,
     onseek,
     t
   } = $props()
-
-  let isActive = $derived(points.some(p => p.t === activeTime))
 
   function timestamp (seconds) {
     const mm = Math.floor(seconds / 60)
@@ -16,31 +14,26 @@
   }
 </script>
 
-<div onclick={e => onseek(points[0].t, e)} 
+<button type="button"
+  onclick={e => onseek(points[0].t, e)}
   class={[
-    'flex flex-col border',
-    'overlay-glass w-full py-1.5 px-2 md:px-4 md:py-3 gap-y-0 md:gap-y-1.5 rounded-xl bg-white/90 backdrop-blur-sm',
-    'border-white/80',
-    isActive ? 'bg-[#fafafa] border-[#e0d9cf]' : 'bg-[#edf1f6] border-[#a0c8f02e]'
+    'flex w-full flex-col items-start justify-start rounded-xl px-4 py-1.5 md:py-3 text-left md:gap-1.5',
+    'border border-white/70 bg-white/45 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_32px_rgba(80,120,180,0.12)]',
+    active && 'border-blue-300/60 bg-white/65 shadow-[inset_0_1px_0_white,0_0_0_1px_rgba(59,130,246,0.12),0_10px_36px_rgba(59,130,246,0.15)]',
   ]}
 >
-  <button class={['w-full shrink-0 justify-start gap-x-2 flex-wrap', 'min-h-7 md:h-7']}>
-    <p class="text-left text-xs md:text-base font-semibold text-neutral-900">
+  <span class="flex min-h-6 w-full shrink-0 flex-wrap items-center justify-start gap-x-1.5 md:min-h-7 md:h-7 md:gap-x-2">
+    <span class={['text-sm md:text-base font-semibold leading-tight', active ? 'text-blue-700' : 'text-neutral-900']}>
       {title}
-    </p>
-    <span class="text-xs md:text-sm text-[#065fd4]">
+    </span>
+    <span class={['text-xs md:text-sm leading-tight', active ? 'text-blue-700' : 'text-[#065fd4]']}>
       ({timestamp(t)})
     </span>
-  </button>
+  </span>
 
-  <p class="hidden md:block m-0 text-[15px] leading-[1.45] text-neutral-800">
-    {#each points as p, i (p.t)}
-      {@const active = p.t === activeTime}
-      <span
-        tabindex="0"
-        onclick={e => onseek(p.t, e)}
-        class={['rounded-[3px] transition-colors', active && 'text-neutral-600']}
-      >{p.label} </span>{i < points.length - 1 ? '. ' : '. '}
+  <span class="text-xs md:text-sm text-[#0f0f0f] leading-snug text-neutral-700">
+    {#each points as p (p.t)}
+      {p.label}
     {/each}
-  </p>
-</div>
+  </span>
+</button>

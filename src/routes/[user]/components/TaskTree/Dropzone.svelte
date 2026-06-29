@@ -13,7 +13,8 @@
           onList: true
         }
       })
-    }
+    },
+    normalizeDragItemHeight: true
   })}
   onclick={e => {
     e.stopPropagation(); // since dropzones stack
