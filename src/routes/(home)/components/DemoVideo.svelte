@@ -33,48 +33,48 @@
       <IntegrationCard
         title="Natural hierarchy"
         points={[
-          { t: 98, label: "Any task can become a list" },
+          { t: 87, label: "Any task can become a list" },
         ]}
-        t={98}
-        active={isChapterActive(98)}
+        t={87}
+        active={isChapterActive(87)}
         {onseek}
-      />
-
-      <IntegrationCard
-        title="Icon habits"
-        points={[
-          { t: 153, label: 'Display reminders efficiently' },
-        ]}
-        active={isChapterActive(153)}
-        {onseek}
-        t={153}
       />
 
       <IntegrationCard
         title="Integrated timelines"
         points={[
-          { t: 191, label: 'See long-term priorities every day'}
+          { t: 102, label: 'See long-term priorities every day'}
         ]}
-        active={isChapterActive(191)}
+        active={isChapterActive(102)}
         {onseek}
-        t={191}
+        t={102}
+      />
+
+      <IntegrationCard
+        title="Icon habits"
+        points={[
+          { t: 127, label: 'Display reminders efficiently' },
+        ]}
+        active={isChapterActive(127)}
+        {onseek}
+        t={127}
       />
 
       <IntegrationCard
         title="Photos"
         points={[
-          { t: 248, label: "Write about special memories" },
+          { t: 154, label: "Write about special memories" },
         ]}
-        active={isChapterActive(248)}
+        active={isChapterActive(154)}
         {onseek}
-        t={248}
+        t={154}
       />
     </div>
   </aside>
 
   <MuxPlayer bind:el={player}
     thumbnailTime={323}
-    playbackID="0082oMnMQmCHidjKdIviqG01pCWr7QU1xZhzdiGPHxRTY"
+    playbackID="52G2LWUlR1t00OuzxkJ6oTmTP2I3bQMPIVCCC8AjSi4o"
     aspectRatio={1896/1080}
   />
 </div>
