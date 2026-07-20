@@ -33,7 +33,7 @@
       else {
         if (aspectRatio <= 1) { // portrait
           next.container = `display: flex; max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px`
-          next.photo = 'max-width: 80vw'
+          next.photo = 'max-width: 80vw' // hints horizontal scrolling
         } else {
           next.container = `max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px`
           next.photo = 'width: 100%'

@@ -15,14 +15,14 @@
 </script> 
 
 <div class="flex" style:width="fit-content">
-  {#if task.photoLayout === 'side-by-side'} 
+  {#if ['split', 'side-by-side'].includes(task.photoLayout)} 
     <button onclick={() => updateLayout('full-photo')} 
       class="justify-start py-2 px-3 gap-x-1 text-[#333]"
     >
       <MslFullscreen style="font-size: 1.5rem;"/>
     </button>
   {:else}
-    <button onclick={() => updateLayout('side-by-side')}
+    <button onclick={() => updateLayout('split')}
       class="justify-start py-1 px-2 gap-x-1 text-[#333]"
     >
       <MslFullscreenExit style="font-size: 1.5rem;"/>
