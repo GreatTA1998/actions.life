@@ -6,14 +6,47 @@
 
   const { PANEL_MAX } = WIDTHS
   let desktop = $derived(innerWidth.current >= breakpoints.desktop)
-  let imgURL = $derived(task.imageDownloadURL)
-  let aspectRatio = $state(0)
+  let styles = $state({ container: '', photo: '', detail: '' })
 
-  $effect(async () => {
-    if (imgURL) {
-      aspectRatio = await getAspectRatio(imgURL)
-    }
+  $effect(() => {
+    computeStyles(task.imageDownloadURL, desktop, task.photoLayout)
   })
+
+  async function computeStyles (imageDownloadURL) {
+    const next = { container: '', photo: '', detail: '' }
+    if (imageDownloadURL) {
+      const aspectRatio = await getAspectRatio(imageDownloadURL)
+      if (task.photoLayout === 'full-photo') {
+        next.photo = `max-width: 100vw; max-height: ${!desktop ? '80dvh' : '90vh'}`
+        next.detail = 'display: none;'
+      }
+      else if (desktop) {
+        if (aspectRatio <= 1) { // portrait
+          const photoWidth = PANEL_MAX / goldenRatio
+          next.container = 'display: flex; overflow-y: auto; max-height: 90vh'
+          next.photo = `width: ${photoWidth}px; object-fit: cover;`
+          next.detail = `width: ${PANEL_MAX}px; max-height: ${photoWidth * 1/aspectRatio}px`
+        } else {
+          next.photo = `width: ${PANEL_MAX}px`
+        }
+      }
+      else {
+        if (aspectRatio <= 1) { // portrait
+          next.container = `display: flex; max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px`
+          next.photo = 'max-width: 80vw' // hints horizontal scrolling
+        } else {
+          next.container = `max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px`
+          next.photo = 'width: 100%'
+        }
+      }
+    }
+    else {
+      if (desktop) next.detail = `width: ${PANEL_MAX}px;`
+      else next.detail = `max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px; padding: 12px;`
+    }
+
+    styles = next
+  }
 
   async function getAspectRatio (src) {
     const img = new Image()
@@ -23,46 +56,10 @@
   }
 </script>
 
-{#if task.imageDownloadURL && aspectRatio}
-  {#if task.photoLayout === 'full-photo'}
-    {@render photo(`max-width: 100vw; max-height: ${!desktop ? '80dvh' : '100dvh'}`)}
-  {:else}
-    {#if !desktop}
-      <div style="max-height: 80dvh; width: 100vw; max-width: {PANEL_MAX}px">
-        {@render photo("width: 100%; height: 40dvh; object-fit: cover;")}
-        <div class="w-full p-3">
-          {@render info()}
-        </div>
-      </div>
-    {:else}      
-      {#if aspectRatio <= 1} <!-- left portrait -->
-        {@const photoWidth = PANEL_MAX / goldenRatio}
-        <div class="flex">
-          {@render photo(`width: ${photoWidth}px; object-fit: cover;`)}
+<div style={styles.container}>
+  {#if task.imageDownloadURL && styles.photo}
+    {@render photo(styles.photo)}
+  {/if}
 
-          <div class="overflow-y-auto hide-scrollbar py-3 px-4"
-            style:width="{PANEL_MAX}px"
-            style:max-height="{photoWidth * 1/aspectRatio}px"
-          >
-            {@render info()}
-          </div>
-        </div>  
-      {:else if aspectRatio > 1} <!-- top landscape -->
-        {@render photo(`width: ${PANEL_MAX}px; object-fit: cover;`)}
-        <div style="width: {PANEL_MAX}px; padding: 12px;">
-          {@render info()}
-        </div>
-      {/if}
-    {/if}
-  {/if}
-{:else}
-  {#if !desktop}
-    <div style="max-height: 80dvh; width: 100vw; max-width: {PANEL_MAX}px; padding: 12px;">
-      {@render info()}
-    </div>
-  {:else}
-    <div style="width: {PANEL_MAX}px; padding: 12px;">
-      {@render info()}
-    </div>
-  {/if}
-{/if}
+  {@render info(styles.detail)}
+</div>
