@@ -15,7 +15,7 @@
 </script> 
 
 <div class="flex" style:width="fit-content">
-  {#if ['split', 'side-by-side'].includes(task.photoLayout)} 
+  {#if task.photoLayout !== 'full-photo'} 
     <button onclick={() => updateLayout('full-photo')} 
       class="justify-start py-2 px-3 gap-x-1 text-[#333]"
     >
