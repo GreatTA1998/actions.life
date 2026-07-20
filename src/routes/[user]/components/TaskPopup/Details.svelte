@@ -14,7 +14,7 @@
   import { getContext } from 'svelte'
   import TemplateContext from '/src/routes/[user]/components/Templates/components/TemplatePopup/TemplateContext.svelte'
 
-  let { task } = $props()
+  let { task, style } = $props()
 
   const { Task } = getContext('app')
   const taskPopup = getContext('task-popup')
@@ -39,62 +39,64 @@
   }
 </script>
 
-<div class="h-full flex flex-col gap-y-2">
-  <div class="flex items-center gap-x-2">
-    <div class="shrink">
-      {#if task.iconURL}
-        <DoodleIcon iconTask={task} 
-          size="48px"
-        />
-      {:else}
-        <Checkbox fontSize="1.5rem"
-          value={task.isDone}
-          onchange={e => Task.update({ id: task.id, kvChanges: { isDone: e.target.checked }})}
-        />
-      {/if}
+<div style="padding: 12px; {style}">
+  <div class="h-full flex flex-col gap-y-2">
+    <div class="flex items-center gap-x-2">
+      <div class="shrink">
+        {#if task.iconURL}
+          <DoodleIcon iconTask={task} 
+            size="48px"
+          />
+        {:else}
+          <Checkbox fontSize="1.5rem"
+            value={task.isDone}
+            onchange={e => Task.update({ id: task.id, kvChanges: { isDone: e.target.checked }})}
+          />
+        {/if}
+      </div>
+
+      <PopupTitle 
+        value={task.name}
+        onInput={value => debouncedUpdate(task.id, { name: value })}
+        parentID={task.parentID}
+      />
     </div>
 
-    <PopupTitle 
-      value={task.name}
-      onInput={value => debouncedUpdate(task.id, { name: value })}
-      parentID={task.parentID}
-    />
-  </div>
+    <InfoFields {task} />
 
-  <InfoFields {task} />
-
-  <div class="w-full">
-    <!-- TO-FIX: disallow horizontal and vertical overflow! 
-      note: 100% width doesn't work because textarea is an inline element 
-    -->
-    <TextArea value={task.notes}
-      oninput={e => debouncedUpdate(task.id, { notes: e.target.value })}
-      placeholder="Notes"
-      class="min-h-[3rem]"
-    />
-
-    <DragDropContext>
-      <TodoList trees={$ancestralTree.children}
-        listWidth="100%"
-        parentID={task.id}
-        style="padding-bottom: 1rem"
+    <div class="w-full">
+      <!-- TO-FIX: disallow horizontal and vertical overflow! 
+        note: 100% width doesn't work because textarea is an inline element 
+      -->
+      <TextArea value={task.notes}
+        oninput={e => debouncedUpdate(task.id, { notes: e.target.value })}
+        placeholder="Notes"
+        class="min-h-[3rem]"
       />
-    </DragDropContext>
-  </div>
 
-  <div class="mt-auto w-full flex items-center gap-x-3">
-    <PhotoUploadWithQuestion {task} />
+      <DragDropContext>
+        <TodoList trees={$ancestralTree.children}
+          listWidth="100%"
+          parentID={task.id}
+          style="padding-bottom: 1rem"
+        />
+      </DragDropContext>
+    </div>
 
-    <TemplateContext>
-      <RepeatTask {task} />
-    </TemplateContext>
+    <div class="mt-auto w-full flex items-center gap-x-3">
+      <PhotoUploadWithQuestion {task} />
 
-    <ColorTags {task} />
+      <TemplateContext>
+        <RepeatTask {task} />
+      </TemplateContext>
 
-    <div class="ml-auto flex items-center gap-1">
-      <button onclick={e => { e.stopPropagation(); handleDelete() }} class="flex items-center justify-center rounded-full">
-        <MslDeleteOutline style="font-size: var(--popup-control);"/>
-      </button>
+      <ColorTags {task} />
+
+      <div class="ml-auto flex items-center gap-1">
+        <button onclick={e => { e.stopPropagation(); handleDelete() }} class="flex items-center justify-center rounded-full">
+          <MslDeleteOutline style="font-size: var(--popup-control);"/>
+        </button>
+      </div>
     </div>
   </div>
 </div>
