@@ -13,36 +13,39 @@
   })
 
   async function computeStyles (imageDownloadURL) {
+    const next = { container: '', photo: '', detail: '' }
     if (imageDownloadURL) {
       const aspectRatio = await getAspectRatio(imageDownloadURL)
       if (task.photoLayout === 'full-photo') {
-        styles.photo = `max-width: 100vw; max-height: ${!desktop ? '80dvh' : '90vh'}`
-        styles.detail = 'display: none;'
+        next.photo = `max-width: 100vw; max-height: ${!desktop ? '80dvh' : '90vh'}`
+        next.detail = 'display: none;'
       }
       else if (desktop) {
         if (aspectRatio <= 1) { // portrait
           const photoWidth = PANEL_MAX / goldenRatio
-          styles.container = 'display: flex; overflow-y: auto; max-height: 90vh'
-          styles.photo = `width: ${photoWidth}px; object-fit: cover;`
-          styles.detail = `width: ${PANEL_MAX}px; max-height: ${photoWidth * 1/aspectRatio}px`
+          next.container = 'display: flex; overflow-y: auto; max-height: 90vh'
+          next.photo = `width: ${photoWidth}px; object-fit: cover;`
+          next.detail = `width: ${PANEL_MAX}px; max-height: ${photoWidth * 1/aspectRatio}px`
         } else {
-          styles.photo = `width: ${PANEL_MAX}px`
+          next.photo = `width: ${PANEL_MAX}px`
         }
       }
       else {
         if (aspectRatio <= 1) { // portrait
-          styles.container = `display: flex; max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px`
-          styles.photo = 'max-width: 80vw'
+          next.container = `display: flex; max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px`
+          next.photo = 'max-width: 80vw'
         } else {
-          styles.container = `max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px`
-          styles.photo = 'width: 100%'
+          next.container = `max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px`
+          next.photo = 'width: 100%'
         }
       }
     }
     else {
-      if (desktop) styles.detail = `width: ${PANEL_MAX}px;`
-      else styles.detail = `max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px; padding: 12px;`
+      if (desktop) next.detail = `width: ${PANEL_MAX}px;`
+      else next.detail = `max-height: 80dvh; width: 100vw; max-width: ${PANEL_MAX}px; padding: 12px;`
     }
+
+    styles = next
   }
 
   async function getAspectRatio (src) {
@@ -53,10 +56,10 @@
   }
 </script>
 
-{#if styles.container || styles.photo || styles.detail}
-  <div style={styles.container}>
+<div style={styles.container}>
+  {#if task.imageDownloadURL && styles.photo}
     {@render photo(styles.photo)}
+  {/if}
 
-    {@render info(styles.detail)}
-  </div>
-{/if}
+  {@render info(styles.detail)}
+</div>

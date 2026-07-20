@@ -54,7 +54,7 @@
     }
     Task.update({ 
       id: task.id,
-      kvChanges: kvChanges
+      kvChanges
     })
   }
 
@@ -72,13 +72,15 @@
 <PopoverMenu>
   {#snippet activator ({ id, anchorName })}
     <button popovertarget={id}
-      class="flex items-center gap-x-1 min-w-[16px] min-h-[16px] rounded" 
+      class="flex items-center gap-x-2 min-w-[16px] min-h-[16px] rounded" 
       style:anchor-name={anchorName}
       style:padding="0px {paddingVal}"
     >
       {#if (task.tagIDs?.length > 0)}
         {#each task.tagIDs as id}
-          {@render circle($user.tags[id]?.color)}
+          <div style:background-color={$user.tags[id]?.color} class="flex gap-x-1 items-center py-1 px-2 rounded-xl">
+            {$user.tags[id]?.name}
+          </div>
         {/each}
       {:else}
         <svg xmlns="http://www.w3.org/2000/svg" width="1.6em" height="1.em" viewBox="0 0 24 24">
