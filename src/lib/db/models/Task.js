@@ -31,7 +31,7 @@ const Task = {
     imageDownloadURL: z.string().default(''),
     imageFullPath: z.string().default(''),
     childrenLayout: z.string().default('normal'), // 'normal' (renaming to 'list' but requires proper migration) or 'timeline'
-    photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'split' (legacy term)
+    photoLayout: z.string().default('split-view'), // 'full-photo' or 'split-view' (legacy term)
     isCollapsed: z.boolean().default(false),
     tagIDs: z.array(z.string()).default([]),
 
