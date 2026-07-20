@@ -31,10 +31,8 @@
           actions.life is a one page life calendar
         </h1>
         <div class="col-span-3 max-w-[52ch] text-pretty text-md leading-[1.6] text-gray-600 max-[900px]:col-span-1">
-          Combine the to-do list and calendar.
-          Focus deeply on one thing without the fear of neglecting other things.
-          Adjust future plans with drag-and-drop and log past memories with photos. 
-          Be reminded of small habits and long-term dreams in the same place.
+          We often keep to-do lists on separate pages, which makes it hard to see the the full picture.
+          Here you can see how everything fits together: events, tasks, deadlines etc.
         </div>
       </div>
     </div>
