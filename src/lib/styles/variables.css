@@ -5,6 +5,7 @@
   --active: rgb(0, 89, 125);
   --rhythm-highlight-color: orange;
   --location-indicator-color: var(--logo-twig-color);
+  --drag-preview: 100, 100, 255;  /* drag-drop preview + duration resize — use as rgba(var(--drag-preview), α) */
   
   --fine-control-color: rgb(0,0,0,0.5);
   --scheduled-info-color: rgb(0, 0, 0);

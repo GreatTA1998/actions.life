@@ -8,62 +8,100 @@
     onInput = () => {}
   } = $props()
 
-  let dragging = $state(false)
+  let armed = $state(false)
   let startY = 0
+  let lastY = 0
   let startDuration = 0
+  let holdTimer
   let ppm = $derived($pixelsPerHour / 60)
 
+  const HOLD_MS = 300
+  const TOUCH_SLOP = 10
+
+  // Non-passive: iOS will otherwise start a native scroll after arm.
+  function claimTouch (e) {
+    if (armed) e.preventDefault()
+  }
+
+  function arm (target, pointerId) {
+    armed = true
+    startY = lastY
+    target.style.touchAction = 'none'
+    target.setPointerCapture(pointerId)
+    document.addEventListener('touchmove', claimTouch, { passive: false, capture: true })
+  }
+
+  function disarm (target) {
+    document.removeEventListener('touchmove', claimTouch, { capture: true })
+    if (target) target.style.touchAction = ''
+    armed = false
+  }
+
+  function cancelHold () {
+    clearTimeout(holdTimer)
+    holdTimer = null
+  }
+
   function onpointerdown (e) {
-    e.preventDefault()
-    e.currentTarget.setPointerCapture(e.pointerId)
-    dragging = true
-    startY = e.clientY
+    startY = lastY = e.clientY
     startDuration = task.duration
+
+    if (e.pointerType !== 'touch') {
+      e.preventDefault()
+      arm(e.currentTarget, e.pointerId)
+      return
+    }
+
+    const { currentTarget, pointerId } = e
+    holdTimer = setTimeout(() => arm(currentTarget, pointerId), HOLD_MS)
   }
 
   function onpointermove (e) {
-    if (dragging) {
-      updateDuration(e)
+    lastY = e.clientY
+    if (!armed) {
+      if (Math.abs(lastY - startY) > TOUCH_SLOP) cancelHold()
+      return
     }
+    e.preventDefault()
+    updateDuration(lastY)
   }
 
-  function onpointerup (e) {
-    if (dragging) {
-      updateDuration(e) // prevents setting duration to 0 on an immediate pointerdown -> pointerup
-      onInput()
-      dragging = false
-      e.currentTarget.releasePointerCapture(e.pointerId)
-      suppressGhostClick()
+  function finishPointer (e, { commit }) {
+    cancelHold()
+    if (armed) {
+      if (commit) {
+        updateDuration(lastY)
+        onInput()
+        suppressGhostClick()
+      } else {
+        onChange(0) // clear previewDuration (falsy → falls back to task.duration)
+      }
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      }
     }
+    disarm(e.currentTarget)
   }
 
-  // iOS standalone web apps dispatch the synthetic post-touch click through a native
-  // gesture recognizer that races our async touchend preventDefault, so it leaks through
-  // nondeterministically. Swallow the next click in the capture phase instead, with a
-  // window long enough to outlast iOS's ~300-350ms tap deferral.
-  function suppressGhostClick () {
-    const cleanup = () => {
-      clearTimeout(timer)
-      window.removeEventListener('click', swallow, true)
-    }
-    const swallow = e => {
-      e.stopPropagation()
-      e.preventDefault()
-      cleanup()
-    }
-    const timer = setTimeout(cleanup, 400)
-    window.addEventListener('click', swallow, true)
-  }
-
-  function updateDuration (e) {
-    const end = minutes(task.startTime) + startDuration + (e.clientY - startY) / ppm
+  function updateDuration (clientY) {
+    const end = minutes(task.startTime) + startDuration + (clientY - startY) / ppm
     onChange(Math.max(1, end - minutes(task.startTime)))
   }
 </script>
 
-<div {onpointerdown} {onpointermove} {onpointerup}
-  ontouchend={e => e.preventDefault()}
-  class="absolute z-1 touch-none cursor-ns-resize top-auto bottom-0 inset-x-0"
+<div
+  {onpointerdown} {onpointermove}
+  onpointerup={e => finishPointer(e, { commit: true })}
+  onpointercancel={e => finishPointer(e, { commit: false })}
+  ontouchend={e => claimTouch(e)}
+  class="absolute z-1 cursor-ns-resize bottom-0 inset-x-0"
   style:height="clamp(2px, {(task.duration * ppm) * 1/3}px, 24px)"
   style:transform="translateY(50%)"
 ></div>
+
+{#if armed}
+  <div
+    class="pointer-events-none absolute bottom-0 inset-x-0 z-1 h-px"
+    style:background="rgba(var(--drag-preview), 0.85)"
+  ></div>
+{/if}
