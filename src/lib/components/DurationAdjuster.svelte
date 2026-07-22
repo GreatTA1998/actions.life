@@ -36,15 +36,21 @@
   }
 
   function onpointerup (e) {
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId)
-    }
     if (activated) {
       updateDuration(prevY) // we use prevY so the finger lift's `e.clientY` doesn't mess up the alignment
       onInput()
       playSound('tap', 0.125)
-      deactivate(e)
     }
+    onpointercancel(e)
+  }
+
+  // critical on iOS, fires whenever pointer movement leads to scroll
+  // which means `onpointerup` will never fire to abort the activation timer / release the pointer
+  function onpointercancel (e) {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    }
+    deactivate(e)
     clearTimeout(activationTimer)
   }
 
@@ -68,7 +74,7 @@
 </script>
 
 <div
-  {onpointerdown} {onpointermove} {onpointerup}
+  {onpointerdown} {onpointermove} {onpointerup} {onpointercancel}
   class="absolute z-1 cursor-ns-resize bottom-0 inset-x-0"
   style:height="clamp(2px, {(task.duration * ($pixelsPerHour / 60)) * 1/3}px, 24px)"
   style:transform="translateY(50%)"
