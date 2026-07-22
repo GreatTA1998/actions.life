@@ -42,7 +42,7 @@
       id: randomID(),
       iconObject: {
         createdBy: $user.uid,
-        name,
+        name: name || 'Untitled',
         dataURL,
         isShareable
       }
@@ -157,7 +157,6 @@
 
     <canvas
       bind:this={canvas}
-      id="whiteboard"
       class="border border-solid border-black cursor-crosshair touch-none select-none [-webkit-touch-callout:none]"
       width="240"
       height="240"
@@ -182,8 +181,7 @@
       label="Public"
     />
     <button onclick={handleSave}
-      class="px-4 py-2 border border-solid border-[#3b82f6] rounded-md font-medium bg-[#3b82f6] text-white disabled:bg-[#9ca3af] disabled:border-[#9ca3af] disabled:cursor-not-allowed disabled:opacity-70"
-      disabled={!name}
+      class="px-4 py-2 border border-solid border-[#3b82f6] rounded-md font-medium bg-[#3b82f6] text-white"
     >
       Save
     </button>

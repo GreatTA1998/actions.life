@@ -35,7 +35,7 @@
           where('createdBy', '==', $user.uid)
         )
       ),
-      (next) => doodleIcons.set(next)
+      (newVals) => doodleIcons.set(newVals)
     )
   })
 
@@ -81,13 +81,14 @@
       </button>
     {/each}
 
-    <button
-      onclick={toggleDrawing}
+    <button onclick={toggleDrawing}
       class={[
-        'size-12 shrink-0 border border-dashed border-current transition-transform',
+        'size-12 shrink-0 outline outline-1 outline-dashed outline-current outline-offset-[-6px] transition-transform',
         drawing && 'relative z-10 scale-110 drop-shadow-md'
       ]}
-    >+</button>
+    >
+      +
+    </button>
   </div>
 
   {#if selectedIcon}
