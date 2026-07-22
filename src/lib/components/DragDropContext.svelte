@@ -90,7 +90,7 @@
         resolveBest($matchedDropzones)
       )
       hasDropped.set(true)
-      playSound('tap')
+      playSound('tap', 0.125)
     }
   }
 

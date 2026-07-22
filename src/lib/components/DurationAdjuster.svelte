@@ -1,5 +1,6 @@
 <script>
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
+  import { playSound } from '$lib/features/audio.js'
 
   let { 
     task, 
@@ -41,6 +42,7 @@
     if (activated) {
       updateDuration(prevY) // we use prevY so the finger lift's `e.clientY` doesn't mess up the alignment
       onInput()
+      playSound('tap', 0.125)
     }
     clearTimeout(activationTimer)
     deactivate(e)
