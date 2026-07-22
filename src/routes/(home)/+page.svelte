@@ -37,14 +37,6 @@
       </div>
     </div>
 
-    <div class="my-20 flex flex-col gap-y-4">
-      <SectionHeader
-        title="Demo video"
-        subtitle="Skip to any section with chapter cards"
-      />
-      <DemoVideo />
-    </div>
-
     <div class="my-20 mx-auto flex w-8/10 max-md:w-[min(88vw,320px)] flex-col gap-6">
       <SectionHeader
         title="Playground"
@@ -64,6 +56,14 @@
           <MacbookDisplay children={simulatedApp} />
         {/if}
       </div>
+    </div>
+
+    <div class="my-20 flex flex-col gap-y-4">
+      <SectionHeader
+        title="Demo video"
+        subtitle="Skip to any section with chapter cards"
+      />
+      <DemoVideo />
     </div>
 
     <div class="flex items-center justify-center mt-12 mb-54">

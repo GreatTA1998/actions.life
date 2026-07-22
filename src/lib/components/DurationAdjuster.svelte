@@ -43,9 +43,9 @@
       updateDuration(prevY) // we use prevY so the finger lift's `e.clientY` doesn't mess up the alignment
       onInput()
       playSound('tap', 0.125)
+      deactivate(e)
     }
     clearTimeout(activationTimer)
-    deactivate(e)
   }
 
   function activate () {

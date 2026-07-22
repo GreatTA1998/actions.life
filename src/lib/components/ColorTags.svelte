@@ -157,7 +157,7 @@
       <div class="py-1 px-2">
         <input {value} {onkeyup} 
           oninput={e => value = e.target.value}
-          type="text" placeholder="new tag"
+          placeholder="new tag"
           size="0"
         >
       </div>

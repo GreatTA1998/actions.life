@@ -1,72 +1,75 @@
 <script>
-  import { onMount } from 'svelte'
-  import { user, doodleIcons } from '$lib/store'
-  import MslColorizeOutline from 'virtual:icons/material-symbols-light/colorize-outline'
+  import { user } from '$lib/store'
   import { randomID } from '$lib/utils/core.js'
-  import ColorPicker from './ColorPicker.svelte'
+  import CheckboxSquare from '$lib/components/CheckboxSquare.svelte'
+  import PopoverMenu from '$lib/components/PopoverMenu.svelte'
+  import IconDetailLayout from './IconDetailLayout.svelte'
+  import MslCasino from 'virtual:icons/material-symbols-light/casino'
+  import MslMoreVert from 'virtual:icons/material-symbols-light/more-vert'
   import { getContext } from 'svelte'
+
   const { Icon } = getContext('app')
 
+  let { 
+    onSave = () => {} 
+  } = $props()
+
   let colors = ['black', 'orange', 'red', 'lightblue', 'blue', 'green']
-  let name = ''
-  let tags = ''
-  let isShareable = false
+  let name = $state('')
+  let isShareable = $state(false)
   let drawing = false
-  let color = 'black'
-  let colorPickerColor = ''
+  let color = $state('black')
+  let diceColor = $state('hsl(210 80% 45%)')
   let prevX = 0
   let prevY = 0
-  let canvas
-  let ctx
+  let canvas = $state(null)
 
-  let showColorPicker = false;
-
-  onMount(() => {
-    canvas = document.getElementById('whiteboard')
-    ctx = canvas.getContext('2d')
-  })
-
-  function toggleColorPicker() {
-    showColorPicker = !showColorPicker;
+  function preventSelect(event) {
+    event.preventDefault()
   }
 
-  function handleColorChange(colorUpdate) {
-    color = colorUpdate;
-    colorPickerColor = colorUpdate;
+  function rollColor() {
+    const h = Math.floor(Math.random() * 360)
+    const s = 55 + Math.floor(Math.random() * 36)
+    const l = 32 + Math.floor(Math.random() * 21)
+    color = diceColor = `hsl(${h} ${s}% ${l}%)`
   }
 
-  function handleSave () {    
+  async function handleSave () {
     const dataURL = canvas.toDataURL()
-    Icon.uploadDataURL({ 
-      id: randomID(), 
+
+    const newIcon = await Icon.uploadDataURL({
+      id: randomID(),
       iconObject: {
         createdBy: $user.uid,
         name,
         dataURL,
-        isShareable,
-        tags
+        isShareable
       }
     })
-      .then((newIcon) => {
-        $doodleIcons = [...$doodleIcons, newIcon]
-        clearBoard()
-      })
-      .catch((err) =>
-        console.error('error in BasicWhiteboard.svelte handleSave,', err)
-      )
+    onSave(newIcon)
+    clearBoard()
   }
 
   function handleStart(event) {
     event.preventDefault()
+    window.getSelection()?.removeAllRanges()
+    document.addEventListener('selectstart', preventSelect)
+    canvas.setPointerCapture(event.pointerId)
     drawing = true
     draw(event)
   }
 
   function handleEnd(event) {
     event.preventDefault()
+    document.removeEventListener('selectstart', preventSelect)
+    window.getSelection()?.removeAllRanges()
     drawing = false
     prevX = 0
-    prevY = 0 // Reset previous position
+    prevY = 0
+    if (canvas?.hasPointerCapture?.(event.pointerId)) {
+      canvas.releasePointerCapture(event.pointerId)
+    }
   }
 
   function handleMove(event) {
@@ -76,26 +79,13 @@
   }
 
   function draw(event) {
+    const ctx = canvas.getContext('2d')
     const rect = canvas.getBoundingClientRect()
     ctx.strokeStyle = color
     ctx.lineWidth = 6
 
-    let x, y
-    if (
-      event.type === 'mousedown' ||
-      event.type === 'mouseup' ||
-      event.type === 'mousemove'
-    ) {
-      x = event.clientX - rect.left
-      y = event.clientY - rect.top
-    } else if (
-      event.type === 'touchstart' ||
-      event.type === 'touchend' ||
-      event.type === 'touchmove'
-    ) {
-      x = event.touches[0].clientX - rect.left
-      y = event.touches[0].clientY - rect.top
-    }
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
 
     if (drawing) {
       ctx.beginPath()
@@ -109,151 +99,93 @@
   }
 
   function clearBoard() {
-    const canvas = document.getElementById('whiteboard')
     const ctx = canvas.getContext('2d')
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     name = ''
-    tags = ''
     isShareable = false
   }
 </script>
 
-<div style="display: flex">
-  <div>
-    <div
-      style="display: flex; justify-content: space-around; margin-bottom: 8px; width: 240px;"
-    >
-      {#each colors as pencilColor}
+<IconDetailLayout>
+  <div class="select-none [-webkit-touch-callout:none]">
+    <div class="flex items-center justify-between gap-2 mb-2 w-[280px]">
+      <div class="flex items-center justify-around flex-1">
+        {#each colors as pencilColor (pencilColor)}
+          <div
+            class={[
+              'size-6 cursor-pointer rounded-full transition-transform',
+              color === pencilColor && 'relative z-10 scale-110 drop-shadow-md'
+            ]}
+            onclick={() => (color = pencilColor)}
+            style="background-color: {pencilColor}"
+          ></div>
+        {/each}
         <div
-          class:selected={color === pencilColor}
-          class="color-circle"
-          onclick={() => (color = pencilColor)}
-          style="background-color: {pencilColor}"
-        ></div>
-      {/each}
-      <div
-        class="color-circle custom-color"
-        class:selected={!colors.includes(color)}
-        onclick={toggleColorPicker}
-        style="background-color: {colorPickerColor}; display: flex; align-items: center;"
-        title="Custom color"
-      >
-        <MslColorizeOutline style="font-size: 1rem;"/>
+          class={[
+            'flex items-center justify-center text-[28px] cursor-pointer transition-transform',
+            !colors.includes(color) && 'relative z-10 scale-110 drop-shadow-md'
+          ]}
+          onclick={rollColor}
+          style:color={diceColor}
+        >
+          <MslCasino />
+        </div>
       </div>
+      <PopoverMenu>
+        {#snippet activator ({ id, anchorName })}
+          <button
+            popovertarget={id}
+            style:anchor-name={anchorName}
+            class="shrink-0 flex text-lg text-[var(--fine-control-color,#64748b)]"
+            title="More"
+          >
+            <MslMoreVert />
+          </button>
+        {/snippet}
+        {#snippet content ({ close })}
+          <div class="flex flex-col p-2 gap-y-2">
+            <button
+              onclick={() => { clearBoard(); close() }}
+              class="text-left gap-x-[6px] text-neutral-600"
+            >
+              Wipe board
+            </button>
+          </div>
+        {/snippet}
+      </PopoverMenu>
     </div>
 
     <canvas
+      bind:this={canvas}
       id="whiteboard"
+      class="border border-solid border-black cursor-crosshair touch-none select-none [-webkit-touch-callout:none]"
       width="240"
       height="240"
-      onmousedown={handleStart}
-      onmouseup={handleEnd}
-      onmousemove={handleMove}
-      ontouchstart={handleStart}
-      ontouchend={handleEnd}
-      ontouchmove={handleMove}
+      onpointerdown={handleStart}
+      onpointerup={handleEnd}
+      onpointermove={handleMove}
+      onpointercancel={handleEnd}
+      onlostpointercapture={handleEnd}
     >
-      Your browser does not support the HTML5 canvas tag.
     </canvas>
-    <div>
-      <button onclick={clearBoard}>Clear</button>
-      <button class="save-button" disabled={!name} onclick={handleSave}
-        >Save</button
-      >
-    </div>
-  </div>
-  <div class="input-container">
-    <label for="name">Name:</label>
-    <input id="name" type="text" bind:value={name} placeholder="funny-moves" />
-
-    <label for="public">Public:</label>
-    <input id="public" type="checkbox" bind:checked={isShareable} />
   </div>
 
-  <ColorPicker {showColorPicker} {handleColorChange} {toggleColorPicker} />
-</div>
-
-<style>
-  #whiteboard {
-    border: 1px solid #000;
-    cursor: crosshair;
-  }
-
-  .color-circle {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  }
-
-  .color-circle:hover {
-    transform: scale(1.05);
-  }
-  
-  .color-circle.selected {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), 0 0 0 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-
-  .input-container {
-    margin-left: 20px;
-    margin-top: 50px;
-    display: grid;
-    max-height: 100px;
-    grid-template-columns: auto 1fr;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .input-container label {
-    text-align: left;
-  }
-
-  .input-container input[type="text"] {
-    width: 100%;
-  }
-
-  .input-container input[type="checkbox"] {
-    justify-self: start;
-  }
-  button {
-    padding: 8px 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    background-color: #f8fafc;
-    color: #64748b; 
-  }
-
-  button:hover {
-    background-color: #e2e8f0;
-    color: #1e293b;
-  }
-
-  .save-button {
-    background-color: #3b82f6;
-    color: white;
-    border-color: #3b82f6;
-  }
-
-  .save-button:hover {
-    background-color: #2563eb;
-    border-color: #2563eb;
-  }
-
-  .save-button:disabled {
-    background-color: #9ca3af;
-    border-color: #9ca3af;
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
-
-  .save-button:disabled:hover {
-    background-color: #9ca3af;
-    border-color: #9ca3af;
-  }
-</style>
+  {#snippet meta()}
+    <input
+      class="w-full select-text"
+      bind:value={name}
+      placeholder="Icon name..."
+    />
+    <CheckboxSquare
+      value={isShareable}
+      onClick={() => (isShareable = !isShareable)}
+      label="Public"
+    />
+    <button onclick={handleSave}
+      class="px-4 py-2 border border-solid border-[#3b82f6] rounded-md font-medium bg-[#3b82f6] text-white disabled:bg-[#9ca3af] disabled:border-[#9ca3af] disabled:cursor-not-allowed disabled:opacity-70"
+      disabled={!name}
+    >
+      Save
+    </button>
+  {/snippet}
+</IconDetailLayout>
