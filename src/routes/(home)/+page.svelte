@@ -20,7 +20,6 @@
   })
 </script>
 
-
 <div class="relative min-h-screen">
   <ArtisticBackground />
 

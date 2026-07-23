@@ -22,7 +22,7 @@
     {title}
     playback-id={playbackID}
     thumbnail-time={thumbnailTime}
-    accent-color=""
+    accent-color="var(--logo-twig-color)"
     {onplay}
     {onpause}
     {autoplay}
