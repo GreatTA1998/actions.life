@@ -10,6 +10,7 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import PopupTitle from '$lib/components/PopupTitle.svelte'
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
+  import { WIDTHS } from '$lib/utils/constants.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
   import TemplateContext from '/src/routes/[user]/components/Templates/components/TemplatePopup/TemplateContext.svelte'
@@ -76,7 +77,7 @@
 
       <DragDropContext>
         <TodoList trees={$ancestralTree.children}
-          listWidth="100%"
+          listWidth="min(100%,{WIDTHS.LIST}px)"
           parentID={task.id}
           style="padding-bottom: 1rem"
         />

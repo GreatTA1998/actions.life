@@ -119,13 +119,7 @@
 {#each allSorted as child, i (child.id)}
   <Dropzone {...dzProps(i)} />
 
-  <div style:margin-bottom="{margins[i]}px"
-    class="relative flex items-center"
-    use:trackHeight={h => { 
-      contentHeights[i] = h
-      contentHeights = contentHeights
-    }}
-  >
+  <div style:margin-bottom="{margins[i]}px" use:trackHeight={h => contentHeights[i] = h}>
     <RecursiveTask {...renderTask(child, depth + 1) }>
       {#snippet infoBadge ()}
         <DateBadge iso={child.startDateISO} onclick={() => {
