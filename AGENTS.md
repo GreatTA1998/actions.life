@@ -26,5 +26,5 @@
 - Node 22 is required (`engines` field in both `package.json` files).
 - UnoCSS is used for utility classes (configured via `uno.config.js`). The UnoCSS inspector is available at `/__unocss/` in dev mode.
 - Build warnings about unused CSS selectors and missing `encoding` module in Firebase SDK are expected and harmless.
-- The landing page features an embedded "Playground" that uses anonymous Firebase auth — it works without any credentials or setup.
+- The landing page features an embedded "Playground" that uses anonymous Firebase auth — it works without any credentials or setup. It renders the full `UserAppInstance` component, so it can be used for end-to-end manual testing of most app features (task CRUD, drag-and-drop, photos, calendar views, etc.) without needing a real Google login. Note: some absolute/relative positioning may behave slightly differently inside the embedded frame vs. the real app route.
 - Full app access requires Google Sign-In with the production Firebase project.
