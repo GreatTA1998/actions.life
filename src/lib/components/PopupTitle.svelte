@@ -22,7 +22,6 @@
     {value}
     oninput={e => onInput(e.target.value)}
     placeholder="Title"
-    type="text" 
     class="truncate text-clip {placeholderFieldLarge}"
     style="field-sizing: content; font-size: 1.5rem; font-weight: 700;"
   >

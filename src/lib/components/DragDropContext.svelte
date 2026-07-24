@@ -17,8 +17,8 @@
   const oneThousandMs = 1000
   const throttledPositionUpdate = createThrottledFunction(updateDraggedItemPosition, oneThousandMs/frameRate)
   const dropPreviewCSS = `
-    background-color: rgba(100, 100, 255, 0.15);
-    border: 1px dashed rgba(100, 100, 255, 0.6);
+    background-color: rgba(var(--drag-preview), 0.15);
+    border: 1px dashed rgba(var(--drag-preview), 0.6);
   `
 
   setContext('drag-drop', {
@@ -90,7 +90,7 @@
         resolveBest($matchedDropzones)
       )
       hasDropped.set(true)
-      playSound('tap')
+      playSound('tap', 0.125)
     }
   }
 

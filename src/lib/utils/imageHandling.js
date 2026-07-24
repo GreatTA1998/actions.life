@@ -27,10 +27,10 @@ export async function uploadToStorage (image, compress) {
 
 export async function compressImage (file) {
   const options = {
-    maxSizeMB: 1,         
+    maxSizeMB: 2,         
     maxWidthOrHeight: 1920, 
     useWebWorker: true,     // Use web worker for performance
-    quality: 0.8,          // JPEG quality (0.1 - 1.0)
+    quality: 0.9,          // JPEG quality (0.1 - 1.0)
     preserveExif: true, 
   }
 
