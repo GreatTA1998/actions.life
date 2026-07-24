@@ -2,7 +2,7 @@
 
 ### Overview
 
-**actions.life** is a SvelteKit 2 (Svelte 5) PWA for task/calendar management, backed by Firebase (Firestore, Auth, Storage, Cloud Functions) and deployed to Vercel. See `README.md` for project structure.
+**actions.life** is a SvelteKit 2 (Svelte 5) web app for task/calendar management, backed by Firebase (Firestore, Auth, Storage, Cloud Functions) and deployed to Vercel. See `README.md` for project structure.
 
 ### Running the app
 
@@ -13,18 +13,18 @@
 
 ### Linting / Testing
 
-- No ESLint config file exists at root or in `functions/` (the `functions/package.json` defines a lint script but the `.eslintrc` is absent). Lint is effectively unconfigured.
-- No automated test suite exists (`svelte-check` is not configured, no test framework is installed).
-- The `functions/` directory has `eslint` + `prettier` as devDependencies but no config file to drive them.
+- No ESLint config file exists at root or in `functions/`. Lint is effectively unconfigured.
+- No automated test suite exists (no test framework installed).
 
 ### Environment variables
 
-- `VITE_OPENAI_API_KEY` — optional, enables the AI chat feature.
 - The Firebase config is hardcoded in `src/lib/db/init.js`; no `.env` file is needed for basic frontend dev.
 
 ### Gotchas
 
 - The project uses **npm** (not pnpm/yarn). Always use `npm install`.
 - Node 22 is required (`engines` field in both `package.json` files).
+- UnoCSS is used for utility classes (configured via `uno.config.js`). The UnoCSS inspector is available at `/__unocss/` in dev mode.
 - Build warnings about unused CSS selectors and missing `encoding` module in Firebase SDK are expected and harmless.
-- Authentication requires Google Sign-In with the production Firebase project; the landing page (home route) works without auth.
+- The landing page features an embedded "Playground" that uses anonymous Firebase auth — it works without any credentials or setup.
+- Full app access requires Google Sign-In with the production Firebase project.
