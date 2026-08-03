@@ -60,7 +60,7 @@
     <div class="my-20 flex flex-col gap-y-4">
       <SectionHeader
         title="Demo video"
-        subtitle="Skip to any section with chapter cards"
+        subtitle="Skip to any section"
       />
       <DemoVideo />
     </div>
