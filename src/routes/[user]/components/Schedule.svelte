@@ -183,7 +183,7 @@
       />
     </div>
 
-    <div class="py-2 px-4 border-y-solid border-gray-100">
+    <div class="flex items-center px-2 border-y border-y-solid border-gray-100">
       <SimpleToggle 
         checked={$user.hideRoutines} 
         onchange={e => User.update({ hideRoutines: e.target.checked })} 
@@ -198,7 +198,7 @@
           {#if isoTasks.length > 0}
             <div class="flex flex-col gap-y-1 py-4">
               <div class={[
-                'px-4 text-lg font-semibold',
+                'px-2 text-lg font-semibold',
                 selectedDate.hasSame(day.date, 'day') ? 'text-[var(--primary-color)]' : 'text-[#444]'
               ]}
               >
@@ -206,18 +206,20 @@
                 <span>{day.date.toFormat('MMM d')}</span>
               </div>
           
-                <div class="flex items-center flex-wrap gap-1 px-4">
+                <div class="flex items-center flex-wrap gap-1 px-2">
                   {#each getFlexible(isoTasks) as task (task.id)}
                     {#if task.iconURL}
                       <DoodleIcon iconTask={task} size="40px" />
                     {:else}
                       <button onclick={() => openTaskPopup(task)}
                         class={[
-                          'bg-[#f5f5f5] rounded-2xl py-1.5 px-3 text-base font-medium justify-start',
+                          'bg-[#f5f5f5] rounded-2xl py-1 px-2 text-base font-medium justify-start',
                           task.isDone ? 'text-[#1e8e24]' : 'text-[#555]'
                         ]} 
                       >
-                        {task.name}
+                        <span class="block truncate">
+                          {task.name}
+                        </span>
                       </button>
                     {/if}
                   {/each}
@@ -227,7 +229,7 @@
                   {#each getScheduled(isoTasks) as task (task.id)}
                     <button onclick={() => openTaskPopup(task)}
                       class={[
-                        'text-left justify-start gap-x-2 py-1 px-4',
+                        'text-left justify-start gap-x-2 py-1 px-2',
                         task.isDone && 'bg-gradient-to-r from-[rgba(76,175,80,0.04)] to-transparent'
                       ]}
                     >
@@ -243,7 +245,7 @@
                             <DoodleIcon iconTask={task} size="1lh" />
                           {/if}
                           
-                          <div class="text-[#222] text-truncate text-clip">
+                          <div class="text-[#222] truncate text-clip">
                             {task.name}
                           </div>
                           

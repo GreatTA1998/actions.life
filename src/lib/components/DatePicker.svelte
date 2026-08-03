@@ -51,7 +51,7 @@
       <button onclick={() => selectDate(dayDT)}
         style:grid-column-start={i === 0 ? dayDT.weekday : ''}
         class={[
-          'text-[16px] h-[36px] justify-center rounded-lg',
+          'text-[16px] h-[32px] justify-center rounded-lg',
           dayDT.hasSame(DateTime.now(), 'day') && 'font-bold',
           dayDT.toISODate() === valueDT?.toISODate() && 'bg-[var(--primary-color)] text-white font-semibold'
         ]}
