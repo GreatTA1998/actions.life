@@ -1,6 +1,7 @@
 <script>
   import CommunityChat from '$lib/components/CommunityChat/index.svelte'
   import ModeSettings from './ModeSettings.svelte'
+  import FontScaleSettings from './FontScaleSettings.svelte'
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
   import IconBrowser from '../Templates/components/IconsDisplay/IconBrowser.svelte'
@@ -31,7 +32,8 @@
         
         <ColorSettings />
       </div>
-      <ModeSettings />
+
+      <FontScaleSettings />
     </div>
   
     <div class={settingsGroup}>
@@ -39,10 +41,13 @@
 
         <div class="flex gap-x-3 items-center">
           <h2>Calendar</h2>
-          <AddAccount />
         </div>
+        
+        <ModeSettings />
 
         <GridlineSettings />
+
+        <AddAccount />
         
         <GCalDashboard />
       </div>

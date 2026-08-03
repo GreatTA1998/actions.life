@@ -3,7 +3,7 @@
   style:width="{$calColumnWidth}px"
 > 
   <hr style="border: 2px solid var(--location-indicator-color); border-radius: 5px; width: 100%; margin-top: 0px; margin-bottom: 0px;"> 
-  <div style="font-size: 12px; color: var(--location-indicator-color); font-weight: 600;">
+  <div class="text-xs font-semibold text-[var(--location-indicator-color)]">
     {currentTimeString}
   </div>
 </div>

@@ -51,6 +51,5 @@
   <TodoList trees={$trees}
     listWidth={xyScrolling ? `${WIDTHS.LIST}px` : 'auto'}
     style={xyScrolling ? wrappingColumnLayout : simpleLayout}
-    isLargeFont={!xyScrolling}
   />       
 </div>

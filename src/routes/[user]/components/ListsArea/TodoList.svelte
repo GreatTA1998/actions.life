@@ -8,20 +8,18 @@
   let {
     style,
     listWidth,
-    isLargeFont = false,
     trees = null,
     parentID = ''
   } = $props()
 
   const { activateInput } = getContext('popover-input')
   const anchorID = `--dropzone-root-last-${randomID()}`
-  
-  const scale = $derived(isLargeFont ? 1.5 : 1)
-  const dzRootHeight = $derived(`${(parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE) * scale}rem`)
-  const dzSubHeight = $derived(`${HEIGHTS.SUB_DROPZONE * scale}rem`)
-  const rootFontSize = $derived(`${1 * scale}rem`) // rem =  16px / 32px
-  const subFontSize = $derived(`${0.875 * scale}rem`) // rem = 14px / 28px
-  const indent = $derived(`${WIDTHS.INDENT_PER_LEVEL * scale}px`)
+
+  const dzRootHeight = $derived(`${parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE}rem`)
+  const dzSubHeight = $derived(`${HEIGHTS.SUB_DROPZONE}rem`)
+  const rootFontSize = '1rem'
+  const subFontSize = '0.875rem'
+  const indent = '2rem'
 
   setContext('list-config', { 
     debug: () => false,

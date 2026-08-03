@@ -71,7 +71,6 @@
     border-radius: 6px;
     font-weight: 500;
     font-size: 0.875rem;
-    width: 140px;
   }
 
   .export-btn:disabled {

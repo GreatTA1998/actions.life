@@ -31,7 +31,7 @@
   }
 </script>
 
-<div class="cal">
+<div class="w-[clamp(280px,100vw,380px)] p-2 user-select-none grid gap-y-2">
   <MonthYearMenus dt={visibleMonthDT} onChange={newVal => {
     const { year, month } = newVal
     let dt = visibleMonthDT.set({ year })
@@ -40,76 +40,24 @@
     onVisibilityChange({ year, month })
   }} />
 
-  <div class="weekdays">
+  <div class="grid grid-cols-7 gap-1">
     {#each ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] as day}
-      <div class="weekday">{day}</div>
+      <div class="text-center text-neutral-700 text-[12px] font-medium">{day}</div>
     {/each}
   </div>
 
-  <div class="grid">
+  <div class="grid grid-cols-7 gap-1">
     {#each days as dayDT, i}
       <button onclick={() => selectDate(dayDT)}
         style:grid-column-start={i === 0 ? dayDT.weekday : ''}
-        class:font-bold={dayDT.hasSame(DateTime.now(), 'day')}
-        class:selected={dayDT.toISODate() === valueDT?.toISODate()}
-        class="w-[36px] h-[36px] justify-center rounded-lg"
-        style:font-size="1rem"
+        class={[
+          'text-[16px] h-[36px] justify-center rounded-lg',
+          dayDT.hasSame(DateTime.now(), 'day') && 'font-bold',
+          dayDT.toISODate() === valueDT?.toISODate() && 'bg-[var(--primary-color)] text-white font-semibold'
+        ]}
       >
         {dayDT.day}
       </button>
     {/each}
   </div>
 </div>
-
-<style>
-  .cal {
-    /* Base sizing */
-    --font-size: clamp(16px, 4vw, 18px);
-    --font-size-large: clamp(18px, 4.5vw, 22px);
-    --font-size-small: clamp(12px, 3vw, 14px);
-    --spacing: clamp(8px, 2vw, 12px);
-    --gap: clamp(4px, 1vw, 6px);
-    --touch-target: 36px; /* Minimum tappable size for mobile (Microsoft standard, common for date pickers) */
-    
-    /* Derived values */
-    --cal-width: clamp(320px, 90vw, 400px);
-    --cal-padding: var(--spacing);
-    
-    padding: var(--cal-padding);
-    user-select: none;
-    width: var(--cal-width);
-    max-width: min(90vw, 400px);
-  }
-
-
-  .weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: var(--gap);
-  }
-
-  .weekday {
-    text-align: center;
-    font-size: var(--font-size-small);
-    font-weight: 600;
-    color: var(--text-secondary, #999);
-    padding: var(--gap);
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: var(--gap);
-  }
-
-  .other-month {
-    color: var(--text-disabled, #ccc);
-  }
-
-  .selected {
-    background: var(--primary-color);
-    color: white;
-    font-weight: 600;
-  }
-</style>
-

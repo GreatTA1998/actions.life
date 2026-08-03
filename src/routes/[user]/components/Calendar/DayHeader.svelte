@@ -42,7 +42,7 @@
       startDateISO: ISODate
     }})
   })}
-  class="day-header"
+  class="text-neutral-700 bg-[var(--cal-bg)]"
   style:width="{$calColumnWidth}px"
   style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
   style:padding-bottom="0"
@@ -59,27 +59,16 @@
     })
   }}
 >
-  <div class="flex justify-center select-none">
-    <div class="center-flex day-name-label"
-      class:active-day-name={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
-    >
-      {DateTime.fromISO(ISODate).toFormat('ccc')}
-    </div>
-
-    <div class="center-flex" style="font-size: 1rem; font-weight: 300">
-      <div class="center-flex" style="padding: 0; width: 28px;"
-        class:active-date-number={ISODate <= DateTime.now().toFormat('yyyy-MM-dd')}
-      >
-        {DateTime.fromISO(ISODate).toFormat('dd')}
-      </div>
-    </div>
+  <div class="text-md flex justify-center items-center gap-x-1 select-none">
+    <div>{DateTime.fromISO(ISODate).toFormat('ccc')}</div>
+    <div>{DateTime.fromISO(ISODate).toFormat('dd')}</div>
   </div>
 
   {#if $treesByDate[ISODate]}
     {@const { hasIcon, noIcon } = $treesByDate[ISODate].noStartTime}
     <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
       {#each hasIcon as iconTask (iconTask.id)}
-        <DoodleIcon {iconTask} size="32px" />
+        <DoodleIcon {iconTask} size="2rem" />
       {/each}
     </div>
 
@@ -106,42 +95,7 @@
     </div>
   {/if}
 
-  <div class="task-input" style="anchor-name: {anchorID};">
+  <div class="w-full h-4.5 pointer-events-none" style="anchor-name: {anchorID};">
 
   </div>
 </div>
-
-<style>
-  .task-input {
-    width: 100%; 
-    height: 1.125rem;
-    pointer-events: none;
-  }
-
-  .day-header {
-    font-size: 1.4rem;
-    background-color: var(--cal-bg);
-    color: #6d6d6d;
-  }
-
-  .day-name-label {
-    font-size: 1rem;
-    margin-bottom: 0px;
-    font-weight: 400;
-  }
-
-  .active-day-name {
-    color: rgb(30, 30, 30);
-  }
-
-  .active-date-number {
-    font-weight: 300;
-    color: rgb(60, 60, 60);
-  }
-
-  .center-flex {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-</style>

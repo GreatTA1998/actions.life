@@ -61,7 +61,6 @@
 
 <style>
   .export-btn {
-    width: 120px;
     padding: 8px 16px;
     background-color: grey;
     color: white;

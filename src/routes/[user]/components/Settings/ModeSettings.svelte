@@ -29,9 +29,9 @@
 
   <div class="text-sm text-gray-600 px-1 leading-[1.5]">
     {#if isSimple}
-      Tasks move from the list to the calendar
+      A task can only be on the to-do list or the calendar
     {:else}
-      Tasks are visible both on the list and calendar
+      A task can appear on both the to-do list and calendar
     {/if}
   </div>
 </div>

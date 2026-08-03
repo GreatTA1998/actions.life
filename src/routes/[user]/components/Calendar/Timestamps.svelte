@@ -3,32 +3,26 @@
   import { timestamps } from './timestamps.js'
   import { minutes } from '$lib/utils/core.js'
   
-  export let style
+  let {
+    style,
+    class: className
+  } = $props()
 </script>
 
-<div class="timestamps {$$props.class}"
-  {style} style:width="{$timestampsColumnWidth}px" 
+<div class={['timestamps bg-[var(--cal-bg)] z-2', className]}
+  {style} 
+  style:width="{$timestampsColumnWidth}px" 
+  style:border-right="1px solid var(--faint-color)"
 >
   {#each $timestamps as timestamp, i (i)}
-    <div class="absolute timestamp select-none" style="top: {minutes(timestamp) * ($pixelsPerHour / 60)}px;">
+    <div 
+      class={[
+        'absolute z-2 left-0 right-0 text-center',
+        'text-xs text-neutral-700 bg-[var(--cal-bg)] select-none'
+      ]} 
+      style="top: {minutes(timestamp) * ($pixelsPerHour / 60)}px;"
+    >
       {timestamp.substring(0, $isCompact ? 2 : 5)}
     </div>
   {/each}
 </div>
-
-<style>
-  .timestamps {
-    background: var(--cal-bg);
-    z-index: 2;
-    border-right: 1px solid var(--faint-color);
-  }
-
-  .timestamp {
-    width: 100%; /* because <div> no longer fills to its parent's width if it's absolutely positioned  */
-    text-align: center;
-    color: #6d6d6d;
-    background-color: var(--cal-bg);
-    z-index: 2;
-    font-size: 12px;
-  }
-</style> 

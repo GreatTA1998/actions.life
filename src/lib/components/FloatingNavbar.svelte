@@ -8,7 +8,7 @@
    
   let { position = 'right' } = $props() // or 'bottom'
 
-  let iconSize = $derived(`${position === 'bottom' ? 1.5 : 1.2}rem`)
+  let iconSize = $derived(`${position === 'bottom' ? 24 : 20}px`)
 
   function onCalClick () {
     if ($activeView === 'CALENDAR') jumpToToday()
@@ -51,10 +51,6 @@
     --navbar-radius: 16px;
     --desktop-padding: 2px;
     --mobile-padding: 2px;
-  }
-
-  button {
-    justify-content: center;
   }
 
   .floating-navbar {

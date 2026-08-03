@@ -10,6 +10,7 @@ const User = {
     maxOrderValue: z.number().default(10),
 
     calendarTheme: z.string().default('mutedEarth'),
+    fontScale: z.number().default(1),
     defaultPhotoLayout: z.string().default('split-view'),
     calSnapInterval: z.number().default(1),
     listAreaWidthRatio: z.number().default(0.00223), // empirically determined from my account

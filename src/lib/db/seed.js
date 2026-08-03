@@ -35,14 +35,12 @@ const ICON = {
 }
 
 /**
- * Shape per entry:
- *   id        – stable document ID
- *   dayOffset – (optional) days from today → becomes startDateISO at build time
- *
  * Parents MUST appear before their children (Task.create reads the parent rootID and treeISOs)
  *
  * Only "stable" properties are stored here — fields that are computed at
  * creation time (orderValue, treeISOs, rootID) are intentionally omitted.
+ * 
+ * dayOffset – (optional) days from today, becomes startDateISO at build time
  */
 const SEED_TASKS = [
   { id: 'photo-bird', 
