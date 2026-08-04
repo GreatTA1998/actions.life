@@ -49,7 +49,7 @@
   style:background-color="var(--todo-list-bg-color)"
 >
   <TodoList trees={$trees}
-    listWidth={xyScrolling ? `${WIDTHS.LIST}px` : 'auto'}
+    listWidth={xyScrolling ? `${WIDTHS.LIST}px` : '100%'}
     style={xyScrolling ? wrappingColumnLayout : simpleLayout}
   />       
 </div>

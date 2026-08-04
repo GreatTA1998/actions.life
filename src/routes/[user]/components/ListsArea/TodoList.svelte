@@ -1,7 +1,7 @@
 <script>
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
-  import { HEIGHTS, WIDTHS } from '$lib/utils/constants.js'
+  import { HEIGHTS } from '$lib/utils/constants.js'
   import { randomID } from '$lib/utils/core.js'
   import { getContext, setContext } from 'svelte'
 
@@ -74,7 +74,7 @@
 
     <div 
       style:anchor-name={anchorID} 
-      style:width="min(100%, {WIDTHS.LIST}px)"
+      style:width="min(100%, {listWidth})"
     >
       <Dropzone {...dzProps(trees.length)} />
     </div>
