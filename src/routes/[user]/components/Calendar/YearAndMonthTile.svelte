@@ -1,5 +1,6 @@
 <script>
   import { isCompact, timestampsColumnWidth } from './store.js'
+  import { HEIGHTS } from '$lib/utils/constants.js'
 
   let {
     viewportLeft,
@@ -22,8 +23,9 @@
       'flex justify-center gap-y-0.5 text-md text-neutral-700',
       $isCompact
         ? 'flex-row mt-[8px] ml-0'
-        : 'flex-col text-center mt-[var(--height-main-content-top-margin)]'
+        : 'flex-col text-center'
     ]}
+    style:margin-top={$isCompact ? '' : `${HEIGHTS.ROOT_DROPZONE}rem`}
   >
     <div class="uppercase">
       {currentDT.toFormat(!$isCompact ? 'LLL' : 'M')}

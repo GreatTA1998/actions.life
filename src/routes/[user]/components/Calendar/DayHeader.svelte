@@ -2,6 +2,7 @@
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
+  import { HEIGHTS } from '$lib/utils/constants.js'
   import { googleEventsByDate } from '$lib/store'
   import { headerHeight, isCompact, calColumnWidth, timestampsColumnWidth } from './store.js'
   import { getContext } from 'svelte'
@@ -44,7 +45,7 @@
   })}
   class="text-neutral-700 bg-[var(--cal-bg)]"
   style:width="{$calColumnWidth}px"
-  style:padding={$isCompact ? '8px 0px' : 'var(--height-main-content-top-margin) 0px'}
+  style:padding={$isCompact ? '8px 0px' : `${HEIGHTS.ROOT_DROPZONE}rem 0px`}
   style:padding-bottom="0"
   onclick={e => {
     e.stopPropagation()
