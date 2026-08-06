@@ -39,7 +39,7 @@
     <div class="my-20 mx-auto flex w-8/10 max-md:w-[min(88vw,320px)] flex-col gap-6">
       <SectionHeader
         title="Playground"
-        subtitle="No login required"
+        subtitle="Try the demo account!"
       />
 
       <div class="flex flex-col gap-8 pb-8">
@@ -59,8 +59,8 @@
 
     <div class="my-20 flex flex-col gap-y-4">
       <SectionHeader
-        title="Demo video"
-        subtitle="Skip to any section"
+        title="Tutorial"
+        subtitle="Skip to any section!"
       />
       <DemoVideo />
     </div>

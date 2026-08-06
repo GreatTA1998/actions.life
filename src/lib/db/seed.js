@@ -73,7 +73,7 @@ const SEED_TASKS = [
 
   // ── Sub-task tree ───────────────────────────────────────────────────
   { id: 'getting-started', onList: true, name: 'TO-DO' },
-  { id: '1', parentID: 'getting-started', onList: true, name: 'Drag me anywhere' },
+  { id: '1', parentID: 'getting-started', onList: true, name: 'Hold and drag me anywhere' },
   { id: '2', parentID: 'getting-started', onList: true, name: 'Create a task', notes: 'Click on any empty space (hint: indent your click for sub-tasks' },
 
   // ── Timeline ────────────────────────────────────────────────────────
