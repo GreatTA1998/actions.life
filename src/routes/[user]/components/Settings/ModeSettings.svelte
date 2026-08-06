@@ -1,13 +1,15 @@
 <script>
   import { user } from '$lib/store'
   import { getContext } from 'svelte'
+  import PopoverMenu from '$lib/components/PopoverMenu.svelte'
+  import MsInfoOutline from 'virtual:icons/material-symbols/info-outline'
 
   const { User } = getContext('app')
   
   let isSimple = $derived($user.simpleMode)
 </script>
 
-<div class="flex flex-col gap-y-2">
+<div class="flex items-center gap-x-2">
   <div class="flex w-fit bg-black/5 border border-solid border-black/5 rounded-lg">
     <button onclick={() => User.update({ simpleMode: true })} 
       class={[
@@ -15,7 +17,7 @@
         isSimple && 'bg-white core-shadow cast-shadow'
       ]}
     >
-      Simple Mode
+      Simple
     </button>
     <button onclick={() => User.update({ simpleMode: false })} 
       class={[
@@ -23,15 +25,30 @@
         !isSimple && 'bg-white core-shadow cast-shadow'
       ]}
     >
-      Structured Mode
+      Structured
     </button>
   </div>
 
-  <div class="text-sm text-gray-600 px-1 leading-[1.5]">
-    {#if isSimple}
-      A task can only be on the to-do list or the calendar
-    {:else}
-      A task can appear on both the to-do list and calendar
-    {/if}
-  </div>
+  <PopoverMenu>
+    {#snippet activator ({ id, anchorName })}
+      <button popovertarget={id} style:anchor-name={anchorName}
+        class="text-gray-600 flex items-center"
+      >
+        <MsInfoOutline style="font-size: 1rem" />
+      </button>
+    {/snippet}
+
+    {#snippet content ()}
+      <div class="flex flex-col gap-y-2.5 px-3 py-2.5 max-w-sm text-sm text-gray-600 leading-[1.5]">
+        <div>
+          <div class="font-medium text-gray-700">Simple mode</div>
+          <div>Tasks auto-archive from the to-do list when scheduled/completed</div>
+        </div>
+        <div>
+          <div class="font-medium text-gray-700">Structured mode</div>
+          <div>Tasks remain on the to-do list until manually archived</div>
+        </div>
+      </div>
+    {/snippet}
+  </PopoverMenu>
 </div>

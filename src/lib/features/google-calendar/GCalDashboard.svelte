@@ -1,4 +1,5 @@
 <script>
+  import Slider from '$lib/components/Slider.svelte'
   import { getFirestoreCollection, listenToCollection } from '$lib/db/helpers.js'
   import { user } from '$lib/store'
   import { allAccounts } from '$lib/features/google-calendar/gcal.js'
@@ -49,15 +50,19 @@
   <div class="flex gap-8 user-select-none flex-wrap">
     {#each $allAccounts as account (account.id)}
       <div class="flex flex-col gap-1"> 
-        <h2 class="text-sm font-bold">{account.email}</h2>
+        <h2 class="text-sm font-semibold">{account.email}</h2>
 
-        <input value={account.opacity} 
-          type="range" min="0.1" max="0.9" step="any" onchange={e => updateOpacity(e, account)}
-          style="--thumb-color: rgba(200, 200, 200, {account.opacity})"
-          class="my-2 appearance-none h-[6px] rounded"
-          style:background="linear-gradient(to right, rgba(180, 180, 180, 0.1), rgba(180, 180, 180, 0.9))"
+        <Slider
+          value={account.opacity}
+          min={0.1}
+          max={0.9}
+          step="any"
+          class="my-2 w-40"
+          --thumb-color="rgba(200, 200, 200, {account.opacity})"
+          --track-bg="linear-gradient(to right, rgba(180, 180, 180, 0.1), rgba(180, 180, 180, 0.9))"
+          onchange={e => updateOpacity(e, account)}
         />
-        
+
         <div style:opacity={account.opacity}>
           {#each account.allCals as cal (cal.id)}
             {@const visible = account.selectedCalIDs}
@@ -85,19 +90,3 @@
     {/each}
   </div>
 {/if}
-
-<style>
-
-  /* Thumb styling for WebKit (Chrome, Safari) */
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #666;
-    background: white;
-    background: var(--thumb-color);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  }
-</style>

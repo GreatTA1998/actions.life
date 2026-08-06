@@ -11,8 +11,8 @@
     <button onclick={() => User.update({ calendarTheme: name })} 
       style:background-color={colors.previewColor}
       class={[
-        'size-7 rounded-lg border border-solid',
-        $user.calendarTheme === name ? 'scale-110 shadow-lg border-black/20': 'opacity-50 border-black/10'
+        'size-7 rounded-lg border border-solid border-black/10',
+        $user.calendarTheme === name && 'scale-110 core-shadow cast-shadow'
       ]}
     >
     </button>

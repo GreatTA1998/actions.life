@@ -4,12 +4,19 @@
   import CommunityChatComposer from './NewMessage.svelte'
 
   let roots = $state([])
+  let scrollParent = $state(null)
 
   $effect(() => Message.listenByParent('', messages => roots = messages))
+
+  $effect(() => {
+    if (roots.length) {
+      scrollParent.scrollTop = scrollParent.scrollHeight
+    }
+  })
 </script>
 
 <div>
-  <div class="max-h-[min(360px,80dvh)] overflow-y-auto">
+  <div bind:this={scrollParent} class="max-h-[min(360px,80dvh)] overflow-y-auto">
     {#each roots as message (message.id)}
       <RecursiveMessage {message} />
     {/each}
