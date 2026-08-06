@@ -5,6 +5,7 @@
   import MsPhotoCameraBackOutline from 'virtual:icons/material-symbols/photo-camera-back-outline'
   import MsRepeat from 'virtual:icons/material-symbols/repeat'
   import MsScheduleOutline from 'virtual:icons/material-symbols/schedule-outline'
+  import BabyOwl from '$lib/components/BabyOwl/BabyOwl.svelte'
    
   let { position = 'right' } = $props() // or 'bottom'
 
@@ -21,6 +22,8 @@
 </script>
 
 <div class="floating-navbar {position}">
+  <BabyOwl size={56} {position} />
+
   <button onclick={() => to('SETTINGS')} class="logo" class:active={$activeView === 'SETTINGS'}>
     {#if $user.unread || true}
       <img src="/leaf-2-no-bg.avif" class="size-[40px]" />

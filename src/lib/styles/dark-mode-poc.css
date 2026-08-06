@@ -1,0 +1,53 @@
+/*
+ * Chrome-style Auto Dark Mode POC — remap surfaces/text like Blink force-dark,
+ * instead of page-level invert (which leaves a green cast).
+ * !important beats inline theme vars from setTheme().
+ */
+html.dark-mode-poc {
+  color-scheme: dark;
+
+  --offwhite-bg: #121212;
+  --todo-list-bg-color: #1e1e1e !important;
+  --cal-bg: #121212 !important;
+  --navbar-bg-color: #1e1e1e !important;
+  --grid-color: #3c4043 !important;
+
+  --task-name-color: #e8eaed;
+  --fine-control-color: rgba(232, 234, 237, 0.65);
+  --scheduled-info-color: #e8eaed;
+  --placeholder-color: rgba(232, 234, 237, 0.35);
+  --faint-color: #5f6368;
+
+  /* keep accents readable; Chrome force-dark preserves saturated hues */
+  --primary-color: #8ab4f8;
+  --success-color: #81c995;
+  --active: #8ab4f8;
+
+  background: #121212;
+  color: #e8eaed;
+}
+
+html.dark-mode-poc body {
+  background: #121212;
+  color: #e8eaed;
+}
+
+/* Common light surfaces that aren't on tokens yet */
+html.dark-mode-poc .bg-gray-100,
+html.dark-mode-poc .bg-gray-200,
+html.dark-mode-poc .bg-white {
+  background-color: #2c2c2c !important;
+}
+
+html.dark-mode-poc .text-\[\#444\],
+html.dark-mode-poc .text-neutral-600,
+html.dark-mode-poc .text-neutral-700,
+html.dark-mode-poc .text-gray-600,
+html.dark-mode-poc .text-gray-700 {
+  color: #e8eaed !important;
+}
+
+html.dark-mode-poc .text-gray-500,
+html.dark-mode-poc .text-neutral-500 {
+  color: #9aa0a6 !important;
+}

@@ -15,6 +15,7 @@
   import '$lib/styles/view-transitions.css'
   import '$lib/styles/reset.css'
   import '$lib/styles/utility.css'
+  import '$lib/styles/dark-mode-poc.css'
 
   let { children } = $props()
 
