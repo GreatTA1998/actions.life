@@ -36,6 +36,15 @@
       }
     )
   )
+
+  $effect(() => {
+    if ($user.uid) {
+      document.documentElement.style.setProperty(
+        'font-size', 
+        `${($user.fontScale || 1) * (isMobile() ? 1.5 : 1) * 100}%`
+      )
+    }
+  })
 </script>
 
 {#if $user.uid}

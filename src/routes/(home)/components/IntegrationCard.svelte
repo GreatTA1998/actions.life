@@ -14,7 +14,7 @@
   }
 </script>
 
-<button type="button"
+<button
   onclick={e => onseek(points[0].t, e)}
   class={[
     'flex w-full flex-col items-start justify-start rounded-xl px-4 py-1.5 md:py-3 text-left md:gap-1.5',

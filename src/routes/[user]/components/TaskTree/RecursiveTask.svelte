@@ -104,7 +104,7 @@
 
       <button onclick={() => openTaskPopup(task)}
         style:color="var(--task-name-color)"
-        class="shrink-1 min-w-[1ch] min-h-[24px] text-left flex leading-[1.25]"
+        class="shrink-1 min-w-[1ch] min-h-4 text-left flex leading-[1.25]"
         style:font-weight={depth === 1 ? 600 : 400}
       >
         <span class="truncate text-clip">

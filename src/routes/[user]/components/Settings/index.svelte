@@ -1,6 +1,8 @@
 <script>
   import CommunityChat from '$lib/components/CommunityChat/index.svelte'
   import ModeSettings from './ModeSettings.svelte'
+  import DensitySettings from './DensitySettings.svelte'
+  import FontScaleSettings from './FontScaleSettings.svelte'
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
   import IconBrowser from '../Templates/components/IconsDisplay/IconBrowser.svelte'
@@ -20,7 +22,7 @@
 
   let statusMessage = $state('')
 
-  const settingsGroup = 'shrink-0 flex flex-col gap-y-4 p-4 bg-[var(--navbar-bg-color)]'
+  const settingsGroup = 'shrink-0 flex flex-col gap-y-4 p-[16px] bg-[var(--navbar-bg-color)]'
 </script>
 
 <div class="flex flex-col h-full overflow-y-auto bg-[rgb(235,235,235)]"> 
@@ -28,10 +30,12 @@
     <div class={settingsGroup}>
       <div class="flex gap-x-3 items-center">
         <h2>App</h2>
-        
-        <ColorSettings />
       </div>
       <ModeSettings />
+      
+      <FontScaleSettings />
+
+      <ColorSettings />
     </div>
   
     <div class={settingsGroup}>
@@ -39,13 +43,26 @@
 
         <div class="flex gap-x-3 items-center">
           <h2>Calendar</h2>
-          <AddAccount />
         </div>
 
+        <DensitySettings />
+      
         <GridlineSettings />
+
+        <AddAccount />
         
         <GCalDashboard />
       </div>
+    </div>
+
+    <div class={settingsGroup}>
+      <h2>Icons</h2>
+      <IconBrowser gridClass="gap-1 mb-3" />
+    </div>
+
+    <div class={settingsGroup}>
+      <h2>Photo</h2>
+      <PhotoSettings />
     </div>
 
     <div class={settingsGroup}>
@@ -57,16 +74,6 @@
       </div>
 
       <DataExport onFinish={message => statusMessage = message}/>
-    </div>
-
-    <div class={settingsGroup}>
-      <h2>Photo</h2>
-      <PhotoSettings />
-    </div>
-
-    <div class={settingsGroup}>
-      <h2>Icons</h2>
-      <IconBrowser gridClass="gap-1 mb-3" />
     </div>
 
     <div class={settingsGroup}>

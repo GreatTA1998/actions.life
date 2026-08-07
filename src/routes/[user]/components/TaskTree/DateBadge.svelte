@@ -34,31 +34,14 @@
   } 
 </script>
 
-<button class="date-badge" class:faint={(isPast(iso) && !isToday(iso)) || !iso} {onclick}>
+<button {onclick} 
+  class={[
+    'text-xs whitespace-nowrap shrink-0 py-[2px] px-[4px] rounded-[6px]',
+    'text-center flex items-center',
+    ((isPast(iso) && !isToday(iso)) || !iso)
+      ? 'bg-[rgb(231,231,231)] text-[grey]'
+      : 'bg-[hsla(0,100%,0%,0.6)] text-white'
+  ]}
+>
   {formatRelativeTime(iso)}
 </button>
-
-<style>  
-  :global(:root) {
-    /* matches recursive task's text color */
-    --clear-color: rgb(80, 80, 80); 
-  }
-
-  .date-badge {
-    white-space: nowrap;
-    flex-shrink: 0;
-    font-size: 12px;
-    background-color: hsla(0, 100%, 0%, 0.6);
-    color: white;
-    padding: 2px 4px;
-    border-radius: 6px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-  }
-
-  .faint {
-    background-color: rgb(231, 231, 231);
-    color: grey;
-  }
-</style>

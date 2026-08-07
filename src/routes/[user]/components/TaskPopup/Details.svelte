@@ -77,7 +77,7 @@
 
       <DragDropContext>
         <TodoList trees={$ancestralTree.children}
-          listWidth="min(100%,{WIDTHS.LIST}px)"
+          listWidth="100%"
           parentID={task.id}
           style="padding-bottom: 1rem"
         />

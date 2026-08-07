@@ -85,7 +85,7 @@
 
 {#if $loading} <!-- must be separate from the transition block -->
   <img src="/logo-no-bg.png" 
-    class={['pulse center', 'w-12 h-12 rounded-2xl']}
+    class={['pulse center', 'w-[48px] h-[48px] rounded-2xl']}
   />
 {/if}
 

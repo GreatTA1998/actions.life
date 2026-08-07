@@ -53,7 +53,7 @@
   }
 </script>
 
-<article class="flex w-full gap-3 p-3 text-left {className}">
+<article class="flex w-full gap-3 p-[8px] text-left {className}">
   <CommunityChatZenBirdAvatar avatarFilter={message.avatarFilter} />
 
   <div class="min-w-0 flex-1 flex flex-col">
@@ -70,7 +70,7 @@
     <div class="flex items-center py-0 gap-x-2">
       {#if (isTruncated || expanded)}
         <button onclick={() => expanded = !expanded}
-          class="shrink-1 text-nowrap truncate p-0 text-sm font-medium text-neutral-600 underline decoration-neutral-400/80 underline-offset-2"
+          class="shrink-0 text-nowrap text-sm font-medium text-neutral-600 underline decoration-neutral-400/80 underline-offset-2"
         >
           {expanded ? 'see less' : 'see more'}
         </button>
