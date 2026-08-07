@@ -1,4 +1,3 @@
-<!-- must exist, despite being empty -->
 <script>
   import { page } from '$app/state'
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'

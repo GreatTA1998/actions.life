@@ -20,7 +20,6 @@
   })
 </script>
 
-
 <div class="relative min-h-screen">
   <ArtisticBackground />
 
@@ -31,20 +30,10 @@
           actions.life is a one page life calendar
         </h1>
         <div class="col-span-3 max-w-[52ch] text-pretty text-md leading-[1.6] text-gray-600 max-[900px]:col-span-1">
-          Combine the to-do list and calendar.
-          Focus deeply on one thing without the fear of neglecting other things.
-          Adjust future plans with drag-and-drop and log past memories with photos. 
-          Be reminded of small habits and long-term dreams in the same place.
+          We often keep to-do lists on separate pages, which makes it hard to see the the full picture.
+          Here you can see how everything fits together: events, tasks, deadlines etc.
         </div>
       </div>
-    </div>
-
-    <div class="my-20 flex flex-col gap-y-4">
-      <SectionHeader
-        title="Demo video"
-        subtitle="Skip to any section with chapter cards"
-      />
-      <DemoVideo />
     </div>
 
     <div class="my-20 mx-auto flex w-8/10 max-md:w-[min(88vw,320px)] flex-col gap-6">
@@ -66,6 +55,14 @@
           <MacbookDisplay children={simulatedApp} />
         {/if}
       </div>
+    </div>
+
+    <div class="my-20 flex flex-col gap-y-4">
+      <SectionHeader
+        title="Demo video"
+        subtitle="Skip to any section with chapter cards"
+      />
+      <DemoVideo />
     </div>
 
     <div class="flex items-center justify-center mt-12 mb-54">

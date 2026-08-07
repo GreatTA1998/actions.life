@@ -3,6 +3,7 @@
   import ModeSettings from './ModeSettings.svelte'
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
+  import IconBrowser from '../Templates/components/IconsDisplay/IconBrowser.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
   import DataExport from './DataExport/index.svelte'
   import AddAccount from '$lib/features/google-calendar/AddAccount.svelte'
@@ -18,11 +19,13 @@
   }
 
   let statusMessage = $state('')
+
+  const settingsGroup = 'shrink-0 flex flex-col gap-y-4 p-4 bg-[var(--navbar-bg-color)]'
 </script>
 
 <div class="flex flex-col h-full overflow-y-auto bg-[rgb(235,235,235)]"> 
   <div class="flex flex-col gap-3">
-    <div class="settings-group">
+    <div class={settingsGroup}>
       <div class="flex gap-x-3 items-center">
         <h2>App</h2>
         
@@ -31,7 +34,7 @@
       <ModeSettings />
     </div>
   
-    <div class="settings-group">
+    <div class={settingsGroup}>
       <div class="flex flex-col gap-y-6">
 
         <div class="flex gap-x-3 items-center">
@@ -45,7 +48,7 @@
       </div>
     </div>
 
-    <div class="settings-group">
+    <div class={settingsGroup}>
       <div class="flex items-center gap-x-3">
         <h2>Data</h2>
         <span class="text-sm text-[var(--success-color)]">
@@ -56,12 +59,18 @@
       <DataExport onFinish={message => statusMessage = message}/>
     </div>
 
-    <div class="settings-group">
+    <div class={settingsGroup}>
       <h2>Photo</h2>
       <PhotoSettings />
     </div>
 
-    <div class="shrink-0">
+    <div class={settingsGroup}>
+      <h2>Icons</h2>
+      <IconBrowser gridClass="gap-1 mb-3" />
+    </div>
+
+    <div class={settingsGroup}>
+      <h2>Community Chat</h2>
       <CommunityChat />
     </div>
 
@@ -77,15 +86,6 @@
 </div>
 
 <style>
-  .settings-group {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column; 
-    row-gap: 16px;
-    padding: 16px;
-    background: var(--navbar-bg-color);
-  }
-
   h2 {
     font-size: 1rem;
     font-weight: 600;

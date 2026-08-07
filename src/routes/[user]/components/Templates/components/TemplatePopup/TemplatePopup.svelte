@@ -1,6 +1,6 @@
 <script>
   import PeriodicityEditor from './PeriodicityEditor.svelte'
-  import IconsDisplay from '../IconsDisplay/IconsDisplay.svelte'
+  import IconBrowser from '../IconsDisplay/IconBrowser.svelte'
   import MyTimePicker from '$lib/components/MyTimePicker.svelte'
   import DurationPicker from '$lib/components/DurationPicker.svelte'
   import TextArea from '$lib/components/TextArea.svelte'
@@ -23,7 +23,8 @@
 
   let iconsMenu = $state(false)
 
-  function handleDelete () {
+  function handleDelete (e) {
+    e.stopPropagation()
     if (confirm("Are you sure you want to delete this template? This won't affect past task instances but you can choose whether to delete future instances.")) {
       Template.delete($template)
       closeTaskPopup()
@@ -38,15 +39,15 @@
 </script>
 
 <NewBasePopup onExit={closeTaskPopup}>
-  <div class="relative w-screen flex-col py-2 px-4 gap-y-6" 
-    style:display="flex"
+  <div
+    class="grid w-screen gap-y-6 px-4 pt-2 pb-4"
     style:max-width="{WIDTHS.PANEL_MAX}px"
     style:max-height="80dvh"
   >
     <div class="grid gap-[10px]" style:grid-template-columns="auto 1fr">
       {#if periodicity($template.rrStr) === 'weekly'}
         <button onclick={() => iconsMenu = !iconsMenu} class="size-12 rounded-full"
-          style:box-shadow={iconsMenu ? '0 2px 8px rgba(90, 179, 39, 0.5)' : '0 2px 4px rgba(0, 0, 0, 0.1)'} 
+          style:box-shadow={iconsMenu ? '0 4px 8px rgba(90, 179, 39, 0.5)' : '0 4px 8px rgba(0, 0, 0, 0.3)'} 
         >
           {#if $template.iconURL}
             <img src={$template.iconURL} class="size-full rounded-full" />
@@ -63,7 +64,11 @@
     </div>
     
     {#if iconsMenu}
-      <IconsDisplay />
+      <IconBrowser
+        includePublic
+        onChange={icon => instantUpdate('iconURL', icon ? icon.url : '')}
+        gridClass="mt-4 w-full"
+      />
     {/if}
 
     {#if !$template.parentID}
@@ -97,8 +102,8 @@
       />
     </DragDropContext>
 
-    <button onclick={e => { e.stopPropagation(); handleDelete() }} 
-      class="absolute bottom-1 right-1 rounded-full p-1"
+    <button onclick={e => handleDelete(e)}
+      class="justify-self-end rounded-full"
     >
       <MslDeleteOutline style="font-size: 1.5rem"/>
     </button>

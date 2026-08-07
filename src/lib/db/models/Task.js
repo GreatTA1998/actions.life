@@ -31,7 +31,7 @@ const Task = {
     imageDownloadURL: z.string().default(''),
     imageFullPath: z.string().default(''),
     childrenLayout: z.string().default('normal'), // 'normal' (renaming to 'list' but requires proper migration) or 'timeline'
-    photoLayout: z.string().default('side-by-side'), // 'full-photo' or 'thumbnail'
+    photoLayout: z.string().default('split-view'), // 'full-photo' or 'split-view' (legacy term)
     isCollapsed: z.boolean().default(false),
     tagIDs: z.array(z.string()).default([]),
 
@@ -86,7 +86,7 @@ const Task = {
   
     const validatedChanges = Task.schema.partial().parse(kvChanges)
 
-    if (validatedChanges.isDone) playSound('swipe', 0.1)
+    if (validatedChanges.isDone) playSound('swipe', 0.00625)
 
     const batch = writeBatch(db)
 

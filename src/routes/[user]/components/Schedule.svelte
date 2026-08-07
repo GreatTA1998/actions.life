@@ -45,7 +45,10 @@
     if (existingIndex !== -1) {
       const el = document.getElementById(`day-${newDate.toISODate()}`)
       if (el) {
-        el.scrollIntoView({ behavior: 'instant', block: 'start' })
+        scrollContainer.scrollTo({ 
+          top: el.getBoundingClientRect().top - scrollContainer.getBoundingClientRect().top + scrollContainer.scrollTop,
+          behavior: 'instant' 
+        })
       }
     } else {
       resetAndLoadFrom(newDate)

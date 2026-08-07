@@ -16,8 +16,8 @@
       <ClickableImage {task} {style} />
     {/snippet}
 
-    {#snippet info ()}
-      <Details {task} />
+    {#snippet info (style)}
+      <Details {task} {style} />
     {/snippet}
   </LayoutDecider>
 </NewBasePopup>

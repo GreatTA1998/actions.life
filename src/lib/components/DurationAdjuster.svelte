@@ -1,6 +1,6 @@
 <script>
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
-  import { minutes } from '$lib/utils/core.js'
+  import { playSound } from '$lib/features/audio.js'
 
   let { 
     task, 
@@ -8,62 +8,80 @@
     onInput = () => {}
   } = $props()
 
-  let dragging = $state(false)
+  let activated = $state(false)
   let startY = 0
-  let startDuration = 0
-  let ppm = $derived($pixelsPerHour / 60)
+  let prevY = 0
+  let activationTimer
 
   function onpointerdown (e) {
-    e.preventDefault()
     e.currentTarget.setPointerCapture(e.pointerId)
-    dragging = true
-    startY = e.clientY
-    startDuration = task.duration
+    startY = prevY = e.clientY
+
+    if (e.pointerType === 'touch') {
+      activationTimer = setTimeout(activate, 300)
+    } else {
+      e.preventDefault()
+      activate()
+    }
   }
 
   function onpointermove (e) {
-    if (dragging) {
-      updateDuration(e)
+    prevY = e.clientY
+    if (activated) {
+      e.preventDefault()
+      updateDuration(prevY)
+    } else if (Math.abs(prevY - startY) > 10) { // touch slop
+      clearTimeout(activationTimer)
     }
   }
 
   function onpointerup (e) {
-    if (dragging) {
-      updateDuration(e) // prevents setting duration to 0 on an immediate pointerdown -> pointerup
+    if (activated) {
+      updateDuration(prevY) // we use prevY so the finger lift's `e.clientY` doesn't mess up the alignment
       onInput()
-      dragging = false
+      playSound('tap', 0.125)
+    }
+    onpointercancel(e)
+  }
+
+  // critical on iOS, fires whenever pointer movement leads to scroll
+  // which means `onpointerup` will never fire to abort the activation timer / release the pointer
+  function onpointercancel (e) {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId)
-      suppressGhostClick()
     }
+    deactivate(e)
+    clearTimeout(activationTimer)
   }
 
-  // iOS standalone web apps dispatch the synthetic post-touch click through a native
-  // gesture recognizer that races our async touchend preventDefault, so it leaks through
-  // nondeterministically. Swallow the next click in the capture phase instead, with a
-  // window long enough to outlast iOS's ~300-350ms tap deferral.
-  function suppressGhostClick () {
-    const cleanup = () => {
-      clearTimeout(timer)
-      window.removeEventListener('click', swallow, true)
-    }
-    const swallow = e => {
-      e.stopPropagation()
-      e.preventDefault()
-      cleanup()
-    }
-    const timer = setTimeout(cleanup, 400)
-    window.addEventListener('click', swallow, true)
+  function activate () {
+    activated = true
+    document.addEventListener('touchmove', preventTouchScroll, { passive: false, capture: true })
   }
 
-  function updateDuration (e) {
-    const end = minutes(task.startTime) + startDuration + (e.clientY - startY) / ppm
-    onChange(Math.max(1, end - minutes(task.startTime)))
+  function deactivate () {
+    activated = false
+    document.removeEventListener('touchmove', preventTouchScroll, { capture: true })
+  }
+
+  function preventTouchScroll (e) {
+    e.preventDefault()
+  }
+
+  function updateDuration (clientY) {
+    onChange(Math.max(1, task.duration + (clientY - startY) / ($pixelsPerHour / 60)))
   }
 </script>
 
-<div {onpointerdown} {onpointermove} {onpointerup}
-  ontouchend={e => e.preventDefault()}
-  class="absolute z-1 touch-none cursor-ns-resize top-auto bottom-0 inset-x-0"
-  style:height="clamp(2px, {(task.duration * ppm) * 1/3}px, 24px)"
+<div
+  {onpointerdown} {onpointermove} {onpointerup} {onpointercancel}
+  class="absolute z-1 cursor-ns-resize bottom-0 inset-x-0"
+  style:height="clamp(2px, {(task.duration * ($pixelsPerHour / 60)) * 1/3}px, 24px)"
   style:transform="translateY(50%)"
 ></div>
+
+{#if activated}
+  <div class="pointer-events-none absolute bottom-0 inset-x-0 z-1 h-px"
+    style:background="rgba(var(--drag-preview), 0.85)"
+  ></div>
+{/if}

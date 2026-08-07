@@ -65,7 +65,8 @@
           style:view-transition-name="match-element"
           style:view-transition-class={parentID ? 'dialog-list-item' : 'list-item'}
         >  
-          <RecursiveTask {task} 
+          <RecursiveTask 
+            {task} 
             depth={1} 
             ancestorIDs={['']} 
           />
@@ -73,8 +74,11 @@
       </div>
     {/each}
 
-    <div style:anchor-name={anchorID}>
-      <Dropzone {...dzProps(trees.length)} extraClass="w-[240px]" />
+    <div 
+      style:anchor-name={anchorID} 
+      style:width="min(100%, {WIDTHS.LIST}px)"
+    >
+      <Dropzone {...dzProps(trees.length)} />
     </div>
   {/if}
 </div>

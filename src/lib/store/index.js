@@ -2,7 +2,6 @@ import './themes'
 import { writable } from 'svelte/store'
 
 export { calSnapInterval, timestamps } from '/src/routes/[user]/components/Calendar/timestamps.js'
-export { defaultPhotoLayout, getIconForLayout, photoLayoutOptions, PhotoLayout } from './photoLayout.js'
 export { user } from './userStore.js'
 
 export let loading = writable(true)

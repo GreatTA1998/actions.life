@@ -1,10 +1,11 @@
 <script>
-  import { firebaseAuth } from '$lib/store'
+  import { user } from '$lib/store'
   import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import { getContext, onMount, tick } from 'svelte'
   import { db } from '$lib/db/init'
   import { collection, query, where, onSnapshot } from 'firebase/firestore'
   import { buildForest } from '$lib/db/tree.ts'
+  import { WIDTHS } from '$lib/utils/constants.js'
 
   let { xyScrolling } = $props()
   const { logicAreaRect } = getContext('drag-drop')
@@ -22,68 +23,34 @@
     min-width: max-content;
   `
   const simpleLayout = `height: 100%;`
-  
-  let persistTasks
-  const unsubFuncs = []
 
   onMount(async () => {
     await tick() // computed sizes from `style` CSS are not ready yet
     logicAreaRect.set(
       () => document.querySelector('#list-area').getBoundingClientRect()
     )
-    listenToTasks($firebaseAuth.currentUser.uid)
-  })
-
-  function listenToTasks (uid) {
-    const tasksCollection = collection(db, `users/${uid}/tasks`)
-    setupListener(
-      query(tasksCollection, where('onList', '==', true)),
-      (data) => persistTasks = data 
-    )
-  }
-
-  function setupListener (ref, callback) {
-    unsubFuncs.push(
-      onSnapshot(ref, snapshot => {
-        const mappedData = snapshot.docs.map(doc => ({
+    return onSnapshot(
+      query(
+        collection(db, `users/${$user.uid}/tasks`),
+        where('onList', '==', true)
+      ),
+      (snapshot) => {
+        const listTasks = snapshot.docs.map(doc => ({
           ...doc.data(), 
           id: doc.id
         }))
-        
-        callback(mappedData)
-    
-        if (persistTasks) {
-          buildTreeMap(persistTasks)
-        }
-      })
+        trees.set(buildForest(listTasks))
+      }
     )
-  }
-
-  function buildTreeMap (tasks) {
-    trees.set(
-      buildForest(tasks)
-    )
-  }
-
-  // TO-DO: bugged, unused for now
-  export function cleanup () {
-    for (const unsub of unsubFuncs) {
-      unsub()
-    }
-    trees.set(null)
-  }
+  })
 </script>
 
-<div id="list-area" class="h-full relative overflow-auto hide-scrollbar">
+<div id="list-area" class="h-full relative overflow-auto hide-scrollbar"
+  style:background-color="var(--todo-list-bg-color)"
+>
   <TodoList trees={$trees}
-    listWidth={xyScrolling ? 'fit-content' : '100%'}
+    listWidth={xyScrolling ? `${WIDTHS.LIST}px` : 'auto'}
     style={xyScrolling ? wrappingColumnLayout : simpleLayout}
     isLargeFont={!xyScrolling}
   />       
 </div>
-
-<style>
-  #list-area {
-    background-color: var(--todo-list-bg-color);
-  }
-</style>

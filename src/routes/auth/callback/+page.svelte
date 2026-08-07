@@ -24,8 +24,8 @@
 
     const credential = GoogleAuthProvider.credential(tokens.id_token)
 
-    try { // first-time user
-      const result = await linkWithCredential($firebaseAuth.currentUser, credential)
+    try {
+      const result = await linkWithCredential($firebaseAuth.currentUser, credential) // `.currentUser` is the anonymous account
       user.update(u => ({ ...u, uid: result.user.uid })) // GCalAccount implicitly depends on get(user)
       await Promise.all([
         User.update({ email: result.user.email }),

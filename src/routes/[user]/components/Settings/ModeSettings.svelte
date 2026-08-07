@@ -29,9 +29,9 @@
 
   <div class="text-sm text-gray-600 px-1 leading-[1.5]">
     {#if isSimple}
-      Tasks move between list and calendar, and are auto-archived when completed.
+      Tasks move from the list to the calendar
     {:else}
-      Tasks stay visible on the list until archived.
+      Tasks are visible both on the list and calendar
     {/if}
   </div>
 </div>

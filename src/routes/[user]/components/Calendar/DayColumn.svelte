@@ -120,7 +120,7 @@
 
   {#if $bestDropzoneID === dropzoneID}
     {@const dragPreviewY = minutesSinceMidnight($draggedItem.y1, $calSnapInterval) * pixelsPerMinute}
-    <div class="absolute inset-x-0 mx-auto w-[var(--width-within-column)]" 
+    <div class="absolute inset-x-0 mx-auto w-[var(--width-within-column)] pointer-events-none" 
       style="
         top: {dragPreviewY}px; 
         height: {$draggedItem.height}px;
