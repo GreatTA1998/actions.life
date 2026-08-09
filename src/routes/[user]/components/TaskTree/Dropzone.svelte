@@ -4,9 +4,8 @@
     clipRectFunction: $logicAreaRect, 
     onDrop () {
       if (circular) return
-
-      Task.update({ 
-        id: $draggedItem.id, 
+      return Task.update({
+        id: $draggedItem.id,
         kvChanges: {
           parentID,
           orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),

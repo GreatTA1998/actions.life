@@ -57,9 +57,8 @@
       id, 
       clipRectFunction: $logicAreaRect,
       onDrop () {
-        if (circular) return 
-
-        Task.update({ 
+        if (circular) return
+        return Task.update({
           id: $draggedItem.id,
           kvChanges: {
             parentID: task.id,

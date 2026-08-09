@@ -1,5 +1,5 @@
 <script>
-  import { setContext } from 'svelte'
+  import { setContext, tick } from 'svelte'
   import { writable, get } from 'svelte/store'
   import { createThrottledFunction } from '$lib/utils/core.js'
   import { playSound } from '$lib/features/audio.js'
@@ -7,24 +7,23 @@
   let { children } = $props()
 
   const draggedItem = writable(Empty())
-  const matchedDropzones = writable({})
   const bestDropzoneID = writable('')
-  const hasDropped = writable(false)
   const scrollCalRect = writable(() => ({ left: 0, top: 0, right: Infinity, bottom: Infinity }))
   const logicAreaRect = writable(() => ({ left: 0, top: 0, right: Infinity, bottom: Infinity }))
 
-  const frameRate = 60
-  const oneThousandMs = 1000
-  const touchSlop = 10
-  const touchActivateMs = 300
-  const throttledPositionUpdate = createThrottledFunction(updateDraggedItemPosition, oneThousandMs/frameRate)
+  const SLOP = 10
+  const SCROLL_SLOP = 40 // before hold arms: only this much movement abandons drag (jitter < this is OK)
+  const HOLD_MS = 300
+  const NORMALIZED_HEIGHT = 12 // oversized cal blocks still need to hit small zones
+  const move = createThrottledFunction(updatePosition, 1000 / 60)
   const dropPreviewCSS = `
     background-color: rgba(var(--drag-preview), 0.15);
     border: 1px dashed rgba(var(--drag-preview), 0.6);
   `
 
+  const zones = new Map() // id → { node, clipRectFunction, onDrop, normalizeDragItemHeight }
   let ghostEl = null
-  let sourceEl = null
+  let drag = null
 
   setContext('drag-drop', {
     draggedItem,
@@ -38,135 +37,250 @@
   })
 
   function startTaskDrag ({ e, id, isFromCal = false }) {
-    // pointerdown targets the child; dragstart used to retarget to the draggable.
-    // Allow name/notes <button>s (main grab targets in RecursiveTask). Skip controls
-    // that own the gesture: checkbox, menu, etc.
-    const noDrag = e.target.closest?.('input, textarea, select, label, a, [popovertarget], [data-no-drag]')
-    if (noDrag && noDrag !== e.currentTarget) return
+    const block = e.target.closest?.('input, textarea, select, label, a, [popovertarget], [data-no-drag]')
+    if (block && block !== e.currentTarget) return
+    // button 0 = primary; some Android styluses send -1 — only reject real aux buttons
+    if (e.button > 0) return
     e.stopPropagation()
 
     const el = e.currentTarget
-    const pointerId = e.pointerId
-
     const { top, left, width, height } = el.getBoundingClientRect()
-    const offsetX = e.clientX - left
-    const offsetY = e.clientY - top
-    const startX = e.clientX
-    const startY = e.clientY
+    // Mouse: drag on move. Pen/touch: hold to arm, then move to drag (so pan still works)
+    const needsHold = e.pointerType !== 'mouse'
 
-    let activated = false
-    let didMove = false
-    let activationTimer
-
-    function activate () {
-      if (activated) return
-      activated = true
-      el.setPointerCapture(pointerId)
-      reset()
-
-      draggedItem.set({
-        x1: left,
-        y1: top,
-        x2: left + width,
-        y2: top + height,
-        width,
-        height,
-        offsetX,
-        offsetY,
-        kind: '',
-        id,
-        isFromCal
-      })
-
-      sourceEl = el
-      sourceEl.style.opacity = '0.1'
-
-      ghostEl = el.cloneNode(true)
-      if (ghostEl.id) ghostEl.removeAttribute('id')
-      ghostEl.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'))
-      Object.assign(ghostEl.style, {
-        position: 'fixed',
-        left: `${left}px`,
-        top: `${top}px`,
-        width: `${width}px`,
-        height: `${height}px`,
-        boxSizing: 'border-box',
-        margin: '0',
-        pointerEvents: 'none',
-        zIndex: '10000',
-        opacity: '0.45',
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)'
-      })
-      document.body.appendChild(ghostEl)
-
-      document.addEventListener('touchmove', preventTouchScroll, { passive: false, capture: true })
+    drag = {
+      el, id, isFromCal, pointerId: e.pointerId,
+      offsetX: e.clientX - left, offsetY: e.clientY - top,
+      startX: e.clientX, startY: e.clientY,
+      left, top, width, height,
+      needsHold,
+      armed: !needsHold,
+      prevTouchAction: el.style.touchAction,
+      prevHtmlTouchAction: document.documentElement.style.touchAction,
+      scrollLocked: false,
+      frozen: [],
+      abandoned: false,
+      live: false, moved: false, timer: 0
     }
 
-    if (e.pointerType === 'touch') {
-      activationTimer = setTimeout(activate, touchActivateMs)
+    if (needsHold) {
+      drag.timer = setTimeout(() => {
+        if (!drag || drag.pointerId !== e.pointerId || drag.abandoned) return
+        drag.armed = true
+        activate() // preview appears on hold complete, not on the follow-up move
+      }, HOLD_MS)
     }
-
-    function onMove (ev) {
-      if (ev.pointerId !== pointerId) return
-
-      if (activated) {
-        ev.preventDefault()
-        didMove = true
-        throttledPositionUpdate(ev)
-      } else if (Math.hypot(ev.clientX - startX, ev.clientY - startY) > touchSlop) {
-        if (ev.pointerType === 'touch') {
-          clearTimeout(activationTimer) // finger intends to scroll
-        } else {
-          ev.preventDefault()
-          activate()
-          didMove = true
-          throttledPositionUpdate(ev)
-        }
-      }
-    }
-
-    function onUp (ev) {
-      if (ev.pointerId !== pointerId) return
-      teardown()
-
-      if (activated && didMove) {
-        suppressClick(el)
-        const best = resolveBest($matchedDropzones)
-        bestDropzoneID.set(best)
-        if (best) {
-          hasDropped.set(true)
-          playSound('tap', 0.125)
-        } else {
-          reset()
-        }
-      } else if (activated) {
-        reset()
-      }
-    }
-
-    function onCancel (ev) {
-      if (ev.pointerId !== pointerId) return
-      teardown()
-      if (activated) reset()
-    }
-
-    function teardown () {
-      clearTimeout(activationTimer)
-      el.removeEventListener('pointermove', onMove)
-      el.removeEventListener('pointerup', onUp)
-      el.removeEventListener('pointercancel', onCancel)
-      if (el.hasPointerCapture(pointerId)) {
-        el.releasePointerCapture(pointerId)
-      }
-      document.removeEventListener('touchmove', preventTouchScroll, { capture: true })
-    }
-
-    el.addEventListener('pointermove', onMove)
-    el.addEventListener('pointerup', onUp)
-    el.addEventListener('pointercancel', onCancel)
   }
 
-  function preventTouchScroll (e) {
+  function lockScroll (el) {
+    if (!drag || drag.scrollLocked) return
+    drag.scrollLocked = true
+    el.style.touchAction = 'none'
+    document.documentElement.style.touchAction = 'none'
+    document.addEventListener('touchmove', preventScroll, { passive: false, capture: true })
+    document.addEventListener('touchstart', preventScroll, { passive: false, capture: true })
+    // Pin scrollable ancestors — Boox/Chrome may still pan despite preventDefault
+    drag.frozen = []
+    for (let node = el; node && node !== document.body; node = node.parentElement) {
+      if (node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1) {
+        drag.frozen.push({ node, x: node.scrollLeft, y: node.scrollTop })
+      }
+    }
+    document.addEventListener('scroll', freezeScroll, true)
+  }
+
+  function freezeScroll () {
+    if (!drag?.frozen) return
+    for (const { node, x, y } of drag.frozen) {
+      if (node.scrollLeft !== x) node.scrollLeft = x
+      if (node.scrollTop !== y) node.scrollTop = y
+    }
+  }
+
+  function unlockScroll (d) {
+    if (!d.scrollLocked) return
+    document.removeEventListener('touchmove', preventScroll, { capture: true })
+    document.removeEventListener('touchstart', preventScroll, { capture: true })
+    document.removeEventListener('scroll', freezeScroll, true)
+    d.el.style.touchAction = d.prevTouchAction
+    document.documentElement.style.touchAction = d.prevHtmlTouchAction
+    d.scrollLocked = false
+    d.frozen = []
+  }
+
+  function activate () {
+    const d = drag
+    if (!d || d.live) return
+    d.live = true
+    lockScroll(d.el)
+    try { d.el.setPointerCapture(d.pointerId) } catch { /* Boox may throw */ }
+    reset()
+
+    draggedItem.set({
+      x1: d.left, y1: d.top, x2: d.left + d.width, y2: d.top + d.height,
+      width: d.width, height: d.height,
+      offsetX: d.offsetX, offsetY: d.offsetY,
+      kind: '', id: d.id, isFromCal: d.isFromCal
+    })
+
+    ghostEl = mountGhost(d.el, d)
+    pickZone()
+  }
+
+  function mountGhost (el, { left, top, width, height }) {
+    const g = el.cloneNode(true)
+    g.removeAttribute('id')
+    g.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'))
+    g.classList.add('drag-ghost')
+    Object.assign(g.style, {
+      width: `${width}px`,
+      height: `${height}px`,
+      transform: `translate3d(${left}px, ${top}px, 0)`
+    })
+    document.body.appendChild(g)
+    return g
+  }
+
+  function syncGhost (clientX, clientY) {
+    if (!ghostEl || !drag) return
+    // compositor-only path — not throttled, not tied to store/pickZone
+    ghostEl.style.transform =
+      `translate3d(${clientX - drag.offsetX}px, ${clientY - drag.offsetY}px, 0)`
+  }
+
+  function onPointerMove (e) {
+    const d = drag
+    if (!d || e.pointerId !== d.pointerId) return
+
+    if (d.live) {
+      e.preventDefault()
+      d.moved = true
+      syncGhost(e.clientX, e.clientY)
+      move(e) // throttled: dropzone hit-testing only
+      return
+    }
+
+    const dist = Math.hypot(e.clientX - d.startX, e.clientY - d.startY)
+
+    if (d.needsHold) {
+      if (!d.armed) {
+        // 10px is too tight — finger/stylus jitter was cancelling the hold every time
+        if (dist > SCROLL_SLOP) {
+          clearTimeout(d.timer)
+          d.abandoned = true
+        }
+      }
+      // Once armed, activate() already ran (ghost visible); live path handles moves
+      return
+    }
+
+    // Mouse: activate past slop, no hold
+    if (dist <= SLOP) return
+    e.preventDefault()
+    activate()
+    d.moved = true
+    syncGhost(e.clientX, e.clientY)
+    move(e)
+  }
+
+  function onPointerUp (e) {
+    if (drag && e.pointerId === drag.pointerId) end(false)
+  }
+
+  function onPointerCancel (e) {
+    if (drag && e.pointerId === drag.pointerId) end(true)
+  }
+
+  function onLostCapture (e) {
+    if (!drag || e.pointerId !== drag.pointerId || !drag.live) return
+    // Chrome/Boox often steals capture for pan — re-take it instead of aborting the drag
+    try {
+      drag.el.setPointerCapture(drag.pointerId)
+    } catch {
+      end(true)
+    }
+  }
+
+  async function end (cancelled) {
+    const d = drag
+    if (!d) return
+    drag = null // before releasePointerCapture so lostpointercapture doesn't re-enter
+    clearTimeout(d.timer)
+    if (d.el.hasPointerCapture?.(d.pointerId)) {
+      try { d.el.releasePointerCapture(d.pointerId) } catch { /* already lost */ }
+    }
+    unlockScroll(d)
+
+    if (!d.live) return
+    if (!cancelled && d.moved) {
+      suppressClick(d.el)
+      pickZone()
+      const id = get(bestDropzoneID)
+      if (id) {
+        // Keep ghost until snapshot re-render moves/removes the source; source stays fully visible
+        const watch = watchSourceCaughtUp(d.el)
+        const pending = zones.get(id)?.onDrop()
+        playSound('tap', 0.125)
+        await settleDrop(watch, pending)
+        return
+      }
+    }
+    reset()
+  }
+
+  async function settleDrop (watch, pending) {
+    draggedItem.set(Empty())
+    bestDropzoneID.set('')
+    // Prefer the DOM signal (local snapshot → Svelte re-render). commit() often resolves
+    // later (server ack), so awaiting it alone is both late and imprecise.
+    try {
+      await Promise.race([
+        watch.promise,
+        Promise.resolve(pending).catch(() => {}).then(() => tick()),
+        sleep(2000)
+      ])
+    } finally {
+      watch.cancel()
+      clearVisuals()
+    }
+  }
+
+  // Resolves when list/calendar re-render has applied the drop: source node
+  // disconnected (moved across views) or translated (reordered in-place).
+  function watchSourceCaughtUp (el) {
+    if (!el?.isConnected) return { promise: Promise.resolve(), cancel: () => {} }
+
+    const { top, left } = el.getBoundingClientRect()
+    let settled = false
+    let observer
+
+    const cancel = () => {
+      if (settled) return
+      settled = true
+      observer?.disconnect()
+    }
+
+    const promise = new Promise(resolve => {
+      const finish = () => {
+        cancel()
+        resolve()
+      }
+      observer = new MutationObserver(() => {
+        if (!el.isConnected) return finish()
+        const next = el.getBoundingClientRect()
+        if (next.top !== top || next.left !== left) finish()
+      })
+      observer.observe(document.body, { childList: true, subtree: true })
+    })
+
+    return { promise, cancel }
+  }
+
+  function sleep (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
+  function preventScroll (e) {
     e.preventDefault()
   }
 
@@ -179,84 +293,64 @@
     el.addEventListener('click', stop, true)
   }
 
-  function updateDraggedItemPosition (e) {
+  function updatePosition (e) {
     draggedItem.update(i => {
       i.x1 = e.clientX - i.offsetX
       i.y1 = e.clientY - i.offsetY
       i.x2 = i.x1 + i.width
       i.y2 = i.y1 + i.height
-      if (ghostEl) {
-        ghostEl.style.left = `${i.x1}px`
-        ghostEl.style.top = `${i.y1}px`
-      }
       return i
     })
-    bestDropzoneID.set(
-      resolveBest($matchedDropzones)
-    )
+    pickZone()
   }
 
-  function resolveBest (dropzones) {
-    let maxOverlap = 0
-    let bestDropzoneID = ''
-    for (const [dropzoneID, { area, left }] of Object.entries(dropzones)) {
-      if (area === maxOverlap && left > dropzones[bestDropzoneID].left) {
-        bestDropzoneID = dropzoneID
-      }
-      else if (area > maxOverlap) {
-        maxOverlap = area
-        bestDropzoneID = dropzoneID
+  function pickZone () {
+    const item = get(draggedItem)
+    if (!item.id) {
+      bestDropzoneID.set('')
+      return
+    }
+
+    const matches = {}
+    for (const [id, z] of zones) {
+      const bottom = z.normalizeDragItemHeight ? item.y1 + NORMALIZED_HEIGHT : item.y2
+      const box = { left: item.x1, top: item.y1, right: item.x2, bottom }
+      const dropzone = intersect(z.node.getBoundingClientRect(), z.clipRectFunction())
+      const hit = intersect(box, dropzone)
+      if (hit.width > 0 && hit.height > 0) {
+        matches[id] = { area: hit.width * hit.height, left: dropzone.left }
       }
     }
-    return bestDropzoneID
+    bestDropzoneID.set(resolveBest(matches))
+  }
+
+  function resolveBest (matches) {
+    let max = 0, best = ''
+    for (const [id, { area, left }] of Object.entries(matches)) {
+      if (area > max || (area === max && best && left > matches[best].left)) {
+        max = area
+        best = id
+      }
+    }
+    return best
+  }
+
+  function clearVisuals () {
+    ghostEl?.remove()
+    ghostEl = null
   }
 
   function reset () {
-    if (ghostEl) {
-      ghostEl.remove()
-      ghostEl = null
-    }
-    if (sourceEl) {
-      sourceEl.style.opacity = ''
-      sourceEl = null
-    }
+    clearVisuals()
     draggedItem.set(Empty())
-    matchedDropzones.set({})
     bestDropzoneID.set('')
-    hasDropped.set(false)
   }
 
   function Empty () {
     return {
-      x1: null,
-      y1: null,
-      x2: null,
-      y2: null,
-      offsetX: null,
-      offsetY: null,
-      kind: '',
-      id: ''
+      x1: null, y1: null, x2: null, y2: null,
+      offsetX: null, offsetY: null, kind: '', id: ''
     }
-  }
-
-  const normalizedHeight = 12 // so oversized drag items (due to tall duration) can target small dropzones
-
-  export function detectOverlap ({ dropzoneElem, clipRect, dropzoneID, normalizeDragItemHeight }) {
-    const { x1, y1, x2, y2 } = $draggedItem
-    const item = { left: x1, top: y1, right: x2, bottom: normalizeDragItemHeight ? y1 + normalizedHeight : y2 }
-    const dropzone = intersect(dropzoneElem.getBoundingClientRect(), clipRect)
-    const overlap = intersect(item, dropzone)
-
-    matchedDropzones.update(zones => {
-      if (overlap.width > 0 && overlap.height > 0) {
-        zones[dropzoneID] = { area: overlap.width * overlap.height, left: dropzone.left }
-      } else {
-        delete zones[dropzoneID]
-      }
-      return zones
-    })
-    // keep highlight in sync on activate (hold) as well as on move
-    bestDropzoneID.set(resolveBest(get(matchedDropzones)))
   }
 
   function intersect (a, b) {
@@ -270,56 +364,47 @@
   function computeOrderValue (i, rooms) {
     const k = 1
     const n = rooms.length
-
-    let newVal
     if (i === 0) {
       const top = rooms[0]
-      if (top) newVal = top.orderValue / 1.1 // 1.1 slows down the approach to 0
-      else newVal = k // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
+      return top ? top.orderValue / 1.1 : k
     }
-    else if (i === n) {
-      const bottom = rooms[n-1] 
-      newVal = bottom.orderValue + k // Task.js will handle `maxOrderValue`
-    }
-    else {
-      const above = rooms[i-1]
-      const below = rooms[i]
-      newVal = (above.orderValue + below.orderValue) / 2
-    }
-    return newVal
+    if (i === n) return rooms[n - 1].orderValue + k
+    return (rooms[i - 1].orderValue + rooms[i].orderValue) / 2
   }
 
-  // attachment factory pattern (to pass in arbitrary parameters via currying)
   function registerDropzone ({ clipRectFunction, id, onDrop, normalizeDragItemHeight = false }) {
     return (node) => {
-      $effect(() => {
-        if ($draggedItem.id) {
-          detectOverlap({
-            dropzoneElem: node,
-            clipRect: clipRectFunction(),
-            dropzoneID: id,
-            normalizeDragItemHeight
-          })
-        }
-      })
-      
-      $effect(() => {
-        if ($hasDropped && $bestDropzoneID === id) {
-          onDrop()
-          reset()
-        }
-      })
-      
+      zones.set(id, { node, clipRectFunction, onDrop, normalizeDragItemHeight })
+      if (get(draggedItem).id) pickZone()
       return () => {
-        matchedDropzones.update(obj => {
-          delete obj[id]
-          return obj
-        })
+        if (zones.get(id)?.node === node) zones.delete(id)
       }
     }
   }
 </script>
 
+<svelte:window
+  onpointermove={onPointerMove}
+  onpointerup={onPointerUp}
+  onpointercancel={onPointerCancel}
+  onlostpointercapture={onLostCapture}
+/>
+
 <div class="h-full">
   {@render children()}
 </div>
+
+<style>
+  :global(.drag-ghost) {
+    position: fixed;
+    left: 0;
+    top: 0;
+    box-sizing: border-box;
+    margin: 0;
+    pointer-events: none;
+    z-index: 10000;
+    opacity: 0.45;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    will-change: transform;
+  }
+</style>
