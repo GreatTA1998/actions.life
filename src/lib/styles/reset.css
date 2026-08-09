@@ -1,6 +1,7 @@
 * {
   box-sizing: border-box;
   font-family: 'Inter Variable', sans-serif;
+  -webkit-tap-highlight-color: transparent; /* kill Android press flash */
 }
 
 /* gotcha: only enjoy this reset when using Tailwind's flex */

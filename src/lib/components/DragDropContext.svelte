@@ -47,7 +47,6 @@
 
     const el = e.currentTarget
     const pointerId = e.pointerId
-    el.setPointerCapture(pointerId)
 
     const { top, left, width, height } = el.getBoundingClientRect()
     const offsetX = e.clientX - left
@@ -62,6 +61,7 @@
     function activate () {
       if (activated) return
       activated = true
+      el.setPointerCapture(pointerId)
       reset()
 
       draggedItem.set({
