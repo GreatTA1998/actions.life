@@ -51,8 +51,8 @@
     whiteVariant && 'monochrome',
     'ios-reset select-none'
   ]}
-  draggable="true"
-  ondragstart={e => startTaskDrag({ e, id: iconTask.id, isFromCal: true })}
+  draggable="false"
+  onpointerdown={e => startTaskDrag({ e, id: iconTask.id, isFromCal: true })}
 />
 
 <style>

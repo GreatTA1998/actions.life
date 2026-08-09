@@ -13,6 +13,7 @@
 </script>
 
 <button {onclick} style:color
+  data-no-drag
   class="flex items-center gap-x-[2px] {extraClass}" 
 >
   <MsCheckCircleOutline style="font-size: calc(0.75 * {fontSize});" class="shrink-0"/>

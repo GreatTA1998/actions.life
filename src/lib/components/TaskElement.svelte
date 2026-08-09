@@ -2,8 +2,7 @@
   {#if height < 24 && !task.imageDownloadURL}
     <div 
       onclick={() => openTaskPopup(task)}
-      ondragstart={e => startTaskDrag({ e, id: task.id })} 
-      draggable="true" 
+      onpointerdown={e => startTaskDrag({ e, id: task.id })}
       class={[
         'relative min-h-[12px] flex flex-col gap-y-1',
       ]}
@@ -20,8 +19,7 @@
   {:else}
     <div 
       onclick={() => openTaskPopup(task)}
-      ondragstart={e => startTaskDrag({ e, id: task.id })} 
-      draggable="true" 
+      onpointerdown={e => startTaskDrag({ e, id: task.id })}
       class={[
         'relative flex flex-col min-h-[24px] gap-y-0',
         'bg-cover bg-center bg-no-repeat',

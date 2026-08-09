@@ -52,7 +52,7 @@
 </script>
 
 <div class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
-  <div draggable="true"
+  <div
     {@attach registerDropzone({ 
       id, 
       clipRectFunction: $logicAreaRect,
@@ -70,7 +70,7 @@
       },
       normalizeDragItemHeight: true
     })}
-    ondragstart={e => startTaskDrag({ e, id: task.id })}
+    onpointerdown={e => startTaskDrag({ e, id: task.id })}
     style:font-size={fontSize}
     style:--task-control-width={fontSize}
     use:lazyCallable={() => hasIntersected = true}

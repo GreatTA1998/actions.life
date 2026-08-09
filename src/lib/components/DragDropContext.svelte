@@ -1,6 +1,6 @@
 <script>
   import { setContext } from 'svelte'
-  import { writable } from 'svelte/store'
+  import { writable, get } from 'svelte/store'
   import { createThrottledFunction } from '$lib/utils/core.js'
   import { playSound } from '$lib/features/audio.js'
 
@@ -15,11 +15,16 @@
 
   const frameRate = 60
   const oneThousandMs = 1000
+  const touchSlop = 10
+  const touchActivateMs = 300
   const throttledPositionUpdate = createThrottledFunction(updateDraggedItemPosition, oneThousandMs/frameRate)
   const dropPreviewCSS = `
     background-color: rgba(var(--drag-preview), 0.15);
     border: 1px dashed rgba(var(--drag-preview), 0.6);
   `
+
+  let ghostEl = null
+  let sourceEl = null
 
   setContext('drag-drop', {
     draggedItem,
@@ -33,40 +38,145 @@
   })
 
   function startTaskDrag ({ e, id, isFromCal = false }) {
-    if (e.target !== e.currentTarget) return // effectively `click|self`
-    // don't call preventDefault(), otherwise drag doesn't even start
-    e.stopPropagation() // stops rare occasions where the entire UI gets dragged (which'd be scary)
-    e.dataTransfer.setData("text/plain", id) // without this iOS won't activate drag!
-    reset()
+    // pointerdown targets the child; dragstart used to retarget to the draggable.
+    // Allow name/notes <button>s (main grab targets in RecursiveTask). Skip controls
+    // that own the gesture: checkbox, menu, etc.
+    const noDrag = e.target.closest?.('input, textarea, select, label, a, [popovertarget], [data-no-drag]')
+    if (noDrag && noDrag !== e.currentTarget) return
+    e.stopPropagation()
 
-    const { top, left, width, height } = e.target.getBoundingClientRect()
-    
-    draggedItem.update(i => {
-      i.x1 = left
-      i.y1 = top
-      i.x2 = i.x1 + width
-      i.y2 = i.y1 + height
+    const el = e.currentTarget
+    const pointerId = e.pointerId
+    el.setPointerCapture(pointerId)
 
-      i.width = width
-      i.height = height
+    const { top, left, width, height } = el.getBoundingClientRect()
+    const offsetX = e.clientX - left
+    const offsetY = e.clientY - top
+    const startX = e.clientX
+    const startY = e.clientY
 
-      i.offsetX = e.clientX - left
-      i.offsetY = e.clientY - top
+    let activated = false
+    let didMove = false
+    let activationTimer
 
-      i.id = id
-      i.isFromCal = isFromCal
+    function activate () {
+      if (activated) return
+      activated = true
+      reset()
 
-      return i
-    })
+      draggedItem.set({
+        x1: left,
+        y1: top,
+        x2: left + width,
+        y2: top + height,
+        width,
+        height,
+        offsetX,
+        offsetY,
+        kind: '',
+        id,
+        isFromCal
+      })
+
+      sourceEl = el
+      sourceEl.style.opacity = '0'
+
+      ghostEl = el.cloneNode(true)
+      if (ghostEl.id) ghostEl.removeAttribute('id')
+      ghostEl.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'))
+      Object.assign(ghostEl.style, {
+        position: 'fixed',
+        left: `${left}px`,
+        top: `${top}px`,
+        width: `${width}px`,
+        height: `${height}px`,
+        boxSizing: 'border-box',
+        margin: '0',
+        pointerEvents: 'none',
+        zIndex: '10000',
+        opacity: '0.45',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)'
+      })
+      document.body.appendChild(ghostEl)
+
+      document.addEventListener('touchmove', preventTouchScroll, { passive: false, capture: true })
+    }
+
+    if (e.pointerType === 'touch') {
+      activationTimer = setTimeout(activate, touchActivateMs)
+    }
+
+    function onMove (ev) {
+      if (ev.pointerId !== pointerId) return
+
+      if (activated) {
+        ev.preventDefault()
+        didMove = true
+        throttledPositionUpdate(ev)
+      } else if (Math.hypot(ev.clientX - startX, ev.clientY - startY) > touchSlop) {
+        if (ev.pointerType === 'touch') {
+          clearTimeout(activationTimer) // finger intends to scroll
+        } else {
+          ev.preventDefault()
+          activate()
+          didMove = true
+          throttledPositionUpdate(ev)
+        }
+      }
+    }
+
+    function onUp (ev) {
+      if (ev.pointerId !== pointerId) return
+      teardown()
+
+      if (activated && didMove) {
+        suppressClick(el)
+        const best = resolveBest($matchedDropzones)
+        bestDropzoneID.set(best)
+        if (best) {
+          hasDropped.set(true)
+          playSound('tap', 0.125)
+        } else {
+          reset()
+        }
+      } else if (activated) {
+        reset()
+      }
+    }
+
+    function onCancel (ev) {
+      if (ev.pointerId !== pointerId) return
+      teardown()
+      if (activated) reset()
+    }
+
+    function teardown () {
+      clearTimeout(activationTimer)
+      el.removeEventListener('pointermove', onMove)
+      el.removeEventListener('pointerup', onUp)
+      el.removeEventListener('pointercancel', onCancel)
+      if (el.hasPointerCapture(pointerId)) {
+        el.releasePointerCapture(pointerId)
+      }
+      document.removeEventListener('touchmove', preventTouchScroll, { capture: true })
+    }
+
+    el.addEventListener('pointermove', onMove)
+    el.addEventListener('pointerup', onUp)
+    el.addEventListener('pointercancel', onCancel)
   }
 
-  function ondragover (e) {
-    e.preventDefault() // otherwise drop is disallowed
-    e.dataTransfer.dropEffect = 'move' // explicitly define a plain effect. Without it, Mac would show a green + icon which is distracting
+  function preventTouchScroll (e) {
+    e.preventDefault()
+  }
 
-    if ($draggedItem.id) {
-      throttledPositionUpdate(e)
+  function suppressClick (el) {
+    const stop = (ev) => {
+      ev.stopImmediatePropagation()
+      ev.preventDefault()
+      el.removeEventListener('click', stop, true)
     }
+    el.addEventListener('click', stop, true)
   }
 
   function updateDraggedItemPosition (e) {
@@ -75,23 +185,15 @@
       i.y1 = e.clientY - i.offsetY
       i.x2 = i.x1 + i.width
       i.y2 = i.y1 + i.height
+      if (ghostEl) {
+        ghostEl.style.left = `${i.x1}px`
+        ghostEl.style.top = `${i.y1}px`
+      }
       return i
     })
     bestDropzoneID.set(
       resolveBest($matchedDropzones)
     )
-  }
-
-  function ondrop (e) {
-    e.preventDefault() // prevent the browser navigating to what it thinks is the newly dropped URL. Note web.dev is WRONG using e.stopPropagation() here!
-    
-    if ($draggedItem.id) {
-      bestDropzoneID.set(
-        resolveBest($matchedDropzones)
-      )
-      hasDropped.set(true)
-      playSound('tap', 0.125)
-    }
   }
 
   function resolveBest (dropzones) {
@@ -110,6 +212,14 @@
   }
 
   function reset () {
+    if (ghostEl) {
+      ghostEl.remove()
+      ghostEl = null
+    }
+    if (sourceEl) {
+      sourceEl.style.opacity = ''
+      sourceEl = null
+    }
     draggedItem.set(Empty())
     matchedDropzones.set({})
     bestDropzoneID.set('')
@@ -145,6 +255,8 @@
       }
       return zones
     })
+    // keep highlight in sync on activate (hold) as well as on move
+    bestDropzoneID.set(resolveBest(get(matchedDropzones)))
   }
 
   function intersect (a, b) {
@@ -208,6 +320,6 @@
   }
 </script>
 
-<div {ondragover} {ondrop} class="h-full">
+<div class="h-full">
   {@render children()}
 </div>
