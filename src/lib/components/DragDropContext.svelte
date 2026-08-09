@@ -79,7 +79,7 @@
       })
 
       sourceEl = el
-      sourceEl.style.opacity = '0'
+      sourceEl.style.opacity = '0.1'
 
       ghostEl = el.cloneNode(true)
       if (ghostEl.id) ghostEl.removeAttribute('id')
