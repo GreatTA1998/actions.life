@@ -30,7 +30,7 @@
           actions.life is a one-page planner
         </h1>
         <div class="col-span-3 max-w-[52ch] text-pretty text-md leading-[1.6] text-gray-600 max-[900px]:col-span-1">
-          Reminders are most effective when visible. Centralize reminders from to-do lists, calendars and habit trackers onto one screen.
+          Reminders are most effective when we can actually see them. Centralize reminders from to-do lists, calendars and habit trackers onto one screen.
         </div>
       </div>
     </div>
