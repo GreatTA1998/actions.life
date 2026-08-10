@@ -18,7 +18,7 @@
   const { 
     registerDropzone, 
     startTaskDrag, draggedItem, logicAreaRect, 
-    bestDropzoneID,  dropPreviewCSS, computeOrderValue
+    bestDropzoneID, dropPreviewCSS, computeOrderValue
    } = getContext('drag-drop')
   const { indent, rootFontSize, subFontSize, debug } = getContext('list-config')
 

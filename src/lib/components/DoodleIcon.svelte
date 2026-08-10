@@ -53,7 +53,7 @@
   ]}
   draggable="false"
   oncontextmenu={e => e.preventDefault()}
-  onpointerdown={e => startTaskDrag({ e, id: iconTask.id, isFromCal: true })}
+  onpointerdown={e => startTaskDrag({ e, id: iconTask.id })}
 />
 
 <style>

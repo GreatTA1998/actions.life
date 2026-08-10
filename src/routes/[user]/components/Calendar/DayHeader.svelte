@@ -76,7 +76,7 @@
     <div class="flex flex-col gap-y-1 px-1">
       {#each noIcon as task (task.id)}
         <div
-          onpointerdown={e => startTaskDrag({ e, id: task.id, isFromCal: true })}
+          onpointerdown={e => startTaskDrag({ e, id: task.id })}
         >
           <CalTaskUnit {task} />
         </div>
