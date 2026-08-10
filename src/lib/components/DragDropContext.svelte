@@ -41,8 +41,7 @@
       ox: e.clientX - left, oy: e.clientY - top,
       sx: e.clientX, sy: e.clientY, left, top, width, height,
       hold: e.pointerType !== 'mouse', live: false, moved: false,
-      timer: 0, frozen: null, x: e.clientX, y: e.clientY,
-      prevTA: el.style.touchAction, prevHtmlTA: document.documentElement.style.touchAction
+      timer: 0, x: e.clientX, y: e.clientY
     }
     if (drag.hold) {
       drag.timer = setTimeout(() => { if (drag?.pointerId === e.pointerId) activate() }, HOLD_MS)
@@ -54,19 +53,9 @@
     if (!d || d.live) return
     d.live = true
 
-    // Scroll lock: touch-action + preventDefault, and freeze ancestors (Boox pans anyway)
-    d.el.style.touchAction = document.documentElement.style.touchAction = 'none'
-    for (const type of ['touchmove', 'touchstart']) {
-      document.addEventListener(type, prevent, { passive: false, capture: true })
-    }
-    d.frozen = []
-    for (let n = d.el; n && n !== document.body; n = n.parentElement) {
-      if (n.scrollHeight > n.clientHeight + 1 || n.scrollWidth > n.clientWidth + 1) {
-        d.frozen.push({ n, x: n.scrollLeft, y: n.scrollTop })
-      }
-    }
-    document.addEventListener('scroll', freezeScroll, true)
-    try { d.el.setPointerCapture(d.pointerId) } catch { /* Boox */ }
+    // Hold-to-drag: touch-action is already decided for this gesture, so lock via touchmove.
+    document.addEventListener('touchmove', preventScroll, { passive: false, capture: true })
+    try { d.el.setPointerCapture(d.pointerId) } catch { /* capture unsupported */ }
 
     clearGhost()
     draggedItem.set({
@@ -86,22 +75,11 @@
     pickZone()
   }
 
-  function freezeScroll () {
-    for (const { n, x, y } of drag?.frozen ?? []) {
-      if (n.scrollLeft !== x) n.scrollLeft = x
-      if (n.scrollTop !== y) n.scrollTop = y
-    }
-  }
-  function prevent (e) { e.preventDefault() }
+  function preventScroll (e) { e.preventDefault() }
 
   function unlock (d) {
-    if (!d.frozen) return
-    for (const type of ['touchmove', 'touchstart']) {
-      document.removeEventListener(type, prevent, { capture: true })
-    }
-    document.removeEventListener('scroll', freezeScroll, true)
-    d.el.style.touchAction = d.prevTA
-    document.documentElement.style.touchAction = d.prevHtmlTA
+    if (!d.live) return
+    document.removeEventListener('touchmove', preventScroll, { capture: true })
   }
 
   /** Ghost follows pointer immediately; hit-testing is deferred to the next frame. */
@@ -113,7 +91,18 @@
     if (!hitRaf) hitRaf = requestAnimationFrame(flushHit)
   }
 
-  function onMove (e) {
+  function flushHit () {
+    hitRaf = 0
+    if (!drag?.live) return
+    draggedItem.update(i => {
+      i.x1 = drag.x - i.offsetX; i.y1 = drag.y - i.offsetY
+      i.x2 = i.x1 + i.width; i.y2 = i.y1 + i.height
+      return i
+    })
+    pickZone()
+  }
+
+  function onpointermove (e) {
     const d = drag
     if (!d || e.pointerId !== d.pointerId) return
 
@@ -129,24 +118,10 @@
     activate()
     track(e)
   }
-
-  function flushHit () {
-    hitRaf = 0
-    if (!drag?.live) return
-    draggedItem.update(i => {
-      i.x1 = drag.x - i.offsetX; i.y1 = drag.y - i.offsetY
-      i.x2 = i.x1 + i.width; i.y2 = i.y1 + i.height
-      return i
-    })
-    pickZone()
-  }
-
-  function onUp (e) { if (drag?.pointerId === e.pointerId) end(false) }
-  function onCancel (e) { if (drag?.pointerId === e.pointerId) end(true) }
-  function onLostCapture (e) {
-    if (!drag?.live || e.pointerId !== drag.pointerId) return
-    try { drag.el.setPointerCapture(drag.pointerId) } // reclaim after Chrome/Boox pan steal
-    catch { end(true) }
+  function onpointerup (e) { if (drag?.pointerId === e.pointerId) end(false) }
+  function onpointercancel (e) { if (drag?.pointerId === e.pointerId) end(true) }
+  function onlostpointercapture (e) {
+    if (drag?.live && e.pointerId === drag.pointerId) end(true)
   }
 
   function end (cancelled) {
@@ -217,10 +192,10 @@
 </script>
 
 <svelte:window
-  onpointermove={onMove}
-  onpointerup={onUp}
-  onpointercancel={onCancel}
-  onlostpointercapture={onLostCapture}
+  {onpointermove}
+  {onpointerup}
+  {onpointercancel}
+  {onlostpointercapture}
 />
 
 <div class="h-full">{@render children()}</div>
