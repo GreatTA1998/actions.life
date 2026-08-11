@@ -16,7 +16,7 @@
     border: 1px dashed rgba(var(--drag-preview), 0.6);
   `
 
-  const SLOP = 10, HOLD_SLOP = 40, HOLD_MS = 300
+  const SLOP = 10, HOLD_SLOP = 10, HOLD_MS = 300
   const zones = new Map()
   let drag = null, ghost = null, holdTimer = 0
 
@@ -27,7 +27,7 @@
 
   function startMouseDrag ({ e, id }) {
     e.stopPropagation()
-    drag = makeDrag(e.currentTarget, id, e.clientX, e.clientY, 'mouse')
+    drag = makeDrag(e.currentTarget, id, e.clientX, e.clientY)
   }
 
   function onmousemove (e) {
@@ -46,66 +46,58 @@
   }
 
   function onmouseup () {
-    if (!drag) return
-    if (drag.active) {
-      finish()
-      swallowNextClick()
-    } else {
-      abandon()
+    if (drag?.active) {
+      drop()
+      reset()
+
+      const swallow = e => e.stopImmediatePropagation()
+      document.addEventListener('click', swallow, true)
+      setTimeout(() => document.removeEventListener('click', swallow, true), 50)
     }
   }
 
   function startTouchDrag ({ e, id }) {
-    const t = e.changedTouches[0]
-    if (!t) return
     e.stopPropagation()
-    drag = makeDrag(e.currentTarget, id, t.clientX, t.clientY, 'touch', t.identifier)
-    holdTimer = setTimeout(() => {
-      if (drag?.touchId !== t.identifier) return
-      activate()
-    }, HOLD_MS)
+    const [touch] = e.changedTouches
+    drag = makeDrag(e.currentTarget, id, touch.clientX, touch.clientY)
+    holdTimer = setTimeout(activate, HOLD_MS)
   }
 
   const nonpassivetouchmove = (node) => on(node, 'touchmove', ontouchmove, { passive: false })
 
   function ontouchmove (e) {
     if (!drag) return
-    const t = touchById(e.touches, drag.touchId)
-    if (!t) return
+    const [touch] = e.touches
 
     if (drag.active) {
       e.preventDefault()
-      track(t.clientX, t.clientY)
-      return
+      track(touch.clientX, touch.clientY)
     }
 
-    // Still waiting on the hold — finger moved too far → treat as scroll
-    if (Math.hypot(t.clientX - drag.sx, t.clientY - drag.sy) > HOLD_SLOP) {
-      abandon()
+    else if (Math.hypot(touch.clientX - drag.sx, touch.clientY - drag.sy) > HOLD_SLOP) {
+      clearTimeout(holdTimer)
+      drag = null
     }
   }
 
-  function ontouchend (e) {
-    if (!drag) return
-    if (!touchById(e.changedTouches, drag.touchId)) return
-    if (drag.active) finish()
-    else abandon()
+  function ontouchend () {
+    if (drag?.active) {
+      drop()
+      reset()
+    }
   }
 
-  function ontouchcancel (e) {
-    if (!drag) return
-    if (!touchById(e.changedTouches, drag.touchId)) return
-    abandon()
+  function ontouchcancel () {
+    if (drag?.active) {
+      reset()
+    }
   }
 
-
-  function makeDrag (el, id, clientX, clientY, kind, touchId = null) {
+  function makeDrag (el, id, clientX, clientY) {
     const { left, top } = el.getBoundingClientRect()
     return {
-      kind, 
       el, 
       id, 
-      touchId,
       sx: clientX, 
       sy: clientY,
       offsetX: clientX - left, 
@@ -154,45 +146,22 @@
     pickZone()
   }
 
-  function finish () {
-    teardown()
+  function drop () {
     pickZone()
     const zone = zones.get(get(bestDropzoneID))
     if (zone) {
       zone.onDrop()
       playSound('tap', 0.125)
     }
-    reset()
   }
 
-  function abandon () {
-    teardown()
-    reset()
-  }
-
-  function teardown () {
-    if (!drag) return
-    clearTimeout(holdTimer)
+  function reset () {
+    ghost?.remove()
+    ghost = null
     drag = null
-  }
-
-  function swallowNextClick () {
-    const stop = (ev) => {
-      ev.stopImmediatePropagation()
-      ev.preventDefault()
-      disarm()
-    }
-    const disarm = () => {
-      clearTimeout(t)
-      document.removeEventListener('click', stop, true)
-    }
-    document.addEventListener('click', stop, true)
-    const t = setTimeout(disarm, 50)
-  }
-
-  function touchById (list, id) {
-    for (let i = 0; i < list.length; i++) if (list[i].identifier === id) return list[i]
-    return null
+    draggedItem.set(empty())
+    bestDropzoneID.set('')
+    clearTimeout(holdTimer)
   }
 
   function pickZone () {
@@ -216,13 +185,6 @@
     const left = Math.max(a.left, b.left), top = Math.max(a.top, b.top)
     const right = Math.min(a.right, b.right), bottom = Math.min(a.bottom, b.bottom)
     return { left, top, right, bottom, width: right - left, height: bottom - top }
-  }
-
-  function reset () {
-    ghost?.remove()
-    ghost = null
-    draggedItem.set(empty())
-    bestDropzoneID.set('')
   }
 
   function registerDropzone ({ clipRectFunction, id, onDrop, normalizeDragItemHeight = false }) {
