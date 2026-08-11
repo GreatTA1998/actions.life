@@ -18,7 +18,7 @@
 
   const SLOP = 10, HOLD_SLOP = 40, HOLD_MS = 300
   const zones = new Map()
-  let drag = null, ghost = null
+  let drag = null, ghost = null, holdTimer = 0
 
   setContext('drag-drop', {
     draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect, logicAreaRect,
@@ -26,7 +26,6 @@
   })
 
   function startMouseDrag ({ e, id }) {
-    if (e.button > 0) return
     e.stopPropagation()
     drag = makeDrag(e.currentTarget, id, e.clientX, e.clientY, 'mouse')
   }
@@ -61,7 +60,7 @@
     if (!t) return
     e.stopPropagation()
     drag = makeDrag(e.currentTarget, id, t.clientX, t.clientY, 'touch', t.identifier)
-    drag.timer = setTimeout(() => {
+    holdTimer = setTimeout(() => {
       if (drag?.touchId !== t.identifier) return
       activate()
     }, HOLD_MS)
@@ -111,15 +110,14 @@
       sy: clientY,
       offsetX: clientX - left, 
       offsetY: clientY - top,
-      active: false, 
-      timer: 0
+      active: false
     }
   }
 
   function activate () {
     if (!drag || drag.active) return
     drag.active = true
-    clearTimeout(drag.timer)
+    clearTimeout(holdTimer)
 
     const { width, height } = drag.el.getBoundingClientRect()
     const x1 = drag.sx - drag.offsetX, y1 = drag.sy - drag.offsetY
@@ -174,7 +172,7 @@
 
   function teardown () {
     if (!drag) return
-    clearTimeout(drag.timer)
+    clearTimeout(holdTimer)
     drag = null
   }
 
@@ -188,7 +186,6 @@
       clearTimeout(t)
       document.removeEventListener('click', stop, true)
     }
-    // Capture on document so we win over delegated target handlers; timeout if no click.
     document.addEventListener('click', stop, true)
     const t = setTimeout(disarm, 50)
   }
