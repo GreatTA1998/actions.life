@@ -30,16 +30,13 @@
           actions.life is a one-page planner
         </h1>
         <div class="col-span-3 max-w-[52ch] text-pretty text-md leading-[1.6] text-gray-600 max-[900px]:col-span-1">
-          Reminders are most effective when we can actually see them. Centralize reminders from to-do lists, calendars and habit trackers onto one screen.
+          Reminders are forgotten when they're out of sight. Keep them visible in the same place by integrating the to-do list and calendar together.
         </div>
       </div>
     </div>
 
     <div class="my-20 mx-auto flex w-8/10 max-md:w-[min(88vw,320px)] flex-col gap-6">
-      <SectionHeader
-        title="Playground"
-        subtitle="Try the demo account!"
-      />
+      <SectionHeader title="Interactive demo" />
 
       <div class="flex flex-col gap-8 pb-8">
         {#if !browserSupported}
@@ -57,10 +54,7 @@
     </div>
 
     <div class="my-20 flex flex-col gap-y-4">
-      <SectionHeader
-        title="Tutorial"
-        subtitle="Skip to any section!"
-      />
+      <SectionHeader title="Video Tutorial" />
       <DemoVideo />
     </div>
 
