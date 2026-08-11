@@ -1,5 +1,6 @@
 <script>
   import { setContext } from 'svelte'
+  import { on } from 'svelte/events'
   import { writable, get } from 'svelte/store'
   import { playSound } from '$lib/features/audio.js'
 
@@ -24,8 +25,6 @@
     startMouseDrag, startTouchDrag, computeOrderValue, registerDropzone
   })
 
-  // ── mouse ───────────────────────────────────────────────────────────────
-
   function startMouseDrag ({ e, id }) {
     if (e.button > 0) return
     e.stopPropagation()
@@ -33,7 +32,7 @@
   }
 
   function onmousemove (e) {
-    if (!drag || drag.kind !== 'mouse') return
+    if (!drag) return
 
     if (drag.active) {
       e.preventDefault()
@@ -48,17 +47,14 @@
   }
 
   function onmouseup () {
-    if (!drag || drag.kind !== 'mouse') return
+    if (!drag) return
     if (drag.active) {
       finish()
-      // Mouse synthesizes click after mouseup; catch it at document (Svelte delegates onclick).
       swallowNextClick()
     } else {
       abandon()
     }
   }
-
-  // ── touch ───────────────────────────────────────────────────────────────
 
   function startTouchDrag ({ e, id }) {
     const t = e.changedTouches[0]
@@ -68,9 +64,10 @@
     drag.timer = setTimeout(() => {
       if (drag?.touchId !== t.identifier) return
       activate()
-      lockScroll()
     }, HOLD_MS)
   }
+
+  const nonpassivetouchmove = (node) => on(node, 'touchmove', ontouchmove, { passive: false })
 
   function ontouchmove (e) {
     if (!drag) return
@@ -78,6 +75,7 @@
     if (!t) return
 
     if (drag.active) {
+      e.preventDefault()
       track(t.clientX, t.clientY)
       return
     }
@@ -91,41 +89,30 @@
   function ontouchend (e) {
     if (!drag) return
     if (!touchById(e.changedTouches, drag.touchId)) return
-    if (drag.active) {
-      unlockScroll()
-      finish()
-    } else {
-      abandon()
-    }
+    if (drag.active) finish()
+    else abandon()
   }
 
   function ontouchcancel (e) {
     if (!drag) return
     if (!touchById(e.changedTouches, drag.touchId)) return
-    if (drag.active) unlockScroll()
     abandon()
   }
 
-  function lockScroll () {
-    document.addEventListener('touchmove', preventScroll, { passive: false, capture: true })
-  }
-
-  function unlockScroll () {
-    document.removeEventListener('touchmove', preventScroll, { capture: true })
-  }
-
-  function preventScroll (e) { e.preventDefault() }
-
-  // ── shared ─────────────────────────────────────────────────────────────
 
   function makeDrag (el, id, clientX, clientY, kind, touchId = null) {
-    const { top, left, width, height } = el.getBoundingClientRect()
+    const { left, top } = el.getBoundingClientRect()
     return {
-      kind, el, id, touchId,
-      ox: clientX - left, oy: clientY - top,
-      sx: clientX, sy: clientY,
-      left, top, width, height,
-      active: false, moved: false, timer: 0
+      kind, 
+      el, 
+      id, 
+      touchId,
+      sx: clientX, 
+      sy: clientY,
+      offsetX: clientX - left, 
+      offsetY: clientY - top,
+      active: false, 
+      timer: 0
     }
   }
 
@@ -134,28 +121,32 @@
     drag.active = true
     clearTimeout(drag.timer)
 
-    draggedItem.set({
-      id: drag.id, width: drag.width, height: drag.height,
-      offsetX: drag.ox, offsetY: drag.oy,
-      x1: drag.left, y1: drag.top,
-      x2: drag.left + drag.width, y2: drag.top + drag.height
-    })
+    const { width, height } = drag.el.getBoundingClientRect()
+    const x1 = drag.sx - drag.offsetX, y1 = drag.sy - drag.offsetY
+    draggedItem.set({ id: drag.id, width, height, x1, y1, x2: x1 + width, y2: y1 + height })
     bestDropzoneID.set('')
     ghost = drag.el.cloneNode(true)
     ghost.removeAttribute('id')
     ghost.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'))
-    ghost.classList.add('drag-ghost')
     Object.assign(ghost.style, {
-      width: `${drag.width}px`, height: `${drag.height}px`,
-      transform: `translate3d(${drag.left}px, ${drag.top}px, 0)`
+      position: 'fixed',
+      left: '0',
+      top: '0',
+      margin: '0',
+      pointerEvents: 'none',
+      zIndex: '10000',
+      opacity: '0.5',
+      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+      width: `${width}px`,
+      height: `${height}px`,
+      transform: `translate3d(${x1}px, ${y1}px, 0)`
     })
     document.body.appendChild(ghost)
     pickZone()
   }
 
   function track (clientX, clientY) {
-    drag.moved = true
-    const x1 = clientX - drag.ox, y1 = clientY - drag.oy
+    const x1 = clientX - drag.offsetX, y1 = clientY - drag.offsetY
     ghost.style.transform = `translate3d(${x1}px, ${y1}px, 0)`
     draggedItem.update(i => {
       i.x1 = x1; i.y1 = y1
@@ -166,15 +157,12 @@
   }
 
   function finish () {
-    const { moved } = drag
     teardown()
-    if (moved) {
-      pickZone()
-      const zone = zones.get(get(bestDropzoneID))
-      if (zone) {
-        zone.onDrop()
-        playSound('tap', 0.125)
-      }
+    pickZone()
+    const zone = zones.get(get(bestDropzoneID))
+    if (zone) {
+      zone.onDrop()
+      playSound('tap', 0.125)
     }
     reset()
   }
@@ -249,7 +237,7 @@
   }
 
   function empty () {
-    return { id: '', x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0, offsetX: 0, offsetY: 0 }
+    return { id: '', x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
   }
 
   function computeOrderValue (i, rooms) {
@@ -260,25 +248,6 @@
   }
 </script>
 
-<svelte:window
-  {onmousemove}
-  {onmouseup}
-  {ontouchmove}
-  {ontouchend}
-  {ontouchcancel}
-/>
-
-<div class="h-full">{@render children()}</div>
-
-<style>
-  :global(.drag-ghost) {
-    position: fixed;
-    left: 0;
-    top: 0;
-    margin: 0;
-    pointer-events: none;
-    z-index: 10000;
-    opacity: 0.5;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  }
-</style>
+<div class="h-full" {onmousemove} {onmouseup} {@attach nonpassivetouchmove} {ontouchend} {ontouchcancel}>
+  {@render children()}
+</div>
