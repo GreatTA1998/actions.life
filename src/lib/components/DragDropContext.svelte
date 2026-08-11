@@ -16,7 +16,7 @@
     border: 1px dashed rgba(var(--drag-preview), 0.6);
   `
 
-  const SLOP = 10, HOLD_SLOP = 10, HOLD_MS = 300
+  const SLOP = 10, HOLD_SLOP = 10, HOLD_MS = 150
   const zones = new Map()
   let drag = null, ghost = null, holdTimer = 0
 

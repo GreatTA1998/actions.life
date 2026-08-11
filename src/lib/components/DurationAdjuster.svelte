@@ -18,7 +18,7 @@
     startY = prevY = e.clientY
 
     if (e.pointerType === 'touch') {
-      activationTimer = setTimeout(activate, 300)
+      activationTimer = setTimeout(activate, 150)
     } else {
       e.preventDefault()
       activate()
