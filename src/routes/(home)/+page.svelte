@@ -3,7 +3,6 @@
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import DemoVideo from './components/DemoVideo.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
-  import SectionHeader from './components/SectionHeader.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
   import SignInCard from './components/SignInCard.svelte'
@@ -36,7 +35,9 @@
     </div>
 
     <div class="my-20 mx-auto flex w-8/10 max-md:w-[min(88vw,320px)] flex-col gap-6">
-      <SectionHeader title="Interactive demo" />
+      <h2 class="m-0 uppercase font-semibold tracking-[-0.02em] text-[clamp(1.125rem,1.5vw,1.375rem)] text-gray-600">
+        Interactive demo
+      </h2>
 
       <div class="flex flex-col gap-8 pb-8">
         {#if !browserSupported}
@@ -54,7 +55,10 @@
     </div>
 
     <div class="my-20 flex flex-col gap-y-4">
-      <SectionHeader title="Video Tutorial" />
+      <h2 class="m-0 uppercase font-semibold tracking-[-0.02em] text-[clamp(1.125rem,1.5vw,1.375rem)] text-gray-600">
+        Video Tutorial
+      </h2>
+
       <DemoVideo />
     </div>
 
