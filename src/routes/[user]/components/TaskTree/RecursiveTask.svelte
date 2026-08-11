@@ -17,7 +17,7 @@
   const { openTaskPopup } = getContext('task-popup')
   const { 
     registerDropzone, 
-    startTaskDrag, draggedItem, logicAreaRect, 
+    startMouseDrag, startTouchDrag, draggedItem, logicAreaRect, 
     bestDropzoneID, dropPreviewCSS, computeOrderValue
    } = getContext('drag-drop')
   const { indent, rootFontSize, subFontSize, debug } = getContext('list-config')
@@ -69,7 +69,8 @@
       },
       normalizeDragItemHeight: true
     })}
-    onpointerdown={e => startTaskDrag({ e, id: task.id })}
+    onmousedown={e => startMouseDrag({ e, id: task.id })}
+    ontouchstart={e => startTouchDrag({ e, id: task.id })}
     style:font-size={fontSize}
     style:--task-control-width={fontSize}
     use:lazyCallable={() => hasIntersected = true}

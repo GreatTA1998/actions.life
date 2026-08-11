@@ -21,47 +21,124 @@
 
   setContext('drag-drop', {
     draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect, logicAreaRect,
-    startTaskDrag, computeOrderValue, registerDropzone
+    startMouseDrag, startTouchDrag, computeOrderValue, registerDropzone
   })
 
-  function startTaskDrag ({ e, id }) {
-    // const block = e.target.closest?.('input, textarea, select, label, a, [popovertarget], [data-no-drag]')
-    // if ((block && block !== e.currentTarget) || e.button > 0) return // stylus often sends button -1
-    e.stopPropagation()
+  // ── mouse ───────────────────────────────────────────────────────────────
 
-    const el = e.currentTarget
-    const { top, left, width, height } = el.getBoundingClientRect()
-    drag = {
-      el, 
-      id, 
-      pointerId: e.pointerId,
-      ox: e.clientX - left, 
-      oy: e.clientY - top,
-      sx: e.clientX, 
-      sy: e.clientY, left, top, width, height,
-      hold: e.pointerType !== 'mouse', 
-      live: false, 
-      moved: false,
-      timer: 0, 
-      pendingHit: false
+  function startMouseDrag ({ e, id }) {
+    if (e.button > 0) return
+    e.stopPropagation()
+    drag = makeDrag(e.currentTarget, id, e.clientX, e.clientY, 'mouse')
+  }
+
+  function onmousemove (e) {
+    if (!drag || drag.kind !== 'mouse') return
+
+    if (drag.active) {
+      e.preventDefault()
+      track(e.clientX, e.clientY)
+      return
     }
-    if (drag.hold) {
-      drag.timer = setTimeout(() => { if (drag?.pointerId === e.pointerId) activate() }, HOLD_MS)
+
+    if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > SLOP) {
+      activate()
+      track(e.clientX, e.clientY)
+    }
+  }
+
+  function onmouseup () {
+    if (!drag || drag.kind !== 'mouse') return
+    if (drag.active) {
+      finish()
+      // Mouse synthesizes click after mouseup; catch it at document (Svelte delegates onclick).
+      swallowNextClick()
+    } else {
+      abandon()
+    }
+  }
+
+  // ── touch ───────────────────────────────────────────────────────────────
+
+  function startTouchDrag ({ e, id }) {
+    const t = e.changedTouches[0]
+    if (!t) return
+    e.stopPropagation()
+    drag = makeDrag(e.currentTarget, id, t.clientX, t.clientY, 'touch', t.identifier)
+    drag.timer = setTimeout(() => {
+      if (drag?.touchId !== t.identifier) return
+      activate()
+      lockScroll()
+    }, HOLD_MS)
+  }
+
+  function ontouchmove (e) {
+    if (!drag) return
+    const t = touchById(e.touches, drag.touchId)
+    if (!t) return
+
+    if (drag.active) {
+      track(t.clientX, t.clientY)
+      return
+    }
+
+    // Still waiting on the hold — finger moved too far → treat as scroll
+    if (Math.hypot(t.clientX - drag.sx, t.clientY - drag.sy) > HOLD_SLOP) {
+      abandon()
+    }
+  }
+
+  function ontouchend (e) {
+    if (!drag) return
+    if (!touchById(e.changedTouches, drag.touchId)) return
+    if (drag.active) {
+      unlockScroll()
+      finish()
+    } else {
+      abandon()
+    }
+  }
+
+  function ontouchcancel (e) {
+    if (!drag) return
+    if (!touchById(e.changedTouches, drag.touchId)) return
+    if (drag.active) unlockScroll()
+    abandon()
+  }
+
+  function lockScroll () {
+    document.addEventListener('touchmove', preventScroll, { passive: false, capture: true })
+  }
+
+  function unlockScroll () {
+    document.removeEventListener('touchmove', preventScroll, { capture: true })
+  }
+
+  function preventScroll (e) { e.preventDefault() }
+
+  // ── shared ─────────────────────────────────────────────────────────────
+
+  function makeDrag (el, id, clientX, clientY, kind, touchId = null) {
+    const { top, left, width, height } = el.getBoundingClientRect()
+    return {
+      kind, el, id, touchId,
+      ox: clientX - left, oy: clientY - top,
+      sx: clientX, sy: clientY,
+      left, top, width, height,
+      active: false, moved: false, timer: 0
     }
   }
 
   function activate () {
-    if (!drag || drag.live) return
-    drag.live = true
+    if (!drag || drag.active) return
+    drag.active = true
+    clearTimeout(drag.timer)
 
-    // Hold-to-drag: touch-action is already decided for this gesture, so lock via touchmove.
-    document.addEventListener('touchmove', preventScroll, { passive: false, capture: true })
-    drag.el.setPointerCapture(drag.pointerId)
-
-    clearGhost()
     draggedItem.set({
-      id: drag.id, width: drag.width, height: drag.height, offsetX: drag.ox, offsetY: drag.oy,
-      x1: drag.left, y1: drag.top, x2: drag.left + drag.width, y2: drag.top + drag.height
+      id: drag.id, width: drag.width, height: drag.height,
+      offsetX: drag.ox, offsetY: drag.oy,
+      x1: drag.left, y1: drag.top,
+      x2: drag.left + drag.width, y2: drag.top + drag.height
     })
     bestDropzoneID.set('')
     ghost = drag.el.cloneNode(true)
@@ -76,70 +153,22 @@
     pickZone()
   }
 
-  function track (e) {
+  function track (clientX, clientY) {
     drag.moved = true
-    const x1 = e.clientX - drag.ox, y1 = e.clientY - drag.oy
+    const x1 = clientX - drag.ox, y1 = clientY - drag.oy
     ghost.style.transform = `translate3d(${x1}px, ${y1}px, 0)`
     draggedItem.update(i => {
       i.x1 = x1; i.y1 = y1
       i.x2 = x1 + i.width; i.y2 = y1 + i.height
       return i
     })
-    // Coalesce hit-tests to one per frame; stale rAFs no-op once drag is cleared.
-    if (!drag.pendingHit) {
-      drag.pendingHit = true
-      requestAnimationFrame(() => {
-        if (!drag) return
-        drag.pendingHit = false
-        pickZone()
-      })
-    }
+    pickZone()
   }
 
-  function onpointermove (e) {
-    if (!drag || e.pointerId !== drag.pointerId) return
-
-    if (drag.live) { e.preventDefault(); return track(e) }
-
-    const dist = Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy)
-    if (drag.hold) {
-      if (dist > HOLD_SLOP) { 
-        clearTimeout(drag.timer) 
-        drag = null 
-      }
-      return
-    }
-    if (dist <= SLOP) return
-    e.preventDefault()
-    activate()
-    track(e)
-  }
-  function onpointerup (e) { 
-    if (drag?.pointerId === e.pointerId) end(false) 
-  }
-
-  function onpointercancel (e) { 
-    if (drag?.pointerId === e.pointerId) end(true) 
-  }
-
-  function onlostpointercapture (e) {
-    if (drag?.live && e.pointerId === drag.pointerId) end(true)
-  }
-
-  function end (cancelled) {
-    if (!drag) return
-    const { el, pointerId, timer, live, moved } = drag
-    drag = null
-    clearTimeout(timer)
-    if (el.hasPointerCapture?.(pointerId)) {
-      el.releasePointerCapture(pointerId)
-    }
-    if (!live) return
-    document.removeEventListener('touchmove', preventScroll, { capture: true })
-
-    if (!cancelled && moved) {
-      const stop = (ev) => { ev.stopImmediatePropagation(); ev.preventDefault(); el.removeEventListener('click', stop, true) }
-      el.addEventListener('click', stop, true)
+  function finish () {
+    const { moved } = drag
+    teardown()
+    if (moved) {
       pickZone()
       const zone = zones.get(get(bestDropzoneID))
       if (zone) {
@@ -148,6 +177,37 @@
       }
     }
     reset()
+  }
+
+  function abandon () {
+    teardown()
+    reset()
+  }
+
+  function teardown () {
+    if (!drag) return
+    clearTimeout(drag.timer)
+    drag = null
+  }
+
+  function swallowNextClick () {
+    const stop = (ev) => {
+      ev.stopImmediatePropagation()
+      ev.preventDefault()
+      disarm()
+    }
+    const disarm = () => {
+      clearTimeout(t)
+      document.removeEventListener('click', stop, true)
+    }
+    // Capture on document so we win over delegated target handlers; timeout if no click.
+    document.addEventListener('click', stop, true)
+    const t = setTimeout(disarm, 50)
+  }
+
+  function touchById (list, id) {
+    for (let i = 0; i < list.length; i++) if (list[i].identifier === id) return list[i]
+    return null
   }
 
   function pickZone () {
@@ -173,21 +233,11 @@
     return { left, top, right, bottom, width: right - left, height: bottom - top }
   }
 
-  function clearGhost () {
+  function reset () {
     ghost?.remove()
     ghost = null
-  }
-  function reset () {
-    clearGhost()
     draggedItem.set(empty())
     bestDropzoneID.set('')
-  }
-
-  function computeOrderValue (i, rooms) {
-    const n = rooms.length
-    if (i === 0) return rooms[0] ? rooms[0].orderValue / 1.1 : 1
-    if (i === n) return rooms[n - 1].orderValue + 1
-    return (rooms[i - 1].orderValue + rooms[i].orderValue) / 2
   }
 
   function registerDropzone ({ clipRectFunction, id, onDrop, normalizeDragItemHeight = false }) {
@@ -198,20 +248,24 @@
     }
   }
 
-  function preventScroll (e) {
-    e.preventDefault()
-  }
-
   function empty () {
     return { id: '', x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0, offsetX: 0, offsetY: 0 }
+  }
+
+  function computeOrderValue (i, rooms) {
+    const n = rooms.length
+    if (i === 0) return rooms[0] ? rooms[0].orderValue / 1.1 : 1
+    if (i === n) return rooms[n - 1].orderValue + 1
+    return (rooms[i - 1].orderValue + rooms[i].orderValue) / 2
   }
 </script>
 
 <svelte:window
-  {onpointermove}
-  {onpointerup}
-  {onpointercancel}
-  {onlostpointercapture}
+  {onmousemove}
+  {onmouseup}
+  {ontouchmove}
+  {ontouchend}
+  {ontouchcancel}
 />
 
 <div class="h-full">{@render children()}</div>
@@ -224,8 +278,7 @@
     margin: 0;
     pointer-events: none;
     z-index: 10000;
-    opacity: 0.45;
+    opacity: 0.5;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    will-change: transform;
   }
 </style>
