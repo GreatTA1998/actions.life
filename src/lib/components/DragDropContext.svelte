@@ -48,12 +48,12 @@
   function onmouseup () {
     if (drag?.active) {
       drop()
-      reset()
 
       const swallow = e => e.stopImmediatePropagation()
       document.addEventListener('click', swallow, true)
       setTimeout(() => document.removeEventListener('click', swallow, true), 50)
     }
+    reset()
   }
 
   function startTouchDrag ({ e, id }) {
@@ -83,14 +83,8 @@
   function ontouchend () {
     if (drag?.active) {
       drop()
-      reset()
     }
-  }
-
-  function ontouchcancel () {
-    if (drag?.active) {
-      reset()
-    }
+    reset()
   }
 
   function makeDrag (el, id, clientX, clientY) {
@@ -207,6 +201,6 @@
   }
 </script>
 
-<div class="h-full" {onmousemove} {onmouseup} {@attach nonpassivetouchmove} {ontouchend} {ontouchcancel}>
+<div class="h-full" {onmousemove} {onmouseup} {@attach nonpassivetouchmove} {ontouchend} ontouchcancel={reset}>
   {@render children()}
 </div>
