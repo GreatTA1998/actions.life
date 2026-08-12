@@ -117,7 +117,7 @@
     ghost.style.borderRadius = getComputedStyle(source).borderRadius
     ghost.replaceChildren(clone)
     ghost.showPopover()
-    pickZone()
+    pickZone() // provides UI indication that drag is activated
   }
 
   function hitTest (clientX, clientY) {
