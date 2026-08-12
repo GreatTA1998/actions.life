@@ -31,7 +31,6 @@
   } = $props()
 
   const id = randomID()
-  let circular = $derived([task.id, ...ancestorIDs].includes($draggedItem.id))
 
   let n = $derived(task.children.length)
   let fontSize = $derived(depth === 1 ? rootFontSize() : subFontSize())
@@ -49,6 +48,10 @@
       debugColor
     }
   }
+
+  function circular () {
+    return [task.id, ...ancestorIDs].includes($draggedItem.id)
+  }
 </script>
 
 <div class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
@@ -57,7 +60,7 @@
       id, 
       clipRectFunction: $logicAreaRect,
       onDrop () {
-        if (circular) return
+        if (circular()) return
         return Task.update({
           id: $draggedItem.id,
           kvChanges: {
@@ -77,7 +80,7 @@
     style:background-image={hasIntersected && hasImage && false
       ? `linear-gradient(rgba(0, 0, 0, 0.5), transparent), url(${task.imageDownloadURL})`
       : 'none'}
-    style="{$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS) : ''}"
+    style="{$bestDropzoneID === id ? (circular() ? 'background-color: red;' : dropPreviewCSS) : ''}"
     style:border-radius="var(--left-padding)"
     class={[
       'flex flex-col select-none',

@@ -3,7 +3,7 @@
     id,
     clipRectFunction: $logicAreaRect, 
     onDrop () {
-      if (circular) return
+      if (circular()) return
       return Task.update({
         id: $draggedItem.id,
         kvChanges: {
@@ -38,7 +38,7 @@
     height: {parentID === '' ? dzRootHeight() : dzSubHeight()}; 
     border-radius: var(--left-padding);
     border: {debug() ? 1 : 0}px solid {debugColor}; 
-    {$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS ) : ''}
+    {$bestDropzoneID === id ? (circular() ? 'background-color: red;' : dropPreviewCSS ) : ''}
     {extraStyle};
   "
 ></div>
@@ -67,5 +67,8 @@
 
   const id = randomID()
   let anchorID = $derived(`--dropzone-${id}`)
-  let circular = $derived(ancestorIDs.includes($draggedItem.id))
+
+  function circular () {
+    return ancestorIDs.includes($draggedItem.id)
+  }
 </script>

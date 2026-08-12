@@ -28,6 +28,11 @@ export const WIDTHS = Object.freeze({
 
 export const MOBILE_SAFE_INSET = 48
 
+export const TOUCH = Object.freeze({
+  HOLD_MS: 150,
+  SLOP: 5,
+})
+
 export function translateJSConstantsToCSSVariables () {
   for (const [key, value] of Object.entries(WIDTHS)) {
     document.documentElement.style.setProperty(

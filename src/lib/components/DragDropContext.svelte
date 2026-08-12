@@ -1,24 +1,24 @@
 <script>
   import { setContext } from 'svelte'
   import { on } from 'svelte/events'
-  import { writable, get } from 'svelte/store'
+  import { writable } from 'svelte/store'
   import { playSound } from '$lib/features/audio.js'
+  import { TOUCH } from '$lib/utils/constants.js'
 
   let { children } = $props()
 
-  const unbound = () => ({ left: 0, top: 0, right: Infinity, bottom: Infinity })
   const draggedItem = writable(empty())
   const bestDropzoneID = writable('')
-  const scrollCalRect = writable(unbound)
-  const logicAreaRect = writable(unbound)
+  const scrollCalRect = writable(() => ({ left: 0, top: 0, right: Infinity, bottom: Infinity }))
+  const logicAreaRect = writable(() => ({ left: 0, top: 0, right: Infinity, bottom: Infinity }))
   const dropPreviewCSS = `
     background-color: rgba(var(--drag-preview), 0.15);
     border: 1px dashed rgba(var(--drag-preview), 0.6);
   `
 
-  const SLOP = 10, HOLD_SLOP = 10, HOLD_MS = 150
   const zones = new Map()
-  let drag = null, ghost = null, holdTimer = 0
+  let holdTimer = 0
+  let ghost = null
 
   setContext('drag-drop', {
     draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect, logicAreaRect,
@@ -27,29 +27,30 @@
 
   function startMouseDrag ({ e, id }) {
     e.stopPropagation()
-    drag = makeDrag(e.currentTarget, id, e.clientX, e.clientY)
+    draggedItem.set(makeDrag(e.currentTarget, id, e.clientX, e.clientY))
   }
 
   function onmousemove (e) {
-    if (!drag) return
+    if (!$draggedItem.id) return
 
-    if (drag.active) {
+    if ($draggedItem.active) {
       e.preventDefault()
       track(e.clientX, e.clientY)
-      return
     }
 
-    if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > SLOP) {
+    else if (Math.hypot(e.clientX - $draggedItem.sx, e.clientY - $draggedItem.sy) > 2) { // minimum required distance
       activate()
       track(e.clientX, e.clientY)
     }
   }
 
   function onmouseup () {
-    if (drag?.active) {
+    if ($draggedItem.active) {
       drop()
 
-      const swallow = e => e.stopImmediatePropagation()
+      function swallow (e) {
+        e.stopImmediatePropagation()
+      }
       document.addEventListener('click', swallow, true)
       setTimeout(() => document.removeEventListener('click', swallow, true), 50)
     }
@@ -59,29 +60,27 @@
   function startTouchDrag ({ e, id }) {
     e.stopPropagation()
     const [touch] = e.changedTouches
-    drag = makeDrag(e.currentTarget, id, touch.clientX, touch.clientY)
-    holdTimer = setTimeout(activate, HOLD_MS)
+    draggedItem.set(makeDrag(e.currentTarget, id, touch.clientX, touch.clientY))
+    holdTimer = setTimeout(activate, TOUCH.HOLD_MS)
   }
 
-  const nonpassivetouchmove = (node) => on(node, 'touchmove', ontouchmove, { passive: false })
-
   function ontouchmove (e) {
-    if (!drag) return
+    if (!$draggedItem.id) return
     const [touch] = e.touches
 
-    if (drag.active) {
+    if ($draggedItem.active) {
       e.preventDefault()
       track(touch.clientX, touch.clientY)
     }
 
-    else if (Math.hypot(touch.clientX - drag.sx, touch.clientY - drag.sy) > HOLD_SLOP) {
+    else if (Math.hypot(touch.clientX - $draggedItem.sx, touch.clientY - $draggedItem.sy) > TOUCH.SLOP) {
       clearTimeout(holdTimer)
-      drag = null
+      draggedItem.set(empty())
     }
   }
 
   function ontouchend () {
-    if (drag?.active) {
+    if ($draggedItem.active) {
       drop()
     }
     reset()
@@ -90,48 +89,34 @@
   function makeDrag (el, id, clientX, clientY) {
     const { left, top } = el.getBoundingClientRect()
     return {
-      el, 
-      id, 
-      sx: clientX, 
-      sy: clientY,
-      offsetX: clientX - left, 
-      offsetY: clientY - top,
-      active: false
+      el, id, sx: clientX, sy: clientY,
+      offsetX: clientX - left, offsetY: clientY - top,
+      active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0
     }
   }
 
   function activate () {
-    if (!drag || drag.active) return
-    drag.active = true
+    if (!$draggedItem.id || $draggedItem.active) return
     clearTimeout(holdTimer)
 
-    const { width, height } = drag.el.getBoundingClientRect()
-    const x1 = drag.sx - drag.offsetX, y1 = drag.sy - drag.offsetY
-    draggedItem.set({ id: drag.id, width, height, x1, y1, x2: x1 + width, y2: y1 + height })
+    const source = $draggedItem.el
+    const { width, height } = source.getBoundingClientRect()
+    const x1 = $draggedItem.sx - $draggedItem.offsetX, y1 = $draggedItem.sy - $draggedItem.offsetY
+    draggedItem.set({ ...$draggedItem, active: true, width, height, x1, y1, x2: x1 + width, y2: y1 + height })
     bestDropzoneID.set('')
-    ghost = drag.el.cloneNode(true)
-    ghost.removeAttribute('id')
-    ghost.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'))
-    Object.assign(ghost.style, {
-      position: 'fixed',
-      left: '0',
-      top: '0',
-      margin: '0',
-      pointerEvents: 'none',
-      zIndex: '10000',
-      opacity: '0.5',
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-      width: `${width}px`,
-      height: `${height}px`,
-      transform: `translate3d(${x1}px, ${y1}px, 0)`
-    })
-    document.body.appendChild(ghost)
+
+    const clone = source.cloneNode(true)
+    clone.removeAttribute('id')
+    clone.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'))
+    Object.assign(clone.style, { width: '100%', height: '100%', margin: '0' })
+    ghost.style.borderRadius = getComputedStyle(source).borderRadius
+    ghost.replaceChildren(clone)
+    ghost.showPopover()
     pickZone()
   }
 
   function track (clientX, clientY) {
-    const x1 = clientX - drag.offsetX, y1 = clientY - drag.offsetY
-    ghost.style.transform = `translate3d(${x1}px, ${y1}px, 0)`
+    const x1 = clientX - $draggedItem.offsetX, y1 = clientY - $draggedItem.offsetY
     draggedItem.update(i => {
       i.x1 = x1; i.y1 = y1
       i.x2 = x1 + i.width; i.y2 = y1 + i.height
@@ -142,7 +127,7 @@
 
   function drop () {
     pickZone()
-    const zone = zones.get(get(bestDropzoneID))
+    const zone = zones.get($bestDropzoneID)
     if (zone) {
       zone.onDrop()
       playSound('tap', 0.125)
@@ -150,23 +135,19 @@
   }
 
   function reset () {
-    ghost?.remove()
-    ghost = null
-    drag = null
+    clearTimeout(holdTimer)
+    ghost.hidePopover()
     draggedItem.set(empty())
     bestDropzoneID.set('')
-    clearTimeout(holdTimer)
   }
 
   function pickZone () {
-    const item = get(draggedItem)
-    if (!item.id) { bestDropzoneID.set(''); return }
     let best = '', max = 0, bestLeft = -Infinity
     for (const [id, z] of zones) {
-      const bottom = z.normalizeDragItemHeight ? item.y1 + 12 : item.y2
+      const bottom = z.normalizeDragItemHeight ? $draggedItem.y1 + 12 : $draggedItem.y2
       const zone = intersect(z.node.getBoundingClientRect(), z.clipRectFunction())
-      const hit = intersect({ left: item.x1, top: item.y1, right: item.x2, bottom }, zone)
-      if (hit.width <= 0 || hit.height <= 0) continue
+      const hit = intersect({ left: $draggedItem.x1, top: $draggedItem.y1, right: $draggedItem.x2, bottom }, zone)
+      if (hit.width <= 0 || hit.height <= 0) continue // negative values
       const area = hit.width * hit.height
       if (area > max || (area === max && zone.left > bestLeft)) {
         max = area; best = id; bestLeft = zone.left
@@ -184,13 +165,12 @@
   function registerDropzone ({ clipRectFunction, id, onDrop, normalizeDragItemHeight = false }) {
     return (node) => {
       zones.set(id, { node, clipRectFunction, onDrop, normalizeDragItemHeight })
-      if (get(draggedItem).id) pickZone()
-      return () => { if (zones.get(id)?.node === node) zones.delete(id) }
+      return () => zones.delete(id)
     }
   }
 
   function empty () {
-    return { id: '', x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
+    return { id: '', el: null, sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
   }
 
   function computeOrderValue (i, rooms) {
@@ -201,6 +181,19 @@
   }
 </script>
 
-<div class="h-full" {onmousemove} {onmouseup} {@attach nonpassivetouchmove} {ontouchend} ontouchcancel={reset}>
+<div class="h-full" {onmousemove} {onmouseup} 
+  {@attach node => on(node, 'touchmove', ontouchmove, { passive: false })} 
+  {ontouchend} 
+  ontouchcancel={reset}
+>
   {@render children()}
 </div>
+
+<div
+  bind:this={ghost}
+  popover="manual"
+  class={['top-0 left-0 pointer-events-none opacity-50 shadow-[0_8px_24px_rgba(0,0,0,0.12)]']}
+  style:width="{$draggedItem.width}px"
+  style:height="{$draggedItem.height}px"
+  style:transform="translate3d({$draggedItem.x1}px, {$draggedItem.y1}px, 0)"
+></div>
