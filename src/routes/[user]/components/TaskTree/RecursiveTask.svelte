@@ -17,8 +17,8 @@
   const { openTaskPopup } = getContext('task-popup')
   const { 
     registerDropzone, 
-    startTaskDrag, draggedItem, logicAreaRect, 
-    bestDropzoneID,  dropPreviewCSS, computeOrderValue
+    startMouseDrag, startTouchDrag, draggedItem, logicAreaRect, 
+    bestDropzoneID, dropPreviewCSS, computeOrderValue
    } = getContext('drag-drop')
   const { indent, rootFontSize, subFontSize, debug } = getContext('list-config')
 
@@ -31,7 +31,6 @@
   } = $props()
 
   const id = randomID()
-  let circular = $derived([task.id, ...ancestorIDs].includes($draggedItem.id))
 
   let n = $derived(task.children.length)
   let fontSize = $derived(depth === 1 ? rootFontSize() : subFontSize())
@@ -49,17 +48,20 @@
       debugColor
     }
   }
+
+  function circular () {
+    return [task.id, ...ancestorIDs].includes($draggedItem.id)
+  }
 </script>
 
 <div class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
-  <div draggable="true"
+  <div
     {@attach registerDropzone({ 
       id, 
       clipRectFunction: $logicAreaRect,
       onDrop () {
-        if (circular) return 
-
-        Task.update({ 
+        if (circular()) return
+        return Task.update({
           id: $draggedItem.id,
           kvChanges: {
             parentID: task.id,
@@ -70,14 +72,15 @@
       },
       normalizeDragItemHeight: true
     })}
-    ondragstart={e => startTaskDrag({ e, id: task.id })}
+    onmousedown={e => startMouseDrag({ e, id: task.id })}
+    ontouchstart={e => startTouchDrag({ e, id: task.id })}
     style:font-size={fontSize}
     style:--task-control-width={fontSize}
     use:lazyCallable={() => hasIntersected = true}
     style:background-image={hasIntersected && hasImage && false
       ? `linear-gradient(rgba(0, 0, 0, 0.5), transparent), url(${task.imageDownloadURL})`
       : 'none'}
-    style="{$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS) : ''}"
+    style="{$bestDropzoneID === id ? (circular() ? 'background-color: red;' : dropPreviewCSS) : ''}"
     style:border-radius="var(--left-padding)"
     class={[
       'flex flex-col select-none',

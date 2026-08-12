@@ -57,7 +57,7 @@
       }
     },
     onDrop () {
-      Task.update({ 
+      return Task.update({
         id: $draggedItem.id,
         kvChanges: {
           startTime: minutesToHHmm(minutesSinceMidnight($draggedItem.y1, $calSnapInterval)),

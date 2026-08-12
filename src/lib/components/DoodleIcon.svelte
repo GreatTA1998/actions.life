@@ -3,7 +3,7 @@
 
   const { Task } = getContext('app')
   const { openTaskPopup } = getContext('task-popup')
-  const { startTaskDrag } = getContext('drag-drop')
+  const { startMouseDrag, startTouchDrag } = getContext('drag-drop')
 
   let { 
     iconTask, 
@@ -51,8 +51,10 @@
     whiteVariant && 'monochrome',
     'ios-reset select-none'
   ]}
-  draggable="true"
-  ondragstart={e => startTaskDrag({ e, id: iconTask.id, isFromCal: true })}
+  draggable="false"
+  oncontextmenu={e => e.preventDefault()}
+  onmousedown={e => startMouseDrag({ e, id: iconTask.id })}
+  ontouchstart={e => startTouchDrag({ e, id: iconTask.id })}
 />
 
 <style>

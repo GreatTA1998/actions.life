@@ -2,8 +2,8 @@
   {#if height < 24 && !task.imageDownloadURL}
     <div 
       onclick={() => openTaskPopup(task)}
-      ondragstart={e => startTaskDrag({ e, id: task.id })} 
-      draggable="true" 
+      onmousedown={e => startMouseDrag({ e, id: task.id })}
+      ontouchstart={e => startTouchDrag({ e, id: task.id })}
       class={[
         'relative min-h-[12px] flex flex-col gap-y-1',
       ]}
@@ -20,8 +20,8 @@
   {:else}
     <div 
       onclick={() => openTaskPopup(task)}
-      ondragstart={e => startTaskDrag({ e, id: task.id })} 
-      draggable="true" 
+      onmousedown={e => startMouseDrag({ e, id: task.id })}
+      ontouchstart={e => startTouchDrag({ e, id: task.id })}
       class={[
         'relative flex flex-col min-h-[24px] gap-y-0',
         'bg-cover bg-center bg-no-repeat',
@@ -67,7 +67,7 @@
     </div>
   {/if}
 
-  <!-- absolute positioned -->
+  <!-- absolutely positioned -->
   <DurationAdjuster {task} 
     onChange={newVal => previewDuration = newVal}
     onInput={async () => {
@@ -95,7 +95,7 @@
   
   const { Task } = getContext('app')
   const { openTaskPopup } = getContext('task-popup')
-  const { startTaskDrag } = getContext('drag-drop')
+  const { startMouseDrag, startTouchDrag } = getContext('drag-drop')
 
   let { task = null } = $props() // assumes `task` is hydrated
   

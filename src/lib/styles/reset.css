@@ -1,6 +1,8 @@
 * {
   box-sizing: border-box;
   font-family: 'Inter Variable', sans-serif;
+  -webkit-tap-highlight-color: transparent; /* kill Android press flash */
+  user-select: none;
 }
 
 /* gotcha: only enjoy this reset when using Tailwind's flex */
@@ -10,10 +12,10 @@
   /* <button> is styled directly with display: inline-flex, so doesn't receive `min-width: 0` */
 }
 
-/* prevent accidental going back page */
 /* https://stackoverflow.com/questions/30636930/disable-web-page-navigation-on-swipeback-and-forward?rq=1 */
 html, body {
-  overscroll-behavior-x: none;
+  overscroll-behavior-x: none; /* prevent accidental going back page */
+  overscroll-behavior-y: none; /* prevents pull-to-refresh */
   touch-action: manipulation; /* prevents iOS double tap to zoom */
 }
 
@@ -35,6 +37,7 @@ input {
   outline-color: transparent;
   padding: 0;
   border: none;
+  user-select: text;
 }
 
 input:focus-visible {
@@ -45,6 +48,7 @@ textarea {
   background: transparent;
   border: none;
   resize: none;
+  user-select: text;
 }
 
 textarea:focus-visible {
@@ -77,6 +81,7 @@ h1, h2, h3, h4, h5, h6, p {
   margin: 0;
   font-weight: inherit;
   font-size: inherit;
+  user-select: text;
 }
 
 a {
