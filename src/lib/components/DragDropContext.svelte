@@ -19,7 +19,6 @@
   const zones = new Map()
   let holdTimer = 0
   let ghost = null
-  let raf = 0, rafX = 0, rafY = 0
 
   setContext('drag-drop', {
     draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect, logicAreaRect,
@@ -61,14 +60,13 @@
   function startTouchDrag ({ e, id }) {
     e.stopPropagation()
     const [touch] = e.changedTouches
-    draggedItem.set(initDrag(e.currentTarget, id, touch.clientX, touch.clientY, touch.identifier))
+    draggedItem.set(initDrag(e.currentTarget, id, touch.clientX, touch.clientY))
     holdTimer = setTimeout(activate, TOUCH.HOLD_MS)
   }
 
   function ontouchmove (e) {
     if (!$draggedItem.id) return
-    const touch = sameTouch(e.touches)
-    if (!touch) return
+    const [touch] = e.touches
 
     if ($draggedItem.active) {
       e.preventDefault()
@@ -81,27 +79,23 @@
     }
   }
 
-  function ontouchend (e) {
-    if (sameTouch(e.touches)) return
-    else {
-      if ($draggedItem.active) drop()
-      reset()
-    }
-  }
-
-  function ontouchcancel (e) {
-    if (sameTouch(e.touches)) return
+  function ontouchend () {
+    if ($draggedItem.active) drop()
     reset()
   }
 
-  function initDrag (el, id, clientX, clientY, tid = -1) {
+  function ontouchcancel () {
+    reset()
+  }
+
+  function initDrag (el, id, clientX, clientY) {
     const { left, top } = el.getBoundingClientRect()
     return {
-      el, id, tid, 
-      active: false, 
+      el, id,
+      active: false,
       sx: clientX, sy: clientY,
       offsetX: clientX - left, offsetY: clientY - top,
-      x1: 0, y1: 0, x2: 0, y2: 0, 
+      x1: 0, y1: 0, x2: 0, y2: 0,
       width: 0, height: 0
     }
   }
@@ -127,18 +121,13 @@
   }
 
   function hitTest (clientX, clientY) {
-    rafX = clientX; rafY = clientY // which affects the already scheduled rAF to use these new values
-    if (raf) return
-    raf = requestAnimationFrame(() => {
-      raf = 0
-      const x1 = rafX - $draggedItem.offsetX, y1 = rafY - $draggedItem.offsetY
-      draggedItem.update(i => {
-        i.x1 = x1; i.y1 = y1
-        i.x2 = x1 + i.width; i.y2 = y1 + i.height
-        return i
-      })
-      pickZone()
+    const x1 = clientX - $draggedItem.offsetX, y1 = clientY - $draggedItem.offsetY
+    draggedItem.update(i => {
+      i.x1 = x1; i.y1 = y1
+      i.x2 = x1 + i.width; i.y2 = y1 + i.height
+      return i
     })
+    pickZone()
   }
 
   function drop () {
@@ -152,7 +141,6 @@
 
   function reset () {
     clearTimeout(holdTimer)
-    cancelAnimationFrame(raf)
     ghost.hidePopover()
     draggedItem.set(empty())
     bestDropzoneID.set('')
@@ -187,11 +175,7 @@
   }
 
   function empty () {
-    return { id: '', el: null, tid: -1, sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
-  }
-
-  function sameTouch (list) {
-    return [...list].find(t => t.identifier === $draggedItem.tid)
+    return { id: '', el: null, sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
   }
 
   function computeOrderValue (i, rooms) {
@@ -212,8 +196,16 @@
 <div
   bind:this={ghost}
   popover="manual"
-  class={['top-0 left-0 pointer-events-none opacity-50 shadow-[0_8px_24px_rgba(0,0,0,0.12)]']}
+  class="my-drag-image top-0 left-0 opacity-50 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
   style:width="{$draggedItem.width}px"
   style:height="{$draggedItem.height}px"
   style:transform="translate3d({$draggedItem.x1}px, {$draggedItem.y1}px, 0)"
 ></div>
+
+<style>
+  .my-drag-image {
+    pointer-events: none; /* interferes with the actual drag */
+    overflow: hidden; /* otherwise scrollbar appears */
+    background: transparent; /* on iOS, background: Canvas causes it to be invisible */
+  }
+</style>
