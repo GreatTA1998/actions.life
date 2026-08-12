@@ -19,6 +19,7 @@
   const zones = new Map()
   let holdTimer = 0
   let ghost = null
+  let raf = 0, rafX = 0, rafY = 0
 
   setContext('drag-drop', {
     draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect, logicAreaRect,
@@ -35,12 +36,12 @@
 
     if ($draggedItem.active) {
       e.preventDefault()
-      track(e.clientX, e.clientY)
+      hitTest(e.clientX, e.clientY)
     }
 
     else if (Math.hypot(e.clientX - $draggedItem.sx, e.clientY - $draggedItem.sy) > 2) { // minimum required distance
       activate()
-      track(e.clientX, e.clientY)
+      hitTest(e.clientX, e.clientY)
     }
   }
 
@@ -71,7 +72,7 @@
 
     if ($draggedItem.active) {
       e.preventDefault()
-      track(touch.clientX, touch.clientY)
+      hitTest(touch.clientX, touch.clientY)
     }
 
     else if (Math.hypot(touch.clientX - $draggedItem.sx, touch.clientY - $draggedItem.sy) > TOUCH.SLOP) {
@@ -125,14 +126,19 @@
     pickZone()
   }
 
-  function track (clientX, clientY) {
-    const x1 = clientX - $draggedItem.offsetX, y1 = clientY - $draggedItem.offsetY
-    draggedItem.update(i => {
-      i.x1 = x1; i.y1 = y1
-      i.x2 = x1 + i.width; i.y2 = y1 + i.height
-      return i
+  function hitTest (clientX, clientY) {
+    rafX = clientX; rafY = clientY // which affects the already scheduled rAF to use these new values
+    if (raf) return
+    raf = requestAnimationFrame(() => {
+      raf = 0
+      const x1 = rafX - $draggedItem.offsetX, y1 = rafY - $draggedItem.offsetY
+      draggedItem.update(i => {
+        i.x1 = x1; i.y1 = y1
+        i.x2 = x1 + i.width; i.y2 = y1 + i.height
+        return i
+      })
+      pickZone()
     })
-    pickZone()
   }
 
   function drop () {
@@ -146,6 +152,7 @@
 
   function reset () {
     clearTimeout(holdTimer)
+    cancelAnimationFrame(raf)
     ghost.hidePopover()
     draggedItem.set(empty())
     bestDropzoneID.set('')
