@@ -147,15 +147,16 @@
   }
 
   function pickZone () {
+    const { x1, y1, x2, y2 } = $draggedItem
     let best = '', max = 0, bestLeft = -Infinity
-    for (const [id, z] of zones) {
-      const bottom = z.normalizeDragItemHeight ? $draggedItem.y1 + 12 : $draggedItem.y2
-      const zone = intersect(z.node.getBoundingClientRect(), z.clipRectFunction())
-      const hit = intersect({ left: $draggedItem.x1, top: $draggedItem.y1, right: $draggedItem.x2, bottom }, zone)
+    for (const [id, zone] of zones) {
+      const bottom = zone.normalizeDragItemHeight ? y1 + 12 : y2
+      const clippedZone = intersect(zone.node.getBoundingClientRect(), zone.clipRectFunction())
+      const hit = intersect({ left: x1, top: y1, right: x2, bottom }, clippedZone)
       if (hit.width <= 0 || hit.height <= 0) continue // negative values
       const area = hit.width * hit.height
-      if (area > max || (area === max && zone.left > bestLeft)) {
-        max = area; best = id; bestLeft = zone.left
+      if (area > max || (area === max && clippedZone.left > bestLeft)) {
+        max = area; best = id; bestLeft = clippedZone.left
       }
     }
     bestDropzoneID.set(best)
