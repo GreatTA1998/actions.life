@@ -27,7 +27,7 @@
 
   function startMouseDrag ({ e, id }) {
     e.stopPropagation()
-    draggedItem.set(makeDrag(e.currentTarget, id, e.clientX, e.clientY))
+    draggedItem.set(initDrag(e.currentTarget, id, e.clientX, e.clientY))
   }
 
   function onmousemove (e) {
@@ -60,13 +60,14 @@
   function startTouchDrag ({ e, id }) {
     e.stopPropagation()
     const [touch] = e.changedTouches
-    draggedItem.set(makeDrag(e.currentTarget, id, touch.clientX, touch.clientY))
+    draggedItem.set(initDrag(e.currentTarget, id, touch.clientX, touch.clientY, touch.identifier))
     holdTimer = setTimeout(activate, TOUCH.HOLD_MS)
   }
 
   function ontouchmove (e) {
     if (!$draggedItem.id) return
-    const [touch] = e.touches
+    const touch = sameTouch(e.touches)
+    if (!touch) return
 
     if ($draggedItem.active) {
       e.preventDefault()
@@ -79,19 +80,28 @@
     }
   }
 
-  function ontouchend () {
-    if ($draggedItem.active) {
-      drop()
+  function ontouchend (e) {
+    if (sameTouch(e.touches)) return
+    else {
+      if ($draggedItem.active) drop()
+      reset()
     }
+  }
+
+  function ontouchcancel (e) {
+    if (sameTouch(e.touches)) return
     reset()
   }
 
-  function makeDrag (el, id, clientX, clientY) {
+  function initDrag (el, id, clientX, clientY, tid = -1) {
     const { left, top } = el.getBoundingClientRect()
     return {
-      el, id, sx: clientX, sy: clientY,
+      el, id, tid, 
+      active: false, 
+      sx: clientX, sy: clientY,
       offsetX: clientX - left, offsetY: clientY - top,
-      active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0
+      x1: 0, y1: 0, x2: 0, y2: 0, 
+      width: 0, height: 0
     }
   }
 
@@ -170,7 +180,11 @@
   }
 
   function empty () {
-    return { id: '', el: null, sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
+    return { id: '', el: null, tid: -1, sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
+  }
+
+  function sameTouch (list) {
+    return [...list].find(t => t.identifier === $draggedItem.tid)
   }
 
   function computeOrderValue (i, rooms) {
@@ -183,8 +197,7 @@
 
 <div class="h-full" {onmousemove} {onmouseup} 
   {@attach node => on(node, 'touchmove', ontouchmove, { passive: false })} 
-  {ontouchend} 
-  ontouchcancel={reset}
+  {ontouchend} {ontouchcancel}
 >
   {@render children()}
 </div>
