@@ -1,71 +1,44 @@
 <div class="relative z-0">
-  {#if height < 24 && !task.imageDownloadURL}
-    <div 
-      onclick={() => openTaskPopup(task)}
-      onmousedown={e => startMouseDrag({ e, id: task.id })}
-      ontouchstart={e => startTouchDrag({ e, id: task.id })}
-      class={[
-        'relative min-h-[12px] flex flex-col gap-y-1',
-      ]}
-      style={`height: ${height}px;`}
+  <div 
+    onclick={() => openTaskPopup(task)}
+    onmousedown={e => startMouseDrag({ e, id: task.id })}
+    ontouchstart={e => startTouchDrag({ e, id: task.id })}
+    class={[calendarBlock, 'relative flex flex-col gap-y-0', 'bg-cover bg-center bg-no-repeat']}
+    style={`
+      height: ${height}px;
+      min-height: fit-content;
+      background-color: rgba(255, 255, 255, 0.4);
+      border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
+    `}
+    style:background-image={hasIntersected && task.imageDownloadURL ? `url(${task.imageDownloadURL})` : 'none'}
+    use:lazyCallable={() => hasIntersected = true}
+  >
+    <div class="shrink-0"
+      style:padding="var(--left-padding)"
+      style:border-radius="var(--left-padding)"
+      style:background={task.imageDownloadURL ? `linear-gradient(${COLORS.OVERLAY_DARKEST}, transparent)` : ''}
     >
-      <div class="flex items-center w-full">
-        <CalTaskUnit {task} color="var(--task-name-color)">
-          {#snippet icon ()}
-            <DoodleIcon iconTask={task} size={titleFS} scaleToFit />
-          {/snippet}
-        </CalTaskUnit>
+      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'}>
+        {#snippet icon ()}
+          <DoodleIcon 
+            iconTask={task} 
+            size={titleFS} 
+            whiteVariant={task.imageDownloadURL}
+            scaleToFit 
+          />
+        {/snippet}
+      </CalTaskUnit>
+    </div>
+      
+    <div class="grow-1 overflow-hidden" style:padding="0 var(--left-padding)">
+      <div style="
+        color: {task.imageDownloadURL ? 'white' : 'oklch(43.9% 0 0)'};"
+        class="text-xs"
+      >
+        {task.notes}
       </div>
     </div>
-  {:else}
-    <div 
-      onclick={() => openTaskPopup(task)}
-      onmousedown={e => startMouseDrag({ e, id: task.id })}
-      ontouchstart={e => startTouchDrag({ e, id: task.id })}
-      class={[
-        'relative flex flex-col min-h-[24px] gap-y-0',
-        'bg-cover bg-center bg-no-repeat',
-        calendarBlock
-      ]}
-      style={`
-        height: ${height}px;
-        background-color: rgba(255, 255, 255, 0.4);
-        border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
-      `}
-      style:background-image={hasIntersected && task.imageDownloadURL
-        ? `url(${task.imageDownloadURL})`
-        : 'none'}
-      use:lazyCallable={() => hasIntersected = true}
-    >
-      <div class="shrink-0"
-        style:padding="var(--left-padding)"
-        style:border-radius="var(--left-padding)"
-        style:background={task.imageDownloadURL ? `linear-gradient(${COLORS.OVERLAY_DARKEST}, transparent)` : ''}
-      >
-        <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'}>
-          {#snippet icon ()}
-            <DoodleIcon 
-              iconTask={task} 
-              size={titleFS} 
-              whiteVariant={task.imageDownloadURL}
-              scaleToFit 
-            />
-          {/snippet}
-        </CalTaskUnit>
-      </div>
-        
-      <div class="grow-1 overflow-hidden" 
-        style:padding="0 var(--left-padding)"
-      >
-        <div style="
-          color: {task.imageDownloadURL ? 'white' : 'oklch(43.9% 0 0)'};"
-          class="text-xs"
-        >
-          {task.notes}
-        </div>
-      </div>
-    </div>
-  {/if}
+  </div>
 
   <!-- absolutely positioned -->
   <DurationAdjuster {task} 
