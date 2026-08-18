@@ -9,17 +9,27 @@
     style,
     listWidth,
     trees = null,
-    parentID = ''
+    parentID = '',
+    indent = '2rem',
+    rootFontSize = '1rem',
+    subFontSize = '0.875rem',
+    startDepth = 1,
+    rootDropzoneHeight = undefined,
+    subDropzoneHeight = undefined,
+    clipRectFunction = undefined,
+    unscheduleOnDrop = false,
+    from = 'list'
   } = $props()
 
   const { activateInput } = getContext('popover-input')
+  const { logicAreaRect } = getContext('drag-drop')
   const anchorID = `--dropzone-root-last-${randomID()}`
 
-  const dzRootHeight = $derived(`${parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE}rem`)
-  const dzSubHeight = $derived(`${HEIGHTS.SUB_DROPZONE}rem`)
-  const rootFontSize = '1rem'
-  const subFontSize = '0.875rem'
-  const indent = '2rem'
+  const dzRootHeight = $derived(
+    rootDropzoneHeight ?? `${parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE}rem`
+  )
+  const dzSubHeight = $derived(subDropzoneHeight ?? `${HEIGHTS.SUB_DROPZONE}rem`)
+  const ancestorIDs = $derived(parentID ? [parentID] : [''])
 
   setContext('list-config', { 
     debug: () => false,
@@ -27,14 +37,17 @@
     dzRootHeight: () => dzRootHeight,
     dzSubHeight: () => dzSubHeight,
     rootFontSize: () => rootFontSize,
-    subFontSize: () => subFontSize
+    subFontSize: () => subFontSize,
+    clipRectFunction: () => clipRectFunction ?? $logicAreaRect,
+    unscheduleOnDrop: () => unscheduleOnDrop,
+    from: () => from
   })
 
   function dzProps (idx, debugColor = 'purple') {
     return {
       parentID,
       idxInThisLevel: idx,
-      ancestorIDs: [''],
+      ancestorIDs,
       roomsInThisLevel: trees,
       debugColor
     }
@@ -65,8 +78,8 @@
         >  
           <RecursiveTask 
             {task} 
-            depth={1} 
-            ancestorIDs={['']} 
+            depth={startDepth} 
+            {ancestorIDs}
           />
         </div>
       </div>

@@ -40,7 +40,8 @@
     id: dropzoneID,
     onDrop: () => Task.update({ id: $draggedItem.id, kvChanges: {
       startTime: '',
-      startDateISO: ISODate
+      startDateISO: ISODate,
+      ...($draggedItem.from === 'event' ? { parentID: '' } : {})
     }})
   })}
   class="text-neutral-700 bg-[var(--cal-bg)]"
@@ -76,8 +77,8 @@
     <div class="flex flex-col gap-y-1 px-1">
       {#each noIcon as task (task.id)}
         <div
-          onmousedown={e => startMouseDrag({ e, id: task.id })}
-          ontouchstart={e => startTouchDrag({ e, id: task.id })}
+          onmousedown={e => startMouseDrag({ e, id: task.id, from: 'calendar' })}
+          ontouchstart={e => startTouchDrag({ e, id: task.id, from: 'calendar' })}
         >
           <CalTaskUnit {task} />
         </div>

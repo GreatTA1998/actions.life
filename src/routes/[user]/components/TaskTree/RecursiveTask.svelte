@@ -17,10 +17,10 @@
   const { openTaskPopup } = getContext('task-popup')
   const { 
     registerDropzone, 
-    startMouseDrag, startTouchDrag, draggedItem, logicAreaRect, 
+    startMouseDrag, startTouchDrag, draggedItem, 
     bestDropzoneID, dropPreviewCSS, computeOrderValue
    } = getContext('drag-drop')
-  const { indent, rootFontSize, subFontSize, debug } = getContext('list-config')
+  const { indent, rootFontSize, subFontSize, debug, clipRectFunction, unscheduleOnDrop, from } = getContext('list-config')
 
   let {
     task,
@@ -58,7 +58,9 @@
   <div
     {@attach registerDropzone({ 
       id, 
-      clipRectFunction: $logicAreaRect,
+      clipRectFunction: clipRectFunction(),
+      ignoreIf: circular,
+      normalizeDragItemHeight: true,
       onDrop () {
         if (circular()) return
         return Task.update({
@@ -66,14 +68,14 @@
           kvChanges: {
             parentID: task.id,
             orderValue: computeOrderValue(0, task.children),
-            onList: true
+            onList: true,
+            ...(unscheduleOnDrop() || $draggedItem.from !== 'list' ? { startTime: '', startDateISO: '' } : {})
           }
         })
-      },
-      normalizeDragItemHeight: true
+      }
     })}
-    onmousedown={e => startMouseDrag({ e, id: task.id })}
-    ontouchstart={e => startTouchDrag({ e, id: task.id })}
+    onmousedown={e => startMouseDrag({ e, id: task.id, from: from() })}
+    ontouchstart={e => startTouchDrag({ e, id: task.id, from: from() })}
     style:font-size={fontSize}
     style:--task-control-width={fontSize}
     use:lazyCallable={() => hasIntersected = true}
@@ -95,7 +97,7 @@
         {@render verticalTimeline?.()}
         
         {#if task.iconURL}
-          <DoodleIcon iconTask={task} size="1rem" scaleToFit />
+          <DoodleIcon iconTask={task} size={fontSize} scaleToFit />
         {:else}
           <Checkbox value={task.isDone} {fontSize}
             onchange={e => Task.update({ id: task.id, 
@@ -137,8 +139,9 @@
       {/if}
 
       {#if n > 0}
-        <SubtaskCountIndicator extraClass="min-w-fit"       
+        <SubtaskCountIndicator extraClass="min-w-fit" collapsible
           {task} {fontSize}
+          color="var(--fine-control-color)"
           onclick={() =>   
             document.startViewTransition(() => {
               Task.update({ 

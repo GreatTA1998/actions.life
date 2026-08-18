@@ -4,6 +4,7 @@
   const { Task } = getContext('app')
   const { openTaskPopup } = getContext('task-popup')
   const { startMouseDrag, startTouchDrag } = getContext('drag-drop')
+  const listConfig = getContext('list-config')
 
   let { 
     iconTask, 
@@ -53,8 +54,8 @@
   ]}
   draggable="false"
   oncontextmenu={e => e.preventDefault()}
-  onmousedown={e => startMouseDrag({ e, id: iconTask.id })}
-  ontouchstart={e => startTouchDrag({ e, id: iconTask.id })}
+  onmousedown={e => startMouseDrag({ e, id: iconTask.id, from: listConfig?.from() ?? 'calendar' })}
+  ontouchstart={e => startTouchDrag({ e, id: iconTask.id, from: listConfig?.from() ?? 'calendar' })}
 />
 
 <style>

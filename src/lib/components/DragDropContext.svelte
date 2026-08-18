@@ -16,18 +16,21 @@
     border: 1px dashed rgba(var(--drag-preview), 0.6);
   `
 
+  const LIST_HIT_H = 12
+
   const zones = new Map()
   let holdTimer = 0
   let ghost = null
+  let hitDebug = null
 
   setContext('drag-drop', {
     draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect, logicAreaRect,
     startMouseDrag, startTouchDrag, computeOrderValue, registerDropzone
   })
 
-  function startMouseDrag ({ e, id }) {
+  function startMouseDrag ({ e, id, from = '' }) {
     e.stopPropagation()
-    draggedItem.set(initDrag(e.currentTarget, id, e.clientX, e.clientY))
+    draggedItem.set(initDrag(e.currentTarget, id, e.clientX, e.clientY, from))
   }
 
   function onmousemove (e) {
@@ -57,10 +60,10 @@
     reset()
   }
 
-  function startTouchDrag ({ e, id }) {
+  function startTouchDrag ({ e, id, from = '' }) {
     e.stopPropagation()
     const [touch] = e.changedTouches
-    draggedItem.set(initDrag(e.currentTarget, id, touch.clientX, touch.clientY))
+    draggedItem.set(initDrag(e.currentTarget, id, touch.clientX, touch.clientY, from))
     holdTimer = setTimeout(activate, TOUCH.HOLD_MS)
   }
 
@@ -88,10 +91,10 @@
     reset()
   }
 
-  function initDrag (el, id, clientX, clientY) {
+  function initDrag (el, id, clientX, clientY, from = '') {
     const { left, top } = el.getBoundingClientRect()
     return {
-      el, id,
+      el, id, from,
       active: false,
       sx: clientX, sy: clientY,
       offsetX: clientX - left, offsetY: clientY - top,
@@ -117,6 +120,7 @@
     ghost.style.borderRadius = getComputedStyle(source).borderRadius
     ghost.replaceChildren(clone)
     ghost.showPopover()
+    hitDebug.showPopover()
     pickZone() // provides UI indication that drag is activated
   }
 
@@ -142,6 +146,7 @@
   function reset () {
     clearTimeout(holdTimer)
     ghost.hidePopover()
+    hitDebug.hidePopover()
     draggedItem.set(empty())
     bestDropzoneID.set('')
   }
@@ -150,13 +155,16 @@
     const { x1, y1, x2, y2 } = $draggedItem
     let best = '', max = 0, bestLeft = -Infinity
     for (const [id, zone] of zones) {
-      const bottom = zone.normalizeDragItemHeight ? y1 + 12 : y2
+      if (zone.ignoreIf?.()) continue
+      const bottom = zone.normalizeDragItemHeight ? y1 + LIST_HIT_H : y2
       const clippedZone = intersect(zone.node.getBoundingClientRect(), zone.clipRectFunction())
       const hit = intersect({ left: x1, top: y1, right: x2, bottom }, clippedZone)
-      if (hit.width <= 0 || hit.height <= 0) continue // negative values
+      if (hit.width <= 0 || hit.height <= 0) continue
       const area = hit.width * hit.height
       if (area > max || (area === max && clippedZone.left > bestLeft)) {
-        max = area; best = id; bestLeft = clippedZone.left
+        max = area
+        best = id
+        bestLeft = clippedZone.left
       }
     }
     bestDropzoneID.set(best)
@@ -168,15 +176,15 @@
     return { left, top, right, bottom, width: right - left, height: bottom - top }
   }
 
-  function registerDropzone ({ clipRectFunction, id, onDrop, normalizeDragItemHeight = false }) {
+  function registerDropzone ({ clipRectFunction, id, onDrop, ignoreIf, normalizeDragItemHeight = false }) {
     return (node) => {
-      zones.set(id, { node, clipRectFunction, onDrop, normalizeDragItemHeight })
+      zones.set(id, { node, clipRectFunction, onDrop, ignoreIf, normalizeDragItemHeight })
       return () => zones.delete(id)
     }
   }
 
   function empty () {
-    return { id: '', el: null, sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
+    return { id: '', el: null, from: '', sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
   }
 
   function computeOrderValue (i, rooms) {
@@ -201,6 +209,20 @@
   style:width="{$draggedItem.width}px"
   style:height="{$draggedItem.height}px"
   style:transform="translate3d({$draggedItem.x1}px, {$draggedItem.y1}px, 0)"
+></div>
+
+<!-- debug: list hit rect (viewport left/top). Calendar zones use the full ghost height instead. -->
+<div
+  bind:this={hitDebug}
+  popover="manual"
+  class="pointer-events-none"
+  style:left="{$draggedItem.x1}px"
+  style:top="{$draggedItem.y1}px"
+  style:width="{$draggedItem.width}px"
+  style:height="{LIST_HIT_H}px"
+  style:background="rgba(255, 0, 255, 0.35)"
+  style:outline="2px solid magenta"
+  style:outline-offset="-2px"
 ></div>
 
 <style>

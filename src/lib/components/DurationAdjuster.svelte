@@ -5,6 +5,7 @@
 
   let { 
     task, 
+    minDuration = 1,
     onChange = () => {},
     onInput = () => {}
   } = $props()
@@ -70,7 +71,7 @@
   }
 
   function updateDuration (clientY) {
-    onChange(Math.max(1, task.duration + (clientY - startY) / ($pixelsPerHour / 60)))
+    onChange(Math.max(minDuration, task.duration + (clientY - startY) / ($pixelsPerHour / 60)))
   }
 </script>
 

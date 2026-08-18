@@ -57,13 +57,12 @@
       }
     },
     onDrop () {
-      return Task.update({
-        id: $draggedItem.id,
-        kvChanges: {
-          startTime: minutesToHHmm(minutesSinceMidnight($draggedItem.y1, $calSnapInterval)),
-          startDateISO: dt.toFormat('yyyy-MM-dd')
-        }
-      })
+      const kvChanges = {
+        startTime: minutesToHHmm(minutesSinceMidnight($draggedItem.y1, $calSnapInterval)),
+        startDateISO: dt.toFormat('yyyy-MM-dd')
+      }
+      if ($draggedItem.from === 'event') kvChanges.parentID = ''
+      return Task.update({ id: $draggedItem.id, kvChanges })
     }
   })}
   style:width="{$calColumnWidth}px"

@@ -1,7 +1,9 @@
 <div 
   {@attach registerDropzone({ 
     id,
-    clipRectFunction: $logicAreaRect, 
+    clipRectFunction: clipRectFunction(),
+    ignoreIf: circular,
+    normalizeDragItemHeight: true,
     onDrop () {
       if (circular()) return
       return Task.update({
@@ -9,11 +11,11 @@
         kvChanges: {
           parentID,
           orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
-          onList: true
+          onList: true,
+          ...(unscheduleOnDrop() || $draggedItem.from !== 'list' ? { startTime: '', startDateISO: '' } : {})
         }
       })
-    },
-    normalizeDragItemHeight: true
+    }
   })}
   onclick={e => {
     e.stopPropagation(); // since dropzones stack
@@ -50,9 +52,9 @@
   const { Task } = getContext('app')
   const { 
     registerDropzone, bestDropzoneID, dropPreviewCSS,
-    draggedItem, logicAreaRect, computeOrderValue
+    draggedItem, computeOrderValue
   } = getContext('drag-drop')
-  const { dzRootHeight, dzSubHeight, debug } = getContext('list-config')
+  const { dzRootHeight, dzSubHeight, debug, clipRectFunction, unscheduleOnDrop } = getContext('list-config')
   const { activateInput, overrideOptions } = getContext('popover-input')
 
   let {
