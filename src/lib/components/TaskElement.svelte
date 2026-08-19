@@ -10,8 +10,17 @@
           bottom
         }
       },
-      id: task.id,
-      onDrop: () => { console.log("hello" )},
+      id: dropzoneID,
+      ignoreIf: circular,
+      onDrop () {
+        if (circular()) return
+        return Task.update({
+          id: $draggedItem.id,
+          kvChanges: {
+            parentID: task.id
+          }
+        })
+      },
       normalizeDragItemHeight: true
     })}
     onclick={() => openTaskPopup(task)}
@@ -22,11 +31,12 @@
       'bg-cover bg-center bg-no-repeat',
       calendarBlock
     ]}
-    style={`
-      height: ${height}px;
+    style="
+      height: {height}px;
       background-color: rgba(255, 255, 255, 0.4);
-      border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
-    `}
+      border: {task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
+      {$bestDropzoneID === dropzoneID ? (circular() ? 'background-color: red;' : dropPreviewCSS) : ''}
+    "
     style:background-image={hasIntersected && task.imageDownloadURL
       ? `url(${task.imageDownloadURL})`
       : 'none'}
@@ -94,13 +104,30 @@
   import { pixelsPerHour, headerHeight, timestampsColumnWidth  } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
   
-  const { Task } = getContext('app')
+  const { Task, treesByID } = getContext('app')
   const { openTaskPopup } = getContext('task-popup')
-  const { startMouseDrag, startTouchDrag, registerDropzone, scrollCalRect } = getContext('drag-drop')
+  const { 
+    startMouseDrag, startTouchDrag, registerDropzone, scrollCalRect,
+    bestDropzoneID, dropPreviewCSS, draggedItem
+  } = getContext('drag-drop')
 
   let { task = null } = $props() // assumes `task` is hydrated
   
   let previewDuration = $state(0)
   let height = $derived((previewDuration || task.duration) * $pixelsPerHour / 60)
   let hasIntersected = $state(false)
+  const dropzoneID = $derived(`--task-element-${task.id}`)
+
+  function circular () {
+    if ($draggedItem.id === task.id) return true
+    let node = $treesByID[task.id] ?? task
+    const seen = new Set()
+    while (node.parentID) {
+      if (node.parentID === $draggedItem.id) return true
+      if (seen.has(node.id)) break
+      seen.add(node.id)
+      node = $treesByID[node.parentID]
+    }
+    return false
+  }
 </script>
