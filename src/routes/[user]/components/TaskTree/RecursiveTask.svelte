@@ -162,10 +162,12 @@
     {#if task.notes}
       <button onclick={() => openTaskPopup(task)}
         style:margin-left="calc(var(--task-control-width) + 0.25rem)"
-        class="text-left text-xs leading-[1.25] max-w-[45ch] line-clamp-2"
+        class="text-left text-xs leading-[1.25] max-w-[45ch]"
         style:color="oklch(43.9% 0 0)"
       >
-        {task.notes}
+        <span class="grow-1 line-clamp-2">
+          {task.notes}
+        </span>
       </button>
     {/if}
   </div>
