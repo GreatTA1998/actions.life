@@ -102,7 +102,7 @@
   >
     <YearAndMonthTile height={$headerHeight} {viewportLeft} {originDT} />
 
-    <div id="scroll-parent" bind:this={scrollParent}
+    <div id="scroll-parent" bind:this={scrollParent} data-drag-origin="cal"
       use:jumpToToday class="relative hide-scrollbar bg-[var(--cal-bg)]" style:overflow="auto" 
       on:scroll={e => scrollX = e.target.scrollLeft + $timestampsColumnWidth }
     >

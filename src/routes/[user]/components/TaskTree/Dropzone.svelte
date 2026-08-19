@@ -2,22 +2,10 @@
   {@attach registerDropzone({ 
     id,
     clipRectFunction: clipRectFunction(),
-    ignoreIf: circular,
-    onDrop () {
-      if (circular()) return
-      return Task.update({
-        id: $draggedItem.id,
-        kvChanges: {
-          parentID,
-          orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
-          onList: true,
-          ...($draggedItem.from !== DragFrom.ListArea ? { startTime: '', startDateISO: '' } : {})
-        }
-      })
-    }
+    onDrop: () => placeOnList({ parentID, rooms: roomsInThisLevel, index: idxInThisLevel })
   })}
   onclick={e => {
-    e.stopPropagation(); // since dropzones stack
+    e.stopPropagation();
     activateInput({
       anchorID,
       fontSize: parentID === '' ? rootFontSize() : subFontSize(),
@@ -40,26 +28,23 @@
     height: {parentID === '' ? dzRootHeight() : dzSubHeight()}; 
     border-radius: var(--left-padding);
     border: {debug() ? 1 : 0}px solid {debugColor}; 
-    {$bestDropzoneID === id ? (circular() ? 'background-color: red;' : dropPreviewCSS ) : ''}
+    {$bestDropzoneID === id ? dropPreviewCSS : ''}
     {extraStyle};
   "
 ></div>
 
 <script>
   import { randomID } from '$lib/utils/core.js'
-  import { DragFrom } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
   const { 
     registerDropzone, bestDropzoneID, dropPreviewCSS,
-    draggedItem, computeOrderValue
+    computeOrderValue, placeOnList
   } = getContext('drag-drop')
   const { dzRootHeight, dzSubHeight, debug, clipRectFunction, rootFontSize, subFontSize } = getContext('list-config')
   const { activateInput, overrideOptions } = getContext('popover-input')
 
   let {
-    ancestorIDs,
     roomsInThisLevel,
     idxInThisLevel,
     parentID = '',
@@ -70,8 +55,4 @@
 
   const id = randomID()
   let anchorID = $derived(`--dropzone-${id}`)
-
-  function circular () {
-    return ancestorIDs.includes($draggedItem.id)
-  }
 </script>

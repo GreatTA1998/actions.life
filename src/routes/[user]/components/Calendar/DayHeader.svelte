@@ -2,16 +2,16 @@
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
-  import { HEIGHTS, DragFrom } from '$lib/utils/constants.js'
+  import { HEIGHTS } from '$lib/utils/constants.js'
   import { googleEventsByDate } from '$lib/store'
-  import { headerHeight, isCompact, calColumnWidth, timestampsColumnWidth } from './store.js'
+  import { headerHeight, isCompact, calColumnWidth, timestampsColumnWidth, calHeaderClip } from './store.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
 
-  const { Task, treesByDate } = getContext('app')
+  const { treesByDate } = getContext('app')
   const { activateInput } = getContext('popover-input')
   const { 
-    registerDropzone,
+    registerDropzone, placeOnCal,
     draggedItem, scrollCalRect, startMouseDrag, startTouchDrag,
     bestDropzoneID, dropPreviewCSS
   } = getContext('drag-drop')
@@ -21,31 +21,13 @@
   let ISODate = $derived(dt.toFormat('yyyy-MM-dd'))
   let dropzoneID = $derived('header: ' + dt.toFormat('yyyy-MM-dd'))
   let anchorID = $derived(`--day-header-${dt.toFormat('yyyy-MM-dd')}`)
-
-  function calHeaderArea () {
-    // left clipping is most important, everything else is inconsequential
-    const { left, right, top } = $scrollCalRect()
-    return {
-      left: left + $timestampsColumnWidth, 
-      right, 
-      top, 
-      bottom: top + $headerHeight
-    }
-  }
 </script>
 
 <div 
   {@attach registerDropzone({
-    clipRectFunction: calHeaderArea,
+    clipRectFunction: () => calHeaderClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight),
     id: dropzoneID,
-    onDrop () {
-      const kvChanges = {
-        startTime: '',
-        startDateISO: ISODate
-      }
-      if ($draggedItem.from === DragFrom.TaskElement) kvChanges.parentID = ''
-      return Task.update({ id: $draggedItem.id, kvChanges })
-    }
+    onDrop: () => placeOnCal({ startTime: '', startDateISO: ISODate })
   })}
   class="text-neutral-700 bg-[var(--cal-bg)]"
   style:width="{$calColumnWidth}px"
@@ -80,8 +62,8 @@
     <div class="flex flex-col gap-y-1 px-1">
       {#each noIcon as task (task.id)}
         <div
-          onmousedown={e => startMouseDrag({ e, id: task.id, from: DragFrom.DayColumn })}
-          ontouchstart={e => startTouchDrag({ e, id: task.id, from: DragFrom.DayColumn })}
+          onmousedown={e => startMouseDrag({ e, id: task.id })}
+          ontouchstart={e => startTouchDrag({ e, id: task.id })}
         >
           <CalTaskUnit {task} />
         </div>

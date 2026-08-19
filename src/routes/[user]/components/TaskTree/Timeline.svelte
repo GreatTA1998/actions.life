@@ -11,8 +11,7 @@
   let { 
     children = [], 
     depth, 
-    parentID, 
-    ancestorIDs = []
+    parentID
   } = $props()
   
   const { openTaskPopup } = getContext('task-popup')
@@ -100,7 +99,6 @@
   function dzProps (i) {
     return {
       idxInThisLevel: i,
-      ancestorIDs: [parentID, ...ancestorIDs],
       roomsInThisLevel: allSorted,
       parentID: parentID,
       debugColor,
@@ -110,8 +108,7 @@
   function renderTask (node, depth) {
     return {
       task: node,
-      depth,
-      ancestorIDs: [parentID, ...ancestorIDs]
+      depth
     }
   }
 </script>

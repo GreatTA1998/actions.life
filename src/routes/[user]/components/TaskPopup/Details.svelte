@@ -76,7 +76,6 @@
       />
 
       <DragDropContext>
-      <!-- viewTransitionClass="dialog-list-item" -->
         <TodoList trees={$ancestralTree.children}
           listWidth="100%"
           parentID={task.id}

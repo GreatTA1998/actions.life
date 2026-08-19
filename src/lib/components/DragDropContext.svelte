@@ -1,15 +1,15 @@
 <script>
-  import { onDestroy, setContext } from 'svelte'
+  import { onDestroy, setContext, getContext } from 'svelte'
   import { writable } from 'svelte/store'
   import { playSound } from '$lib/features/audio.js'
   import { TOUCH } from '$lib/utils/constants.js'
 
   let { children } = $props()
 
+  const { Task } = getContext('app')
   const draggedItem = writable(empty())
   const bestDropzoneID = writable('')
   const scrollCalRect = writable(() => ({ left: 0, top: 0, right: Infinity, bottom: Infinity }))
-  const logicAreaRect = writable(() => ({ left: 0, top: 0, right: Infinity, bottom: Infinity }))
   const dropPreviewCSS = `
     background-color: rgba(var(--drag-preview), 0.15);
     border: 1px dashed rgba(var(--drag-preview), 0.6);
@@ -22,16 +22,17 @@
   let pending = null
 
   setContext('drag-drop', {
-    draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect, logicAreaRect,
-    startMouseDrag, startTouchDrag, computeOrderValue, registerDropzone
+    draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect,
+    startMouseDrag, startTouchDrag, computeOrderValue, registerDropzone,
+    placeOnList, placeOnCal
   })
 
   onDestroy(reset)
 
-  function startMouseDrag ({ e, id, from = '' }) {
+  function startMouseDrag ({ e, id }) {
     e.stopPropagation()
     if (pending || $draggedItem.id) return
-    pending = initDrag(e.currentTarget, id, e.clientX, e.clientY, from)
+    pending = initDrag(e.currentTarget, id, e.clientX, e.clientY)
     listen(window, 'mousemove', onmousemove)
     listen(window, 'mouseup', onmouseup)
   }
@@ -50,7 +51,6 @@
   function onmouseup () {
     if ($draggedItem.active) {
       drop()
-
       function swallow (e) {
         e.stopImmediatePropagation()
       }
@@ -60,11 +60,11 @@
     reset()
   }
 
-  function startTouchDrag ({ e, id, from = '' }) {
+  function startTouchDrag ({ e, id }) {
     e.stopPropagation()
     if (pending || $draggedItem.id) return
     const [touch] = e.changedTouches
-    pending = initDrag(e.currentTarget, id, touch.clientX, touch.clientY, from)
+    pending = initDrag(e.currentTarget, id, touch.clientX, touch.clientY)
     holdTimer = setTimeout(activate, TOUCH.HOLD_MS)
     listen(window, 'touchmove', ontouchmove, { passive: false })
     listen(window, 'touchend', ontouchend)
@@ -73,7 +73,6 @@
 
   function ontouchmove (e) {
     const [touch] = e.touches
-
     if ($draggedItem.active) {
       e.preventDefault()
       hitTest(touch.clientX, touch.clientY)
@@ -92,10 +91,14 @@
     reset()
   }
 
-  function initDrag (el, id, clientX, clientY, from = '') {
+  function originOf (el) {
+    return el.closest('[data-drag-origin]')?.dataset.dragOrigin ?? 'list'
+  }
+
+  function initDrag (el, id, clientX, clientY) {
     const { left, top } = el.getBoundingClientRect()
     return {
-      el, id, from,
+      el, id, origin: originOf(el),
       active: false,
       sx: clientX, sy: clientY,
       offsetX: clientX - left, offsetY: clientY - top,
@@ -122,7 +125,7 @@
     ghost.style.borderRadius = getComputedStyle(source).borderRadius
     ghost.replaceChildren(clone)
     ghost.showPopover()
-    pickZone() // provides UI indication that drag is activated
+    pickZone()
   }
 
   function hitTest (clientX, clientY) {
@@ -163,14 +166,35 @@
     unsub = []
   }
 
+  function overflowParents (node) {
+    const clips = []
+    for (let p = node.parentElement; p && p !== document.documentElement; p = p.parentElement) {
+      const { overflow, overflowX, overflowY } = getComputedStyle(p)
+      if (overflow !== 'visible' || overflowX !== 'visible' || overflowY !== 'visible') clips.push(p)
+    }
+    return clips
+  }
+
+  function visibleRect (zone) {
+    let r = zone.node.getBoundingClientRect()
+    for (const el of zone.clips) r = intersect(r, el.getBoundingClientRect())
+    if (zone.clipRectFunction) r = intersect(r, zone.clipRectFunction())
+    return r
+  }
+
+  function insideDragged (node) {
+    const id = $draggedItem.id
+    return id && node.closest(`[data-task-id="${CSS.escape(id)}"]`)
+  }
+
   function pickZone () {
     const { x1, y1, x2 } = $draggedItem
     const hits = []
     for (const [id, zone] of zones) {
       if (zone.ignoreIf?.()) continue
-      const bottom = y1 + 1 // hitbox
-      const clippedZone = intersect(zone.node.getBoundingClientRect(), zone.clipRectFunction())
-      const hit = intersect({ left: x1, top: y1, right: x2, bottom }, clippedZone)
+      if (insideDragged(zone.node)) continue
+      const clippedZone = visibleRect(zone)
+      const hit = intersect({ left: x1, top: y1, right: x2, bottom: y1 + 1 }, clippedZone)
       if (hit.width <= 0 || hit.height <= 0) continue
       hits.push({ id, node: zone.node, area: hit.width * hit.height, left: clippedZone.left })
     }
@@ -195,13 +219,13 @@
 
   function registerDropzone ({ clipRectFunction, id, onDrop, ignoreIf }) {
     return (node) => {
-      zones.set(id, { node, clipRectFunction, onDrop, ignoreIf })
+      zones.set(id, { node, clips: overflowParents(node), clipRectFunction, onDrop, ignoreIf })
       return () => zones.delete(id)
     }
   }
 
   function empty () {
-    return { id: '', el: null, from: '', sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
+    return { id: '', el: null, origin: 'list', sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
   }
 
   function computeOrderValue (i, rooms) {
@@ -209,6 +233,25 @@
     if (i === 0) return rooms[0] ? rooms[0].orderValue / 1.1 : 1
     if (i === n) return rooms[n - 1].orderValue + 1
     return (rooms[i - 1].orderValue + rooms[i].orderValue) / 2
+  }
+
+  function placeOnList ({ parentID, rooms, index, unschedule = false }) {
+    const kvChanges = {
+      parentID,
+      orderValue: computeOrderValue(index, rooms),
+      onList: true
+    }
+    if (unschedule || $draggedItem.origin !== 'list') {
+      kvChanges.startTime = ''
+      kvChanges.startDateISO = ''
+    }
+    return Task.update({ id: $draggedItem.id, kvChanges })
+  }
+
+  function placeOnCal ({ startDateISO, startTime }) {
+    const kvChanges = { startDateISO, startTime }
+    if ($draggedItem.origin === 'nested-cal') kvChanges.parentID = ''
+    return Task.update({ id: $draggedItem.id, kvChanges })
   }
 </script>
 
@@ -227,8 +270,8 @@
 
 <style>
   .my-drag-image {
-    pointer-events: none; /* interferes with the actual drag */
-    overflow: hidden; /* otherwise scrollbar appears */
-    background: transparent; /* on iOS, background: Canvas causes it to be invisible */
+    pointer-events: none;
+    overflow: hidden;
+    background: transparent;
   }
 </style>

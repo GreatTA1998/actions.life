@@ -1,34 +1,24 @@
 <div class="relative z-0">
   <div 
-    bind:this={blockEl}
+    data-task-id={task.id}
     {@attach registerDropzone({
       id,
       clipRectFunction: calClipRect,
-      ignoreIf: () => circular() || alreadyChild(),
+      ignoreIf: skip,
       onDrop () {
-        if (circular() || alreadyChild()) return
         const rooms = task.children ?? []
-        return Task.update({
-          id: $draggedItem.id,
-          kvChanges: {
-            parentID: task.id,
-            orderValue: computeOrderValue(rooms.length, rooms),
-            onList: true,
-            startTime: '',
-            startDateISO: ''
-          }
-        })
+        return placeOnList({ parentID: task.id, rooms, index: rooms.length, unschedule: true })
       }
     })}
     onclick={() => openTaskPopup(task)}
-    onmousedown={e => startMouseDrag({ e, id: task.id, from: DragFrom.DayColumn })}
-    ontouchstart={e => startTouchDrag({ e, id: task.id, from: DragFrom.DayColumn })}
+    onmousedown={e => startMouseDrag({ e, id: task.id })}
+    ontouchstart={e => startTouchDrag({ e, id: task.id })}
     class={[calendarBlock, 'relative overflow-hidden', 'bg-cover bg-center bg-no-repeat']}
     style={`
       height: ${height}px;
       background-color: rgba(255, 255, 255, 0.4);
       border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
-      ${$bestDropzoneID === id ? (circular() ? 'background-color: red;' : dropPreviewCSS) : ''}
+      ${$bestDropzoneID === id ? dropPreviewCSS : ''}
     `}
     style:min-height={`calc(${titleFS} + var(--left-padding) * 2)`}
     style:background-image={hasIntersected && task.imageDownloadURL ? `url(${task.imageDownloadURL})` : 'none'}
@@ -63,30 +53,21 @@
     {/if}
 
     {#if nestedTasks.length}
-      <div class="overflow-hidden pointer-events-none"
+      <div
+        class="overflow-hidden pointer-events-none"
+        data-drag-origin="nested-cal"
         style:padding="0 var(--left-padding) 0 calc(var(--left-padding) + {titleFS})"
-        onclick={e => e.stopPropagation()}
-        onmousedown={e => e.stopPropagation()}
-        ontouchstart={e => e.stopPropagation()}
       >
         <TodoList
           trees={nestedTasks}
-          listWidth="fit-content"
           parentID={task.id}
-          indent="0.75rem"
-          rootFontSize={notesFS}
-          subFontSize={notesFS}
-          startDepth={2}
-          rootDropzoneHeight="0.25rem"
-          subDropzoneHeight="0.25rem"
-          clipRectFunction={nestedClipRect}
-          from={DragFrom.TaskElement}
+          compact
+          clipRectFunction={calClipRect}
         />
       </div>
     {/if}
   </div>
 
-  <!-- absolutely positioned -->
   <DurationAdjuster {task}
     onChange={newVal => previewDuration = newVal}
     onInput={async () => {
@@ -94,7 +75,6 @@
         id: task.id, 
         kvChanges: { duration: snap(previewDuration, $calSnapInterval) } 
       })
-      // let snapshot listener resolve via 1 macrotask, so there is no flash of height change between previewDuration and task.duration
       setTimeout(() => previewDuration = 0, 0)
     }}
   />
@@ -105,71 +85,49 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
-  import { COLORS, DragFrom } from '$lib/utils/constants.js'
+  import { COLORS } from '$lib/utils/constants.js'
   import { snap, randomID } from '$lib/utils/core.js'
   import { calSnapInterval } from '$lib/store'
   import { lazyCallable } from '$lib/utils/svelteActions.js'
-  import { calendarBlock, titleFS, notesFS } from '$lib/styles/reused.module.css'
-  import { pixelsPerHour, timestampsColumnWidth, headerHeight } from '/src/routes/[user]/components/Calendar/store.js'
+  import { calendarBlock, titleFS } from '$lib/styles/reused.module.css'
+  import { pixelsPerHour, timestampsColumnWidth, headerHeight, calBodyClip } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
   
   const { Task, treesByID } = getContext('app')
   const { openTaskPopup } = getContext('task-popup')
   const { 
     startMouseDrag, startTouchDrag, registerDropzone, draggedItem,
-    bestDropzoneID, dropPreviewCSS, scrollCalRect, computeOrderValue
+    bestDropzoneID, dropPreviewCSS, scrollCalRect, placeOnList
   } = getContext('drag-drop')
 
-  let { task = null } = $props() // assumes `task` is hydrated
+  let { task = null } = $props()
   
   const id = randomID()
-  let blockEl
   let previewDuration = $state(0)
   let height = $derived((previewDuration || task.duration) * $pixelsPerHour / 60)
   let hasIntersected = $state(false)
   let nestedTasks = $derived(
-    [...(task.children ?? [])]
-      .sort((a, b) => a.orderValue - b.orderValue)
+    [...(task.children ?? [])].sort((a, b) => a.orderValue - b.orderValue)
   )
 
   function calClipRect () {
-    const { left, right, top, bottom } = $scrollCalRect()
-    return {
-      left: left + $timestampsColumnWidth,
-      right,
-      top: top + $headerHeight,
-      bottom
-    }
+    return calBodyClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight)
   }
 
-  function nestedClipRect () {
-    const cal = calClipRect()
-    const { left, right, top, bottom } = blockEl.getBoundingClientRect()
-    return {
-      left: Math.max(cal.left, left),
-      right: Math.min(cal.right, right),
-      top: Math.max(cal.top, top),
-      bottom: Math.min(cal.bottom, bottom)
-    }
+  function skip () {
+    const draggedID = $draggedItem.id
+    return hasAncestor(draggedID, task.id) || hasAncestor(task.id, draggedID)
   }
 
-  function isAncestor (ancestorID, node) {
+  function hasAncestor (nodeID, ancestorID) {
     const seen = new Set()
-    while (node?.parentID) {
-      if (node.parentID === ancestorID) return true
+    let node = $treesByID[nodeID]
+    while (node) {
+      if (node.id === ancestorID || node.parentID === ancestorID) return true
       if (seen.has(node.id)) break
       seen.add(node.id)
       node = $treesByID[node.parentID]
     }
     return false
-  }
-
-  function circular () {
-    if ($draggedItem.id === task.id) return true
-    return isAncestor($draggedItem.id, $treesByID[task.id] ?? task)
-  }
-
-  function alreadyChild () {
-    return isAncestor(task.id, $treesByID[$draggedItem.id])
   }
 </script>
