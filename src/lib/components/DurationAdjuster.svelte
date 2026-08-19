@@ -21,6 +21,7 @@
   })
 
   function onpointerdown (e) {
+    e.stopPropagation()
     e.currentTarget.setPointerCapture(e.pointerId)
     startY = prevY = e.clientY
 
@@ -33,6 +34,7 @@
   }
 
   function onpointermove (e) {
+    e.stopPropagation()
     prevY = e.clientY
     if (activated) {
       e.preventDefault()
@@ -43,6 +45,7 @@
   }
 
   function onpointerup (e) {
+    e.stopPropagation()
     if (activated) {
       updateDuration(prevY) // we use prevY so the finger lift's `e.clientY` doesn't mess up the alignment
       onInput()

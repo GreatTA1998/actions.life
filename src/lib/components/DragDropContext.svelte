@@ -1,6 +1,5 @@
 <script>
-  import { setContext } from 'svelte'
-  import { on } from 'svelte/events'
+  import { onDestroy, setContext } from 'svelte'
   import { writable } from 'svelte/store'
   import { playSound } from '$lib/features/audio.js'
   import { TOUCH } from '$lib/utils/constants.js'
@@ -16,32 +15,40 @@
     border: 1px dashed rgba(var(--drag-preview), 0.6);
   `
 
-  const LIST_HIT_H = 12
+  const LIST_HIT_H = 1
 
   const zones = new Map()
   let holdTimer = 0
   let ghost = null
   let hitDebug = null
+  let unsub = []
+  let pending = null
 
   setContext('drag-drop', {
     draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect, logicAreaRect,
     startMouseDrag, startTouchDrag, computeOrderValue, registerDropzone
   })
 
+  onDestroy(reset)
+
+  // Task-move is the only global pointer session. Resize and duration capture
+  // locally — these listeners must not be attached then, or pickZone runs on every move.
+  // `pending` is local until the gesture actually becomes a drag, so a click
+  // does not publish draggedItem (which would re-render every dropzone and swallow onclick).
   function startMouseDrag ({ e, id, from = '' }) {
     e.stopPropagation()
-    draggedItem.set(initDrag(e.currentTarget, id, e.clientX, e.clientY, from))
+    if (pending || $draggedItem.id) return
+    pending = initDrag(e.currentTarget, id, e.clientX, e.clientY, from)
+    listen(window, 'mousemove', onmousemove)
+    listen(window, 'mouseup', onmouseup)
   }
 
   function onmousemove (e) {
-    if (!$draggedItem.id) return
-
     if ($draggedItem.active) {
       e.preventDefault()
       hitTest(e.clientX, e.clientY)
     }
-
-    else if (Math.hypot(e.clientX - $draggedItem.sx, e.clientY - $draggedItem.sy) > 2) { // minimum required distance
+    else if (pending && Math.hypot(e.clientX - pending.sx, e.clientY - pending.sy) > 2) {
       activate()
       hitTest(e.clientX, e.clientY)
     }
@@ -62,23 +69,24 @@
 
   function startTouchDrag ({ e, id, from = '' }) {
     e.stopPropagation()
+    if (pending || $draggedItem.id) return
     const [touch] = e.changedTouches
-    draggedItem.set(initDrag(e.currentTarget, id, touch.clientX, touch.clientY, from))
+    pending = initDrag(e.currentTarget, id, touch.clientX, touch.clientY, from)
     holdTimer = setTimeout(activate, TOUCH.HOLD_MS)
+    listen(window, 'touchmove', ontouchmove, { passive: false })
+    listen(window, 'touchend', ontouchend)
+    listen(window, 'touchcancel', ontouchcancel)
   }
 
   function ontouchmove (e) {
-    if (!$draggedItem.id) return
     const [touch] = e.touches
 
     if ($draggedItem.active) {
       e.preventDefault()
       hitTest(touch.clientX, touch.clientY)
     }
-
-    else if (Math.hypot(touch.clientX - $draggedItem.sx, touch.clientY - $draggedItem.sy) > TOUCH.SLOP) {
-      clearTimeout(holdTimer)
-      draggedItem.set(empty())
+    else if (pending && Math.hypot(touch.clientX - pending.sx, touch.clientY - pending.sy) > TOUCH.SLOP) {
+      reset()
     }
   }
 
@@ -104,13 +112,14 @@
   }
 
   function activate () {
-    if (!$draggedItem.id || $draggedItem.active) return
+    if (!pending || $draggedItem.active) return
     clearTimeout(holdTimer)
 
-    const source = $draggedItem.el
+    const source = pending.el
     const { width, height } = source.getBoundingClientRect()
-    const x1 = $draggedItem.sx - $draggedItem.offsetX, y1 = $draggedItem.sy - $draggedItem.offsetY
-    draggedItem.set({ ...$draggedItem, active: true, width, height, x1, y1, x2: x1 + width, y2: y1 + height })
+    const x1 = pending.sx - pending.offsetX, y1 = pending.sy - pending.offsetY
+    draggedItem.set({ ...pending, active: true, width, height, x1, y1, x2: x1 + width, y2: y1 + height })
+    pending = null
     bestDropzoneID.set('')
 
     const clone = source.cloneNode(true)
@@ -144,27 +153,44 @@
   }
 
   function reset () {
+    unlisten()
     clearTimeout(holdTimer)
-    ghost.hidePopover()
-    hitDebug.hidePopover()
+    pending = null
+    ghost?.hidePopover()
+    hitDebug?.hidePopover()
     draggedItem.set(empty())
     bestDropzoneID.set('')
   }
 
+  function listen (target, type, handler, options) {
+    target.addEventListener(type, handler, options)
+    unsub.push(() => target.removeEventListener(type, handler, options))
+  }
+
+  function unlisten () {
+    for (const off of unsub) off()
+    unsub = []
+  }
+
   function pickZone () {
     const { x1, y1, x2, y2 } = $draggedItem
-    let best = '', max = 0, bestLeft = -Infinity
+    const hits = []
     for (const [id, zone] of zones) {
       if (zone.ignoreIf?.()) continue
       const bottom = zone.normalizeDragItemHeight ? y1 + LIST_HIT_H : y2
       const clippedZone = intersect(zone.node.getBoundingClientRect(), zone.clipRectFunction())
       const hit = intersect({ left: x1, top: y1, right: x2, bottom }, clippedZone)
       if (hit.width <= 0 || hit.height <= 0) continue
-      const area = hit.width * hit.height
-      if (area > max || (area === max && clippedZone.left > bestLeft)) {
-        max = area
-        best = id
-        bestLeft = clippedZone.left
+      hits.push({ id, node: zone.node, area: hit.width * hit.height, left: clippedZone.left })
+    }
+
+    let best = '', max = 0, bestLeft = -Infinity
+    for (const h of hits) {
+      if (hits.some(o => h.node !== o.node && h.node.contains(o.node))) continue
+      if (h.area > max || (h.area === max && h.left > bestLeft)) {
+        max = h.area
+        best = h.id
+        bestLeft = h.left
       }
     }
     bestDropzoneID.set(best)
@@ -195,10 +221,7 @@
   }
 </script>
 
-<div class="h-full" {onmousemove} {onmouseup} 
-  {@attach node => on(node, 'touchmove', ontouchmove, { passive: false })} 
-  {ontouchend} {ontouchcancel}
->
+<div class="h-full">
   {@render children()}
 </div>
 

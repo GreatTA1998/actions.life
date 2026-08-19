@@ -7,6 +7,7 @@
   import { pixelsPerHour, calColumnWidth, headerHeight, timestampsColumnWidth } from './store.js'
   import { timestamps, calSnapInterval, googleEventsByDate } from '$lib/store'
   import { getContext } from 'svelte'
+  import { DragFrom } from '$lib/utils/constants.js'
 
   const { Task, treesByDate } = getContext('app')
   const { activateInput, overrideOptions } = getContext('popover-input')
@@ -61,7 +62,7 @@
         startTime: minutesToHHmm(minutesSinceMidnight($draggedItem.y1, $calSnapInterval)),
         startDateISO: dt.toFormat('yyyy-MM-dd')
       }
-      if ($draggedItem.from === 'event') kvChanges.parentID = ''
+      if ($draggedItem.from === DragFrom.TaskElement) kvChanges.parentID = ''
       return Task.update({ id: $draggedItem.id, kvChanges })
     }
   })}

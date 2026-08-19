@@ -1,7 +1,7 @@
 <script>
   import Dropzone from '../../components/TaskTree/Dropzone.svelte'
   import RecursiveTask from '../../components/TaskTree/RecursiveTask.svelte'
-  import { HEIGHTS } from '$lib/utils/constants.js'
+  import { HEIGHTS, DragFrom } from '$lib/utils/constants.js'
   import { randomID } from '$lib/utils/core.js'
   import { getContext, setContext } from 'svelte'
 
@@ -17,8 +17,8 @@
     rootDropzoneHeight = undefined,
     subDropzoneHeight = undefined,
     clipRectFunction = undefined,
-    unscheduleOnDrop = false,
-    from = 'list'
+    viewTransitionClass = undefined,
+    from = DragFrom.ListArea
   } = $props()
 
   const { activateInput } = getContext('popover-input')
@@ -39,7 +39,6 @@
     rootFontSize: () => rootFontSize,
     subFontSize: () => subFontSize,
     clipRectFunction: () => clipRectFunction ?? $logicAreaRect,
-    unscheduleOnDrop: () => unscheduleOnDrop,
     from: () => from
   })
 
@@ -73,8 +72,8 @@
         <Dropzone {...dzProps(i)} />
         
         <div
-          style:view-transition-name="match-element"
-          style:view-transition-class={parentID ? 'dialog-list-item' : 'list-item'}
+          style:view-transition-name={viewTransitionClass ? 'match-element' : 'none'}
+          style:view-transition-class={viewTransitionClass}
         >  
           <RecursiveTask 
             {task} 

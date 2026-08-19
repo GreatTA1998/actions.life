@@ -51,5 +51,6 @@
   <TodoList trees={$trees}
     listWidth={xyScrolling ? `${WIDTHS.LIST}px` : '100%'}
     style={xyScrolling ? wrappingColumnLayout : simpleLayout}
+    viewTransitionClass="list-item"
   />       
 </div>

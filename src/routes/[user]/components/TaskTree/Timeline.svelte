@@ -111,7 +111,7 @@
     return {
       task: node,
       depth,
-      ancestorIDs: [parentID, ...ancestorIDs],
+      ancestorIDs: [parentID, ...ancestorIDs]
     }
   }
 </script>

@@ -12,7 +12,7 @@
           parentID,
           orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
           onList: true,
-          ...(unscheduleOnDrop() || $draggedItem.from !== 'list' ? { startTime: '', startDateISO: '' } : {})
+          ...($draggedItem.from !== DragFrom.ListArea ? { startTime: '', startDateISO: '' } : {})
         }
       })
     }
@@ -47,6 +47,7 @@
 
 <script>
   import { randomID } from '$lib/utils/core.js'
+  import { DragFrom } from '$lib/utils/constants.js'
   import { getContext } from 'svelte'
 
   const { Task } = getContext('app')
@@ -54,7 +55,7 @@
     registerDropzone, bestDropzoneID, dropPreviewCSS,
     draggedItem, computeOrderValue
   } = getContext('drag-drop')
-  const { dzRootHeight, dzSubHeight, debug, clipRectFunction, unscheduleOnDrop } = getContext('list-config')
+  const { dzRootHeight, dzSubHeight, debug, clipRectFunction } = getContext('list-config')
   const { activateInput, overrideOptions } = getContext('popover-input')
 
   let {

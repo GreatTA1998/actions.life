@@ -33,6 +33,12 @@ export const TOUCH = Object.freeze({
   SLOP: 5,
 })
 
+export const DragFrom = Object.freeze({
+  ListArea: 'ListArea',
+  DayColumn: 'DayColumn',
+  TaskElement: 'TaskElement',
+})
+
 export function translateJSConstantsToCSSVariables () {
   for (const [key, value] of Object.entries(WIDTHS)) {
     document.documentElement.style.setProperty(

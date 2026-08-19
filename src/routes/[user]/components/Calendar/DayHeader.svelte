@@ -2,7 +2,7 @@
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
-  import { HEIGHTS } from '$lib/utils/constants.js'
+  import { HEIGHTS, DragFrom } from '$lib/utils/constants.js'
   import { googleEventsByDate } from '$lib/store'
   import { headerHeight, isCompact, calColumnWidth, timestampsColumnWidth } from './store.js'
   import { getContext } from 'svelte'
@@ -38,11 +38,14 @@
   {@attach registerDropzone({
     clipRectFunction: calHeaderArea,
     id: dropzoneID,
-    onDrop: () => Task.update({ id: $draggedItem.id, kvChanges: {
-      startTime: '',
-      startDateISO: ISODate,
-      ...($draggedItem.from === 'event' ? { parentID: '' } : {})
-    }})
+    onDrop () {
+      const kvChanges = {
+        startTime: '',
+        startDateISO: ISODate
+      }
+      if ($draggedItem.from === DragFrom.TaskElement) kvChanges.parentID = ''
+      return Task.update({ id: $draggedItem.id, kvChanges })
+    }
   })}
   class="text-neutral-700 bg-[var(--cal-bg)]"
   style:width="{$calColumnWidth}px"
@@ -77,8 +80,8 @@
     <div class="flex flex-col gap-y-1 px-1">
       {#each noIcon as task (task.id)}
         <div
-          onmousedown={e => startMouseDrag({ e, id: task.id, from: 'calendar' })}
-          ontouchstart={e => startTouchDrag({ e, id: task.id, from: 'calendar' })}
+          onmousedown={e => startMouseDrag({ e, id: task.id, from: DragFrom.DayColumn })}
+          ontouchstart={e => startTouchDrag({ e, id: task.id, from: DragFrom.DayColumn })}
         >
           <CalTaskUnit {task} />
         </div>

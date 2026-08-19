@@ -20,8 +20,8 @@
       }
     })}
     onclick={() => openTaskPopup(task)}
-    onmousedown={e => startMouseDrag({ e, id: task.id, from: 'calendar' })}
-    ontouchstart={e => startTouchDrag({ e, id: task.id, from: 'calendar' })}
+    onmousedown={e => startMouseDrag({ e, id: task.id, from: DragFrom.DayColumn })}
+    ontouchstart={e => startTouchDrag({ e, id: task.id, from: DragFrom.DayColumn })}
     class={[calendarBlock, 'relative flex flex-col gap-y-0', 'bg-cover bg-center bg-no-repeat']}
     style={`
       height: ${height}px;
@@ -78,8 +78,7 @@
           rootDropzoneHeight="0.25rem"
           subDropzoneHeight="0.25rem"
           clipRectFunction={calClipRect}
-          unscheduleOnDrop
-          from="event"
+          from={DragFrom.TaskElement}
         />
       </div>
     {/if}
@@ -104,7 +103,7 @@
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
   import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
-  import { COLORS } from '$lib/utils/constants.js'
+  import { COLORS, DragFrom } from '$lib/utils/constants.js'
   import { snap, randomID } from '$lib/utils/core.js'
   import { calSnapInterval } from '$lib/store'
   import { lazyCallable } from '$lib/utils/svelteActions.js'

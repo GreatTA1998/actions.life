@@ -1,17 +1,18 @@
 <script>
   import { getContext } from 'svelte'
+  import { DragFrom } from '$lib/utils/constants.js'
 
   const { Task } = getContext('app')
   const { openTaskPopup } = getContext('task-popup')
   const { startMouseDrag, startTouchDrag } = getContext('drag-drop')
-  const listConfig = getContext('list-config')
 
   let { 
     iconTask, 
     size = '32px',
     extraStyle = '',
     whiteVariant = false,
-    scaleToFit = false
+    scaleToFit = false,
+    from = DragFrom.DayColumn
   } = $props()
 
   let timer = null
@@ -54,8 +55,8 @@
   ]}
   draggable="false"
   oncontextmenu={e => e.preventDefault()}
-  onmousedown={e => startMouseDrag({ e, id: iconTask.id, from: listConfig?.from() ?? 'calendar' })}
-  ontouchstart={e => startTouchDrag({ e, id: iconTask.id, from: listConfig?.from() ?? 'calendar' })}
+  onmousedown={e => startMouseDrag({ e, id: iconTask.id, from })}
+  ontouchstart={e => startTouchDrag({ e, id: iconTask.id, from })}
 />
 
 <style>

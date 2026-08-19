@@ -10,6 +10,7 @@
   import { lazyCallable } from '$lib/utils/svelteActions.js'
   import { user } from '$lib/store'
   import { getRandomColor, randomID } from '$lib/utils/core.js'
+  import { DragFrom } from '$lib/utils/constants.js'
   import { DateTime } from 'luxon'
   import { getContext } from 'svelte'
 
@@ -20,7 +21,7 @@
     startMouseDrag, startTouchDrag, draggedItem, 
     bestDropzoneID, dropPreviewCSS, computeOrderValue
    } = getContext('drag-drop')
-  const { indent, rootFontSize, subFontSize, debug, clipRectFunction, unscheduleOnDrop, from } = getContext('list-config')
+  const { indent, rootFontSize, subFontSize, debug, clipRectFunction, from } = getContext('list-config')
 
   let {
     task,
@@ -69,7 +70,7 @@
             parentID: task.id,
             orderValue: computeOrderValue(0, task.children),
             onList: true,
-            ...(unscheduleOnDrop() || $draggedItem.from !== 'list' ? { startTime: '', startDateISO: '' } : {})
+            ...($draggedItem.from !== DragFrom.ListArea ? { startTime: '', startDateISO: '' } : {})
           }
         })
       }
@@ -97,7 +98,7 @@
         {@render verticalTimeline?.()}
         
         {#if task.iconURL}
-          <DoodleIcon iconTask={task} size={fontSize} scaleToFit />
+          <DoodleIcon iconTask={task} size={fontSize} scaleToFit from={from()} />
         {:else}
           <Checkbox value={task.isDone} {fontSize}
             onchange={e => Task.update({ id: task.id, 
