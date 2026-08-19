@@ -20,7 +20,6 @@
   const zones = new Map()
   let holdTimer = 0
   let ghost = null
-  let hitDebug = null
   let unsub = []
   let pending = null
 
@@ -129,7 +128,6 @@
     ghost.style.borderRadius = getComputedStyle(source).borderRadius
     ghost.replaceChildren(clone)
     ghost.showPopover()
-    hitDebug.showPopover()
     pickZone() // provides UI indication that drag is activated
   }
 
@@ -157,7 +155,6 @@
     clearTimeout(holdTimer)
     pending = null
     ghost?.hidePopover()
-    hitDebug?.hidePopover()
     draggedItem.set(empty())
     bestDropzoneID.set('')
   }
@@ -232,20 +229,6 @@
   style:width="{$draggedItem.width}px"
   style:height="{$draggedItem.height}px"
   style:transform="translate3d({$draggedItem.x1}px, {$draggedItem.y1}px, 0)"
-></div>
-
-<!-- debug: list hit rect (viewport left/top). Calendar zones use the full ghost height instead. -->
-<div
-  bind:this={hitDebug}
-  popover="manual"
-  class="pointer-events-none"
-  style:left="{$draggedItem.x1}px"
-  style:top="{$draggedItem.y1}px"
-  style:width="{$draggedItem.width}px"
-  style:height="{LIST_HIT_H}px"
-  style:background="rgba(255, 0, 255, 0.35)"
-  style:outline="2px solid magenta"
-  style:outline-offset="-2px"
 ></div>
 
 <style>

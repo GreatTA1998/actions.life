@@ -4,9 +4,9 @@
     {@attach registerDropzone({
       id,
       clipRectFunction: calClipRect,
-      ignoreIf: circular,
+      ignoreIf: () => circular() || alreadyChild(),
       onDrop () {
-        if (circular()) return
+        if (circular() || alreadyChild()) return
         const rooms = task.children ?? []
         return Task.update({
           id: $draggedItem.id,
@@ -163,5 +163,9 @@
       node = $treesByID[node.parentID]
     }
     return false
+  }
+
+  function alreadyChild () {
+    return $treesByID[$draggedItem.id]?.parentID === task.id
   }
 </script>
