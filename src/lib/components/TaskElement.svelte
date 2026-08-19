@@ -37,9 +37,7 @@
       style:border-radius="var(--left-padding)"
       style:background={task.imageDownloadURL ? `linear-gradient(${COLORS.OVERLAY_DARKEST}, transparent)` : ''}
     >
-      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'}
-        onNameFontSize={measureNameFontSize}
-      >
+      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'}>
         {#snippet icon ()}
           <DoodleIcon 
             iconTask={task} 
@@ -63,7 +61,7 @@
     {/if}
 
     {#if nestedTasks.length}
-      <div class="shrink-0"
+      <div class="overflow-hidden"
         style:padding="0 var(--left-padding) 0 calc(var(--left-padding) + {titleFS})"
         onclick={e => e.stopPropagation()}
         onmousedown={e => e.stopPropagation()}
@@ -88,12 +86,12 @@
   </div>
 
   <!-- absolutely positioned -->
-  <DurationAdjuster {task} {minDuration}
+  <DurationAdjuster {task}
     onChange={newVal => previewDuration = newVal}
     onInput={async () => {
       Task.update({ 
         id: task.id, 
-        kvChanges: { duration: Math.max(minDuration, snap(previewDuration, $calSnapInterval)) } 
+        kvChanges: { duration: snap(previewDuration, $calSnapInterval) } 
       })
       // let snapshot listener resolve via 1 macrotask, so there is no flash of height change between previewDuration and task.duration
       setTimeout(() => previewDuration = 0, 0)
@@ -125,18 +123,12 @@
   
   const id = randomID()
   let previewDuration = $state(0)
-  let nameFontSizePx = $state(0)
-  let minDuration = $derived(nameFontSizePx / ($pixelsPerHour / 60) || 1)
   let height = $derived((previewDuration || task.duration) * $pixelsPerHour / 60)
   let hasIntersected = $state(false)
   let nestedTasks = $derived(
     [...(task.children ?? [])]
       .sort((a, b) => a.orderValue - b.orderValue)
   )
-
-  function measureNameFontSize (node) {
-    nameFontSizePx = parseFloat(getComputedStyle(node).fontSize)
-  }
 
   function calClipRect () {
     const { left, right, top, bottom } = $scrollCalRect()

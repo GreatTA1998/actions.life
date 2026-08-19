@@ -13,8 +13,7 @@
   let { 
     task = null, 
     color = 'var(--task-name-color)',
-    icon,
-    onNameFontSize
+    icon
   } = $props()
 </script>
 
@@ -42,7 +41,6 @@
     style:color={color}
     class="font-medium truncate text-clip cursor-pointer select-none" 
     onclick={() => openTaskPopup(task)}
-    {@attach onNameFontSize}
   >
     {task.name}
   </div>

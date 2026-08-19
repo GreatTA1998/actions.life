@@ -2,10 +2,10 @@
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { playSound } from '$lib/features/audio.js'
   import { TOUCH } from '$lib/utils/constants.js'
+  import { titleFS } from '$lib/styles/reused.module.css'
 
   let { 
     task, 
-    minDuration = 1,
     onChange = () => {},
     onInput = () => {}
   } = $props()
@@ -14,6 +14,11 @@
   let startY = 0
   let prevY = 0
   let activationTimer
+  const minDuration = $derived.by(() => {
+    const fontHeight = parseFloat(titleFS) * parseFloat(getComputedStyle(document.documentElement).fontSize)
+    const padding = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--left-padding'))
+    return (fontHeight + padding * 2) / ($pixelsPerHour / 60)
+  })
 
   function onpointerdown (e) {
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -71,7 +76,12 @@
   }
 
   function updateDuration (clientY) {
-    onChange(Math.max(minDuration, task.duration + (clientY - startY) / ($pixelsPerHour / 60)))
+    onChange(
+      Math.max(
+        minDuration,
+        task.duration + (clientY - startY) / ($pixelsPerHour / 60)
+      )
+    )
   }
 </script>
 
