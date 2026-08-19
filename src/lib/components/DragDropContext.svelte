@@ -148,25 +148,40 @@
 
   function pickZone () {
     const { x1, y1, x2, y2 } = $draggedItem
-    const byNode = new Map()
+    let best = '', max = 0
+    const tied = []
 
     for (const [id, zone] of zones) {
+      console.log("ignoreIF evalutes to =", zone.ignoreIf?.())
       if (zone.ignoreIf?.()) continue
       const bottom = zone.normalizeDragItemHeight ? y1 + 12 : y2
       const clippedZone = intersect(zone.node.getBoundingClientRect(), zone.clipRectFunction())
       const hit = intersect({ left: x1, top: y1, right: x2, bottom }, clippedZone)
       if (hit.width <= 0 || hit.height <= 0) continue
-      byNode.set(zone.node, id)
-    }
-
-    let best = ''
-    for (let el = document.elementFromPoint(x1, y1); el; el = el.parentElement) {
-      if (byNode.has(el)) {
-        best = byNode.get(el)
-        break
+      const area = hit.width * hit.height
+      if (area > max) {
+        max = area
+        best = id
+        tied.length = 0
+        tied.push({ id, node: zone.node })
+      } else if (area === max) {
+        tied.push({ id, node: zone.node })
       }
     }
+
+    if (tied.length > 1) {
+      console.log('tied =', tied)
+      const byNode = new Map(tied.map(z => [z.node, z.id]))
+      best = zoneAt(x1 + 1, y1 + 1, byNode) || zoneAt(x2 - 1, y1 + 1, byNode) || best
+    }
     bestDropzoneID.set(best)
+  }
+
+  function zoneAt (x, y, byNode) {
+    for (let el = document.elementFromPoint(x, y); el; el = el.parentElement) {
+      if (byNode.has(el)) return byNode.get(el)
+    }
+    return ''
   }
 
   function intersect (a, b) {
