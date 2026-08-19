@@ -150,7 +150,7 @@
     const { x1, y1, x2, y2 } = $draggedItem
     let best = '', max = 0, bestLeft = -Infinity
     for (const [id, zone] of zones) {
-      const bottom = zone.normalizeDragItemHeight ? y1 + 12 : y2
+      const bottom = zone.normalizeDragItemHeight ? y1 + 6 : y2
       const clippedZone = intersect(zone.node.getBoundingClientRect(), zone.clipRectFunction())
       const hit = intersect({ left: x1, top: y1, right: x2, bottom }, clippedZone)
       if (hit.width <= 0 || hit.height <= 0) continue // negative values

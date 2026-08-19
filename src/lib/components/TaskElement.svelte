@@ -1,5 +1,19 @@
 <div class="relative z-0">
   <div 
+    {@attach registerDropzone({
+      clipRectFunction () {
+        const { left, right, top, bottom } = $scrollCalRect()
+        return {
+          left: left + $timestampsColumnWidth, // potentially brittle for mobile mode
+          right,
+          top: top + $headerHeight,
+          bottom
+        }
+      },
+      id: task.id,
+      onDrop: () => { console.log("hello" )},
+      normalizeDragItemHeight: true
+    })}
     onclick={() => openTaskPopup(task)}
     onmousedown={e => startMouseDrag({ e, id: task.id })}
     ontouchstart={e => startTouchDrag({ e, id: task.id })}
@@ -44,6 +58,12 @@
       >
         {task.notes}
       </div>
+
+      {#if task.children}
+        <TodoList listWidth="100%" trees={task.children}>
+          
+        </TodoList>
+      {/if}
     </div>
   </div>
 
@@ -62,6 +82,7 @@
 </div>
 
 <script>
+  import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import DurationAdjuster from '$lib/components/DurationAdjuster.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
@@ -70,12 +91,12 @@
   import { calSnapInterval } from '$lib/store'
   import { lazyCallable } from '$lib/utils/svelteActions.js'
   import { calendarBlock, titleFS } from '$lib/styles/reused.module.css'
-  import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
+  import { pixelsPerHour, headerHeight, timestampsColumnWidth  } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
   
   const { Task } = getContext('app')
   const { openTaskPopup } = getContext('task-popup')
-  const { startMouseDrag, startTouchDrag } = getContext('drag-drop')
+  const { startMouseDrag, startTouchDrag, registerDropzone, scrollCalRect } = getContext('drag-drop')
 
   let { task = null } = $props() // assumes `task` is hydrated
   
