@@ -134,7 +134,7 @@
       {#if infoBadge}
         {@render infoBadge()}
       {:else if task.startDateISO}
-        <div onclick={() => openTaskPopup(task)} class="flex items-center shrink-0 min-h-[24px]" style:color={overdue ? 'red' : 'var(--fine-control-color)'}>
+        <div onclick={() => openTaskPopup(task)} class="flex items-center shrink-0" style:color={overdue ? 'red' : 'var(--fine-control-color)'}>
           <MslCalendarTodayOutline class="shrink-0" style="font-size: 0.75rem"/>
         </div>
       {/if}
