@@ -190,7 +190,7 @@
         bestLeft = h.left
       }
     }
-    bestDropzoneID.set(best)
+    if (best !== $bestDropzoneID) bestDropzoneID.set(best)
   }
 
   function intersect (a, b) {

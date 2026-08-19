@@ -15,6 +15,7 @@
 
   let input = $state(null)
   let value = $state('')
+  let inputFontSize = $state('')
 
   const overrideOptions = writable({})
   const callback = writable(() => {})
@@ -24,12 +25,13 @@
     overrideOptions
   })
 
-  function activateInput ({ anchorID, modifiers = {}, onCreate = () => {} }) {
+  function activateInput ({ anchorID, modifiers = {}, onCreate = () => {}, fontSize = '' }) {
     if (inputActive) inputActive = false
     else {
       // note: using an anchor variable would be more readable, but the store-level update would be batched, causing synchronicity issues with focus etc.
       inputPopover.style.positionAnchor = anchorID 
       menuPopover.style.positionAnchor = anchorID
+      inputFontSize = fontSize
       inputPopover.showPopover()
       menuPopover.showPopover()
       input.focus()
@@ -91,7 +93,7 @@
     bind:value
     onkeydown={e => e.key === 'Enter' && !e.isComposing && onEnter() } 
     class="w-full h-full rounded [border:2px_solid_#2757cf]"
-    style:font-size="clamp({noZoomFS}, 40cqb, 2rem)"
+    style:font-size={inputFontSize || `clamp(${noZoomFS}, 40cqb, 2rem)`}
   >
 
   <div bind:this={menuPopover} 

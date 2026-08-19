@@ -1,7 +1,7 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
-  import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
+  import SubtaskCollapseIndicator from '$lib/components/SubtaskCollapseIndicator.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import Timeline from './Timeline.svelte'
@@ -134,15 +134,14 @@
       {#if infoBadge}
         {@render infoBadge()}
       {:else if task.startDateISO}
-        <div onclick={() => openTaskPopup(task)} class="flex items-center min-h-[24px]" style:color={overdue ? 'red' : ''}>
-          <MslCalendarTodayOutline style="font-size: 0.75rem"/>
+        <div onclick={() => openTaskPopup(task)} class="flex items-center shrink-0 min-h-[24px]" style:color={overdue ? 'red' : 'var(--fine-control-color)'}>
+          <MslCalendarTodayOutline class="shrink-0" style="font-size: 0.75rem"/>
         </div>
       {/if}
 
       {#if n > 0}
-        <SubtaskCountIndicator extraClass="min-w-fit" collapsible
+        <SubtaskCollapseIndicator extraClass="min-w-fit"
           {task} {fontSize}
-          color="var(--fine-control-color)"
           onclick={() =>   
             document.startViewTransition(() => {
               Task.update({ 

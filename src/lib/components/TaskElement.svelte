@@ -152,12 +152,10 @@
     }
   }
 
-  function circular () {
-    if ($draggedItem.id === task.id) return true
-    let node = $treesByID[task.id] ?? task
+  function isAncestor (ancestorID, node) {
     const seen = new Set()
     while (node?.parentID) {
-      if (node.parentID === $draggedItem.id) return true
+      if (node.parentID === ancestorID) return true
       if (seen.has(node.id)) break
       seen.add(node.id)
       node = $treesByID[node.parentID]
@@ -165,7 +163,12 @@
     return false
   }
 
+  function circular () {
+    if ($draggedItem.id === task.id) return true
+    return isAncestor($draggedItem.id, $treesByID[task.id] ?? task)
+  }
+
   function alreadyChild () {
-    return $treesByID[$draggedItem.id]?.parentID === task.id
+    return isAncestor(task.id, $treesByID[$draggedItem.id])
   }
 </script>

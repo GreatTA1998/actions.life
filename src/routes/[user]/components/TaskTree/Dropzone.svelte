@@ -21,6 +21,7 @@
     e.stopPropagation(); // since dropzones stack
     activateInput({
       anchorID,
+      fontSize: parentID === '' ? rootFontSize() : subFontSize(),
       modifiers: {
         onList: true,
         orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
@@ -55,7 +56,7 @@
     registerDropzone, bestDropzoneID, dropPreviewCSS,
     draggedItem, computeOrderValue
   } = getContext('drag-drop')
-  const { dzRootHeight, dzSubHeight, debug, clipRectFunction } = getContext('list-config')
+  const { dzRootHeight, dzSubHeight, debug, clipRectFunction, rootFontSize, subFontSize } = getContext('list-config')
   const { activateInput, overrideOptions } = getContext('popover-input')
 
   let {

@@ -56,6 +56,7 @@
     if (e.target === e.currentTarget) {
       activateInput({ 
         anchorID, 
+        fontSize: parentID === '' ? rootFontSize : subFontSize,
         modifiers: { 
           onList: true,
           parentID
