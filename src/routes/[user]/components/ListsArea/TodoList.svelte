@@ -69,7 +69,7 @@
 <div {onclick} {style} class="relative">
   {#if trees}
     {#each trees as task, i (task.id)}
-      <div style:width={listWidth}>
+      <div class="pointer-events-auto" style:width={listWidth}>
         <Dropzone {...dzProps(i)} />
         
         <div
@@ -86,6 +86,7 @@
     {/each}
 
     <div 
+      class="pointer-events-auto"
       style:anchor-name={anchorID} 
       style:width="min(100%, {listWidth})"
     >

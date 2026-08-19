@@ -62,7 +62,7 @@
     {/if}
 
     {#if nestedTasks.length}
-      <div class="overflow-hidden"
+      <div class="overflow-hidden pointer-events-none"
         style:padding="0 var(--left-padding) 0 calc(var(--left-padding) + {titleFS})"
         onclick={e => e.stopPropagation()}
         onmousedown={e => e.stopPropagation()}
@@ -70,7 +70,7 @@
       >
         <TodoList
           trees={nestedTasks}
-          listWidth="100%"
+          listWidth="fit-content"
           parentID={task.id}
           indent="0.75rem"
           rootFontSize={notesFS}
