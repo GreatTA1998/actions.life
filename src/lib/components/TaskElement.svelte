@@ -23,13 +23,14 @@
     onclick={() => openTaskPopup(task)}
     onmousedown={e => startMouseDrag({ e, id: task.id, from: DragFrom.DayColumn })}
     ontouchstart={e => startTouchDrag({ e, id: task.id, from: DragFrom.DayColumn })}
-    class={[calendarBlock, 'relative flex flex-col gap-y-0', 'bg-cover bg-center bg-no-repeat']}
+    class={[calendarBlock, 'relative overflow-hidden', 'bg-cover bg-center bg-no-repeat']}
     style={`
       height: ${height}px;
       background-color: rgba(255, 255, 255, 0.4);
       border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
       ${$bestDropzoneID === id ? (circular() ? 'background-color: red;' : dropPreviewCSS) : ''}
     `}
+    style:min-height={`calc(${titleFS} + var(--left-padding) * 2)`}
     style:background-image={hasIntersected && task.imageDownloadURL ? `url(${task.imageDownloadURL})` : 'none'}
     use:lazyCallable={() => hasIntersected = true}
   >

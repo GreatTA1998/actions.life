@@ -15,8 +15,6 @@
     border: 1px dashed rgba(var(--drag-preview), 0.6);
   `
 
-  const LIST_HIT_H = 1
-
   const zones = new Map()
   let holdTimer = 0
   let ghost = null
@@ -30,10 +28,6 @@
 
   onDestroy(reset)
 
-  // Task-move is the only global pointer session. Resize and duration capture
-  // locally — these listeners must not be attached then, or pickZone runs on every move.
-  // `pending` is local until the gesture actually becomes a drag, so a click
-  // does not publish draggedItem (which would re-render every dropzone and swallow onclick).
   function startMouseDrag ({ e, id, from = '' }) {
     e.stopPropagation()
     if (pending || $draggedItem.id) return
@@ -170,11 +164,11 @@
   }
 
   function pickZone () {
-    const { x1, y1, x2, y2 } = $draggedItem
+    const { x1, y1, x2 } = $draggedItem
     const hits = []
     for (const [id, zone] of zones) {
       if (zone.ignoreIf?.()) continue
-      const bottom = zone.normalizeDragItemHeight ? y1 + LIST_HIT_H : y2
+      const bottom = y1 + 1 // hitbox
       const clippedZone = intersect(zone.node.getBoundingClientRect(), zone.clipRectFunction())
       const hit = intersect({ left: x1, top: y1, right: x2, bottom }, clippedZone)
       if (hit.width <= 0 || hit.height <= 0) continue
@@ -199,9 +193,9 @@
     return { left, top, right, bottom, width: right - left, height: bottom - top }
   }
 
-  function registerDropzone ({ clipRectFunction, id, onDrop, ignoreIf, normalizeDragItemHeight = false }) {
+  function registerDropzone ({ clipRectFunction, id, onDrop, ignoreIf }) {
     return (node) => {
-      zones.set(id, { node, clipRectFunction, onDrop, ignoreIf, normalizeDragItemHeight })
+      zones.set(id, { node, clipRectFunction, onDrop, ignoreIf })
       return () => zones.delete(id)
     }
   }

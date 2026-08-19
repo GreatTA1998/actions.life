@@ -61,7 +61,6 @@
       id, 
       clipRectFunction: clipRectFunction(),
       ignoreIf: circular,
-      normalizeDragItemHeight: true,
       onDrop () {
         if (circular()) return
         return Task.update({
