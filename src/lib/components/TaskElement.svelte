@@ -1,5 +1,6 @@
 <div class="relative z-0">
   <div 
+    bind:this={blockEl}
     {@attach registerDropzone({
       id,
       clipRectFunction: calClipRect,
@@ -77,7 +78,7 @@
           startDepth={2}
           rootDropzoneHeight="0.25rem"
           subDropzoneHeight="0.25rem"
-          clipRectFunction={calClipRect}
+          clipRectFunction={nestedClipRect}
           from={DragFrom.TaskElement}
         />
       </div>
@@ -121,6 +122,7 @@
   let { task = null } = $props() // assumes `task` is hydrated
   
   const id = randomID()
+  let blockEl
   let previewDuration = $state(0)
   let height = $derived((previewDuration || task.duration) * $pixelsPerHour / 60)
   let hasIntersected = $state(false)
@@ -136,6 +138,17 @@
       right,
       top: top + $headerHeight,
       bottom
+    }
+  }
+
+  function nestedClipRect () {
+    const cal = calClipRect()
+    const { left, right, top, bottom } = blockEl.getBoundingClientRect()
+    return {
+      left: Math.max(cal.left, left),
+      right: Math.min(cal.right, right),
+      top: Math.max(cal.top, top),
+      bottom: Math.min(cal.bottom, bottom)
     }
   }
 
