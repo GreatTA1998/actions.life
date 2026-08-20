@@ -28,8 +28,8 @@
     latest = axisValue(e)
     if (raf) return
     raf = requestAnimationFrame(() => {
-      raf = 0
       onInput(latest)
+      raf = 0
     })
   }
 
@@ -40,8 +40,8 @@
     }
     if (raf) {
       cancelAnimationFrame(raf)
-      raf = 0
       onInput(latest)
+      raf = 0
     }
     if (resizing) onChange(axisValue(e))
     resizing = false

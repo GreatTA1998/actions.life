@@ -184,7 +184,7 @@
     const { x1, y1, x2 } = $draggedItem
     const hits = []
     for (const [id, zone] of zones) {
-      if (zone.ignoreIf?.()) continue
+      if (zone.ignoreIf()) continue
       if (insideDragged(zone.node)) continue
       const clippedZone = visibleRect(zone)
       const hit = intersect({ left: x1, top: y1, right: x2, bottom: y1 + PROBE_H }, clippedZone)
@@ -210,7 +210,7 @@
     return { left, top, right, bottom, width: right - left, height: bottom - top }
   }
 
-  function registerDropzone ({ clipRectFunction, id, onDrop, ignoreIf }) {
+  function registerDropzone ({ clipRectFunction, id, onDrop, ignoreIf = () => false }) {
     return (node) => {
       zones.set(id, { node, clips: overflowParents(node), clipRectFunction, onDrop, ignoreIf })
       return () => zones.delete(id)

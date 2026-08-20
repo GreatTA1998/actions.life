@@ -69,8 +69,8 @@
         <Dropzone {...dzProps(i)} />
         
         <div
-          style:view-transition-name={viewTransitionClass ? 'match-element' : 'none'}
           style:view-transition-class={viewTransitionClass}
+          style:view-transition-name={viewTransitionClass ? 'match-element' : 'none'}
         >  
           <RecursiveTask 
             {task} 
