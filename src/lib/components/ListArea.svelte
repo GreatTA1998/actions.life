@@ -1,14 +1,13 @@
 <script>
   import { user } from '$lib/store'
   import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
-  import { getContext, onMount, tick } from 'svelte'
+  import { getContext, onMount } from 'svelte'
   import { db } from '$lib/db/init'
   import { collection, query, where, onSnapshot } from 'firebase/firestore'
   import { buildForest } from '$lib/db/tree.ts'
   import { WIDTHS } from '$lib/utils/constants.js'
 
   let { xyScrolling } = $props()
-  const { logicAreaRect } = getContext('drag-drop')
   const { trees } = getContext('app')
 
   const wrappingColumnLayout = `
@@ -24,25 +23,19 @@
   `
   const simpleLayout = `height: 100%;`
 
-  onMount(async () => {
-    await tick() // computed sizes from `style` CSS are not ready yet
-    logicAreaRect.set(
-      () => document.querySelector('#list-area').getBoundingClientRect()
-    )
-    return onSnapshot(
-      query(
-        collection(db, `users/${$user.uid}/tasks`),
-        where('onList', '==', true)
-      ),
-      (snapshot) => {
-        const listTasks = snapshot.docs.map(doc => ({
-          ...doc.data(), 
-          id: doc.id
-        }))
-        trees.set(buildForest(listTasks))
-      }
-    )
-  })
+  onMount(() => onSnapshot(
+    query(
+      collection(db, `users/${$user.uid}/tasks`),
+      where('onList', '==', true)
+    ),
+    (snapshot) => {
+      const listTasks = snapshot.docs.map(doc => ({
+        ...doc.data(), 
+        id: doc.id
+      }))
+      trees.set(buildForest(listTasks))
+    }
+  ))
 </script>
 
 <div id="list-area" class="h-full relative overflow-auto hide-scrollbar"
@@ -51,5 +44,6 @@
   <TodoList trees={$trees}
     listWidth={xyScrolling ? `${WIDTHS.LIST}px` : '100%'}
     style={xyScrolling ? wrappingColumnLayout : simpleLayout}
+    viewTransitionClass="list-item"
   />       
 </div>

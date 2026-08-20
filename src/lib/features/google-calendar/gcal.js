@@ -69,7 +69,7 @@ export async function helper (startDT, endDT, calendarIds, calArr, refreshToken,
           }
         }
         else if (event.start.dateTime && event.end.dateTime) {
-          const yyyyMMdd = event.start.dateTime.split('T')[0]
+          const yyyyMMdd = DateTime.fromISO(event.start.dateTime).toFormat('yyyy-MM-dd')
           if (!dict[yyyyMMdd]) dict[yyyyMMdd] = empty() // quickfix for multiday events spanning and matching in previous intervals
           dict[yyyyMMdd].hasStartTime.push(gcalTask(event, calMap, opacity))
         }

@@ -1,13 +1,12 @@
 <script>
   import RecursiveTask from './RecursiveTask.svelte'
   import Dropzone from './Dropzone.svelte'
-  import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
+  import SubtaskCollapseIndicator from '$lib/components/SubtaskCollapseIndicator.svelte'
   import Checkbox from '$lib/components/Checkbox.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import Timeline from './Timeline.svelte'
   import TaskMenu from './TaskMenu.svelte'
   import MslCalendarTodayOutline from 'virtual:icons/material-symbols-light/calendar-today-outline'
-  import { lazyCallable } from '$lib/utils/svelteActions.js'
   import { user } from '$lib/store'
   import { getRandomColor, randomID } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
@@ -17,15 +16,14 @@
   const { openTaskPopup } = getContext('task-popup')
   const { 
     registerDropzone, 
-    startMouseDrag, startTouchDrag, draggedItem, logicAreaRect, 
-    bestDropzoneID, dropPreviewCSS, computeOrderValue
+    startMouseDrag, startTouchDrag, 
+    bestDropzoneID, dropPreviewCSS, placeOnList
    } = getContext('drag-drop')
-  const { indent, rootFontSize, subFontSize, debug } = getContext('list-config')
+  const { indent, rootFontSize, subFontSize, debug, clipRectFunction } = getContext('list-config')
 
   let {
     task,
     depth,
-    ancestorIDs = [],
     verticalTimeline,
     infoBadge
   } = $props()
@@ -35,67 +33,39 @@
   let n = $derived(task.children.length)
   let fontSize = $derived(depth === 1 ? rootFontSize() : subFontSize())
   let overdue = $derived(!task.isDone && task.startDateISO < DateTime.now().toFormat('yyyy-MM-dd'))
-  let hasImage = $derived(!!task.imageDownloadURL)
-  let hasIntersected = $state(false)
   const debugColor = getRandomColor()
 
   function dzProps (i) {
     return {
-      ancestorIDs: [task.id, ...ancestorIDs],
       roomsInThisLevel: task.children,
       idxInThisLevel: i,
       parentID: task.id,
       debugColor
     }
   }
-
-  function circular () {
-    return [task.id, ...ancestorIDs].includes($draggedItem.id)
-  }
 </script>
 
-<div class="relative" style:border="{debug() ? 1 : 0}px solid {debugColor}">
+<div class="relative" data-task-id={task.id} style:border="{debug() ? 1 : 0}px solid {debugColor}">
   <div
     {@attach registerDropzone({ 
       id, 
-      clipRectFunction: $logicAreaRect,
-      onDrop () {
-        if (circular()) return
-        return Task.update({
-          id: $draggedItem.id,
-          kvChanges: {
-            parentID: task.id,
-            orderValue: computeOrderValue(0, task.children),
-            onList: true
-          }
-        })
-      },
-      normalizeDragItemHeight: true
+      clipRectFunction: clipRectFunction(),
+      onDrop: () => placeOnList({ parentID: task.id, rooms: task.children, index: 0 })
     })}
     onmousedown={e => startMouseDrag({ e, id: task.id })}
     ontouchstart={e => startTouchDrag({ e, id: task.id })}
     style:font-size={fontSize}
     style:--task-control-width={fontSize}
-    use:lazyCallable={() => hasIntersected = true}
-    style:background-image={hasIntersected && hasImage && false
-      ? `linear-gradient(rgba(0, 0, 0, 0.5), transparent), url(${task.imageDownloadURL})`
-      : 'none'}
-    style="{$bestDropzoneID === id ? (circular() ? 'background-color: red;' : dropPreviewCSS) : ''}"
+    style="{$bestDropzoneID === id ? dropPreviewCSS : ''}"
     style:border-radius="var(--left-padding)"
-    class={[
-      'flex flex-col select-none',
-      'px-[var(--left-padding)]',
-      hasImage && false 
-        ? 'text-white bg-cover bg-center bg-no-repeat'
-        : 'text-[#1a1a1a]'
-    ]}
+    class="flex flex-col select-none px-[var(--left-padding)] text-[#1a1a1a]"
   >
     <div class="flex items-center gap-x-1">
       <div class="shrink-0 relative">
         {@render verticalTimeline?.()}
         
         {#if task.iconURL}
-          <DoodleIcon iconTask={task} size="1rem" scaleToFit />
+          <DoodleIcon iconTask={task} size={fontSize} scaleToFit />
         {:else}
           <Checkbox value={task.isDone} {fontSize}
             onchange={e => Task.update({ id: task.id, 
@@ -131,14 +101,14 @@
       {#if infoBadge}
         {@render infoBadge()}
       {:else if task.startDateISO}
-        <div onclick={() => openTaskPopup(task)} class="flex items-center min-h-[24px]" style:color={overdue ? 'red' : ''}>
-          <MslCalendarTodayOutline style="font-size: 0.75rem"/>
+        <div onclick={() => openTaskPopup(task)} class="flex items-center shrink-0" style:color={overdue ? 'red' : 'var(--fine-control-color)'}>
+          <MslCalendarTodayOutline class="shrink-0" style="width: 0.75rem; height: 0.75rem"/>
         </div>
       {/if}
 
       {#if n > 0}
-        <SubtaskCountIndicator extraClass="min-w-fit"       
-          {task} {fontSize}
+        <SubtaskCollapseIndicator extraClass="min-w-fit"
+          {task} {fontSize} collapsed={task.isCollapsed}
           onclick={() =>   
             document.startViewTransition(() => {
               Task.update({ 
@@ -158,10 +128,12 @@
     {#if task.notes}
       <button onclick={() => openTaskPopup(task)}
         style:margin-left="calc(var(--task-control-width) + 0.25rem)"
-        class="text-left text-xs leading-[1.25] max-w-[45ch] line-clamp-2"
+        class="text-left text-xs leading-[1.25] max-w-[45ch]"
         style:color="oklch(43.9% 0 0)"
       >
-        {task.notes}
+        <span class="grow-1 line-clamp-2">
+          {task.notes}
+        </span>
       </button>
     {/if}
   </div>
@@ -172,7 +144,6 @@
         <Timeline children={task.children}
           parentID={task.id}
           {depth}
-          {ancestorIDs}
         />
       {:else}
         {#each task.children as subtask, i (subtask.id)}
@@ -181,7 +152,6 @@
           <RecursiveTask 
             task={subtask}
             depth={depth+1}
-            ancestorIDs={[task.id, ...ancestorIDs]}
           /> 
         {/each}
       {/if}
@@ -199,4 +169,4 @@
     position: absolute;
     bottom: calc(-1 * var(--heights-sub-dropzone))
   }
-</style> 
+</style>

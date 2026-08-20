@@ -11,6 +11,8 @@
   let { height, appDiv } = $derived(dimensions)
   
   let resizing = false
+  let raf = 0
+  let latest = 0
 
   function onpointerdown (e) {
     e.stopPropagation()
@@ -20,12 +22,26 @@
   }
 
   function onpointermove (e) {
-    if (resizing) onInput(axisValue(e))
+    e.stopPropagation()
+    if (!resizing) return
+    e.preventDefault()
+    latest = axisValue(e)
+    if (raf) return
+    raf = requestAnimationFrame(() => {
+      onInput(latest)
+      raf = 0
+    })
   }
 
   function onpointerup (e) {
+    e.stopPropagation()
     if (e.target.hasPointerCapture(e.pointerId)) { 
       e.target.releasePointerCapture(e.pointerId)
+    }
+    if (raf) {
+      cancelAnimationFrame(raf)
+      onInput(latest)
+      raf = 0
     }
     if (resizing) onChange(axisValue(e))
     resizing = false
@@ -38,7 +54,7 @@
 </script>
 
 <div class="{isMobile() ? 'w-full' : 'h-full'} relative flex z-1 items-center justify-center touch-none">
-  <div {onpointerdown} {onpointermove} {onpointerup} 
+  <div {onpointerdown} {onpointermove} {onpointerup} onpointercancel={onpointerup} 
     class="size-12 absolute flex items-center justify-center z-10 cursor-pointer"
   >
     <div class="inline-flex touch-none" 

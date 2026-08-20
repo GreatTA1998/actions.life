@@ -19,7 +19,6 @@
 }
 
 .calendarBlock {
-  width: 100%;
   cursor: pointer;
   border-radius: var(--left-padding);
 }

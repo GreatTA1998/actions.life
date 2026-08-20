@@ -7,7 +7,8 @@
   --location-indicator-color: var(--logo-twig-color);
   --drag-preview: 100, 100, 255;  /* drag-drop preview + duration resize — use as rgba(var(--drag-preview), α) */
   
-  --fine-control-color: rgb(0,0,0,0.5);
+
+  --fine-control-color: var(--task-name-color); /* rgb(0,0,0,0.5); */
   --scheduled-info-color: rgb(0, 0, 0);
   --task-name-color: oklch(43.9% 0 0); /* text-neutral-600 */ 
   --left-padding: 6px; /* only applies to TaskElement */ 

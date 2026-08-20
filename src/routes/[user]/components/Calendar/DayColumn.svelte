@@ -4,14 +4,14 @@
   import TimeIndicator from './TimeIndicator.svelte'
   import { getLocalY, snap } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
-  import { pixelsPerHour, calColumnWidth, headerHeight, timestampsColumnWidth } from './store.js'
+  import { pixelsPerHour, calColumnWidth, headerHeight, timestampsColumnWidth, calBodyClip } from './store.js'
   import { timestamps, calSnapInterval, googleEventsByDate } from '$lib/store'
   import { getContext } from 'svelte'
 
-  const { Task, treesByDate } = getContext('app')
+  const { treesByDate } = getContext('app')
   const { activateInput, overrideOptions } = getContext('popover-input')
   const { 
-    registerDropzone,
+    registerDropzone, placeOnCal,
     draggedItem, scrollCalRect, bestDropzoneID, dropPreviewCSS
   } = getContext('drag-drop')
   
@@ -47,22 +47,11 @@
 <div bind:this={dayColumn} class="relative select-none bg-[var(--cal-bg)]"
   {@attach registerDropzone({ 
     id: dropzoneID,
-    clipRectFunction () {
-      const { left, right, top, bottom } = $scrollCalRect()
-      return {
-        left: left + $timestampsColumnWidth, // potentially brittle for mobile mode
-        right,
-        top: top + $headerHeight,
-        bottom
-      }
-    },
+    clipRectFunction: () => calBodyClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight),
     onDrop () {
-      return Task.update({
-        id: $draggedItem.id,
-        kvChanges: {
-          startTime: minutesToHHmm(minutesSinceMidnight($draggedItem.y1, $calSnapInterval)),
-          startDateISO: dt.toFormat('yyyy-MM-dd')
-        }
+      return placeOnCal({
+        startTime: minutesToHHmm(minutesSinceMidnight($draggedItem.y1, $calSnapInterval)),
+        startDateISO: dt.toFormat('yyyy-MM-dd')
       })
     }
   })}

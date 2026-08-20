@@ -40,7 +40,7 @@
     style:font-size={titleFS}
     style:color={color}
     class="font-medium truncate text-clip cursor-pointer select-none" 
-    onclick={() => openTaskPopup(task)} 
+    onclick={() => openTaskPopup(task)}
   >
     {task.name}
   </div>
