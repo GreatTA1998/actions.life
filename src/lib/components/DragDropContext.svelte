@@ -20,6 +20,7 @@
   let ghost = null
   let unsub = []
   let pending = null
+  const PROBE_H = 2 // for targetting the smallest dropzone (4px in TaskElement's TodoList)
 
   setContext('drag-drop', {
     draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect,
@@ -178,8 +179,7 @@
   function visibleRect (zone) {
     let r = zone.node.getBoundingClientRect()
     for (const el of zone.clips) r = intersect(r, el.getBoundingClientRect())
-    if (zone.clipRectFunction) r = intersect(r, zone.clipRectFunction())
-    return r
+    return intersect(r, zone.clipRectFunction())
   }
 
   function insideDragged (node) {
@@ -194,7 +194,7 @@
       if (zone.ignoreIf?.()) continue
       if (insideDragged(zone.node)) continue
       const clippedZone = visibleRect(zone)
-      const hit = intersect({ left: x1, top: y1, right: x2, bottom: y1 + 1 }, clippedZone)
+      const hit = intersect({ left: x1, top: y1, right: x2, bottom: y1 + PROBE_H }, clippedZone)
       if (hit.width <= 0 || hit.height <= 0) continue
       hits.push({ id, node: zone.node, area: hit.width * hit.height, left: clippedZone.left })
     }

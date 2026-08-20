@@ -7,31 +7,30 @@
   import { getContext, setContext } from 'svelte'
 
   let {
-    style,
-    listWidth,
+    style = '',
+    listWidth = '100%',
     trees = null,
     parentID = '',
+    clipRectFunction = () => ({ left: -Infinity, top: -Infinity, right: Infinity, bottom: Infinity }),
+    viewTransitionClass = '',
     compact = false,
-    clipRectFunction = undefined,
-    viewTransitionClass = undefined
+    debug = false
   } = $props()
 
   const { activateInput } = getContext('popover-input')
   const anchorID = `--dropzone-root-last-${randomID()}`
 
   const dzRootHeight = $derived(
-    compact ? '0.25rem' : `${parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE}rem`
+    compact ? '4px' : `${parentID ? HEIGHTS.SUB_DROPZONE : HEIGHTS.ROOT_DROPZONE}rem`
   )
-  const dzSubHeight = $derived(compact ? '0.25rem' : `${HEIGHTS.SUB_DROPZONE}rem`)
+  const dzSubHeight = $derived(compact ? '4px' : `${HEIGHTS.SUB_DROPZONE}rem`)
   const indent = $derived(compact ? '0.75rem' : '2rem')
   const rootFontSize = $derived(compact ? notesFS : '1rem')
   const subFontSize = $derived(compact ? notesFS : '0.875rem')
   const startDepth = $derived(compact ? 2 : 1)
 
-  const width = $derived(listWidth ?? (compact ? 'fit-content' : undefined))
-
   setContext('list-config', { 
-    debug: () => false,
+    debug: () => debug,
     indent: () => indent, 
     dzRootHeight: () => dzRootHeight,
     dzSubHeight: () => dzSubHeight,
@@ -66,7 +65,7 @@
 <div {onclick} {style} class="relative">
   {#if trees}
     {#each trees as task, i (task.id)}
-      <div class="pointer-events-auto" style:width={width}>
+      <div class="pointer-events-auto" style:width={listWidth}>
         <Dropzone {...dzProps(i)} />
         
         <div
@@ -84,7 +83,7 @@
     <div 
       class="pointer-events-auto"
       style:anchor-name={anchorID} 
-      style:width="min(100%, {width})"
+      style:width="min(100%, {listWidth})"
     >
       <Dropzone {...dzProps(trees.length)} />
     </div>

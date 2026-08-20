@@ -4,7 +4,7 @@
     {@attach registerDropzone({
       id,
       clipRectFunction: calClipRect,
-      ignoreIf: skip,
+      ignoreIf: cycle,
       onDrop () {
         const rooms = task.children ?? []
         return placeOnList({ parentID: task.id, rooms, index: rooms.length, unschedule: true })
@@ -56,12 +56,13 @@
       <div
         class="overflow-hidden pointer-events-none"
         data-drag-origin="nested-cal"
-        style:padding="0 var(--left-padding) 0 calc(var(--left-padding) + {titleFS})"
+        style:padding="0 var(--left-padding)"
       >
         <TodoList
           trees={nestedTasks}
           parentID={task.id}
           compact
+          listWidth="fit-content"
           clipRectFunction={calClipRect}
         />
       </div>
@@ -114,16 +115,11 @@
     return calBodyClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight)
   }
 
-  function skip () {
-    const draggedID = $draggedItem.id
-    return hasAncestor(draggedID, task.id) || hasAncestor(task.id, draggedID)
-  }
-
-  function hasAncestor (nodeID, ancestorID) {
+  function cycle () {
     const seen = new Set()
-    let node = $treesByID[nodeID]
+    let node = $treesByID[task.id]
     while (node) {
-      if (node.id === ancestorID || node.parentID === ancestorID) return true
+      if (node.id === $draggedItem.id || node.parentID === $draggedItem.id) return true
       if (seen.has(node.id)) break
       seen.add(node.id)
       node = $treesByID[node.parentID]
