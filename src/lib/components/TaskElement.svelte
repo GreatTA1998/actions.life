@@ -57,6 +57,9 @@
         class="overflow-hidden pointer-events-none"
         data-drag-origin="nested-cal"
         style:padding="0 var(--left-padding)"
+        onclick={e => e.stopPropagation()}
+        onmousedown={e => e.stopPropagation()}
+        ontouchstart={e => e.stopPropagation()}
       >
         <TodoList
           trees={nestedTasks}
