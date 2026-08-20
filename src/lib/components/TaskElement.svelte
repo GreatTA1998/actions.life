@@ -6,8 +6,12 @@
       clipRectFunction: calClipRect,
       ignoreIf: cycle,
       onDrop () {
-        const rooms = task.children ?? []
-        return placeOnList({ parentID: task.id, rooms, index: rooms.length, unschedule: true })
+        return placeOnList({ 
+          parentID: task.id, 
+          rooms: task.children, 
+          index: task.children.length, 
+          unschedule: true 
+        })
       }
     })}
     onclick={() => openTaskPopup(task)}
@@ -52,7 +56,7 @@
       </div>
     {/if}
 
-    {#if nestedTasks.length}
+    {#if task.children.length}
       <div
         class="overflow-hidden pointer-events-none"
         data-drag-origin="nested-cal"
@@ -62,7 +66,7 @@
         ontouchstart={e => e.stopPropagation()}
       >
         <TodoList
-          trees={nestedTasks}
+          trees={task.children}
           parentID={task.id}
           compact
           listWidth="fit-content"
@@ -110,9 +114,6 @@
   let previewDuration = $state(0)
   let height = $derived((previewDuration || task.duration) * $pixelsPerHour / 60)
   let hasIntersected = $state(false)
-  let nestedTasks = $derived(
-    [...(task.children ?? [])].sort((a, b) => a.orderValue - b.orderValue)
-  )
 
   function calClipRect () {
     return calBodyClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight)

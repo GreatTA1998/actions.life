@@ -19,7 +19,6 @@
   let holdTimer = 0
   let ghost = null
   let unsub = []
-  let pending = null
   const PROBE_H = 2 // for targetting the smallest dropzone (4px in TaskElement's TodoList)
 
   setContext('drag-drop', {
@@ -32,18 +31,19 @@
 
   function startMouseDrag ({ e, id }) {
     e.stopPropagation()
-    if (pending || $draggedItem.id) return
-    pending = initDrag(e.currentTarget, id, e.clientX, e.clientY)
+    if ($draggedItem.id) return
+    arm(e.currentTarget, id, e.clientX, e.clientY)
     listen(window, 'mousemove', onmousemove)
     listen(window, 'mouseup', onmouseup)
   }
 
   function onmousemove (e) {
+    if (!$draggedItem.id) return
     if ($draggedItem.active) {
       e.preventDefault()
       hitTest(e.clientX, e.clientY)
     }
-    else if (pending && Math.hypot(e.clientX - pending.sx, e.clientY - pending.sy) > 2) {
+    else if (Math.hypot(e.clientX - $draggedItem.sx, e.clientY - $draggedItem.sy) > 2) {
       activate()
       hitTest(e.clientX, e.clientY)
     }
@@ -63,22 +63,23 @@
 
   function startTouchDrag ({ e, id }) {
     e.stopPropagation()
-    if (pending || $draggedItem.id) return
+    if ($draggedItem.id) return
     const [touch] = e.changedTouches
-    pending = initDrag(e.currentTarget, id, touch.clientX, touch.clientY)
+    arm(e.currentTarget, id, touch.clientX, touch.clientY)
     holdTimer = setTimeout(activate, TOUCH.HOLD_MS)
     listen(window, 'touchmove', ontouchmove, { passive: false })
     listen(window, 'touchend', ontouchend)
-    listen(window, 'touchcancel', ontouchcancel)
+    listen(window, 'touchcancel', reset)
   }
 
   function ontouchmove (e) {
+    if (!$draggedItem.id) return
     const [touch] = e.touches
     if ($draggedItem.active) {
       e.preventDefault()
       hitTest(touch.clientX, touch.clientY)
     }
-    else if (pending && Math.hypot(touch.clientX - pending.sx, touch.clientY - pending.sy) > TOUCH.SLOP) {
+    else if (Math.hypot(touch.clientX - $draggedItem.sx, touch.clientY - $draggedItem.sy) > TOUCH.SLOP) {
       reset()
     }
   }
@@ -88,36 +89,29 @@
     reset()
   }
 
-  function ontouchcancel () {
-    reset()
-  }
-
   function originOf (el) {
     return el.closest('[data-drag-origin]')?.dataset.dragOrigin ?? 'list'
   }
 
-  function initDrag (el, id, clientX, clientY) {
+  function arm (el, id, x, y) {
     const { left, top } = el.getBoundingClientRect()
-    return {
+    draggedItem.set({
+      ...empty(),
       el, id, origin: originOf(el),
-      active: false,
-      sx: clientX, sy: clientY,
-      offsetX: clientX - left, offsetY: clientY - top,
-      x1: 0, y1: 0, x2: 0, y2: 0,
-      width: 0, height: 0
-    }
+      sx: x, sy: y,
+      offsetX: x - left, offsetY: y - top
+    })
   }
 
   function activate () {
-    if (!pending || $draggedItem.active) return
+    const item = $draggedItem
+    if (!item.id || item.active) return
     clearTimeout(holdTimer)
 
-    const source = pending.el
+    const source = item.el
     const { width, height } = source.getBoundingClientRect()
-    const x1 = pending.sx - pending.offsetX, y1 = pending.sy - pending.offsetY
-    draggedItem.set({ ...pending, active: true, width, height, x1, y1, x2: x1 + width, y2: y1 + height })
-    pending = null
-    bestDropzoneID.set('')
+    const x1 = item.sx - item.offsetX, y1 = item.sy - item.offsetY
+    draggedItem.set({ ...item, active: true, width, height, x1, y1, x2: x1 + width, y2: y1 + height })
 
     const clone = source.cloneNode(true)
     clone.removeAttribute('id')
@@ -151,7 +145,6 @@
   function reset () {
     unlisten()
     clearTimeout(holdTimer)
-    pending = null
     ghost?.hidePopover()
     draggedItem.set(empty())
     bestDropzoneID.set('')
