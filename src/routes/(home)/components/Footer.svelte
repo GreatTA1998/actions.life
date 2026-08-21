@@ -73,13 +73,12 @@
 
         {#snippet content ()}
           <div class="flex min-w-max flex-col gap-y-1.5 px-3 py-2.5 text-sm text-gray-600">
-            {#if canCall}
-              <div class="inline-flex items-center gap-2 pb-0.5 text-gray-500">
-                In office
-                <span>{tokyoTime}</span>
-                <span>Tokyo</span>
-              </div>
-            {/if}
+            <div class="inline-flex items-center gap-2 pb-0.5 text-gray-500">
+              <span class={['size-2 shrink-0 rounded-full', canCall ? 'bg-blue-500' : 'bg-red-500']}></span>
+              {canCall ? 'In office' : 'Out of office'}
+              <span>{tokyoTime}</span>
+              <span>Tokyo</span>
+            </div>
             <div class="pb-0.5 text-gray-500">
               Generally available Mon – Fri, {callHours}
             </div>
