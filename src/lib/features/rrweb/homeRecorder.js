@@ -2,6 +2,7 @@ import { browser, dev } from '$app/environment'
 import { get } from 'svelte/store'
 import { authUser } from '$lib/store'
 import { getStorage, ref, uploadBytes } from 'firebase/storage'
+import { createChunkedFlusher } from './chunkedFlusher.js'
 
 const KEY = 'rrweb:home'
 
@@ -13,29 +14,34 @@ export function startHomeRecorder () {
     if (u?.email) { stop(); return }
     if (started || localStorage[KEY] || !u?.uid) return
     started = true
-    localStorage[KEY] = '1'
     const uid = u.uid
-    const events = []
     let cancelled = false
     stop = () => { cancelled = true }
     import('rrweb').then(({ record }) => {
-      if (cancelled) return
-      const rec = record({ emit: (e) => events.push(e), maskAllInputs: false })
-      const flush = () => events.length && uploadBytes(
-        ref(getStorage(), `rrweb/${uid}.json`),
-        new Blob([JSON.stringify(events)])
-      )
-      const timer = setInterval(flush, 4000)
-      const onHide = () => document.visibilityState === 'hidden' && flush()
+      if (cancelled) {
+        started = false
+        return
+      }
+      const flusher = createChunkedFlusher({
+        upload: async (path, json) => {
+          await uploadBytes(ref(getStorage(), path), new Blob([json]))
+          try { localStorage[KEY] = '1' } catch {}
+        },
+        pathForChunk: (i) => `rrweb/${uid}/${String(i).padStart(6, '0')}.json`
+      })
+      const rec = record({ emit: (e) => flusher.push(e), maskAllInputs: false })
+      const tick = () => { flusher.flush().catch(() => {}) }
+      const timer = setInterval(tick, 4000)
+      const onHide = () => { if (document.visibilityState === 'hidden') tick() }
       document.addEventListener('visibilitychange', onHide)
       stop = () => {
         rec()
         clearInterval(timer)
         document.removeEventListener('visibilitychange', onHide)
-        flush()
+        tick()
       }
       if (get(authUser)?.email) stop()
-    })
+    }).catch(() => { started = false })
   })
   return () => { unsub(); stop() }
 }
