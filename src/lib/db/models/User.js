@@ -29,8 +29,8 @@ const User = {
     avatarFilter: z.string().default(''),
 
     tags: z.record(z.object({ color: z.string(), name: z.string()})).default({}),
-    pixelsPerHour: z.number().default(50),
-    calColumnWidth: z.number().default(160),
+    pixelsPerHour: z.number().default(80),
+    calColumnWidth: z.number().default(260),
 
     selectedGoogleCalendarIds: z.array(z.string()).optional() // to deprecate
   }),
