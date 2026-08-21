@@ -36,6 +36,15 @@
 <footer class="flex flex-wrap items-center justify-end gap-x-6 gap-y-3 border-t border-black/[0.06] pt-8 pb-10">
   <div class="flex items-center">
     <a
+      href="https://www.youtube.com/@actions_life"
+      target="_blank"
+      rel="noreferrer"
+      class={iconBtn}
+    >
+      <SiYoutube class="block size-6" />
+    </a>
+
+    <a
       href="https://github.com/project-feynman/actions.life"
       target="_blank"
       rel="noreferrer"
@@ -44,14 +53,28 @@
       <SiGithub class="block size-6" />
     </a>
 
-    <a
-      href="https://www.youtube.com/@actions_life"
-      target="_blank"
-      rel="noreferrer"
-      class={iconBtn}
-    >
-      <SiYoutube class="block size-6" />
-    </a>
+    <PopoverMenu>
+      {#snippet activator ({ id, anchorName })}
+        <button
+          popovertarget={id}
+          style:anchor-name={anchorName}
+          class={iconBtn}
+        >
+          <MsMail class="block size-7" />
+        </button>
+      {/snippet}
+
+      {#snippet content ()}
+        <div class="px-3 py-2.5 text-sm text-gray-600">
+          <a
+            href="mailto:elton@actions.life"
+            class="no-underline transition-colors hover:text-gray-800"
+          >
+            elton@actions.life
+          </a>
+        </div>
+      {/snippet}
+    </PopoverMenu>
 
     <PopoverMenu>
       {#snippet activator ({ id, anchorName })}
@@ -89,29 +112,6 @@
           >
             <span>JP</span>
             <span>080 4919 2027</span>
-          </a>
-        </div>
-      {/snippet}
-    </PopoverMenu>
-
-    <PopoverMenu>
-      {#snippet activator ({ id, anchorName })}
-        <button
-          popovertarget={id}
-          style:anchor-name={anchorName}
-          class={iconBtn}
-        >
-          <MsMail class="block size-7" />
-        </button>
-      {/snippet}
-
-      {#snippet content ()}
-        <div class="px-3 py-2.5 text-sm text-gray-600">
-          <a
-            href="mailto:elton@actions.life"
-            class="no-underline transition-colors hover:text-gray-800"
-          >
-            elton@actions.life
           </a>
         </div>
       {/snippet}
