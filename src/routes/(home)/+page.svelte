@@ -2,6 +2,7 @@
   import ArtisticBackground from './components/ArtisticBackground.svelte'
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import DemoVideo from './components/DemoVideo.svelte'
+  import FeatureCards from './components/FeatureCards.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
@@ -57,6 +58,10 @@
           <MacbookDisplay children={simulatedApp} />
         {/if}
       </div>
+    </div>
+
+    <div class="my-20">
+      <FeatureCards />
     </div>
 
     <div class="my-20 flex flex-col gap-y-4">
