@@ -1,27 +1,28 @@
 import { browser, dev } from '$app/environment'
 import { get } from 'svelte/store'
-import { authChecked, authUser } from '$lib/store'
+import { authUser } from '$lib/store'
 import { getStorage, ref, uploadBytes } from 'firebase/storage'
-import { randomID } from '$lib/utils/core.js'
 
 const KEY = 'rrweb:home'
 
 export function startHomeRecorder () {
   if (!browser || dev) return () => {}
   let stop = () => {}
-  const unsub = authChecked.subscribe((checked) => {
-    if (!checked || localStorage[KEY] || get(authUser)?.email) return
+  let started = false
+  const unsub = authUser.subscribe((u) => {
+    if (u?.email) { stop(); return }
+    if (started || localStorage[KEY] || !u?.uid) return
+    started = true
     localStorage[KEY] = '1'
-    let cancelled = false
-    const id = randomID()
+    const uid = u.uid
     const events = []
-    const unsubAuth = authUser.subscribe((u) => { if (u?.email) stop() })
-    stop = () => { cancelled = true; unsubAuth() }
+    let cancelled = false
+    stop = () => { cancelled = true }
     import('rrweb').then(({ record }) => {
       if (cancelled) return
       const rec = record({ emit: (e) => events.push(e), maskAllInputs: false })
       const flush = () => events.length && uploadBytes(
-        ref(getStorage(), `rrweb/${id}.json`),
+        ref(getStorage(), `rrweb/${uid}.json`),
         new Blob([JSON.stringify(events)])
       )
       const timer = setInterval(flush, 4000)
@@ -30,7 +31,6 @@ export function startHomeRecorder () {
       stop = () => {
         rec()
         clearInterval(timer)
-        unsubAuth()
         document.removeEventListener('visibilitychange', onHide)
         flush()
       }

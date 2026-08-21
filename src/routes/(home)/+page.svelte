@@ -6,11 +6,14 @@
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
   import SignInCard from './components/SignInCard.svelte'
+  import Footer from './components/Footer.svelte'
   import { authChecked, authUser } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { browser } from '$app/environment'
   import { onMount } from 'svelte'
   import { startHomeRecorder } from '$lib/features/rrweb/homeRecorder.js'
+
+  let { data } = $props()
 
   let browserSupported = $state(true)
 
@@ -64,7 +67,7 @@
       <DemoVideo />
     </div>
 
-    <div class="flex items-center justify-center mt-12 mb-54">
+    <div class="flex items-center justify-center mt-12 mb-24">
       <SignInCard/>
     </div>
 
@@ -82,12 +85,6 @@
       </div>
     {/snippet}
 
-    <div class="flex gap-x-4 h-[48px]">
-      <div class="ml-auto"></div>
-
-      <a href="/auth/privacy">Privacy Policy</a>
-  
-      <a href="/auth/terms">Terms of Service</a>
-    </div>
+    <Footer stars={data.stars} />
   </div>
 </div>
