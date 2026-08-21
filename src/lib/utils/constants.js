@@ -26,6 +26,12 @@ export const WIDTHS = Object.freeze({
   PANEL_MAX: breakpoints.desktop / goldenRatio
 })
 
+export const calendarDensity = Object.freeze({
+  wide: Object.freeze({ pixelsPerHour: 80, calColumnWidth: 260 }),
+  dense: Object.freeze({ pixelsPerHour: 50, calColumnWidth: 160 }),
+  mini: Object.freeze({ pixelsPerHour: 31, calColumnWidth: 100 }),
+})
+
 export const MOBILE_SAFE_INSET = 48
 
 export const TOUCH = Object.freeze({
