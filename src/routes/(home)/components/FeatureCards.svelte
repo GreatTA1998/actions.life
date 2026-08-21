@@ -44,7 +44,7 @@
         >
           {card.title}<span
             class={[
-              'inline-grid overflow-hidden',
+              'inline-grid overflow-hidden transition-[grid-template-columns] duration-200 ease-out motion-reduce:transition-none',
               active ? 'grid-cols-[1fr]' : 'grid-cols-[0fr]'
             ]}
           >
