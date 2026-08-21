@@ -1,21 +1,24 @@
 <script>
   import ArtisticBackground from './components/ArtisticBackground.svelte'
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
-  import DemoVideo from './components/DemoVideo.svelte'
+  import FeatureCards from './components/FeatureCards.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
   import SignInCard from './components/SignInCard.svelte'
+  import Footer from './components/Footer.svelte'
   import { authChecked, authUser } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { browser } from '$app/environment'
   import { onMount } from 'svelte'
+  import { startHomeRecorder } from '$lib/features/rrweb/homeRecorder.js'
 
   let browserSupported = $state(true)
 
   onMount(() => {
     browserSupported = HTMLElement.prototype.hasOwnProperty("popover")
       && CSS.supports('anchor-name: --x')
+    return startHomeRecorder()
   })
 </script>
 
@@ -36,7 +39,7 @@
 
     <div class="my-20 mx-auto flex w-8/10 max-md:w-[min(88vw,320px)] flex-col gap-6">
       <h2 class="m-0 uppercase font-semibold tracking-[-0.02em] text-[clamp(1.125rem,1.5vw,1.375rem)] text-gray-600">
-        Interactive demo
+        Interactive Demo
       </h2>
 
       <div class="flex flex-col gap-8 pb-8">
@@ -54,15 +57,11 @@
       </div>
     </div>
 
-    <div class="my-20 flex flex-col gap-y-4">
-      <h2 class="m-0 uppercase font-semibold tracking-[-0.02em] text-[clamp(1.125rem,1.5vw,1.375rem)] text-gray-600">
-        Video Tutorial
-      </h2>
-
-      <DemoVideo />
+    <div class="my-20">
+      <FeatureCards />
     </div>
 
-    <div class="flex items-center justify-center mt-12 mb-54">
+    <div class="flex items-center justify-center mt-12 mb-24">
       <SignInCard/>
     </div>
 
@@ -80,12 +79,6 @@
       </div>
     {/snippet}
 
-    <div class="flex gap-x-4 h-[48px]">
-      <div class="ml-auto"></div>
-
-      <a href="/auth/privacy">Privacy Policy</a>
-  
-      <a href="/auth/terms">Terms of Service</a>
-    </div>
+    <Footer />
   </div>
 </div>

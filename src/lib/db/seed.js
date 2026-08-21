@@ -1,15 +1,27 @@
 import { DateTime } from 'luxon'
 import Task from '$lib/db/models/Task.js'
 import Template from '$lib/db/models/Template.js'
+import { getPreviewSpan } from '$lib/utils/rrule.js'
 
 export async function initializeSeedData () {
-  for (const { id, ...data } of SEED_TEMPLATES) { // parallelizable
-    Template.create({ id, data })
-  }
+  const prevEndISO = DateTime.utc().minus({ days: 1 }).toFormat('yyyy-MM-dd')
+
+  const templates = Promise.all(SEED_TEMPLATES.map(({ id, ...data }) =>
+    Template.create({
+      id,
+      data: {
+        ...data,
+        previewSpan: getPreviewSpan({ rrStr: data.rrStr }),
+        prevEndISO
+      }
+    })
+  ))
 
   for (const { id, data } of resolveRelativeDates(SEED_TASKS)) { // must be sequential for `treeISOs` to be handled
-    const result = await Task.create({ id, data })
+    await Task.create({ id, data })
   }
+
+  await templates
 }
 
 function resolveRelativeDates (tasks) {
@@ -61,25 +73,17 @@ const SEED_TASKS = [
     duration: 106
   },
 
-  // ── Icon habits ─────────────────────────────────────────────────────
-  // day 1
-  { id: 'habit-water',    name: 'Water the plant',               iconURL: ICON.waterPlant, dayOffset: 0, onList: false, templateID: 'template-habit-water' },
-  { id: 'habit-drink',    name: 'Drink water',     isDone: true, iconURL: ICON.drinkWater, dayOffset: 0, onList: false, templateID: 'template-habit-drink', duration: 1 },
-  { id: 'habit-meditate', name: 'Meditate',                      iconURL: ICON.meditate,   dayOffset: 0, onList: false, templateID: 'template-habit-meditate' },
-  { id: 'habit-laundry',  name: 'Dry laundry',     isDone: true, iconURL: ICON.laundry,    dayOffset: 0, onList: false, templateID: 'template-habit-laundry' },
-  // day 2
-  { id: 'habit-drink-2',    name: 'Drink water',     isDone: true, iconURL: ICON.drinkWater, dayOffset: 1, onList: false, templateID: 'template-habit-drink', duration: 1 },
-  { id: 'habit-meditate-2', name: 'Meditate',                      iconURL: ICON.meditate,   dayOffset: 1, onList: false, templateID: 'template-habit-meditate' },
-
-  // ── Sub-task tree ───────────────────────────────────────────────────
   { id: 'getting-started', onList: true, name: 'TO-DO' },
-  { id: '1', parentID: 'getting-started', onList: true, name: 'Hold and drag me anywhere' },
-  { id: '2', parentID: 'getting-started', onList: true, name: 'Create a task', notes: 'Click on any empty space (hint: indent your click for sub-tasks' },
 
-  // ── Timeline ────────────────────────────────────────────────────────
-  { id: 'project', name: 'Example Project', childrenLayout: 'timeline', onList: true },
-  { id: 'project-draft', name: 'First draft',  parentID: 'project', dayOffset: -30, isDone: true, onList: true },
-  { id: 'project-final',   name: 'Final submission',    parentID: 'project', dayOffset: 90,  duration: 120, onList: true }
+  { id: 'goal', parentID: 'getting-started', onList: true, name: 'Set a medium-term goal', childrenLayout: 'timeline' },
+  { id: 'goal-m1', parentID: 'goal', onList: true, name: 'Milestone 1', dayOffset: -30, isDone: true },
+  { id: 'goal-m2', parentID: 'goal', onList: true, name: 'Milestone 2', dayOffset: 90 },
+
+  { id: 'draw-icon', parentID: 'getting-started', onList: true, name: 'Draw your own habit icon' },
+  { id: 'draw-icon-repeat', parentID: 'draw-icon', onList: true, name: 'Make a task repeat' },
+  { id: 'draw-icon-set', parentID: 'draw-icon', onList: true, name: 'Set an icon' },
+
+  { id: 'upload-photo', parentID: 'getting-started', onList: true, name: 'Upload a photo with friends' },
 ]
 
 const RRSTR = {
