@@ -10,12 +10,14 @@
   import { isMobile } from '$lib/utils/core.js'
   import { browser } from '$app/environment'
   import { onMount } from 'svelte'
+  import { startHomeRecorder } from '$lib/features/rrweb/homeRecorder.js'
 
   let browserSupported = $state(true)
 
   onMount(() => {
     browserSupported = HTMLElement.prototype.hasOwnProperty("popover")
       && CSS.supports('anchor-name: --x')
+    return startHomeRecorder()
   })
 </script>
 
