@@ -14,8 +14,6 @@
   import { onMount } from 'svelte'
   import { startHomeRecorder } from '$lib/features/rrweb/homeRecorder.js'
 
-  let { data } = $props()
-
   let browserSupported = $state(true)
 
   onMount(() => {
@@ -42,7 +40,7 @@
 
     <div class="my-20 mx-auto flex w-8/10 max-md:w-[min(88vw,320px)] flex-col gap-6">
       <h2 class="m-0 uppercase font-semibold tracking-[-0.02em] text-[clamp(1.125rem,1.5vw,1.375rem)] text-gray-600">
-        Interactive demo
+        Interactive Demo
       </h2>
 
       <div class="flex flex-col gap-8 pb-8">
@@ -64,13 +62,13 @@
       <FeatureCards />
     </div>
 
-    <div class="my-20 flex flex-col gap-y-4">
+    <!-- <div class="my-20 flex flex-col gap-y-4">
       <h2 class="m-0 uppercase font-semibold tracking-[-0.02em] text-[clamp(1.125rem,1.5vw,1.375rem)] text-gray-600">
         Video Tutorial
       </h2>
 
       <DemoVideo />
-    </div>
+    </div> -->
 
     <div class="flex items-center justify-center mt-12 mb-24">
       <SignInCard/>
@@ -90,6 +88,6 @@
       </div>
     {/snippet}
 
-    <Footer stars={data.stars} />
+    <Footer />
   </div>
 </div>

@@ -1,49 +1,49 @@
 <script>
-  let { src = '', title, body } = $props()
+  import '@mux/mux-player'
 
-  let failed = $state(false)
-  const showVideo = $derived(!!src && !failed)
+  let { playbackID = '', aspectRatio = 16 / 9 } = $props()
 
-  function playSilent (node) {
-    node.muted = true
-    const play = () => node.play().catch(() => {})
-    play()
-    node.addEventListener('canplay', play)
-    return () => {
-      node.removeEventListener('canplay', play)
-      node.pause()
-    }
-  }
+  let failedFor = $state(null)
+  const showVideo = $derived(!!playbackID && failedFor !== playbackID)
 </script>
 
-<article class="relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-[1.75rem] bg-black/[0.045]">
-  <div class="relative aspect-[5/4] overflow-hidden">
-    {#if showVideo}
-      <video
-        {@attach playSilent}
-        {src}
-        muted
-        loop
-        playsinline
-        autoplay
-        disablepictureinpicture
-        onerror={() => failed = true}
-        class="size-full object-cover"
-      ></video>
-    {:else}
-      <div class="placeholder size-full"></div>
-    {/if}
-  </div>
-
-  <div class="relative z-1 flex flex-col gap-1.5 px-5 pb-6 pt-4">
-    <h3 class="m-0 text-[1.05rem] font-semibold tracking-tight text-gray-800">{title}</h3>
-    <p class="m-0 text-sm leading-snug text-gray-500">{body}</p>
-  </div>
-
-  <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-neutral-500/15 to-transparent"></div>
-</article>
+<div
+  class="loop-card relative self-start overflow-hidden rounded-2xl border border-white/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_32px_rgba(80,120,180,0.12)]"
+  style:width={`min(100%, calc(32rem * ${aspectRatio}))`}
+  style:aspect-ratio={aspectRatio}
+>
+  {#if showVideo}
+    <mux-player
+      playback-id={playbackID}
+      muted
+      loop
+      autoplay="muted"
+      nohotkeys
+      playsinline
+      max-resolution="720p"
+      onerror={() => failedFor = playbackID}
+      class="block size-full"
+      style:aspect-ratio={aspectRatio}
+    ></mux-player>
+  {:else}
+    <div class="placeholder size-full"></div>
+  {/if}
+</div>
 
 <style>
+  .loop-card {
+    height: auto;
+    max-height: 32rem;
+    flex-shrink: 0;
+  }
+
+  mux-player {
+    display: block;
+    --controls: none;
+    --media-object-fit: contain;
+    --media-background-color: transparent;
+  }
+
   .placeholder {
     background:
       linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%),
