@@ -14,28 +14,34 @@ export function startHomeRecorder () {
     if (u?.email) { stop(); return }
     if (started || localStorage[KEY] || !u?.uid) return
     started = true
-    localStorage[KEY] = '1'
     const uid = u.uid
     let cancelled = false
     stop = () => { cancelled = true }
     import('rrweb').then(({ record }) => {
-      if (cancelled) return
+      if (cancelled) {
+        started = false
+        return
+      }
       const flusher = createChunkedFlusher({
-        upload: (path, json) => uploadBytes(ref(getStorage(), path), new Blob([json])),
+        upload: async (path, json) => {
+          await uploadBytes(ref(getStorage(), path), new Blob([json]))
+          try { localStorage[KEY] = '1' } catch {}
+        },
         pathForChunk: (i) => `rrweb/${uid}/${String(i).padStart(6, '0')}.json`
       })
       const rec = record({ emit: (e) => flusher.push(e), maskAllInputs: false })
-      const timer = setInterval(() => { flusher.flush() }, 4000)
-      const onHide = () => document.visibilityState === 'hidden' && flusher.flush()
+      const tick = () => { flusher.flush().catch(() => {}) }
+      const timer = setInterval(tick, 4000)
+      const onHide = () => { if (document.visibilityState === 'hidden') tick() }
       document.addEventListener('visibilitychange', onHide)
       stop = () => {
         rec()
         clearInterval(timer)
         document.removeEventListener('visibilitychange', onHide)
-        flusher.flush()
+        tick()
       }
       if (get(authUser)?.email) stop()
-    })
+    }).catch(() => { started = false })
   })
   return () => { unsub(); stop() }
 }
