@@ -1,22 +1,21 @@
 <script>
   import MsCheckCircleOutline from 'virtual:icons/material-symbols/check-circle-outline'
 
-  let { 
-    task, 
-    onclick = () => {},
+  let {
+    task,
     color = 'var(--task-name-color)',
     extraClass = '',
     fontSize = '1rem'
   } = $props()
 
-  let subtasks = $derived(task.children)
+  let done = $derived(task.children.filter(child => child.isDone).length)
 </script>
 
-<button {onclick} style:color
-  class="flex items-center gap-x-[2px] {extraClass}" 
->
-  <MsCheckCircleOutline style="font-size: calc(0.75 * {fontSize});" class="shrink-0"/>
-  <span style="font-size: calc(0.75 * {fontSize}); text-box-trim: trim-both;" class="shrink-0 font-medium">
-    {subtasks.filter(child => child.isDone).length}/{subtasks.length}
+<div style:color style:font-size={fontSize} class="flex items-center gap-x-[2px] {extraClass}">
+  <div class="flex items-center justify-center min-h-0 h-[1lh]">
+    <MsCheckCircleOutline class="size-[1em]"/>
+  </div>
+  <span style="font-size: 0.75em" class="shrink-0 font-medium">
+    {done}/{task.children.length}
   </span>
-</button>
+</div>

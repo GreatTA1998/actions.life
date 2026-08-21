@@ -1,25 +1,14 @@
 <div 
   {@attach registerDropzone({ 
     id,
-    clipRectFunction: $logicAreaRect, 
-    onDrop () {
-      if (circular) return
-
-      Task.update({ 
-        id: $draggedItem.id, 
-        kvChanges: {
-          parentID,
-          orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
-          onList: true
-        }
-      })
-    },
-    normalizeDragItemHeight: true
+    clipRectFunction: clipRectFunction(),
+    onDrop: () => placeOnList({ parentID, rooms: roomsInThisLevel, index: idxInThisLevel })
   })}
   onclick={e => {
-    e.stopPropagation(); // since dropzones stack
+    e.stopPropagation();
     activateInput({
       anchorID,
+      fontSize: parentID === '' ? rootFontSize() : subFontSize(),
       modifiers: {
         onList: true,
         orderValue: computeOrderValue(idxInThisLevel, roomsInThisLevel),
@@ -39,7 +28,7 @@
     height: {parentID === '' ? dzRootHeight() : dzSubHeight()}; 
     border-radius: var(--left-padding);
     border: {debug() ? 1 : 0}px solid {debugColor}; 
-    {$bestDropzoneID === id ? (circular ? 'background-color: red;' : dropPreviewCSS ) : ''}
+    {$bestDropzoneID === id ? dropPreviewCSS : ''}
     {extraStyle};
   "
 ></div>
@@ -48,16 +37,14 @@
   import { randomID } from '$lib/utils/core.js'
   import { getContext } from 'svelte'
 
-  const { Task } = getContext('app')
   const { 
     registerDropzone, bestDropzoneID, dropPreviewCSS,
-    draggedItem, logicAreaRect, computeOrderValue
+    computeOrderValue, placeOnList
   } = getContext('drag-drop')
-  const { dzRootHeight, dzSubHeight, debug } = getContext('list-config')
+  const { dzRootHeight, dzSubHeight, debug, clipRectFunction, rootFontSize, subFontSize } = getContext('list-config')
   const { activateInput, overrideOptions } = getContext('popover-input')
 
   let {
-    ancestorIDs,
     roomsInThisLevel,
     idxInThisLevel,
     parentID = '',
@@ -68,5 +55,4 @@
 
   const id = randomID()
   let anchorID = $derived(`--dropzone-${id}`)
-  let circular = $derived(ancestorIDs.includes($draggedItem.id))
 </script>

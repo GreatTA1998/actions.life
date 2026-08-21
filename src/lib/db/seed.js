@@ -35,14 +35,12 @@ const ICON = {
 }
 
 /**
- * Shape per entry:
- *   id        – stable document ID
- *   dayOffset – (optional) days from today → becomes startDateISO at build time
- *
  * Parents MUST appear before their children (Task.create reads the parent rootID and treeISOs)
  *
  * Only "stable" properties are stored here — fields that are computed at
  * creation time (orderValue, treeISOs, rootID) are intentionally omitted.
+ * 
+ * dayOffset – (optional) days from today, becomes startDateISO at build time
  */
 const SEED_TASKS = [
   { id: 'photo-bird', 
@@ -75,7 +73,7 @@ const SEED_TASKS = [
 
   // ── Sub-task tree ───────────────────────────────────────────────────
   { id: 'getting-started', onList: true, name: 'TO-DO' },
-  { id: '1', parentID: 'getting-started', onList: true, name: 'Drag me anywhere' },
+  { id: '1', parentID: 'getting-started', onList: true, name: 'Hold and drag me anywhere' },
   { id: '2', parentID: 'getting-started', onList: true, name: 'Create a task', notes: 'Click on any empty space (hint: indent your click for sub-tasks' },
 
   // ── Timeline ────────────────────────────────────────────────────────

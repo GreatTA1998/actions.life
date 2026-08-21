@@ -10,6 +10,7 @@ const User = {
     maxOrderValue: z.number().default(10),
 
     calendarTheme: z.string().default('mutedEarth'),
+    fontScale: z.number().default(1),
     defaultPhotoLayout: z.string().default('split-view'),
     calSnapInterval: z.number().default(1),
     listAreaWidthRatio: z.number().default(0.00223), // empirically determined from my account
@@ -28,8 +29,8 @@ const User = {
     avatarFilter: z.string().default(''),
 
     tags: z.record(z.object({ color: z.string(), name: z.string()})).default({}),
-    pixelsPerHour: z.number().default(80),
-    calColumnWidth: z.number().default(260),
+    pixelsPerHour: z.number().default(50),
+    calColumnWidth: z.number().default(160),
 
     selectedGoogleCalendarIds: z.array(z.string()).optional() // to deprecate
   }),

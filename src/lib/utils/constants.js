@@ -23,11 +23,15 @@ export const WIDTHS = Object.freeze({
   CALENDAR_LEFT_PADDING: 16,
   MOBILE_TIME_AXIS: 22,
   DESKTOP_TIME_AXIS: 64,
-  INDENT_PER_LEVEL: 32, // such that mobile's 1.5 scale --> 48px
   PANEL_MAX: breakpoints.desktop / goldenRatio
 })
 
 export const MOBILE_SAFE_INSET = 48
+
+export const TOUCH = Object.freeze({
+  HOLD_MS: 150,
+  SLOP: 5,
+})
 
 export function translateJSConstantsToCSSVariables () {
   for (const [key, value] of Object.entries(WIDTHS)) {

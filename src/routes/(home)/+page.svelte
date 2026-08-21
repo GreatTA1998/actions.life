@@ -3,7 +3,6 @@
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import DemoVideo from './components/DemoVideo.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
-  import SectionHeader from './components/SectionHeader.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
   import SignInCard from './components/SignInCard.svelte'
@@ -27,20 +26,18 @@
     <div class="mt-40 mb-30">
       <div class="grid grid-cols-4 gap-y-[clamp(1.5rem,2vw,3rem)] max-[900px]:grid-cols-1">
         <h1 class="col-span-full text-left font-semibold tracking-tight leading-[1.4] text-[clamp(2.4rem,1.25rem+1.7vw,3.75rem)] text-gray-600">
-          actions.life is a one page life calendar
+          actions.life is a one-page planner
         </h1>
         <div class="col-span-3 max-w-[52ch] text-pretty text-md leading-[1.6] text-gray-600 max-[900px]:col-span-1">
-          We often keep to-do lists on separate pages, which makes it hard to see the the full picture.
-          Here you can see how everything fits together: events, tasks, deadlines etc.
+          Reminders are forgotten when they're out of sight. Keep them visible in the same place by integrating the to-do list and calendar together.
         </div>
       </div>
     </div>
 
     <div class="my-20 mx-auto flex w-8/10 max-md:w-[min(88vw,320px)] flex-col gap-6">
-      <SectionHeader
-        title="Playground"
-        subtitle="No login required"
-      />
+      <h2 class="m-0 uppercase font-semibold tracking-[-0.02em] text-[clamp(1.125rem,1.5vw,1.375rem)] text-gray-600">
+        Interactive demo
+      </h2>
 
       <div class="flex flex-col gap-8 pb-8">
         {#if !browserSupported}
@@ -58,10 +55,10 @@
     </div>
 
     <div class="my-20 flex flex-col gap-y-4">
-      <SectionHeader
-        title="Demo video"
-        subtitle="Skip to any section with chapter cards"
-      />
+      <h2 class="m-0 uppercase font-semibold tracking-[-0.02em] text-[clamp(1.125rem,1.5vw,1.375rem)] text-gray-600">
+        Video Tutorial
+      </h2>
+
       <DemoVideo />
     </div>
 

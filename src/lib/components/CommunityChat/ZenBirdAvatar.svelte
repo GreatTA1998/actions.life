@@ -10,7 +10,7 @@
     class: className = ''
   } = $props()
 
-  let sizeClass = $derived(size === 'sm' ? 'size-6' : 'size-11')
+  let sizeClass = $derived(size === 'sm' ? 'size-4' : 'size-8')
 </script>
 
 <PopoverMenu>

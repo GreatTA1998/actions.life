@@ -1,213 +1,270 @@
 <script>
-  import { setContext } from 'svelte'
+  import { onDestroy, setContext, getContext } from 'svelte'
   import { writable } from 'svelte/store'
-  import { createThrottledFunction } from '$lib/utils/core.js'
   import { playSound } from '$lib/features/audio.js'
+  import { TOUCH } from '$lib/utils/constants.js'
 
   let { children } = $props()
 
-  const draggedItem = writable(Empty())
-  const matchedDropzones = writable({})
+  const { Task } = getContext('app')
+  const draggedItem = writable(empty())
   const bestDropzoneID = writable('')
-  const hasDropped = writable(false)
   const scrollCalRect = writable(() => ({ left: 0, top: 0, right: Infinity, bottom: Infinity }))
-  const logicAreaRect = writable(() => ({ left: 0, top: 0, right: Infinity, bottom: Infinity }))
-
-  const frameRate = 60
-  const oneThousandMs = 1000
-  const throttledPositionUpdate = createThrottledFunction(updateDraggedItemPosition, oneThousandMs/frameRate)
   const dropPreviewCSS = `
     background-color: rgba(var(--drag-preview), 0.15);
     border: 1px dashed rgba(var(--drag-preview), 0.6);
   `
 
+  const zones = new Map()
+  let holdTimer = 0
+  let ghost = null
+  let unsub = []
+  const PROBE_H = 2 // for targetting the smallest dropzone (4px in TaskElement's TodoList)
+
   setContext('drag-drop', {
-    draggedItem,
-    bestDropzoneID,
-    dropPreviewCSS,
-    scrollCalRect,
-    logicAreaRect,
-    startTaskDrag,
-    computeOrderValue,
-    registerDropzone
+    draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect,
+    startMouseDrag, startTouchDrag, computeOrderValue, registerDropzone,
+    placeOnList, placeOnCal
   })
 
-  function startTaskDrag ({ e, id, isFromCal = false }) {
-    if (e.target !== e.currentTarget) return // effectively `click|self`
-    // don't call preventDefault(), otherwise drag doesn't even start
-    e.stopPropagation() // stops rare occasions where the entire UI gets dragged (which'd be scary)
-    e.dataTransfer.setData("text/plain", id) // without this iOS won't activate drag!
-    reset()
+  onDestroy(reset)
 
-    const { top, left, width, height } = e.target.getBoundingClientRect()
-    
-    draggedItem.update(i => {
-      i.x1 = left
-      i.y1 = top
-      i.x2 = i.x1 + width
-      i.y2 = i.y1 + height
-
-      i.width = width
-      i.height = height
-
-      i.offsetX = e.clientX - left
-      i.offsetY = e.clientY - top
-
-      i.id = id
-      i.isFromCal = isFromCal
-
-      return i
-    })
+  function startMouseDrag ({ e, id }) {
+    e.stopPropagation()
+    if ($draggedItem.id) return
+    arm(e.currentTarget, id, e.clientX, e.clientY)
+    listen(window, 'mousemove', onmousemove)
+    listen(window, 'mouseup', onmouseup)
   }
 
-  function ondragover (e) {
-    e.preventDefault() // otherwise drop is disallowed
-    e.dataTransfer.dropEffect = 'move' // explicitly define a plain effect. Without it, Mac would show a green + icon which is distracting
-
-    if ($draggedItem.id) {
-      throttledPositionUpdate(e)
+  function onmousemove (e) {
+    if (!$draggedItem.id) return
+    if ($draggedItem.active) {
+      e.preventDefault()
+      hitTest(e.clientX, e.clientY)
+    }
+    else if (Math.hypot(e.clientX - $draggedItem.sx, e.clientY - $draggedItem.sy) > 2) {
+      activate()
+      hitTest(e.clientX, e.clientY)
     }
   }
 
-  function updateDraggedItemPosition (e) {
-    draggedItem.update(i => {
-      i.x1 = e.clientX - i.offsetX
-      i.y1 = e.clientY - i.offsetY
-      i.x2 = i.x1 + i.width
-      i.y2 = i.y1 + i.height
-      return i
-    })
-    bestDropzoneID.set(
-      resolveBest($matchedDropzones)
-    )
+  function onmouseup () {
+    if ($draggedItem.active) {
+      drop()
+      function swallow (e) {
+        e.stopImmediatePropagation()
+      }
+      document.addEventListener('click', swallow, true)
+      setTimeout(() => document.removeEventListener('click', swallow, true), 50)
+    }
+    reset()
   }
 
-  function ondrop (e) {
-    e.preventDefault() // prevent the browser navigating to what it thinks is the newly dropped URL. Note web.dev is WRONG using e.stopPropagation() here!
-    
-    if ($draggedItem.id) {
-      bestDropzoneID.set(
-        resolveBest($matchedDropzones)
-      )
-      hasDropped.set(true)
+  function startTouchDrag ({ e, id }) {
+    e.stopPropagation()
+    if ($draggedItem.id) return
+    const [touch] = e.changedTouches
+    arm(e.currentTarget, id, touch.clientX, touch.clientY)
+    holdTimer = setTimeout(activate, TOUCH.HOLD_MS)
+    listen(window, 'touchmove', ontouchmove, { passive: false })
+    listen(window, 'touchend', ontouchend)
+    listen(window, 'touchcancel', reset)
+  }
+
+  function ontouchmove (e) {
+    if (!$draggedItem.id) return
+    const [touch] = e.touches
+    if ($draggedItem.active) {
+      e.preventDefault()
+      hitTest(touch.clientX, touch.clientY)
+    }
+    else if (Math.hypot(touch.clientX - $draggedItem.sx, touch.clientY - $draggedItem.sy) > TOUCH.SLOP) {
+      reset()
+    }
+  }
+
+  function ontouchend () {
+    if ($draggedItem.active) drop()
+    reset()
+  }
+
+  function originOf (el) {
+    return el.closest('[data-drag-origin]')?.dataset.dragOrigin ?? 'list'
+  }
+
+  function arm (el, id, x, y) {
+    const { left, top } = el.getBoundingClientRect()
+    draggedItem.set({
+      ...empty(),
+      el, id, origin: originOf(el),
+      sx: x, sy: y,
+      offsetX: x - left, offsetY: y - top
+    })
+  }
+
+  function activate () {
+    const item = $draggedItem
+    if (!item.id || item.active) return
+    clearTimeout(holdTimer)
+
+    const source = item.el
+    const { width, height } = source.getBoundingClientRect()
+    const x1 = item.sx - item.offsetX, y1 = item.sy - item.offsetY
+    draggedItem.set({ ...item, active: true, width, height, x1, y1, x2: x1 + width, y2: y1 + height })
+
+    const clone = source.cloneNode(true)
+    clone.removeAttribute('id')
+    clone.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'))
+    Object.assign(clone.style, { width: '100%', height: '100%', margin: '0' })
+    ghost.style.borderRadius = getComputedStyle(source).borderRadius
+    ghost.replaceChildren(clone)
+    ghost.showPopover()
+    pickZone()
+  }
+
+  function hitTest (clientX, clientY) {
+    const x1 = clientX - $draggedItem.offsetX, y1 = clientY - $draggedItem.offsetY
+    draggedItem.update(i => {
+      i.x1 = x1; i.y1 = y1
+      i.x2 = x1 + i.width; i.y2 = y1 + i.height
+      return i
+    })
+    pickZone()
+  }
+
+  function drop () {
+    pickZone()
+    const zone = zones.get($bestDropzoneID)
+    if (zone) {
+      zone.onDrop()
       playSound('tap', 0.125)
     }
   }
 
-  function resolveBest (dropzones) {
-    let maxOverlap = 0
-    let bestDropzoneID = ''
-    for (const [dropzoneID, { area, left }] of Object.entries(dropzones)) {
-      if (area === maxOverlap && left > dropzones[bestDropzoneID].left) {
-        bestDropzoneID = dropzoneID
-      }
-      else if (area > maxOverlap) {
-        maxOverlap = area
-        bestDropzoneID = dropzoneID
-      }
-    }
-    return bestDropzoneID
-  }
-
   function reset () {
-    draggedItem.set(Empty())
-    matchedDropzones.set({})
+    unlisten()
+    clearTimeout(holdTimer)
+    ghost?.hidePopover()
+    draggedItem.set(empty())
     bestDropzoneID.set('')
-    hasDropped.set(false)
   }
 
-  function Empty () {
-    return {
-      x1: null,
-      y1: null,
-      x2: null,
-      y2: null,
-      offsetX: null,
-      offsetY: null,
-      kind: '',
-      id: ''
+  function listen (target, type, handler, options) {
+    target.addEventListener(type, handler, options)
+    unsub.push(() => target.removeEventListener(type, handler, options))
+  }
+
+  function unlisten () {
+    for (const off of unsub) off()
+    unsub = []
+  }
+
+  function overflowParents (node) {
+    const clips = []
+    for (let p = node.parentElement; p && p !== document.documentElement; p = p.parentElement) {
+      const { overflow, overflowX, overflowY } = getComputedStyle(p)
+      if (overflow !== 'visible' || overflowX !== 'visible' || overflowY !== 'visible') clips.push(p)
     }
+    return clips
   }
 
-  const normalizedHeight = 12 // so oversized drag items (due to tall duration) can target small dropzones
+  function visibleRect (zone) {
+    let r = zone.node.getBoundingClientRect()
+    for (const el of zone.clips) r = intersect(r, el.getBoundingClientRect())
+    return intersect(r, zone.clipRectFunction())
+  }
 
-  export function detectOverlap ({ dropzoneElem, clipRect, dropzoneID, normalizeDragItemHeight }) {
-    const { x1, y1, x2, y2 } = $draggedItem
-    const item = { left: x1, top: y1, right: x2, bottom: normalizeDragItemHeight ? y1 + normalizedHeight : y2 }
-    const dropzone = intersect(dropzoneElem.getBoundingClientRect(), clipRect)
-    const overlap = intersect(item, dropzone)
+  function insideDragged (node) {
+    const id = $draggedItem.id
+    return id && node.closest(`[data-task-id="${CSS.escape(id)}"]`)
+  }
 
-    matchedDropzones.update(zones => {
-      if (overlap.width > 0 && overlap.height > 0) {
-        zones[dropzoneID] = { area: overlap.width * overlap.height, left: dropzone.left }
-      } else {
-        delete zones[dropzoneID]
+  function pickZone () {
+    const { x1, y1, x2 } = $draggedItem
+    const hits = []
+    for (const [id, zone] of zones) {
+      if (zone.ignoreIf()) continue
+      if (insideDragged(zone.node)) continue
+      const clippedZone = visibleRect(zone)
+      const hit = intersect({ left: x1, top: y1, right: x2, bottom: y1 + PROBE_H }, clippedZone)
+      if (hit.width <= 0 || hit.height <= 0) continue
+      hits.push({ id, node: zone.node, area: hit.width * hit.height, left: clippedZone.left })
+    }
+
+    let best = '', max = 0, bestLeft = -Infinity
+    for (const h of hits) {
+      if (hits.some(o => h.node !== o.node && h.node.contains(o.node))) continue
+      if (h.area > max || (h.area === max && h.left > bestLeft)) {
+        max = h.area
+        best = h.id
+        bestLeft = h.left
       }
-      return zones
-    })
+    }
+    if (best !== $bestDropzoneID) bestDropzoneID.set(best)
   }
 
   function intersect (a, b) {
-    const left = Math.max(a.left, b.left)
-    const top = Math.max(a.top, b.top)
-    const right = Math.min(a.right, b.right)
-    const bottom = Math.min(a.bottom, b.bottom)
+    const left = Math.max(a.left, b.left), top = Math.max(a.top, b.top)
+    const right = Math.min(a.right, b.right), bottom = Math.min(a.bottom, b.bottom)
     return { left, top, right, bottom, width: right - left, height: bottom - top }
   }
 
-  function computeOrderValue (i, rooms) {
-    const k = 1
-    const n = rooms.length
-
-    let newVal
-    if (i === 0) {
-      const top = rooms[0]
-      if (top) newVal = top.orderValue / 1.1 // 1.1 slows down the approach to 0
-      else newVal = k // you're dragging a new subtask into a parent that previously had ZERO children, which is valid
+  function registerDropzone ({ clipRectFunction, id, onDrop, ignoreIf = () => false }) {
+    return (node) => {
+      zones.set(id, { node, clips: overflowParents(node), clipRectFunction, onDrop, ignoreIf })
+      return () => zones.delete(id)
     }
-    else if (i === n) {
-      const bottom = rooms[n-1] 
-      newVal = bottom.orderValue + k // Task.js will handle `maxOrderValue`
-    }
-    else {
-      const above = rooms[i-1]
-      const below = rooms[i]
-      newVal = (above.orderValue + below.orderValue) / 2
-    }
-    return newVal
   }
 
-  // attachment factory pattern (to pass in arbitrary parameters via currying)
-  function registerDropzone ({ clipRectFunction, id, onDrop, normalizeDragItemHeight = false }) {
-    return (node) => {
-      $effect(() => {
-        if ($draggedItem.id) {
-          detectOverlap({
-            dropzoneElem: node,
-            clipRect: clipRectFunction(),
-            dropzoneID: id,
-            normalizeDragItemHeight
-          })
-        }
-      })
-      
-      $effect(() => {
-        if ($hasDropped && $bestDropzoneID === id) {
-          onDrop()
-          reset()
-        }
-      })
-      
-      return () => {
-        matchedDropzones.update(obj => {
-          delete obj[id]
-          return obj
-        })
-      }
+  function empty () {
+    return { id: '', el: null, origin: 'list', sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
+  }
+
+  function computeOrderValue (i, rooms) {
+    const n = rooms.length
+    if (i === 0) return rooms[0] ? rooms[0].orderValue / 1.1 : 1
+    if (i === n) return rooms[n - 1].orderValue + 1
+    return (rooms[i - 1].orderValue + rooms[i].orderValue) / 2
+  }
+
+  function placeOnList ({ parentID, rooms, index, unschedule = false }) {
+    const kvChanges = {
+      parentID,
+      orderValue: computeOrderValue(index, rooms),
+      onList: true
     }
+    if (unschedule || $draggedItem.origin !== 'list') {
+      kvChanges.startTime = ''
+      kvChanges.startDateISO = ''
+    }
+    return Task.update({ id: $draggedItem.id, kvChanges })
+  }
+
+  function placeOnCal ({ startDateISO, startTime }) {
+    const kvChanges = { startDateISO, startTime }
+    if ($draggedItem.origin === 'nested-cal') kvChanges.parentID = ''
+    return Task.update({ id: $draggedItem.id, kvChanges })
   }
 </script>
 
-<div {ondragover} {ondrop} class="h-full">
+<div class="h-full">
   {@render children()}
 </div>
+
+<div
+  bind:this={ghost}
+  popover="manual"
+  class="my-drag-image top-0 left-0 opacity-50 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+  style:width="{$draggedItem.width}px"
+  style:height="{$draggedItem.height}px"
+  style:transform="translate3d({$draggedItem.x1}px, {$draggedItem.y1}px, 0)"
+></div>
+
+<style>
+  .my-drag-image {
+    pointer-events: none;
+    overflow: hidden;
+    background: transparent;
+  }
+</style>

@@ -1,62 +1,52 @@
 <div class="relative z-0">
-  {#if height < 24 && !task.imageDownloadURL}
-    <div 
-      onclick={() => openTaskPopup(task)}
-      ondragstart={e => startTaskDrag({ e, id: task.id })} 
-      draggable="true" 
-      class={[
-        'relative min-h-[12px] flex flex-col gap-y-1',
-      ]}
-      style={`height: ${height}px;`}
+  <div 
+    data-task-id={task.id}
+    {@attach registerDropzone({
+      id,
+      clipRectFunction: calClipRect,
+      ignoreIf: cycle,
+      onDrop () {
+        return placeOnList({ 
+          parentID: task.id, 
+          rooms: task.children, 
+          index: task.children.length, 
+          unschedule: true 
+        })
+      }
+    })}
+    onclick={() => openTaskPopup(task)}
+    onmousedown={e => startMouseDrag({ e, id: task.id })}
+    ontouchstart={e => startTouchDrag({ e, id: task.id })}
+    class={[calendarBlock, 'relative overflow-hidden', 'bg-cover bg-center bg-no-repeat']}
+    style={`
+      height: ${height}px;
+      background-color: rgba(255, 255, 255, 0.4);
+      border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
+      ${$bestDropzoneID === id ? dropPreviewCSS : ''}
+    `}
+    style:min-height={`calc(${titleFS} + var(--left-padding) * 2)`}
+    style:background-image={hasIntersected && task.imageDownloadURL ? `url(${task.imageDownloadURL})` : 'none'}
+    use:lazyCallable={() => hasIntersected = true}
+  >
+    <div class="shrink-0"
+      style:padding="var(--left-padding)"
+      style:border-radius="var(--left-padding)"
+      style:background={task.imageDownloadURL ? `linear-gradient(${COLORS.OVERLAY_DARKEST}, transparent)` : ''}
     >
-      <div class="flex items-center w-full">
-        <CalTaskUnit {task} color="var(--task-name-color)">
-          {#snippet icon ()}
-            <DoodleIcon iconTask={task} size={titleFS} scaleToFit />
-          {/snippet}
-        </CalTaskUnit>
-      </div>
+      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'}>
+        {#snippet icon ()}
+          <DoodleIcon 
+            iconTask={task} 
+            size={titleFS} 
+            whiteVariant={task.imageDownloadURL}
+            scaleToFit 
+          />
+        {/snippet}
+      </CalTaskUnit>
     </div>
-  {:else}
-    <div 
-      onclick={() => openTaskPopup(task)}
-      ondragstart={e => startTaskDrag({ e, id: task.id })} 
-      draggable="true" 
-      class={[
-        'relative flex flex-col min-h-[24px] gap-y-0',
-        'bg-cover bg-center bg-no-repeat',
-        calendarBlock
-      ]}
-      style={`
-        height: ${height}px;
-        background-color: rgba(255, 255, 255, 0.4);
-        border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
-      `}
-      style:background-image={hasIntersected && task.imageDownloadURL
-        ? `url(${task.imageDownloadURL})`
-        : 'none'}
-      use:lazyCallable={() => hasIntersected = true}
-    >
-      <div class="shrink-0"
-        style:padding="var(--left-padding)"
-        style:border-radius="var(--left-padding)"
-        style:background={task.imageDownloadURL ? `linear-gradient(${COLORS.OVERLAY_DARKEST}, transparent)` : ''}
-      >
-        <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'}>
-          {#snippet icon ()}
-            <DoodleIcon 
-              iconTask={task} 
-              size={titleFS} 
-              whiteVariant={task.imageDownloadURL}
-              scaleToFit 
-            />
-          {/snippet}
-        </CalTaskUnit>
-      </div>
-        
-      <div class="grow-1 overflow-hidden" 
-        style:padding="0 var(--left-padding)"
-      >
+      
+    {#if task.notes}
+      <div class="overflow-hidden" style:padding="0 var(--left-padding)">
         <div style="
           color: {task.imageDownloadURL ? 'white' : 'oklch(43.9% 0 0)'};"
           class="text-xs"
@@ -64,18 +54,35 @@
           {task.notes}
         </div>
       </div>
-    </div>
-  {/if}
+    {/if}
 
-  <!-- absolute positioned -->
-  <DurationAdjuster {task} 
+    {#if task.children.length}
+      <div
+        class="overflow-hidden pointer-events-none"
+        data-drag-origin="nested-cal"
+        style:padding="0 var(--left-padding)"
+        onclick={e => e.stopPropagation()}
+        onmousedown={e => e.stopPropagation()}
+        ontouchstart={e => e.stopPropagation()}
+      >
+        <TodoList
+          trees={task.children}
+          parentID={task.id}
+          compact
+          listWidth="fit-content"
+          clipRectFunction={calClipRect}
+        />
+      </div>
+    {/if}
+  </div>
+
+  <DurationAdjuster {task}
     onChange={newVal => previewDuration = newVal}
     onInput={async () => {
       Task.update({ 
         id: task.id, 
         kvChanges: { duration: snap(previewDuration, $calSnapInterval) } 
       })
-      // let snapshot listener resolve via 1 macrotask, so there is no flash of height change between previewDuration and task.duration
       setTimeout(() => previewDuration = 0, 0)
     }}
   />
@@ -85,21 +92,42 @@
   import DurationAdjuster from '$lib/components/DurationAdjuster.svelte'
   import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
+  import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
   import { COLORS } from '$lib/utils/constants.js'
-  import { snap } from '$lib/utils/core.js'
+  import { snap, randomID } from '$lib/utils/core.js'
   import { calSnapInterval } from '$lib/store'
   import { lazyCallable } from '$lib/utils/svelteActions.js'
   import { calendarBlock, titleFS } from '$lib/styles/reused.module.css'
-  import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
+  import { pixelsPerHour, timestampsColumnWidth, headerHeight, calBodyClip } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
   
-  const { Task } = getContext('app')
+  const { Task, treesByID } = getContext('app')
   const { openTaskPopup } = getContext('task-popup')
-  const { startTaskDrag } = getContext('drag-drop')
+  const { 
+    startMouseDrag, startTouchDrag, registerDropzone, draggedItem,
+    bestDropzoneID, dropPreviewCSS, scrollCalRect, placeOnList
+  } = getContext('drag-drop')
 
-  let { task = null } = $props() // assumes `task` is hydrated
+  let { task = null } = $props()
   
+  const id = randomID()
   let previewDuration = $state(0)
   let height = $derived((previewDuration || task.duration) * $pixelsPerHour / 60)
   let hasIntersected = $state(false)
+
+  function calClipRect () {
+    return calBodyClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight)
+  }
+
+  function cycle () {
+    const seen = new Set()
+    let node = $treesByID[task.id]
+    while (node) {
+      if (node.id === $draggedItem.id || node.parentID === $draggedItem.id) return true
+      if (seen.has(node.id)) break
+      seen.add(node.id)
+      node = $treesByID[node.parentID]
+    }
+    return false
+  }
 </script>

@@ -65,6 +65,10 @@ export function createCalendarService ({ treesByDate, treesByID }) {
       }
     }
 
+    for (const tree of forest.values()) {
+      tree.children.sort((a, b) => a.orderValue - b.orderValue)
+    }
+
     treesByID.update(dict => {
       for (const [id, tree] of forest) {
         dict[id] = tree

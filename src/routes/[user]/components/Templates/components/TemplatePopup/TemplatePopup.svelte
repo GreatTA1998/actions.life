@@ -99,6 +99,7 @@
         listWidth="100%"
         parentID={$template.id}
         style="padding-bottom: 1rem"
+        viewTransitionClass="dialog-list-item"
       />
     </DragDropContext>
 

@@ -1,6 +1,8 @@
 <script>
   import { pixelsPerHour } from '/src/routes/[user]/components/Calendar/store.js'
   import { playSound } from '$lib/features/audio.js'
+  import { TOUCH } from '$lib/utils/constants.js'
+  import { titleFS } from '$lib/styles/reused.module.css'
 
   let { 
     task, 
@@ -12,13 +14,19 @@
   let startY = 0
   let prevY = 0
   let activationTimer
+  const minDuration = $derived.by(() => {
+    const fontHeight = parseFloat(titleFS) * parseFloat(getComputedStyle(document.documentElement).fontSize)
+    const padding = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--left-padding'))
+    return (fontHeight + padding * 2) / ($pixelsPerHour / 60)
+  })
 
   function onpointerdown (e) {
+    e.stopPropagation()
     e.currentTarget.setPointerCapture(e.pointerId)
     startY = prevY = e.clientY
 
     if (e.pointerType === 'touch') {
-      activationTimer = setTimeout(activate, 300)
+      activationTimer = setTimeout(activate, TOUCH.HOLD_MS)
     } else {
       e.preventDefault()
       activate()
@@ -26,16 +34,18 @@
   }
 
   function onpointermove (e) {
+    e.stopPropagation()
     prevY = e.clientY
     if (activated) {
       e.preventDefault()
       updateDuration(prevY)
-    } else if (Math.abs(prevY - startY) > 10) { // touch slop
+    } else if (Math.abs(prevY - startY) > TOUCH.SLOP) {
       clearTimeout(activationTimer)
     }
   }
 
   function onpointerup (e) {
+    e.stopPropagation()
     if (activated) {
       updateDuration(prevY) // we use prevY so the finger lift's `e.clientY` doesn't mess up the alignment
       onInput()
@@ -69,7 +79,12 @@
   }
 
   function updateDuration (clientY) {
-    onChange(Math.max(1, task.duration + (clientY - startY) / ($pixelsPerHour / 60)))
+    onChange(
+      Math.max(
+        minDuration,
+        task.duration + (clientY - startY) / ($pixelsPerHour / 60)
+      )
+    )
   }
 </script>
 
