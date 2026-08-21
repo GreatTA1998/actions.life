@@ -37,7 +37,7 @@
 
   <div class="flex flex-wrap items-center justify-end gap-x-6 gap-y-3">
     <div class="flex items-center">
-      <PopoverMenu>
+      <PopoverMenu positionArea="block-start span-inline-end">
         {#snippet activator ({ id, anchorName })}
           <button
             popovertarget={id}
@@ -60,7 +60,7 @@
         {/snippet}
       </PopoverMenu>
 
-      <PopoverMenu>
+      <PopoverMenu positionArea="block-start span-inline-end">
         {#snippet activator ({ id, anchorName })}
           <button
             popovertarget={id}

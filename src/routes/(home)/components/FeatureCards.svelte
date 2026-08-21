@@ -48,7 +48,9 @@
               active ? 'grid-cols-[1fr]' : 'grid-cols-[0fr]'
             ]}
           >
-            <span class="min-w-0 overflow-hidden whitespace-nowrap pl-[0.3em]">{card.detail}</span>
+            <span class="min-w-0 overflow-hidden">
+              <span class="block w-max whitespace-nowrap pl-[0.3em]">{card.detail}</span>
+            </span>
           </span>
         </button>
       {/each}
