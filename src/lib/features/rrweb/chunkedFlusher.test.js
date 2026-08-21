@@ -55,9 +55,12 @@ test('empty flush is a no-op', async () => {
 test('events that arrive during an in-flight upload are not in that chunk', async () => {
   let release
   const gate = new Promise((resolve) => { release = resolve })
+  let started
+  const startedGate = new Promise((resolve) => { started = resolve })
   const uploads = []
   const flusher = createChunkedFlusher({
     upload: async (path, json) => {
+      started()
       await gate
       uploads.push({ path, events: JSON.parse(json) })
     },
@@ -66,6 +69,7 @@ test('events that arrive during an in-flight upload are not in that chunk', asyn
 
   flusher.push({ id: 1 })
   const first = flusher.flush()
+  await startedGate
   flusher.push({ id: 2 })
   release()
   await first
@@ -101,6 +105,32 @@ test('overlapping flushes serialize instead of double-uploading the same batch',
   assert.equal(uploads.length, 1)
   assert.deepEqual(uploads[0], [{ id: 1 }])
   assert.equal(maxInflight, 1)
+})
+
+test('long sessions upload linear bytes instead of rewriting the full array', async () => {
+  const event = { type: 3, data: { x: 12, y: 34 }, timestamp: 1_700_000_000_000 }
+  const ticks = 20
+  const perTick = 25
+
+  const legacy = []
+  let legacyBytes = 0
+  for (let t = 0; t < ticks; t++) {
+    for (let i = 0; i < perTick; i++) legacy.push({ ...event, t, i })
+    legacyBytes += JSON.stringify(legacy).length
+  }
+
+  let chunkedBytes = 0
+  const flusher = createChunkedFlusher({
+    upload: async (_path, json) => { chunkedBytes += json.length },
+    pathForChunk: (i) => String(i)
+  })
+  for (let t = 0; t < ticks; t++) {
+    for (let i = 0; i < perTick; i++) flusher.push({ ...event, t, i })
+    await flusher.flush()
+  }
+
+  assert.equal(flusher.size, 0)
+  assert.ok(legacyBytes > chunkedBytes * 5, `legacy ${legacyBytes}B vs chunked ${chunkedBytes}B`)
 })
 
 test('failed upload restores the batch and retries the same chunk path', async () => {
