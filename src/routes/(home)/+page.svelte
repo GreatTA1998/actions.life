@@ -1,7 +1,6 @@
 <script>
   import ArtisticBackground from './components/ArtisticBackground.svelte'
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
-  import DemoVideo from './components/DemoVideo.svelte'
   import FeatureCards from './components/FeatureCards.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
@@ -61,14 +60,6 @@
     <div class="my-20">
       <FeatureCards />
     </div>
-
-    <!-- <div class="my-20 flex flex-col gap-y-4">
-      <h2 class="m-0 uppercase font-semibold tracking-[-0.02em] text-[clamp(1.125rem,1.5vw,1.375rem)] text-gray-600">
-        Video Tutorial
-      </h2>
-
-      <DemoVideo />
-    </div> -->
 
     <div class="flex items-center justify-center mt-12 mb-24">
       <SignInCard/>
