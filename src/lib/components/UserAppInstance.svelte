@@ -23,6 +23,7 @@
 
   initialDataReady.set(false)
   user.set({})
+  activeView.set('CALENDAR')
 
   onMount(() => 
     onSnapshot(

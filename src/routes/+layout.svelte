@@ -2,7 +2,7 @@
   import { reportError } from '$lib/utils/errors.js'
   import { goto } from '$app/navigation'
   import { loadSounds } from '$lib/features/audio.js'
-  import { loading, user, authUser, authChecked, loggedIn, initialDataReady, firebaseAuth } from '$lib/store'
+  import { loading, user, authUser, authChecked, loggedIn, initialDataReady, activeView, firebaseAuth } from '$lib/store'
   import { page } from '$app/state'
   import { onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
@@ -52,6 +52,7 @@
       loggedIn.set(false)
       initialDataReady.set(false)
       user.set({})
+      activeView.set('CALENDAR')
     } 
 
     else if (resultUser.isAnonymous) {
