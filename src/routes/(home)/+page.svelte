@@ -32,7 +32,7 @@
         actions.life is a hierarchical planner
       </h1>
       <p class="mt-4 mb-0 max-w-[56ch] text-pretty text-lg leading-[1.45] text-gray-500">
-        Fit everything you want to track on one page, so nothing gets lost.
+        Put everything you want to track on one page, so nothing gets lost.
       </p>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
         <GoogleLoginButton />
