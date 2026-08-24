@@ -1,13 +1,15 @@
 <script>
-  import ArtisticBackground from './components/ArtisticBackground.svelte'
   import UserAppInstance from '$lib/components/UserAppInstance.svelte'
   import FeatureCards from './components/FeatureCards.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
-  import SignInCard from './components/SignInCard.svelte'
   import Footer from './components/Footer.svelte'
-  import { authChecked, authUser } from '$lib/store'
+  import OutboundLinks from './components/OutboundLinks.svelte'
+  import GoogleLoginButton from './components/GoogleLoginButton.svelte'
+  import LoadingLogo from '$lib/components/LoadingLogo.svelte'
+  import { authChecked, authUser, initialDataReady } from '$lib/store'
+  import { fade } from 'svelte/transition'
   import { isMobile } from '$lib/utils/core.js'
   import { browser } from '$app/environment'
   import { onMount } from 'svelte'
@@ -23,50 +25,41 @@
 </script>
 
 <div class="relative min-h-screen">
-  <ArtisticBackground />
 
-  <div class="relative z-1 flex flex-col mx-auto px-[clamp(1rem,5vw,4rem)]">
-    <div class="mt-40 mb-30">
-      <div class="grid grid-cols-4 gap-y-[clamp(1.5rem,2vw,3rem)] max-[900px]:grid-cols-1">
-        <h1 class="col-span-full text-left font-semibold tracking-tight leading-[1.4] text-[clamp(2.4rem,1.25rem+1.7vw,3.75rem)] text-gray-600">
-          actions.life is a one-page planner
-        </h1>
-        <div class="col-span-3 max-w-[52ch] text-pretty text-md leading-[1.6] text-gray-600 max-[900px]:col-span-1">
-          Reminders are forgotten when they're out of sight. Keep them visible in the same place by integrating the to-do list and calendar together.
-        </div>
+  <div class="relative z-1 mx-auto flex flex-col px-[clamp(1.25rem,5vw,4rem)]">
+    <div class="flex flex-col items-center pt-[8rem] text-center">
+      <h1 class="text-balance text-[clamp(2.4rem,1.25rem+1.7vw,3.75rem)] font-semibold leading-[1.15] tracking-tight text-gray-600">
+        actions.life is a hierarchical planner
+      </h1>
+      <p class="mt-4 mb-0 max-w-[56ch] text-pretty text-lg leading-[1.45] text-gray-500">
+        Fit everything you want to track on one page, so nothing gets lost.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <GoogleLoginButton />
+        <OutboundLinks />
       </div>
     </div>
 
-    <div class="my-20 mx-auto flex w-8/10 max-md:w-[min(88vw,320px)] flex-col gap-6">
-      <h2 class="m-0 uppercase font-semibold tracking-[-0.02em] text-[clamp(1.125rem,1.5vw,1.375rem)] text-gray-600">
-        Interactive Demo
-      </h2>
+    <div class="mx-auto mt-16 w-8/10 max-md:mt-12 max-md:w-[min(88vw,320px)]">
+      {#if !browserSupported}
+        <p class="mb-4 text-[0.9375rem] text-amber-700">
+          WARNING: some features may not work on your browser. Please use the latest Chrome or Safari.
+        </p>
+      {/if}
 
-      <div class="flex flex-col gap-8 pb-8">
-        {#if !browserSupported}
-          <p class="text-amber-700 text-[0.9375rem]">
-            WARNING: some features may not work on your browser. Please use the latest Chrome or Safari.
-          </p>
-        {/if}
-
-        {#if browser && isMobile()}
-          <PhoneDisplay children={simulatedApp} />
-        {:else}
-          <MacbookDisplay children={simulatedApp} />
-        {/if}
-      </div>
+      {#if browser && isMobile()}
+        <PhoneDisplay children={simulatedApp} />
+      {:else}
+        <MacbookDisplay children={simulatedApp} />
+      {/if}
     </div>
 
-    <div class="my-20">
+    <div class="mt-28">
       <FeatureCards />
     </div>
 
-    <div class="flex items-center justify-center mt-12 mb-24">
-      <SignInCard/>
-    </div>
-
     {#snippet simulatedApp ()}
-      <div class="w-full h-full relative">
+      <div class="relative size-full">
         {#if $authChecked && !$authUser?.email}
           <AnonymousContext>
             {#snippet children (uid)}
@@ -75,6 +68,13 @@
               {/if}
             {/snippet}
           </AnonymousContext>
+        {/if}
+
+        {#if !$initialDataReady}
+          <div transition:fade class="absolute inset-0 z-10 bg-[var(--offwhite-bg)]"></div>
+        {/if}
+        {#if !$initialDataReady}
+          <LoadingLogo />
         {/if}
       </div>
     {/snippet}

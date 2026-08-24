@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
+import { get } from 'svelte/store'
 import Task from '$lib/db/models/Task.js'
 import Template from '$lib/db/models/Template.js'
+import { user } from '$lib/store'
 import { getPreviewSpan } from '$lib/utils/rrule.js'
 
 export async function initializeSeedData () {
@@ -18,7 +20,9 @@ export async function initializeSeedData () {
   ))
 
   for (const { id, data } of resolveRelativeDates(SEED_TASKS)) { // must be sequential for `treeISOs` to be handled
-    await Task.create({ id, data })
+    const orderValue = get(user).maxOrderValue + 1
+    await Task.create({ id, data: { ...data, orderValue } })
+    user.update(u => ({ ...u, maxOrderValue: orderValue }))
   }
 
   await templates
@@ -26,9 +30,10 @@ export async function initializeSeedData () {
 
 function resolveRelativeDates (tasks) {
   const today = DateTime.now()
-  return tasks.map(({ id, dayOffset, ...data }) => {
-    if (dayOffset != null) {
-      data.startDateISO = today.plus({ days: dayOffset }).toFormat('yyyy-MM-dd')
+  return tasks.map(({ id, dayOffset, offset, ...data }) => {
+    const duration = offset ?? (dayOffset != null ? { days: dayOffset } : null)
+    if (duration) {
+      data.startDateISO = today.plus(duration).toFormat('yyyy-MM-dd')
     }
     return { id, data }
   })
@@ -53,6 +58,7 @@ const ICON = {
  * creation time (orderValue, treeISOs, rootID) are intentionally omitted.
  * 
  * dayOffset – (optional) days from today, becomes startDateISO at build time
+ * offset – (optional) luxon Duration-like object ({ months, days, ... }); preferred for month-scale dates
  */
 const SEED_TASKS = [
   { id: 'photo-bird', 
@@ -74,16 +80,17 @@ const SEED_TASKS = [
   },
 
   { id: 'getting-started', onList: true, name: 'TO-DO' },
+  { id: 'todo-drag', parentID: 'getting-started', onList: true, name: 'Drag me to the calendar' },
+  { id: 'todo-photo', parentID: 'getting-started', onList: true, name: 'Attach a photo' },
+  { id: 'todo-icon', parentID: 'getting-started', onList: true, name: 'Draw a habit icon',
+    notes: 'Create a repeat template, then replace the checkbox with an icon' },
+  { id: 'todo-gcal', parentID: 'getting-started', onList: true, name: 'Connect with Google Calendar',
+    notes: 'Multiple accounts can be associated' },
 
-  { id: 'goal', parentID: 'getting-started', onList: true, name: 'Set a medium-term goal', childrenLayout: 'timeline' },
-  { id: 'goal-m1', parentID: 'goal', onList: true, name: 'Milestone 1', dayOffset: -30, isDone: true },
-  { id: 'goal-m2', parentID: 'goal', onList: true, name: 'Milestone 2', dayOffset: 90 },
-
-  { id: 'draw-icon', parentID: 'getting-started', onList: true, name: 'Draw your own habit icon' },
-  { id: 'draw-icon-repeat', parentID: 'draw-icon', onList: true, name: 'Make a task repeat' },
-  { id: 'draw-icon-set', parentID: 'draw-icon', onList: true, name: 'Set an icon' },
-
-  { id: 'upload-photo', parentID: 'getting-started', onList: true, name: 'Upload a photo with friends' },
+  { id: 'visa', onList: true, name: 'Visa timeline', childrenLayout: 'timeline' },
+  { id: 'visa-startup', parentID: 'visa', onList: true, name: 'Startup visa', offset: { months: -3 }, isDone: true },
+  { id: 'visa-renewal', parentID: 'visa', onList: true, name: 'Visa renewal', offset: { days: 8 } },
+  { id: 'visa-manager', parentID: 'visa', onList: true, name: 'Business Manager visa', offset: { months: 11 } },
 ]
 
 const RRSTR = {
