@@ -5,7 +5,8 @@
     activator, 
     content,
     ontoggle = () => {},
-    id = randomID()
+    id = randomID(),
+    positionArea = 'block-end span-inline-end'
   } = $props()
 
   let menu = $state(null)
@@ -20,7 +21,7 @@
 
 <div popover {id} {ontoggle} bind:this={menu} class="fixed rounded-xl pragmatic-shadow"
   style:position-anchor={anchorName}
-  style:position-area="block-end span-inline-end"
+  style:position-area={positionArea}
   style:position-try-fallbacks="flip-block, flip-inline, flip-inline flip-block"
 >
   {@render content({ close })}
