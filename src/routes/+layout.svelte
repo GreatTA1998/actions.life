@@ -8,6 +8,7 @@
   import { onMount } from 'svelte'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { fade } from 'svelte/transition'
+  import LoadingLogo from '$lib/components/LoadingLogo.svelte'
   import '@fontsource-variable/inter'
   import 'virtual:uno.css'
   import 'normalize.css/normalize.css'
@@ -49,6 +50,7 @@
       goto('/')
       loading.set(false)
       loggedIn.set(false)
+      initialDataReady.set(false)
       user.set({})
     } 
 
@@ -84,9 +86,7 @@
 {/if}
 
 {#if $loading} <!-- must be separate from the transition block -->
-  <img src="/logo-no-bg.png" 
-    class={['pulse center', 'w-[48px] h-[48px] rounded-2xl']}
-  />
+  <LoadingLogo />
 {/if}
 
 <style>
@@ -95,14 +95,5 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-  }
-
-  .pulse {
-    animation: opacityValues 0.5s ease-in-out infinite alternate;
-  }
-
-  @keyframes opacityValues {
-    from { opacity: 0.1; }
-    to   { opacity: 0.9; }
   }
 </style>
