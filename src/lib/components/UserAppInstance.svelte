@@ -13,16 +13,17 @@
   import ExtendRoutines from '/src/routes/[user]/components/ExtendRoutines.svelte'
   import TheSnackbar from '/src/routes/[user]/components/TheSnackbar.svelte'
   import { reportError } from '$lib/utils/errors.js'
-  import { activeView } from '$lib/store'
+  import { activeView, user, initialDataReady } from '$lib/store'
   import { isMobile } from '$lib/utils/core.js'
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import { user } from '$lib/store'
   import { onMount } from 'svelte'
 
   let { uid } = $props()
 
+  initialDataReady.set(false)
   user.set({})
+  activeView.set('CALENDAR')
 
   onMount(() => 
     onSnapshot(
@@ -40,7 +41,7 @@
   $effect(() => {
     if ($user.uid) {
       document.documentElement.style.setProperty(
-        'font-size', 
+        'font-size',
         `${($user.fontScale || 1) * (isMobile() ? 1.5 : 1) * 100}%`
       )
     }
