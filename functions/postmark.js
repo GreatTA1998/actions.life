@@ -1,10 +1,10 @@
-const postmark = require('postmark')
 const { defineString } = require('firebase-functions/params')
 const { onCall } = require('firebase-functions/v2/https')
 
 const POSTMARK_API_KEY = defineString('POSTMARK_API_KEY')
 
 exports.sendEmail = onCall(async (request) => {
+  const postmark = require('postmark')
   var client = new postmark.ServerClient(
     POSTMARK_API_KEY.value()
   )
