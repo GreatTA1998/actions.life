@@ -17,12 +17,31 @@ const CACHE = `actions-shell-${version}`
 const PRECACHE_SKIP = /\.(mp3|wav|ogg|mp4|webm)$/i
 const ASSETS = [...build, ...files].filter((path) => !PRECACHE_SKIP.test(path))
 
+/** SSR/HTML routes that must be warm for home-screen cold opens. */
+const SHELL_ROUTES = ['/', '/pwa-lab']
+
 /** Do not intercept third-party / realtime traffic. */
 function shouldBypass (url) {
   if (url.origin !== sw.location.origin) return true
-  // Firebase / Google APIs sometimes share origin via proxies; keep path guards too
   if (url.pathname.startsWith('/__/')) return true
   return false
+}
+
+/**
+ * @param {Cache} cache
+ * @param {string[]} urls
+ */
+async function warmUrls (cache, urls) {
+  await Promise.all(
+    urls.map(async (url) => {
+      try {
+        const response = await fetch(url, { credentials: 'same-origin' })
+        if (response.ok) await cache.put(url, response.clone())
+      } catch {
+        // Install can race offline; ignore — client will re-warm later.
+      }
+    })
+  )
 }
 
 sw.addEventListener('install', (event) => {
@@ -30,6 +49,7 @@ sw.addEventListener('install', (event) => {
     (async () => {
       const cache = await caches.open(CACHE)
       await cache.addAll(ASSETS)
+      await warmUrls(cache, SHELL_ROUTES)
       // Critical for iOS home-screen PWAs that almost never close "tabs"
       await sw.skipWaiting()
     })()
@@ -42,13 +62,30 @@ sw.addEventListener('activate', (event) => {
       for (const key of await caches.keys()) {
         if (key !== CACHE) await caches.delete(key)
       }
+      const cache = await caches.open(CACHE)
+      await warmUrls(cache, SHELL_ROUTES)
       await sw.clients.claim()
     })()
   )
 })
 
 sw.addEventListener('message', (event) => {
-  if (event.data?.type === 'SKIP_WAITING') sw.skipWaiting()
+  const data = event.data
+  if (!data || typeof data !== 'object') return
+
+  if (data.type === 'SKIP_WAITING') {
+    sw.skipWaiting()
+    return
+  }
+
+  if (data.type === 'WARM_URLS' && Array.isArray(data.urls)) {
+    event.waitUntil(
+      (async () => {
+        const cache = await caches.open(CACHE)
+        await warmUrls(cache, data.urls)
+      })()
+    )
+  }
 })
 
 sw.addEventListener('fetch', (event) => {
@@ -70,21 +107,25 @@ async function handleGet (request, url) {
 
   // Hashed Vite/SvelteKit assets + precached static files: cache-first (instant reopen)
   if (ASSETS.includes(url.pathname)) {
-    const cached = await cache.match(url.pathname)
+    const cached =
+      (await cache.match(url.pathname)) ||
+      (await cache.match(request))
     if (cached) return cached
   }
 
   // Navigations (home-screen cold open): network-first with shell fallback
-  if (request.mode === 'navigate') {
+  if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
     try {
       const response = await fetch(request)
       if (response.ok) {
+        await cache.put(url.pathname, response.clone())
         await cache.put(request, response.clone())
       }
       return response
     } catch {
       const cached =
         (await cache.match(request)) ||
+        (await cache.match(url.pathname)) ||
         (await cache.match('/pwa-lab')) ||
         (await cache.match('/'))
       if (cached) return cached
@@ -107,7 +148,6 @@ async function handleGet (request, url) {
     .catch(() => undefined)
 
   if (cached) {
-    // Background refresh; ignore failures
     networkPromise.catch(() => {})
     return cached
   }

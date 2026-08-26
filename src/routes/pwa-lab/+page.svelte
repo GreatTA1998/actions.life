@@ -54,6 +54,14 @@
       ? 'Service worker controlling page'
       : 'No controller yet — reload once after install'
 
+    // Ensure this HTML shell is in Cache Storage (first nav often races SW claim)
+    if (navigator.serviceWorker?.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'WARM_URLS',
+        urls: [location.pathname, '/', '/pwa-lab']
+      })
+    }
+
     // Preserve IDB across home-screen reopens (do not wipe on every mount)
     const existing = await loadLocalFirstFromDisk()
     if (existing > 0) {

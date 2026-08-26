@@ -39,11 +39,44 @@ async function getState (page) {
 }
 
 async function emulateStandalone (context, page) {
-  const session = await context.newCDPSession(page)
-  await session.send('Emulation.setEmulatedMedia', {
-    features: [{ name: 'display-mode', value: 'standalone' }]
+  // matchMedia('display-mode: standalone') is unreliable via CDP in headless;
+  // force both the media query and legacy iOS navigator.standalone.
+  await page.addInitScript(() => {
+    const realMatchMedia = window.matchMedia.bind(window)
+    window.matchMedia = (query) => {
+      if (String(query).includes('display-mode: standalone')) {
+        return {
+          matches: true,
+          media: query,
+          onchange: null,
+          addListener () {},
+          removeListener () {},
+          addEventListener () {},
+          removeEventListener () {},
+          dispatchEvent () { return false }
+        }
+      }
+      return realMatchMedia(query)
+    }
+    try {
+      Object.defineProperty(navigator, 'standalone', {
+        configurable: true,
+        get: () => true
+      })
+    } catch {
+      // ignore if non-configurable
+    }
   })
-  return session
+
+  try {
+    const session = await context.newCDPSession(page)
+    await session.send('Emulation.setEmulatedMedia', {
+      features: [{ name: 'display-mode', value: 'standalone' }]
+    })
+    return session
+  } catch {
+    return null
+  }
 }
 
 async function main () {
@@ -91,10 +124,34 @@ async function main () {
   }
 
   if (!state.standalone) {
-    // CDP emulation should make matchMedia('standalone') true
     report.failures.push('display-mode standalone not detected (CDP emulation failed)')
   } else {
     log('Standalone display-mode OK')
+  }
+
+  // Explicitly warm + verify HTML shell is cached before going offline
+  await page.evaluate(async () => {
+    navigator.serviceWorker.controller?.postMessage({
+      type: 'WARM_URLS',
+      urls: ['/', '/pwa-lab', location.pathname]
+    })
+    // Give the SW a tick to put responses
+    await new Promise((r) => setTimeout(r, 500))
+    // Also fetch through SW while online
+    await fetch('/pwa-lab', { credentials: 'same-origin' })
+  })
+
+  const shellCached = await page.evaluate(async () => {
+    const keys = await caches.keys()
+    for (const key of keys) {
+      const cache = await caches.open(key)
+      if ((await cache.match('/pwa-lab')) || (await cache.match(location.href))) return true
+    }
+    return false
+  })
+  log('Shell cached before offline:', shellCached)
+  if (!shellCached) {
+    report.failures.push('HTML shell was not present in Cache Storage before offline loops')
   }
 
   // Offline mutate + persist correctness
