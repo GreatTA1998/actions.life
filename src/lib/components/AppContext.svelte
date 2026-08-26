@@ -48,7 +48,9 @@
 
   onMount(() => onSnapshot(
     collection(db, `users/${$user.uid}/templates`),
-    snap => templates.set(snap.docs.map(d => ({ ...d.data(), id: d.id })))
+    snap => templates.set(snap.docs.map(d => ({ ...d.data(), id: d.id }))),
+    // Templates are non-blocking for calendar boot; ignore offline listener errors.
+    () => {}
   ))
 </script>
 

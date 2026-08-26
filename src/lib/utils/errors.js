@@ -13,15 +13,19 @@ export async function reportError ({ subject, content }) {
   // alert(`UNEXPECTED ERROR ${subject}: ${content}`)
 
   if (!dev && logs < limit) {
-    setFirestoreDoc(`/errors/${randomID()}`, {
-      subject, 
-      content,
-      uid: get(user).uid || '',
-      email: get(user).email || '',
-      utc: DateTime.now().toFormat('yyyy-MM-dd'),
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      userAgent: navigator.userAgent
-    })
-    logs += 1
+    try {
+      await setFirestoreDoc(`/errors/${randomID()}`, {
+        subject, 
+        content,
+        uid: get(user).uid || '',
+        email: get(user).email || '',
+        utc: DateTime.now().toFormat('yyyy-MM-dd'),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        userAgent: navigator.userAgent
+      })
+      logs += 1
+    } catch {
+      // Offline / persistence queue full — never block the UI on telemetry
+    }
   }
 }
