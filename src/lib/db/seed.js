@@ -4,32 +4,102 @@ import Task from '$lib/db/models/Task.js'
 import Template from '$lib/db/models/Template.js'
 import { user } from '$lib/store'
 import { getPreviewSpan } from '$lib/utils/rrule.js'
+import { db } from '$lib/db/init.js'
+import { writeBatch, doc, increment } from 'firebase/firestore'
 
-export async function initializeSeedData () {
-  const prevEndISO = DateTime.utc().minus({ days: 1 }).toFormat('yyyy-MM-dd')
+/**
+ * Builds validated seed docs in memory (parents before children) so the demo
+ * can be written in a single Firestore batch instead of N sequential creates.
+ */
+export function buildSeedDocuments ({ maxOrderValue, now = DateTime.now() }) {
+  let orderValue = maxOrderValue
+  const tasksById = {}
+  const tasks = []
 
-  const templates = Promise.all(SEED_TEMPLATES.map(({ id, ...data }) =>
-    Template.create({
-      id,
-      data: {
+  for (const { id, data } of resolveRelativeDates(SEED_TASKS, now)) {
+    orderValue += 1
+    const { parentID, startDateISO } = data
+
+    let built
+    if (!parentID) {
+      built = Task.schema.parse({
         ...data,
-        previewSpan: getPreviewSpan({ rrStr: data.rrStr }),
-        prevEndISO
+        orderValue,
+        rootID: id,
+        treeISOs: [startDateISO].filter(Boolean)
+      })
+    } else {
+      const parent = tasksById[parentID]
+      const treeISOs = [...parent.treeISOs, startDateISO].filter(Boolean)
+      built = Task.schema.parse({
+        ...data,
+        orderValue,
+        rootID: parent.rootID,
+        tagIDs: parent.tagIDs,
+        treeISOs
+      })
+      if (startDateISO) {
+        for (const task of Object.values(tasksById)) {
+          if (task.rootID === parent.rootID) task.treeISOs = treeISOs
+        }
       }
-    })
-  ))
+    }
 
-  for (const { id, data } of resolveRelativeDates(SEED_TASKS)) { // must be sequential for `treeISOs` to be handled
-    const orderValue = get(user).maxOrderValue + 1
-    await Task.create({ id, data: { ...data, orderValue } })
-    user.update(u => ({ ...u, maxOrderValue: orderValue }))
+    tasksById[id] = built
+    tasks.push({ id, data: built })
   }
 
-  await templates
+  // After child dates may have widened family treeISOs, re-sync from the map
+  for (const entry of tasks) {
+    entry.data = { ...tasksById[entry.id] }
+  }
+
+  const templates = []
+  const prevEndISO = now.toUTC().minus({ days: 1 }).toFormat('yyyy-MM-dd')
+
+  for (const { id, ...data } of SEED_TEMPLATES) {
+    orderValue += 1
+    templates.push({
+      id,
+      data: Template.schema.parse({
+        ...data,
+        orderValue,
+        rootID: id,
+        previewSpan: getPreviewSpan({ rrStr: data.rrStr }),
+        prevEndISO
+      })
+    })
+  }
+
+  return { tasks, templates, maxOrderValue: orderValue }
 }
 
-function resolveRelativeDates (tasks) {
-  const today = DateTime.now()
+export async function initializeSeedData () {
+  const { uid, maxOrderValue } = get(user)
+  const { tasks, templates, maxOrderValue: nextMax } = buildSeedDocuments({
+    maxOrderValue,
+    now: DateTime.now()
+  })
+
+  const batch = writeBatch(db)
+  for (const { id, data } of tasks) {
+    batch.set(doc(db, `users/${uid}/tasks/${id}`), data)
+  }
+  for (const { id, data } of templates) {
+    batch.set(doc(db, `users/${uid}/templates/${id}`), data, { merge: true })
+  }
+  const diff = nextMax - maxOrderValue
+  if (diff > 0) {
+    batch.update(doc(db, 'users', uid), {
+      maxOrderValue: increment(diff)
+    })
+  }
+
+  await batch.commit()
+  user.update(u => ({ ...u, maxOrderValue: nextMax }))
+}
+
+function resolveRelativeDates (tasks, today) {
   return tasks.map(({ id, dayOffset, offset, ...data }) => {
     const duration = offset ?? (dayOffset != null ? { days: dayOffset } : null)
     if (duration) {

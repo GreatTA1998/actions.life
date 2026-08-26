@@ -1,31 +1,18 @@
 const { defineString, defineSecret } = require('firebase-functions/params')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
-const { google } = require('googleapis')
 
 const GOOGLE_CLIENT_ID = defineString('GOOGLE_CLIENT_ID')
 const GOOGLE_CLIENT_SECRET = defineSecret('GOOGLE_CLIENT_SECRET')
 
 function createAuthClient (redirectUri = 'postmessage') {
+  // Lazy-load googleapis — only needed for Calendar API helpers, not token exchange.
+  const { google } = require('googleapis')
   return new google.auth.OAuth2(
     GOOGLE_CLIENT_ID.value(),
     GOOGLE_CLIENT_SECRET.value(),
     redirectUri
   )
 }
-
-exports.exchangeForTokens = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
-  const { authorizationCode, redirect_uri } = request.data
-  const authClient = createAuthClient(redirect_uri) // won't break for a popup flow even if redirect_uri is undefined
-  const { tokens } = await authClient.getToken(authorizationCode)
-  const ticket = await authClient.verifyIdToken({
-    idToken: tokens.id_token,
-    audience: GOOGLE_CLIENT_ID.value() // prevents against Confused Deputy attacks
-  })
-  const { sub, email } = ticket.getPayload()
-  return { tokens, email, id: sub }
-})
-
-// Warning: exports.exchangeGoogleCode is still used on beta and main as of 2026-05-27. Deprecate safely on 2026-08-27.
 
 exports.fetchGoogleCalendars = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET] }, async (request) => {
   if (!request.auth) {
@@ -34,6 +21,7 @@ exports.fetchGoogleCalendars = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECR
   const { refreshToken } = request.data
   if (!refreshToken) throw new HttpsError('failed-precondition', 'No refresh token')
 
+  const { google } = require('googleapis')
   const authClient = createAuthClient()
   authClient.setCredentials({ refresh_token: refreshToken })
 
@@ -60,6 +48,7 @@ exports.fetchGoogleEvents = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET]
   if (!calendarIds) throw new HttpsError('invalid-argument', 'calendarIds is undefined.')
   if (!refreshToken) throw new HttpsError('invalid-argument', 'refreshToken is required.')
 
+  const { google } = require('googleapis')
   const authClient = createAuthClient()
   authClient.setCredentials({ refresh_token: refreshToken })
 

@@ -1,6 +1,4 @@
 <script>
-  import UserAppInstance from '$lib/components/UserAppInstance.svelte'
-  import FeatureCards from './components/FeatureCards.svelte'
   import AnonymousContext from './AnonymousContext.svelte'
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
@@ -14,12 +12,20 @@
   import { browser } from '$app/environment'
   import { onMount } from 'svelte'
   import { startHomeRecorder } from '$lib/features/rrweb/homeRecorder.js'
+  import { preloadGoogleIdentityServices } from '$lib/features/google-calendar/GIS.js'
 
   let browserSupported = $state(true)
+  const userAppInstancePromise = browser
+    ? import('$lib/components/UserAppInstance.svelte')
+    : null
+  const featureCardsPromise = browser
+    ? import('./components/FeatureCards.svelte')
+    : null
 
   onMount(() => {
     browserSupported = HTMLElement.prototype.hasOwnProperty("popover")
       && CSS.supports('anchor-name: --x')
+    preloadGoogleIdentityServices()
     return startHomeRecorder()
   })
 </script>
@@ -55,7 +61,11 @@
     </div>
 
     <div class="mt-28">
-      <FeatureCards />
+      {#if featureCardsPromise}
+        {#await featureCardsPromise then { default: FeatureCards }}
+          <FeatureCards />
+        {/await}
+      {/if}
     </div>
 
     {#snippet simulatedApp ()}
@@ -63,8 +73,10 @@
         {#if $authChecked && !$authUser?.email}
           <AnonymousContext>
             {#snippet children (uid)}
-              {#if uid}
-                <UserAppInstance {uid} />
+              {#if uid && userAppInstancePromise}
+                {#await userAppInstancePromise then { default: UserAppInstance }}
+                  <UserAppInstance {uid} />
+                {/await}
               {/if}
             {/snippet}
           </AnonymousContext>
