@@ -13,9 +13,11 @@
   let { children } = $props()
 
   let uid = $state('')
+  let seedTasks = $state(null)
 
   onMount(async () => {
     const result = await signInAnonymously($firebaseAuth)
+    uid = result.user.uid // Set uid first so UserAppInstance mounts
 
     if (getAdditionalUserInfo(result).isNewUser) {
       const mirrorDoc = await User.create({
@@ -25,10 +27,9 @@
           : calendarDensity.wide)
       })
       user.set(mirrorDoc) // needed to read $user.maxOrderValue for seed data
-      await initializeSeedData()
+      seedTasks = await initializeSeedData() // Set seed data after uid
     }
-    uid = result.user.uid
   })
 </script>
 
-{@render children(uid)}
+{@render children(uid, seedTasks)}

@@ -62,9 +62,9 @@
       <div class="relative size-full">
         {#if $authChecked && !$authUser?.email}
           <AnonymousContext>
-            {#snippet children (uid)}
+            {#snippet children (uid, seedTasks)}
               {#if uid}
-                <UserAppInstance {uid} />
+                <UserAppInstance {uid} {seedTasks} />
               {/if}
             {/snippet}
           </AnonymousContext>

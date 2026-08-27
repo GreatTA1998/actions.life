@@ -12,7 +12,7 @@
   import { collection, onSnapshot} from 'firebase/firestore'
   import { db } from '$lib/db/init.js'
 
-  let { children } = $props()
+  let { children, treesByDateStore = $bindable(null), treesByIDStore = $bindable(null) } = $props()
 
   let dimensions = $state({
     width: 0,
@@ -21,7 +21,12 @@
   })
 
   const treesByDate = writable({})
+  const treesByID = writable({})
   const templates = writable([])
+
+  // Expose stores to parent via bindable
+  treesByDateStore = treesByDate
+  treesByIDStore = treesByID
 
   $effect(() => {
     if (Object.keys($treesByDate).length > 0) {
@@ -41,7 +46,7 @@
 
     treesByDate,
     trees: writable(null),
-    treesByID: writable({}),
+    treesByID,
 
     templates
   })

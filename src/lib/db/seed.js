@@ -1,13 +1,16 @@
 import { DateTime } from 'luxon'
 import { get } from 'svelte/store'
-import Task from '$lib/db/models/Task.js'
 import Template from '$lib/db/models/Template.js'
 import { user } from '$lib/store'
 import { getPreviewSpan } from '$lib/utils/rrule.js'
+import { writeBatch, doc } from 'firebase/firestore'
+import { db } from '$lib/db/init.js'
 
 export async function initializeSeedData () {
   const prevEndISO = DateTime.utc().minus({ days: 1 }).toFormat('yyyy-MM-dd')
+  const currentUser = get(user)
 
+  // Start template creation in parallel
   const templates = Promise.all(SEED_TEMPLATES.map(({ id, ...data }) =>
     Template.create({
       id,
@@ -19,13 +22,112 @@ export async function initializeSeedData () {
     })
   ))
 
-  for (const { id, data } of resolveRelativeDates(SEED_TASKS)) { // must be sequential for `treeISOs` to be handled
-    const orderValue = get(user).maxOrderValue + 1
-    await Task.create({ id, data: { ...data, orderValue } })
-    user.update(u => ({ ...u, maxOrderValue: orderValue }))
+  // Pre-compute all task data with treeISOs in a single pass
+  const resolvedTasks = resolveRelativeDates(SEED_TASKS)
+  const tasksById = new Map()
+  let maxOrderValue = currentUser.maxOrderValue
+
+  // First pass: create all task objects with basic fields
+  for (const { id, data } of resolvedTasks) {
+    maxOrderValue += 1
+    tasksById.set(id, {
+      id,
+      name: data.name || '',
+      duration: data.duration ?? 30,
+      parentID: data.parentID || '',
+      startTime: data.startTime || '',
+      startDateISO: data.startDateISO || '',
+      iconURL: data.iconURL || '',
+      timeZone: data.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      notes: data.notes || '',
+      templateID: data.templateID || '',
+      isDone: data.isDone ?? false,
+      imageDownloadURL: data.imageDownloadURL || '',
+      imageFullPath: data.imageFullPath || '',
+      childrenLayout: data.childrenLayout || 'normal',
+      photoLayout: data.photoLayout || 'split-view',
+      isCollapsed: data.isCollapsed ?? false,
+      onList: data.onList ?? false,
+      orderValue: maxOrderValue,
+      treeISOs: [],
+      rootID: '',
+      tagIDs: []
+    })
   }
 
-  await templates
+  // Second pass: compute rootID based on parent relationships
+  for (const task of tasksById.values()) {
+    if (!task.parentID) {
+      task.rootID = task.id
+    } else {
+      const parent = tasksById.get(task.parentID)
+      task.rootID = parent.rootID
+      task.tagIDs = [...parent.tagIDs]
+    }
+  }
+
+  // Third pass: collect all dates in each tree and update all family members
+  const treesByRoot = new Map()
+  for (const task of tasksById.values()) {
+    if (!treesByRoot.has(task.rootID)) {
+      treesByRoot.set(task.rootID, [])
+    }
+    treesByRoot.get(task.rootID).push(task)
+  }
+
+  // For each tree, collect all dates and update all members
+  for (const treeMembers of treesByRoot.values()) {
+    const allDates = []
+    for (const member of treeMembers) {
+      if (member.startDateISO) {
+        allDates.push(member.startDateISO)
+      }
+    }
+    // Update all members with the complete date set
+    for (const member of treeMembers) {
+      member.treeISOs = allDates
+    }
+  }
+
+  // Batch write all tasks in a single commit
+  const batch = writeBatch(db)
+  for (const task of tasksById.values()) {
+    const taskData = {
+      name: task.name || '',
+      duration: task.duration ?? 30,
+      parentID: task.parentID || '',
+      startTime: task.startTime || '',
+      startDateISO: task.startDateISO || '',
+      iconURL: task.iconURL || '',
+      timeZone: task.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      notes: task.notes || '',
+      templateID: task.templateID || '',
+      isDone: task.isDone ?? false,
+      imageDownloadURL: task.imageDownloadURL || '',
+      imageFullPath: task.imageFullPath || '',
+      childrenLayout: task.childrenLayout || 'normal',
+      photoLayout: task.photoLayout || 'split-view',
+      isCollapsed: task.isCollapsed ?? false,
+      tagIDs: task.tagIDs || [],
+      onList: task.onList ?? false,
+      orderValue: task.orderValue,
+      treeISOs: task.treeISOs || [],
+      rootID: task.rootID || ''
+    }
+    batch.set(doc(db, `users/${currentUser.uid}/tasks/${task.id}`), taskData)
+  }
+
+  // Update user's maxOrderValue
+  batch.update(doc(db, `users/${currentUser.uid}`), { maxOrderValue })
+
+  // Execute batch write and wait for templates
+  await Promise.all([batch.commit(), templates])
+
+  // Update local user store
+  user.update(u => ({ ...u, maxOrderValue }))
+
+  // Return seed data for immediate UI hydration
+  return Array.from(tasksById.values())
 }
 
 function resolveRelativeDates (tasks) {
