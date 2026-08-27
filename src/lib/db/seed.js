@@ -32,7 +32,22 @@ export async function initializeSeedData () {
     maxOrderValue += 1
     tasksById.set(id, {
       id,
-      ...data,
+      name: data.name || '',
+      duration: data.duration ?? 30,
+      parentID: data.parentID || '',
+      startTime: data.startTime || '',
+      startDateISO: data.startDateISO || '',
+      iconURL: data.iconURL || '',
+      timeZone: data.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      notes: data.notes || '',
+      templateID: data.templateID || '',
+      isDone: data.isDone ?? false,
+      imageDownloadURL: data.imageDownloadURL || '',
+      imageFullPath: data.imageFullPath || '',
+      childrenLayout: data.childrenLayout || 'normal',
+      photoLayout: data.photoLayout || 'split-view',
+      isCollapsed: data.isCollapsed ?? false,
+      onList: data.onList ?? false,
       orderValue: maxOrderValue,
       treeISOs: [],
       rootID: '',
@@ -60,28 +75,29 @@ export async function initializeSeedData () {
   // Batch write all tasks in a single commit
   const batch = writeBatch(db)
   for (const task of tasksById.values()) {
-    batch.set(doc(db, `users/${currentUser.uid}/tasks/${task.id}`), {
-      name: task.name,
-      duration: task.duration,
-      parentID: task.parentID,
-      startTime: task.startTime,
-      startDateISO: task.startDateISO,
+    const taskData = {
+      name: task.name || '',
+      duration: task.duration ?? 30,
+      parentID: task.parentID || '',
+      startTime: task.startTime || '',
+      startDateISO: task.startDateISO || '',
       iconURL: task.iconURL || '',
       timeZone: task.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       notes: task.notes || '',
       templateID: task.templateID || '',
-      isDone: task.isDone || false,
+      isDone: task.isDone ?? false,
       imageDownloadURL: task.imageDownloadURL || '',
       imageFullPath: task.imageFullPath || '',
       childrenLayout: task.childrenLayout || 'normal',
       photoLayout: task.photoLayout || 'split-view',
-      isCollapsed: task.isCollapsed || false,
-      tagIDs: task.tagIDs,
-      onList: task.onList,
+      isCollapsed: task.isCollapsed ?? false,
+      tagIDs: task.tagIDs || [],
+      onList: task.onList ?? false,
       orderValue: task.orderValue,
-      treeISOs: task.treeISOs,
-      rootID: task.rootID
-    })
+      treeISOs: task.treeISOs || [],
+      rootID: task.rootID || ''
+    }
+    batch.set(doc(db, `users/${currentUser.uid}/tasks/${task.id}`), taskData)
   }
 
   // Update user's maxOrderValue
