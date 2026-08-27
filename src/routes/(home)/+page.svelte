@@ -16,20 +16,12 @@
   import { startHomeRecorder } from '$lib/features/rrweb/homeRecorder.js'
 
   let browserSupported = $state(true)
-  let seedDataCallback = $state(null)
 
   onMount(() => {
     browserSupported = HTMLElement.prototype.hasOwnProperty("popover")
       && CSS.supports('anchor-name: --x')
     return startHomeRecorder()
   })
-
-  function handleSeedDataReady(seedTasks) {
-    // Pass seed data to UserAppInstance via callback
-    if (seedDataCallback) {
-      seedDataCallback(seedTasks)
-    }
-  }
 </script>
 
 <div class="relative min-h-screen">
@@ -69,10 +61,10 @@
     {#snippet simulatedApp ()}
       <div class="relative size-full">
         {#if $authChecked && !$authUser?.email}
-          <AnonymousContext onSeedDataReady={handleSeedDataReady}>
-            {#snippet children (uid)}
+          <AnonymousContext>
+            {#snippet children (uid, seedTasks)}
               {#if uid}
-                <UserAppInstance {uid} bind:onSeedDataReady={seedDataCallback} />
+                <UserAppInstance {uid} {seedTasks} />
               {/if}
             {/snippet}
           </AnonymousContext>

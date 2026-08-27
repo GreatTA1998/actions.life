@@ -10,12 +10,14 @@
   import { initializeSeedData } from '$lib/db/seed.js'
   import { isMobile } from '$lib/utils/core.js'
 
-  let { children, onSeedDataReady } = $props()
+  let { children } = $props()
 
   let uid = $state('')
+  let seedTasks = $state(null)
 
   onMount(async () => {
     const result = await signInAnonymously($firebaseAuth)
+    uid = result.user.uid // Set uid first so UserAppInstance mounts
 
     if (getAdditionalUserInfo(result).isNewUser) {
       const mirrorDoc = await User.create({
@@ -25,14 +27,9 @@
           : calendarDensity.wide)
       })
       user.set(mirrorDoc) // needed to read $user.maxOrderValue for seed data
-      const seedTasks = await initializeSeedData()
-      // Immediately hydrate UI with seed data
-      if (onSeedDataReady) {
-        onSeedDataReady(seedTasks)
-      }
+      seedTasks = await initializeSeedData() // Set seed data after uid
     }
-    uid = result.user.uid
   })
 </script>
 
-{@render children(uid)}
+{@render children(uid, seedTasks)}

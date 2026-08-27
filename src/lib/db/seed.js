@@ -55,20 +55,37 @@ export async function initializeSeedData () {
     })
   }
 
-  // Second pass: compute treeISOs and rootID based on parent relationships
+  // Second pass: compute rootID based on parent relationships
   for (const task of tasksById.values()) {
     if (!task.parentID) {
-      // Root task
       task.rootID = task.id
-      task.treeISOs = task.startDateISO ? [task.startDateISO] : []
     } else {
-      // Child task - inherit from parent
       const parent = tasksById.get(task.parentID)
       task.rootID = parent.rootID
       task.tagIDs = [...parent.tagIDs]
-      task.treeISOs = task.startDateISO 
-        ? [...parent.treeISOs, task.startDateISO] 
-        : [...parent.treeISOs]
+    }
+  }
+
+  // Third pass: collect all dates in each tree and update all family members
+  const treesByRoot = new Map()
+  for (const task of tasksById.values()) {
+    if (!treesByRoot.has(task.rootID)) {
+      treesByRoot.set(task.rootID, [])
+    }
+    treesByRoot.get(task.rootID).push(task)
+  }
+
+  // For each tree, collect all dates and update all members
+  for (const treeMembers of treesByRoot.values()) {
+    const allDates = []
+    for (const member of treeMembers) {
+      if (member.startDateISO) {
+        allDates.push(member.startDateISO)
+      }
+    }
+    // Update all members with the complete date set
+    for (const member of treeMembers) {
+      member.treeISOs = allDates
     }
   }
 

@@ -17,24 +17,23 @@
   import { isMobile } from '$lib/utils/core.js'
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import { onMount, getContext } from 'svelte'
+  import { onMount } from 'svelte'
 
-  let { uid, onSeedDataReady = $bindable(null) } = $props()
+  let { uid, seedTasks = null } = $props()
 
   initialDataReady.set(false)
   user.set({})
   activeView.set('CALENDAR')
 
-  // Will be set from AppContext via context
   let treesByDateStore = null
   let treesByIDStore = null
 
-  // Expose callback for seed data hydration
-  onSeedDataReady = (seedTasks) => {
-    if (treesByDateStore && treesByIDStore) {
+  // Hydrate seed data after AppContext provides stores
+  $effect(() => {
+    if (seedTasks && treesByDateStore && treesByIDStore) {
       hydrateSeedData(seedTasks, treesByDateStore, treesByIDStore)
     }
-  }
+  })
 
   onMount(() => 
     onSnapshot(
@@ -85,21 +84,47 @@
     }
     treesByID.set(treesById)
 
-    // Organize by date
+    // Organize by date - match calendar service logic
+    // The calendar queries by array-contains-any on treeISOs, then filters to roots with startDateISO
     const dateToTasks = {}
-    for (const tree of forest.values()) {
-      if (tree.startDateISO && !tree.parentID) { // Only root tasks
-        const date = tree.startDateISO
+    
+    // Collect all unique dates from all tasks
+    const allDates = new Set()
+    for (const task of seedTasks) {
+      for (const date of task.treeISOs) {
+        allDates.add(date)
+      }
+    }
+
+    // For each date, find all tasks with that date in treeISOs, build forest, filter to scheduled roots
+    for (const date of allDates) {
+      const tasksForDate = seedTasks.filter(t => t.treeISOs.includes(date))
+      
+      // Build forest from these tasks
+      const regionForest = []
+      for (const task of tasksForDate) {
+        if (!task.parentID) {
+          regionForest.push(forest.get(task.id))
+        }
+      }
+      
+      // Filter to only roots that have a startDateISO (scheduled trees)
+      const scheduledTrees = regionForest.filter(tree => tree.startDateISO)
+      
+      if (scheduledTrees.length > 0) {
         if (!dateToTasks[date]) {
           dateToTasks[date] = { hasStartTime: [], noStartTime: { hasIcon: [], noIcon: [] } }
         }
         
-        if (tree.startTime) {
-          dateToTasks[date].hasStartTime.push(tree)
-        } else if (tree.iconURL) {
-          dateToTasks[date].noStartTime.hasIcon.push(tree)
-        } else {
-          dateToTasks[date].noStartTime.noIcon.push(tree)
+        // Organize each scheduled tree by its properties
+        for (const tree of scheduledTrees) {
+          if (tree.startTime) {
+            dateToTasks[date].hasStartTime.push(tree)
+          } else if (tree.iconURL) {
+            dateToTasks[date].noStartTime.hasIcon.push(tree)
+          } else {
+            dateToTasks[date].noStartTime.noIcon.push(tree)
+          }
         }
       }
     }
