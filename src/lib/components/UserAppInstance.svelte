@@ -17,13 +17,24 @@
   import { isMobile } from '$lib/utils/core.js'
   import { doc, onSnapshot } from 'firebase/firestore'
   import { db } from '$lib/db/init'
-  import { onMount } from 'svelte'
+  import { onMount, getContext } from 'svelte'
 
-  let { uid } = $props()
+  let { uid, onSeedDataReady = $bindable(null) } = $props()
 
   initialDataReady.set(false)
   user.set({})
   activeView.set('CALENDAR')
+
+  // Will be set from AppContext via context
+  let treesByDateStore = null
+  let treesByIDStore = null
+
+  // Expose callback for seed data hydration
+  onSeedDataReady = (seedTasks) => {
+    if (treesByDateStore && treesByIDStore) {
+      hydrateSeedData(seedTasks, treesByDateStore, treesByIDStore)
+    }
+  }
 
   onMount(() => 
     onSnapshot(
@@ -46,10 +57,73 @@
       )
     }
   })
+
+  function hydrateSeedData(seedTasks, treesByDate, treesByID) {
+    // Build forest structure
+    const forest = new Map()
+    
+    for (const task of seedTasks) {
+      forest.set(task.id, { ...task, children: [] })
+    }
+    
+    // Build parent-child relationships
+    for (const tree of forest.values()) {
+      if (tree.parentID && forest.has(tree.parentID)) {
+        forest.get(tree.parentID).children.push(tree)
+      }
+    }
+
+    // Sort children by orderValue
+    for (const tree of forest.values()) {
+      tree.children.sort((a, b) => a.orderValue - b.orderValue)
+    }
+
+    // Update treesByID
+    const treesById = {}
+    for (const [id, tree] of forest) {
+      treesById[id] = tree
+    }
+    treesByID.set(treesById)
+
+    // Organize by date
+    const dateToTasks = {}
+    for (const tree of forest.values()) {
+      if (tree.startDateISO && !tree.parentID) { // Only root tasks
+        const date = tree.startDateISO
+        if (!dateToTasks[date]) {
+          dateToTasks[date] = { hasStartTime: [], noStartTime: { hasIcon: [], noIcon: [] } }
+        }
+        
+        if (tree.startTime) {
+          dateToTasks[date].hasStartTime.push(tree)
+        } else if (tree.iconURL) {
+          dateToTasks[date].noStartTime.hasIcon.push(tree)
+        } else {
+          dateToTasks[date].noStartTime.noIcon.push(tree)
+        }
+      }
+    }
+
+    // Sort tasks within each category
+    for (const taskGroups of Object.values(dateToTasks)) {
+      if (taskGroups.noStartTime?.noIcon?.length > 0) {
+        taskGroups.noStartTime.noIcon.sort((a, b) => a.orderValue - b.orderValue)
+      }
+      if (taskGroups.hasStartTime?.length > 0) {
+        taskGroups.hasStartTime.sort((a, b) => {
+          const aHour = parseFloat(a.startTime.replace(':', '.'))
+          const bHour = parseFloat(b.startTime.replace(':', '.'))
+          return aHour - bHour
+        })
+      }
+    }
+
+    treesByDate.set(dateToTasks)
+  }
 </script>
 
 {#if $user.uid}
-  <AppContext>
+  <AppContext bind:treesByDateStore bind:treesByIDStore>
     <DragDropContext>
       <ExtendRoutines />
 

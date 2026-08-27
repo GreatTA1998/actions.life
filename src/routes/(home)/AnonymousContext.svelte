@@ -10,7 +10,7 @@
   import { initializeSeedData } from '$lib/db/seed.js'
   import { isMobile } from '$lib/utils/core.js'
 
-  let { children } = $props()
+  let { children, onSeedDataReady } = $props()
 
   let uid = $state('')
 
@@ -25,7 +25,11 @@
           : calendarDensity.wide)
       })
       user.set(mirrorDoc) // needed to read $user.maxOrderValue for seed data
-      await initializeSeedData()
+      const seedTasks = await initializeSeedData()
+      // Immediately hydrate UI with seed data
+      if (onSeedDataReady) {
+        onSeedDataReady(seedTasks)
+      }
     }
     uid = result.user.uid
   })
