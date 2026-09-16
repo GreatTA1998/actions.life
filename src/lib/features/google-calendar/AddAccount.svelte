@@ -13,22 +13,47 @@
 
   async function handleConnect () {
     loading = true
-    await loadGoogleIdentityServices()
-
-    const client = google.accounts.oauth2.initCodeClient({
-      client_id, scope,
-      ux_mode: 'popup',
-      callback: async ({ code }) => {
-        const { 
-          data: { tokens, email, id } 
-        } = await cloudFunction('exchangeForTokens', { authorizationCode: code }) 
-        
-        await GCalAccount.create(email, id, tokens)
-        setupCalendarsOfAccount(tokens.refresh_token, id)
+    try {
+      const { Capacitor } = await import('@capacitor/core')
+      if (Capacitor.isNativePlatform()) {
+        const { requestNativeGoogleAuthCode, NATIVE_OAUTH_STATE_GCAL } = await import('$lib/native/googleOAuth.js')
+        const { code, redirectUri } = await requestNativeGoogleAuthCode({ state: NATIVE_OAUTH_STATE_GCAL })
+        await connectWithCode(code, redirectUri)
+        return
       }
-    })
 
-    client.requestCode()
+      await loadGoogleIdentityServices()
+
+      const client = google.accounts.oauth2.initCodeClient({
+        client_id, scope,
+        ux_mode: 'popup',
+        callback: async ({ code }) => {
+          try {
+            await connectWithCode(code)
+          } finally {
+            loading = false
+          }
+        }
+      })
+
+      client.requestCode()
+    } catch (error) {
+      loading = false
+      throw error
+    }
+  }
+
+  async function connectWithCode (code, redirectUri) {
+    const { 
+      data: { tokens, email, id } 
+    } = await cloudFunction('exchangeForTokens', {
+      authorizationCode: code,
+      ...(redirectUri ? { redirect_uri: redirectUri } : {})
+    }) 
+    
+    await GCalAccount.create(email, id, tokens)
+    setupCalendarsOfAccount(tokens.refresh_token, id)
+    loading = false
   }
 </script>
 

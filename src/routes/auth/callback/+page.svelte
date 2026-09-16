@@ -13,14 +13,49 @@
   import { firebaseAuth, loggedIn, user } from '$lib/store'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
+  import {
+    NATIVE_OAUTH_STATE_GCAL,
+    appOAuthUrlFromSearch,
+    shouldBounceOAuthToApp
+  } from '$lib/native/googleOAuth.js'
+
+  let message = $state('Welcome! Preparing your account...')
+  let bounceHref = $state('')
 
   onMount(handleOAuthRedirect)
 
   async function handleOAuthRedirect () {
+    const params = page.url.searchParams
+    const state = params.get('state')
+
+    if (shouldBounceOAuthToApp(state)) {
+      bounceHref = appOAuthUrlFromSearch(page.url.search)
+      message = 'Returning to the app…'
+      window.location.replace(bounceHref)
+      return
+    }
+
+    const authorizationCode = params.get('code')
+    if (!authorizationCode) {
+      message = params.get('error') === 'access_denied'
+        ? 'Google sign-in was cancelled.'
+        : 'Google sign-in did not return an authorization code.'
+      return
+    }
+
+    const redirect_uri = params.get('oauth_redirect') || (page.url.origin + '/auth/callback')
     const { data: { tokens, email, id } } = await cloudFunction('exchangeForTokens', {
-      authorizationCode: page.url.searchParams.get('code'),
-      redirect_uri: page.url.origin + '/auth/callback',
+      authorizationCode,
+      redirect_uri,
     })
+
+    if (state === NATIVE_OAUTH_STATE_GCAL) {
+      await GCalAccount.create(email, id, tokens)
+      setupCalendarsOfAccount(tokens.refresh_token, id)
+      const current = $firebaseAuth.currentUser
+      goto(current?.uid && !current.isAnonymous ? '/' + current.uid : '/')
+      return
+    }
 
     const credential = GoogleAuthProvider.credential(tokens.id_token)
 
@@ -46,5 +81,10 @@
 </script>
 
 <div class="p-4">
-  Welcome! Preparing your account...
+  {message}
+  {#if bounceHref}
+    <p class="mt-2">
+      <a href={bounceHref}>Open actions.life</a>
+    </p>
+  {/if}
 </div>
