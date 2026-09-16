@@ -12,7 +12,7 @@ npm run build:native   # static SPA → build/ → cap sync
 
 Then:
 
-- **iOS** (macOS + Xcode): `npx cap open ios` → pick a simulator or device → Run. First device run needs a signing team in Xcode.
+- **iOS** (macOS + Xcode): `npx cap open ios` → pick a simulator or device → Run. Minimum iOS 15. Select a development team locally in Xcode (Signing & Capabilities) — do not commit a team ID.
 - **Android** (Android Studio): `npx cap open android` → pick an emulator or device → Run. USB debugging for a physical phone.
 
 Or: `npm run native:ios` / `npm run native:android` (build + sync + open).
