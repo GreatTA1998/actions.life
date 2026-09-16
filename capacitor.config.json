@@ -1,0 +1,19 @@
+{
+  "appId": "life.actions.app",
+  "appName": "actions.life",
+  "webDir": "build",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "launchShowDuration": 400,
+      "backgroundColor": "#fafafa",
+      "showSpinner": false
+    },
+    "Camera": {
+      "presentationStyle": "fullscreen"
+    }
+  }
+}
