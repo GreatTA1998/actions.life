@@ -12,6 +12,12 @@ export function loadGoogleIdentityServices () {
 }
 
 export async function requestGoogleSignIn () {
+  const { Capacitor } = await import('@capacitor/core')
+  if (Capacitor.isNativePlatform()) {
+    const { startNativeGoogleSignIn } = await import('$lib/native/googleOAuth.js')
+    return startNativeGoogleSignIn()
+  }
+
   await loadGoogleIdentityServices()
   const client = google.accounts.oauth2.initCodeClient({
     client_id: '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com',

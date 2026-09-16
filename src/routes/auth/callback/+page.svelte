@@ -19,8 +19,12 @@
     shouldBounceOAuthToApp
   } from '$lib/native/googleOAuth.js'
 
-  let message = $state('Welcome! Preparing your account...')
-  let bounceHref = $state('')
+  const initialBounce = shouldBounceOAuthToApp(page.url.searchParams.get('state'))
+    ? appOAuthUrlFromSearch(page.url.search)
+    : ''
+
+  let message = $state(initialBounce ? 'Returning to the app…' : 'Welcome! Preparing your account...')
+  let bounceHref = $state(initialBounce)
 
   onMount(handleOAuthRedirect)
 

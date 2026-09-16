@@ -19,7 +19,7 @@ Or: `npm run native:ios` / `npm run native:android` (build + sync + open).
 
 On device, confirm: cold start from the home-screen icon (bundled assets, no network required for the shell), airplane mode still shows the app, and photo buttons open the native camera/library prompt.
 
-Google Sign-In via GIS redirect is a known follow-up for WKWebView / Android WebView (`disallowed_useragent`); the homepage anonymous demo still works. Add `https://localhost/auth/callback` to the Google OAuth client when native sign-in is wired up.
+Native Google Sign-In uses the system browser (Safari View Controller / Chrome Custom Tabs), then `https://actions.life/auth/callback` bounces to `life.actions.app://oauth` so Google never sees the WKWebView user-agent. Web GIS is unchanged. That bounce must be live on actions.life (this PR deployed) for simulator sign-in to finish. After pulling plugin changes on a Mac, run `npx cap sync` (or `pod install` in `ios/App`) so CocoaPods pick up App, Browser, and StatusBar.
 
 ## Project Structure
 - [x] Entry Point – ```src/app.html```

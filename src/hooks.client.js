@@ -9,6 +9,14 @@ if (Capacitor.isNativePlatform()) {
   import('@capacitor/splash-screen').then(({ SplashScreen }) => {
     SplashScreen.hide().catch(() => {})
   })
+  import('@capacitor/status-bar').then(({ StatusBar, Style }) => {
+    StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
+    StatusBar.setStyle({ style: Style.Light }).catch(() => {})
+    StatusBar.setBackgroundColor({ color: '#fafafa' }).catch(() => {})
+  })
+  import('$lib/native/googleOAuth.js').then(({ listenForNativeOAuth }) => {
+    listenForNativeOAuth()
+  })
 }
 
 export function handleError ({ event, error }) {

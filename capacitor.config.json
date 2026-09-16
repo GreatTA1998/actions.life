@@ -2,6 +2,7 @@
   "appId": "life.actions.app",
   "appName": "actions.life",
   "webDir": "build",
+  "backgroundColor": "#fafafa",
   "server": {
     "androidScheme": "https"
   },
@@ -14,6 +15,11 @@
     },
     "Camera": {
       "presentationStyle": "fullscreen"
+    },
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "LIGHT",
+      "backgroundColor": "#fafafa"
     }
   }
 }
