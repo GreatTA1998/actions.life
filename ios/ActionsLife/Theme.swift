@@ -8,7 +8,7 @@ enum Theme {
     static let ink = Color(red: 26 / 255, green: 26 / 255, blue: 26 / 255)
     static let secondaryInk = Color(red: 107 / 255, green: 114 / 255, blue: 128 / 255)
     static let accent = Color(red: 90 / 255, green: 122 / 255, blue: 80 / 255)
-    static let block = Color(red: 110 / 255, green: 142 / 255, blue: 96 / 255).opacity(0.35)
+    static let block = Color(red: 110 / 255, green: 142 / 255, blue: 96 / 255).opacity(0.55)
     static let handle = Color.black.opacity(0.12)
 }
 
@@ -35,8 +35,8 @@ enum DateISO {
     }
 
     static func minutes(fromClock value: String) -> Int? {
-        let parts = value.split(separator: ":").compactMap { Int($0) }
-        guard parts.count == 2 else { return nil }
+        let parts = value.split(whereSeparator: { $0 == ":" || $0 == "." }).compactMap { Int($0) }
+        guard parts.count >= 2 else { return nil }
         return parts[0] * 60 + parts[1]
     }
 }

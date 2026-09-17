@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 enum SeedData {
     static func insert(into store: TaskTreeStore) {
         let today = DateISO.dayString(from: .now)
