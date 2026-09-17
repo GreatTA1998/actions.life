@@ -58,11 +58,6 @@ export function DayCalendar({
   const days = surroundingDays(todayISO, 7);
   const gridHeight = (CAL_END_HOUR - CAL_START_HOUR) * PX_PER_HOUR;
   const hourScrollRef = useRef<ScrollView>(null);
-  const timeKey = tasks
-    .map((task) => task.startTime)
-    .filter(Boolean)
-    .sort()
-    .join(',');
   const focusY = calendarScrollOffset(
     tasks.map((task) => task.startTime),
     CAL_START_HOUR,
@@ -73,11 +68,14 @@ export function DayCalendar({
     applyScrollY(hourScrollRef.current as unknown as ScrollNode, focusY);
   }
 
+  const scrolledDay = useRef<string | null>(null);
   useLayoutEffect(() => {
+    if (scrolledDay.current === selectedISO) return;
+    scrolledDay.current = selectedISO;
     scrollToMorning();
     const later = setTimeout(scrollToMorning, 50);
     return () => clearTimeout(later);
-  }, [selectedISO, timeKey, focusY]);
+  }, [selectedISO, focusY]);
 
   return (
     <View style={styles.wrap}>
@@ -106,8 +104,6 @@ export function DayCalendar({
         ref={hourScrollRef}
         style={styles.gridScroll}
         contentOffset={{ x: 0, y: focusY }}
-        onLayout={scrollToMorning}
-        onContentSizeChange={scrollToMorning}
       >
         <View ref={gridRef} style={[styles.grid, { height: gridHeight }, dropHint && styles.gridDrop]}>
           {HOURS.map((hour) => (

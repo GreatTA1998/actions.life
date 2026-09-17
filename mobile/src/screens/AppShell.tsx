@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Modal, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { TabBar, type AppTab } from '../components/TabBar';
+import { useAppInsets } from '../safeArea';
 import { todayISO } from '../dates';
 import type { PersistedSession, TaskRecord } from '../models/types';
 import {
@@ -26,6 +26,7 @@ type Props = {
 };
 
 export function AppShell({ store, session, onSignOut, onSession }: Props) {
+  const insets = useAppInsets();
   const [tab, setTab] = useState<AppTab>('calendar');
   const [openId, setOpenId] = useState<string | null>(null);
   const [menuTask, setMenuTask] = useState<TaskRecord | null>(null);
@@ -63,7 +64,7 @@ export function AppShell({ store, session, onSignOut, onSession }: Props) {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={[styles.safe, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <View style={styles.header}>
         <View>
           <Text style={styles.brand}>actions.life</Text>
@@ -232,7 +233,7 @@ export function AppShell({ store, session, onSignOut, onSession }: Props) {
           </View>
         </Pressable>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 

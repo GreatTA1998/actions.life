@@ -29,7 +29,21 @@ export type CreateTaskInput = {
   childrenLayout?: string;
   isDone?: boolean;
   imageDownloadURL?: string;
+  iconURL?: string;
+  tagIDs?: string[];
+  /** Root inbox rows go above the fold when set to `start`. */
+  place?: 'start' | 'end';
 };
+
+export function mergeTaskRecords(disk: TaskRecord[], memory: TaskRecord[]): TaskRecord[] {
+  const byId = new Map<string, TaskRecord>();
+  for (const task of disk) byId.set(task.id, task);
+  for (const task of memory) {
+    const existing = byId.get(task.id);
+    if (!existing || task.updatedAt >= existing.updatedAt) byId.set(task.id, task);
+  }
+  return [...byId.values()];
+}
 
 export class TaskTreeStore {
   readonly uid: string;
@@ -37,14 +51,15 @@ export class TaskTreeStore {
   inbox: TaskTree[] = [];
   profile: UserProfile;
   listHeightSplit = 0.5;
+  hydrated = false;
+  private writeThrough = false;
+  private repo: TaskRepository;
   private readonly sync: SyncEngine;
   private listeners = new Set<() => void>();
 
-  constructor(
-    private readonly repo: TaskRepository,
-    uid: string,
-  ) {
+  constructor(repo: TaskRepository, uid: string) {
     this.uid = uid;
+    this.repo = repo;
     this.profile = defaultProfile(uid);
     this.sync = new SyncEngine(repo);
   }
@@ -59,10 +74,19 @@ export class TaskTreeStore {
   }
 
   async init(): Promise<void> {
-    this.records = await this.repo.loadTasks(this.uid);
-    this.profile = (await this.repo.loadProfile(this.uid)) ?? defaultProfile(this.uid);
+    const loaded = await this.repo.loadTasks(this.uid);
+    const loadedProfile = await this.repo.loadProfile(this.uid);
+    this.records = mergeTaskRecords(loaded, this.records);
+    if (loadedProfile) {
+      this.profile = {
+        ...loadedProfile,
+        didSeed: loadedProfile.didSeed || this.profile.didSeed,
+      };
+    }
     this.listHeightSplit = this.profile.listHeightSplit;
     this.reloadViews();
+    this.notify();
+    this.writeThrough = true;
     if (!this.profile.didSeed && this.records.length === 0) {
       await insertGuestSeed(this);
       this.profile = { ...this.profile, didSeed: true, updatedAt: Date.now() };
@@ -71,8 +95,34 @@ export class TaskTreeStore {
     } else if (!this.profile.didSeed) {
       this.profile = { ...this.profile, didSeed: true, updatedAt: Date.now() };
       await this.repo.saveProfile(this.profile);
+    } else if (this.records.length !== loaded.length) {
+      await this.persist();
     }
+    this.hydrated = true;
     this.notify();
+  }
+
+  /** Swap the in-memory boot repo for SQLite without dropping rows created on first paint. */
+  async adoptRepository(repo: TaskRepository): Promise<void> {
+    if (this.repo === repo) {
+      this.writeThrough = true;
+      this.hydrated = true;
+      return;
+    }
+    const loaded = await repo.loadTasks(this.uid);
+    const loadedProfile = await repo.loadProfile(this.uid);
+    this.records = mergeTaskRecords(loaded, this.records);
+    if (loadedProfile) {
+      this.profile = {
+        ...loadedProfile,
+        didSeed: loadedProfile.didSeed || this.profile.didSeed,
+      };
+    }
+    this.listHeightSplit = this.profile.listHeightSplit;
+    this.repo = repo;
+    this.writeThrough = true;
+    this.hydrated = true;
+    await this.persist();
   }
 
   private reloadViews() {
@@ -93,19 +143,26 @@ export class TaskTreeStore {
       .sort((a, b) => (a.startTime || '99:99').localeCompare(b.startTime || '99:99'));
   }
 
-  async create(input: CreateTaskInput): Promise<TaskRecord> {
-    const order = nextOrderValue(this.profile.maxOrderValue);
-    const id = input.id ?? randomID();
+  async create(input: CreateTaskInput, options?: { persist?: boolean }): Promise<TaskRecord> {
     const parentID = input.parentID ?? '';
+    let order: number;
+    if (input.place === 'start') {
+      const siblings = this.records.filter((doc) => doc.parentID === parentID && !doc.isTombstone);
+      const min = siblings.reduce((lowest, doc) => Math.min(lowest, doc.orderValue), 0);
+      order = min - 1;
+    } else {
+      order = nextOrderValue(this.profile.maxOrderValue);
+    }
+    const id = input.id ?? randomID();
     const startDateISO = input.startDateISO ?? '';
     let rootID = id;
     let treeISOs = [startDateISO].filter(Boolean);
-    let tagIDs: string[] = [];
+    let tagIDs: string[] = input.tagIDs ? [...input.tagIDs] : [];
     if (parentID) {
       const parent = this.records.find((doc) => doc.id === parentID);
       if (parent) {
         rootID = parent.rootID;
-        tagIDs = [...parent.tagIDs];
+        if (!input.tagIDs) tagIDs = [...parent.tagIDs];
         treeISOs = [...parent.treeISOs];
         if (startDateISO) treeISOs = [...treeISOs, startDateISO];
       }
@@ -126,6 +183,7 @@ export class TaskTreeStore {
       notes: input.notes ?? '',
       isDone: input.isDone ?? false,
       imageDownloadURL: input.imageDownloadURL ?? '',
+      iconURL: input.iconURL ?? '',
       childrenLayout: input.childrenLayout ?? 'normal',
       onList: input.onList ?? true,
       orderValue: order,
@@ -142,9 +200,15 @@ export class TaskTreeStore {
         doc.rootID === rootID ? { ...doc, treeISOs } : doc,
       );
     }
-    this.profile = { ...this.profile, maxOrderValue: order, updatedAt: Date.now(), pendingSync: true };
-    await this.sync.enqueue(this.uid, 'create', 'tasks', id);
-    await this.persist();
+    const maxOrderValue = Math.max(this.profile.maxOrderValue, order);
+    this.profile = { ...this.profile, maxOrderValue, updatedAt: Date.now(), pendingSync: true };
+    if (this.writeThrough) await this.sync.enqueue(this.uid, 'create', 'tasks', id);
+    if (options?.persist === false) {
+      this.reloadViews();
+      this.notify();
+    } else {
+      await this.persist();
+    }
     return record;
   }
 
@@ -349,29 +413,32 @@ export class TaskTreeStore {
     }, 200);
   }
 
+  async flush(): Promise<void> {
+    await this.persist();
+  }
+
   private async patch(id: string, changes: Partial<TaskRecord>): Promise<void> {
     this.records = this.records.map((doc) =>
       doc.id === id ? { ...doc, ...changes, pendingSync: true, updatedAt: Date.now() } : doc,
     );
-    await this.sync.enqueue(this.uid, 'update', 'tasks', id);
-    await this.repo.replaceTasks(this.uid, this.records);
-    this.reloadViews();
-    this.notify();
+    if (this.writeThrough) await this.sync.enqueue(this.uid, 'update', 'tasks', id);
+    await this.persist();
   }
 
   private async update(id: string, changes: Partial<TaskRecord>): Promise<void> {
     this.records = this.records.map((doc) =>
       doc.id === id ? { ...doc, ...changes, pendingSync: true, updatedAt: Date.now() } : doc,
     );
-    await this.sync.enqueue(this.uid, 'update', 'tasks', id);
+    if (this.writeThrough) await this.sync.enqueue(this.uid, 'update', 'tasks', id);
     await this.persist();
   }
 
   private async persist(): Promise<void> {
-    await this.repo.replaceTasks(this.uid, this.records);
-    await this.repo.saveProfile(this.profile);
     this.reloadViews();
     this.notify();
+    if (!this.writeThrough) return;
+    await this.repo.replaceTasks(this.uid, this.records);
+    await this.repo.saveProfile(this.profile);
     const signedIn = peekFirebase()?.auth.currentUser;
     if (!signedIn || signedIn.uid !== this.uid) return;
     if (this.syncTimer) clearTimeout(this.syncTimer);

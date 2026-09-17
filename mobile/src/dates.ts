@@ -72,7 +72,10 @@ export function calendarScrollOffset(
   pxPerHour = 50,
 ): number {
   const minutes = calendarFocusMinutes(startTimes);
-  return Math.max(0, ((minutes - startHour * 60) / 60) * pxPerHour - 8);
+  // Pin 08:00 at the top when we only need 09:00 on screen. The short home split
+  // otherwise clips 08:00 above the fold; later hours stay reachable by scrolling.
+  const topMinutes = minutes >= 9 * 60 ? 8 * 60 : minutes;
+  return Math.max(0, ((topMinutes - startHour * 60) / 60) * pxPerHour - 8);
 }
 
 export function formatMinutes(total: number): string {

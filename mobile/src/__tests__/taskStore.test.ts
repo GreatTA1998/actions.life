@@ -193,6 +193,31 @@ test('drainIfPossible skips local-only guest UIDs', async () => {
   assert.match(result.reason, /local-only/);
 });
 
+test('create before init merges into disk and does not wipe or reseed', async () => {
+  const { repo, store: primed } = await boot('hydrate-merge');
+  const existing = await primed.create({ name: 'Already on disk' });
+  const store = new TaskTreeStore(repo, 'hydrate-merge');
+  const during = await store.create({ name: 'During load', onList: true, place: 'start' });
+  await store.init();
+  assert.equal(store.task(during.id)?.name, 'During load');
+  assert.equal(store.task(existing.id)?.name, 'Already on disk');
+  assert.equal(store.allTasks().filter((task) => task.name === 'TO-DO').length, 1);
+  assert.equal(store.inbox[0]?.task.id, during.id);
+});
+
+test('adoptRepository keeps first-paint rows when SQLite attaches', async () => {
+  const memory = new MemoryRepository();
+  const disk = new MemoryRepository();
+  const store = new TaskTreeStore(memory, 'adopt-user');
+  const painted = await store.create({ name: 'Painted first', place: 'start' });
+  const seeded = new TaskTreeStore(disk, 'adopt-user');
+  await seeded.init();
+  await store.adoptRepository(disk);
+  assert.equal(store.task(painted.id)?.name, 'Painted first');
+  assert.ok(store.inbox.some((node) => node.task.name === 'TO-DO'));
+  assert.equal(store.allTasks().filter((task) => task.name === 'TO-DO').length, 1);
+});
+
 test('moveAmongSiblings swaps inbox order', async () => {
   const { store } = await boot('reorder-user');
   const first = await store.create({ name: 'Alpha' });

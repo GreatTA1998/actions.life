@@ -36,6 +36,7 @@ export const HomeScreen = forwardRef<HomeScreenHandle, Props>(function HomeScree
 ) {
   const [composer, setComposer] = useState('');
   const [selectedISO, setSelectedISO] = useState(todayISO());
+  const [revealTopToken, setRevealTopToken] = useState(0);
   const gridRef = useRef<View>(null);
   const selectedRef = useRef(selectedISO);
   selectedRef.current = selectedISO;
@@ -62,7 +63,8 @@ export const HomeScreen = forwardRef<HomeScreenHandle, Props>(function HomeScree
     const name = composer.trim();
     if (!name) return;
     setComposer('');
-    await store.create({ name, onList: true });
+    await store.create({ name, onList: true, place: 'start' });
+    setRevealTopToken((value) => value + 1);
   }
 
   return (
@@ -92,12 +94,15 @@ export const HomeScreen = forwardRef<HomeScreenHandle, Props>(function HomeScree
                   void store.schedule(dragging.id, iso, time).then(onDragEnd);
                   return;
                 }
-                void store.create({
-                  name: 'New event',
-                  onList: true,
-                  startDateISO: iso,
-                  startTime: time,
-                });
+                void store
+                  .create({
+                    name: 'New event',
+                    onList: true,
+                    startDateISO: iso,
+                    startTime: time,
+                    place: 'start',
+                  })
+                  .then(() => setRevealTopToken((value) => value + 1));
               }}
               gridRef={gridRef}
               dropHint={!!dragging}
@@ -115,6 +120,7 @@ export const HomeScreen = forwardRef<HomeScreenHandle, Props>(function HomeScree
             onOpen={onOpen}
             onMenu={onMenu}
             onDragStart={onDragStart}
+            revealTopToken={revealTopToken}
           />
         }
       />

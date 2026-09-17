@@ -11,7 +11,8 @@ test('calendarFocusMinutes keeps 09:00 visible when the first event is later', (
   assert.equal(calendarFocusMinutes(['00:40']), 9 * 60);
 });
 
-test('calendarScrollOffset places 09:00 near the top of a 06:00 grid', () => {
-  assert.equal(calendarScrollOffset([]), 3 * 50 - 8);
+test('calendarScrollOffset pins 08:00 at the top so 09:00 stays visible in a short split', () => {
+  assert.equal(calendarScrollOffset([]), 2 * 50 - 8);
   assert.equal(calendarScrollOffset(['13:51']), calendarScrollOffset([]));
+  assert.ok(calendarScrollOffset([]) < 3 * 50 - 8);
 });

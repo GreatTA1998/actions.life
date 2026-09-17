@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { ActivityIndicator, AppState, StyleSheet, Text, View } from 'react-native';
+import { AppState, Platform, StatusBar as RNStatusBar, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import type { PersistedSession } from './src/models/types';
 import type { TaskRepository } from './src/persistence/repository';
+import { MemoryRepository } from './src/persistence/memoryRepository';
 import { migrateUid } from './src/persistence/migrate';
 import { openTaskRepository } from './src/persistence/openRepository';
 import { restoreSession, signOut } from './src/services/authSession';
@@ -12,66 +13,95 @@ import { isLocalOnlyUid } from './src/services/syncMerge';
 import { TaskTreeStore } from './src/services/taskStore';
 import { AppShell } from './src/screens/AppShell';
 import { SignInScreen } from './src/screens/SignInScreen';
+import { ANDROID_STATUS_FALLBACK } from './src/safeArea';
 import { colors } from './src/theme';
 
+const fallbackMetrics = {
+  frame: { x: 0, y: 0, width: 390, height: 844 },
+  insets: {
+    top: Platform.OS === 'android' ? RNStatusBar.currentHeight || ANDROID_STATUS_FALLBACK : 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+};
+
 export default function App() {
-  const [ready, setReady] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const [repo, setRepo] = useState<TaskRepository | null>(null);
   const [session, setSession] = useState<PersistedSession | null>(null);
   const [store, setStore] = useState<TaskTreeStore | null>(null);
   const [, setTick] = useState(0);
   const previousUid = useRef<string | null>(null);
+  const memoryRepo = useRef(new MemoryRepository());
+  const storeRef = useRef<TaskTreeStore | null>(null);
+  const repoRef = useRef<TaskRepository | null>(null);
+  repoRef.current = repo;
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      const [opened, restored] = await Promise.all([openTaskRepository(), restoreSession()]);
+    void restoreSession().then((restored) => {
       if (cancelled) return;
-      setRepo(opened.repo);
       setSession(restored);
-      setReady(true);
-    })();
+      setSessionChecked(true);
+    });
+    void openTaskRepository().then((opened) => {
+      if (!cancelled) setRepo(opened.repo);
+    });
     return () => {
       cancelled = true;
     };
   }, []);
 
   useEffect(() => {
-    if (!repo || !session) {
-      if (!session) setStore(null);
+    if (!session) {
+      storeRef.current = null;
+      setStore(null);
       return;
     }
-    let cancelled = false;
-    let unsub = () => {};
-    (async () => {
-      if (previousUid.current && previousUid.current !== session.uid) {
-        await migrateUid(repo, previousUid.current, session.uid);
-      }
-      previousUid.current = session.uid;
-      if (cancelled) return;
-      const next = new TaskTreeStore(repo, session.uid);
-      unsub = next.subscribe(() => setTick((value) => value + 1));
-      await next.init();
-      if (cancelled) return;
+
+    const backing = repoRef.current ?? memoryRepo.current;
+
+    if (storeRef.current?.uid !== session.uid) {
+      const from = previousUid.current;
+      const next = new TaskTreeStore(backing, session.uid);
+      storeRef.current = next;
       setStore(next);
-      try {
-        const promoted = await promoteLocalGuest(session, repo);
-        if (cancelled) return;
-        if (promoted.uid !== session.uid) {
-          previousUid.current = promoted.uid;
-          setSession(promoted);
-          return;
+      previousUid.current = session.uid;
+      void (async () => {
+        if (from && from !== session.uid) {
+          await migrateUid(backing, from, session.uid);
+          if (repoRef.current && repoRef.current !== backing) {
+            await migrateUid(repoRef.current, from, session.uid);
+          }
         }
-      } catch {
-        // stay on local guest
-      }
-      if (!isLocalOnlyUid(next.uid)) void next.syncNow();
-    })();
+        await next.init();
+        const disk = repoRef.current;
+        if (disk && disk !== backing) await next.adoptRepository(disk);
+        try {
+          const promoted = await promoteLocalGuest(session, disk ?? backing);
+          if (promoted.uid !== session.uid) {
+            previousUid.current = promoted.uid;
+            setSession(promoted);
+            return;
+          }
+        } catch {
+          // stay on local guest
+        }
+        if (!isLocalOnlyUid(next.uid)) void next.syncNow();
+      })();
+    }
+
+    const unsub = storeRef.current.subscribe(() => setTick((value) => value + 1));
     return () => {
-      cancelled = true;
       unsub();
     };
-  }, [repo, session?.uid]);
+  }, [session?.uid]);
+
+  useEffect(() => {
+    if (!repo || !storeRef.current) return;
+    void storeRef.current.adoptRepository(repo);
+  }, [repo, store]);
 
   useEffect(() => {
     if (!store) return;
@@ -82,22 +112,12 @@ export default function App() {
   }, [store]);
 
   let body: ReactNode;
-  if (!ready) {
-    body = (
-      <View style={styles.boot}>
-        <ActivityIndicator color={colors.accent} />
-        <Text style={styles.bootText}>Opening inbox…</Text>
-      </View>
-    );
+  if (!sessionChecked) {
+    body = <View style={styles.boot} />;
   } else if (!session) {
     body = <SignInScreen onSession={setSession} />;
   } else if (!store) {
-    body = (
-      <View style={styles.boot}>
-        <ActivityIndicator color={colors.accent} />
-        <Text style={styles.bootText}>Loading your list…</Text>
-      </View>
-    );
+    body = <View style={styles.boot} />;
   } else {
     body = (
       <AppShell
@@ -108,6 +128,7 @@ export default function App() {
         onSignOut={() => {
           void signOut(session).then(() => {
             previousUid.current = null;
+            storeRef.current = null;
             setStore(null);
             setSession(null);
           });
@@ -117,7 +138,7 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics ?? fallbackMetrics}>
       {body}
       <StatusBar style="dark" />
     </SafeAreaProvider>
@@ -127,12 +148,6 @@ export default function App() {
 const styles = StyleSheet.create({
   boot: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: colors.listBg,
-    gap: 12,
-  },
-  bootText: {
-    color: colors.muted,
   },
 });

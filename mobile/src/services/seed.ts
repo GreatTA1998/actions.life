@@ -17,80 +17,112 @@ export async function insertGuestSeed(store: TaskTreeStore): Promise<void> {
   const today = todayISO();
   const time = nowHM();
 
-  await store.create({
-    id: 'photo-bird',
-    name: 'Bird-watching with family',
-    imageDownloadURL: PHOTOS.redCrownBird,
-    startDateISO: today,
-    startTime: time,
-    onList: false,
-    duration: 106,
-    isDone: true,
-  });
-  await store.create({
-    id: 'photo-dog',
-    name: 'Drawing with friends',
-    imageDownloadURL: PHOTOS.olaDrawingByDad,
-    startDateISO: addDaysISO(today, 1),
-    startTime: time,
-    onList: false,
-    duration: 106,
-  });
+  const skip = { persist: false as const };
+  await store.create(
+    {
+      id: 'photo-bird',
+      name: 'Bird-watching with family',
+      imageDownloadURL: PHOTOS.redCrownBird,
+      startDateISO: today,
+      startTime: time,
+      onList: false,
+      duration: 106,
+      isDone: true,
+    },
+    skip,
+  );
+  await store.create(
+    {
+      id: 'photo-dog',
+      name: 'Drawing with friends',
+      imageDownloadURL: PHOTOS.olaDrawingByDad,
+      startDateISO: addDaysISO(today, 1),
+      startTime: time,
+      onList: false,
+      duration: 106,
+    },
+    skip,
+  );
 
-  await store.create({ id: 'getting-started', name: 'TO-DO', onList: true });
-  await store.create({
-    id: 'todo-drag',
-    name: 'Drag me to the calendar',
-    parentID: 'getting-started',
-    onList: true,
-  });
-  await store.create({
-    id: 'todo-photo',
-    name: 'Attach a photo',
-    parentID: 'getting-started',
-    onList: true,
-  });
-  await store.create({
-    id: 'todo-icon',
-    name: 'Draw a habit icon',
-    parentID: 'getting-started',
-    onList: true,
-    notes: 'Create a repeat template, then replace the checkbox with an icon',
-  });
-  await store.create({
-    id: 'todo-gcal',
-    name: 'Connect with Google Calendar',
-    parentID: 'getting-started',
-    onList: true,
-    notes: 'Multiple accounts can be associated',
-  });
+  await store.create({ id: 'getting-started', name: 'TO-DO', onList: true }, skip);
+  await store.create(
+    {
+      id: 'todo-drag',
+      name: 'Drag me to the calendar',
+      parentID: 'getting-started',
+      onList: true,
+    },
+    skip,
+  );
+  await store.create(
+    {
+      id: 'todo-photo',
+      name: 'Attach a photo',
+      parentID: 'getting-started',
+      onList: true,
+    },
+    skip,
+  );
+  await store.create(
+    {
+      id: 'todo-icon',
+      name: 'Draw a habit icon',
+      parentID: 'getting-started',
+      onList: true,
+      notes: 'Create a repeat template, then replace the checkbox with an icon',
+    },
+    skip,
+  );
+  await store.create(
+    {
+      id: 'todo-gcal',
+      name: 'Connect with Google Calendar',
+      parentID: 'getting-started',
+      onList: true,
+      notes: 'Multiple accounts can be associated',
+    },
+    skip,
+  );
 
-  await store.create({
-    id: 'visa',
-    name: 'Visa timeline',
-    onList: true,
-    childrenLayout: 'timeline',
-  });
-  await store.create({
-    id: 'visa-startup',
-    name: 'Startup visa',
-    parentID: 'visa',
-    onList: true,
-    startDateISO: addMonthsISO(today, -3),
-    isDone: true,
-  });
-  await store.create({
-    id: 'visa-renewal',
-    name: 'Visa renewal',
-    parentID: 'visa',
-    onList: true,
-    startDateISO: addDaysISO(today, 8),
-  });
-  await store.create({
-    id: 'visa-manager',
-    name: 'Business Manager visa',
-    parentID: 'visa',
-    onList: true,
-    startDateISO: addMonthsISO(today, 11),
-  });
+  await store.create(
+    {
+      id: 'visa',
+      name: 'Visa timeline',
+      onList: true,
+      childrenLayout: 'timeline',
+    },
+    skip,
+  );
+  await store.create(
+    {
+      id: 'visa-startup',
+      name: 'Startup visa',
+      parentID: 'visa',
+      onList: true,
+      startDateISO: addMonthsISO(today, -3),
+      isDone: true,
+    },
+    skip,
+  );
+  await store.create(
+    {
+      id: 'visa-renewal',
+      name: 'Visa renewal',
+      parentID: 'visa',
+      onList: true,
+      startDateISO: addDaysISO(today, 8),
+    },
+    skip,
+  );
+  await store.create(
+    {
+      id: 'visa-manager',
+      name: 'Business Manager visa',
+      parentID: 'visa',
+      onList: true,
+      startDateISO: addMonthsISO(today, 11),
+    },
+    skip,
+  );
+  await store.flush();
 }

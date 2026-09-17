@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors, type } from '../theme';
 import type { TaskRecord, TaskTree } from '../models/types';
@@ -10,13 +11,31 @@ type Props = {
   onOpen: (id: string) => void;
   onMenu: (task: TaskRecord) => void;
   onDragStart?: (task: TaskRecord) => void;
+  /** Bump after creating a root task so the new row is not left under the composer. */
+  revealTopToken?: number;
 };
 
-export function Inbox({ forest, onToggleDone, onToggleCollapsed, onOpen, onMenu, onDragStart }: Props) {
+export function Inbox({
+  forest,
+  onToggleDone,
+  onToggleCollapsed,
+  onOpen,
+  onMenu,
+  onDragStart,
+  revealTopToken,
+}: Props) {
+  const scrollRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    if (!revealTopToken) return;
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  }, [revealTopToken]);
+
   return (
     <View style={styles.wrap}>
       <Text style={styles.heading}>Inbox</Text>
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
