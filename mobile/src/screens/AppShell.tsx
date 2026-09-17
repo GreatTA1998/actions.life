@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { Modal, Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { TabBar, type AppTab } from '../components/TabBar';
 import { todayISO } from '../dates';
 import type { PersistedSession, TaskRecord } from '../models/types';

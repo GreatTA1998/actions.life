@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, AppState, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { PersistedSession } from './src/models/types';
 import type { TaskRepository } from './src/persistence/repository';
 import { migrateUid } from './src/persistence/migrate';
@@ -80,37 +81,25 @@ export default function App() {
     return () => sub.remove();
   }, [store]);
 
+  let body: ReactNode;
   if (!ready) {
-    return (
+    body = (
       <View style={styles.boot}>
         <ActivityIndicator color={colors.accent} />
         <Text style={styles.bootText}>Opening inbox…</Text>
-        <StatusBar style="dark" />
       </View>
     );
-  }
-
-  if (!session) {
-    return (
-      <>
-        <SignInScreen onSession={setSession} />
-        <StatusBar style="dark" />
-      </>
-    );
-  }
-
-  if (!store) {
-    return (
+  } else if (!session) {
+    body = <SignInScreen onSession={setSession} />;
+  } else if (!store) {
+    body = (
       <View style={styles.boot}>
         <ActivityIndicator color={colors.accent} />
         <Text style={styles.bootText}>Loading your list…</Text>
-        <StatusBar style="dark" />
       </View>
     );
-  }
-
-  return (
-    <>
+  } else {
+    body = (
       <AppShell
         key={store.uid}
         store={store}
@@ -124,8 +113,14 @@ export default function App() {
           });
         }}
       />
+    );
+  }
+
+  return (
+    <SafeAreaProvider>
+      {body}
       <StatusBar style="dark" />
-    </>
+    </SafeAreaProvider>
   );
 }
 

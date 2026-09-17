@@ -1,14 +1,6 @@
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import type { PersistedSession } from '../models/types';
 import {
