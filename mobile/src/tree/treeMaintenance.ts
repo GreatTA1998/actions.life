@@ -142,9 +142,16 @@ export function nextOrderValue(maxOrderValue: number): number {
 }
 
 export function previousSibling(id: string, forest: TaskTree[]): TaskRecord | null {
+  return adjacentSibling(id, forest, -1);
+}
+
+export function adjacentSibling(id: string, forest: TaskTree[], delta: -1 | 1): TaskRecord | null {
   function search(nodes: TaskTree[]): TaskRecord | null {
     for (let i = 0; i < nodes.length; i += 1) {
-      if (nodes[i].task.id === id) return i > 0 ? nodes[i - 1].task : null;
+      if (nodes[i].task.id === id) {
+        const next = i + delta;
+        return next >= 0 && next < nodes.length ? nodes[next].task : null;
+      }
       const found = search(nodes[i].children);
       if (found) return found;
     }

@@ -5,6 +5,7 @@ import type { TaskRepository } from '../persistence/repository';
 import {
   applyDateChange,
   applyDeletion,
+  adjacentSibling,
   applyReparent,
   inboxForest,
   nextOrderValue,
@@ -259,6 +260,29 @@ export class TaskTreeStore {
 
   async addSubtask(parentID: string, name: string): Promise<void> {
     await this.create({ name, parentID, onList: true });
+  }
+
+  async moveAmongSiblings(id: string, delta: -1 | 1): Promise<boolean> {
+    const neighbor = adjacentSibling(id, this.inbox, delta);
+    const self = this.task(id);
+    if (!neighbor || !self) return false;
+    let nextSelf = neighbor.orderValue;
+    let nextNeighbor = self.orderValue;
+    if (nextSelf === nextNeighbor) {
+      nextSelf = self.orderValue + delta;
+    }
+    this.records = this.records.map((doc) => {
+      if (doc.id === id) {
+        return { ...doc, orderValue: nextSelf, pendingSync: true, updatedAt: Date.now() };
+      }
+      if (doc.id === neighbor.id) {
+        return { ...doc, orderValue: nextNeighbor, pendingSync: true, updatedAt: Date.now() };
+      }
+      return doc;
+    });
+    await this.sync.enqueue(this.uid, 'batchTree', 'tasks', id);
+    await this.persist();
+    return true;
   }
 
   async setSimpleMode(value: boolean): Promise<void> {

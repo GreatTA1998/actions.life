@@ -156,3 +156,17 @@ test('drainIfPossible skips local-only guest UIDs', async () => {
   assert.equal(result.drained, 0);
   assert.match(result.reason, /local-only/);
 });
+
+test('moveAmongSiblings swaps inbox order', async () => {
+  const { store } = await boot('reorder-user');
+  const first = await store.create({ name: 'Alpha' });
+  const second = await store.create({ name: 'Beta' });
+  const moved = await store.moveAmongSiblings(second.id, -1);
+  assert.equal(moved, true);
+  assert.deepEqual(
+    store.inbox.filter((node) => node.task.name === 'Alpha' || node.task.name === 'Beta').map((node) => node.task.name),
+    ['Beta', 'Alpha'],
+  );
+  const refused = await store.moveAmongSiblings(first.id, 1);
+  assert.equal(refused, false);
+});

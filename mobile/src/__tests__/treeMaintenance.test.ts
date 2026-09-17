@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { defaultTask, type TaskRecord } from '../models/types';
 import {
+  adjacentSibling,
   applyDateChange,
   applyDeletion,
   applyReparent,
@@ -105,4 +106,17 @@ test('previousSibling for indent', () => {
   ]);
   assert.equal(previousSibling('b', forest)?.id, 'a');
   assert.equal(previousSibling('a', forest), null);
+});
+
+test('adjacentSibling walks nested children for reorder', () => {
+  const forest = buildForest([
+    snap('a', { parent: '', order: 1 }),
+    snap('b', { parent: '', order: 2 }),
+    snap('a1', { parent: 'a', order: 1 }),
+    snap('a2', { parent: 'a', order: 2 }),
+  ]);
+  assert.equal(adjacentSibling('a', forest, 1)?.id, 'b');
+  assert.equal(adjacentSibling('b', forest, 1), null);
+  assert.equal(adjacentSibling('a1', forest, 1)?.id, 'a2');
+  assert.equal(adjacentSibling('a2', forest, -1)?.id, 'a1');
 });

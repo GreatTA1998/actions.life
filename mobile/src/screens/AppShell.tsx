@@ -183,6 +183,26 @@ export function AppShell({ store, session, onSignOut, onSession }: Props) {
                   }}
                 />
                 <Action
+                  label="Move up"
+                  onPress={() => {
+                    const id = menuTask.id;
+                    setMenuTask(null);
+                    void store.moveAmongSiblings(id, -1).then((ok) => {
+                      if (!ok) Alert.alert('Move up', 'This task is already first among its siblings.');
+                    });
+                  }}
+                />
+                <Action
+                  label="Move down"
+                  onPress={() => {
+                    const id = menuTask.id;
+                    setMenuTask(null);
+                    void store.moveAmongSiblings(id, 1).then((ok) => {
+                      if (!ok) Alert.alert('Move down', 'This task is already last among its siblings.');
+                    });
+                  }}
+                />
+                <Action
                   label="Schedule today"
                   onPress={() =>
                     void store
