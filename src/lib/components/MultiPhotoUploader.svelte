@@ -1,5 +1,5 @@
 <div>
-  <button onclick={() => forgeTasksFromPhotos()}
+  <button type="button" aria-label="Add photos" onclick={() => forgeTasksFromPhotos()}
     class={[
       'flex items-center z-1', 
       'size-[50px] rounded-[30px] bg-[hsla(98,40%,92%,0.4)]'

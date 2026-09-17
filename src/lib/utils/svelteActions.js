@@ -1,25 +1,41 @@
 export function lazyCallable (node, callback) {
-  let observer = new IntersectionObserver(
+  const run = () => {
+    callback()
+  }
+
+  // WKWebView + overflow-hidden ancestors (homepage phone bezel) often never
+  // report threshold 0.2 intersections. Fall back to a loose bounding-rect
+  // check so calendar photos still paint.
+  const rect = node.getBoundingClientRect()
+  const vh = window.innerHeight || 0
+  const vw = window.innerWidth || 0
+  if (rect.bottom > -400 && rect.top < vh + 400 && rect.right > 0 && rect.left < vw) {
+    run()
+  }
+
+  const observer = new IntersectionObserver(
     (entries) => {
-      // for some god damn reason the callbacks fire on initialization, even when there is no intersection,
-      // so we have to check manually
       for (const entry of entries) {
         if (entry.isIntersecting) {
-          if (callback()) {
-            // observer.unobserve(node)
-          }
+          run()
           return
         }
       }
     },
     {
-      root: null, // use viewport as root
-      threshold: 0.2,
-      rootMargin: "0px", // shrink/expand the root element's area, not very useful
+      root: null,
+      threshold: 0,
+      rootMargin: '400px 0px',
     }
-  );
+  )
 
   observer.observe(node)
+
+  return {
+    destroy () {
+      observer.disconnect()
+    }
+  }
 }
 
 export function trackWidth (node, onWidthChange) {

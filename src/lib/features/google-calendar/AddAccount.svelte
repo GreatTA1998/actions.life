@@ -59,6 +59,7 @@
 
 <GoogleIdentityButton onclick={handleConnect}
   name={loading ? 'Connecting...' : 'Integration'} disabled={loading}
+  ariaLabel="Add Calendar"
   svgSize="18px"
   extraStyle="
     width: fit-content;

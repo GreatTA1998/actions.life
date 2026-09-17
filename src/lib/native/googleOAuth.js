@@ -1,11 +1,12 @@
 import { Capacitor } from '@capacitor/core'
 import { goto } from '$app/navigation'
+import { env } from '$env/dynamic/public'
 
 export const GOOGLE_WEB_CLIENT_ID = '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com'
 export const GOOGLE_OAUTH_SCOPES = 'openid email https://www.googleapis.com/auth/calendar.readonly'
 
-/** HTTPS redirect already registered for the web GIS client. */
-export const NATIVE_OAUTH_HTTPS_REDIRECT = 'https://actions.life/auth/callback'
+/** HTTPS redirect already registered for the web GIS client. Override with PUBLIC_NATIVE_OAUTH_REDIRECT when production bounce is not deployed yet. */
+export const NATIVE_OAUTH_HTTPS_REDIRECT = env.PUBLIC_NATIVE_OAUTH_REDIRECT || 'https://actions.life/auth/callback'
 
 /** Custom scheme the HTTPS callback bounces into so WKWebView is never the Google user-agent. */
 export const NATIVE_OAUTH_APP_URL = 'life.actions.app://oauth'
@@ -89,15 +90,24 @@ async function ensureOAuthListener () {
   const { App } = await import('@capacitor/app')
 
   App.addListener('appUrlOpen', ({ url }) => {
-    consumeOAuthReturnUrl(url)
+    handleNativeOpenUrl(url)
   })
 
   try {
     const launch = await App.getLaunchUrl()
-    if (launch?.url) consumeOAuthReturnUrl(launch.url)
+    if (launch?.url) handleNativeOpenUrl(launch.url)
   } catch {
     // getLaunchUrl is optional; appUrlOpen still covers warm returns
   }
+}
+
+function handleNativeOpenUrl (rawUrl) {
+  if (!rawUrl) return
+  if (rawUrl.startsWith('life.actions.app://soak')) {
+    import('./soak.js').then(({ consumeSoakUrl }) => consumeSoakUrl(rawUrl)).catch(() => {})
+    return
+  }
+  consumeOAuthReturnUrl(rawUrl)
 }
 
 function consumeOAuthReturnUrl (rawUrl) {

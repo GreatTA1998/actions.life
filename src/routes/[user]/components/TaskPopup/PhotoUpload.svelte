@@ -1,4 +1,4 @@
-<button onclick={async () => {
+<button type="button" aria-label="Attach photo" onclick={async () => {
   const files = await selectImages()
   if (files[0]) imbuePhotoIntoTask(files[0], task.id, onUpload, onFinished)
 }} class="flex">
