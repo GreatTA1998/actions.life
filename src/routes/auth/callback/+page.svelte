@@ -195,7 +195,7 @@
   }
 </script>
 
-<div class="p-4">
+<div class="p-4" style="padding-top: calc(env(safe-area-inset-top, 0px) + 1rem);">
   {message}
   {#if bounceHref}
     <p class="mt-2">
