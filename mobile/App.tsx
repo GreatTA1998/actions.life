@@ -56,6 +56,7 @@ export default function App() {
         const promoted = await promoteLocalGuest(session, repo);
         if (cancelled) return;
         if (promoted.uid !== session.uid) {
+          previousUid.current = promoted.uid;
           setSession(promoted);
           return;
         }

@@ -104,6 +104,16 @@ test('migrateUid copies tasks to the new owner', async () => {
   assert.equal(next.task(created.id)?.ownerUID, 'firebase-new');
 });
 
+test('migrateUid does not wipe the destination when the source is already empty', async () => {
+  const { repo, store } = await boot('guest-source');
+  const created = await store.create({ name: 'Keep me' });
+  await migrateUid(repo, 'guest-source', 'firebase-dest');
+  await migrateUid(repo, 'guest-source', 'firebase-dest');
+  const next = new TaskTreeStore(repo, 'firebase-dest');
+  await next.init();
+  assert.equal(next.task(created.id)?.name, 'Keep me');
+});
+
 test('undo restores an archived subtree to the inbox', async () => {
   const { store } = await boot('undo-user');
   const parent = await store.create({ name: 'Parent' });
