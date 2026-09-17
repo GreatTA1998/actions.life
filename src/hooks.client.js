@@ -1,8 +1,23 @@
 import { auth } from '$lib/db/init.js'
 import { firebaseAuth } from '$lib/store'
 import { reportError } from '$lib/utils/errors.js'
+import { Capacitor } from '@capacitor/core'
 
 firebaseAuth.set(auth)
+
+if (Capacitor.isNativePlatform()) {
+  import('@capacitor/splash-screen').then(({ SplashScreen }) => {
+    SplashScreen.hide().catch(() => {})
+  })
+  import('@capacitor/status-bar').then(({ StatusBar, Style }) => {
+    StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
+    StatusBar.setStyle({ style: Style.Light }).catch(() => {})
+    StatusBar.setBackgroundColor({ color: '#fafafa' }).catch(() => {})
+  })
+  import('$lib/native/googleOAuth.js').then(({ listenForNativeOAuth }) => {
+    listenForNativeOAuth()
+  })
+}
 
 export function handleError ({ event, error }) {
   console.error(event, error)

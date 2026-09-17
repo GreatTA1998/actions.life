@@ -7,11 +7,12 @@
     onclick = () => {},
     extraStyle = '',
     svgSize = '20px',
-    disabled = false
+    disabled = false,
+    ariaLabel = name
   } = $props()
 </script>
 
-<button {onclick} {disabled} class="gsi-material-button"
+<button type="button" {onclick} {disabled} aria-label={ariaLabel} class="gsi-material-button"
   style={extraStyle}
 >
   <div class="gsi-material-button-state"></div>

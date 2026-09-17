@@ -21,24 +21,24 @@
     style={`
       height: ${height}px;
       background-color: rgba(255, 255, 255, 0.4);
-      border: ${task.imageDownloadURL ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
+      border: ${showPhoto ? '' : '1px solid rgb(0, 0, 0, 0.1)'};
       ${$bestDropzoneID === id ? dropPreviewCSS : ''}
     `}
     style:min-height={`calc(${titleFS} + var(--left-padding) * 2)`}
-    style:background-image={hasIntersected && task.imageDownloadURL ? `url(${task.imageDownloadURL})` : 'none'}
+    style:background-image={showPhoto ? `url(${task.imageDownloadURL})` : 'none'}
     use:lazyCallable={() => hasIntersected = true}
   >
     <div class="shrink-0"
       style:padding="var(--left-padding)"
       style:border-radius="var(--left-padding)"
-      style:background={task.imageDownloadURL ? `linear-gradient(${COLORS.OVERLAY_DARKEST}, transparent)` : ''}
+      style:background={showPhoto ? `linear-gradient(${COLORS.OVERLAY_DARKEST}, transparent)` : ''}
     >
-      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'}>
+      <CalTaskUnit {task} color={showPhoto ? 'white' : 'var(--task-name-color)'}>
         {#snippet icon ()}
           <DoodleIcon 
             iconTask={task} 
             size={titleFS} 
-            whiteVariant={task.imageDownloadURL}
+            whiteVariant={showPhoto}
             scaleToFit 
           />
         {/snippet}
@@ -48,7 +48,7 @@
     {#if task.notes}
       <div class="overflow-hidden" style:padding="0 var(--left-padding)">
         <div style="
-          color: {task.imageDownloadURL ? 'white' : 'oklch(43.9% 0 0)'};"
+          color: {showPhoto ? 'white' : 'oklch(43.9% 0 0)'};"
           class="text-xs"
         >
           {task.notes}
@@ -100,6 +100,7 @@
   import { calendarBlock, titleFS } from '$lib/styles/reused.module.css'
   import { pixelsPerHour, timestampsColumnWidth, headerHeight, calBodyClip } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
+  import { Capacitor } from '@capacitor/core'
   
   const { Task, treesByID } = getContext('app')
   const { openTaskPopup } = getContext('task-popup')
@@ -113,7 +114,10 @@
   const id = randomID()
   let previewDuration = $state(0)
   let height = $derived((previewDuration || task.duration) * $pixelsPerHour / 60)
-  let hasIntersected = $state(false)
+  // Native WKWebView IntersectionObserver often never fires inside overflow-hidden
+  // phone chrome; skip lazy-load so demo photos are not white-on-white.
+  let hasIntersected = $state(Capacitor.isNativePlatform())
+  let showPhoto = $derived(hasIntersected && !!task.imageDownloadURL)
 
   function calClipRect () {
     return calBodyClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight)

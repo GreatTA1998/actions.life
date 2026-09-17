@@ -1,13 +1,9 @@
-<button onclick={() => FolderInput.click()} class="flex">
+<button type="button" aria-label="Attach photo" onclick={async () => {
+  const files = await selectImages()
+  if (files[0]) imbuePhotoIntoTask(files[0], task.id, onUpload, onFinished)
+}} class="flex">
   <MslAddPhotoAlternateOutline style="font-size: var(--popup-control);"/>
 </button>
-
-<input style:display="none"
-  bind:this={FolderInput}
-  onchange={e => imbuePhotoIntoTask(e, task.id, onUpload, onFinished)} 
-  type="file" 
-  accept="image/*" 
->
 
 <script>
   import { uploadThenGetMetadata } from '$lib/utils/imageHandling.js'
@@ -15,16 +11,13 @@
   import { getFirestoreDoc } from '$lib/db/helpers.js'
   import { getContext } from 'svelte'
   import { user } from '$lib/store'
+  import { selectImages } from '$lib/native/photos.js'
 
   const { Task } = getContext('app')
   let { onUpload, onFinished, task } = $props()
 
-  let FolderInput
- 
-  async function imbuePhotoIntoTask (e, id, onUpload, onFinished) {
+  async function imbuePhotoIntoTask (image, id, onUpload, onFinished) {
     onUpload()
-
-    let image = e.target.files[0]
 
     const { 
       dt, 

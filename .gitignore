@@ -13,3 +13,21 @@ node_modules
 .cursor
 .cursor/*
 .vscode
+
+# Capacitor / native build artifacts (keep android/ and ios/ project files)
+android/.gradle
+android/build
+android/app/build
+android/app/.cxx
+android/captures
+android/local.properties
+android/.idea
+android/*.iml
+android/app/src/main/assets/public
+ios/App/Pods
+ios/App/build
+ios/App/App/public
+ios/DerivedData
+ios/App/App.xcworkspace/xcuserdata
+ios/App/App.xcodeproj/xcuserdata
+ios/App/App.xcodeproj/project.xcworkspace/xcuserdata
