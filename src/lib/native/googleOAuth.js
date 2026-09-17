@@ -1,12 +1,28 @@
 import { Capacitor } from '@capacitor/core'
 import { goto } from '$app/navigation'
-import { env } from '$env/dynamic/public'
+import * as staticPublic from '$env/static/public'
 
 export const GOOGLE_WEB_CLIENT_ID = '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com'
 export const GOOGLE_OAUTH_SCOPES = 'openid email https://www.googleapis.com/auth/calendar.readonly'
 
-/** HTTPS redirect already registered for the web GIS client. Override with PUBLIC_NATIVE_OAUTH_REDIRECT when production bounce is not deployed yet. */
-export const NATIVE_OAUTH_HTTPS_REDIRECT = env.PUBLIC_NATIVE_OAUTH_REDIRECT || 'https://actions.life/auth/callback'
+const PRODUCTION_NATIVE_OAUTH_REDIRECT = 'https://actions.life/auth/callback'
+
+/**
+ * HTTPS redirect already registered for the web GIS client.
+ * Local native builds: set PUBLIC_NATIVE_OAUTH_REDIRECT in gitignored `.env.local`
+ * (Vite loadEnv + $env/static/public inline it during `npm run build:native`).
+ * Do not rely on `$env/dynamic/public` — adapter-static often leaves that empty
+ * even when the shell exported the var.
+ */
+export const NATIVE_OAUTH_HTTPS_REDIRECT = resolveNativeOauthHttpsRedirect()
+
+function resolveNativeOauthHttpsRedirect () {
+  const candidates = [
+    staticPublic.PUBLIC_NATIVE_OAUTH_REDIRECT,
+    import.meta.env.PUBLIC_NATIVE_OAUTH_REDIRECT
+  ]
+  return candidates.find((value) => typeof value === 'string' && value.trim()) || PRODUCTION_NATIVE_OAUTH_REDIRECT
+}
 
 /** Custom scheme the HTTPS callback bounces into so WKWebView is never the Google user-agent. */
 export const NATIVE_OAUTH_APP_URL = 'life.actions.app://oauth'
@@ -47,6 +63,7 @@ export async function requestNativeGoogleAuthCode ({ state = NATIVE_OAUTH_STATE_
 
   const redirectUri = NATIVE_OAUTH_HTTPS_REDIRECT
   const authUrl = googleAuthorizeUrl({ state, redirectUri })
+  console.info('[native oauth] Google authorize redirect_uri=', redirectUri)
 
   const result = new Promise((resolve, reject) => {
     pending = { resolve, reject, redirectUri }

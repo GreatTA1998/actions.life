@@ -9,9 +9,9 @@
     "build": "vite build",
     "package": "vite package",
     "preview": "vite preview",
-    "build:native": "cross-env CAPACITOR=1 vite build && cap sync",
-    "native:ios": "cross-env CAPACITOR=1 vite build && cap sync && cap open ios",
-    "native:android": "cross-env CAPACITOR=1 vite build && cap sync && cap open android"
+    "build:native": "cross-env CAPACITOR=1 vite build && node scripts/print-native-oauth-redirect.mjs build && cap sync && node scripts/print-native-oauth-redirect.mjs ios/App/App/public",
+    "native:ios": "cross-env CAPACITOR=1 vite build && node scripts/print-native-oauth-redirect.mjs build && cap sync && cap open ios",
+    "native:android": "cross-env CAPACITOR=1 vite build && node scripts/print-native-oauth-redirect.mjs build && cap sync && cap open android"
   },
   "devDependencies": {
     "@capacitor/android": "^7.4.4",

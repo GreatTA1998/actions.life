@@ -21,13 +21,20 @@ On device, confirm: cold start from the home-screen icon (bundled assets, no net
 
 Native Google Sign-In uses the system browser (Safari View Controller / Chrome Custom Tabs), then an HTTPS callback bounces to `life.actions.app://oauth` so Google never sees the WKWebView user-agent. Web GIS is unchanged.
 
-Production `https://actions.life/auth/callback` is the GIS-registered redirect, but it does **not** bounce yet. Until this PR is on production, a physical iPhone (and simulator) build must send Google to the current Vercel preview of this branch:
+Production `https://actions.life/auth/callback` is the GIS-registered redirect, but it does **not** bounce yet. Until this PR is on production, a local native build must send Google to the current Vercel preview of this branch.
+
+`$env/dynamic/public` is **not** reliable here: adapter-static often ships an empty `_app/env.js` even after `export PUBLIC_NATIVE_OAUTH_REDIRECT=...`. Vite only inlines the value during `npm run build:native` if it is in a gitignored env file or in the Vite process environment.
 
 ```bash
-PUBLIC_NATIVE_OAUTH_REDIRECT=https://actions-2w2365sfg-intentions.vercel.app/auth/callback npm run build:native
+cp .env.example .env.local
+# edit .env.local — do not commit it
+PUBLIC_NATIVE_OAUTH_REDIRECT=https://actions-2w2365sfg-intentions.vercel.app/auth/callback
+npm run build:native
 ```
 
-That preview URL changes on each Vercel deploy of `cursor/capacitor-native-shell-bb25` — use the latest Preview URL on [PR 176](https://github.com/GreatTA1998/actions.life/pull/176). Google Cloud must allow that exact `redirect_uri`. If `/auth/callback` stays on “Welcome! Preparing your account…”, bounce did not run (production) or token exchange hung (this branch surfaces an error instead).
+`build:native` prints the baked `/auth/callback` URL from `build/` and `ios/App/App/public`. Confirm it is the preview host (or another bounce host), then install **that** app — Xcode Run of a stale `DerivedData` bundle will still open production “Welcome! Preparing your account…”. A one-off shell `export` without `.env.local` is not enough.
+
+That preview URL changes on each Vercel deploy of `cursor/capacitor-native-shell-bb25` — use the latest Preview URL on [PR 176](https://github.com/GreatTA1998/actions.life/pull/176). Google Cloud must allow that exact `redirect_uri`. If Safari’s title is **actions.life** and the page stays on “Welcome! Preparing your account…”, Google still received the production redirect (bounce JS is not on production). Preview bounce or Google `redirect_uri_mismatch` both mean the native bundle used the override.
 
 After pulling plugin changes on a Mac, run `npx cap sync` (or `pod install` in `ios/App`) so CocoaPods pick up App, Browser, and StatusBar. Select a development team locally in Xcode — do not commit a team ID.
 
@@ -45,3 +52,5 @@ After pulling plugin changes on a Mac, run `npx cap sync` (or `pod install` in `
 ```
 OPENAI_API_KEY=from-web-dashboard
 ```
+
+`.env` / `.env.local` / `.env.*` are gitignored (`!.env.example`). For Capacitor OAuth against a Vercel preview, put `PUBLIC_NATIVE_OAUTH_REDIRECT` in `.env.local` (see Native section). Production website builds must omit it so the default stays `https://actions.life/auth/callback`.
