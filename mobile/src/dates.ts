@@ -58,6 +58,13 @@ export function parseMinutes(hhmm: string): number {
   return h * 60 + m;
 }
 
+/** Scroll the day grid so 09:00 stays visible even when the first event is later. */
+export function calendarFocusMinutes(startTimes: string[], morning = 9 * 60): number {
+  const times = startTimes.filter(Boolean).map(parseMinutes);
+  if (times.length === 0) return morning;
+  return Math.min(Math.min(...times), morning);
+}
+
 export function formatMinutes(total: number): string {
   const clamped = Math.max(0, Math.min(23 * 60 + 59, total));
   const h = Math.floor(clamped / 60);

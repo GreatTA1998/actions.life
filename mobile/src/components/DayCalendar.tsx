@@ -1,7 +1,14 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useEffect, useRef, type Ref } from 'react';
 import { colors, type } from '../theme';
-import { dayNumber, formatDayLabel, parseMinutes, surroundingDays, weekdayShort } from '../dates';
+import {
+  calendarFocusMinutes,
+  dayNumber,
+  formatDayLabel,
+  parseMinutes,
+  surroundingDays,
+  weekdayShort,
+} from '../dates';
 import type { TaskRecord } from '../models/types';
 
 export const CAL_START_HOUR = 6;
@@ -37,10 +44,7 @@ export function DayCalendar({
   const hourScrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
-    const timed = tasks
-      .filter((task) => task.startTime)
-      .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
-    const minutes = timed[0] ? parseMinutes(timed[0].startTime) : 9 * 60;
+    const minutes = calendarFocusMinutes(tasks.map((task) => task.startTime));
     const y = Math.max(0, ((minutes - CAL_START_HOUR * 60) / 60) * PX_PER_HOUR - 8);
     const id = requestAnimationFrame(() => {
       hourScrollRef.current?.scrollTo({ y, animated: false });

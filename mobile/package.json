@@ -34,7 +34,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "tsx --test src/__tests__/treeMaintenance.test.ts src/__tests__/taskStore.test.ts",
+    "test": "tsx --test src/__tests__/treeMaintenance.test.ts src/__tests__/taskStore.test.ts src/__tests__/dates.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "private": true
