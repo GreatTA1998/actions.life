@@ -5,12 +5,14 @@ const {
   createRunOncePlugin,
 } = require('expo/config-plugins');
 
-const SCENE_DELEGATE = `import Expo
+const SCENE_DELEGATE = `internal import Expo
 
 @objc(SceneDelegate)
 class SceneDelegate: ExpoAppSceneDelegate {
   // iOS 27 requires a UIWindowSceneDelegate. ExpoAppSceneDelegate creates the
   // window and starts React Native. Keep this file as the plugin extension point.
+  // internal import Expo matches the SDK 57 AppDelegate template so a stock
+  // npx expo run:ios prebuild compiles on Xcode 26 / iOS 27.
 }
 `;
 
@@ -73,4 +75,4 @@ function withIosSceneLifecycle(config) {
   return config;
 }
 
-module.exports = createRunOncePlugin(withIosSceneLifecycle, 'with-ios-scene-lifecycle', '1.0.0');
+module.exports = createRunOncePlugin(withIosSceneLifecycle, 'with-ios-scene-lifecycle', '1.0.1');
