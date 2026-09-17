@@ -66,7 +66,11 @@ export const HomeScreen = forwardRef<HomeScreenHandle, Props>(function HomeScree
   }
 
   return (
-    <View style={styles.fill}>
+    <KeyboardAvoidingView
+      style={styles.fill}
+      behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
+    >
       {dragging ? (
         <Text style={styles.dragHint}>Drop on a calendar hour — or tap a time</Text>
       ) : null}
@@ -114,23 +118,21 @@ export const HomeScreen = forwardRef<HomeScreenHandle, Props>(function HomeScree
           />
         }
       />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={styles.composer}>
-          <TextInput
-            value={composer}
-            onChangeText={setComposer}
-            placeholder="Add a task"
-            placeholderTextColor={colors.faint}
-            style={styles.input}
-            onSubmitEditing={() => void addRoot()}
-            returnKeyType="done"
-          />
-          <Pressable style={styles.add} onPress={() => void addRoot()}>
-            <Text style={styles.addText}>Add</Text>
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
-    </View>
+      <View style={styles.composer}>
+        <TextInput
+          value={composer}
+          onChangeText={setComposer}
+          placeholder="Add a task"
+          placeholderTextColor={colors.faint}
+          style={styles.input}
+          onSubmitEditing={() => void addRoot()}
+          returnKeyType="done"
+        />
+        <Pressable style={styles.add} onPress={() => void addRoot()}>
+          <Text style={styles.addText}>Add</Text>
+        </Pressable>
+      </View>
+    </KeyboardAvoidingView>
   );
 });
 
@@ -151,6 +153,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.navbar,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
+    zIndex: 2,
   },
   input: {
     flex: 1,

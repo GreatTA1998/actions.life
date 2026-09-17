@@ -16,7 +16,11 @@ export function Inbox({ forest, onToggleDone, onToggleCollapsed, onOpen, onMenu,
   return (
     <View style={styles.wrap}>
       <Text style={styles.heading}>Inbox</Text>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      >
         {forest.length === 0 ? (
           <Text style={styles.empty}>Nothing on the list. Add a task below.</Text>
         ) : (
@@ -54,7 +58,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   content: {
-    paddingBottom: 24,
+    paddingBottom: 72,
   },
   empty: {
     padding: 16,

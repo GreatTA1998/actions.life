@@ -37,11 +37,11 @@ export function SplitPane({ split, onChange, top, bottom }: Props) {
         height.current = e.nativeEvent.layout.height;
       }}
     >
-      <View style={{ flex: 1 - split }}>{top}</View>
+      <View style={[styles.pane, { flex: 1 - split }]}>{top}</View>
       <View {...pan.panHandlers} style={styles.handle}>
         <View style={styles.pill} />
       </View>
-      <View style={{ flex: split }}>{bottom}</View>
+      <View style={[styles.pane, { flex: split }]}>{bottom}</View>
     </View>
   );
 }
@@ -49,6 +49,9 @@ export function SplitPane({ split, onChange, top, bottom }: Props) {
 const styles = StyleSheet.create({
   col: {
     flex: 1,
+  },
+  pane: {
+    overflow: 'hidden',
   },
   handle: {
     height: 18,
