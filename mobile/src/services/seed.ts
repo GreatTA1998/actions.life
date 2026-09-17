@@ -1,6 +1,13 @@
 import { addDaysISO, addMonthsISO, nowHM, todayISO } from '../dates';
 import type { TaskTreeStore } from './taskStore';
 
+export const HABIT_TEMPLATES = [
+  { id: 'template-habit-water', name: 'Water the plant', duration: 15, rr: 'Weekly on Wednesday' },
+  { id: 'template-habit-drink', name: 'Drink water', duration: 1, rr: 'Every day' },
+  { id: 'template-habit-meditate', name: 'Meditate', duration: 15, rr: 'Every day' },
+  { id: 'template-habit-laundry', name: 'Dry laundry', duration: 10, rr: 'Weekly on Sunday' },
+] as const;
+
 const PHOTOS = {
   olaDrawingByDad: 'https://i.imgur.com/Pu7PxCi.jpeg',
   redCrownBird: 'https://i.imgur.com/waIioxd.jpeg',

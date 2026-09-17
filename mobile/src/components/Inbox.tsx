@@ -9,9 +9,10 @@ type Props = {
   onToggleCollapsed: (id: string) => void;
   onOpen: (id: string) => void;
   onMenu: (task: TaskRecord) => void;
+  onDragStart?: (task: TaskRecord) => void;
 };
 
-export function Inbox({ forest, onToggleDone, onToggleCollapsed, onOpen, onMenu }: Props) {
+export function Inbox({ forest, onToggleDone, onToggleCollapsed, onOpen, onMenu, onDragStart }: Props) {
   return (
     <View style={styles.wrap}>
       <Text style={styles.heading}>Inbox</Text>
@@ -28,6 +29,7 @@ export function Inbox({ forest, onToggleDone, onToggleCollapsed, onOpen, onMenu 
               onToggleCollapsed={onToggleCollapsed}
               onOpen={onOpen}
               onMenu={onMenu}
+              onDragStart={onDragStart}
             />
           ))
         )}

@@ -42,24 +42,28 @@ export function TaskDetailModal({ task, store, onClose, onOpenTask }: Props) {
   }
 
   function confirmDelete() {
-    Alert.alert(
-      'Delete this tree?',
-      children.length
-        ? `This will delete ${children.length + 1} actions.`
-        : 'This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () =>
-            run(async () => {
-              await store.deleteSubtree(task.id);
-              onClose();
-            }),
-        },
-      ],
-    );
+    const message = children.length
+      ? `This will delete ${children.length + 1} actions.`
+      : 'This cannot be undone.';
+    const go = () =>
+      run(async () => {
+        await store.deleteSubtree(task.id);
+        onClose();
+      });
+    if (Platform.OS === 'web') {
+      if (typeof globalThis.confirm === 'function' && globalThis.confirm(`Delete this tree?\n${message}`)) {
+        void go();
+      }
+      return;
+    }
+    Alert.alert('Delete this tree?', message, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => void go(),
+      },
+    ]);
   }
 
   const live = store.task(task.id) ?? task;

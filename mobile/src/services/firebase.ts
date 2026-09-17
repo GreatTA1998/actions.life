@@ -1,4 +1,14 @@
-import Constants from 'expo-constants';
+const extra = (() => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Constants = require('expo-constants').default as {
+      expoConfig?: { extra?: { googleWebClientId?: string; googleIosClientId?: string; googleAndroidClientId?: string } };
+    };
+    return Constants.expoConfig?.extra ?? {};
+  } catch {
+    return {};
+  }
+})();
 
 export const firebaseWebConfig = {
   apiKey: 'AIzaSyCOVm0X6UUQQcftXf066z_0hFk497j4dNY',
@@ -14,16 +24,27 @@ export const FIRESTORE_DATABASE_ID = 'schema-compliant';
 
 export const googleAuthConfig = {
   webClientId:
-    Constants.expoConfig?.extra?.googleWebClientId ??
+    extra.googleWebClientId ??
     '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com',
-  iosClientId: Constants.expoConfig?.extra?.googleIosClientId ?? '',
-  androidClientId: Constants.expoConfig?.extra?.googleAndroidClientId ?? '',
+  iosClientId: extra.googleIosClientId ?? '',
+  androidClientId: extra.googleAndroidClientId ?? '',
 };
 
 let cached: { app: unknown; auth: unknown; db: unknown } | null = null;
 
 export function googleNativeConfigPresent(): boolean {
   return Boolean(googleAuthConfig.iosClientId || googleAuthConfig.androidClientId);
+}
+
+export function peekFirebase(): {
+  auth: import('firebase/auth').Auth;
+  db: import('firebase/firestore').Firestore;
+} | null {
+  if (!cached) return null;
+  return cached as {
+    auth: import('firebase/auth').Auth;
+    db: import('firebase/firestore').Firestore;
+  };
 }
 
 export async function tryFirebase(): Promise<{

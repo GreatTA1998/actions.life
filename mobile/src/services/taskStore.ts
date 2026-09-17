@@ -1,3 +1,4 @@
+import { addDaysISO, todayISO } from '../dates';
 import { randomID } from '../ids';
 import { defaultProfile, defaultTask, type TaskRecord, type TaskTree, type UserProfile } from '../models/types';
 import type { TaskRepository } from '../persistence/repository';
@@ -11,6 +12,7 @@ import {
   previousSibling,
   subtreeIDs,
 } from '../tree/treeMaintenance';
+import { peekFirebase } from './firebase';
 import { insertGuestSeed } from './seed';
 import { SyncEngine } from './syncEngine';
 
@@ -168,7 +170,11 @@ export class TaskTreeStore {
     await this.update(id, { onList });
   }
 
+  lastSyncReason = 'not-yet';
+  lastUndo: { label: string; run: () => Promise<void> } | null = null;
+
   async schedule(id: string, dayISO: string, time?: string, duration?: number): Promise<void> {
+    const previous = this.task(id);
     this.records = applyDateChange(id, dayISO, this.records);
     this.records = this.records.map((doc) => {
       if (doc.id !== id) return doc;
@@ -176,11 +182,18 @@ export class TaskTreeStore {
         ...doc,
         startTime: time ?? doc.startTime,
         duration: duration ?? doc.duration,
+        onList: this.profile.simpleMode ? false : doc.onList,
         pendingSync: true,
         updatedAt: Date.now(),
       };
     });
     await this.sync.enqueue(this.uid, 'batchTree', 'tasks', id);
+    if (this.profile.simpleMode && previous?.onList) {
+      this.lastUndo = {
+        label: 'Archived from the list',
+        run: () => this.setOnList(id, true),
+      };
+    }
     await this.persist();
   }
 
@@ -214,9 +227,14 @@ export class TaskTreeStore {
 
   async archive(id: string): Promise<void> {
     const ids = new Set(subtreeIDs(id, this.records));
+    const count = ids.size;
     this.records = this.records.map((doc) =>
       ids.has(doc.id) ? { ...doc, onList: false, pendingSync: true, updatedAt: Date.now() } : doc,
     );
+    this.lastUndo = {
+      label: `${count} task${count > 1 ? 's' : ''} archived from the list`,
+      run: () => this.unarchive(id),
+    };
     await this.sync.enqueue(this.uid, 'update', 'tasks', id);
     await this.persist();
   }
@@ -240,7 +258,56 @@ export class TaskTreeStore {
     await this.create({ name, parentID, onList: true });
   }
 
+  async setSimpleMode(value: boolean): Promise<void> {
+    this.profile = { ...this.profile, simpleMode: value, pendingSync: true, updatedAt: Date.now() };
+    await this.repo.saveProfile(this.profile);
+    this.notify();
+  }
+
+  photoTasks(): TaskRecord[] {
+    return this.records
+      .filter((task) => task.imageDownloadURL)
+      .sort((a, b) => (b.startDateISO || '').localeCompare(a.startDateISO || ''));
+  }
+
+  agendaDays(count = 14): { iso: string; tasks: TaskRecord[] }[] {
+    const start = todayISO();
+    const days: { iso: string; tasks: TaskRecord[] }[] = [];
+    for (let i = 0; i < count; i += 1) {
+      const iso = addDaysISO(start, i);
+      days.push({ iso, tasks: this.tasksOnDay(iso) });
+    }
+    return days;
+  }
+
+  async syncNow(): Promise<{ drained: number; reason: string }> {
+    const result = await this.sync.drainIfPossible({
+      uid: this.uid,
+      tasks: this.records,
+      profile: this.profile,
+    });
+    this.lastSyncReason = result.reason;
+    if (result.reason === 'ok') {
+      this.records = this.records.map((task) => ({ ...task, pendingSync: false }));
+      await this.repo.replaceTasks(this.uid, this.records);
+      const pulled = await this.sync.pull(this.uid, this.records);
+      if (pulled) {
+        this.records = pulled;
+        await this.repo.replaceTasks(this.uid, this.records);
+        this.reloadViews();
+      }
+    }
+    this.notify();
+    return result;
+  }
+
+  clearUndo() {
+    this.lastUndo = null;
+    this.notify();
+  }
+
   private splitTimer: ReturnType<typeof setTimeout> | null = null;
+  private syncTimer: ReturnType<typeof setTimeout> | null = null;
 
   async setListHeightSplit(value: number): Promise<void> {
     this.listHeightSplit = Math.min(0.85, Math.max(0.25, value));
@@ -275,5 +342,11 @@ export class TaskTreeStore {
     await this.repo.saveProfile(this.profile);
     this.reloadViews();
     this.notify();
+    const signedIn = peekFirebase()?.auth.currentUser;
+    if (!signedIn || signedIn.uid !== this.uid) return;
+    if (this.syncTimer) clearTimeout(this.syncTimer);
+    this.syncTimer = setTimeout(() => {
+      void this.syncNow();
+    }, 400);
   }
 }

@@ -9,9 +9,10 @@ type Props = {
   onToggleCollapsed: (id: string) => void;
   onOpen: (id: string) => void;
   onMenu: (task: TaskRecord) => void;
+  onDragStart?: (task: TaskRecord) => void;
 };
 
-export function TaskRow({ node, depth, onToggleDone, onToggleCollapsed, onOpen, onMenu }: Props) {
+export function TaskRow({ node, depth, onToggleDone, onToggleCollapsed, onOpen, onMenu, onDragStart }: Props) {
   const { task, children } = node;
   const hasChildren = children.length > 0;
   const dateBadge = task.startDateISO ? task.startDateISO.slice(5) : '';
@@ -37,7 +38,12 @@ export function TaskRow({ node, depth, onToggleDone, onToggleCollapsed, onOpen, 
         >
           {task.isDone ? <Text style={styles.check}>✓</Text> : null}
         </Pressable>
-        <Pressable onPress={() => onOpen(task.id)} style={styles.body}>
+        <Pressable
+          onPress={() => onOpen(task.id)}
+          onLongPress={() => onDragStart?.(task)}
+          delayLongPress={180}
+          style={styles.body}
+        >
           <Text
             style={[styles.name, task.isDone && styles.nameDone]}
             numberOfLines={2}
@@ -60,6 +66,7 @@ export function TaskRow({ node, depth, onToggleDone, onToggleCollapsed, onOpen, 
               onToggleCollapsed={onToggleCollapsed}
               onOpen={onOpen}
               onMenu={onMenu}
+              onDragStart={onDragStart}
             />
           ))
         : null}
