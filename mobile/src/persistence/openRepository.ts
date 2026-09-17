@@ -3,19 +3,15 @@ import type { TaskRepository } from './repository';
 import { openJsonRepository } from './jsonRepository';
 import { SqliteRepository } from './sqliteRepository';
 
-function timeout(ms: number): Promise<never> {
-  return new Promise((_, reject) => {
-    setTimeout(() => reject(new Error(`sqlite-timeout-${ms}`)), ms);
-  });
-}
-
 export async function openTaskRepository(): Promise<{ repo: TaskRepository; kind: 'sqlite' | 'json' }> {
   if (Platform.OS !== 'web') {
     try {
-      const repo = await Promise.race([SqliteRepository.open(), timeout(2500)]);
+      // Do not time out SQLite on native. A short race used to fall back to
+      // empty JSON on slow emulators, which looked like a wiped inbox on reload.
+      const repo = await SqliteRepository.open();
       return { repo, kind: 'sqlite' };
     } catch {
-      // Fall through to JSON persistence (Expo Go web, missing native module, etc.)
+      // Fall through to JSON persistence when the native module is missing.
     }
   }
   const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;

@@ -10,6 +10,7 @@ export class SqliteRepository implements TaskRepository {
     const db = await SQLite.openDatabaseAsync('actions-life.db');
     await db.execAsync(`
       PRAGMA journal_mode = WAL;
+      PRAGMA busy_timeout = 5000;
       CREATE TABLE IF NOT EXISTS tasks (
         id TEXT NOT NULL,
         owner_uid TEXT NOT NULL,

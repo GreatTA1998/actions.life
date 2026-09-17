@@ -92,40 +92,9 @@ export async function restoreSession(): Promise<PersistedSession | null> {
   return null;
 }
 
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('timeout')), ms);
-    promise.then(
-      (value) => {
-        clearTimeout(timer);
-        resolve(value);
-      },
-      (error) => {
-        clearTimeout(timer);
-        reject(error);
-      },
-    );
-  });
-}
-
 export async function continueAsGuest(): Promise<PersistedSession> {
-  try {
-    const firebase = await withTimeout(tryFirebase(), 1500);
-    if (firebase) {
-      const { signInAnonymously } = await import('firebase/auth');
-      const result = await withTimeout(signInAnonymously(firebase.auth), 1500);
-      const session: PersistedSession = {
-        uid: result.user.uid,
-        email: '',
-        isAnonymous: true,
-        provider: 'anonymous',
-      };
-      await saveSession(session);
-      return session;
-    }
-  } catch {
-    // Offline or Firebase Auth not usable — fall through to a local guest UID.
-  }
+  // Always mint a local guest UID immediately. Firebase anonymous promotion
+  // happens after first paint so the UI never waits on the network.
   const uid = await loadOrCreateDeviceGuestUid();
   const session: PersistedSession = {
     uid,

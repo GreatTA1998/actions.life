@@ -7,6 +7,7 @@ import { migrateUid } from './src/persistence/migrate';
 import { openTaskRepository } from './src/persistence/openRepository';
 import { restoreSession, signOut } from './src/services/authSession';
 import { promoteLocalGuest } from './src/services/promoteGuest';
+import { isLocalOnlyUid } from './src/services/syncMerge';
 import { TaskTreeStore } from './src/services/taskStore';
 import { AppShell } from './src/screens/AppShell';
 import { SignInScreen } from './src/screens/SignInScreen';
@@ -36,7 +37,7 @@ export default function App() {
 
   useEffect(() => {
     if (!repo || !session) {
-      setStore(null);
+      if (!session) setStore(null);
       return;
     }
     let cancelled = false;
@@ -63,7 +64,7 @@ export default function App() {
       } catch {
         // stay on local guest
       }
-      void next.syncNow();
+      if (!isLocalOnlyUid(next.uid)) void next.syncNow();
     })();
     return () => {
       cancelled = true;
@@ -74,7 +75,7 @@ export default function App() {
   useEffect(() => {
     if (!store) return;
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') void store.syncNow();
+      if (state === 'active' && !isLocalOnlyUid(store.uid)) void store.syncNow();
     });
     return () => sub.remove();
   }, [store]);
