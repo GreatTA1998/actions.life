@@ -19,7 +19,17 @@ Or: `npm run native:ios` / `npm run native:android` (build + sync + open).
 
 On device, confirm: cold start from the home-screen icon (bundled assets, no network required for the shell), airplane mode still shows the app, and photo buttons open the native camera/library prompt.
 
-Native Google Sign-In uses the system browser (Safari View Controller / Chrome Custom Tabs), then `https://actions.life/auth/callback` bounces to `life.actions.app://oauth` so Google never sees the WKWebView user-agent. Web GIS is unchanged. That bounce must be live on actions.life (this PR deployed) for simulator sign-in to finish. After pulling plugin changes on a Mac, run `npx cap sync` (or `pod install` in `ios/App`) so CocoaPods pick up App, Browser, and StatusBar.
+Native Google Sign-In uses the system browser (Safari View Controller / Chrome Custom Tabs), then an HTTPS callback bounces to `life.actions.app://oauth` so Google never sees the WKWebView user-agent. Web GIS is unchanged.
+
+Production `https://actions.life/auth/callback` is the GIS-registered redirect, but it does **not** bounce yet. Until this PR is on production, a physical iPhone (and simulator) build must send Google to the current Vercel preview of this branch:
+
+```bash
+PUBLIC_NATIVE_OAUTH_REDIRECT=https://actions-2w2365sfg-intentions.vercel.app/auth/callback npm run build:native
+```
+
+That preview URL changes on each Vercel deploy of `cursor/capacitor-native-shell-bb25` — use the latest Preview URL on [PR 176](https://github.com/GreatTA1998/actions.life/pull/176). Google Cloud must allow that exact `redirect_uri`. If `/auth/callback` stays on “Welcome! Preparing your account…”, bounce did not run (production) or token exchange hung (this branch surfaces an error instead).
+
+After pulling plugin changes on a Mac, run `npx cap sync` (or `pod install` in `ios/App`) so CocoaPods pick up App, Browser, and StatusBar. Select a development team locally in Xcode — do not commit a team ID.
 
 ## Project Structure
 - [x] Entry Point – ```src/app.html```
