@@ -56,6 +56,11 @@ export async function loadSession(): Promise<PersistedSession | null> {
 export async function saveSession(session: PersistedSession): Promise<void> {
   const store = await kv();
   await store.setItem(SESSION_KEY, JSON.stringify(session));
+  // Sign-out only clears SESSION_KEY. Keep the anonymous inbox uid so
+  // "Continue as guest" restores instead of minting an empty guest-* and reseeding.
+  if (session.isAnonymous) {
+    await store.setItem(GUEST_KEY, session.uid);
+  }
 }
 
 export async function clearSession(): Promise<void> {

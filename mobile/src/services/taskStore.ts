@@ -63,11 +63,14 @@ export class TaskTreeStore {
     this.profile = (await this.repo.loadProfile(this.uid)) ?? defaultProfile(this.uid);
     this.listHeightSplit = this.profile.listHeightSplit;
     this.reloadViews();
-    if (!this.profile.didSeed) {
+    if (!this.profile.didSeed && this.records.length === 0) {
       await insertGuestSeed(this);
       this.profile = { ...this.profile, didSeed: true, updatedAt: Date.now() };
       await this.repo.saveProfile(this.profile);
       this.reloadViews();
+    } else if (!this.profile.didSeed) {
+      this.profile = { ...this.profile, didSeed: true, updatedAt: Date.now() };
+      await this.repo.saveProfile(this.profile);
     }
     this.notify();
   }

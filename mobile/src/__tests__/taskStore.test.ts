@@ -114,6 +114,20 @@ test('migrateUid does not wipe the destination when the source is already empty'
   assert.equal(next.task(created.id)?.name, 'Keep me');
 });
 
+test('migrateUid does not reseed the emptied source uid', async () => {
+  const { repo, store } = await boot('guest-reseed');
+  const before = store.allTasks().length;
+  assert.ok(before > 0);
+  await migrateUid(repo, 'guest-reseed', 'firebase-keep');
+  const leftover = new TaskTreeStore(repo, 'guest-reseed');
+  await leftover.init();
+  assert.equal(leftover.allTasks().length, 0);
+  const dest = new TaskTreeStore(repo, 'firebase-keep');
+  await dest.init();
+  assert.equal(dest.allTasks().length, before);
+  assert.ok(dest.inbox.some((node) => node.task.name === 'TO-DO'));
+});
+
 test('undo restores an archived subtree to the inbox', async () => {
   const { store } = await boot('undo-user');
   const parent = await store.create({ name: 'Parent' });

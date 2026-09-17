@@ -1,3 +1,4 @@
+import { defaultProfile } from '../models/types';
 import type { TaskRepository } from './repository';
 
 export async function migrateUid(repo: TaskRepository, fromUid: string, toUid: string): Promise<void> {
@@ -24,4 +25,6 @@ export async function migrateUid(repo: TaskRepository, fromUid: string, toUid: s
   }
   await repo.replaceTasks(fromUid, []);
   await repo.clearOutbox(fromUid);
+  // Leave a didSeed stub so booting the emptied guest-* uid cannot insert a second seed tree.
+  await repo.saveProfile({ ...defaultProfile(fromUid), didSeed: true, updatedAt: Date.now() });
 }

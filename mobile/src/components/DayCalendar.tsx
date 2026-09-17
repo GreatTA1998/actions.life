@@ -42,15 +42,21 @@ export function DayCalendar({
   const days = surroundingDays(todayISO, 7);
   const gridHeight = (CAL_END_HOUR - CAL_START_HOUR) * PX_PER_HOUR;
   const hourScrollRef = useRef<ScrollView>(null);
+  const focusY = Math.max(
+    0,
+    ((calendarFocusMinutes(tasks.map((task) => task.startTime)) - CAL_START_HOUR * 60) / 60) *
+      PX_PER_HOUR -
+      8,
+  );
+
+  function scrollToMorning() {
+    hourScrollRef.current?.scrollTo({ y: focusY, animated: false });
+  }
 
   useEffect(() => {
-    const minutes = calendarFocusMinutes(tasks.map((task) => task.startTime));
-    const y = Math.max(0, ((minutes - CAL_START_HOUR * 60) / 60) * PX_PER_HOUR - 8);
-    const id = requestAnimationFrame(() => {
-      hourScrollRef.current?.scrollTo({ y, animated: false });
-    });
+    const id = requestAnimationFrame(scrollToMorning);
     return () => cancelAnimationFrame(id);
-  }, [selectedISO, tasks]);
+  }, [selectedISO, tasks, focusY]);
 
   return (
     <View style={styles.wrap}>
@@ -75,7 +81,13 @@ export function DayCalendar({
           );
         })}
       </ScrollView>
-      <ScrollView ref={hourScrollRef} style={styles.gridScroll}>
+      <ScrollView
+        ref={hourScrollRef}
+        style={styles.gridScroll}
+        contentOffset={{ x: 0, y: focusY }}
+        onLayout={scrollToMorning}
+        onContentSizeChange={scrollToMorning}
+      >
         <View ref={gridRef} style={[styles.grid, { height: gridHeight }, dropHint && styles.gridDrop]}>
           {HOURS.map((hour) => (
             <Pressable

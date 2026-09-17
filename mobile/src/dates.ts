@@ -58,11 +58,12 @@ export function parseMinutes(hhmm: string): number {
   return h * 60 + m;
 }
 
-/** Scroll the day grid so 09:00 stays visible even when the first event is later. */
+/** Scroll the day grid so 09:00 stays visible even when the day is empty or only has night events. */
 export function calendarFocusMinutes(startTimes: string[], morning = 9 * 60): number {
   const times = startTimes.filter(Boolean).map(parseMinutes);
-  if (times.length === 0) return morning;
-  return Math.min(Math.min(...times), morning);
+  const daytime = times.filter((minutes) => minutes >= 6 * 60 && minutes < 21 * 60);
+  if (daytime.length === 0) return morning;
+  return Math.min(Math.min(...daytime), morning);
 }
 
 export function formatMinutes(total: number): string {
