@@ -47,6 +47,28 @@ export function appOAuthUrlFromSearch (search) {
   return `${NATIVE_OAUTH_APP_URL}${query}`
 }
 
+/** Prefer the HTTPS URI Google issued the code for. Never fall back to capacitor://localhost. */
+export function exchangeRedirectUri ({ searchParams, origin, state } = {}) {
+  const fromQuery = typeof searchParams?.get === 'function'
+    ? searchParams.get('oauth_redirect')
+    : null
+  if (typeof fromQuery === 'string' && fromQuery.trim()) return fromQuery.trim()
+  if (isNativeOAuthState(state) || isNonHttpsOrigin(origin)) {
+    return NATIVE_OAUTH_HTTPS_REDIRECT
+  }
+  return `${origin}/auth/callback`
+}
+
+function isNonHttpsOrigin (origin) {
+  if (!origin) return true
+  try {
+    const url = new URL(origin.includes('://') ? origin : `https://${origin}`)
+    return url.protocol !== 'https:' || url.hostname === 'localhost'
+  } catch {
+    return true
+  }
+}
+
 export async function startNativeGoogleSignIn () {
   const { code, redirectUri } = await requestNativeGoogleAuthCode({ state: NATIVE_OAUTH_STATE_SIGNIN })
   const params = new URLSearchParams({
@@ -120,6 +142,7 @@ async function ensureOAuthListener () {
 
 function handleNativeOpenUrl (rawUrl) {
   if (!rawUrl) return
+  console.info('[oauth hop] appUrlOpen', rawUrl)
   if (rawUrl.startsWith('life.actions.app://soak')) {
     import('./soak.js').then(({ consumeSoakUrl }) => consumeSoakUrl(rawUrl)).catch(() => {})
     return

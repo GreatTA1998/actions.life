@@ -17,6 +17,7 @@
   import {
     NATIVE_OAUTH_STATE_GCAL,
     appOAuthUrlFromSearch,
+    exchangeRedirectUri,
     shouldBounceOAuthToApp
   } from '$lib/native/googleOAuth.js'
   import { reportError } from '$lib/utils/errors.js'
@@ -45,6 +46,7 @@
     if (shouldBounceOAuthToApp(state)) {
       bounceHref = appOAuthUrlFromSearch(page.url.search)
       message = 'Returning to the app…'
+      console.info('[oauth hop] preview bounce', bounceHref)
       window.location.replace(bounceHref)
       return
     }
@@ -58,7 +60,17 @@
     }
 
     try {
-      const redirect_uri = params.get('oauth_redirect') || (page.url.origin + '/auth/callback')
+      const redirect_uri = exchangeRedirectUri({
+        searchParams: params,
+        origin: page.url.origin,
+        state
+      })
+      console.info('[oauth hop] in-app exchange', {
+        state,
+        origin: page.url.origin,
+        redirect_uri,
+        native: typeof window !== 'undefined'
+      })
       const response = await withTimeout(
         cloudFunction('exchangeForTokens', {
           authorizationCode,

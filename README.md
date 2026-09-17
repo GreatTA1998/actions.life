@@ -34,7 +34,15 @@ npm run build:native
 
 `build:native` prints the baked `/auth/callback` URL from `build/` and `ios/App/App/public`. Confirm it is the preview host (or another bounce host), then install **that** app — Xcode Run of a stale `DerivedData` bundle will still open production “Welcome! Preparing your account…”. A one-off shell `export` without `.env.local` is not enough.
 
-That preview URL changes on each Vercel deploy of `cursor/capacitor-native-shell-bb25` — use the latest Preview URL on [PR 176](https://github.com/GreatTA1998/actions.life/pull/176). Google Cloud must allow that exact `redirect_uri`. If Safari’s title is **actions.life** and the page stays on “Welcome! Preparing your account…”, Google still received the production redirect (bounce JS is not on production). Preview bounce or Google `redirect_uri_mismatch` both mean the native bundle used the override.
+That preview URL changes on each Vercel deploy of `cursor/capacitor-native-shell-bb25` — use the latest Preview URL on [PR 176](https://github.com/GreatTA1998/actions.life/pull/176). Google Cloud must allow that exact `redirect_uri`. Safari’s window title **actions.life** is the document `<title>`, not the host.
+
+Hop check after Google returns a code:
+
+1. Preview `/auth/callback` should say **Returning to the app…** and open `life.actions.app://oauth`.
+2. The app WebView then loads in-app `/auth/callback` (default copy **Welcome! Preparing your account…**) and exchanges the code.
+3. If that exchange fails (`exchangeForTokens`, null `currentUser`, `redirect_uri`, timeout), the page must show the error and **Back to home** — never sit on Welcome forever.
+
+Web GIS (`initCodeClient` when not Capacitor) is unchanged.
 
 After pulling plugin changes on a Mac, run `npx cap sync` (or `pod install` in `ios/App`) so CocoaPods pick up App, Browser, and StatusBar. Select a development team locally in Xcode — do not commit a team ID.
 
