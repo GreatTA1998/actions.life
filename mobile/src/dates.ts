@@ -66,6 +66,15 @@ export function calendarFocusMinutes(startTimes: string[], morning = 9 * 60): nu
   return Math.min(Math.min(...daytime), morning);
 }
 
+export function calendarScrollOffset(
+  startTimes: string[],
+  startHour = 6,
+  pxPerHour = 50,
+): number {
+  const minutes = calendarFocusMinutes(startTimes);
+  return Math.max(0, ((minutes - startHour * 60) / 60) * pxPerHour - 8);
+}
+
 export function formatMinutes(total: number): string {
   const clamped = Math.max(0, Math.min(23 * 60 + 59, total));
   const h = Math.floor(clamped / 60);

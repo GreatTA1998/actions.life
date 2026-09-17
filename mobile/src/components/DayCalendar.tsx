@@ -1,8 +1,8 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useEffect, useRef, type Ref } from 'react';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useLayoutEffect, useRef, type Ref } from 'react';
 import { colors, type } from '../theme';
 import {
-  calendarFocusMinutes,
+  calendarScrollOffset,
   dayNumber,
   formatDayLabel,
   parseMinutes,
@@ -29,6 +29,22 @@ type Props = {
   dropHint?: boolean;
 };
 
+type ScrollNode = {
+  scrollTo?: (opts: { x?: number; y?: number; animated?: boolean }) => void;
+  getScrollableNode?: () => unknown;
+  getNativeScrollRef?: () => unknown;
+};
+
+function applyScrollY(scroll: ScrollNode | null, y: number) {
+  if (!scroll) return;
+  scroll.scrollTo?.({ x: 0, y, animated: false });
+  if (Platform.OS !== 'web') return;
+  const node = (scroll.getScrollableNode?.() ?? scroll.getNativeScrollRef?.() ?? null) as {
+    scrollTop?: number;
+  } | null;
+  if (node && typeof node.scrollTop === 'number') node.scrollTop = y;
+}
+
 export function DayCalendar({
   selectedISO,
   todayISO,
@@ -42,21 +58,26 @@ export function DayCalendar({
   const days = surroundingDays(todayISO, 7);
   const gridHeight = (CAL_END_HOUR - CAL_START_HOUR) * PX_PER_HOUR;
   const hourScrollRef = useRef<ScrollView>(null);
-  const focusY = Math.max(
-    0,
-    ((calendarFocusMinutes(tasks.map((task) => task.startTime)) - CAL_START_HOUR * 60) / 60) *
-      PX_PER_HOUR -
-      8,
+  const timeKey = tasks
+    .map((task) => task.startTime)
+    .filter(Boolean)
+    .sort()
+    .join(',');
+  const focusY = calendarScrollOffset(
+    tasks.map((task) => task.startTime),
+    CAL_START_HOUR,
+    PX_PER_HOUR,
   );
 
   function scrollToMorning() {
-    hourScrollRef.current?.scrollTo({ y: focusY, animated: false });
+    applyScrollY(hourScrollRef.current as unknown as ScrollNode, focusY);
   }
 
-  useEffect(() => {
-    const id = requestAnimationFrame(scrollToMorning);
-    return () => cancelAnimationFrame(id);
-  }, [selectedISO, tasks, focusY]);
+  useLayoutEffect(() => {
+    scrollToMorning();
+    const later = setTimeout(scrollToMorning, 50);
+    return () => clearTimeout(later);
+  }, [selectedISO, timeKey, focusY]);
 
   return (
     <View style={styles.wrap}>
@@ -93,9 +114,9 @@ export function DayCalendar({
             <Pressable
               key={hour}
               onPress={() => onCreateAt(selectedISO, `${String(hour).padStart(2, '0')}:00`)}
-              style={[styles.hourRow, { top: (hour - CAL_START_HOUR) * PX_PER_HOUR }]}
+              style={styles.hourRow}
             >
-              <Text style={styles.hourLabel}>{`${hour}:00`}</Text>
+              <Text style={[styles.hourLabel, hour === 9 && styles.hourLabelMorning]}>{`${hour}:00`}</Text>
               <View style={styles.hourLine} />
             </Pressable>
           ))}
@@ -179,6 +200,7 @@ const styles = StyleSheet.create({
   },
   gridScroll: {
     flex: 1,
+    overflow: 'hidden',
   },
   grid: {
     position: 'relative',
@@ -187,17 +209,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(74, 103, 65, 0.08)',
   },
   hourRow: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 50,
+    height: PX_PER_HOUR,
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
   hourLabel: {
     width: 44,
-    color: colors.faint,
+    color: colors.muted,
     fontSize: 11,
+    lineHeight: 14,
+  },
+  hourLabelMorning: {
+    color: colors.ink,
+    fontWeight: '700',
   },
   hourLine: {
     flex: 1,
