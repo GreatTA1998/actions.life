@@ -55,4 +55,30 @@ final class TaskTreeStoreTests: XCTestCase {
         XCTAssertEqual(todo?.children.count, 4)
         XCTAssertFalse(store.tasks(on: DateISO.dayString(from: .now)).isEmpty)
     }
+
+    func testScheduleDateWithoutTimeStaysAllDay() throws {
+        let container = Persistence.makeContainer(inMemory: true, name: "all-day")
+        let context = ModelContext(container)
+        context.insert(UserProfile(uid: "all-day-user"))
+        try context.save()
+
+        let store = TaskTreeStore(context: context, uid: "all-day-user")
+        let task = store.create(name: "Visa renewal", onList: true)
+        store.schedule(task.id, dayISO: "2026-09-25")
+
+        let scheduled = store.tasks(on: "2026-09-25").first
+        XCTAssertEqual(scheduled?.name, "Visa renewal")
+        XCTAssertEqual(scheduled?.startTime, "")
+        let split = CalendarLayout.split(tasks: store.tasks(on: "2026-09-25"))
+        XCTAssertEqual(split.allDay.map(\.id), [task.id])
+        XCTAssertTrue(split.timed.isEmpty)
+
+        store.schedule(task.id, dayISO: "2026-09-26")
+        XCTAssertEqual(store.task(id: task.id)?.startTime, "")
+        XCTAssertEqual(store.task(id: task.id)?.startDateISO, "2026-09-26")
+
+        store.schedule(task.id, dayISO: "2026-09-26", time: "10:00")
+        XCTAssertEqual(store.task(id: task.id)?.startTime, "10:00")
+        XCTAssertEqual(CalendarLayout.split(tasks: store.tasks(on: "2026-09-26")).timed.map(\.id), [task.id])
+    }
 }

@@ -19,21 +19,35 @@ struct TaskDetailSheet: View {
                         }
 
                         Section("When") {
-                            DatePicker(
-                                "Date",
-                                selection: dateBinding(record),
-                                displayedComponents: .date
-                            )
-                            DatePicker(
-                                "Time",
-                                selection: timeBinding(record),
-                                displayedComponents: .hourAndMinute
-                            )
+                            Toggle("Scheduled", isOn: scheduledBinding(record))
+                            if !record.startDateISO.isEmpty {
+                                DatePicker(
+                                    "Date",
+                                    selection: dateBinding(record),
+                                    displayedComponents: .date
+                                )
+                                if record.startTime.isEmpty {
+                                    Button("Add time") {
+                                        store.schedule(record.id, dayISO: record.startDateISO, time: "09:00")
+                                    }
+                                } else {
+                                    DatePicker(
+                                        "Time",
+                                        selection: timeBinding(record),
+                                        displayedComponents: .hourAndMinute
+                                    )
+                                    Button("Make all-day") {
+                                        store.schedule(record.id, dayISO: record.startDateISO, time: "")
+                                    }
+                                }
+                            }
                             Stepper(value: durationBinding(record), in: 5...24 * 60, step: 5) {
                                 Text("\(Int(record.duration)) minutes")
                             }
-                            Button("Clear date and time", role: .none) {
-                                store.clearSchedule(record.id)
+                            if !record.startDateISO.isEmpty {
+                                Button("Clear date and time") {
+                                    store.clearSchedule(record.id)
+                                }
                             }
                         }
 
@@ -153,8 +167,7 @@ struct TaskDetailSheet: View {
             set: { date in
                 store.schedule(
                     record.id,
-                    dayISO: DateISO.dayString(from: date),
-                    time: record.startTime.isEmpty ? DateISO.timeString(from: date) : record.startTime
+                    dayISO: DateISO.dayString(from: date)
                 )
             }
         )
@@ -170,6 +183,22 @@ struct TaskDetailSheet: View {
             set: { date in
                 let day = record.startDateISO.isEmpty ? DateISO.dayString(from: date) : record.startDateISO
                 store.schedule(record.id, dayISO: day, time: DateISO.timeString(from: date))
+            }
+        )
+    }
+
+    private func scheduledBinding(_ record: TaskRecord) -> Binding<Bool> {
+        Binding(
+            get: { !record.startDateISO.isEmpty },
+            set: { scheduled in
+                if scheduled {
+                    store.schedule(
+                        record.id,
+                        dayISO: DateISO.dayString(from: .now)
+                    )
+                } else {
+                    store.clearSchedule(record.id)
+                }
             }
         )
     }
