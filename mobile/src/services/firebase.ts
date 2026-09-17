@@ -22,19 +22,26 @@ export const firebaseWebConfig = {
 
 export const FIRESTORE_DATABASE_ID = 'schema-compliant';
 
+const DEFAULT_WEB_CLIENT_ID =
+  '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com';
+
+const extraGoogleIos = extra.googleIosClientId ?? '';
+const extraGoogleAndroid = extra.googleAndroidClientId ?? '';
+const webClientId = extra.googleWebClientId ?? DEFAULT_WEB_CLIENT_ID;
+
 export const googleAuthConfig = {
-  webClientId:
-    extra.googleWebClientId ??
-    '132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com',
-  iosClientId: extra.googleIosClientId ?? '',
-  androidClientId: extra.googleAndroidClientId ?? '',
+  webClientId,
+  // Expo Google.useAuthRequest invariant-crashes on iOS if iosClientId is empty.
+  // Fall back to the public web client so guest Sign-In can mount without native apps.
+  iosClientId: extraGoogleIos || webClientId,
+  androidClientId: extraGoogleAndroid || webClientId,
 };
 
-let cached: { app: unknown; auth: unknown; db: unknown } | null = null;
-
 export function googleNativeConfigPresent(): boolean {
-  return Boolean(googleAuthConfig.iosClientId || googleAuthConfig.androidClientId);
+  return Boolean(extraGoogleIos || extraGoogleAndroid);
 }
+
+let cached: { app: unknown; auth: unknown; db: unknown } | null = null;
 
 export function peekFirebase(): {
   auth: import('firebase/auth').Auth;

@@ -212,17 +212,20 @@ export class TaskTreeStore {
     await this.persist();
   }
 
-  async indent(id: string): Promise<void> {
+  async indent(id: string): Promise<boolean> {
     const sibling = previousSibling(id, this.inbox);
-    if (!sibling) return;
+    if (!sibling) return false;
     await this.nest(id, sibling.id);
+    if (sibling.isCollapsed) await this.setCollapsed(sibling.id, false);
+    return true;
   }
 
-  async outdent(id: string): Promise<void> {
+  async outdent(id: string): Promise<boolean> {
     const currentParent = parentIDOf(id, this.records);
-    if (!currentParent) return;
+    if (!currentParent) return false;
     const grandparent = parentIDOf(currentParent, this.records) ?? '';
     await this.nest(id, grandparent);
+    return true;
   }
 
   async archive(id: string): Promise<void> {

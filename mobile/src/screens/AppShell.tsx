@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Modal, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Alert, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { TabBar, type AppTab } from '../components/TabBar';
 import { todayISO } from '../dates';
 import type { PersistedSession, TaskRecord } from '../models/types';
@@ -155,8 +155,33 @@ export function AppShell({ store, session, onSignOut, onSession }: Props) {
                     });
                   }}
                 />
-                <Action label="Indent" onPress={() => void store.indent(menuTask.id).then(() => setMenuTask(null))} />
-                <Action label="Outdent" onPress={() => void store.outdent(menuTask.id).then(() => setMenuTask(null))} />
+                <Action
+                  label="Indent"
+                  onPress={() => {
+                    const id = menuTask.id;
+                    setMenuTask(null);
+                    void store.indent(id).then((ok) => {
+                      if (!ok) {
+                        Alert.alert(
+                          'Indent',
+                          'Put this task below another one at the same level, then Indent nests it underneath.',
+                        );
+                      }
+                    });
+                  }}
+                />
+                <Action
+                  label="Outdent"
+                  onPress={() => {
+                    const id = menuTask.id;
+                    setMenuTask(null);
+                    void store.outdent(id).then((ok) => {
+                      if (!ok) {
+                        Alert.alert('Outdent', 'This task is already at the top level.');
+                      }
+                    });
+                  }}
+                />
                 <Action
                   label="Schedule today"
                   onPress={() =>

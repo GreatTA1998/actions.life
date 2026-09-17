@@ -33,6 +33,7 @@
       "bundler": "metro"
     },
     "plugins": [
+      "./plugins/withIosSceneLifecycle",
       "expo-sqlite",
       "expo-secure-store",
       "expo-web-browser",

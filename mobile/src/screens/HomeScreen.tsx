@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Inbox } from '../components/Inbox';
 import { CAL_PX_PER_HOUR, CAL_START_HOUR, DayCalendar } from '../components/DayCalendar';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { SplitPane } from '../components/SplitPane';
 import { formatMinutes, todayISO } from '../dates';
 import type { TaskRecord } from '../models/types';
@@ -75,27 +76,29 @@ export const HomeScreen = forwardRef<HomeScreenHandle, Props>(function HomeScree
           void store.setListHeightSplit(value);
         }}
         top={
-          <DayCalendar
-            selectedISO={selectedISO}
-            todayISO={todayISO()}
-            tasks={dayTasks}
-            onSelectDay={setSelectedISO}
-            onOpenTask={onOpen}
-            onCreateAt={(iso, time) => {
-              if (dragging) {
-                void store.schedule(dragging.id, iso, time).then(onDragEnd);
-                return;
-              }
-              void store.create({
-                name: 'New event',
-                onList: true,
-                startDateISO: iso,
-                startTime: time,
-              });
-            }}
-            gridRef={gridRef}
-            dropHint={!!dragging}
-          />
+          <ErrorBoundary label="Calendar">
+            <DayCalendar
+              selectedISO={selectedISO}
+              todayISO={todayISO()}
+              tasks={dayTasks}
+              onSelectDay={setSelectedISO}
+              onOpenTask={onOpen}
+              onCreateAt={(iso, time) => {
+                if (dragging) {
+                  void store.schedule(dragging.id, iso, time).then(onDragEnd);
+                  return;
+                }
+                void store.create({
+                  name: 'New event',
+                  onList: true,
+                  startDateISO: iso,
+                  startTime: time,
+                });
+              }}
+              gridRef={gridRef}
+              dropHint={!!dragging}
+            />
+          </ErrorBoundary>
         }
         bottom={
           <Inbox

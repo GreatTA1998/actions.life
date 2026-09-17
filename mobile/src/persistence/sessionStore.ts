@@ -3,6 +3,7 @@ import type { PersistedSession } from '../models/types';
 
 const SESSION_KEY = 'actions-life.session';
 const GUEST_KEY = 'actions-life.device-guest-uid';
+const SECURE_OPTIONS = { keychainService: 'life.actions.expo' };
 
 async function kv() {
   if (Platform.OS !== 'web') {
@@ -11,14 +12,14 @@ async function kv() {
       return {
         async getItem(key: string) {
           try {
-            return await SecureStore.getItemAsync(key);
+            return await SecureStore.getItemAsync(key, SECURE_OPTIONS);
           } catch {
             return null;
           }
         },
         async setItem(key: string, value: string) {
           try {
-            await SecureStore.setItemAsync(key, value);
+            await SecureStore.setItemAsync(key, value, SECURE_OPTIONS);
           } catch {
             const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
             await AsyncStorage.setItem(key, value);
@@ -26,7 +27,7 @@ async function kv() {
         },
         async removeItem(key: string) {
           try {
-            await SecureStore.deleteItemAsync(key);
+            await SecureStore.deleteItemAsync(key, SECURE_OPTIONS);
           } catch {
             const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
             await AsyncStorage.removeItem(key);

@@ -39,7 +39,20 @@ export class SqliteRepository implements TaskRepository {
   }
 
   async replaceTasks(uid: string, tasks: TaskRecord[]): Promise<void> {
-    await this.db.withTransactionAsync(async () => {
+    try {
+      await this.db.withExclusiveTransactionAsync(async (txn) => {
+        await txn.runAsync('DELETE FROM tasks WHERE owner_uid = ?', [uid]);
+        for (const task of tasks) {
+          await txn.runAsync('INSERT INTO tasks (id, owner_uid, json) VALUES (?, ?, ?)', [
+            task.id,
+            uid,
+            JSON.stringify(task),
+          ]);
+        }
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!/rollback/i.test(message)) throw error;
       await this.db.runAsync('DELETE FROM tasks WHERE owner_uid = ?', [uid]);
       for (const task of tasks) {
         await this.db.runAsync('INSERT INTO tasks (id, owner_uid, json) VALUES (?, ?, ?)', [
@@ -48,7 +61,7 @@ export class SqliteRepository implements TaskRepository {
           JSON.stringify(task),
         ]);
       }
-    });
+    }
   }
 
   async loadProfile(uid: string): Promise<UserProfile | null> {

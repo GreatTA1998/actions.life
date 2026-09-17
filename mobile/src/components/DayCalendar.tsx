@@ -1,12 +1,14 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import type { Ref } from 'react';
+import { useEffect, useRef, type Ref } from 'react';
 import { colors, type } from '../theme';
 import { dayNumber, formatDayLabel, parseMinutes, surroundingDays, weekdayShort } from '../dates';
 import type { TaskRecord } from '../models/types';
 
 export const CAL_START_HOUR = 6;
 export const CAL_END_HOUR = 22;
-export const CAL_PX_PER_HOUR = 50;
+/** Keep this alias so a stale Metro HMR graph cannot throw PX_PER_HOUR is not defined. */
+export const PX_PER_HOUR = 50;
+export const CAL_PX_PER_HOUR = PX_PER_HOUR;
 const HOURS = Array.from({ length: CAL_END_HOUR - CAL_START_HOUR }, (_, i) => CAL_START_HOUR + i);
 
 type Props = {
@@ -31,7 +33,20 @@ export function DayCalendar({
   dropHint,
 }: Props) {
   const days = surroundingDays(todayISO, 7);
-  const gridHeight = (CAL_END_HOUR - CAL_START_HOUR) * CAL_PX_PER_HOUR;
+  const gridHeight = (CAL_END_HOUR - CAL_START_HOUR) * PX_PER_HOUR;
+  const hourScrollRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    const timed = tasks
+      .filter((task) => task.startTime)
+      .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+    const minutes = timed[0] ? parseMinutes(timed[0].startTime) : 9 * 60;
+    const y = Math.max(0, ((minutes - CAL_START_HOUR * 60) / 60) * PX_PER_HOUR - 8);
+    const id = requestAnimationFrame(() => {
+      hourScrollRef.current?.scrollTo({ y, animated: false });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [selectedISO, tasks]);
 
   return (
     <View style={styles.wrap}>
@@ -56,13 +71,13 @@ export function DayCalendar({
           );
         })}
       </ScrollView>
-      <ScrollView style={styles.gridScroll}>
+      <ScrollView ref={hourScrollRef} style={styles.gridScroll}>
         <View ref={gridRef} style={[styles.grid, { height: gridHeight }, dropHint && styles.gridDrop]}>
           {HOURS.map((hour) => (
             <Pressable
               key={hour}
               onPress={() => onCreateAt(selectedISO, `${String(hour).padStart(2, '0')}:00`)}
-              style={[styles.hourRow, { top: (hour - CAL_START_HOUR) * CAL_PX_PER_HOUR }]}
+              style={[styles.hourRow, { top: (hour - CAL_START_HOUR) * PX_PER_HOUR }]}
             >
               <Text style={styles.hourLabel}>{`${hour}:00`}</Text>
               <View style={styles.hourLine} />
@@ -72,8 +87,8 @@ export function DayCalendar({
             .filter((task) => task.startTime)
             .map((task) => {
               const minutes = parseMinutes(task.startTime);
-              const top = ((minutes - CAL_START_HOUR * 60) / 60) * CAL_PX_PER_HOUR;
-              const height = Math.max(28, (task.duration / 60) * CAL_PX_PER_HOUR);
+              const top = ((minutes - CAL_START_HOUR * 60) / 60) * PX_PER_HOUR;
+              const height = Math.max(28, (task.duration / 60) * PX_PER_HOUR);
               if (top + height < 0 || top > gridHeight) return null;
               return (
                 <Pressable
@@ -159,7 +174,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    height: CAL_PX_PER_HOUR,
+    height: 50,
     flexDirection: 'row',
     alignItems: 'flex-start',
   },

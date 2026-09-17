@@ -134,6 +134,22 @@ test('agenda includes seeded photo blocks', async () => {
   assert.ok(today.tasks.some((task) => task.id === 'photo-bird'));
 });
 
+test('indent nests a task under its previous sibling', async () => {
+  const { store } = await boot('indent-user');
+  const parent = await store.create({ name: 'Parent' });
+  await store.addSubtask(parent.id, 'First');
+  await store.addSubtask(parent.id, 'Second');
+  const first = store.allTasks().find((task) => task.name === 'First');
+  const second = store.allTasks().find((task) => task.name === 'Second');
+  assert.ok(first);
+  assert.ok(second);
+  const ok = await store.indent(second.id);
+  assert.equal(ok, true);
+  assert.equal(store.task(second.id)?.parentID, first.id);
+  const refused = await store.indent(first.id);
+  assert.equal(refused, false);
+});
+
 test('drainIfPossible skips local-only guest UIDs', async () => {
   const { store } = await boot('guest-offline');
   const result = await store.syncNow();

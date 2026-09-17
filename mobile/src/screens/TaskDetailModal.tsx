@@ -69,7 +69,18 @@ export function TaskDetailModal({ task, store, onClose, onOpenTask }: Props) {
   const live = store.task(task.id) ?? task;
 
   return (
-    <Modal animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+    <Modal
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={() => {
+        void (async () => {
+          const nextName = name.trim() || 'Untitled';
+          if (nextName !== live.name) await store.rename(live.id, nextName);
+          if (notes !== live.notes) await store.setNotes(live.id, notes);
+          onClose();
+        })();
+      }}
+    >
       <KeyboardAvoidingView
         style={styles.sheet}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -78,7 +89,17 @@ export function TaskDetailModal({ task, store, onClose, onOpenTask }: Props) {
           <View style={styles.grabPill} />
         </View>
         <View style={styles.topBar}>
-          <Pressable onPress={onClose} hitSlop={8}>
+          <Pressable
+            onPress={() => {
+              void (async () => {
+                const nextName = name.trim() || 'Untitled';
+                if (nextName !== live.name) await store.rename(live.id, nextName);
+                if (notes !== live.notes) await store.setNotes(live.id, notes);
+                onClose();
+              })();
+            }}
+            hitSlop={8}
+          >
             <Text style={styles.link}>Close</Text>
           </Pressable>
           {busy ? <ActivityIndicator color={colors.accent} /> : <View />}
@@ -191,7 +212,12 @@ export function TaskDetailModal({ task, store, onClose, onOpenTask }: Props) {
           <TextInput
             value={notes}
             onChangeText={setNotes}
-            onEndEditing={() => run(() => store.setNotes(live.id, notes))}
+            onBlur={() => {
+              if (notes !== live.notes) void run(() => store.setNotes(live.id, notes));
+            }}
+            onEndEditing={() => {
+              if (notes !== live.notes) void run(() => store.setNotes(live.id, notes));
+            }}
             style={styles.notes}
             placeholder="Notes"
             placeholderTextColor={colors.faint}

@@ -15,10 +15,14 @@ import {
 WebBrowser.maybeCompleteAuthSession();
 
 export function useGoogleAuthRequest() {
+  const iosClientId = googleAuthConfig.iosClientId || googleAuthConfig.webClientId || undefined;
+  const androidClientId =
+    googleAuthConfig.androidClientId || googleAuthConfig.webClientId || undefined;
   return Google.useAuthRequest({
+    clientId: googleAuthConfig.webClientId || undefined,
     webClientId: googleAuthConfig.webClientId || undefined,
-    iosClientId: googleAuthConfig.iosClientId || undefined,
-    androidClientId: googleAuthConfig.androidClientId || undefined,
+    iosClientId,
+    androidClientId,
     scopes: ['openid', 'email'],
     redirectUri: AuthSession.makeRedirectUri({ scheme: 'actionslife', path: 'auth' }),
   });
@@ -32,7 +36,7 @@ async function idTokenFromNativeGoogle(): Promise<string> {
   const { GoogleSignin } = await import('@react-native-google-signin/google-signin');
   GoogleSignin.configure({
     webClientId: googleAuthConfig.webClientId,
-    iosClientId: googleAuthConfig.iosClientId || undefined,
+    iosClientId: googleAuthConfig.iosClientId || googleAuthConfig.webClientId || undefined,
   });
   await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
   const response = await GoogleSignin.signIn();
