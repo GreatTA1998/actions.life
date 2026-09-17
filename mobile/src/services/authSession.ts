@@ -7,6 +7,7 @@ import type { PersistedSession } from '../models/types';
 import { googleAuthConfig, googleNativeConfigPresent, tryFirebase } from './firebase';
 import {
   clearSession,
+  loadLastAnonymousSession,
   loadOrCreateDeviceGuestUid,
   loadSession,
   saveSession,
@@ -93,8 +94,14 @@ export async function restoreSession(): Promise<PersistedSession | null> {
 }
 
 export async function continueAsGuest(): Promise<PersistedSession> {
-  // Always mint a local guest UID immediately. Firebase anonymous promotion
-  // happens after first paint so the UI never waits on the network.
+  // Restore the last anonymous inbox first. After promoteLocalGuest the uid is a
+  // Firebase anonymous id; signing out of Firebase cannot recreate that user, so
+  // we must keep the same local uid and must not call signInAnonymously again.
+  const last = await loadLastAnonymousSession();
+  if (last) {
+    await saveSession(last);
+    return last;
+  }
   const uid = await loadOrCreateDeviceGuestUid();
   const session: PersistedSession = {
     uid,
@@ -179,20 +186,27 @@ export async function signInWithApple(current: PersistedSession | null): Promise
   return session;
 }
 
-export async function signOut(): Promise<void> {
-  try {
-    const firebase = await tryFirebase();
-    if (firebase) await firebase.auth.signOut();
-  } catch {
-    // local session is still cleared
-  }
-  try {
-    if (nativeGoogleAvailable()) {
-      const { GoogleSignin } = await import('@react-native-google-signin/google-signin');
-      await GoogleSignin.signOut();
+export async function signOut(session?: PersistedSession | null): Promise<void> {
+  // Anonymous Firebase users cannot be signed back in. Signing them out of Auth
+  // also tends to wipe the iOS keychain (including expo-secure-store). Keep the
+  // anonymous Auth user and the durable last-guest record so Continue as guest
+  // reopens the same SQLite inbox.
+  const keepAnonymousAuth = Boolean(session?.isAnonymous && session.provider === 'anonymous');
+  if (!keepAnonymousAuth) {
+    try {
+      const firebase = await tryFirebase();
+      if (firebase) await firebase.auth.signOut();
+    } catch {
+      // local session is still cleared
     }
-  } catch {
-    // ignore
+    try {
+      if (nativeGoogleAvailable()) {
+        const { GoogleSignin } = await import('@react-native-google-signin/google-signin');
+        await GoogleSignin.signOut();
+      }
+    } catch {
+      // ignore
+    }
   }
   await clearSession();
 }

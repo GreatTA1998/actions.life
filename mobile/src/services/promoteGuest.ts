@@ -29,10 +29,18 @@ export async function promoteLocalGuest(
   if (!session.isAnonymous || !isLocalOnlyUid(session.uid)) return session;
   const firebase = await withTimeout(tryFirebase(), 2500);
   if (!firebase) return session;
-  const { signInAnonymously } = await import('firebase/auth');
-  const result = await withTimeout(signInAnonymously(firebase.auth), 4000);
+
+  const existing = firebase.auth.currentUser;
+  let uid = existing?.isAnonymous ? existing.uid : '';
+  if (!uid) {
+    const { signInAnonymously } = await import('firebase/auth');
+    const result = await withTimeout(signInAnonymously(firebase.auth), 4000);
+    uid = result.user.uid;
+  }
+  if (!uid || uid === session.uid) return session;
+
   const next: PersistedSession = {
-    uid: result.user.uid,
+    uid,
     email: '',
     isAnonymous: true,
     provider: 'anonymous',

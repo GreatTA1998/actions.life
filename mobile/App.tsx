@@ -106,7 +106,7 @@ export default function App() {
         session={session}
         onSession={setSession}
         onSignOut={() => {
-          void signOut().then(() => {
+          void signOut(session).then(() => {
             previousUid.current = null;
             setStore(null);
             setSession(null);

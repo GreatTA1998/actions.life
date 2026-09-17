@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { MemoryRepository } from '../persistence/memoryRepository';
 import { migrateUid } from '../persistence/migrate';
+import { restoreAnonymousGuestSession } from '../persistence/guestSession';
 import { TaskTreeStore } from '../services/taskStore';
 import { mergeRemoteTasks, toFirestoreTask } from '../services/syncMerge';
 import { defaultTask } from '../models/types';
@@ -126,6 +127,27 @@ test('migrateUid does not reseed the emptied source uid', async () => {
   await dest.init();
   assert.equal(dest.allTasks().length, before);
   assert.ok(dest.inbox.some((node) => node.task.name === 'TO-DO'));
+});
+
+test('Continue as guest after promote restores the Firebase anonymous uid, not a new guest-*', async () => {
+  const { repo, store } = await boot('guest-promo');
+  const smoke = await store.create({ name: 'Overnight smoke' });
+  await migrateUid(repo, 'guest-promo', 'BeBBm2PMGpromoted');
+  const restored = restoreAnonymousGuestSession({
+    lastAnonymous: {
+      uid: 'BeBBm2PMGpromoted',
+      email: '',
+      isAnonymous: true,
+      provider: 'anonymous',
+    },
+    deviceGuestUid: 'guest-promo',
+  });
+  assert.equal(restored?.uid, 'BeBBm2PMGpromoted');
+  const next = new TaskTreeStore(repo, restored.uid);
+  await next.init();
+  assert.equal(next.task(smoke.id)?.name, 'Overnight smoke');
+  assert.equal(next.allTasks().filter((task) => task.name === 'TO-DO').length, 1);
+  assert.equal(next.allTasks().filter((task) => task.name === 'Overnight smoke').length, 1);
 });
 
 test('undo restores an archived subtree to the inbox', async () => {
