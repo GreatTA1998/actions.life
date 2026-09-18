@@ -54,6 +54,10 @@ struct HomeView: View {
                     .sheet(item: selectedTaskBinding(store)) { record in
                         TaskDetailSheet(store: store, taskID: record.id)
                     }
+                    .onChange(of: store.lastScheduledISO) { _, iso in
+                        guard let iso, let date = DateISO.date(fromDayISO: iso) else { return }
+                        selectedDay = Calendar.current.startOfDay(for: date)
+                    }
                 } else {
                     Theme.listBackground.ignoresSafeArea()
                 }

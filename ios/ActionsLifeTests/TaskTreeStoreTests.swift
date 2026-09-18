@@ -80,5 +80,6 @@ final class TaskTreeStoreTests: XCTestCase {
         store.schedule(task.id, dayISO: "2026-09-26", time: "10:00")
         XCTAssertEqual(store.task(id: task.id)?.startTime, "10:00")
         XCTAssertEqual(CalendarLayout.split(tasks: store.tasks(on: "2026-09-26")).timed.map(\.id), [task.id])
+        XCTAssertEqual(store.lastScheduledISO, "2026-09-26")
     }
 }

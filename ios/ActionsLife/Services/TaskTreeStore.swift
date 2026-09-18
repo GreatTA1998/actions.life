@@ -11,6 +11,7 @@ final class TaskTreeStore {
     private(set) var inbox: [TaskTree] = []
     private(set) var allSnapshots: [TaskSnapshot] = []
     private(set) var profile: UserProfile?
+    private(set) var lastScheduledISO: String?
     var listHeightSplit: Double = 0.5
 
     init(context: ModelContext, uid: String) {
@@ -134,6 +135,7 @@ final class TaskTreeStore {
             }
         }
         sync.enqueue(uid: uid, kind: .batchTree, collection: "tasks", documentID: id)
+        lastScheduledISO = dayISO.isEmpty ? nil : dayISO
         save()
     }
 

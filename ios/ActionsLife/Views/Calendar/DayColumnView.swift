@@ -15,28 +15,28 @@ struct DayColumnView: View {
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    if !split.allDay.isEmpty {
-                        allDaySection
-                    }
+        VStack(alignment: .leading, spacing: 0) {
+            if !split.allDay.isEmpty {
+                allDaySection
+            }
+            ScrollViewReader { proxy in
+                ScrollView {
                     timedCanvas
                 }
+                .onAppear {
+                    proxy.scrollTo(hourID(CalendarLayout.scrollTargetHour()), anchor: .top)
+                }
+                .onChange(of: DateISO.dayString(from: day)) { _, _ in
+                    proxy.scrollTo(hourID(CalendarLayout.scrollTargetHour()), anchor: .top)
+                }
             }
-            .background(Theme.calendarBackground)
-            .accessibilityLabel("Schedule for \(DateISO.dayString(from: day))")
-            .dropDestination(for: String.self) { ids, _ in
-                guard let id = ids.first else { return false }
-                store.schedule(id, dayISO: DateISO.dayString(from: day))
-                return true
-            }
-            .onAppear {
-                proxy.scrollTo(hourID(CalendarLayout.scrollTargetHour()), anchor: .top)
-            }
-            .onChange(of: DateISO.dayString(from: day)) { _, _ in
-                proxy.scrollTo(hourID(CalendarLayout.scrollTargetHour()), anchor: .top)
-            }
+        }
+        .background(Theme.calendarBackground)
+        .accessibilityLabel("Schedule for \(DateISO.dayString(from: day))")
+        .dropDestination(for: String.self) { ids, _ in
+            guard let id = ids.first else { return false }
+            store.schedule(id, dayISO: DateISO.dayString(from: day))
+            return true
         }
     }
 
