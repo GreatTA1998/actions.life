@@ -2,7 +2,7 @@
 
 Native iOS + Android client for [actions.life](https://actions.life). Separate TypeScript/React Native codebase — it does not share modules with the SvelteKit app under `src/`.
 
-This is slice 1: inbox + day calendar, nested subtasks, task detail, local create/complete/nest/schedule, and offline persistence. Live Google Sign-In waits on Firebase iOS/Android app registration.
+This is slice 1: inbox + day calendar, nested subtasks, task detail, local create/complete/nest/schedule, and offline persistence. The Firebase iOS app for `life.actions.expo` is registered; live Google on a device still needs a native rebuild. Android waits on `google-services.json`.
 
 ## Run
 
@@ -30,10 +30,10 @@ Do not use production `https://actions.life/auth/callback` for Google. Native Go
 
 ## Config still needed for live Google
 
-1. Firebase project `project-y-2a061`: add iOS and Android apps with bundle/package `life.actions.expo`.
-2. Google Cloud OAuth clients for those apps (not the web GIS client).
-3. Set `extra.googleIosClientId` / `extra.googleAndroidClientId` in `app.json` (or EAS secrets) and drop `GoogleService-Info.plist` / `google-services.json` into the project.
-4. Firestore named database remains `schema-compliant`. Sync drain is stubbed until that wiring exists.
+1. Firebase iOS app `life.actions.expo` is in (`GoogleService-Info.plist` + `extra.googleIosClientId`). After pull: `npx expo prebuild --clean --platform ios` then `npx expo run:ios`.
+2. Android still needs a Firebase Android app + `google-services.json` and `extra.googleAndroidClientId`.
+3. Firestore named database remains `schema-compliant`.
+4. Native Google never uses production `https://actions.life/auth/callback` (`actionslife://auth` only).
 
 ## Layout
 

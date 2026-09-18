@@ -1,12 +1,28 @@
+type GoogleExtra = {
+  googleWebClientId?: string;
+  googleIosClientId?: string;
+  googleAndroidClientId?: string;
+};
+
 const extra = (() => {
+  let fromFile: GoogleExtra = {};
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Constants = require('expo-constants').default as {
-      expoConfig?: { extra?: { googleWebClientId?: string; googleIosClientId?: string; googleAndroidClientId?: string } };
-    };
-    return Constants.expoConfig?.extra ?? {};
+    fromFile = (require('../../app.json') as { expo?: { extra?: GoogleExtra } }).expo?.extra ?? {};
   } catch {
-    return {};
+    fromFile = {};
+  }
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Constants = require('expo-constants').default as { expoConfig?: { extra?: GoogleExtra } };
+    const fromConstants = Constants.expoConfig?.extra ?? {};
+    return {
+      googleWebClientId: fromConstants.googleWebClientId || fromFile.googleWebClientId,
+      googleIosClientId: fromConstants.googleIosClientId || fromFile.googleIosClientId,
+      googleAndroidClientId: fromConstants.googleAndroidClientId || fromFile.googleAndroidClientId,
+    };
+  } catch {
+    return fromFile;
   }
 })();
 
@@ -38,7 +54,16 @@ export const googleAuthConfig = {
 };
 
 export function googleNativeConfigPresent(): boolean {
-  return Boolean(extraGoogleIos || extraGoogleAndroid);
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { Platform } = require('react-native') as { Platform?: { OS?: string } };
+    const os = Platform?.OS;
+    if (os === 'android') return Boolean(extraGoogleAndroid);
+    if (os === 'ios') return Boolean(extraGoogleIos);
+  } catch {
+    // node tests read extra from Expo config when present
+  }
+  return Boolean(extraGoogleIos);
 }
 
 let cached: { app: unknown; auth: unknown; db: unknown } | null = null;

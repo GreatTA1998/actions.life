@@ -44,9 +44,9 @@ export function SettingsScreen({
         <Text style={styles.danger}>Sign out</Text>
       </Pressable>
       <Text style={styles.note}>
-        Live Google Sign-In needs Firebase iOS/Android apps for package life.actions.expo plus OAuth
-        clients. Guest and offline work without that. Native Google never uses production
-        actions.life/auth/callback.
+        iOS Google Sign-In is wired (GoogleService-Info.plist for life.actions.expo). Android still
+        needs google-services.json and a rebuild. Guest and offline work without that. Native Google
+        never uses production actions.life/auth/callback.
       </Text>
     </ScrollView>
   );

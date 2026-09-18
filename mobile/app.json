@@ -16,7 +16,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "life.actions.expo",
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "package": "life.actions.expo",
@@ -43,7 +44,7 @@
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": "com.googleusercontent.apps.132745397287-aakar5npr4orq496580pdgpvqeupf6j5"
+          "iosUrlScheme": "com.googleusercontent.apps.132745397287-t45us42dolp1ml7vgklfc36p69pue0dg"
         }
       ]
     ],
@@ -51,7 +52,7 @@
       "firebaseProjectId": "project-y-2a061",
       "firestoreDatabaseId": "schema-compliant",
       "googleWebClientId": "132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com",
-      "googleIosClientId": "",
+      "googleIosClientId": "132745397287-t45us42dolp1ml7vgklfc36p69pue0dg.apps.googleusercontent.com",
       "googleAndroidClientId": ""
     }
   }
