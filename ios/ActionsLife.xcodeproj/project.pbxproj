@@ -31,9 +31,22 @@
 		01AA00000000000000000011 /* ActionsLifeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ActionsLifeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		01AA00000000000000000022 /* Exceptions for "ActionsLife" folder in "ActionsLife" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 01AA00000000000000000030 /* ActionsLife */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		01AA00000000000000000020 /* ActionsLife */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				01AA00000000000000000022 /* Exceptions for "ActionsLife" folder in "ActionsLife" target */,
+			);
 			path = ActionsLife;
 			sourceTree = "<group>";
 		};

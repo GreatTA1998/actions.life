@@ -23,6 +23,7 @@ struct DayCalendarView: View {
             dayStrip
             Divider().overlay(Theme.grid)
             DayColumnView(
+                store: store,
                 day: selectedDay,
                 tasks: scheduledTasks,
                 pixelsPerHour: store.profile?.pixelsPerHour ?? 50,
@@ -72,6 +73,12 @@ struct DayCalendarView: View {
                             }
                             .buttonStyle(.plain)
                             .id(iso)
+                            .dropDestination(for: String.self) { ids, _ in
+                                guard let id = ids.first else { return false }
+                                store.schedule(id, dayISO: iso)
+                                selectedDay = day
+                                return true
+                            }
                         }
                     }
                     .padding(.horizontal, 16)

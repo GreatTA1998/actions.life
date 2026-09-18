@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DayColumnView: View {
+    @Bindable var store: TaskTreeStore
     let day: Date
     let tasks: [TaskSnapshot]
     let pixelsPerHour: Double
@@ -25,6 +26,11 @@ struct DayColumnView: View {
             }
             .background(Theme.calendarBackground)
             .accessibilityLabel("Schedule for \(DateISO.dayString(from: day))")
+            .dropDestination(for: String.self) { ids, _ in
+                guard let id = ids.first else { return false }
+                store.schedule(id, dayISO: DateISO.dayString(from: day))
+                return true
+            }
             .onAppear {
                 proxy.scrollTo(hourID(CalendarLayout.scrollTargetHour()), anchor: .top)
             }

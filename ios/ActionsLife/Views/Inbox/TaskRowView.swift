@@ -56,6 +56,7 @@ struct TaskRowView: View {
             .padding(.vertical, 8)
             .padding(.leading, CGFloat(depth) * 18)
             .contentShape(Rectangle())
+            .draggable(tree.id)
             .contextMenu {
                 Button("Open", systemImage: "doc.text") { selectedTaskID = tree.id }
                 Button("Add subtask", systemImage: "plus") { onAddChild(tree.id) }

@@ -253,7 +253,7 @@ final class AuthSession {
                 isAnonymous: false,
                 provider: provider
             ),
-            seedIfNeeded: true
+            seedIfNeeded: false
         )
     }
 

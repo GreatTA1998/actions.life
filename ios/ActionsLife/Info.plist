@@ -11,11 +11,11 @@
 			<string>life.actions.ios.google-signin</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>$(GOOGLE_REVERSED_CLIENT_ID)</string>
+				<string>com.googleusercontent.apps.132745397287-q8oscahfgkeoop5ogfjl1jl3b3h572ue</string>
 			</array>
 		</dict>
 	</array>
 	<key>GIDClientID</key>
-	<string>$(GOOGLE_CLIENT_ID)</string>
+	<string>132745397287-q8oscahfgkeoop5ogfjl1jl3b3h572ue.apps.googleusercontent.com</string>
 </dict>
 </plist>
