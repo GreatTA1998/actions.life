@@ -130,7 +130,15 @@ final class AuthSession {
             lastError = AuthConfigurationError.missingGoogleServiceInfo.localizedDescription
             return
         }
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        if let serverClientID = Bundle.main.object(forInfoDictionaryKey: "GIDServerClientID") as? String,
+           !serverClientID.isEmpty {
+            GIDSignIn.sharedInstance.configuration = GIDConfiguration(
+                clientID: clientID,
+                serverClientID: serverClientID
+            )
+        } else {
+            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        }
         guard let presenter = Self.topViewController() else {
             lastError = AuthConfigurationError.missingPresenter.localizedDescription
             return

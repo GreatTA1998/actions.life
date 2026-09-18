@@ -66,8 +66,8 @@ struct SignInView: View {
                 }
 
                 Text(auth.isFirebaseReady
-                     ? "Guest works offline. Google uses the iOS SDK once this build includes GoogleService-Info.plist."
-                     : "Works offline. Google Sign-In is wired and will activate after GoogleService-Info.plist is added.")
+                     ? "Guest works offline. Google Sign-In uses the same Firebase project as the web app."
+                     : "Works offline. Google Sign-In needs GoogleService-Info.plist in this build.")
                     .font(.caption)
                     .foregroundStyle(Theme.secondaryInk)
                     .multilineTextAlignment(.center)
