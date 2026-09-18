@@ -31,7 +31,7 @@ Do not use production `https://actions.life/auth/callback` for Google. Native Go
 ## Config still needed for live Google
 
 1. Firebase iOS app `life.actions.expo` is in (`GoogleService-Info.plist` + `extra.googleIosClientId`). After pull: `npx expo prebuild --clean --platform ios` then `npx expo run:ios`.
-2. Android still needs a Firebase Android app + `google-services.json` and `extra.googleAndroidClientId`.
+2. Android: drop `google-services.json` at `mobile/google-services.json` (package `life.actions.expo`). `app.config.js` sets `android.googleServicesFile` and `extra.googleAndroidClientId` from the Android `oauth_client` (type 1). Do not invent a placeholder json.
 3. Firestore named database remains `schema-compliant`.
 4. Native Google never uses production `https://actions.life/auth/callback` (`actionslife://auth` only).
 
