@@ -6,11 +6,10 @@
       clipRectFunction: calClipRect,
       ignoreIf: cycle,
       onDrop () {
-        return placeOnList({ 
-          parentID: task.id, 
-          rooms: task.children, 
-          index: task.children.length, 
-          unschedule: true 
+        return placeInTaskElement({
+          parentID: task.id,
+          rooms: task.children,
+          index: task.children.length
         })
       }
     })}
@@ -33,23 +32,14 @@
       style:border-radius="var(--left-padding)"
       style:background={task.imageDownloadURL ? `linear-gradient(${COLORS.OVERLAY_DARKEST}, transparent)` : ''}
     >
-      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'}>
-        {#snippet icon ()}
-          <DoodleIcon 
-            iconTask={task} 
-            size={titleFS} 
-            whiteVariant={task.imageDownloadURL}
-            scaleToFit 
-          />
-        {/snippet}
-      </CalTaskUnit>
+      <CalTaskUnit {task} color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'} />
     </div>
-      
+
     {#if task.notes}
       <div class="overflow-hidden" style:padding="0 var(--left-padding)">
-        <div style="
-          color: {task.imageDownloadURL ? 'white' : 'oklch(43.9% 0 0)'};"
+        <div
           class="text-xs"
+          style:color={task.imageDownloadURL ? 'white' : 'var(--task-name-color)'}
         >
           {task.notes}
         </div>
@@ -59,17 +49,19 @@
     {#if task.children.length}
       <div
         class="overflow-hidden pointer-events-none"
-        data-drag-origin="nested-cal"
         style:padding="0 var(--left-padding)"
         onclick={e => e.stopPropagation()}
         onmousedown={e => e.stopPropagation()}
         ontouchstart={e => e.stopPropagation()}
       >
-        <TodoList
-          trees={task.children}
-          parentID={task.id}
-          compact
-          listWidth="fit-content"
+        <TaskRows
+          tasks={task.children}
+          onReorder={index => placeInTaskElement({ parentID: task.id, rooms: task.children, index })}
+          dragOrigin="nested-cal"
+          fontSize={notesFS}
+          rowClass="w-fit"
+          showNotes
+          showChildren
           clipRectFunction={calClipRect}
         />
       </div>
@@ -90,14 +82,13 @@
 
 <script>
   import DurationAdjuster from '$lib/components/DurationAdjuster.svelte'
-  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
-  import TodoList from '/src/routes/[user]/components/ListsArea/TodoList.svelte'
+  import TaskRows from '/src/routes/[user]/components/Calendar/TaskRows.svelte'
   import { COLORS } from '$lib/utils/constants.js'
   import { snap, randomID } from '$lib/utils/core.js'
   import { calSnapInterval } from '$lib/store'
   import { lazyCallable } from '$lib/utils/svelteActions.js'
-  import { calendarBlock, titleFS } from '$lib/styles/reused.module.css'
+  import { calendarBlock, notesFS, titleFS } from '$lib/styles/reused.module.css'
   import { pixelsPerHour, timestampsColumnWidth, headerHeight, calBodyClip } from '/src/routes/[user]/components/Calendar/store.js'
   import { getContext } from 'svelte'
   
@@ -105,7 +96,7 @@
   const { openTaskPopup } = getContext('task-popup')
   const { 
     startMouseDrag, startTouchDrag, registerDropzone, draggedItem,
-    bestDropzoneID, dropPreviewCSS, scrollCalRect, placeOnList
+    bestDropzoneID, dropPreviewCSS, scrollCalRect, placeInTaskElement
   } = getContext('drag-drop')
 
   let { task = null } = $props()

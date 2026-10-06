@@ -22,20 +22,19 @@
   )
 
   const tokyoTime = $derived(now.toFormat('h:mm a'))
-  const callHours = `${DateTime.fromObject({ hour: CALL_FROM }).toFormat('h a').toLowerCase()} – ${DateTime.fromObject({ hour: CALL_UNTIL }).toFormat('h a').toLowerCase()}`
 
-  const heading = 'm-0 text-[13px] font-medium leading-none tracking-[-0.015em] text-gray-600'
-  const item = 'text-[13px] leading-snug tracking-[-0.015em] text-gray-500 no-underline transition-colors hover:text-gray-800'
+  const heading = 'm-0 text-sm font-bold leading-none tracking-[-0.015em] text-gray-600'
+  const item = 'text-sm leading-snug tracking-[-0.015em] text-gray-500 no-underline'
 </script>
 
 <footer class="mx-auto flex w-full max-w-5xl items-start justify-between gap-8 border-t border-black/[0.06] pt-12 pb-16">
-  <div class="flex flex-col gap-2.5">
+  <div class="flex flex-col gap-2.5 text-sm">
     <h2 class={heading}>Contact</h2>
     <a href="mailto:elton@actions.life" class={item}>elton@actions.life</a>
     <a href="tel:+15032503868" class={[item, 'tabular-nums']}>US 503 250 3868</a>
     <a href="tel:+818049192027" class={[item, 'tabular-nums']}>JP 080 4919 2027</a>
-    <div class="flex items-start gap-1.5 text-[13px] leading-snug tracking-[-0.015em] text-gray-500">
-      <span class={['mt-[0.45em] size-1 shrink-0 rounded-full', canCall ? 'bg-blue-500' : 'bg-red-500']}></span>
+    <div class="flex items-center gap-1.5  text-gray-500">
+      <span class={['size-1 shrink-0 rounded-full', canCall ? 'bg-blue-500' : 'bg-red-500']}></span>
       <span>
         {canCall ? 'In Tokyo office' : 'Out of office'}
         {tokyoTime} local time
@@ -43,7 +42,7 @@
     </div>
   </div>
 
-  <div class="flex flex-col items-end gap-2.5 text-right">
+  <div class="flex flex-col items-end gap-2.5 text-right text-sm">
     <h2 class={heading}>Legal</h2>
     <a href="/auth/privacy" class={item}>Privacy</a>
     <a href="/auth/terms" class={item}>Terms</a>

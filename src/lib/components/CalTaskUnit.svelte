@@ -1,5 +1,6 @@
 <script>
   import Checkbox from '$lib/components/Checkbox.svelte'
+  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
   import ParentBadge from '$lib/components/ParentBadge.svelte'
   import SubtaskCountIndicator from '$lib/components/SubtaskCountIndicator.svelte'
   import ListenToDoc from '$lib/components/ListenToDoc.svelte'
@@ -13,14 +14,18 @@
   let { 
     task = null, 
     color = 'var(--task-name-color)',
-    icon
   } = $props()
 </script>
 
 <div class="flex items-center gap-x-1 w-full">
   <div style:flex-shrink="0">
     {#if task.iconURL}
-      {@render icon()}
+      <DoodleIcon 
+        iconTask={task} 
+        size={titleFS} 
+        whiteVariant={task.imageDownloadURL}
+        scaleToFit 
+      />
     {:else}
       <Checkbox
         fontSize={titleFS}

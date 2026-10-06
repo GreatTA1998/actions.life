@@ -68,7 +68,7 @@
   }
 
   .incomplete {
-    filter: grayscale(100%) opacity(0.6);
+    filter: grayscale(100%) brightness(0.64) opacity(0.6);
   }
 
   .monochrome.complete {

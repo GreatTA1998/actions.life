@@ -26,13 +26,13 @@
 
 <div class="relative min-h-screen">
 
-  <div class="relative z-1 mx-auto flex flex-col px-[clamp(1.25rem,5vw,4rem)]">
+  <div class="relative z-1 mx-auto flex flex-col px-[clamp(1.25rem,5vw,2.5rem)]">
     <div class="flex flex-col items-center pt-[8rem] text-center">
       <h1 class="text-balance text-[clamp(2.4rem,1.25rem+1.7vw,3.75rem)] font-semibold leading-[1.15] tracking-tight text-gray-600">
-        actions.life is a hierarchical planner
+        Track everything you decided to do.
       </h1>
       <p class="mt-4 mb-0 max-w-[56ch] text-pretty text-lg leading-[1.45] text-gray-500">
-        Put everything you want to track on one page, so nothing gets lost.
+        actions.life is a calendar / planner with natural hierarchy, so you can fit projects, reminders and events all on the same screen.
       </p>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
         <GoogleLoginButton />
@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <div class="mx-auto mt-16 w-8/10 max-md:mt-12 max-md:w-[min(88vw,320px)]">
+    <div class="mx-auto mt-16 w-full">
       {#if !browserSupported}
         <p class="mb-4 text-[0.9375rem] text-amber-700">
           WARNING: some features may not work on your browser. Please use the latest Chrome or Safari.

@@ -24,7 +24,7 @@
   setContext('drag-drop', {
     draggedItem, bestDropzoneID, dropPreviewCSS, scrollCalRect,
     startMouseDrag, startTouchDrag, computeOrderValue, registerDropzone,
-    placeOnList, placeOnCal
+    placeOnList, placeOnCal, placeInDayHeader, placeInTaskElement
   })
 
   onDestroy(reset)
@@ -221,13 +221,6 @@
     return { id: '', el: null, origin: 'list', sx: 0, sy: 0, offsetX: 0, offsetY: 0, active: false, x1: 0, y1: 0, x2: 0, y2: 0, width: 0, height: 0 }
   }
 
-  function computeOrderValue (i, rooms) {
-    const n = rooms.length
-    if (i === 0) return rooms[0] ? rooms[0].orderValue / 1.1 : 1
-    if (i === n) return rooms[n - 1].orderValue + 1
-    return (rooms[i - 1].orderValue + rooms[i].orderValue) / 2
-  }
-
   function placeOnList ({ parentID, rooms, index, unschedule = false }) {
     const kvChanges = {
       parentID,
@@ -245,6 +238,35 @@
     const kvChanges = { startDateISO, startTime }
     if ($draggedItem.origin === 'nested-cal') kvChanges.parentID = ''
     return Task.update({ id: $draggedItem.id, kvChanges })
+  }
+
+  function placeInDayHeader ({ startDateISO, rooms, index }) {
+    return Task.update({
+      id: $draggedItem.id,
+      kvChanges: {
+        dayHeaderOrderValue: computeOrderValue(index, rooms, (task) => task.dayHeaderOrderValue ?? task.orderValue),
+        startDateISO,
+        startTime: ''
+      }
+    })
+  }
+
+  function placeInTaskElement ({ parentID, rooms, index }) {
+    return Task.update({
+      id: $draggedItem.id,
+      kvChanges: {
+        parentID,
+        orderValue: computeOrderValue(index, rooms),
+        startDateISO: '',
+        startTime: ''
+      }
+    })
+  }
+
+  function computeOrderValue (i, tasks, v = (task) => task.orderValue) {
+    if (i === 0) return tasks[0] ? v(tasks[0]) / 1.1 : 1
+    if (i === tasks.length) return v(tasks[tasks.length-1]) + 1
+    else return (v(tasks[i-1]) + v(tasks[i])) / 2
   }
 </script>
 

@@ -1,6 +1,6 @@
 <script>
   import PopoverMenu from '$lib/components/PopoverMenu.svelte'
-  import ToggleGroup from '$lib/components/ToggleGroup.svelte'
+  import SimpleToggle from '$lib/components/SimpleToggle.svelte'
   import MslMoreVert from 'virtual:icons/material-symbols-light/more-vert'
   import MslInventory2Outline from 'virtual:icons/material-symbols-light/inventory-2-outline'
   import { getContext } from 'svelte'
@@ -35,17 +35,18 @@
   {/snippet}
 
   {#snippet content ()}
-    <div class="flex flex-col p-2 gap-y-2">    
-      <ToggleGroup onselect={newVal => Task.update({ id: task.id, kvChanges: { childrenLayout: newVal }})}
-        options={[{ text: 'list', value: 'normal' }, { text: 'timeline', value: 'timeline' }]} 
-        activeValue={task.childrenLayout} 
+    <div class="flex flex-col items-start p-2 gap-y-2">
+      <SimpleToggle
+        checked={task.childrenLayout === 'timeline'}
+        onchange={e => Task.update({ id: task.id, kvChanges: { childrenLayout: e.target.checked ? 'timeline' : 'normal' } })}
+        label="Display subtasks as timeline"
       />
 
       <button onclick={() => Task.archiveTree(task) }
         class="text-left gap-x-[6px] text-neutral-600" 
       >
         <MslInventory2Outline style="font-size: 1.125rem"/>
-        Archive
+        Archive from list
       </button>
     </div>
   {/snippet}

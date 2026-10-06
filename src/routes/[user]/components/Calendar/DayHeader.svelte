@@ -1,9 +1,9 @@
 <script>
-  import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
-  import DoodleIcon from '$lib/components/DoodleIcon.svelte'
+  import TaskRows from './TaskRows.svelte'
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import { googleEventsByDate } from '$lib/store'
+  import { titleFS } from '$lib/styles/reused.module.css'
   import { headerHeight, isCompact, calColumnWidth, timestampsColumnWidth, calHeaderClip } from './store.js'
   import { getContext } from 'svelte'
   import { DateTime } from 'luxon'
@@ -11,8 +11,7 @@
   const { treesByDate } = getContext('app')
   const { activateInput } = getContext('popover-input')
   const { 
-    registerDropzone, placeOnCal,
-    draggedItem, scrollCalRect, startMouseDrag, startTouchDrag,
+    registerDropzone, placeInDayHeader, scrollCalRect,
     bestDropzoneID, dropPreviewCSS
   } = getContext('drag-drop')
   
@@ -27,7 +26,10 @@
   {@attach registerDropzone({
     clipRectFunction: () => calHeaderClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight),
     id: dropzoneID,
-    onDrop: () => placeOnCal({ startTime: '', startDateISO: ISODate })
+    onDrop: () => {
+      const rooms = $treesByDate[ISODate]?.noStartTime ?? []
+      placeInDayHeader({ startDateISO: ISODate, rooms, index: rooms.length })
+    }
   })}
   class="text-neutral-700 bg-[var(--cal-bg)]"
   style:width="{$calColumnWidth}px"
@@ -52,22 +54,21 @@
   </div>
 
   {#if $treesByDate[ISODate]}
-    {@const { hasIcon, noIcon } = $treesByDate[ISODate].noStartTime}
-    <div class="flex flex-wrap {$isCompact? 'mt-0' : 'mt-1'}">
-      {#each hasIcon as iconTask (iconTask.id)}
-        <DoodleIcon {iconTask} size="2rem" />
-      {/each}
-    </div>
-
-    <div class="flex flex-col gap-y-1 px-1">
-      {#each noIcon as task (task.id)}
-        <div
-          onmousedown={e => startMouseDrag({ e, id: task.id })}
-          ontouchstart={e => startTouchDrag({ e, id: task.id })}
-        >
-          <CalTaskUnit {task} />
-        </div>
-      {/each}
+    <div class="flex flex-col gap-y-1 px-1 {$isCompact? 'mt-0' : 'mt-1'}">
+      <TaskRows
+        tasks={$treesByDate[ISODate].noStartTime}
+        onReorder={index => placeInDayHeader({
+          startDateISO: ISODate,
+          rooms: $treesByDate[ISODate].noStartTime,
+          index
+        })}
+        dragOrigin="day-header"
+        fontSize={titleFS}
+        nameClass="font-medium"
+        showImage
+        showParent
+        clipRectFunction={() => calHeaderClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight)}
+      />
 
       {#if $googleEventsByDate[ISODate]?.allDay}
         <div class="flex flex-col gap-y-1">
@@ -78,7 +79,7 @@
       {/if}
       
       {#if $bestDropzoneID === dropzoneID}
-        <div style="height: 12px; width: 100%; {dropPreviewCSS}"></div>
+        <div style="height: 12px; width: 100%; {dropPreviewCSS}" class="rounded"></div>
       {/if}
     </div>
   {/if}
