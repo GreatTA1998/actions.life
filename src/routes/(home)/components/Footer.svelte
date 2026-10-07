@@ -1,6 +1,8 @@
 <script>
   import { DateTime } from 'luxon'
   import { createSubscriber } from 'svelte/reactivity'
+  import SiGithub from 'virtual:icons/simple-icons/github'
+  import SiYoutube from 'virtual:icons/simple-icons/youtube'
 
   const ZONE = 'Asia/Tokyo'
   const CALL_FROM = 9
@@ -33,12 +35,16 @@
     <a href="mailto:elton@actions.life" class={item}>elton@actions.life</a>
     <a href="tel:+15032503868" class={[item, 'tabular-nums']}>US 503 250 3868</a>
     <a href="tel:+818049192027" class={[item, 'tabular-nums']}>JP 080 4919 2027</a>
-    <div class="flex items-center gap-1.5  text-gray-500">
+    <div class="flex items-center gap-1.5 text-gray-500">
       <span class={['size-1 shrink-0 rounded-full', canCall ? 'bg-blue-500' : 'bg-red-500']}></span>
       <span>
         {canCall ? 'In Tokyo office' : 'Out of office'}
         {tokyoTime} local time
       </span>
+    </div>
+    <div class="mt-6 flex items-center gap-4 text-gray-500">
+      <a href="https://github.com/project-feynman/actions.life" target="_blank" rel="noreferrer"><SiGithub class="size-6" /></a>
+      <a href="https://www.youtube.com/watch?v=SmrK_Ni918o" target="_blank" rel="noreferrer"><SiYoutube class="size-6" /></a>
     </div>
   </div>
 
