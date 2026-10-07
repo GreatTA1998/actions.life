@@ -29,7 +29,7 @@
   const item = 'text-sm leading-snug tracking-[-0.015em] text-gray-500 no-underline'
 </script>
 
-<footer class="mx-auto flex w-full max-w-5xl items-start justify-between gap-8 border-t border-black/[0.06] pt-12 pb-16">
+<footer class="mx-auto flex w-full items-start justify-between gap-8 border-t border-black/[0.06] pt-12 pb-16">
   <div class="flex flex-col gap-2.5 text-sm">
     <h2 class={heading}>Contact</h2>
     <a href="mailto:elton@actions.life" class={item}>elton@actions.life</a>

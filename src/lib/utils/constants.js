@@ -19,7 +19,7 @@ export const breakpoints = {
 export const goldenRatio = 1.618
 
 export const WIDTHS = Object.freeze({
-  LIST: 320,
+  LIST: 20, // in rem
   CALENDAR_LEFT_PADDING: 16,
   MOBILE_TIME_AXIS: 22,
   DESKTOP_TIME_AXIS: 64,

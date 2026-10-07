@@ -28,10 +28,10 @@
   <div class="relative z-1 mx-auto flex flex-col px-[clamp(1.25rem,5vw,2.5rem)]">
     <div class="flex flex-col items-center pt-[8rem] text-center">
       <h1 class="text-balance text-[clamp(2.4rem,1.25rem+1.7vw,3.75rem)] font-semibold leading-[1.15] tracking-tight text-gray-600">
-        A zone of reliable execution
+        The zone of reliable execution
       </h1>
       <p class="mt-4 mb-0 max-w-[56ch] text-pretty text-lg leading-[1.45] text-gray-500">
-        actions.life is a calendar / planner that keeps your reminders, events and projects within one coherent picture
+        actions.life is a calendar / planner that organizes your reminders, events and projects on one page
       </p>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
         <GoogleLoginButton />
@@ -52,8 +52,9 @@
       {/if}
     </div>
 
-    <div class="mt-28">
+    <div class="mt-28 md:w-fit md:self-center">
       <FeatureCards />
+      <Footer />
     </div>
 
     {#snippet simulatedApp ()}
@@ -77,7 +78,5 @@
         {/if}
       </div>
     {/snippet}
-
-    <Footer />
   </div>
 </div>
