@@ -4,8 +4,8 @@ import { user } from '$lib/store'
 
 export const headerHeight = writable(HEIGHTS.CORNER_LABEL)
 
-export const pixelsPerHour = derived(user, $user => $user.pixelsPerHour || calendarDensity.wide.pixelsPerHour)
-export const calColumnWidth = derived(user, $user => $user.calColumnWidth || calendarDensity.wide.calColumnWidth)
+export const pixelsPerHour = derived(user, $user => $user.pixelsPerHour || calendarDensity.dense.pixelsPerHour)
+export const calColumnWidth = derived(user, $user => $user.calColumnWidth || calendarDensity.dense.calColumnWidth)
 
 export const isCompact = writable(false) 
 

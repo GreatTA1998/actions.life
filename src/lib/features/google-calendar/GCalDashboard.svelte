@@ -15,7 +15,7 @@
     const gcalAccounts = await getFirestoreCollection(`/users/${$user.uid}/googleAccounts`)
     allAccounts.set(gcalAccounts)
     await Promise.all(gcalAccounts.map(account => {
-      cloudFunction('fetchGoogleCalendars',{ refreshToken: account.refreshToken.value })
+      cloudFunction('fetchGoogleCalendars', { refreshToken: account.refreshToken.value })
         .then(result => 
           GCalAccount.update(account.id, {
             allCals: result.data.calendars

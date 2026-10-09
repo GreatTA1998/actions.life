@@ -15,7 +15,7 @@ const User = {
     calSnapInterval: z.number().default(1),
     listAreaWidthRatio: z.number().default(0.00223), // empirically determined from my account
     listAreaHeightRatio: z.number().default(0.004), // for mobile top-below view, default to 40% of viewport height
-    listWidthSplit: z.number().default(0.5),
+    listWidthSplit: z.number().default(0.34), // one list column on a 1440px laptop
     listHeightSplit: z.number().default(0.5),
 
     // automation settings

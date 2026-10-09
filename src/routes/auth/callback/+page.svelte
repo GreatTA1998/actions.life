@@ -10,6 +10,7 @@
   import User from '$lib/db/models/User.js'
   import GCalAccount from '$lib/db/models/GCalAccount.js'
   import { cloudFunction } from '$lib/utils/cloudFunctions.js'
+  import { unlinkDemoGoogleCalendarAccount } from '$lib/db/demoGoogleAccount.js'
   import { firebaseAuth, loggedIn, user } from '$lib/store'
   import { page } from '$app/state'
   import { goto } from '$app/navigation'
@@ -30,7 +31,8 @@
       await Promise.all([
         User.update({ email: result.user.email }),
         GCalAccount.create(email, id, tokens)
-      ]) 
+      ])
+      await unlinkDemoGoogleCalendarAccount(result.user.uid, id)
       goto('/' + result.user.uid)
       loggedIn.set(true)
       setupCalendarsOfAccount(tokens.refresh_token, id)

@@ -7,7 +7,7 @@ import Template from '$lib/db/models/Template.js'
 import { user } from '$lib/store'
 import { getPreviewSpan } from '$lib/utils/rrule.js'
 
-// A lived-in demo, not a tutorial. Projects, lists, a timeline, and a week
+// A lived-in demo, not a tutorial. Lists, a move-out timeline, and a week
 // already on the calendar. Parents are listed before their children.
 //
 // dayOffset — days from today
@@ -272,24 +272,24 @@ const PHOTOS = {
 }
 
 const ICON = {
-  waterPlant: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FEPtvgSIsPkpznSIffOoa.png?alt=media&token=018a960d-1f76-47eb-a0fe-85c6a5423bd9',
+  sunshine: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FCnlRA192arXwsa22WvW2.png?alt=media&token=17eb90b3-a5a5-425f-a404-9e71d570807e',
   drinkWater: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2F6w6I9VRWZLRWqphuLgFz.png?alt=media&token=ba68dd3b-83fe-4ed2-bc38-9a2888d31f1b',
   meditate: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FhsCFkECSF4PcFt6MOcW0.png?alt=media&token=d4ed8987-9001-43bc-b48b-4f36caef6fb1',
+  sleep: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FokvcBPH3FoPiRhoP8eFQ.png?alt=media&token=31900fd0-d6bc-4ee4-a35d-f33a0764ebe0',
+  appleWatch: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2Fq4EGoQa0U51bUPHP3Akh.png?alt=media&token=7f2d39a8-d4f9-4b54-b3c3-129c2c62a637',
   tennis: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2FKi92VqVTiD3DFJJTfQE4.png?alt=media&token=72b2e519-16ce-44eb-87eb-d74c0df89d00',
   laundry: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2Fk49WsIjV1kQ2e6MW52BR.png?alt=media&token=0d44da5b-dfd7-4ff3-9971-3637b748c6be',
+  messages: 'https://firebasestorage.googleapis.com/v0/b/project-y-2a061.appspot.com/o/icons%2Fnchecoybcbh9dLcs5NBd.png?alt=media&token=73fb2466-d992-45e0-a25a-645ca050400d',
 }
 
 const TAGS = {
-  ask: { name: 'Ask', color: '#4C7BF4' },
-  decide: { name: 'Decide', color: '#E09B2D' },
-  errand: { name: 'Errand', color: '#3E9B74' },
+  critical: { name: 'Critical', color: '#4C7BF4' },
 }
 
 const RRULE = {
   daily: 'FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA,SU',
-  wed: 'FREQ=WEEKLY;BYDAY=WE',
   sun: 'FREQ=WEEKLY;BYDAY=SU',
-  mwf: 'FREQ=WEEKLY;BYDAY=MO,WE,FR',
+  friSun: 'FREQ=WEEKLY;BYDAY=FR,SU',
 }
 
 // weekday: Luxon, Monday = 1 … Sunday = 7. Omitted means every day.
@@ -302,212 +302,131 @@ const HABIT = {
     startMin: 8 * 60,
     rrStr: RRULE.daily,
     children: [
+      { id: 'template-morning-sky', name: 'Look at the sky', duration: 5, iconURL: ICON.sunshine },
       { id: 'template-morning-water', name: 'Drink water', duration: 1, iconURL: ICON.drinkWater },
-      { id: 'template-morning-meditate', name: 'Meditate', duration: 20, iconURL: ICON.meditate },
-      { id: 'template-morning-windows', name: 'Open the windows', duration: 5 },
-      { id: 'template-morning-coffee', name: 'Coffee', duration: 10 },
+    ],
+  },
+  bedtime: {
+    id: 'template-habit-bedtime',
+    name: 'Bedtime routine',
+    duration: 60,
+    iconURL: ICON.sleep,
+    startMin: 21 * 60,
+    rrStr: RRULE.daily,
+    children: [
+      { id: 'template-bedtime-meditate', name: 'Meditate', duration: 20, iconURL: ICON.meditate },
+      { id: 'template-bedtime-watch', name: 'Apple Watch', duration: 5, iconURL: ICON.appleWatch },
     ],
   },
   tennis: {
     id: 'template-habit-tennis',
     name: 'Tennis',
-    duration: 120,
+    duration: 60,
     iconURL: ICON.tennis,
-    startMin: 12 * 60,
-    weekdays: [1, 3, 5],
-    rrStr: RRULE.mwf,
+    startMin: 13 * 60,
+    weekdays: [5, 7],
+    rrStr: RRULE.friSun,
     children: [
       { id: 'template-tennis-card', name: 'Membership card' },
-      { id: 'template-tennis-towel', name: 'Towel' },
-      { id: 'template-tennis-balls', name: 'Balls' },
+      { id: 'template-tennis-towel', name: 'Towel' }
     ],
-  },
-  water: {
-    id: 'template-habit-water',
-    name: 'Water the plant',
-    duration: 15,
-    iconURL: ICON.waterPlant,
-    startMin: 9 * 60 + 30,
-    weekday: 3,
-    rrStr: RRULE.wed,
   },
   laundry: {
     id: 'template-habit-laundry',
-    name: 'Dry laundry',
+    name: 'Laundry',
     duration: 20,
     iconURL: ICON.laundry,
-    startMin: 9 * 60,
     weekday: 7,
     rrStr: RRULE.sun,
   },
 }
 
 const SEED_TASKS = [
-  // Pinned near "now" so the open hour is already full. Not list columns.
-  {
-    id: 'photo-bird',
-    name: 'Field notes',
-    notes: 'The red-crowned one was back.',
-    imageDownloadURL: PHOTOS.bird,
-    onList: false,
-    hourFromNow: 0,
-    duration: 90,
-  },
-  {
-    id: 'lunch-alex',
-    name: 'Lunch with Alex',
-    notes: 'Before the museum.',
-    onList: false,
-    startTime: '11:00',
-    duration: 45,
-    dayOffset: 0,
-    completeIfPast: true,
-  },
-
-  // List columns, in order.
   { id: 'week', onList: true, name: 'This week' },
-  { id: 'week-receipt', parentID: 'week', onList: true, name: 'Save the filing receipt', isDone: true },
-  {
-    id: 'week-lawyer',
-    parentID: 'week',
-    onList: true,
-    name: 'Call Sato about the interview',
-    tagIDs: ['errand'],
-    hourFromNow: 2,
-    duration: 45,
-  },
-  {
-    id: 'week-alex',
-    parentID: 'week',
-    onList: true,
-    name: 'Reply to Alex about the photos',
-    tagIDs: ['ask'],
-  },
-  {
-    id: 'week-answers',
-    parentID: 'week',
-    onList: true,
-    name: 'Draft answers for the visa interview',
-    dayOffset: 2,
-    startTime: '09:30',
-    duration: 60,
-  },
-  {
-    id: 'week-build',
-    parentID: 'week',
-    onList: true,
-    name: 'Print the museum tickets',
-    dayOffset: 1,
-  },
+  { id: 'week-odyssey', parentID: 'week', onList: true, name: 'Watch The Odyssey' },
+  { id: 'week-dolittle', parentID: 'week', onList: true, name: 'Read Great Expectations' },
+  { id: 'week-taxes', parentID: 'week', onList: true, name: 'File taxes (form 1120)' },
 
   { id: 'waiting', onList: true, name: 'Waiting on' },
-  { id: 'wait-receipt', parentID: 'waiting', onList: true, name: 'Filing receipt' },
-  { id: 'wait-alex', parentID: 'waiting', onList: true, name: 'Photos from Alex', tagIDs: ['ask'] },
-  { id: 'wait-tax', parentID: 'waiting', onList: true, name: 'Tax return' },
-  { id: 'wait-letter', parentID: 'waiting', onList: true, name: 'Consulate letter', tagIDs: ['decide'] },
-
-  { id: 'hold', onList: true, name: 'On hold' },
-  { id: 'hold-keyboard', parentID: 'hold', onList: true, name: 'Corne keyboard build' },
   {
-    id: 'hold-flight',
-    parentID: 'hold',
+    id: 'wait-housing',
+    parentID: 'waiting',
     onList: true,
-    name: 'Discovery flight',
-    notes: 'After the visa decision.',
+    name: 'Housing confirmation',
+    tagIDs: ['critical'],
   },
-  { id: 'hold-lisbon', parentID: 'hold', onList: true, name: 'Lisbon, 4–18 Apr' },
-  { id: 'hold-parser', parentID: 'hold', onList: true, name: 'Rewrite the sync parser' },
+
+  { id: 'engine', onList: true, name: 'Engine project' },
+  { id: 'engine-v0', parentID: 'engine', onList: true, name: 'Build v0' },
+  { id: 'engine-friends', parentID: 'engine', onList: true, name: 'Show it to friends' },
+  { id: 'engine-v1', parentID: 'engine', onList: true, name: 'Finalize v1' },
 
   {
-    id: 'visa',
+    id: 'move-out',
     onList: true,
-    name: 'Visa',
+    name: 'Visa timeline',
     childrenLayout: 'timeline',
   },
   {
-    id: 'visa-startup',
-    parentID: 'visa',
+    id: 'move-form',
+    parentID: 'move-out',
     onList: true,
-    name: 'Startup visa',
-    offset: { months: -4 },
+    name: 'Submit move-out form',
+    offset: { months: -3 },
     isDone: true,
   },
   {
-    id: 'visa-interview',
-    parentID: 'visa',
+    id: 'move-visa',
+    parentID: 'move-out',
     onList: true,
-    name: 'Interview',
-    offset: { days: 18 },
+    name: 'Visa expires',
+    dayOffset: 7,
   },
   {
-    id: 'visa-manager',
-    parentID: 'visa',
+    id: 'move-japan',
+    parentID: 'move-out',
     onList: true,
-    name: 'Business manager visa',
-    offset: { months: 11 },
+    name: 'Visit New York',
+    offset: { months: 1 },
   },
 
-  { id: 'mom', onList: true, name: "Mom's visit" },
-  {
-    id: 'mom-station',
-    parentID: 'mom',
-    onList: true,
-    name: 'Meet the 14:10',
-    dayOffset: 2,
-    startTime: '14:10',
-    fixedTime: true,
-    duration: 30,
-  },
-  {
-    id: 'mom-museum',
-    parentID: 'mom',
-    onList: true,
-    name: 'The print museum',
-    dayOffset: 3,
-    startTime: '11:00',
-    duration: 120,
-  },
-  {
-    id: 'mom-home',
-    parentID: 'mom',
-    onList: true,
-    name: 'Sunday train home',
-    dayOffset: 4,
-    startTime: '16:20',
-    fixedTime: true,
-    duration: 20,
-  },
+  { id: 'hold', onList: true, name: 'On hold' },
+  { id: 'hold-cooking', parentID: 'hold', onList: true, name: 'Sign up for cooking class' },
+  { id: 'hold-language', parentID: 'hold', onList: true, name: 'Learn new language' },
+  { id: 'hold-youtube', parentID: 'hold', onList: true, name: 'Youtube channel' },
 
-  { id: 'projects', onList: true, name: 'Projects' },
-  { id: 'proj-figure', parentID: 'projects', onList: true, name: 'Figure drawing' },
-  { id: 'proj-portuguese', parentID: 'projects', onList: true, name: 'Portuguese' },
-  { id: 'proj-book', parentID: 'projects', onList: true, name: 'The photo book' },
-  { id: 'proj-letter', parentID: 'projects', onList: true, name: 'Letter to Kenji' },
-
-  {
-    id: 'photo-drawing',
-    name: 'Drawing block',
-    notes: 'An hour on the figure.',
-    imageDownloadURL: PHOTOS.drawing,
-    onList: false,
-    dayOffset: 1,
-    startTime: '15:00',
-    duration: 90,
-  },
-  {
-    id: 'cal-review',
-    name: 'Review with Alex',
-    onList: false,
-    isDone: true,
-    dayOffset: -1,
-    startTime: '16:00',
-    duration: 60,
-  },
   {
     id: 'cal-portal',
     name: 'Check the visa portal',
     onList: false,
     isDone: true,
     dayOffset: 0,
+  },
+  {
+    id: 'cal-messages',
+    name: 'Reply to messages',
+    iconURL: ICON.messages,
+    onList: false,
+    dayOffset: 0,
+    startTime: '11:00',
+    duration: 30,
+  },
+  {
+    id: 'photo-zoo',
+    name: 'Visit the zoo',
+    imageDownloadURL: PHOTOS.bird,
+    onList: false,
+    dayOffset: 0,
+    startTime: '15:00',
+    duration: 90,
+  },
+  {
+    id: 'photo-drawing',
+    name: 'Practice drawing',
+    imageDownloadURL: PHOTOS.drawing,
+    onList: false,
+    dayOffset: 1,
+    startTime: '15:00',
+    duration: 90,
   },
 ]

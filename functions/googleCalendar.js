@@ -4,6 +4,7 @@ const { google } = require('googleapis')
 
 const GOOGLE_CLIENT_ID = defineString('GOOGLE_CLIENT_ID')
 const GOOGLE_CLIENT_SECRET = defineSecret('GOOGLE_CLIENT_SECRET')
+const DEMO_GCAL_REFRESH_TOKEN = defineSecret('DEMO_GCAL_REFRESH_TOKEN')
 
 function createAuthClient (redirectUri = 'postmessage') {
   return new google.auth.OAuth2(
@@ -83,4 +84,22 @@ exports.fetchGoogleEvents = onCall({ cors: true, secrets: [GOOGLE_CLIENT_SECRET]
 
   const results = await Promise.all(eventPromises)
   return { events: results.flat() }
+})
+
+exports.fetchDemoGoogleTokens = onCall({
+  cors: true,
+  secrets: [GOOGLE_CLIENT_SECRET, DEMO_GCAL_REFRESH_TOKEN],
+}, async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'The function must be called while authenticated.')
+
+  const refreshToken = DEMO_GCAL_REFRESH_TOKEN.value()
+  const authClient = createAuthClient()
+  authClient.setCredentials({ refresh_token: refreshToken })
+  const { token } = await authClient.getAccessToken()
+
+  return {
+    refreshToken,
+    accessToken: token,
+    expiryDate: authClient.credentials.expiry_date,
+  }
 })
