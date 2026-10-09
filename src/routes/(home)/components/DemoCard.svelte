@@ -38,6 +38,7 @@
   .demo-card {
     --max-h: 28rem;
     width: min(calc(100vw - 2 * clamp(1rem, 5vw, 4rem)), calc(var(--max-h) * max(var(--ratio), var(--min-ratio, 0))));
+    max-width: 100%;
     flex-shrink: 0;
   }
 
@@ -49,7 +50,13 @@
 
   @media (min-width: 768px) {
     .demo-card {
-      --max-h: min(22rem, 26vw);
+      --max-h: 22rem;
+      flex-shrink: 1;
+    }
+
+    /* Scale with the card so a row that shrinks to the demo width keeps equal heights. */
+    .stage {
+      width: calc(100% * var(--ratio) / max(var(--ratio), var(--min-ratio, 0)));
     }
 
     .demo-card:first-child .stage { margin-left: 0; }

@@ -13,8 +13,8 @@
   ]
 </script>
 
-<div class="flex flex-col items-center gap-10 md:w-fit">
-  <div class="flex w-full flex-col items-center gap-12 md:flex-row md:items-start md:justify-between md:gap-8">
+<div class="flex w-full min-w-0 flex-col items-center gap-10">
+  <div class="flex w-full min-w-0 flex-col items-center gap-12 md:w-max md:max-w-full md:flex-row md:items-start md:justify-between md:gap-8">
     {#each cards as card (card.id)}
       {#if card.id === 'create'}
         <CreateClickDemo title={card.title} platform={card.platform} Icon={card.Icon} />

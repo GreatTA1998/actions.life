@@ -131,16 +131,22 @@
         {/each}
       </div>
     </div>
-    <div {@attach stageRef} class="relative flex min-h-0 flex-1 flex-col justify-start px-3.5 pt-3">
+    <div {@attach stageRef} class="relative flex min-h-0 flex-1 flex-col justify-start px-3.5 pt-2">
+    <div class="dz">
+      <div class="zone"></div>
+    </div>
+
     <DemoTask name="Plan the trip" />
 
     <div class={['child', subtaskMade && 'shown']}>
+      <div class="subdz"><div class="zone"></div></div>
       <DemoTask name="Book flights" strong={false} />
     </div>
 
     <div class="zones">
       <div class="zone outer" class:hot={hot === 'sibling'}></div>
       <div class="zone inner" class:hot={hot === 'sub'}></div>
+      <div class="zone deeper" class:shown={subtaskMade}></div>
 
       <div class="field outer" class:shown={siblingOn}>
         <span class="name">{siblingText}</span><span class="caret"></span>
@@ -156,6 +162,11 @@
 
     <div class={['sibling', siblingMade && 'shown']}>
       <DemoTask name="Buy groceries" />
+    </div>
+
+    <div class={['dz tail', siblingMade && 'shown']}>
+      <div class="zone"></div>
+      <div class="ghost"></div>
     </div>
 
     <DemoPointer tap x={pointer.x} y={pointer.y} glide={pointer.glide} visible={pointer.visible} {pulse} />
@@ -206,22 +217,69 @@
 
   .child.shown,
   .sibling.shown {
-    max-height: 2.25rem;
     opacity: 1;
   }
 
   .child.shown {
-    margin-top: 0.35rem;
+    max-height: 3.25rem;
+    margin-top: 0.15rem;
   }
 
   .sibling.shown {
-    margin-top: 0.2rem;
+    max-height: 2.25rem;
+    margin-top: 0.15rem;
+  }
+
+  .subdz {
+    position: relative;
+    height: 1rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .dz {
+    position: relative;
+    height: 1.5rem;
+    flex-shrink: 0;
+    margin-bottom: 0.15rem;
+  }
+
+  .dz.tail {
+    overflow: hidden;
+    max-height: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    transition: max-height 0.35s ease, opacity 0.35s ease, margin 0.35s ease;
+  }
+
+  .dz.tail.shown {
+    max-height: 1.5rem;
+    margin-top: 0.15rem;
+    opacity: 1;
+  }
+
+  .dz > .zone,
+  .subdz > .zone {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+  }
+
+  .ghost {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    left: 2rem;
+    height: 1rem;
+    border: 1px dashed rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.72);
   }
 
   .zones {
     position: relative;
     height: 1.5rem;
-    margin-top: 0.45rem;
+    margin-top: 0.15rem;
   }
 
   .zone {
@@ -237,15 +295,29 @@
   }
 
   /* Ghost dropzone: same strip as the outer zone, indented, shorter, fully inside it. */
-  .zone.inner {
+  .zone.inner,
+  .zone.deeper {
     position: absolute;
     z-index: 1;
     top: 0;
     right: 0;
-    left: 2rem;
     height: 1rem;
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.72);
+  }
+
+  .zone.inner {
+    left: 2rem;
+  }
+
+  .zone.deeper {
+    z-index: 2;
+    left: 4rem;
+    opacity: 0;
+  }
+
+  .zone.deeper.shown {
+    opacity: 1;
   }
 
   .hot {
@@ -342,7 +414,8 @@
     .zone,
     .field,
     .child,
-    .sibling { transition: none; }
+    .sibling,
+    .dz.tail { transition: none; }
     .caret { animation: none; }
   }
 </style>

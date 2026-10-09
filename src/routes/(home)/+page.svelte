@@ -52,7 +52,7 @@
       {/if}
     </div>
 
-    <div class="mt-28 md:w-fit md:self-center">
+    <div class="mx-auto mt-28 flex w-max max-w-full min-w-0 flex-col">
       <FeatureCards />
       <Footer />
     </div>
