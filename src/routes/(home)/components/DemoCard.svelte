@@ -1,7 +1,7 @@
 <script>
   import { themes } from '$lib/store/themes'
 
-  let { ratio = 1, minRatio = 0, ontoggle, title = '', theme = 'mutedEarth', clip = true, align = '', showReplay = false, onreplay, children } = $props()
+  let { ratio = 1, minRatio = 0, ontoggle, title = '', theme = 'mutedEarth', clip = true, align = '', showReplay = false, onreplay, children, hand } = $props()
 
   const cssVars = $derived(themes[theme]?.cssVars ?? themes.mutedEarth.cssVars)
 </script>
@@ -10,7 +10,7 @@
   {#if title}
     <p class={['m-0 pb-3 text-lg font-medium leading-snug tracking-[-0.02em] text-neutral-900', minRatio > ratio && 'text-center']}>{title}</p>
   {/if}
-  <div class="stage-col">
+  <div class="stage-col relative">
     <div
       class={['stage relative min-h-0 rounded-2xl bg-[var(--todo-list-bg-color)]', clip ? 'overflow-hidden' : 'overflow-visible']}
       style:--todo-list-bg-color={cssVars['--todo-list-bg-color']}
@@ -44,6 +44,11 @@
       </button>
     {/if}
     </div>
+    {#if hand}
+      <div class="pointer-events-none absolute inset-0 z-30 overflow-visible">
+        {@render hand()}
+      </div>
+    {/if}
   </div>
 </div>
 

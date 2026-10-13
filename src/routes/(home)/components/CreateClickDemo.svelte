@@ -249,10 +249,13 @@
 
     </div>
   </div>
-  <div class="pointer-events-none absolute top-1/3 right-0 bottom-0 left-0 z-30">
-    <DemoPointer tap x={pointer.x} y={pointer.y} glide={pointer.glide} visible={pointer.visible} {pulse} />
   </div>
-  </div>
+
+  {#snippet hand()}
+    <div class="absolute top-1/3 right-0 bottom-0 left-0">
+      <DemoPointer tap x={pointer.x} y={pointer.y} glide={pointer.glide} visible={pointer.visible} {pulse} />
+    </div>
+  {/snippet}
 </DemoCard>
 
 <style>
