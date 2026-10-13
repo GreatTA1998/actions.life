@@ -4,9 +4,9 @@
   import { round } from '$lib/utils/core.js'
   import DemoCard from './DemoCard.svelte'
   import DemoPointer from './DemoPointer.svelte'
-  import { boxWithin, createLoop, elementRef, keyedRefs, setMotionPaused } from './demoLoop.js'
+  import { boxWithin, createLoop, createShow, elementRef, keyedRefs, setMotionPaused } from './demoLoop.js'
 
-  let { title = '', platform = '', Icon = null } = $props()
+  let { title = '', play = false, visible = false, onend = () => {} } = $props()
 
   const today = DateTime.now().startOf('day')
   const firstDay = today.plus({ days: 6 })
@@ -62,8 +62,11 @@
   let flying = $state(null)
   let previewDay = $state(null)
   let ready = $state(false)
-  let playing = $state(true)
-  let canToggle = $state(false)
+  let playing = $state(false)
+  let ended = $state(false)
+  let armed = $state(false)
+  let solo = $state(false)
+  let token = $state(0)
   let loop
   let pointer = $state({ x: 0, y: 0, glide: false })
   let alive = true
@@ -149,6 +152,33 @@
     pointer.glide = false
   }
 
+  const active = $derived((play || solo) && visible)
+
+  const show = createShow({
+    reset () {
+      ended = false
+      playing = false
+      ready = false
+      reset()
+      loop?.stop()
+    },
+    start () {
+      playing = true
+      setMotionPaused(stage, false)
+      loop?.start()
+    },
+    pause () {
+      playing = false
+      loop?.pause()
+      setMotionPaused(stage, true)
+    },
+    resume () {
+      playing = true
+      setMotionPaused(stage, false)
+      loop?.resume()
+    }
+  })
+
   onMount(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) {
@@ -172,28 +202,39 @@
       { ms: 1700, run () { drop('wed') } }
     ]
 
-    loop = createLoop(steps)
-    loop.start()
-    canToggle = true
+    loop = createLoop(steps, { once: true, onDone () {
+      if (!alive) return
+      const sequenced = play && !solo
+      solo = false
+      playing = false
+      ended = true
+      show.complete()
+      if (sequenced) onend()
+    } })
+    armed = true
     return () => {
       alive = false
       loop.stop()
     }
   })
 
+  $effect(() => {
+    if (!armed) return
+    show.sync(active, token)
+  })
+
   function toggle () {
-    playing = !playing
-    if (playing) {
-      setMotionPaused(stage, false)
-      loop?.resume()
-    } else {
-      loop?.pause()
-      setMotionPaused(stage, true)
-    }
+    show.toggle()
+    show.sync(active, token)
+  }
+
+  function replay () {
+    solo = true
+    token += 1
   }
 </script>
 
-<DemoCard ratio={1728 / 1080} theme="naturalGreen" {title} {platform} {Icon} ontoggle={canToggle ? toggle : undefined}>
+<DemoCard ratio={1728 / 1080} theme="naturalGreen" {title} ontoggle={active && !ended ? toggle : undefined} showReplay={ended} onreplay={replay}>
   <div {@attach stageRef} class="absolute inset-0 grid grid-cols-2">
     <div class="flex flex-col bg-[var(--todo-list-bg-color)] px-3 pt-3">
       <div class="mb-2 text-[0.8125rem] font-semibold text-[var(--task-name-color)]">Visa application</div>

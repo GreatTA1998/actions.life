@@ -37,10 +37,11 @@ export function boxWithin (stage, el) {
   }
 }
 
-export function createLoop (steps) {
+export function createLoop (steps, { once = false, onDone } = {}) {
   let timer = 0
   let stopped = false
   let paused = false
+  let finishing = false
   let i = 0
   let due = 0
   let remaining = 0
@@ -51,6 +52,11 @@ export function createLoop (steps) {
     clearTimeout(timer)
     timer = setTimeout(() => {
       if (stopped || paused) return
+      if (finishing) {
+        finishing = false
+        onDone?.()
+        return
+      }
       tick()
     }, ms)
   }
@@ -59,12 +65,25 @@ export function createLoop (steps) {
     if (stopped || paused) return
     steps[i].run()
     const ms = steps[i].ms
-    i = (i + 1) % steps.length
+    i += 1
+    if (once && i >= steps.length) {
+      finishing = true
+      arm(ms)
+      return
+    }
+    if (!once) i %= steps.length
     arm(ms)
   }
 
   return {
-    start () { tick() },
+    start () {
+      clearTimeout(timer)
+      stopped = false
+      paused = false
+      finishing = false
+      i = 0
+      tick()
+    },
     pause () {
       if (paused || stopped) return
       paused = true
@@ -79,6 +98,50 @@ export function createLoop (steps) {
     stop () {
       stopped = true
       clearTimeout(timer)
+    }
+  }
+}
+
+// Plays one demo while `play` is true, pauses when it leaves the viewport,
+// and restarts from the opening frame when `token` changes.
+export function createShow (handlers) {
+  let applied = -1
+  let started = false
+  let ended = false
+  let userPaused = false
+
+  return {
+    toggle () {
+      if (!started || ended) return
+      userPaused = !userPaused
+    },
+    sync (play, token) {
+      if (token !== applied) {
+        applied = token
+        userPaused = false
+        ended = false
+        started = false
+        handlers.reset()
+        if (play) {
+          started = true
+          handlers.start()
+        }
+        return
+      }
+      if (ended) return
+      if (!play || userPaused) {
+        if (started) handlers.pause()
+        return
+      }
+      if (!started) {
+        started = true
+        handlers.start()
+        return
+      }
+      handlers.resume()
+    },
+    complete () {
+      ended = true
     }
   }
 }

@@ -9,5 +9,5 @@
   ]}
 >
   <span class="size-[1em] shrink-0 rounded-full border border-solid border-[var(--fine-control-color)]"></span>
-  <span class="min-w-0 truncate leading-normal">{name}</span>
+  <span class="min-w-0 leading-[1.25]">{name}</span>
 </div>

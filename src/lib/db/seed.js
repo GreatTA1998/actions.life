@@ -417,7 +417,7 @@ const SEED_TASKS = [
     imageDownloadURL: PHOTOS.bird,
     onList: false,
     dayOffset: 0,
-    startTime: '15:00',
+    startTime: '13:00',
     duration: 90,
   },
   {
@@ -426,7 +426,7 @@ const SEED_TASKS = [
     imageDownloadURL: PHOTOS.drawing,
     onList: false,
     dayOffset: 1,
-    startTime: '15:00',
+    startTime: '11:00',
     duration: 90,
   },
 ]
