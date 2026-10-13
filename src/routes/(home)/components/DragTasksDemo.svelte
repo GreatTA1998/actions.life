@@ -61,6 +61,7 @@
   let placed = $state(null)
   let flying = $state(null)
   let previewDay = $state(null)
+  let instant = $state(false)
   let ready = $state(false)
   let playing = $state(false)
   let ended = $state(false)
@@ -146,10 +147,12 @@
   }
 
   function reset () {
+    instant = true
     placed = null
     flying = null
     previewDay = null
     pointer.glide = false
+    afterPaint(() => { instant = false })
   }
 
   const active = $derived((play || solo) && visible)
@@ -235,7 +238,7 @@
 </script>
 
 <DemoCard ratio={1728 / 1080} theme="naturalGreen" {title} ontoggle={active && !ended ? toggle : undefined} showReplay={ended} onreplay={replay}>
-  <div {@attach stageRef} class="absolute inset-0 grid grid-cols-2">
+  <div {@attach stageRef} class={['absolute inset-0 grid grid-cols-2', instant && 'instant']}>
     <div class="flex flex-col bg-[var(--todo-list-bg-color)] px-3 pt-3">
       <div class="mb-2 text-[0.8125rem] font-semibold text-[var(--task-name-color)]">Visa application</div>
       <div class="track flex flex-col">
@@ -322,6 +325,10 @@
     align-items: center;
     gap: 0.35rem;
     transition: margin-bottom 0.45s ease;
+  }
+
+  .instant .node {
+    transition: none;
   }
 
   .dot {

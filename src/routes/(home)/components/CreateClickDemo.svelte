@@ -149,12 +149,12 @@
       { ms: 80, run () { pointAt('rest', false) } },
       { ms: 560, run () { pointAt('sib', true) } },
       { ms: 480, run () { pulse += 1; siblingOn = true; siblingText = '' } },
-      { ms: 1020, run () { hidePointer() } },
+      { ms: 860, run () { hidePointer() } },
       ...typeInto((value) => { siblingText = value }, 'Buy groceries', 640),
       { ms: 900, run () { siblingOn = false; siblingMade = true } },
       { ms: 560, run () { pointAt('sub', true) } },
       { ms: 480, run () { pulse += 1; subtaskOn = true; subtaskText = '' } },
-      { ms: 1020, run () { hidePointer() } },
+      { ms: 860, run () { hidePointer() } },
       ...typeInto((value) => { subtaskText = value }, 'Book flights', 640),
       { ms: 900, run () { subtaskOn = false; subtaskMade = true } }
     ]
