@@ -1,5 +1,5 @@
 <script>
-  import TaskRows from './TaskRows.svelte'
+  import CompactList from './CompactList.svelte'
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
   import { HEIGHTS } from '$lib/utils/constants.js'
   import ListenToDoc from '$lib/components/ListenToDoc.svelte'
@@ -58,7 +58,7 @@
 
   {#if $treesByDate[ISODate]}
     <div class="flex flex-col gap-y-1 px-1 {$isCompact? 'mt-0' : 'mt-1'}">
-      <TaskRows
+      <CompactList
         tasks={$treesByDate[ISODate].noStartTime}
         onReorder={index => placeInDayHeader({
           startDateISO: ISODate,
@@ -80,7 +80,7 @@
             </ListenToDoc>
           {/if}
         {/snippet}
-      </TaskRows>
+      </CompactList>
 
       {#if $googleEventsByDate[ISODate]?.allDay}
         <div class="flex flex-col gap-y-1">

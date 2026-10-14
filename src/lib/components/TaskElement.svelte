@@ -54,7 +54,7 @@
         onmousedown={e => e.stopPropagation()}
         ontouchstart={e => e.stopPropagation()}
       >
-        <TaskRows
+        <CompactList
           tasks={task.children}
           onReorder={index => placeInTaskElement({ parentID: task.id, rooms: task.children, index })}
           clipRectFunction={calClipRect}
@@ -68,7 +68,7 @@
               <span class="line-clamp-2">{child.notes}</span>
             </button>
           {/snippet}
-        </TaskRows>
+        </CompactList>
       </div>
     {/if}
   </div>
@@ -88,7 +88,7 @@
 <script>
   import DurationAdjuster from '$lib/components/DurationAdjuster.svelte'
   import CalTaskUnit from '$lib/components/CalTaskUnit.svelte'
-  import TaskRows from '/src/routes/[user]/components/Calendar/TaskRows.svelte'
+  import CompactList from '/src/routes/[user]/components/Calendar/CompactList.svelte'
   import { COLORS } from '$lib/utils/constants.js'
   import { snap, randomID } from '$lib/utils/core.js'
   import { calSnapInterval } from '$lib/store'
