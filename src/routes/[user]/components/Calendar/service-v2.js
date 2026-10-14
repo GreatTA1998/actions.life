@@ -117,9 +117,8 @@ function organizeToGroups (forest) {
 
   // note: mutates the data structure  
   for (const taskGroups of Object.values(dateToTasks)) {
-    // sort day-flexible text tasks by `orderValue`
-    if (taskGroups.noStartTime?.noIcon?.length > 0) {
-      taskGroups.noStartTime.noIcon.sort((a, b) => a.orderValue - b.orderValue)
+    if (taskGroups.noStartTime.length > 0) {
+      taskGroups.noStartTime.sort((a, b) => (a.dayHeaderOrderValue ?? a.orderValue) - (b.dayHeaderOrderValue ?? b.orderValue))
     }
     
     // sort scheduled tasks, ensure consistent drag-behavior for overlapping tasks (later elements are "on top" due to HTML stacking order)  
@@ -137,10 +136,9 @@ function addTaskToDate (task, date, dateToTasks) {
   if (!dateToTasks[date]) dateToTasks[date] = emptyState()
   
   if (task.startTime) dateToTasks[date].hasStartTime.push(task)
-  else if (task.iconURL) dateToTasks[date].noStartTime.hasIcon.push(task)
-  else dateToTasks[date].noStartTime.noIcon.push(task)
+  else dateToTasks[date].noStartTime.push(task)
 }
 
 function emptyState () {
-  return { hasStartTime: [], noStartTime: { hasIcon: [], noIcon: [] } }
+  return { hasStartTime: [], noStartTime: [] }
 }

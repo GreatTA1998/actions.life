@@ -5,8 +5,6 @@
     playbackID = '',
     aspectRatio = 16 / 9,
     playing = false,
-    platform = '',
-    Icon,
     ontoggle
   } = $props()
 
@@ -51,15 +49,6 @@
         class="media object-cover"
         onerror={() => failedFor = playbackID}
       />
-    {/if}
-
-    {#if platform && Icon}
-      <span
-        class="pointer-events-none absolute top-2 left-2 z-1 inline-flex items-center gap-1.5 rounded-full bg-[#595959]/80 px-2 py-1 text-[11px] leading-none font-medium tracking-[-0.01em] text-white"
-      >
-        <Icon class="size-3.5 shrink-0" />
-        {platform}
-      </span>
     {/if}
 
     <button

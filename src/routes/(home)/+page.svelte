@@ -5,9 +5,7 @@
   import MacbookDisplay from './components/MacbookDisplay.svelte'
   import PhoneDisplay from './components/PhoneDisplay.svelte'
   import Footer from './components/Footer.svelte'
-  import OutboundLinks from './components/OutboundLinks.svelte'
   import GoogleLoginButton from './components/GoogleLoginButton.svelte'
-  import LoadingLogo from '$lib/components/LoadingLogo.svelte'
   import { authChecked, authUser, initialDataReady } from '$lib/store'
   import { fade } from 'svelte/transition'
   import { isMobile } from '$lib/utils/core.js'
@@ -24,26 +22,25 @@
   })
 </script>
 
-<div class="relative min-h-screen">
+<div class="relative flex min-h-screen flex-col">
 
-  <div class="relative z-1 mx-auto flex flex-col px-[clamp(1.25rem,5vw,4rem)]">
+  <div class="relative z-1 mx-auto flex w-full flex-col px-[clamp(1.25rem,5vw,2.5rem)]">
     <div class="flex flex-col items-center pt-[8rem] text-center">
       <h1 class="text-balance text-[clamp(2.4rem,1.25rem+1.7vw,3.75rem)] font-semibold leading-[1.15] tracking-tight text-gray-600">
-        actions.life is a hierarchical planner
+        The zone of reliable execution
       </h1>
       <p class="mt-4 mb-0 max-w-[56ch] text-pretty text-lg leading-[1.45] text-gray-500">
-        Put everything you want to track on one page, so nothing gets lost.
+        actions.life is a calendar that centralizes your reminders, events and projects on one page
       </p>
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
         <GoogleLoginButton />
-        <OutboundLinks />
       </div>
     </div>
 
-    <div class="mx-auto mt-16 w-8/10 max-md:mt-12 max-md:w-[min(88vw,320px)]">
+    <div class="mx-auto mt-12 w-full">
       {#if !browserSupported}
         <p class="mb-4 text-[0.9375rem] text-amber-700">
-          WARNING: some features may not work on your browser. Please use the latest Chrome or Safari.
+          WARNING: Unsupported browser. Please use the latest Chrome or Safari (iOS 26 or newer).
         </p>
       {/if}
 
@@ -54,7 +51,7 @@
       {/if}
     </div>
 
-    <div class="mt-28">
+    <div class="mx-auto mt-28 flex w-max max-w-full min-w-0 flex-col">
       <FeatureCards />
     </div>
 
@@ -71,14 +68,13 @@
         {/if}
 
         {#if !$initialDataReady}
-          <div transition:fade class="absolute inset-0 z-10 bg-[var(--offwhite-bg)]"></div>
-        {/if}
-        {#if !$initialDataReady}
-          <LoadingLogo />
+          <div transition:fade class="absolute inset-0 z-10 grid place-items-center bg-[var(--offwhite-bg)]">
+            <span class="text-lg text-neutral-600">Loading demo account...</span>
+          </div>
         {/if}
       </div>
     {/snippet}
-
-    <Footer />
   </div>
+
+  <Footer />
 </div>

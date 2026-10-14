@@ -39,6 +39,7 @@ const Task = {
     
     // maintained fields
     orderValue: z.number(),
+    dayHeaderOrderValue: z.number().optional(), // untimed order within one day; absent sorts as orderValue
     treeISOs: z.array(z.string()), 
     rootID: z.string() 
   }),
