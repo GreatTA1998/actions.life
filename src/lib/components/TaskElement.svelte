@@ -57,13 +57,18 @@
         <TaskRows
           tasks={task.children}
           onReorder={index => placeInTaskElement({ parentID: task.id, rooms: task.children, index })}
+          clipRectFunction={calClipRect}
           dragOrigin="nested-cal"
           fontSize={notesFS}
           rowClass="w-fit"
-          showNotes
           showChildren
-          clipRectFunction={calClipRect}
-        />
+        >
+          {#snippet details (child)}
+            <button onclick={() => openTaskPopup(child)} class="max-w-[45ch] justify-start text-left text-xs leading-[1.25] text-neutral-600">
+              <span class="line-clamp-2">{child.notes}</span>
+            </button>
+          {/snippet}
+        </TaskRows>
       </div>
     {/if}
   </div>

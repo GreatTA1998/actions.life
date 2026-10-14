@@ -2,7 +2,9 @@
   import TaskRows from './TaskRows.svelte'
   import GCalAllDay from '$lib/features/google-calendar/GCalAllDay.svelte'
   import { HEIGHTS } from '$lib/utils/constants.js'
-  import { googleEventsByDate } from '$lib/store'
+  import ListenToDoc from '$lib/components/ListenToDoc.svelte'
+  import ParentBadge from '$lib/components/ParentBadge.svelte'
+  import { googleEventsByDate, user } from '$lib/store'
   import { titleFS } from '$lib/styles/reused.module.css'
   import { headerHeight, isCompact, calColumnWidth, timestampsColumnWidth, calHeaderClip } from './store.js'
   import { getContext } from 'svelte'
@@ -10,6 +12,7 @@
 
   const { treesByDate } = getContext('app')
   const { activateInput } = getContext('popover-input')
+  const { openTaskPopup } = getContext('task-popup')
   const { 
     registerDropzone, placeInDayHeader, scrollCalRect,
     bestDropzoneID, dropPreviewCSS
@@ -62,13 +65,22 @@
           rooms: $treesByDate[ISODate].noStartTime,
           index
         })}
+        clipRectFunction={() => calHeaderClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight)}
         dragOrigin="day-header"
         fontSize={titleFS}
         nameClass="font-medium"
-        showImage
-        showParent
-        clipRectFunction={() => calHeaderClip($scrollCalRect(), $timestampsColumnWidth, $headerHeight)}
-      />
+      >
+        {#snippet accessories(task)}
+          {#if task.imageDownloadURL}
+            <img onclick={() => openTaskPopup(task)} src={task.imageDownloadURL} class="w-auto shrink-0 rounded-sm" style:height="1lh">
+          {/if}
+          {#if task.parentID}
+            <ListenToDoc docPath="/users/{$user.uid}/tasks/{task.parentID}">
+              {#snippet children(parentObj)}<ParentBadge {parentObj} --color="var(--task-name-color)" />{/snippet}
+            </ListenToDoc>
+          {/if}
+        {/snippet}
+      </TaskRows>
 
       {#if $googleEventsByDate[ISODate]?.allDay}
         <div class="flex flex-col gap-y-1">
