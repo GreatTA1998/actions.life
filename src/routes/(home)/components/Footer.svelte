@@ -1,6 +1,8 @@
 <script>
   import { DateTime } from 'luxon'
   import { createSubscriber } from 'svelte/reactivity'
+  import SiGithub from 'virtual:icons/simple-icons/github'
+  import SiYoutube from 'virtual:icons/simple-icons/youtube'
 
   const ZONE = 'Asia/Tokyo'
   const CALL_FROM = 9
@@ -22,30 +24,28 @@
   )
 
   const tokyoTime = $derived(now.toFormat('h:mm a'))
-  const callHours = `${DateTime.fromObject({ hour: CALL_FROM }).toFormat('h a').toLowerCase()} – ${DateTime.fromObject({ hour: CALL_UNTIL }).toFormat('h a').toLowerCase()}`
 
-  const heading = 'm-0 text-[13px] font-medium leading-none tracking-[-0.015em] text-gray-600'
-  const item = 'text-[13px] leading-snug tracking-[-0.015em] text-gray-500 no-underline transition-colors hover:text-gray-800'
+  const item = 'whitespace-nowrap text-sm leading-none tracking-[-0.015em] text-gray-500 no-underline'
 </script>
 
-<footer class="mx-auto flex w-full max-w-5xl items-start justify-between gap-8 border-t border-black/[0.06] pt-12 pb-16">
-  <div class="flex flex-col gap-2.5">
-    <h2 class={heading}>Contact</h2>
-    <a href="mailto:elton@actions.life" class={item}>elton@actions.life</a>
-    <a href="tel:+15032503868" class={[item, 'tabular-nums']}>US 503 250 3868</a>
-    <a href="tel:+818049192027" class={[item, 'tabular-nums']}>JP 080 4919 2027</a>
-    <div class="flex items-start gap-1.5 text-[13px] leading-snug tracking-[-0.015em] text-gray-500">
-      <span class={['mt-[0.45em] size-1 shrink-0 rounded-full', canCall ? 'bg-blue-500' : 'bg-red-500']}></span>
-      <span>
+<footer class="mt-auto w-full pt-16">
+  <div class="flex flex-wrap items-center gap-x-6 gap-y-3 bg-[#ececec] px-[clamp(1.25rem,5vw,2.5rem)] py-6">
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+      <a href="mailto:elton@actions.life" class={item}>elton@actions.life</a>
+      <a href="tel:+15032503868" class={[item, 'tabular-nums']}>US 503 250 3868</a>
+      <a href="tel:+818049192027" class={[item, 'tabular-nums']}>JP 080 4919 2027</a>
+      <span class="inline-flex items-center gap-1.5 whitespace-nowrap text-sm leading-none text-gray-500">
+        <span class={['size-1 shrink-0 rounded-full', canCall ? 'bg-blue-500' : 'bg-red-500']}></span>
         {canCall ? 'In Tokyo office' : 'Out of office'}
         {tokyoTime} local time
       </span>
     </div>
-  </div>
 
-  <div class="flex flex-col items-end gap-2.5 text-right">
-    <h2 class={heading}>Legal</h2>
-    <a href="/auth/privacy" class={item}>Privacy</a>
-    <a href="/auth/terms" class={item}>Terms</a>
+    <div class="ml-auto flex items-center gap-5">
+      <a href="https://github.com/project-feynman/actions.life" target="_blank" rel="noreferrer" class="text-gray-500"><SiGithub class="size-6" /></a>
+      <a href="https://www.youtube.com/watch?v=SmrK_Ni918o" target="_blank" rel="noreferrer" class="text-gray-500"><SiYoutube class="size-6" /></a>
+      <a href="/auth/privacy" class={item}>Privacy</a>
+      <a href="/auth/terms" class={item}>Terms</a>
+    </div>
   </div>
 </footer>

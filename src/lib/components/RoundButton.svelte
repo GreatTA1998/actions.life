@@ -10,7 +10,7 @@
 </script>
 
 <button {onclick} {disabled}
-  class="justify-center py-[10px] px-[18px] hover-glow"
+  class="justify-center py-[10px] px-[18px]"
   style:border-radius="24px"
   style:color={textColor}
   style:background-color={backgroundColor}
@@ -18,9 +18,3 @@
 >
   {@render children?.()}
 </button>
-
-<style>
-  .hover-glow:hover {
-    filter: brightness(105%);
-  }
-</style>

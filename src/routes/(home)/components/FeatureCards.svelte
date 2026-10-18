@@ -1,60 +1,68 @@
 <script>
-  import LoopCard from './LoopCard.svelte'
-  import SiSafari from 'virtual:icons/simple-icons/safari'
-  import SiGooglechrome from 'virtual:icons/simple-icons/googlechrome'
-  import SiAndroid from 'virtual:icons/simple-icons/android'
+  import { onMount } from 'svelte'
+  import CreateClickDemo from './CreateClickDemo.svelte'
+  import DragTasksDemo from './DragTasksDemo.svelte'
+  import ConnectDemo from './ConnectDemo.svelte'
 
   const cards = [
-    {
-      playbackID: 'L8d9WO79zZquXsKc41Xan8Iq3674mn2PE00sZTJr9ZuQ',
-      title: 'Create',
-      detail: 'subtasks by targeting your click',
-      platform: 'Desktop',
-      Icon: SiGooglechrome,
-      aspectRatio: 1728 / 1080
-    },
-    {
-      playbackID: 'PxZ4opljhn85wvrJ3C8Rc4OqbUnyIN63TWZj01wzAeRQ',
-      title: 'Drag',
-      detail: 'tasks to the calendar',
-      platform: 'iOS 26+',
-      Icon: SiSafari,
-      aspectRatio: 1180 / 2556
-    },
-    {
-      playbackID: 'TeW1lY2RmWseIjbbBwEW4vFiB8wRWUn2sd00Oyw2inlY',
-      title: 'Draw',
-      detail: 'your own habit icons',
-      platform: 'Android 13+',
-      Icon: SiAndroid,
-      aspectRatio: 1264 / 1680
-    }
+    { id: 'create', title: 'Click to create tasks' },
+    { id: 'drag', title: 'Drag to move and schedule' },
+    { id: 'connect', title: 'Customize and integrate', still: true }
   ]
 
-  let playingId = $state(null)
+  let full = $state({ create: false, drag: false, connect: false })
+  let cursor = $state(0)
+  let mode = $state('wait')
+  let reduced = false
 
-  function toggle(id) {
-    playingId = playingId === id ? null : id
+  function watch (id) {
+    return (node) => {
+      const observer = new IntersectionObserver(([entry]) => {
+        const now = entry.isIntersecting && entry.intersectionRatio >= 0.99
+        if (full[id] === now) return
+        full[id] = now
+        kick()
+      }, { threshold: [0, 0.99, 1] })
+      observer.observe(node)
+      return () => observer.disconnect()
+    }
   }
+
+  function kick () {
+    if (reduced || mode === 'done') return
+    const id = cards[cursor].id
+    if (full[id]) mode = 'run'
+    else if (mode === 'run') mode = 'wait'
+  }
+
+  function finish (id) {
+    if (reduced || cards[cursor].id !== id || mode === 'done') return
+    cursor += 1
+    while (cursor < cards.length && cards[cursor].still) cursor += 1
+    if (cursor >= cards.length) {
+      mode = 'done'
+      return
+    }
+    mode = full[cards[cursor].id] ? 'run' : 'wait'
+  }
+
+  onMount(() => {
+    reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  })
 </script>
 
-<div class="flex flex-col items-center gap-10">
-  <div class="flex w-full flex-col items-center gap-12 md:flex-row md:items-start md:justify-center md:gap-8">
-    {#each cards as card (card.playbackID)}
-      <figure class="m-0 flex flex-col items-center gap-3">
-        <figcaption class="m-0 text-center text-[0.9375rem] leading-snug tracking-[-0.02em] text-gray-600">
-          <span class="font-normal text-gray-500">{card.title}</span>
-          <span class="font-normal text-gray-500"> {card.detail}</span>
-        </figcaption>
-        <LoopCard
-          playbackID={card.playbackID}
-          aspectRatio={card.aspectRatio}
-          platform={card.platform}
-          Icon={card.Icon}
-          playing={playingId === card.playbackID}
-          ontoggle={() => toggle(card.playbackID)}
-        />
-      </figure>
+<div class="flex w-full min-w-0 flex-col items-center">
+  <div class="flex w-full min-w-0 flex-col items-center gap-12 md:w-max md:max-w-full md:flex-row md:items-start md:justify-between md:gap-8">
+    {#each cards as card, i (card.id)}
+      <div {@attach watch(card.id)} class="w-max max-w-full">
+        {#if card.id === 'create'}
+          <CreateClickDemo title={card.title} play={mode === 'run' && cursor === i} visible={full[card.id]} onend={() => finish(card.id)} />
+        {:else if card.id === 'drag'}
+          <DragTasksDemo title={card.title} play={mode === 'run' && cursor === i} visible={full[card.id]} onend={() => finish(card.id)} />
+        {:else}
+          <ConnectDemo title={card.title} />
+        {/if}
+      </div>
     {/each}
   </div>
 </div>

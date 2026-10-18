@@ -24,5 +24,5 @@
     background: var(--background, rgba(120, 120, 120, 0.15))
   "
 >
-  {parentObj.name.split(' ')[0]}
+  {parentObj?.name?.split(' ')[0] ?? console.error(`${parentObj?.id} has no name`)}
 </div>

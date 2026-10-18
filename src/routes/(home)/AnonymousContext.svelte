@@ -8,6 +8,7 @@
   } from 'firebase/auth'
   import { onMount } from 'svelte'
   import { initializeSeedData } from '$lib/db/seed.js'
+  import { linkDemoGoogleCalendarAccount } from '$lib/db/demoGoogleAccount.js'
   import { isMobile } from '$lib/utils/core.js'
 
   let { children } = $props()
@@ -22,10 +23,11 @@
         ...$firebaseAuth.currentUser,
         ...(isMobile()
           ? { fontScale: 0.75, ...calendarDensity.dense }
-          : calendarDensity.wide)
+          : calendarDensity.dense)
       })
       user.set(mirrorDoc) // needed to read $user.maxOrderValue for seed data
       await initializeSeedData()
+      await linkDemoGoogleCalendarAccount(result.user.uid)
     }
     uid = result.user.uid
   })
