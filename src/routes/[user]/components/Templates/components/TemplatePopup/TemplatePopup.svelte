@@ -60,6 +60,7 @@
         onInput={value => debouncedUpdate('name', value)}
         parentID={$template.parentID}
         collection="templates"
+        task={$template}
       />
     </div>
     
