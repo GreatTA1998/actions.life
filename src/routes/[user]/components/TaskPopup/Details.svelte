@@ -60,7 +60,6 @@
         value={task.name}
         onInput={value => debouncedUpdate(task.id, { name: value })}
         parentID={task.parentID}
-        {task}
       />
     </div>
 

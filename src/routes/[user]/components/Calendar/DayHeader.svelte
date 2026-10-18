@@ -76,7 +76,7 @@
           {/if}
           {#if task.parentID}
             <ListenToDoc docPath="/users/{$user.uid}/tasks/{task.parentID}">
-              {#snippet children(parentObj)}<ParentBadge {parentObj} {task} --color="var(--task-name-color)" />{/snippet}
+              {#snippet children(parentObj)}<ParentBadge {parentObj} --color="var(--task-name-color)" />{/snippet}
             </ListenToDoc>
           {/if}
         {/snippet}

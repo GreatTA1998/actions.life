@@ -1,27 +1,9 @@
 <script>
   import { getContext } from 'svelte'
-  import { user } from '$lib/store'
 
-  let { parentObj, task = null, collection = 'tasks' } = $props()
+  let { parentObj } = $props()
 
   const { openTaskPopup } = getContext('task-popup')
-
-  $effect(() => {
-    if (parentObj?.name != null) return
-    const uid = $user?.uid
-    const taskId = task?.id ?? null
-    const parentID = task?.parentID ?? parentObj?.id ?? null
-    console.error('ParentBadge: parent doc missing', {
-      taskId,
-      taskName: task?.name ?? null,
-      parentID,
-      startDateISO: task?.startDateISO ?? null,
-      taskPath: uid && taskId ? `users/${uid}/${collection}/${taskId}` : null,
-      parentPath: uid && parentID ? `users/${uid}/${collection}/${parentID}` : null,
-      task,
-      parentObj
-    })
-  })
 </script>
 
 <div 
@@ -42,5 +24,5 @@
     background: var(--background, rgba(120, 120, 120, 0.15))
   "
 >
-  {parentObj?.name?.split(' ')[0]}
+  {parentObj?.name?.split(' ')[0] ?? console.error(`${parentObj?.id} has no name`)}
 </div>
