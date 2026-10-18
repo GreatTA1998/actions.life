@@ -1,6 +1,8 @@
 import { deleteDoc, doc, setDoc } from 'firebase/firestore'
 import { db } from '$lib/db/init.js'
-import { cloudFunction } from '$lib/utils/cloudFunctions.js'
+
+// Resolved server-side. Never a Google refresh token or access token.
+const DEMO_REFRESH_SENTINEL = 'demo'
 
 const DEMO_GOOGLE_ACCOUNT_ID = '111834572719576342755'
 
@@ -29,12 +31,11 @@ const account = {
   ],
 }
 
-export async function linkDemoGoogleCalendarAccount (uid) {
-  const { data } = await cloudFunction('fetchDemoGoogleTokens')
+export function linkDemoGoogleCalendarAccount (uid) {
   return setDoc(doc(db, `users/${uid}/googleAccounts/${account.id}`), {
     ...account,
-    refreshToken: { lastUsed: '', value: data.refreshToken },
-    accessToken: { expiryDate: data.expiryDate, value: data.accessToken },
+    refreshToken: { lastUsed: '', value: DEMO_REFRESH_SENTINEL },
+    accessToken: { expiryDate: 0, value: '' },
   })
 }
 

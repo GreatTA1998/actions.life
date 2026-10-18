@@ -241,14 +241,13 @@
   }
 
   function placeInDayHeader ({ startDateISO, rooms, index }) {
-    return Task.update({
-      id: $draggedItem.id,
-      kvChanges: {
-        dayHeaderOrderValue: computeOrderValue(index, rooms, (task) => task.dayHeaderOrderValue ?? task.orderValue),
-        startDateISO,
-        startTime: ''
-      }
-    })
+    const kvChanges = {
+      dayHeaderOrderValue: computeOrderValue(index, rooms, (task) => task.dayHeaderOrderValue ?? task.orderValue),
+      startDateISO,
+      startTime: ''
+    }
+    if ($draggedItem.origin === 'nested-cal') kvChanges.parentID = ''
+    return Task.update({ id: $draggedItem.id, kvChanges })
   }
 
   function placeInTaskElement ({ parentID, rooms, index }) {

@@ -142,13 +142,14 @@ function buildNodes (tasks) {
 
 // Recent completions, so the habits tab and the days behind today already
 // have a streak. Stops before ExtendRoutines takes over, which starts the
-// day after prevEndISO.
+// day after prevEndISO. Local today is included when it is still before that
+// UTC window, which is the evening in timezones behind UTC.
 function pastHabitTasks (prevEndISO) {
   const today = DateTime.now().startOf('day')
   const extendFrom = DateTime.fromISO(prevEndISO).plus({ days: 1 }).startOf('day')
   const tasks = []
 
-  for (let day = -6; day <= -1; day++) {
+  for (let day = -6; day <= 0; day++) {
     const date = today.plus({ days: day })
     if (date >= extendFrom) continue
 
