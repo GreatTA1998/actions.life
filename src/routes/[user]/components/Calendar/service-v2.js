@@ -28,8 +28,20 @@ export function createCalendarService ({ treesByDate, treesByID }) {
         where('treeISOs', 'array-contains-any', dateISOs)
       ),
       (snapshot) => {
+        // From-cache snapshots unlock the loading gate immediately on cold open;
+        // server snapshots then reconcile when online.
         const tasks = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
         rebuildRegion(tasks, dateISOs)
+      },
+      () => {
+        // Ensure offline reloads still mark the region so initialDataReady can trip
+        // even if a listener errors before any cache hit (empty calendar is valid).
+        treesByDate.update(dict => {
+          for (const date of dateISOs) {
+            if (!dict[date]) dict[date] = emptyState()
+          }
+          return dict
+        })
       }
     )
   }
