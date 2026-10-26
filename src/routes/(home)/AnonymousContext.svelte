@@ -14,17 +14,6 @@
 
   let uid = $state('')
 
-  // Slider stops in FontScaleSettings.svelte: [0.75, 0.875, 1, 1.125, 1.25]
-  function defaultFontAndDensity(width) {
-    if (width < breakpoints.tablet) {
-      return { fontScale: 0.75, ...calendarDensity.mini }
-    }
-    if (width < breakpoints.desktop) {
-      return { fontScale: 0.875, ...calendarDensity.dense }
-    }
-    return { fontScale: 1, ...calendarDensity.wide }
-  }
-
   onMount(async () => {
     const result = await signInAnonymously($firebaseAuth)
 
@@ -39,6 +28,17 @@
     }
     uid = result.user.uid
   })
+
+  // Slider stops in FontScaleSettings.svelte: [0.75, 0.875, 1, 1.125, 1.25]
+  function defaultFontAndDensity (width) {
+    if (width < breakpoints.tablet) {
+      return { fontScale: 0.75, ...calendarDensity.mini }
+    }
+    if (width < breakpoints.desktop) {
+      return { fontScale: 0.875, ...calendarDensity.dense }
+    }
+    return { fontScale: 1, ...calendarDensity.wide }
+  }
 </script>
 
 {@render children(uid)}
