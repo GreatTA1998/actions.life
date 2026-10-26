@@ -101,7 +101,7 @@ export function twoDigits (number) {
 
 // TO-DO: make it reactive in the future
 export function isMobile () {
-  return window.innerWidth < breakpoints.tablet
+  return window.innerWidth <= breakpoints.mobile
 }
 
 export function minutes (HHmm) {

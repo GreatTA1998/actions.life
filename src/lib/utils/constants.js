@@ -11,7 +11,7 @@ export const HEIGHTS = Object.freeze({
 })
 
 export const breakpoints = {
-  mobile: 375, // iPhone SE
+  mobile: 440, // largest non-foldable iPhone portrait (16/17/18 Pro Max)
   tablet: 768,
   desktop: 1024
 }
