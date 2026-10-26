@@ -30,9 +30,13 @@
   })
 
   // Slider stops in FontScaleSettings.svelte: [0.75, 0.875, 1, 1.125, 1.25]
+  // 0.75 offsets the 1.5× root font in UserAppInstance, which applies only at mobile widths.
   function defaultFontAndDensity (width) {
-    if (width < breakpoints.tablet) {
+    if (width <= breakpoints.mobile) {
       return { fontScale: 0.75, ...calendarDensity.mini }
+    }
+    if (width < breakpoints.tablet) {
+      return { fontScale: 1, ...calendarDensity.mini }
     }
     if (width < breakpoints.desktop) {
       return { fontScale: 0.875, ...calendarDensity.dense }
