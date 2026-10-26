@@ -1,3 +1,5 @@
+import { breakpoints } from './constants.js'
+
 export function createDebouncedFunction (func, waitFor) {
   let timeout
 
@@ -99,7 +101,7 @@ export function twoDigits (number) {
 
 // TO-DO: make it reactive in the future
 export function isMobile () {
-  return window.innerWidth <= 768 // You can adjust the width threshold as needed
+  return window.innerWidth <= breakpoints.mobile
 }
 
 export function minutes (HHmm) {
