@@ -32,6 +32,17 @@ export const calendarDensity = Object.freeze({
   wide: Object.freeze({ pixelsPerHour: 80, calColumnWidth: 260 })
 })
 
+// Slider stops in FontScaleSettings.svelte: [0.75, 0.875, 1, 1.125, 1.25]
+export function newUserViewportDefaults (width) {
+  if (width < breakpoints.tablet) {
+    return { fontScale: 0.75, ...calendarDensity.mini }
+  }
+  if (width < breakpoints.desktop) {
+    return { fontScale: 0.875, ...calendarDensity.dense }
+  }
+  return { fontScale: 1, ...calendarDensity.wide }
+}
+
 export const MOBILE_SAFE_INSET = 48
 
 export const TOUCH = Object.freeze({
