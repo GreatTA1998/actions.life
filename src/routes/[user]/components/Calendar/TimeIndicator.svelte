@@ -1,5 +1,5 @@
 {#each columnDTs as dt, i (dt.toMillis())}
-  {#if now?.hasSame(dt, 'day')}
+  {#if now.hasSame(dt, 'day')}
 <div class="absolute pointer-events-none" 
   style:top="{now.diff(dt, 'minutes').minutes * $pixelsPerHour / 60}px"
   style:left="{i * $calColumnWidth}px"
@@ -21,7 +21,7 @@
   let { columnDTs } = $props()
 
   let intervalID = ''
-  let now = $state(null)
+  let now = $state(DateTime.now())
 
   onMount(() => {
     updateTimeIndicator() 
