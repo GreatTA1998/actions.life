@@ -13,3 +13,9 @@ node_modules
 .cursor
 .cursor/*
 .vscode
+
+# iOS
+ios/DerivedData/
+**/xcuserdata/
+*.xcuserstate
+ios/**/GoogleService-Info.plist
