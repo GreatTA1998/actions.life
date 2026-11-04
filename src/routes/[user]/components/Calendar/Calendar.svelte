@@ -1,12 +1,12 @@
 <script>
   import Timestamps from './Timestamps.svelte'
   import DayColumn from './DayColumn.svelte'
+  import TimeIndicator from './TimeIndicator.svelte'
   import DayHeader from './DayHeader.svelte'
   import YearAndMonthTile from './YearAndMonthTile.svelte'
 
   import { createCalendarService } from './service-v2'
   import { originDT, TOTAL_COLUMNS } from './constants.js'
-  import { DateTime } from 'luxon'
   import { headerHeight, pixelsPerHour, timestampsColumnWidth, calColumnWidth } from './store.js'
   import { getAllGCalEvents } from '$lib/features/google-calendar/gcal.js'
   import { jumpToToday } from './autoScrolling.js'
@@ -31,7 +31,6 @@
   let triggerRight = Infinity
 
   let scrollX = Math.floor(TOTAL_COLUMNS / 2) * COLUMN_WIDTH // initially divergent from the UI
-  let now = DateTime.now()
 
   $: viewportLeft = Math.floor(scrollX / COLUMN_WIDTH)
   $: viewportRight = Math.ceil((scrollX + window.innerWidth) / COLUMN_WIDTH)
@@ -121,9 +120,12 @@
 
             <!-- timestamp has a height of 14px (despite a font size of 12px), note: this means the island and the massive-content will have a height difference of 7 px -->
             <div class="flex pt-[7px]">
-              {#each renderedColumnDTs as dt (dt.toMillis())}
-                <DayColumn {dt} bind:now />
-              {/each}
+              <div class="relative flex">
+                {#each renderedColumnDTs as dt (dt.toMillis())}
+                  <DayColumn {dt}/>
+                {/each}
+                <TimeIndicator columnDTs={renderedColumnDTs} />
+              </div>
             </div>
           </div>
         {/if}

@@ -1,5 +1,7 @@
+{#if todayIndex >= 0}
 <div class="absolute pointer-events-none" 
   style:top="{timeIndicatorOffset}px"
+  style:left="{todayIndex * $calColumnWidth}px"
   style:width="{$calColumnWidth}px"
 > 
   <hr style="border: 2px solid var(--location-indicator-color); border-radius: 5px; width: 100%; margin-top: 0px; margin-bottom: 0px;"> 
@@ -7,21 +9,24 @@
     {currentTimeString}
   </div>
 </div>
+{/if}
 
 <script>
-  import { DateTime, Interval } from 'luxon'
+  import { DateTime } from 'luxon'
   import { onMount, onDestroy } from 'svelte'
-  import { calColumnWidth } from './store.js'
+  import { calColumnWidth, pixelsPerHour } from './store.js'
 
-  let {
-    pixelsPerMinute, 
-    originDT,
-    now = $bindable()
-  } = $props()
+  let { columnDTs } = $props()
 
   let intervalID = ''
-  let timeIndicatorOffset = $state(0)
-  let currentTimeString = $state('')
+  let now = $state(null)
+  let todayIndex = $derived(now ? columnDTs.findIndex(dt => dt.hasSame(now, 'day')) : -1)
+  let timeIndicatorOffset = $derived(
+    now && todayIndex >= 0
+      ? now.diff(columnDTs[todayIndex], 'minutes').minutes * $pixelsPerHour / 60
+      : 0
+  )
+  let currentTimeString = $derived(now ? now.toLocaleString(DateTime.TIME_24_SIMPLE) : '')
 
   onMount(() => {
     updateTimeIndicator() 
@@ -33,18 +38,6 @@
   })
 
   function updateTimeIndicator () {
-    const next = DateTime.now()
-    if (!now.hasSame(next, 'day')) now = next
-    timeIndicatorOffset = computeTimeIndicatorOffset()
-    currentTimeString = next.toLocaleString(DateTime.TIME_24_SIMPLE)
+    now = DateTime.now()
   }
-
-  function computeTimeIndicatorOffset () {
-    const i = Interval.fromDateTimes(
-      originDT,
-      DateTime.now()
-    )
-    const minutesDifference = i.length() / (1000 * 60)
-    return minutesDifference * pixelsPerMinute
-  } 
 </script>
