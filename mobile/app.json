@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "actions.life",
+    "slug": "actions-life",
+    "scheme": "actionslife",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F2ED"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "life.actions.expo",
+      "usesAppleSignIn": true,
+      "googleServicesFile": "./GoogleService-Info.plist"
+    },
+    "android": {
+      "package": "life.actions.expo",
+      "googleServicesFile": "./google-services.json",
+      "softwareKeyboardLayoutMode": "resize",
+      "adaptiveIcon": {
+        "backgroundColor": "#F7F2ED",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "./plugins/withIosSceneLifecycle",
+      "expo-sqlite",
+      "expo-secure-store",
+      "expo-web-browser",
+      "expo-apple-authentication",
+      "@react-native-community/datetimepicker",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.132745397287-t45us42dolp1ml7vgklfc36p69pue0dg"
+        }
+      ]
+    ],
+    "extra": {
+      "firebaseProjectId": "project-y-2a061",
+      "firestoreDatabaseId": "schema-compliant",
+      "googleWebClientId": "132745397287-aakar5npr4orq496580pdgpvqeupf6j5.apps.googleusercontent.com",
+      "googleIosClientId": "132745397287-t45us42dolp1ml7vgklfc36p69pue0dg.apps.googleusercontent.com",
+      "googleAndroidClientId": ""
+    }
+  }
+}
