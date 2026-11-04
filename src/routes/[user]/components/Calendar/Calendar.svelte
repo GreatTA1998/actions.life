@@ -121,10 +121,10 @@
             <!-- timestamp has a height of 14px (despite a font size of 12px), note: this means the island and the massive-content will have a height difference of 7 px -->
             <div class="flex pt-[7px]">
               <div class="relative flex">
-                {#each renderedColumnDTs as dt (dt.toMillis())}
-                  <DayColumn {dt}/>
-                {/each}
-                <TimeIndicator columnDTs={renderedColumnDTs} />
+              {#each renderedColumnDTs as dt (dt.toMillis())}
+                <DayColumn {dt}/>
+              {/each}
+              <TimeIndicator columnDTs={renderedColumnDTs} />
               </div>
             </div>
           </div>

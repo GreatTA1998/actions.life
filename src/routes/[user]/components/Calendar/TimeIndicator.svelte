@@ -1,15 +1,17 @@
-{#if todayIndex >= 0}
+{#each columnDTs as dt, i (dt.toMillis())}
+  {#if now?.hasSame(dt, 'day')}
 <div class="absolute pointer-events-none" 
-  style:top="{timeIndicatorOffset}px"
-  style:left="{todayIndex * $calColumnWidth}px"
+  style:top="{now.diff(dt, 'minutes').minutes * $pixelsPerHour / 60}px"
+  style:left="{i * $calColumnWidth}px"
   style:width="{$calColumnWidth}px"
 > 
   <hr style="border: 2px solid var(--location-indicator-color); border-radius: 5px; width: 100%; margin-top: 0px; margin-bottom: 0px;"> 
   <div class="text-xs font-semibold text-[var(--location-indicator-color)]">
-    {currentTimeString}
+    {now.toLocaleString(DateTime.TIME_24_SIMPLE)}
   </div>
 </div>
-{/if}
+  {/if}
+{/each}
 
 <script>
   import { DateTime } from 'luxon'
@@ -20,13 +22,6 @@
 
   let intervalID = ''
   let now = $state(null)
-  let todayIndex = $derived(now ? columnDTs.findIndex(dt => dt.hasSame(now, 'day')) : -1)
-  let timeIndicatorOffset = $derived(
-    now && todayIndex >= 0
-      ? now.diff(columnDTs[todayIndex], 'minutes').minutes * $pixelsPerHour / 60
-      : 0
-  )
-  let currentTimeString = $derived(now ? now.toLocaleString(DateTime.TIME_24_SIMPLE) : '')
 
   onMount(() => {
     updateTimeIndicator() 
