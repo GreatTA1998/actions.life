@@ -11,13 +11,12 @@
 <script>
   import { DateTime, Interval } from 'luxon'
   import { onMount, onDestroy } from 'svelte'
-  import { get } from 'svelte/store'
   import { calColumnWidth } from './store.js'
-  import { now } from './now.js'
 
   let {
     pixelsPerMinute, 
-    originDT
+    originDT,
+    now = $bindable()
   } = $props()
 
   let intervalID = ''
@@ -35,7 +34,7 @@
 
   function updateTimeIndicator () {
     const next = DateTime.now()
-    if (!get(now).hasSame(next, 'day')) now.set(next)
+    if (!now.hasSame(next, 'day')) now = next
     timeIndicatorOffset = computeTimeIndicatorOffset()
     currentTimeString = next.toLocaleString(DateTime.TIME_24_SIMPLE)
   }

@@ -2,7 +2,6 @@
   import TaskElement from '$lib/components/TaskElement.svelte'
   import GcalEvent from '$lib/features/google-calendar/GCalEvent.svelte'
   import TimeIndicator from './TimeIndicator.svelte'
-  import { now } from './now.js'
   import { getLocalY, snap } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, calColumnWidth, headerHeight, timestampsColumnWidth, calBodyClip } from './store.js'
@@ -16,7 +15,7 @@
     draggedItem, scrollCalRect, bestDropzoneID, dropPreviewCSS
   } = getContext('drag-drop')
   
-  let { dt } = $props()
+  let { dt, now = $bindable() } = $props()
 
   let dayColumn
   let dropzoneID = $derived(dt.toFormat('yyyy-MM-dd'))
@@ -127,9 +126,10 @@
   >
   </div>
 
-  {#if dt.hasSame($now, 'day')}
+  {#if dt.hasSame(now, 'day')}
     <TimeIndicator originDT={dt} 
       {pixelsPerMinute}
+      bind:now
     />
   {/if}
 </div>
