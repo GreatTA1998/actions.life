@@ -1,6 +1,8 @@
 <script>
   import TaskElement from '$lib/components/TaskElement.svelte'
   import GcalEvent from '$lib/features/google-calendar/GCalEvent.svelte'
+  import TimeIndicator from './TimeIndicator.svelte'
+  import { now } from './now.js'
   import { getLocalY, snap } from '$lib/utils/core.js'
   import { DateTime } from 'luxon'
   import { pixelsPerHour, calColumnWidth, headerHeight, timestampsColumnWidth, calBodyClip } from './store.js'
@@ -124,4 +126,10 @@
     style:height="{30 * pixelsPerMinute}px" 
   >
   </div>
+
+  {#if dt.hasSame($now, 'day')}
+    <TimeIndicator originDT={dt} 
+      {pixelsPerMinute}
+    />
+  {/if}
 </div>
