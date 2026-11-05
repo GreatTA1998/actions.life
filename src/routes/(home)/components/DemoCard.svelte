@@ -1,7 +1,7 @@
 <script>
   import { themes } from '$lib/store/themes'
 
-  let { ratio = 1, minRatio = 0, ontoggle, title = '', theme = 'mutedEarth', clip = true, align = '', showReplay = false, onreplay, children, hand } = $props()
+  let { ratio = 1, minRatio = 0, title = '', theme = 'mutedEarth', clip = true, align = '', showReplay = false, onreplay, children, hand } = $props()
 
   const cssVars = $derived(themes[theme]?.cssVars ?? themes.mutedEarth.cssVars)
 </script>
@@ -19,13 +19,6 @@
       style:--navbar-bg-color={cssVars['--navbar-bg-color']}
     >
       {@render children()}
-    {#if ontoggle}
-      <button
-        type="button"
-        onclick={() => ontoggle?.()}
-        class="absolute inset-0 z-40 cursor-pointer border-0 bg-transparent p-0"
-      ></button>
-    {/if}
     {#if onreplay}
       <button
         type="button"

@@ -181,18 +181,13 @@
     show.sync(active, token)
   })
 
-  function toggle () {
-    show.toggle()
-    show.sync(active, token)
-  }
-
   function replay () {
     solo = true
     token += 1
   }
 </script>
 
-<DemoCard ratio={9 / 16} minRatio={0.92} theme="mutedEarth" align="start" {title} ontoggle={active && !ended ? toggle : undefined} showReplay={ended} onreplay={replay}>
+<DemoCard ratio={9 / 16} minRatio={0.92} theme="mutedEarth" align="start" {title} showReplay={ended} onreplay={replay}>
   <div {@attach motionRef} class="absolute inset-0">
   <div class={['absolute inset-0 flex flex-col overflow-hidden rounded-2xl', instant && 'instant']}>
     <div class="cal flex min-h-0 flex-[0_0_33.333%] flex-col overflow-hidden rounded-t-2xl bg-[var(--cal-bg)]">
