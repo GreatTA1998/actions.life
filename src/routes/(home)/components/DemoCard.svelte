@@ -4,6 +4,18 @@
   let { ratio = 1, minRatio = 0, ontoggle, title = '', theme = 'mutedEarth', clip = true, align = '', showReplay = false, onreplay, children, hand } = $props()
 
   const cssVars = $derived(themes[theme]?.cssVars ?? themes.mutedEarth.cssVars)
+  // iOS fires a click when a press on this button turns into a scroll.
+  let pressX = 0
+  let pressY = 0
+  let scrolling = false
+
+  function onToggleClick (e) {
+    const keyboard = e.detail === 0 && e.clientX === 0 && e.clientY === 0
+    const moved = !keyboard && (scrolling || Math.hypot(e.clientX - pressX, e.clientY - pressY) > 10)
+    scrolling = false
+    if (moved) return
+    ontoggle?.()
+  }
 </script>
 
 <div class={['demo-card flex flex-col select-none', align === 'start' && 'start', align === 'end' && 'end']} style:--ratio={ratio} style:--min-ratio={minRatio}>
@@ -22,7 +34,9 @@
     {#if ontoggle}
       <button
         type="button"
-        onclick={() => ontoggle?.()}
+        onpointerdown={(e) => { pressX = e.clientX; pressY = e.clientY; scrolling = false }}
+        onpointercancel={() => { scrolling = true }}
+        onclick={onToggleClick}
         class="absolute inset-0 z-40 cursor-pointer border-0 bg-transparent p-0"
       ></button>
     {/if}

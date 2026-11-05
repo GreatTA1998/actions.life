@@ -16,7 +16,16 @@
     `https://image.mux.com/${playbackID}/thumbnail.webp?width=1200&fit_mode=preserve`
   )
 
-  function toggle() {
+  // iOS fires a click when a press on this button turns into a scroll.
+  let pressX = 0
+  let pressY = 0
+  let scrolling = false
+
+  function toggle (e) {
+    const keyboard = !e || (e.detail === 0 && e.clientX === 0 && e.clientY === 0)
+    const moved = !keyboard && (scrolling || Math.hypot(e.clientX - pressX, e.clientY - pressY) > 10)
+    scrolling = false
+    if (moved) return
     started = false
     ontoggle?.()
   }
@@ -53,6 +62,8 @@
 
     <button
       type="button"
+      onpointerdown={(e) => { pressX = e.clientX; pressY = e.clientY; scrolling = false }}
+      onpointercancel={() => { scrolling = true }}
       onclick={toggle}
       class="group absolute inset-0 grid cursor-pointer place-items-center border-0 bg-transparent p-0"
     >
