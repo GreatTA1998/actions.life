@@ -4,8 +4,7 @@
   let {
     playbackID = '',
     aspectRatio = 16 / 9,
-    playing = false,
-    ontoggle
+    playing = false
   } = $props()
 
   let failedFor = $state(null)
@@ -16,19 +15,6 @@
     `https://image.mux.com/${playbackID}/thumbnail.webp?width=1200&fit_mode=preserve`
   )
 
-  // iOS fires a click when a press on this button turns into a scroll.
-  let pressX = 0
-  let pressY = 0
-  let scrolling = false
-
-  function toggle (e) {
-    const keyboard = !e || (e.detail === 0 && e.clientX === 0 && e.clientY === 0)
-    const moved = !keyboard && (scrolling || Math.hypot(e.clientX - pressX, e.clientY - pressY) > 10)
-    scrolling = false
-    if (moved) return
-    started = false
-    ontoggle?.()
-  }
 </script>
 
 <div
@@ -59,24 +45,6 @@
         onerror={() => failedFor = playbackID}
       />
     {/if}
-
-    <button
-      type="button"
-      onpointerdown={(e) => { pressX = e.clientX; pressY = e.clientY; scrolling = false }}
-      onpointercancel={() => { scrolling = true }}
-      onclick={toggle}
-      class="group absolute inset-0 grid cursor-pointer place-items-center border-0 bg-transparent p-0"
-    >
-      {#if !playing}
-        <span
-          class="grid size-14 place-items-center rounded-full bg-[#595959]/80"
-        >
-          <svg class="ml-0.5 size-[26px] text-white" viewBox="0 0 10 12">
-            <path d="M0 0v12l10-6z" fill="currentColor" />
-          </svg>
-        </span>
-      {/if}
-    </button>
   {:else}
     <div class="placeholder"></div>
   {/if}
