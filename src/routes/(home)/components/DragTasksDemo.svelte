@@ -226,18 +226,13 @@
     show.sync(active, token)
   })
 
-  function toggle () {
-    show.toggle()
-    show.sync(active, token)
-  }
-
   function replay () {
     solo = true
     token += 1
   }
 </script>
 
-<DemoCard ratio={1728 / 1080} theme="naturalGreen" {title} ontoggle={active && !ended ? toggle : undefined} showReplay={ended} onreplay={replay}>
+<DemoCard ratio={1728 / 1080} theme="naturalGreen" {title} showReplay={ended} onreplay={replay}>
   <div {@attach stageRef} class={['absolute inset-0 grid grid-cols-2', instant && 'instant']}>
     <div class="flex flex-col bg-[var(--todo-list-bg-color)] px-3 pt-3">
       <div class="mb-2 text-[0.8125rem] font-semibold text-[var(--task-name-color)]">Visa application</div>

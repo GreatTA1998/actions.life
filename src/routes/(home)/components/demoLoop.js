@@ -108,17 +108,11 @@ export function createShow (handlers) {
   let applied = -1
   let started = false
   let ended = false
-  let userPaused = false
 
   return {
-    toggle () {
-      if (!started || ended) return
-      userPaused = !userPaused
-    },
     sync (play, token) {
       if (token !== applied) {
         applied = token
-        userPaused = false
         ended = false
         started = false
         handlers.reset()
@@ -129,7 +123,7 @@ export function createShow (handlers) {
         return
       }
       if (ended) return
-      if (!play || userPaused) {
+      if (!play) {
         if (started) handlers.pause()
         return
       }
