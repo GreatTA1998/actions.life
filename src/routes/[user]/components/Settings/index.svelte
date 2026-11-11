@@ -28,14 +28,10 @@
 <div class="flex flex-col h-full overflow-y-auto bg-[rgb(235,235,235)]"> 
   <div class="flex flex-col gap-3">
     <div class={settingsGroup}>
-      <h2>Features</h2>
-      <FeatureSettings />
-    </div>
-
-    <div class={settingsGroup}>
       <div class="flex gap-x-3 items-center">
         <h2>App</h2>
       </div>
+      <FeatureSettings />
       <ModeSettings />
       
       <FontScaleSettings />
