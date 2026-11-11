@@ -1,7 +1,7 @@
 <script>
   import { activeView, user } from '$lib/store'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
-  import MsHouseOutline from 'virtual:icons/material-symbols/house-outline'
+  import MsSettingsOutline from 'virtual:icons/material-symbols/settings-outline'
   import MsPhotoCameraBackOutline from 'virtual:icons/material-symbols/photo-camera-back-outline'
   import MsRepeat from 'virtual:icons/material-symbols/repeat'
   import MsScheduleOutline from 'virtual:icons/material-symbols/schedule-outline'
@@ -21,29 +21,35 @@
 </script>
 
 <div class="floating-navbar {position}">
-  <button onclick={() => to('SETTINGS')} class="logo" class:active={$activeView === 'SETTINGS'}>
+  <button onclick={() => to('SETTINGS')} class={{ active: $activeView === 'SETTINGS' }}>
+    <MsSettingsOutline style="font-size: {iconSize}"/>
+  </button>
+
+  <button onclick={onCalClick} class={['logo', { active: $activeView === 'CALENDAR' }]}>
     {#if $user.unread || true}
-      <img src="/leaf-2-no-bg.avif" class="size-[40px]" />
+      <img src="/leaf-2-no-bg.avif" class="size-[40px]" alt="" />
     {:else}
-      <img src="/logo-no-bg.png" class="size-[28px]" />
+      <img src="/logo-no-bg.png" class="size-[28px]" alt="" />
     {/if}
   </button>
 
-  <button onclick={onCalClick} class:active={$activeView === 'CALENDAR'}>
-    <MsHouseOutline style="font-size: {iconSize}"/>
-  </button>
+  {#if $user.scheduleEnabled !== false}
+    <button onclick={() => to('SCHEDULE')} class={{ active: $activeView === 'SCHEDULE' }}>
+      <MsScheduleOutline style="font-size: {iconSize}"/>
+    </button>
+  {/if}
 
-  <button onclick={() => to('SCHEDULE')} class:active={$activeView === 'SCHEDULE'}>
-    <MsScheduleOutline style="font-size: {iconSize}"/>
-  </button>
+  {#if $user.repeatEnabled !== false}
+    <button onclick={() => to('ROUTINES')} class={{ active: $activeView === 'ROUTINES' }}>
+      <MsRepeat style="font-size: {iconSize}"/>
+    </button>
+  {/if}
 
-  <button onclick={() => to('ROUTINES')} class:active={$activeView === 'ROUTINES'}>
-    <MsRepeat style="font-size: {iconSize}"/>
-  </button>
-
-  <button onclick={() => to('PHOTOS')} class:active={$activeView === 'PHOTOS'}>
-    <MsPhotoCameraBackOutline style="font-size: {iconSize}"/>
-  </button>
+  {#if $user.photoEnabled !== false}
+    <button onclick={() => to('PHOTOS')} class={{ active: $activeView === 'PHOTOS' }}>
+      <MsPhotoCameraBackOutline style="font-size: {iconSize}"/>
+    </button>
+  {/if}
 </div>
 
 <style>

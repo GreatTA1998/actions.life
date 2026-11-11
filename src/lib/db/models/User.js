@@ -23,6 +23,12 @@ const User = {
     photoUploadAutoArchive: z.boolean().default(false),
     photoCompressWhenAttachingToTask: z.boolean().default(true), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
 
+    // Missing on accounts created before this experiment, which the UI treats as on.
+    // User.create writes false so only new accounts start with these off.
+    scheduleEnabled: z.boolean().default(true),
+    repeatEnabled: z.boolean().default(true),
+    photoEnabled: z.boolean().default(true),
+
     hideRoutines: z.boolean().default(true), // for mobile's future view
     lastRanRoutines: z.string().default(''), // for autoExtend.js
     nickname: z.string().default(''),
@@ -38,7 +44,10 @@ const User = {
   async create (currentUser) {
     const validatedUser = User.schema.parse({
       ...currentUser,
-      email: ''
+      email: '',
+      scheduleEnabled: false,
+      repeatEnabled: false,
+      photoEnabled: false,
     })
     await setFirestoreDoc(`/users/${validatedUser.uid}`, 
       validatedUser

@@ -5,13 +5,13 @@
   import FontScaleSettings from './FontScaleSettings.svelte'
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
+  import FeatureSettings from './FeatureSettings.svelte'
   import IconBrowser from '../Templates/components/IconsDisplay/IconBrowser.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
   import DataExport from './DataExport/index.svelte'
   import AddAccount from '$lib/features/google-calendar/AddAccount.svelte'
   import GCalDashboard from '$lib/features/google-calendar/GCalDashboard.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
-  import MslLogout from 'virtual:icons/material-symbols-light/logout'
   import { signOut } from 'firebase/auth'
   import { firebaseAuth } from '$lib/store'
 
@@ -27,6 +27,11 @@
 
 <div class="flex flex-col h-full overflow-y-auto bg-[rgb(235,235,235)]"> 
   <div class="flex flex-col gap-3">
+    <div class={settingsGroup}>
+      <h2>Features</h2>
+      <FeatureSettings />
+    </div>
+
     <div class={settingsGroup}>
       <div class="flex gap-x-3 items-center">
         <h2>App</h2>
@@ -81,13 +86,9 @@
       <CommunityChat />
     </div>
 
-    <div class="flex items-center justify-end py-6">
+    <div class="shrink-0 flex flex-col items-start gap-3 p-[16px]">
       <GithubButton />
-  
-      <button onclick={handleLogoClick} class="flex items-center gap-1.5 text-[#6b6b6b] font-medium py-1.5 px-3">
-        <MslLogout style="font-size: 1.4rem;"/>
-        <span>Sign out</span>
-      </button>
+      <button class="export-btn" onclick={handleLogoClick}>Sign out</button>
     </div>
   </div>
 </div>

@@ -60,10 +60,10 @@
 </button>
 
 <style>
-  .export-btn {
+  :global(.export-btn) {
     padding: 8px 16px;
     background-color: grey;
-    color: white;
+    color: white; text-decoration: none;
     border-radius: 6px;
     font-weight: 500;
     font-size: 0.875rem;
