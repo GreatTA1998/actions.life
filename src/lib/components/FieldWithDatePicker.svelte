@@ -8,14 +8,12 @@
     startDateISO = '',
     onChange = () => {}
   } = $props()
-
-  let button = $state(null)
 </script>
 
 <PopoverMenu>
   {#snippet activator({ id, anchorName })}
-    <button bind:this={button} popovertarget={id} style:anchor-name={anchorName}>
-      <input onclick={() => button.click()} 
+    <button popovertarget={id} style:anchor-name={anchorName}>
+      <input
         readonly 
         value={startDateISO}
         placeholder="Year & Date" 
