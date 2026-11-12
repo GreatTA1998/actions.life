@@ -64,16 +64,16 @@
 
 
 <style> 
-  .export-btn {
+  :global(.export-btn) {
     background-color: grey;
     padding: 8px 16px;
-    color: white;
+    color: white; text-decoration: none;
     border-radius: 6px;
     font-weight: 500;
     font-size: 0.875rem;
   }
 
-  .export-btn:disabled {
+  :global(.export-btn:disabled) {
     opacity: 0.5;
     cursor: not-allowed;
   }

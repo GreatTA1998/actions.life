@@ -60,13 +60,13 @@
               <Settings />
             {:else if $activeView === 'CALENDAR'}
               <ListCalendar />
-            {:else if $activeView === 'SCHEDULE'}
+            {:else if $activeView === 'SCHEDULE' && $user.scheduleEnabled !== false}
               <Schedule />
-            {:else if $activeView === 'ROUTINES'}
+            {:else if $activeView === 'ROUTINES' && $user.repeatEnabled !== false}
               <TemplateContext>
                 <HabitsTab />
               </TemplateContext>
-            {:else if $activeView === 'PHOTOS'}
+            {:else if $activeView === 'PHOTOS' && $user.photoEnabled !== false}
               <PhotoGrid />
             {/if}
           </div> 
