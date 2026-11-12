@@ -26,6 +26,11 @@
   })
 
   onMount(() => {    
+    // Lab must render even when Firebase auth is unreachable (offline reopen)
+    if (page.url.pathname.startsWith('/pwa-lab')) {
+      loading.set(false)
+    }
+
     loadSounds()
 
     translateJSConstantsToCSSVariables()
@@ -36,6 +41,12 @@
   async function onResult (resultUser) {
     authChecked.set(true) // from cookie, takes around 300 - 500ms
     authUser.set($firebaseAuth.currentUser)
+
+    // PWA proof-of-concept lab must stay reachable without auth / redirects
+    if (page.url.pathname.startsWith('/pwa-lab')) {
+      loading.set(false)
+      return
+    }
 
     if (page.url.pathname.startsWith('/auth/callback')) {
       loading.set(false)
