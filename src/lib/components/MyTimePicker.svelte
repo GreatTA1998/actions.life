@@ -11,7 +11,6 @@
 
   const id = randomID()
 
-  let buttonElem = $state(null)
   let inputElem = $state(null)
   let menuHeight = $state(0)
 
@@ -129,8 +128,8 @@
   }}
 >
   {#snippet activator ({ id, anchorName, close })}
-    <button popovertarget={id} bind:this={buttonElem}>
-      <input onclick={() => buttonElem.click()}    
+    <button popovertarget={id}>
+      <input
         bind:this={inputElem}
         {@attach syncExternalValue}
         inputmode="numeric"

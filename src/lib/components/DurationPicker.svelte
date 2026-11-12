@@ -4,7 +4,6 @@
 
   let { value, oninput } = $props()
 
-  let button = $state(null)
   let inputElem = $state(null)
 
   const MIN_MINUTES = 1
@@ -62,14 +61,14 @@
 
 <PopoverMenu>
   {#snippet activator({ id, anchorName, close })}
-    <button bind:this={button}
+    <button
       popovertarget={id}
       style:anchor-name={anchorName}
       style:padding="0px {paddingVal}"
       style:font-size={noZoomFS}
       style:column-gap="1px"
     >
-      <input onclick={() => button.click()}
+      <input
         bind:this={inputElem}
         {@attach syncExternalValue}
         inputmode="numeric"
