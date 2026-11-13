@@ -200,9 +200,21 @@ async function hasChild (uid, id) {
   return !snap.empty
 }
 
-async function saveTask (uid, task) {
-  if (!firestore()) { taskMap(uid).set(task.id, task); return }
-  await firestore().doc(`users/${uid}/tasks/${task.id}`).set(task)
+async function patchTask (uid, id, changes) {
+  if (!Object.keys(changes).length) return
+  if (!firestore()) {
+    const current = taskMap(uid).get(id)
+    if (!current) throw new Error('Task not found')
+    Object.assign(current, changes)
+    return
+  }
+  try {
+    await firestore().doc(`users/${uid}/tasks/${id}`).update(changes)
+  } catch (error) {
+    // Admin Firestore reports a missing document as gRPC NOT_FOUND (5).
+    if (error.code === 5 || error.code === 'not-found') throw new Error('Task not found')
+    throw error
+  }
 }
 
 function present (task) {
@@ -314,15 +326,83 @@ async function updateTask (uid, input) {
     changes.treeISOs = changes.startDateISO ? [changes.startDateISO] : []
   }
   const next = { ...task, ...changes }
-  await saveTask(uid, next)
+  await patchTask(uid, task.id, changes)
   return present(next)
 }
 
+function removeOneInstance (array, item) {
+  const index = array.indexOf(item)
+  if (index === -1) return [...array]
+  return [...array.slice(0, index), ...array.slice(index + 1)]
+}
+
+function subtreeFrom (root, nodes) {
+  const result = []
+  const seen = new Set()
+  const walk = (current) => {
+    if (!current || seen.has(current.id)) return
+    seen.add(current.id)
+    result.push(current)
+    for (const node of nodes) {
+      if (node.parentID === current.id) walk(node)
+    }
+  }
+  walk(root)
+  return result
+}
+
+// Every family member stores every date in the tree. Deleting a dated leaf has to
+// drop that one date from the nodes that remain, or the calendar still matches it.
+function treeISOsAfterDelete (task, nodes) {
+  if (!task.parentID || !task.startDateISO || !task.treeISOs?.length || !task.rootID) return null
+  const root = nodes.find(node => node.id === task.rootID)
+  if (!root?.treeISOs?.length) return null
+  return {
+    treeISOs: removeOneInstance(root.treeISOs, task.startDateISO),
+    nodes: subtreeFrom(root, nodes).filter(node => node.id !== task.id)
+  }
+}
+
+function deleteTaskFromMemory (uid, id) {
+  const tasks = taskMap(uid)
+  const task = tasks.get(id)
+  if (!task) throw new Error('Task not found')
+  for (const node of tasks.values()) {
+    if (node.parentID === id) throw new Error('Only tasks with no children can be deleted')
+  }
+  tasks.delete(id)
+  const family = [...tasks.values()].filter(node => node.rootID === task.rootID)
+  const next = treeISOsAfterDelete(task, family)
+  if (next) {
+    for (const node of next.nodes) node.treeISOs = [...next.treeISOs]
+  }
+  return { id, deleted: true }
+}
+
 async function deleteTask (uid, { id }) {
-  await getTask(uid, id)
-  if (await hasChild(uid, id)) throw new Error('Only tasks with no children can be deleted')
-  if (!firestore()) taskMap(uid).delete(id)
-  else await firestore().doc(`users/${uid}/tasks/${id}`).delete()
+  if (!firestore()) return deleteTaskFromMemory(uid, id)
+  await firestore().runTransaction(async (tx) => {
+    const ref = firestore().doc(`users/${uid}/tasks/${id}`)
+    const snap = await tx.get(ref)
+    if (!snap.exists) throw new Error('Task not found')
+    const task = { ...snap.data(), id: snap.id }
+    const children = await tx.get(
+      firestore().collection(`users/${uid}/tasks`).where('parentID', '==', id).limit(1)
+    )
+    if (!children.empty) throw new Error('Only tasks with no children can be deleted')
+    let next = null
+    if (task.parentID && task.startDateISO && task.treeISOs?.length && task.rootID) {
+      const family = await tx.get(
+        firestore().collection(`users/${uid}/tasks`).where('rootID', '==', task.rootID)
+      )
+      const nodes = family.docs.map(doc => ({ ...doc.data(), id: doc.id, ref: doc.ref }))
+      next = treeISOsAfterDelete(task, nodes)
+    }
+    tx.delete(ref)
+    if (next) {
+      for (const node of next.nodes) tx.update(node.ref, { treeISOs: [...next.treeISOs] })
+    }
+  })
   return { id, deleted: true }
 }
 
