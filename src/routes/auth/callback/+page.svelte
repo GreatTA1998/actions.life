@@ -17,6 +17,12 @@
 
   onMount(handleOAuthRedirect)
 
+  function leave (uid) {
+    const next = sessionStorage.getItem('agent-oauth-return')
+    sessionStorage.removeItem('agent-oauth-return')
+    goto(next || ('/' + uid))
+  }
+
   async function handleOAuthRedirect () {
     const { data: { tokens, email, id } } = await cloudFunction('exchangeForTokens', {
       authorizationCode: page.url.searchParams.get('code'),
@@ -33,13 +39,13 @@
         GCalAccount.create(email, id, tokens)
       ])
       await unlinkDemoGoogleCalendarAccount(result.user.uid, id)
-      goto('/' + result.user.uid)
+      leave(result.user.uid)
       loggedIn.set(true)
       setupCalendarsOfAccount(tokens.refresh_token, id)
     } catch (error) { // returning user
       if (error.code === AuthErrorCodes.CREDENTIAL_ALREADY_IN_USE) {
         const result = await signInWithCredential($firebaseAuth, credential)
-        goto('/' + result.user.uid)
+        leave(result.user.uid)
         loggedIn.set(true)
       } 
       else throw error

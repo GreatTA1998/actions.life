@@ -6,6 +6,9 @@ const config = {
 	preprocess: vitePreprocess({ scss: true }),
 	kit: {
 		adapter: vercel(),
+		// OAuth token posts come from Claude and Grok with no Origin header.
+		// SvelteKit treats a missing Origin on a form POST as cross-site.
+		csrf: { trustedOrigins: ['*'] }
 	},
 	compilerOptions: {
 		warningFilter: (warning) => {
