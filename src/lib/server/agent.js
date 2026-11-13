@@ -149,7 +149,7 @@ function buildServer (uid) {
     inputSchema: { id: z.string(), ...taskFields.shape }
   }, bind(updateTask))
   mcp.registerTool('delete_task', {
-    description: 'Delete one task by id. Refuses when that task has children.',
+    description: 'Delete one task by id. Refuses when it has children or is a dated subtask.',
     inputSchema: { id: z.string() }
   }, bind(deleteTask))
   return mcp
@@ -200,9 +200,15 @@ async function hasChild (uid, id) {
   return !snap.empty
 }
 
-async function saveTask (uid, task) {
-  if (!firestore()) { taskMap(uid).set(task.id, task); return }
-  await firestore().doc(`users/${uid}/tasks/${task.id}`).set(task)
+async function patchTask (uid, id, changes) {
+  if (!Object.keys(changes).length) return
+  if (!firestore()) {
+    const task = taskMap(uid).get(id)
+    if (!task) throw new Error('Task not found')
+    Object.assign(task, changes)
+    return
+  }
+  await firestore().doc(`users/${uid}/tasks/${id}`).update(changes)
 }
 
 function present (task) {
@@ -313,14 +319,16 @@ async function updateTask (uid, input) {
     }
     changes.treeISOs = changes.startDateISO ? [changes.startDateISO] : []
   }
-  const next = { ...task, ...changes }
-  await saveTask(uid, next)
-  return present(next)
+  await patchTask(uid, task.id, changes)
+  return present({ ...task, ...changes })
 }
 
 async function deleteTask (uid, { id }) {
-  await getTask(uid, id)
+  const task = await getTask(uid, id)
   if (await hasChild(uid, id)) throw new Error('Only tasks with no children can be deleted')
+  if (task.parentID && task.startDateISO) {
+    throw new Error('A dated subtask has to be deleted in the app so the calendar dates stay correct')
+  }
   if (!firestore()) taskMap(uid).delete(id)
   else await firestore().doc(`users/${uid}/tasks/${id}`).delete()
   return { id, deleted: true }

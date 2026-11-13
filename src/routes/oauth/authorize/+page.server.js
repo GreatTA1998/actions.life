@@ -1,6 +1,13 @@
 import { fail, redirect, isRedirect } from '@sveltejs/kit'
 import { approveConsent } from '$lib/server/agent.js'
 
+export function load ({ setHeaders }) {
+  setHeaders({
+    'X-Frame-Options': 'DENY',
+    'Content-Security-Policy': "frame-ancestors 'none'"
+  })
+}
+
 export const actions = {
   allow: async ({ request }) => {
     const form = await request.formData()
