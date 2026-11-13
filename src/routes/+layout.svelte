@@ -42,6 +42,11 @@
       // let /auth/callback/+page.svelte handle redirecting
     }
 
+    else if (page.url.pathname.startsWith('/oauth/authorize')) {
+      loading.set(false)
+      loggedIn.set(Boolean(resultUser))
+    }
+
     else if (page.url.pathname.startsWith('/auth')) {
       loading.set(false)
     }
