@@ -5,7 +5,6 @@
   import FontScaleSettings from './FontScaleSettings.svelte'
   import ColorSettings from './ColorSettings.svelte'
   import PhotoSettings from './PhotoSettings.svelte'
-  import FeatureSettings from './FeatureSettings.svelte'
   import IconBrowser from '../Templates/components/IconsDisplay/IconBrowser.svelte'
   import GridlineSettings from './GridlineSettings.svelte'
   import DataExport from './DataExport/index.svelte'
@@ -13,7 +12,10 @@
   import GCalDashboard from '$lib/features/google-calendar/GCalDashboard.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
   import { signOut } from 'firebase/auth'
-  import { firebaseAuth } from '$lib/store'
+  import { user, firebaseAuth } from '$lib/store'
+  import { getContext } from 'svelte'
+
+  const { User } = getContext('app')
 
   async function handleLogoClick() {
     await signOut($firebaseAuth)
@@ -31,7 +33,11 @@
       <div class="flex gap-x-3 items-center">
         <h2>App</h2>
       </div>
-      <FeatureSettings />
+      <div class="flex w-fit gap-1 rounded-lg border border-solid border-black/5 bg-black/5 p-1">
+        {#each [['scheduleEnabled', 'Schedule'], ['repeatEnabled', 'Repeat'], ['photoEnabled', 'Photo']] as [key, label] (key)}
+          <button onclick={() => User.update({ [key]: $user[key] === false })} class={['rounded-md px-3 py-1 text-sm font-medium', $user[key] !== false ? 'bg-white text-gray-700 core-shadow cast-shadow' : 'text-gray-400']}>{label}</button>
+        {/each}
+      </div>
       <ModeSettings />
       
       <FontScaleSettings />

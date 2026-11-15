@@ -23,8 +23,7 @@ const User = {
     photoUploadAutoArchive: z.boolean().default(false),
     photoCompressWhenAttachingToTask: z.boolean().default(true), // NOTE: despite the name, this setting applies to ALL photo uploads (task attachments + MultiPhotoUploader)
 
-    // Missing on accounts created before this experiment, which the UI treats as on.
-    // User.create writes false so only new accounts start with these off.
+    // Missing on older accounts, which the UI treats as on. New accounts are created off.
     scheduleEnabled: z.boolean().default(true),
     repeatEnabled: z.boolean().default(true),
     photoEnabled: z.boolean().default(true),
