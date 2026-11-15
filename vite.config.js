@@ -7,6 +7,9 @@ export default {
   server: {
     allowedHosts: ['unwintry-supermorally-irena.ngrok-free.dev'] // for local iOS testing with ngrok
   },
+  ssr: {
+    external: ['firebase-admin']
+  },
 
   plugins: [
     sveltekit(),
