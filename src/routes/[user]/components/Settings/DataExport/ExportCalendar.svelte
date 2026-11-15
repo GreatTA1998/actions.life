@@ -1,5 +1,6 @@
 <script>
   import { getContext } from 'svelte'
+  import { exportBtn } from '$lib/styles/reused.module.css'
 
   const { Task } = getContext('app')
 
@@ -58,7 +59,7 @@
   }
 </script>
 
-<button class="export-btn" onclick={exportCalendar} disabled={loading}>
+<button class={exportBtn} onclick={exportCalendar} disabled={loading}>
   {loading ? 'Exporting...' : 'Export calendar'}
 </button>
 

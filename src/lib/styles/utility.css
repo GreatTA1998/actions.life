@@ -42,17 +42,3 @@
 .pragmatic-shadow { 
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); 
 }
-
-.export-btn {
-  padding: 8px 16px;
-  background-color: grey;
-  color: white;
-  border-radius: 6px;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-.export-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}

@@ -11,6 +11,7 @@
   import AddAccount from '$lib/features/google-calendar/AddAccount.svelte'
   import GCalDashboard from '$lib/features/google-calendar/GCalDashboard.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
+  import { exportBtn } from '$lib/styles/reused.module.css'
   import { signOut } from 'firebase/auth'
   import { user, firebaseAuth } from '$lib/store'
   import { getContext } from 'svelte'
@@ -90,7 +91,7 @@
 
     <div class="shrink-0 flex flex-col items-start gap-3 p-[16px]">
       <GithubButton />
-      <button class="export-btn" onclick={handleLogoClick}>Sign out</button>
+      <button class={exportBtn} onclick={handleLogoClick}>Sign out</button>
     </div>
   </div>
 </div>
