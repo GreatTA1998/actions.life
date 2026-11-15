@@ -62,20 +62,3 @@
   {loading ? 'Exporting...' : 'Export calendar'}
 </button>
 
-
-<style> 
-  .export-btn {
-    background-color: grey;
-    padding: 8px 16px;
-    color: white;
-    border-radius: 6px;
-    font-weight: 500;
-    font-size: 0.875rem;
-  }
-
-  .export-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-</style>
-
