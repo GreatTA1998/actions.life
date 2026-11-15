@@ -1,9 +1,7 @@
 <script>
   import { activeView, user } from '$lib/store'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
-  import MsSettingsOutline from 'virtual:icons/material-symbols/settings-outline'
   import MsSettings from 'virtual:icons/material-symbols/settings'
-  import MsSettingsRounded from 'virtual:icons/material-symbols/settings-rounded'
   import MsPhotoCameraBackOutline from 'virtual:icons/material-symbols/photo-camera-back-outline'
   import MsRepeat from 'virtual:icons/material-symbols/repeat'
   import MsScheduleOutline from 'virtual:icons/material-symbols/schedule-outline'
@@ -23,19 +21,8 @@
 </script>
 
 <div class="floating-navbar {position}">
-  <button onclick={() => to('SETTINGS')} class={['choice', { active: $activeView === 'SETTINGS' }]}>
-    <MsSettingsOutline style="font-size: {iconSize}"/>
-    <span>Outline</span>
-  </button>
-
-  <button onclick={() => to('SETTINGS')} class={['choice', { active: $activeView === 'SETTINGS' }]}>
+  <button onclick={() => to('SETTINGS')} class={{ active: $activeView === 'SETTINGS' }}>
     <MsSettings style="font-size: {iconSize}"/>
-    <span>Filled</span>
-  </button>
-
-  <button onclick={() => to('SETTINGS')} class={['choice', { active: $activeView === 'SETTINGS' }]}>
-    <MsSettingsRounded style="font-size: {iconSize}"/>
-    <span>Rounded</span>
   </button>
 
   <button onclick={onCalClick} class={['logo', { active: $activeView === 'CALENDAR' }]}>
@@ -142,28 +129,5 @@
   .active {
     font-weight: 600;
     background: rgba(180 180 180 / 0.2); /* 240, 0 --> 120 (too dark) --> 180 (decent) --> 210 (too faint) --> 195 (too faint) */
-  }
-
-  .choice {
-    font-size: 10px;
-    line-height: 1;
-    color: #5c5c5c;
-    white-space: nowrap;
-  }
-
-  .bottom button.choice {
-    width: auto;
-    min-width: 44px;
-    height: auto;
-    min-height: 48px;
-    flex-direction: column;
-    padding: 4px 6px 3px;
-    gap: 2px;
-  }
-
-  .right button.choice {
-    width: auto;
-    min-width: 40px;
-    padding: 4px 4px 3px;
   }
 </style>
