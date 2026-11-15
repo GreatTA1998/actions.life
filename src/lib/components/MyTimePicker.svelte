@@ -127,8 +127,8 @@
     }
   }}
 >
-  {#snippet activator ({ id, anchorName, close })}
-    <button popovertarget={id}>
+  {#snippet activator ({ anchorName, close, open })}
+    <button onclick={open}>
       <input
         bind:this={inputElem}
         {@attach syncExternalValue}
