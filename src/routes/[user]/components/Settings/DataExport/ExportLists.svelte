@@ -1,5 +1,6 @@
 <script>
   import { getContext } from 'svelte'
+  import { exportBtn } from '$lib/styles/reused.module.css'
 
   let { onExport } = $props()
   const { trees } = getContext('app')
@@ -55,18 +56,7 @@
   }
 </script>
 
-<button class="export-btn" onclick={exportLists}>
+<button class={exportBtn} onclick={exportLists}>
   Export list
 </button>
-
-<style>
-  .export-btn {
-    padding: 8px 16px;
-    background-color: grey;
-    color: white;
-    border-radius: 6px;
-    font-weight: 500;
-    font-size: 0.875rem;
-  }
-</style>
 

@@ -11,9 +11,12 @@
   import AddAccount from '$lib/features/google-calendar/AddAccount.svelte'
   import GCalDashboard from '$lib/features/google-calendar/GCalDashboard.svelte'
   import GithubButton from '$lib/components/GithubButton.svelte'
-  import MslLogout from 'virtual:icons/material-symbols-light/logout'
+  import { exportBtn } from '$lib/styles/reused.module.css'
   import { signOut } from 'firebase/auth'
-  import { firebaseAuth } from '$lib/store'
+  import { user, firebaseAuth } from '$lib/store'
+  import { getContext } from 'svelte'
+
+  const { User } = getContext('app')
 
   async function handleLogoClick() {
     await signOut($firebaseAuth)
@@ -30,6 +33,11 @@
     <div class={settingsGroup}>
       <div class="flex gap-x-3 items-center">
         <h2>App</h2>
+      </div>
+      <div class="flex w-fit gap-1 rounded-lg border border-solid border-black/5 bg-black/5 p-1">
+        {#each [['scheduleEnabled', 'Schedule'], ['repeatEnabled', 'Repeat'], ['photoEnabled', 'Photo']] as [key, label] (key)}
+          <button onclick={() => User.update({ [key]: $user[key] === false })} class={['rounded-md px-3 py-1 text-sm font-medium', $user[key] !== false ? 'bg-white text-gray-700 core-shadow cast-shadow' : 'text-gray-400']}>{label}</button>
+        {/each}
       </div>
       <ModeSettings />
       
@@ -81,13 +89,9 @@
       <CommunityChat />
     </div>
 
-    <div class="flex items-center justify-end py-6">
+    <div class="shrink-0 flex flex-col items-start gap-3 p-[16px]">
       <GithubButton />
-  
-      <button onclick={handleLogoClick} class="flex items-center gap-1.5 text-[#6b6b6b] font-medium py-1.5 px-3">
-        <MslLogout style="font-size: 1.4rem;"/>
-        <span>Sign out</span>
-      </button>
+      <button class={exportBtn} onclick={handleLogoClick}>Sign out</button>
     </div>
   </div>
 </div>

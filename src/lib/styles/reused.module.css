@@ -22,3 +22,17 @@
   cursor: pointer;
   border-radius: var(--left-padding);
 }
+
+.exportBtn {
+  padding: 8px 16px;
+  background-color: grey;
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.exportBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
