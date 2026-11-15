@@ -12,7 +12,6 @@
   import MslDeleteOutline from 'virtual:icons/material-symbols-light/delete-outline'
   import { WIDTHS } from '$lib/utils/constants.js'
   import { createDebouncedFunction } from '$lib/utils/core.js'
-  import { user } from '$lib/store'
   import { getContext } from 'svelte'
   import TemplateContext from '/src/routes/[user]/components/Templates/components/TemplatePopup/TemplateContext.svelte'
 
@@ -87,15 +86,11 @@
     </div>
 
     <div class="mt-auto w-full flex items-center gap-x-3">
-      {#if $user.photoEnabled !== false}
-        <PhotoUploadWithQuestion {task} />
-      {/if}
+      <PhotoUploadWithQuestion {task} />
 
-      {#if $user.repeatEnabled !== false}
-        <TemplateContext>
-          <RepeatTask {task} />
-        </TemplateContext>
-      {/if}
+      <TemplateContext>
+        <RepeatTask {task} />
+      </TemplateContext>
 
       <ColorTags {task} />
 

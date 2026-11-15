@@ -84,7 +84,7 @@
 
     <div class="shrink-0 flex flex-col items-start gap-3 p-[16px]">
       <GithubButton />
-      <button class="export-btn" onclick={handleLogoClick}>Sign out</button>
+      <button class="shrink-0 rounded-[6px] bg-[grey] px-[16px] py-[8px] text-[0.875rem] font-medium text-white" onclick={handleLogoClick}>Sign out</button>
     </div>
   </div>
 </div>
