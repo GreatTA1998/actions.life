@@ -12,11 +12,10 @@
   let menu = $state(null)
   let anchorName = $derived(`--anchor-${id}`)
 
-  // Prefer this over button.click() or relying on nested-input popovertarget:
-  // WebKit ignores popovertarget when the click lands on a nested <input>, and
-  // a synthetic button.click() double-toggles (open then close) in Chrome 157+.
+  // Prefer this over button.click() or nested-input popovertarget:
+  // WebKit ignores popovertarget on nested <input>; button.click() double-toggles in Chrome 157+.
   function open () {
-    if (menu && !menu.matches(':popover-open')) menu.showPopover()
+    menu?.showPopover()
   }
 
   function close () {
