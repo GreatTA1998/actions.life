@@ -1,4 +1,4 @@
-<a aria-label="GitHub"
+<a 
   href="https://github.com/GreatTA1998/intentions.life"
   target="_blank"
   rel="noreferrer"

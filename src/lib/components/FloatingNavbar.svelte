@@ -27,9 +27,9 @@
 
   <button onclick={onCalClick} class={['logo', { active: $activeView === 'CALENDAR' }]}>
     {#if $user.unread || true}
-      <img src="/leaf-2-no-bg.avif" class="size-[40px]" alt="" />
+      <img src="/leaf-2-no-bg.avif" class="size-[40px]" />
     {:else}
-      <img src="/logo-no-bg.png" class="size-[28px]" alt="" />
+      <img src="/logo-no-bg.png" class="size-[28px]" />
     {/if}
   </button>
 
