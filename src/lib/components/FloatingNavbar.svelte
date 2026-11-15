@@ -2,8 +2,8 @@
   import { activeView, user } from '$lib/store'
   import { jumpToToday } from '/src/routes/[user]/components/Calendar/autoScrolling.js'
   import MsSettingsOutline from 'virtual:icons/material-symbols/settings-outline'
-  import MsSettings from 'virtual:icons/material-symbols/settings'
-  import MsSettingsRounded from 'virtual:icons/material-symbols/settings-rounded'
+  import MsTune from 'virtual:icons/material-symbols/tune'
+  import MsDisplaySettingsOutline from 'virtual:icons/material-symbols/display-settings-outline'
   import MsPhotoCameraBackOutline from 'virtual:icons/material-symbols/photo-camera-back-outline'
   import MsRepeat from 'virtual:icons/material-symbols/repeat'
   import MsScheduleOutline from 'virtual:icons/material-symbols/schedule-outline'
@@ -25,17 +25,17 @@
 <div class="floating-navbar {position}">
   <button onclick={() => to('SETTINGS')} class={['choice', { active: $activeView === 'SETTINGS' }]}>
     <MsSettingsOutline style="font-size: {iconSize}"/>
-    <span>Outline</span>
+    <span>Gear</span>
   </button>
 
   <button onclick={() => to('SETTINGS')} class={['choice', { active: $activeView === 'SETTINGS' }]}>
-    <MsSettings style="font-size: {iconSize}"/>
-    <span>Filled</span>
+    <MsTune style="font-size: {iconSize}"/>
+    <span>Tune</span>
   </button>
 
   <button onclick={() => to('SETTINGS')} class={['choice', { active: $activeView === 'SETTINGS' }]}>
-    <MsSettingsRounded style="font-size: {iconSize}"/>
-    <span>Rounded</span>
+    <MsDisplaySettingsOutline style="font-size: {iconSize}"/>
+    <span>Screen</span>
   </button>
 
   <button onclick={onCalClick} class={['logo', { active: $activeView === 'CALENDAR' }]}>
