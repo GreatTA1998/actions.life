@@ -6,9 +6,11 @@
   import { page } from '$app/state'
   import { onAuthStateChanged } from 'firebase/auth'
   import { onMount } from 'svelte'
+  import { get } from 'svelte/store'
   import { translateJSConstantsToCSSVariables } from '$lib/utils/constants.js'
   import { fade } from 'svelte/transition'
   import LoadingLogo from '$lib/components/LoadingLogo.svelte'
+  import { warmShellUrls } from '$lib/pwa/warmShell.js'
   import '@fontsource-variable/inter'
   import 'virtual:uno.css'
   import 'normalize.css/normalize.css'
@@ -22,6 +24,8 @@
   $effect(() => {
     if ($authChecked && $loggedIn && $user.email && $initialDataReady) {
       loading.set(false)
+      // Keep the signed-in calendar route warm for offline reloads
+      warmShellUrls(['/', `/${$user.uid}`, page.url.pathname])
     }
   })
 
@@ -30,11 +34,28 @@
 
     translateJSConstantsToCSSVariables()
 
-    onAuthStateChanged($firebaseAuth, onResult, onError)
+    // Always warm the marketing shell; user routes warm after data is ready
+    warmShellUrls(['/', page.url.pathname])
+
+    // Safety net: never leave the logo spinner forever if auth/network stalls offline.
+    // Cached Firestore + auth usually resolve much faster; this only clears a stuck overlay.
+    const loadingWatchdog = setTimeout(() => {
+      if (!get(loading)) return
+      if (!navigator.onLine && (get(authChecked) || get(initialDataReady) || get(user)?.uid)) {
+        loading.set(false)
+      }
+    }, 2500)
+
+    const unsubAuth = onAuthStateChanged($firebaseAuth, onResult, onError)
+
+    return () => {
+      clearTimeout(loadingWatchdog)
+      unsubAuth()
+    }
   })
 
   async function onResult (resultUser) {
-    authChecked.set(true) // from cookie, takes around 300 - 500ms
+    authChecked.set(true) // from IndexedDB / cookie, typically ~50–500ms with persistence
     authUser.set($firebaseAuth.currentUser)
 
     if (page.url.pathname.startsWith('/auth/callback')) {
@@ -59,16 +80,24 @@
       goto('/', { noScroll: true }) // otherwise new visitor gets scroll reset to top when anonymousLogin resolves
       loading.set(false)
       loggedIn.set(true)
+      warmShellUrls(['/'])
     }
     
     else if (resultUser.email) {
       goto('/' + $authUser.uid)
       loggedIn.set(true)
+      warmShellUrls(['/', `/${$authUser.uid}`])
       // <UserAppInstance/> above will later set `initialDataReady = true`
     }
   }
 
   async function onError (error) {
+    // Auth persistence can still succeed offline; only surface unexpected failures.
+    authChecked.set(true)
+    if (!navigator.onLine) {
+      loading.set(false)
+      return
+    }
     reportError({
       subject: 'onAuthStateChanged () failed',
       content: `code: ${error.code ?? ''}\nmessage: ${error.message}\nstack: ${error.stack ?? ''}`

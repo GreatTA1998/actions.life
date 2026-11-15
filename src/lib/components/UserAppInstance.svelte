@@ -28,8 +28,16 @@
   onMount(() => 
     onSnapshot(
       doc(db, '/users/' + uid), 
-      snap => user.set({ ...snap.data() }),
+      snap => {
+        // Persistent cache may deliver an empty snap before the first network fill;
+        // ignore empties so we don't wipe hydrated UI mid-boot.
+        if (!snap.exists()) return
+        user.set({ id: snap.id, ...snap.data() })
+      },
       error => {
+        // Offline with a warm IndexedDB cache still serves via the success path.
+        // Unavailable / failed-precondition without cache should not freeze the shell.
+        if (!navigator.onLine) return
         reportError({
           subject: 'onSnapshot () for /users/uid failed',
           content: `code: ${error.code ?? ''}\nmessage: ${error.message}\nstack: ${error.stack ?? ''}`
