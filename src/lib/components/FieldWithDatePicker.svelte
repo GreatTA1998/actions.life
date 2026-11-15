@@ -11,8 +11,8 @@
 </script>
 
 <PopoverMenu>
-  {#snippet activator({ id, anchorName })}
-    <button popovertarget={id} style:anchor-name={anchorName}>
+  {#snippet activator({ anchorName, open })}
+    <button onclick={open} style:anchor-name={anchorName}>
       <input
         readonly 
         value={startDateISO}
