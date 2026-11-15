@@ -60,9 +60,9 @@
 </script>
 
 <PopoverMenu>
-  {#snippet activator({ id, anchorName, close })}
+  {#snippet activator({ anchorName, close, open })}
     <button
-      popovertarget={id}
+      onclick={open}
       style:anchor-name={anchorName}
       style:padding="0px {paddingVal}"
       style:font-size={noZoomFS}
